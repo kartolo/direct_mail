@@ -1276,7 +1276,7 @@ class mod_web_dmail	{
 				}
 				$configArray["spacer4"] = array("comment","","(You can use categories from 0-30 inclusive. However this interface shows only 10 categories for your convenience.)");
 
-				$theOutput.= $GLOBALS["SOBE"]->doc->section("Configure direct mail module",t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,"pageTS"),0,1);
+				$theOutput.= "ADSF".$GLOBALS["SOBE"]->doc->section("Configure direct mail module",t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,"pageTS"),0,1);
 			break;
 			case "help":
 //				if ($GLOBALS["BE_USER"]->uc["helpText"])	{

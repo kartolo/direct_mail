@@ -38,7 +38,7 @@ mod.web_modules.dmail {
   replyto_email
   replyto_name
   organisation
-  sendOptions (isset)
+ sendOptions (isset)
   HTMLParams (isset) If 
   plainParams (isset)
   userTable		(name of user defined table for mailing. Fields used from this table includes $this->fieldList)
@@ -130,12 +130,14 @@ class mod_web_dmail extends t3lib_SCbase {
 		$this->include_once[]=PATH_t3lib."class.t3lib_querygenerator.php";
 		//$this->include_once[]=t3lib_extMgm::extPath("direct_mail")."mod/class.mod_web_dmail.php";
 		$this->include_once[]=t3lib_extMgm::extPath("direct_mail")."mod/class.mailselect.php";
-		
+		parent::init();
 
 		$this->perms_clause = " 1=1 "; //This need to be checked.
 		
 		$this->modList = t3lib_BEfunc::getListOfBackendModules(array("dmail"),$this->perms_clause,$BACK_PATH);
-		
+		$modTSconfig = t3lib_BEfunc::getPagesTSconfig($this->id);
+		//print t3lib_div::view_array($modTSconfig);
+		$this->params=$modTSconfig["mod."]["web_modules."]["dmail."];
 		$this->implodedParams = t3lib_BEfunc::implodeTSParams($this->params);
 		if ($this->params["userTable"] && is_array($GLOBALS["TCA"][$this->params["userTable"]]))	{
 			$this->userTable = $this->params["userTable"];
@@ -143,9 +145,8 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 
 		t3lib_div::loadTCA("sys_dmail");
-
+		$this->updatePageTS();
 		
-		parent::init();
 
 		/*
 		if (t3lib_div::_GP("clear_all_cache"))	{
@@ -181,35 +182,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		parent::menuConfig();
 	}
 
-	function mod_web_dmail_OLD ($id,$pageinfo,$perms_clause,$CMD,$sys_dmail_uid,$pages_uid,$modTSconfig)	{
-		$this->id = $id;
-		$this->pageinfo = $pageinfo;
-		$this->perms_clause = $perms_clause;
-		$this->CMD=$CMD;
-		$this->sys_dmail_uid=$sys_dmail_uid;
 
-		$this->pages_uid=$pages_uid;
-		$this->modList = t3lib_BEfunc::getListOfBackendModules(array("dmail"),$this->perms_clause,$GLOBALS["BACK_PATH"]);
-		$this->params=$modTSconfig["properties"];
-		$this->implodedParams = t3lib_BEfunc::implodeTSParams($this->params);
-		if ($this->params["userTable"] && is_array($GLOBALS["TCA"][$this->params["userTable"]]))	{
-			$this->userTable = $this->params["userTable"];
-			t3lib_div::loadTCA($this->userTable);
-		}
-
-		t3lib_div::loadTCA("sys_dmail");
-
-
-			// Local lang for dmail module:
-		include (t3lib_extMgm::extPath("direct_mail")."mod/locallang.php");
-		//$GLOBALS["LOCAL_LANG"] = t3lib_div::array_merge_recursive_overrule($GLOBALS["LOCAL_LANG"],$LOCAL_LANG_DMAIL);
-		
-
-		
-//		debug($this->implodedParams);
-//		$this->params=t3lib_BEfunc::processParams($this->pageinfo["abstract"]);
-//		debug($this->params);
-	}
 	function createDMail()	{
 		global $TCA;
 		if ($createMailFrom = t3lib_div::_GP("createMailFrom"))	{
@@ -1451,7 +1424,6 @@ class mod_web_dmail extends t3lib_SCbase {
 					$configArray["categories.".$a] = array("short", "Category ".$a, "");
 				}
 				$configArray["spacer4"] = array("comment","","(You can use categories from 0-30 inclusive. However this interface shows only 10 categories for your convenience.)");
-
 				$theOutput.= $this->doc->section("Configure direct mail module",t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,"pageTS"),0,1);
 			break;
 			case "help":
@@ -1517,6 +1489,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$pageTS = t3lib_div::_GP("pageTS");
 		if (is_array($pageTS))	{
 			t3lib_BEfunc::updatePagesTSconfig($this->id,$pageTS,$this->TSconfPrefix);
+			
 //			debug(t3lib_div::getIndpEnv("REQUEST_URI"));
 			header("Location: ".t3lib_div::locationHeaderUrl(t3lib_div::getIndpEnv("REQUEST_URI")));
 		}
