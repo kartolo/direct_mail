@@ -1,0 +1,72 @@
+#! /usr/bin/php -q
+<?php
+
+$dir = dirname($HTTP_ENV_VARS["_"]);
+define("PATH_typo3", dirname(dirname(dirname($dir)))."/");
+define("PATH_site", dirname(PATH_typo3)."/");
+define("PATH_t3lib", PATH_typo3."t3lib/");
+define("PATH_typo3conf", PATH_site."typo3conf/");	// Typo-configuraton path
+define('TYPO3_MODE','BE');
+
+if (substr($dir,strlen(PATH_site))!="typo3/ext/direct_mail/mod")	{
+	die("Wrong path... This '".substr($dir,strlen(PATH_site))."' should be the last part of '".$dir."'");
+}
+require(PATH_t3lib."class.t3lib_div.php");
+require(PATH_t3lib."class.t3lib_extmgm.php");
+
+require(PATH_t3lib."config_default.php");		
+if (!defined ("TYPO3_db")) 	die ("The configuration file was not included.");
+
+require(PATH_t3lib.'class.t3lib_db.php');		// The database library
+$TYPO3_DB = t3lib_div::makeInstance('t3lib_DB');
+
+require_once (PATH_t3lib."class.t3lib_readmail.php");
+
+// Connect to the database
+$result = $GLOBALS['TYPO3_DB']->sql_pconnect(TYPO3_db_host, TYPO3_db_username, TYPO3_db_password); 
+if (!$result)	{
+	die("Couldn't connect to database at ".TYPO3_db_host);
+}
+
+
+
+
+// MAIL CONTENT
+$filename = "php://stdin";
+
+$content = t3lib_div::getUrl($filename);
+if (trim($content))	{
+	$readMail = t3lib_div::makeInstance("t3lib_readmail");
+	
+		// Split mail into head and content
+	$mailParts = $readMail->extractMailHeader($content);
+		// Find id
+	$midArr = $readMail->find_XTypo3MID($content);
+	if (!is_array($midArr))	{
+		$midArr = $readMail->find_MIDfromReturnPath($mailParts["to"]);
+	}
+
+		// Extract text content
+	$c=trim($readMail->getMessage($mailParts));
+	$cp=$readMail->analyseReturnError($c);
+
+	$temp_res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'sys_dmail_maillog', 'rid='.intval($midArr['rid']).' AND rtbl="'.$GLOBALS['TYPO3_DB']->quoteStr($midArr['rtbl'], 'sys_dmail_maillog').'" AND mid='.intval($midArr['mid']).' AND response_type=0');
+	if (!$GLOBALS['TYPO3_DB']->sql_num_rows($temp_res))		{
+		$midArr = array();
+		$cp = $mailParts;
+	}
+	
+	$insertFields = array(
+		'tstamp' => time(),
+		'response_type' => -127,
+		'mid' => $midArr['mid'],
+		'rid' => $midArr['rid'],
+		'rtbl' => $midArr['rtbl'],
+		'return_content' => serialize($cp),
+		'return_code' => intval($cp['reason'])
+	);
+	
+	$GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+}
+
+?>

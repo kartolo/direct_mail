@@ -1,0 +1,46 @@
+************
+STATUS
+************
+The direct mailer module has some powerful potentials. It is working well for some people who has figure out how to set it up. However I consider it only 2/3 done - the last 1/3 will be to make it userfriendly as well - all the functionality is there (except maybe a few things)
+It has not been developed on for a long time and currently there are no projects which may trigger the final development. Sponsorships would be welcome but many other sponsorships would also be more important.
+
+
+*************
+TODO (some in danish, sorry)
+**************
+
+Mailer:
+- Special Query-selecting
+- Stat: Grafer og skemaer
+- Interface: direkte links fra mailer engine status til: Mail statestik, stop udsending, re-schedule / edit-links oa. skal kun vises, hvis brugeren har edit-adgang i interfacet! / flow-chart / gennemgå interface med vision-team
+- håndtering af user-table og phone/telephone field samt under csv-import en bedre tilbage melding om de registrerede felter (evt. vise fuld liste af data inden submit!)
+- sprog og navigation færdigt!
+
+- ved 400.000+ records i maillog'gen er den måske meget langsom til at sende mails, fordi den skal slå sendte mails op uden et godt index...
+- BUG: Sikring for at mails ikke på nogen måde kan sendes to gange i træk! (sikring mod dobbelt-invokation af mailer engine; Hvis én sende-sessions overlapper en anden sende-session, så sendes der dobbelt-mails ud!!!)
+- BUG: bug in LEFT JOIN in dmail-module.
+
+
+Also see:
+- [Kasper] "EXT:direct_mail" folder in Mailbox 
+
+****************
+Notes:
+***************
+_____________________________________
+Forskellen på fe_users og tt_address:
+
+*| name        | tinytext            |      |     | NULL    |                |
+*| title       | varchar(40)         |      |     |         |                |
+*| email       | varchar(80)         |      |     |         |                |
+*| phone       | varchar(30)         |      |     |         |                |
+*| www         | varchar(80)         |      |     |         |                |
+*| address     | tinytext            |      |     | NULL    |                |
+*| company     | varchar(80)         |      |     |         |                |
+*| city        | varchar(80)         |      |     |         |                |
+*| zip         | varchar(20)         |      |     |         |                |
+*| country     | varchar(30)         |      |     |         |                |
+*| fax         | varchar(30)         |      |     |         |                |
+
+phone / telephone  field er det eneste med forskellig label
+
