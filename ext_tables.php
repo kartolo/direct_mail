@@ -394,5 +394,9 @@ $TCA['sys_dmail_group'] = Array (
 
 t3lib_extMgm::addLLrefForTCAdescr('sys_dmail','EXT:direct_mail/locallang_csh_sysdmail.php');
 t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_group','EXT:direct_mail/locallang_csh_sysdmailg.php');
-
+//$MCONF["name"]="web_direct_mailM1";
+//t3lib_extMgm::addModule("web","direct_mailM1","",t3lib_extMgm::extPath($_EXTKEY)."mod/");
+if (TYPO3_MODE=="BE")   {
+  t3lib_extMgm::addModule("web","txdirectmailM1","",t3lib_extMgm::extPath('direct_mail')."mod/");
+}
 ?>
