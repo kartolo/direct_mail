@@ -2,6 +2,9 @@
 
 $LOCAL_LANG = Array (
 	'default' => Array (
+      'module_sys_dmail_group.category' => 'Subscribe to categories',
+		'sys_dmail_category' => 'Category',
+		'sys_dmail_category.category' => 'Category',
 		'sys_dmail' => 'Direct mails',
 		'sys_dmail.subject' => 'Subject:',
 		'sys_dmail.page' => 'Mail page:',

@@ -11,7 +11,7 @@ $LOCAL_LANG = Array (
 			    "function_conf" => "Module configuration",
 			    "function_mailer" => "Mailer engine status",
 			    "function_help" => "Instruction",
-			  
+				 "function_stats" => "Statistics",
 			// DIRECT MAIL MODULE:
 		"dmail_noCreateAccess" => "You cannot mail pages that are hidden or access-restricted.",
 		"dmail_noRegular" => "This pagetype cannot be sent as an email. Please select a regular page.",
