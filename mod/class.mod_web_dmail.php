@@ -569,6 +569,7 @@ class mod_web_dmail	{
 						$fields,
 						$table.',sys_dmail_group,sys_dmail_group_mm', 
 						'sys_dmail_group_mm.uid_local=sys_dmail_group.uid AND
+						sys_dmail_group.uid = '.$uid.' AND
 								sys_dmail_group_mm.uid_foreign='.$table.'.uid AND sys_dmail_group_mm.tablenames="'.$table.'"'.
 								t3lib_pageSelect::enableFields($table).	// Enable fields includes 'deleted'
 								t3lib_pageSelect::enableFields("sys_dmail_group")
