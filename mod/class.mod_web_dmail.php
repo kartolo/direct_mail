@@ -139,12 +139,14 @@ class mod_web_dmail	{
 				"long_link_rdct_url" => $this->params["long_link_rdct_url"],
 				"long_link_mode" => $this->params["long_link_mode"],
 				"organisation" => $this->params["organisation"]
+				
 			);
 			$dmail["sys_dmail"]["NEW"]["sendOptions"] = $TCA["sys_dmail"]["columns"]["sendOptions"]["config"]["default"];
 				// If params set, set default values:
 			if (isset($this->params["sendOptions"]))	$dmail["sys_dmail"]["NEW"]["sendOptions"] = $this->params["sendOptions"];
 			if (isset($this->params["HTMLParams"]))		$dmail["sys_dmail"]["NEW"]["HTMLParams"] = $this->params["HTMLParams"];
 			if (isset($this->params["plainParams"]))	$dmail["sys_dmail"]["NEW"]["plainParams"] = $this->params["plainParams"];
+			if (isset($this->params["direct_mail_encoding"]))	$dmail["sys_dmail"]["NEW"]["encoding"] = $this->params["direct_mail_encoding"];
 	
 				// If createMailFrom is an integer, it's an internal page. If not, it's an external url 
 			if (t3lib_div::testInt($createMailFrom))	{
@@ -471,7 +473,7 @@ class mod_web_dmail	{
 				// Required is it that every value is either 1) found in the list, fieldsList in this class (see top) 2) the value is empty (value omitted then) or 3) the field starts with "user_".
 				// In addition fields may be prepended with "[code]". This is used if the incoming value is true in which case '+[value]' adds that number to the field value (accummulation) and '=[value]' overrides any existing value in the field
 			$first = $lines[0];
-			$fieldListArr = explode(",",$this->fieldList);
+			$fieldListArr = explode(",",$this->fieldList);			
 //			debug($fieldListArr);
 			reset($first);
 			$fieldName=1;
@@ -480,9 +482,8 @@ class mod_web_dmail	{
 				list($fName,$fConf) = split("\[|\]",$v);
 				$fName =trim($fName);
 				$fConf =trim($fConf);
-				
 				$fieldOrder[]=array($fName,$fConf);
-				if ($fName && substr($fName,0,5)!="user_" && !in_array($fName,$fieldListArr))	{$fieldName=0; break;}
+				if ($fName && substr($fName,0,5)!="user_" && !in_array($fName,$fieldListArr))	{$fieldName=0; break;}			
 			}
 				// If not field list, then:
 			if (!$fieldName)	{
@@ -500,9 +501,11 @@ class mod_web_dmail	{
 			while(list(,$data)=each($lines))	{
 				if (count($data)>1 || $data[0])	{	// Must be a line with content. This sorts out entries with one key which is empty. Those are empty lines.
 //					debug($data);
+				 
 						// Traverse fieldOrder and map values over
 					reset($fieldOrder);
 					while(list($kk,$fN)=each($fieldOrder))	{
+					  //print "Checking $kk::".t3lib_div::view_array($fN)."<br />";
 						if ($fN[0])	{
 							if ($fN[1])	{
 								if (trim($data[$kk]))	{	// If is true
@@ -568,7 +571,7 @@ class mod_web_dmail	{
 		$query = $GLOBALS['TYPO3_DB']->SELECTquery(
 						$fields,
 						$table.',sys_dmail_group,sys_dmail_group_mm', 
-						'sys_dmail_group_mm.uid_local=sys_dmail_group.uid AND
+						'sys_dmail_group.uid = '.$uid.' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid AND
 								sys_dmail_group_mm.uid_foreign='.$table.'.uid AND sys_dmail_group_mm.tablenames="'.$table.'"'.
 								t3lib_pageSelect::enableFields($table).	// Enable fields includes 'deleted'
 								t3lib_pageSelect::enableFields("sys_dmail_group")
@@ -1258,6 +1261,7 @@ class mod_web_dmail	{
 					"long_link_rdct_url" => array("string", "Long link RDCT url", "If you enter a http://../ url here it should point to the index.php script of typo3 without any query-string. Then the parameter ?RDCT=[md5hash] will be appended and the whole url used as substitute for long urls in plain text mails. This configuration determines how QuickMails are handled and further sets the default setting for DirectMails."),
 					"long_link_mode" => array("check", "Not only links longer than 76 chars but ALL links", "Option for the RDCT-url feature above."),
 					"quick_mail_encoding" => array("select", "Encoding for quick mails", "Select the encoding you want to sending of quick-mails.", array(0=>"","base64"=>"base64","quoted-printable"=>"quoted-printable","8bit"=>"8bit")),
+					"direct_mail_encoding" => array("select", "Encoding for direct mails", "Select the encoding you want to sending of direct-mails.", array(0=>"","base64"=>"Base64 (default)","quoted-printable"=>"Quoted-printable")),
 					"spacer2" => "Configure technical options",
 					"enablePlain" => array("check", "Allow Plain Text emails", "Set this if you want to allow plain text emails to be fetched. If in doubt, check this option."),
 					"enableHTML" => array("check", "Allow HTML emails", "Set this if you want to allow HTML emails to be fetched. If in doubt, check this option."),
@@ -2153,7 +2157,7 @@ class mod_web_dmail	{
 		$Eparams="&edit[sys_dmail][".$row["uid"]."]=edit";
 		$out.='<tr><td colspan=3 class="bgColor5" valign=top>'.fw($this->fName("subject")." <b>".t3lib_div::fixed_lgd($row["subject"],30)."&nbsp;&nbsp;</b>").'</td></tr>';
 		
-		$nameArr = explode(",","subject,from_name,from_email,replyto_name,replyto_email,organisation,attachment,priority,sendOptions,type,page,plainParams,HTMLParams,issent,renderedsize");
+		$nameArr = explode(",","subject,from_name,from_email,replyto_name,replyto_email,organisation,attachment,priority,sendOptions,type,page,plainParams,HTMLParams,encoding,issent,renderedsize");
 		while(list(,$name)=each($nameArr))	{
 			$out.='<tr><td class="bgColor4">'.fw($this->fName($name)).'</td><td class="bgColor4">'.fw(htmlspecialchars(t3lib_BEfunc::getProcessedValue("sys_dmail",$name,$row[$name]))).'</td></tr>';
 		}

@@ -120,6 +120,17 @@ $TCA['sys_dmail'] = Array (
 				'max' => '80'
 			)
 		),
+		'encoding' => Array (
+				     'label' => 'Transfer encoding',
+				     'config' => Array(
+						       'type' => 'select',
+						       'items' => Array(
+									Array("Base64",'base64'),
+									Array("Quoted printable",'quoted-printable')
+									),						       
+						       'default' => 'base64'
+						       )
+				     ),
 		'priority' => Array (
 			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.priority',
 			'config' => Array (
@@ -219,11 +230,11 @@ $TCA['sys_dmail'] = Array (
 		)
 	),
 	'types' => Array (	
-		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, sendOptions, issent, renderedsize, long_link_rdct_url, long_link_mode'),
+		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, sendOptions, issent, renderedsize, long_link_rdct_url, long_link_mode'),
 		'1' => Array('showitem' => 'type;;;;1-1-1, 
 			plainParams;LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.plainParams.ALT.1,
 			HTMLParams;LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.HTMLParams.ALT.1,
-			--div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, sendOptions, issent, renderedsize, long_link_rdct_url, long_link_mode')
+			--div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, encoding, sendOptions, issent, renderedsize, long_link_rdct_url, long_link_mode')
 	)
 );
 
