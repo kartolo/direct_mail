@@ -1455,7 +1455,7 @@ class mod_web_dmail	{
 			
 		$msg="";
 		$msg.= 'A simple testmail includes all mail elements regardless of category. But any USER_fields are not substituted with data.<BR>Enter an email-address for the testmail:<BR><BR>';
-		$msg.= '<input'.$GLOBALS["TBE_TEMPLATE"]->formWidth().' type="Text" name="SET[test_email]" value="'.$GLOBALS["SOBE"]->MOD_SETTINGS["dmail_test_email"].'"><BR><BR>';
+		$msg.= '<input'.$GLOBALS["TBE_TEMPLATE"]->formWidth().' type="Text" name="SET[dmail_test_email]" value="'.$GLOBALS["SOBE"]->MOD_SETTINGS["dmail_test_email"].'"><BR><BR>';
 		$msg.= '<input type="hidden" name="id" value="'.$this->id.'">';
 		$msg.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
 		$msg.= '<input type="hidden" name="CMD" value="send_mail_test">';
@@ -1666,7 +1666,8 @@ class mod_web_dmail	{
 		$sentFlag=false;
 		if (t3lib_div::_GP("mailingMode_simple"))	{
 				// Fixing addresses:
-			$addresses = split(chr(10)."|,|;",t3lib_div::_GP("email"));
+		  $addressList = t3lib_div::_GP('email') ? t3lib_div::_GP('email') : $GLOBALS["SOBE"]->MOD_SETTINGS["dmail_test_email"]; 
+			$addresses = split(chr(10)."|,|;",$addressList);
 			while(list($key,$val)=each($addresses))	{
 				$addresses[$key]=trim($val);
 				if (!strstr($addresses[$key],"@"))	{
