@@ -357,7 +357,7 @@ class mod_web_dmail	{
 		
 		
 		$out="";
-		$out.='<a href="'.t3lib_BEfunc::viewOnClick($this->pages_uid,$GLOBALS["BACK_PATH"]).'"><img src="'.$GLOBALS["BACK_PATH"].'gfx/zoom.gif" width="12" height="12" hspace=3 vspace=2 border="0" align=top>'.$LANG->getLL("nl_viewPage").'</a><BR>';
+		$out.='<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($this->pages_uid,$GLOBALS["BACK_PATH"]).'"><img src="'.$GLOBALS["BACK_PATH"].'gfx/zoom.gif" width="12" height="12" hspace=3 vspace=2 border="0" align=top>'.$LANG->getLL("nl_viewPage").'</a><BR>';
 		$out.='<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->pages_uid.']=edit&edit_content=1',$GLOBALS["BACK_PATH"],"").'"><img src="'.$GLOBALS["BACK_PATH"].'gfx/edit2.gif" width="11" height="12" hspace=3 vspace=2 border="0" align=top>'.$LANG->getLL("nl_editPage").'</a><BR>';
 		$out.='<a href="index.php?id='.$this->id.'&createMailFrom='.$this->pages_uid.'&SET[dmail_mode]=direct"'.$onClick.'><img src="'.$GLOBALS["BACK_PATH"].'/gfx/newmail.gif" width="18" height="16" border="0" align=top>'.$LANG->getLL("nl_createDmailFromPage").'</a><BR>';				
 	
