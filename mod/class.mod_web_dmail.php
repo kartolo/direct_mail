@@ -78,6 +78,7 @@ Import of 3541 records raw on PIII/500Mzh took 80 approx seconds
 class mod_web_dmail	{
 	var $TSconfPrefix = "mod.web_modules.dmail.";
 	var $fieldList="uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html,description";	// Taken from class.t3lib_dmailer.php (,firstname is automatically set), added description 050301
+	//Where does descriptin come from?
 		// Internal
 	var $modList="";
 	var $params=array();
@@ -253,7 +254,7 @@ class mod_web_dmail	{
 			}
 		} else {
 				// Here the single dmail record is shown.
-			$this->urlbase = substr(t3lib_div::getIndpEnv("TYPO3_REQUEST_DIR"),0,-(strlen(TYPO3_MOD_PATH)+strlen(TYPO3_mainDir)));
+			$this->urlbase = substr(t3lib_div::getIndpEnv("TYPO3_REQUEST_DIR"),0,-(strlen(TYPO3_MOD_PATH)+strlen(TYPO3_mainDir))).'index.php';
 			$this->sys_dmail_uid = intval($this->sys_dmail_uid);
 			
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'sys_dmail', 'pid='.intval($this->id).' AND uid='.intval($this->sys_dmail_uid).t3lib_BEfunc::deleteClause('sys_dmail'));
@@ -899,9 +900,14 @@ class mod_web_dmail	{
 		*/
 	}
 	function fetchRecordsListValues($listArr,$table,$fields="uid,name,email")	{
-		$count = 0;
+	  $count = 0;
+
 		$outListArr = array();
 		if (is_array($listArr) && count($listArr))	{
+		  if($table == "fe_users") {
+		    //In fe_users, the phone field is called telephone and the description field does not exist.
+		    $fields=str_replace(array('phone',',description'),array('telephone',''),$fields);
+		  }
 			$idlist = implode(",",$listArr);
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($fields, $table, 'uid IN ('.$idlist.')'.t3lib_befunc::deleteClause($table));
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
@@ -998,10 +1004,9 @@ class mod_web_dmail	{
 		
 		unset($row);
 		$table=t3lib_div::_GP("table");
-
 		switch($table)	{
 			case "tt_address":
-			case "fe_users":
+			case "fe_users":			  
 				if (is_array($HTTP_POST_VARS["indata"]))	{
 					$data=array();
 					if (is_array($HTTP_POST_VARS["indata"]["categories"]))	{
@@ -1022,7 +1027,7 @@ class mod_web_dmail	{
 					$tce->stripslashes_values=0;
 					$tce->start($data,Array());
 					$tce->process_datamap();
-//								debug($data);
+					//								debug($data);
 				}
 			break;
 		}
@@ -1033,7 +1038,9 @@ class mod_web_dmail	{
 				$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 			break;
 			case "fe_users":
-			
+			  $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('fe_users.*', 'fe_users,pages', 'pages.uid=fe_users.pid AND fe_users.uid='.intval($uid).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('fe_users').t3lib_BEfunc::deleteClause('pages'));
+			  //			  debug($GLOBALS['TYPO3_DB']->SELECTquery('fe_users.*', 'fe_users,pages', 'pages.uid=fe_users.pid AND fe_users.uid='.intval($uid).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('fe_users').t3lib_BEfunc::deleteClause('pages')));
+			  $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 			break;
 		}
 		if (is_array($row))	{
@@ -1041,8 +1048,7 @@ class mod_web_dmail	{
 			$out="";
 			$out.='<img src="'.$GLOBALS["BACK_PATH"].t3lib_iconWorks::getIcon($table,$row).'" width=18 height=16 border=0 title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row["pid"],$this->perms_clause,40)).'" align=top>'.$row["name"].htmlspecialchars(" <".$row["email"].">");
 			$out.='&nbsp;&nbsp;<A HREF="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$GLOBALS["BACK_PATH"],"").'"><img src="'.$GLOBALS["BACK_PATH"].'gfx/edit2.gif" width=11 height=12 hspace=2 border=0 title="Edit" align="top">'.fw("<B>EDIT</B>").'</a>';
-			$theOutput.= $GLOBALS["SOBE"]->doc->section("Subscriber info",$out);
-
+			$theOutput.= $GLOBALS["SOBE"]->doc->section("Subscriber info",$out);			
 
 
 			$out="";
@@ -1259,6 +1265,7 @@ class mod_web_dmail	{
 					"long_link_rdct_url" => array("string", "Long link RDCT url", "If you enter a http://../ url here it should point to the index.php script of typo3 without any query-string. Then the parameter ?RDCT=[md5hash] will be appended and the whole url used as substitute for long urls in plain text mails. This configuration determines how QuickMails are handled and further sets the default setting for DirectMails."),
 					"long_link_mode" => array("check", "Not only links longer than 76 chars but ALL links", "Option for the RDCT-url feature above."),
 					"quick_mail_encoding" => array("select", "Encoding for quick mails", "Select the encoding you want to sending of quick-mails.", array(0=>"","base64"=>"base64","quoted-printable"=>"quoted-printable","8bit"=>"8bit")),
+					'direct_mail_encoding' => array('select', 'Encoding for direct mails', "Select the encoding you want to sending of direct-mails.", array(0=>'','base64'=>'Base64 (default)','quoted-printable'=>'Quoted-printable')),
 					"spacer2" => "Configure technical options",
 					"enablePlain" => array("check", "Allow Plain Text emails", "Set this if you want to allow plain text emails to be fetched. If in doubt, check this option."),
 					"enableHTML" => array("check", "Allow HTML emails", "Set this if you want to allow HTML emails to be fetched. If in doubt, check this option."),
@@ -1669,6 +1676,7 @@ class mod_web_dmail	{
 				// Fixing addresses:
 		  $addressList = t3lib_div::_GP('email') ? t3lib_div::_GP('email') : $GLOBALS["SOBE"]->MOD_SETTINGS["dmail_test_email"]; 
 			$addresses = split(chr(10)."|,|;",$addressList);
+
 			while(list($key,$val)=each($addresses))	{
 				$addresses[$key]=trim($val);
 				if (!strstr($addresses[$key],"@"))	{
@@ -1713,7 +1721,7 @@ class mod_web_dmail	{
 						$this->noView=1;
 					}
 				}
-			} else {
+			 } else {
 
 
 				$mailgroup_uid = t3lib_div::_GP("mailgroup_uid");
@@ -2154,7 +2162,7 @@ class mod_web_dmail	{
 		$Eparams="&edit[sys_dmail][".$row["uid"]."]=edit";
 		$out.='<tr><td colspan=3 class="bgColor5" valign=top>'.fw($this->fName("subject")." <b>".t3lib_div::fixed_lgd($row["subject"],30)."&nbsp;&nbsp;</b>").'</td></tr>';
 		
-		$nameArr = explode(",","subject,from_name,from_email,replyto_name,replyto_email,organisation,attachment,priority,sendOptions,type,page,plainParams,HTMLParams,issent,renderedsize");
+		$nameArr = explode(",","subject,from_name,from_email,replyto_name,replyto_email,organisation,attachment,priority,sendOptions,type,page,plainParams,HTMLParams,encoding,issent,renderedsize");
 		while(list(,$name)=each($nameArr))	{
 			$out.='<tr><td class="bgColor4">'.fw($this->fName($name)).'</td><td class="bgColor4">'.fw(htmlspecialchars(t3lib_BEfunc::getProcessedValue("sys_dmail",$name,$row[$name]))).'</td></tr>';
 		}

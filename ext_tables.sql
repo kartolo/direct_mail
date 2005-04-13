@@ -55,6 +55,7 @@ CREATE TABLE sys_dmail (
   replyto_name varchar(80) DEFAULT '' NOT NULL,
   organisation varchar(80) DEFAULT '' NOT NULL,
   priority tinyint(4) unsigned DEFAULT '0' NOT NULL,
+  encoding varchar(80)  DEFAULT 'base64' NOT NULL,
   sendOptions tinyint(4) unsigned DEFAULT '0' NOT NULL,
   HTMLParams varchar(80) DEFAULT '' NOT NULL,
   plainParams varchar(80) DEFAULT '' NOT NULL,
