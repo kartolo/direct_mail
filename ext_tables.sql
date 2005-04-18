@@ -42,7 +42,7 @@ CREATE TABLE cache_sys_dmail_stat (
 # Table structure for table 'sys_dmail'
 #
 CREATE TABLE sys_dmail (
-  uid int(11) unsigned DEFAULT '0' NOT NULL auto_increment,
+  uid int(11) unsigned NOT NULL auto_increment,
   pid int(11) unsigned DEFAULT '0' NOT NULL,
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
   type tinyint(4) unsigned DEFAULT '0' NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE sys_dmail (
 # Table structure for table 'sys_dmail_group'
 #
 CREATE TABLE sys_dmail_group (
-  uid int(11) unsigned DEFAULT '0' NOT NULL auto_increment,
+  uid int(11) unsigned NOT NULL auto_increment,
   pid int(11) unsigned DEFAULT '0' NOT NULL,
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
   deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
@@ -112,7 +112,7 @@ CREATE TABLE sys_dmail_group_mm (
 # Table structure for table 'sys_dmail_maillog'
 #
 CREATE TABLE sys_dmail_maillog (
-  uid int(11) unsigned DEFAULT '0' NOT NULL auto_increment,
+  uid int(11) unsigned NOT NULL auto_increment,
   mid int(11) unsigned DEFAULT '0' NOT NULL,
   rid int(11) unsigned DEFAULT '0' NOT NULL,
   rtbl char(1) DEFAULT '' NOT NULL,
