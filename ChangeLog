@@ -1,0 +1,6 @@
+2005-05-18  Thorsten Kahler  <thorsten.kahler@dkd.de>
+
+	* Added a ChangeLog file too keep track of changes
+	* Added CVS Revision Tags
+	* Added PHPDoc Tags "package" and "subpackage"
+
