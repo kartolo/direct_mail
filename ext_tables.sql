@@ -9,7 +9,7 @@
 # Table structure for table 'cache_sys_dmail_stat'
 #
 CREATE TABLE cache_sys_dmail_stat (
-  mid int(11) DEFAULT '0' NOT NULL,
+  `mid` int(11) DEFAULT '0' NOT NULL,
   rid int(11) DEFAULT '0' NOT NULL,
   rtbl char(1) DEFAULT '' NOT NULL,
   pings tinyint(3) unsigned DEFAULT '0' NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE cache_sys_dmail_stat (
   secondlink_time int(11) DEFAULT '0' NOT NULL,
   thirdlink tinyint(4) DEFAULT '0' NOT NULL,
   thirdlink_time int(11) DEFAULT '0' NOT NULL,
-  KEY mid (mid)
+  KEY `mid` (`mid`)
 );
 
 
@@ -120,7 +120,7 @@ CREATE TABLE sys_dmail_group_mm (
 #
 CREATE TABLE sys_dmail_maillog (
   uid int(11) unsigned NOT NULL auto_increment,
-  mid int(11) unsigned DEFAULT '0' NOT NULL,
+  `mid` int(11) unsigned DEFAULT '0' NOT NULL,
   rid int(11) unsigned DEFAULT '0' NOT NULL,
   rtbl char(1) DEFAULT '' NOT NULL,
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
@@ -133,8 +133,8 @@ CREATE TABLE sys_dmail_maillog (
   return_content mediumblob NOT NULL,
   return_code smallint(6) DEFAULT '0' NOT NULL,
   PRIMARY KEY (uid),
-  KEY rid (rid,rtbl,mid,response_type,uid),
-  KEY mid (mid,response_type,rtbl,rid)
+  KEY rid (rid,rtbl,`mid`,response_type,uid),
+  KEY `mid` (`mid`,response_type,rtbl,rid)
 );
 
 
