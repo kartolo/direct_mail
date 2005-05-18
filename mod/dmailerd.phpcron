@@ -1,5 +1,11 @@
 #! /usr/bin/php -q
 <?php
+/**
+ *
+ * @package TYPO3
+ * @subpackage tx_directmail
+ * @version $Id$
+ */
 
 $dir = dirname($HTTP_ENV_VARS["_"]);
 define("PATH_typo3", dirname(dirname(dirname($dir)))."/");

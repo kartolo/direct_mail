@@ -30,6 +30,10 @@
  * Used to generate queries for selecting users in the database
  *
  * @author	Kasper Skårhøj <kasper@typo3.com>
+ *
+ * @package TYPO3
+ * @subpackage tx_directmail
+ * @version $Id$
  */
 
 class mailSelect extends t3lib_queryGenerator	{

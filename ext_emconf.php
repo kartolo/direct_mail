@@ -9,6 +9,13 @@
 # Only the data in the array - anything else is removed by next write
 ########################################################################
 
+/**
+ *
+ * @package TYPO3
+ * @subpackage tx_directmail
+ * @version $Id$
+ */
+
 $EM_CONF[$_EXTKEY] = Array (
 	'title' => 'Web>Plugins, Direct Mail',
 	'description' => 'Advanced Direct Mail/Newsletter mailer system with sofisticated options for personalization of emails including response statistics.',

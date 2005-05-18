@@ -1,7 +1,11 @@
 <?php
 /**
-* Default  TCA_DESCR for "sys_dmail_group"
-*/
+ * Default  TCA_DESCR for "sys_dmail_group"
+ *
+ * @package TYPO3
+ * @subpackage tx_directmail
+ * @version $Id$
+ */
 
 $LOCAL_LANG = Array (
 	'default' => Array (

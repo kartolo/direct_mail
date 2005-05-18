@@ -1,4 +1,11 @@
 <?php
+/**
+ *
+ * @package TYPO3
+ * @subpackage tx_directmail
+ * @version $Id$
+ */
+
 $LOCAL_LANG_DMAIL = Array (
 	"default" => Array (
 			// DIRECT MAIL MODULE:
