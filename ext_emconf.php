@@ -37,7 +37,7 @@ $EM_CONF[$_EXTKEY] = Array (
 	'author_company' => 'Curby Soft Multimedia',
 	'private' => 0,
 	'download_password' => '',
-	'version' => '1.0.8',	// Don't modify this! Managed automatically during upload to repository.
+	'version' => '1.1.0',	// Don't modify this! Managed automatically during upload to repository.
 	'_md5_values_when_last_written' => 'a:11:{s:12:"ext_icon.gif";s:4:"a143";s:14:"ext_tables.php";s:4:"7234";s:14:"ext_tables.sql";s:4:"5778";s:17:"locallang_tca.php";s:4:"9a9b";s:14:"mod/attach.gif";s:4:"5559";s:24:"mod/class.mailselect.php";s:4:"3aca";s:27:"mod/class.mod_web_dmail.php";s:4:"5a1c";s:20:"mod/dmailerd.phpcron";s:4:"ef4c";s:17:"mod/locallang.php";s:4:"38f5";s:12:"mod/mail.gif";s:4:"34a5";s:20:"mod/returnmail.phpsh";s:4:"ef25";}',
 );
 
