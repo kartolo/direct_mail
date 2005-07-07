@@ -1,3 +1,7 @@
+2005-07-7   Jan-Erik Revsbech <jer@moccompany.com>
+	* Fixed problem with not setting encoding Bug #1264
+	* Removed all trailing whitespaces from mod/class.mod_wed_dmail.php
+	
 2005-05-18  Thorsten Kahler  <thorsten.kahler@dkd.de>
 
 	* Added a ChangeLog file too keep track of changes
