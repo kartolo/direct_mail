@@ -1,4 +1,4 @@
-#! /usr/bin/php -q
+#! /usr/local/bin/php -q
 <?php
 /**
  *
@@ -8,15 +8,12 @@
  */
 
 $dir = dirname($HTTP_ENV_VARS["_"]);
-define("PATH_typo3", dirname(dirname(dirname($dir)))."/");
+define("PATH_typo3", dirname(dirname(dirname(dirname($dir))))."/typo3/");
 define("PATH_site", dirname(PATH_typo3)."/");
 define("PATH_t3lib", PATH_typo3."t3lib/");
 define("PATH_typo3conf", PATH_site."typo3conf/");	// Typo-configuraton path
 define('TYPO3_MODE','BE');
 
-if (substr($dir,strlen(PATH_site))!="typo3/ext/direct_mail/mod")	{
-	die("Wrong path... This '".substr($dir,strlen(PATH_site))."' should be the last part of '".$dir."'");
-}
 require_once(PATH_t3lib.'class.t3lib_div.php');
 require_once(PATH_t3lib.'class.t3lib_extmgm.php');
 
@@ -26,13 +23,21 @@ if (!defined ("TYPO3_db")) 	die ("The configuration file was not included.");
 require_once(PATH_t3lib.'class.t3lib_db.php');		// The database library
 $TYPO3_DB = t3lib_div::makeInstance('t3lib_DB');
 
-require_once (PATH_t3lib.'class.t3lib_readmail.php');
+
+$ext_path = t3lib_div::resolveBackPath('typo3/'.t3lib_extMgm::extRelPath('direct_mail'))."mod";
+if (substr($dir,strlen(PATH_site))!=$ext_path)	{
+	die("Wrong path... This '".substr($dir,strlen(PATH_site))."' should be the last part of '".$ext_path."'");
+}
+require_once (PATH_t3lib.'class.t3lib_readmail.php');		// The database library
+require_once (PATH_t3lib."class.t3lib_htmlmail.php");
+require_once t3lib_div::resolveBackPath(t3lib_extMgm::extPath('direct_mail')).'mod/class.dmailer.php';
 
 // Connect to the database
 $result = $GLOBALS['TYPO3_DB']->sql_pconnect(TYPO3_db_host, TYPO3_db_username, TYPO3_db_password);
 if (!$result)	{
 	die("Couldn't connect to database at ".TYPO3_db_host);
 }
+$GLOBALS['TYPO3_DB']->sql_select_db(TYPO3_db);
 
 
 
