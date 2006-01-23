@@ -6,6 +6,10 @@
 	* Update to returnmail.phpsh (from sr_direct_mail_ext)
 	* Add mod3 directory
 	* Add returnmail.phpsh and class.readmail.php to mod3 directory.
+	* Update locallang.php file in mod directory (from sr_direct_mail_ext).
+	* Update to dmailer.phpcron and class.dmailer.php in mod directory (from sr_direct_mail_ext)
+	* Add mod2 directory.
+	* Add dmailer.phpsh and class.dmailer.php to mod2 directory.
 
 2005-07-7   Jan-Erik Revsbech <jer@moccompany.com>
 	* Fixed problem with not setting encoding Bug #1264
