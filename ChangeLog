@@ -1,3 +1,9 @@
+2006-01-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add charset column to sys_dmail table
+	* Change default encoding to quoted-printable in TCA
+	* Add configuration variables (ext_conf_template.txt and ext_localconf.php)
+	* Remove lock to Global (ext_emconf.php)
+
 2005-07-7   Jan-Erik Revsbech <jer@moccompany.com>
 	* Fixed problem with not setting encoding Bug #1264
 	* Removed all trailing whitespaces from mod/class.mod_wed_dmail.php

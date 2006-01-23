@@ -1,15 +1,8 @@
-/**
- *
- * @package TYPO3
- * @subpackage tx_directmail
- * @version $Id: $
- */
-
 #
 # Table structure for table 'cache_sys_dmail_stat'
 #
 CREATE TABLE cache_sys_dmail_stat (
-  `mid` int(11) DEFAULT '0' NOT NULL,
+  mid int(11) DEFAULT '0' NOT NULL,
   rid int(11) DEFAULT '0' NOT NULL,
   rtbl char(1) DEFAULT '' NOT NULL,
   pings tinyint(3) unsigned DEFAULT '0' NOT NULL,
@@ -41,7 +34,7 @@ CREATE TABLE cache_sys_dmail_stat (
   secondlink_time int(11) DEFAULT '0' NOT NULL,
   thirdlink tinyint(4) DEFAULT '0' NOT NULL,
   thirdlink_time int(11) DEFAULT '0' NOT NULL,
-  KEY `mid` (`mid`)
+  KEY mid (mid)
 );
 
 
@@ -62,7 +55,8 @@ CREATE TABLE sys_dmail (
   replyto_name varchar(80) DEFAULT '' NOT NULL,
   organisation varchar(80) DEFAULT '' NOT NULL,
   priority tinyint(4) unsigned DEFAULT '0' NOT NULL,
-  encoding varchar(80)  DEFAULT 'base64' NOT NULL, 
+  encoding varchar(80) DEFAULT 'quoted-printable' NOT NULL,
+  charset varchar(20) DEFAULT 'iso-8859-1' NOT NULL,
   sendOptions tinyint(4) unsigned DEFAULT '0' NOT NULL,
   HTMLParams varchar(80) DEFAULT '' NOT NULL,
   plainParams varchar(80) DEFAULT '' NOT NULL,
@@ -120,7 +114,7 @@ CREATE TABLE sys_dmail_group_mm (
 #
 CREATE TABLE sys_dmail_maillog (
   uid int(11) unsigned NOT NULL auto_increment,
-  `mid` int(11) unsigned DEFAULT '0' NOT NULL,
+  mid int(11) unsigned DEFAULT '0' NOT NULL,
   rid int(11) unsigned DEFAULT '0' NOT NULL,
   rtbl char(1) DEFAULT '' NOT NULL,
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
@@ -133,15 +127,15 @@ CREATE TABLE sys_dmail_maillog (
   return_content mediumblob NOT NULL,
   return_code smallint(6) DEFAULT '0' NOT NULL,
   PRIMARY KEY (uid),
-  KEY rid (rid,rtbl,`mid`,response_type,uid),
-  KEY `mid` (`mid`,response_type,rtbl,rid)
+  KEY rid (rid,rtbl,mid,response_type,uid),
+  KEY mid (mid,response_type,rtbl,rid)
 );
 
 #
 # Table structure for table 'sys_dmail_category'
 #
 CREATE TABLE sys_dmail_category (
-    uid int(11) unsigned DEFAULT '0' NOT NULL auto_increment,
+    uid int(11) unsigned NOT NULL auto_increment,
     pid int(11) unsigned DEFAULT '0' NOT NULL,
     tstamp int(11) unsigned DEFAULT '0' NOT NULL,
     crdate int(11) unsigned DEFAULT '0' NOT NULL,

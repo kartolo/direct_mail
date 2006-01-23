@@ -11,7 +11,7 @@
 
 $EM_CONF[$_EXTKEY] = Array (
 	'title' => 'Direct Mail',
-	'description' => 'Advanced Direct Mail/Newsletter mailer system with sofisticated options for personalization of emails including response statistics.',
+	'description' => 'Advanced Direct Mail/Newsletter mailer system with sophisticated options for personalization of emails including response statistics.',
 	'category' => 'module',
 	'shy' => 0,
 	'dependencies' => 'cms,tt_address',
@@ -27,7 +27,7 @@ $EM_CONF[$_EXTKEY] = Array (
 	'createDirs' => '',
 	'modify_tables' => 'tt_content,tt_address,fe_users',
 	'clearCacheOnLoad' => 0,
-	'lockType' => 'G',
+	'lockType' => '',
 	'author' => 'Kasper Skårhøj',
 	'author_email' => 'kasper@typo3.com',
 	'author_company' => 'Curby Soft Multimedia',
