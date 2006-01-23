@@ -10,6 +10,9 @@
 	* Update to dmailer.phpcron and class.dmailer.php in mod directory (from sr_direct_mail_ext)
 	* Add mod2 directory.
 	* Add dmailer.phpsh and class.dmailer.php to mod2 directory.
+	* Add files locallang_mod.php and clear.gif in directory mod.
+	* Update index.php and conf.php in directory mod.
+	* Multiple changes to class.mod_web_dmail.php (from sr_direct_mail_ext).
 
 2005-07-7   Jan-Erik Revsbech <jer@moccompany.com>
 	* Fixed problem with not setting encoding Bug #1264

@@ -82,20 +82,10 @@ require ('conf.php');
 require ($BACK_PATH.'init.php');
 require ($BACK_PATH.'template.php');
 $LANG->includeLLFile('EXT:direct_mail/mod/locallang.php');
-#include ('locallang.php');
-require_once (PATH_t3lib.'class.t3lib_scbase.php');
-require_once('class.mod_web_dmail.php');
-//require_once (PATH_t3lib.'class.t3lib_page.php');
-
-
-
 $BE_USER->modAccess($MCONF,1);    // This checks permissions and exits if the users has no permission for entry.
-// DEFAULT initialization of a module [END]
-
-
-
 
 // Make instance:
+require_once(t3lib_extMgm::extPath('direct_mail').'mod/class.mod_web_dmail.php');
 $SOBE = t3lib_div::makeInstance('mod_web_dmail');
 $SOBE->init();
 
