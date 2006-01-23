@@ -3,6 +3,9 @@
 	* Change default encoding to quoted-printable in TCA
 	* Add configuration variables (ext_conf_template.txt and ext_localconf.php)
 	* Remove lock to Global (ext_emconf.php)
+	* Update to returnmail.phpsh (from sr_direct_mail_ext)
+	* Add mod3 directory
+	* Add returnmail.phpsh and class.readmail.php to mod3 directory.
 
 2005-07-7   Jan-Erik Revsbech <jer@moccompany.com>
 	* Fixed problem with not setting encoding Bug #1264
