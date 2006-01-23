@@ -6,8 +6,20 @@
  * @version $Id$
  */
 
-$LOCAL_LANG_DMAIL = Array (
+//$LOCAL_LANG_DMAIL = Array (
+$LOCAL_LANG = Array (
 	"default" => Array (
+			    "title" => "Direct mail",
+			    "mlang_tabs_tab" => "Direct mail",
+			    "mlang_labels_tabdescr" => "Direct mail extension. This is the old Web->Plugin->Direct mail extension. It has now been moved to its own extension, and made indepentable of the core.",
+			    "function_direct" => "Direct mails",
+			    "function_news" => "Newsletters",
+			    "function_quick" => "Quick mails",
+			    "function_recip" => "Recipient list",
+			    "function_conf" => "Module configuration",
+			    "function_mailer" => "Mailer engine status",
+			    "function_help" => "Instruction",
+				 "function_stats" => "Statistics",
 			// DIRECT MAIL MODULE:
 		"dmail_noCreateAccess" => "You cannot mail pages that are hidden or access-restricted.",
 		"dmail_noRegular" => "This pagetype cannot be sent as an email. Please select a regular page.",
@@ -172,4 +184,5 @@ $LOCAL_LANG_DMAIL = Array (
 		"nl_cat_msg2" => "Eðer alýcý kendi profilindeki kategoriyi seçerse içerik elemaný için ayar kategorilerinin elemaný olan nesne sadece mail içinde görünecektir.<br />Eðer nesne için kategori kurmazsanýz, nesne tüm maillerde görünecektir."
 	)
 );
+$LOCAL_LANG_DMAIL = &$LOCAL_LANG;
 ?>

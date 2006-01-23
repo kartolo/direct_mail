@@ -62,7 +62,7 @@ CREATE TABLE sys_dmail (
   replyto_name varchar(80) DEFAULT '' NOT NULL,
   organisation varchar(80) DEFAULT '' NOT NULL,
   priority tinyint(4) unsigned DEFAULT '0' NOT NULL,
-  encoding varchar(80)  DEFAULT 'base64' NOT NULL,
+  encoding varchar(80)  DEFAULT 'base64' NOT NULL, 
   sendOptions tinyint(4) unsigned DEFAULT '0' NOT NULL,
   HTMLParams varchar(80) DEFAULT '' NOT NULL,
   plainParams varchar(80) DEFAULT '' NOT NULL,
@@ -136,6 +136,64 @@ CREATE TABLE sys_dmail_maillog (
   KEY rid (rid,rtbl,`mid`,response_type,uid),
   KEY `mid` (`mid`,response_type,rtbl,rid)
 );
+
+#
+# Table structure for table 'sys_dmail_category'
+#
+CREATE TABLE sys_dmail_category (
+    uid int(11) unsigned DEFAULT '0' NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+    cruser_id int(11) unsigned DEFAULT '0' NOT NULL,
+    sorting int(10) unsigned DEFAULT '0' NOT NULL,
+    deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
+    hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
+    category tinytext NOT NULL,
+    
+    PRIMARY KEY (uid),
+    KEY parent (pid)
+);
+
+#
+# Table structure for table 'sys_dmail_group_category_mm'
+# 
+#
+CREATE TABLE sys_dmail_group_category_mm (
+  uid_local int(11) unsigned DEFAULT '0' NOT NULL,
+  uid_foreign int(11) unsigned DEFAULT '0' NOT NULL,
+  tablenames varchar(30) DEFAULT '' NOT NULL,
+  sorting int(11) unsigned DEFAULT '0' NOT NULL,
+  KEY uid_local (uid_local),
+  KEY uid_foreign (uid_foreign)
+);
+
+#
+# Table structure for table 'sys_dmail_feuser_category_mm'
+# 
+#
+CREATE TABLE sys_dmail_feuser_category_mm (
+  uid_local int(11) unsigned DEFAULT '0' NOT NULL,
+  uid_foreign int(11) unsigned DEFAULT '0' NOT NULL,
+  tablenames varchar(30) DEFAULT '' NOT NULL,
+  sorting int(11) unsigned DEFAULT '0' NOT NULL,
+  KEY uid_local (uid_local),
+  KEY uid_foreign (uid_foreign)
+);
+
+#
+# Table structure for table 'sys_dmail_ttaddress_category_mm'
+# 
+#
+CREATE TABLE sys_dmail_ttaddress_category_mm (
+  uid_local int(11) unsigned DEFAULT '0' NOT NULL,
+  uid_foreign int(11) unsigned DEFAULT '0' NOT NULL,
+  tablenames varchar(30) DEFAULT '' NOT NULL,
+  sorting int(11) unsigned DEFAULT '0' NOT NULL,
+  KEY uid_local (uid_local),
+  KEY uid_foreign (uid_foreign)
+);
+
 
 
 # THESE create statements will NOT work if this file is piped into MySQL. 

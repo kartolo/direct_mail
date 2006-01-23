@@ -10,17 +10,17 @@
 ########################################################################
 
 $EM_CONF[$_EXTKEY] = Array (
-	'title' => 'Web>Plugins, Direct Mail',
+	'title' => 'Direct Mail',
 	'description' => 'Advanced Direct Mail/Newsletter mailer system with sofisticated options for personalization of emails including response statistics.',
 	'category' => 'module',
 	'shy' => 0,
-	'dependencies' => 'cms,tt_address,plugin_mgm',
+	'dependencies' => 'cms,tt_address',
 	'conflicts' => '',
 	'priority' => '',
 	'loadOrder' => '',
 	'TYPO3_version' => '-',
 	'PHP_version' => '-',
-	'module' => '',
+	'module' => 'mod',
 	'state' => 'beta',
 	'internal' => 0,
 	'uploadfolder' => 0,

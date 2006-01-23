@@ -8,6 +8,10 @@
 
 $LOCAL_LANG = Array (
 	'default' => Array (
+      'module_sys_dmail_group.category' => 'Subscribe to categories',
+      'module_sys_dmail_group.htmlemail' => 'Recieve e-mails as HTML?',
+		'sys_dmail_category' => 'Category',
+		'sys_dmail_category.category' => 'Category',
 		'sys_dmail' => 'Direct mails',
 		'sys_dmail.subject' => 'Subject:',
 		'sys_dmail.page' => 'Mail page:',
@@ -62,6 +66,8 @@ $LOCAL_LANG = Array (
 		'sys_dmail_group.select_categories.I.9' => 'Cat 9',
 	),
 	'dk' => Array (
+      'module_sys_dmail_group.category' => 'Abonner på disse kategorier',
+      'module_sys_dmail_group.htmlemail' => 'Modtag HTML e-mails?',
 		'sys_dmail' => 'Direct mail',
 		'sys_dmail.subject' => 'Emne:',
 		'sys_dmail.page' => 'Side med mail:',
