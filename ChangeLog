@@ -13,6 +13,8 @@
 	* Add files locallang_mod.php and clear.gif in directory mod.
 	* Update index.php and conf.php in directory mod.
 	* Multiple changes to class.mod_web_dmail.php (from sr_direct_mail_ext).
+	* Merge mod2 and mod3 directories into mod directory
+	* Get direct mail character set from TS template when based on internal page.
 
 2005-07-7   Jan-Erik Revsbech <jer@moccompany.com>
 	* Fixed problem with not setting encoding Bug #1264

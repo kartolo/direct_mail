@@ -76,6 +76,9 @@ Import of 3541 records raw on PIII/500Mzh took 80 approx seconds
 
 */
 require_once (PATH_t3lib.'class.t3lib_scbase.php');
+require_once (PATH_t3lib.'class.t3lib_tstemplate.php');
+require_once (PATH_t3lib.'class.t3lib_page.php');
+require_once(PATH_t3lib.'class.t3lib_timetrack.php');
 
 class mod_web_dmail extends t3lib_SCbase {
 	var $TSconfPrefix = 'mod.web_modules.dmail.';
@@ -112,7 +115,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$this->include_once[]=PATH_t3lib.'class.t3lib_readmail.php';
 		$this->include_once[]=PATH_t3lib.'class.t3lib_querygenerator.php';
 		$this->include_once[]=t3lib_extMgm::extPath('direct_mail').'mod/class.mailselect.php';
-		$this->include_once[]=t3lib_extMgm::extPath('direct_mail').'mod2/class.dmailer.php';
+		$this->include_once[]=t3lib_extMgm::extPath('direct_mail').'mod/class.dmailer.php';
 
 		parent::init();
 		$this->perms_clause = ' 1=1 '; //This need to be checked.
@@ -177,7 +180,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function createDMail()	{
-		global $TCA, $LANG;
+		global $TCA, $LANG, $TYPO3_CONF_VARS;
 		if ($createMailFrom = t3lib_div::_GP('createMailFrom'))	{
 			// Set default values:
 			$dmail = array();
@@ -198,31 +201,34 @@ class mod_web_dmail extends t3lib_SCbase {
 			if (isset($this->params['HTMLParams']))		$dmail['sys_dmail']['NEW']['HTMLParams'] = $this->params['HTMLParams'];
 			if (isset($this->params['plainParams']))	$dmail['sys_dmail']['NEW']['plainParams'] = $this->params['plainParams'];
 			if (isset($this->params['direct_mail_encoding']))	$dmail['sys_dmail']['NEW']['encoding'] = $this->params['direct_mail_encoding'];
-			if (isset($this->params['direct_mail_charset']))	$dmail['sys_dmail']['NEW']['charset'] = $LANG->csConvObj->parse_charset($this->params['direct_mail_charset']);
-
+			
 				// If createMailFrom is an integer, it's an internal page. If not, it's an external url
 			if (t3lib_div::testInt($createMailFrom))	{
 				$createFromMailRec = t3lib_BEfunc::getRecord ('pages',$createMailFrom);
-				if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'],$createFromMailRec['doktype']))	{
+				if (t3lib_div::inList($TYPO3_CONF_VARS['FE']['content_doktypes'],$createFromMailRec['doktype']))	{
 					$dmail['sys_dmail']['NEW']['subject'] = $createFromMailRec['title'];
 					$dmail['sys_dmail']['NEW']['type'] = 0;
 					$dmail['sys_dmail']['NEW']['page'] = $createFromMailRec['uid'];
-					$dmail['sys_dmail']['NEW']['pid']=$this->pageinfo['uid'];
+					$dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
+					$dmail['sys_dmail']['NEW']['charset'] = $this->getPageCharSet($createFromMailRec['uid']);
 				}
 			} else {
 				$dmail['sys_dmail']['NEW']['subject'] = $createMailFrom;
 				$dmail['sys_dmail']['NEW']['type'] = 1;
 				$dmail['sys_dmail']['NEW']['sendOptions'] = 0;
-
+				
 				$dmail['sys_dmail']['NEW']['plainParams'] = t3lib_div::_GP('createMailFrom_plainUrl');
 				$this->params['enablePlain'] = $dmail['sys_dmail']['NEW']['plainParams'] ? 1 : 0;
-
+				
 				$dmail['sys_dmail']['NEW']['HTMLParams'] = t3lib_div::_GP('createMailFrom_HTMLUrl');
 				$this->params['enableHTML'] = $dmail['sys_dmail']['NEW']['HTMLParams'] ? 1 : 0;
-
+				
 				$dmail['sys_dmail']['NEW']['pid']=$this->pageinfo['uid'];
+				if (isset($this->params['direct_mail_charset'])) {
+					$dmail['sys_dmail']['NEW']['charset'] = $LANG->csConvObj->parse_charset($this->params['direct_mail_charset']);
+				}
 			}
-
+			
 				// Finally the enablePlain and enableHTML flags ultimately determines the sendOptions, IF they are set in the pageTSConfig
 			if (isset($this->params['enablePlain']))	{
 				if ($this->params['enablePlain']) {
@@ -1740,7 +1746,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'quick_mail_encoding' => array('select', 'Encoding for quick mails', 'Select the content transfer encoding to use when sending quick mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'direct_mail_encoding' => array('select', 'Encoding for direct mails', 'Select the content transfer encoding to use when sending direct mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'quick_mail_charset' => array('short', 'Character set for quick mails', 'Character set used in quick mails. Default is iso-8859-1.', 'iso-8859-1'),
-			'direct_mail_charset' => array('short', 'Character set for direct mails', 'Character set used in direct mails. Default is iso-8859-1.', 'iso-8859-1'),
+			'direct_mail_charset' => array('short', 'Character set for direct mails built from external pages', 'Character set used in direct mails when they are built from external pages. Default is iso-8859-1.', 'iso-8859-1'),
 			'enablePlain' => array('check', 'Allow Plain Text emails', 'Set this if you want to allow plain text emails to be fetched. If in doubt, check this option.'),
 			'enableHTML' => array('check', 'Allow HTML emails', 'Set this if you want to allow HTML emails to be fetched. If in doubt, check this option.'),
 			'http_username' => array('short', 'HTTP username', 'If the mail content is protected by a HTTP authentication, enter the username here. The username and password is used to fetch the mail content. They are NOT sent in the mail!<br />If you don\'t enter a username and password and the newsletter pages happens to be protected, an error will occur and no mail content is fetched.'),
@@ -3117,6 +3123,34 @@ class mod_web_dmail extends t3lib_SCbase {
 			<script language="javascript" type="text/javascript">'.$this->extJSCODE.'</script>';
 			return $out;
 		}
+	}
+		/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$formname: ...
+	 * @return	[type]		...
+	 */
+	function getPageCharSet($pageId)	{
+		global $TYPO3_CONF_VARS;
+		
+			// initialize the page selector
+		if(!$this->sys_page) {
+			$this->sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
+			$this->sys_page->init(true);
+		}
+		
+			// initialize the TS template
+		if(!$this->tmpl) {
+			$GLOBALS['TT'] = new t3lib_timeTrack;
+			$this->tmpl = t3lib_div::makeInstance('t3lib_TStemplate');
+			$this->tmpl->init();
+		}
+		$rootline = $this->sys_page->getRootLine($pageId);
+		$this->tmpl->forceTemplateParsing = 1;
+		$this->tmpl->start($rootline);
+		$charSet = $this->tmpl->setup['config.']['metaCharset']?$this->tmpl->setup['config.']['metaCharset']:($TYPO3_CONF_VARS['BE']['forceCharset']?$TYPO3_CONF_VARS['BE']['forceCharset']:'iso-8859-1');
+		
+		return $charSet;
 	}
 }
 
