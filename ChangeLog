@@ -6,6 +6,7 @@
 	* Remove funcions getURL, getExtendedURL, ux_translate_uri, substHTTPurlsInPlainText, substHREFsInHTML, substMediaNamesInHTML, constructHTML from class.dmailer.php.
 	* Extension now dependent on TYPO3 4.0 (t3lib_htmlmail).
 	* Delete file dmailerd.phpsh, update manual accordingly.
+	* Correct linebreaks in dmailerd.phpcron.
 
 2006-01-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add charset column to sys_dmail table
