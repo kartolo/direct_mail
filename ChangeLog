@@ -3,6 +3,8 @@
 	* Set PHP_version to 4.1.0- in ext_emconf.php.
 	* Add partial draft of manual.
 	* Remove function sendTheMail from class.dmailer.php.
+	* Remove funcions getURL, getExtendedURL, ux_translate_uri, substHTTPurlsInPlainText, substHREFsInHTML, substMediaNamesInHTML, constructHTML from class.dmailer.php.
+	* Extension now dependent on TYPO3 4.0 (t3lib_htmlmail).
 
 2006-01-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add charset column to sys_dmail table
