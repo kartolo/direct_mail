@@ -675,67 +675,6 @@ class dmailer extends t3lib_htmlmail {
                  }
          }
 
-	/*
-	* @author	Kasper Skaarhoj <kasperYYYY@typo3.com>
-	*
-	* Enables "return path" feature. Function from class.t3lib_htmlmail.php in Typo 3.7.0 framework.
-	*/
-	function sendTheMail () {
-			// Sends the mail.
-			// Requires the recipient, message and headers to be set.
-#debug(array($this->recipient,$this->subject,$this->message,$this->headers));
-		if (trim($this->recipient) && trim($this->message))	{	//  && trim($this->headers)
-			$returnPath = (strlen($this->returnPath)>0)?'-f ' . $this->returnPath : '';
-				//On windows the -f flag is not used (specific for sendmail and postfix), but instead the php.ini parameter sendmail_from is used.
-			if($this->returnPath) {
-				ini_set(sendmail_from, $this->returnPath);
-			}
-				//If safe mode is on, the fifth parameter to mail is not allowed, so the fix wont work on unix with safe_mode=On
-			if(!ini_get('safe_mode')) {
-				mail(   $this->recipient,
-					$this->subject,
-					$this->message,
-					$this->headers,
-					$returnPath);
-			} else {
-				mail(   $this->recipient,
-					$this->subject,
-					$this->message,
-					$this->headers);
-			}
-				// Sending copy:
-			if ($this->recipient_copy)	{
-				if(!ini_get('safe_mode')) {
-					mail( 	$this->recipient_copy,
-						$this->subject,
-						$this->message,
-						$this->headers,
-						$returnPath);
-				} else {
-					mail( 	$this->recipient_copy,
-						$this->subject,
-						$this->message,
-						$this->headers	);
-				}
-			}
-				// Auto response
-			if ($this->auto_respond_msg)	{
-				$theParts = explode("/",$this->auto_respond_msg,2);
-				$theParts[1] = str_replace("/",chr(10),$theParts[1]);
-				mail( 	$this->from_email,
-						$theParts[0],
-						$theParts[1],
-						"From: ".$this->recipient,
-					        $returnPath);
-			}
-			if($this->returnPath) {
-				ini_restore(sendmail_from);
-			}
-			return true;
-		} else {return false;}
-	}
-
-
 	function substMediaNamesInHTML($absolute)       {
 		// This substitutes the media-references in $this->theParts["html"]["content"]
 		// If $absolute is true, then the refs are substituted with http:// ref's indstead of Content-ID's (cid).
@@ -818,9 +757,9 @@ class dmailer extends t3lib_htmlmail {
 		return $content;
 	}
 
-	function ux_translate_uri($uri) {           //rawurlencode only in between "/", do not rawurlencode the slas, 
-                                                               //because if you do rawurlencode() over the whole URI, path separator characters '/' are also encoded and request will not happen to be correct.
-                                                               //  '/' characters should not be encoded, only those parts in between.
+	function ux_translate_uri($uri) {	//rawurlencode only in between "/", do not rawurlencode the slash, 
+						//because if you do rawurlencode() over the whole URI, path separator characters '/' are also encoded and request will not happen to be correct.
+						//  '/' characters should not be encoded, only those parts in between.
 		$url_parts = explode('/', $uri);
 		for ($i = 0; $i < count($url_parts); $i++) {
 		$url_parts[$i] = rawurlencode($url_parts[$i]);

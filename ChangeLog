@@ -1,3 +1,9 @@
+2006-01-24 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Delete contents of directories mod2 and mod3.
+	* Set PHP_version to 4.1.0- in ext_emconf.php.
+	* Add partial draft of manual.
+	* Remove function sendTheMail from class.dmailer.php.
+
 2006-01-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add charset column to sys_dmail table
 	* Change default encoding to quoted-printable in TCA
