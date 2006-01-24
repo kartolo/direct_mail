@@ -3,6 +3,8 @@
  *  Copyright notice
  *
  *  (c) 1999-2004 Kasper Skaarhoj (kasper@typo3.com)
+ *  (c) 2005-2006 Jan-Erik Revsbech <jer@moccompany.com>
+ *  (c) 2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -26,7 +28,10 @@
  ***************************************************************/
 /**
  * @author	Kasper Skårhøj <kasper@typo3.com>
- * @author  Jan-Erik Revsbech <jer@moccompany.com>
+ * @author  	Jan-Erik Revsbech <jer@moccompany.com>
+ * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ *
+ * $Id$
  */
 
 /**
@@ -599,7 +604,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		} else {
 			$out='';
 			$colPosVal=99;
-			while($row=mysql_fetch_assoc($res))	{
+			while($row=$TYPO3_DB->sql_fetch_assoc($res))	{
 				$out.='<tr><td colspan=3><img src="clear.gif" width="1" height="15"></td></tr>';
 				if ($colPosVal!=$row['colPos'])	{
 					$out.='<tr><td colspan="3" bgcolor="'.$this->doc->bgColor5.'">'.fw($LANG->getLL('nl_l_column').': <strong>'.t3lib_BEfunc::getProcessedValue('tt_content','colPos',$row['colPos']).'</strong>').'</td></tr>';

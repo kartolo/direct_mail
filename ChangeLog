@@ -7,6 +7,7 @@
 	* Extension now dependent on TYPO3 4.0 (t3lib_htmlmail).
 	* Delete file dmailerd.phpsh, update manual accordingly.
 	* Correct linebreaks in dmailerd.phpcron.
+	* Fix reference to mysql_fetch_assoc in class.web_mod_dmail.php
 
 2006-01-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add charset column to sys_dmail table
