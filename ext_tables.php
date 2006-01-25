@@ -103,7 +103,7 @@ $TCA['sys_dmail'] = Array (
 		'useColumnsForDefaultValues' => 'from_email,from_name,replyto_email,replyto_name,organisation,priority,encoding,charset,sendOptions,type'
 	),
 	'interface' => Array (
-		'showRecordFieldList' => 'type,plainParams,HTMLParams,subject,from_name,from_email,replyto_name,replyto_email,organisation,attachment,priority,encoding,charset,sendOptions,issent,renderedsize'
+		'showRecordFieldList' => 'type,plainParams,HTMLParams,subject,from_name,from_email,replyto_name,replyto_email,organisation,attachment,priority,encoding,charset,sendOptions,issent,renderedsize,use_rdct,long_link_mode'
 	),
 	'columns' => Array (
 		'subject' => Array (
@@ -251,6 +251,13 @@ $TCA['sys_dmail'] = Array (
 				'type' => 'none'
 			)
 		),
+		'use_rdct' => Array (
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.use_rdct',
+			'config' => Array (
+				'type' => 'check',
+				'default' => '0'
+			)
+		),
 		'long_link_rdct_url' => Array (
 			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.long_link_rdct_url',
 			'config' => Array (
@@ -301,11 +308,11 @@ $TCA['sys_dmail'] = Array (
 		)
 	),
 	'types' => Array (
-		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, charset, sendOptions, issent, renderedsize, long_link_rdct_url, long_link_mode'),
+		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, charset, sendOptions, issent, renderedsize, use_rdct, long_link_rdct_url, long_link_mode'),
 		'1' => Array('showitem' => 'type;;;;1-1-1,
 			plainParams;LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.plainParams.ALT.1,
 			HTMLParams;LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.HTMLParams.ALT.1,
-			--div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, encoding, charset, sendOptions, issent, renderedsize, long_link_rdct_url, long_link_mode')
+			--div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, encoding, charset, sendOptions, issent, renderedsize, use_rdct, long_link_rdct_url, long_link_mode')
 	)
 );
 

@@ -1,3 +1,7 @@
+2006-01-25 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add field use_rdct to table sys_dmail.
+	* Localize some elements of module configuration.
+
 2006-01-24 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Delete contents of directories mod2 and mod3.
 	* Set PHP_version to 4.1.0- in ext_emconf.php.

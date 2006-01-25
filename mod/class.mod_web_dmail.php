@@ -195,10 +195,11 @@ class mod_web_dmail extends t3lib_SCbase {
 				'replyto_email' => $this->params['replyto_email'],
 				'replyto_name' => $this->params['replyto_name'],
 				'return_path' => $this->params['return_path'],
+				'use_rdct' => $this->params['use_rdct'],
 				'long_link_rdct_url' => $this->params['long_link_rdct_url'],
 				'long_link_mode' => $this->params['long_link_mode'],
 				'organisation' => $this->params['organisation']
-
+				
 				);
 			$dmail['sys_dmail']['NEW']['sendOptions'] = $TCA['sys_dmail']['columns']['sendOptions']['config']['default'];
 				// If params set, set default values:
@@ -1729,18 +1730,18 @@ class mod_web_dmail extends t3lib_SCbase {
 	function cmd_conf() {
 		$configArray = array(
 			'spacer0' => 'Set default values for Direct Mails:',
-			'from_email' => array('string', '\'From\' email', 'Enter the sender email address. (Required)'),
-			'from_name' => array('string', '\'From\' name', 'Enter the sender name. (Required)'),
-			'replyto_email' => array('string', '\'Reply To\' email', 'Enter the email address to which replys are sent. If none, the \'From\' email is used. (Optional)'),
-			'replyto_name' => array('string', '\'Reply To\' name', 'Enter the name of the \'Reply To\' email address. If none, the \'From\' name is used. (Optional)'),
-			'return_path' => array('string', '\'Return Path\' email', 'Enter the return path email address here. This is the address to which non-deliverable mails will be returned to. If you put in the marker ###XID### it\'ll be substituted with the unique id of the mail/recipient.'),
-			'organisation' => array('string', 'Organisation name', '(Optional)'),
+			'from_email' => array('string', $this->fName('from_email'), 'Enter the sender email address. (Required)'),
+			'from_name' => array('string', $this->fName('from_name'), 'Enter the sender name. (Required)'),
+			'replyto_email' => array('string', $this->fName('replyto_email'), 'Enter the email address to which replys are sent. If none, the \'From\' email is used. (Optional)'),
+			'replyto_name' => array('string', $this->fName('replyto_name'), 'Enter the name of the \'Reply To\' email address. If none, the \'From\' name is used. (Optional)'),
+			'return_path' => array('string', $this->fName('return_path'), 'Enter the return path email address here. This is the address to which non-deliverable mails will be returned to. If you put in the marker ###XID### it\'ll be substituted with the unique id of the mail/recipient.'),
+			'organisation' => array('string', $this->fName('organisation'), '(Optional)'),
 			'spacer1' => 'Configure technical options',
-			'sendOptions' => array('select', 'Default Format options', 'Select the format of the mail content. If in doubt, set it to \'Plain and HTML\'. The recipients are normally able to select their preferences anyway.', array(0=>'',1=>'Plain text only',2=>'HTML only',3=>'Plain and HTML')),
-			'HTMLParams' => array('short', 'HTML parameters', 'Enter the additional URL parameters used to fetch the HTML content. If in doubt, leave it blank.'),
-			'plainParams' => array('short', 'Plain Text parameters', 'Enter the additional URL parameters used to fetch the plain text content. If in doubt, set it to \'&type=99\' which is standard.', '&type=99'),
-			'use_rdct' => array('check', 'Use long link RDCT', 'Set this if you want long urls to be substituted with ?RDCT=[md5hash] parameters in plain text mails. This configuration determines how QuickMails are handled and further sets the default setting for DirectMails.'),
-			'long_link_mode' => array('check', 'Not only links longer than 76 chars but ALL links', 'Option for the RDCT feature above.'),
+			'sendOptions' => array('select', 'Format of mail content', 'Select the format of the mail content. If in doubt, set it to \'Plain and HTML\'. The recipients are normally able to select their preferences anyway.', array(0=>'',1=>'Plain text only',2=>'HTML only',3=>'Plain and HTML')),
+			'HTMLParams' => array('short', $this->fName('HTMLParams'), 'Enter the additional URL parameters used to fetch the HTML content. If in doubt, leave it blank.'),
+			'plainParams' => array('short', $this->fName('plainParams'), 'Enter the additional URL parameters used to fetch the plain text content. If in doubt, set it to \'&type=99\' which is standard.', '&type=99'),
+			'use_rdct' => array('check', $this->fName('use_rdct'), 'Set this if you want long urls to be substituted with ?RDCT=[md5hash] parameters in plain text mails. This configuration determines how QuickMails are handled and further sets the default setting for DirectMails.'),
+			'long_link_mode' => array('check', $this->fName('long_link_mode'), 'Option for the RDCT feature above.'),
 			'quick_mail_encoding' => array('select', 'Encoding for quick mails', 'Select the content transfer encoding to use when sending quick mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'direct_mail_encoding' => array('select', 'Encoding for direct mails', 'Select the content transfer encoding to use when sending direct mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'quick_mail_charset' => array('short', 'Character set for quick mails', 'Character set used in quick mails. Default is iso-8859-1.', 'iso-8859-1'),
