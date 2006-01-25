@@ -34,7 +34,7 @@ CREATE TABLE cache_sys_dmail_stat (
   secondlink_time int(11) DEFAULT '0' NOT NULL,
   thirdlink tinyint(4) DEFAULT '0' NOT NULL,
   thirdlink_time int(11) DEFAULT '0' NOT NULL,
-  KEY mid (mid)
+  KEY `mid` (mid)
 );
 
 
@@ -128,7 +128,7 @@ CREATE TABLE sys_dmail_maillog (
   return_code smallint(6) DEFAULT '0' NOT NULL,
   PRIMARY KEY (uid),
   KEY rid (rid,rtbl,mid,response_type,uid),
-  KEY mid (mid,response_type,rtbl,rid)
+  KEY `mid` (mid,response_type,rtbl,rid)
 );
 
 #
