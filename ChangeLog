@@ -9,6 +9,7 @@
 	* Correct linebreaks in dmailerd.phpcron.
 	* Fix reference to mysql_fetch_assoc in class.web_mod_dmail.php
 	* Revert incorrect change to ext_tables.sql (mid must have backticks on KEY statements).
+	* Correction to web_mod_dmail JS: replace document.location with window.location.href
 
 2006-01-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add charset column to sys_dmail table

@@ -269,38 +269,31 @@ class mod_web_dmail extends t3lib_SCbase {
 	 */
 	function main()	{
 		global $BE_USER,$LANG,$BACK_PATH,$TCA_DESCR,$TCA,$CLIENT,$TYPO3_CONF_VARS;
-
+		
 		$this->CMD = t3lib_div::_GP('CMD');
 		$this->pages_uid=t3lib_div::_GP('pages_uid');
 		$this->sys_dmail_uid=t3lib_div::_GP('sys_dmail_uid');
-		//Need to load TS
-		//$temp=t3lib_BEfunc::getPagesTSconfig($this->id);
-
-		//		$this->params=$temp['mod.']['web_modules.']['dmail.'];
-		
-		// Access check!
-		// The page will show only if there is a valid page and if this page may be viewed by the user
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
-
+		
 		$access = is_array($this->pageinfo) ? 1 : 0;
-
+		
 		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
-
+		
 			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->form='<form action="" method="POST">';
-
+			
 			// JavaScript
 			$this->doc->JScode = '
 				<script language="javascript" type="text/javascript">
 					script_ended = 0;
 					function jumpToUrl(URL)	{
-						document.location = URL;
+						window.location.href = URL;
 					}
-               function jumpToUrlD(URL)        {
-                  document.location = URL+"&sys_dmail_uid='.$this->sys_dmail_uid.'";
-               }
+					function jumpToUrlD(URL)        {
+						window.location.href = URL+"&sys_dmail_uid='.$this->sys_dmail_uid.'";
+					}
 				</script>
 			';
 
@@ -311,7 +304,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				</script>
 			';
 
-			$headerSection = $this->doc->getHeader('pages',$this->pageinfo,$this->pageinfo['_thePath']).'<br>'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_pre($this->pageinfo['_thePath'],50);
+			$headerSection = $this->doc->getHeader('pages',$this->pageinfo,$this->pageinfo['_thePath']).'<br />'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_pre($this->pageinfo['_thePath'],50);
 			
 			$this->content.=$this->doc->startPage($LANG->getLL('title'));
 			$this->content.=$this->doc->header($LANG->getLL('title'));
@@ -349,8 +342,8 @@ class mod_web_dmail extends t3lib_SCbase {
 			$this->content.=$this->doc->spacer(5);
 			$this->content.=$this->doc->spacer(10);
 		}
-
 	}
+	
 	/**
 	 * @return	String		The compiled content of the module.
 	 */
