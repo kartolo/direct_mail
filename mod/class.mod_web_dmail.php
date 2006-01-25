@@ -483,23 +483,18 @@ class mod_web_dmail extends t3lib_SCbase {
 	}
 
 	/**
-	 * Compile the categories. Should not be fetched from page TSconfig but fetched from a Table instead.
+	 * Compile the categories. From version 2.0 the categories are fetched from the db table sys_dmail_category and not page TSconfig.
 	 *
-	 * @return	void		...
+	 * @return	void		No return value, updates $this->categories
 	 */
 	function makeCategories()	{
 		$this->categories = array();
-		if (is_array($this->params['categories.']))	{
-			reset($this->params['categories.']);
-			while(list($pKey,$pVal)=each($this->params['categories.']))	{
-				if (trim($pVal))	{
-					$catNum = intval($pKey);
-					if ($catNum>=0 && $catNum<=30)	{
-						$this->categories[$catNum] = $pVal;
-					}
-				}
-			}
-		}
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,category','sys_dmail_category','NOT hidden '.t3lib_BEfunc::deleteClause('sys_dmail_category'));
+
+        while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+            $this->categories[$row['uid']]=$row['category'];
+        }
+        return;
 	}
 
 	// ********************
@@ -515,7 +510,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	}
 
 	/**
-	 *  
+	 *
 	 *  @return	String	The infopage
 	 */
 	function cmd_displayPageInfo()	{
@@ -573,19 +568,23 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (is_array($HTTP_POST_VARS['indata']['categories']))	{
 			$data=array();
 			reset($HTTP_POST_VARS['indata']['categories']);
+
 			while(list($recUid,$recValues)=each($HTTP_POST_VARS['indata']['categories']))	{
 				reset($recValues);
-				$data['tt_content'][$recUid]['module_sys_dmail_category']=0;
+                $enabled = array();
 				while(list($k,$b)=each($recValues))	{
-					if ($b)	{$data['tt_content'][$recUid]['module_sys_dmail_category']|= pow (2,$k);}
+					if ($b)	{
+                        $enabled[] = $k;
+                    }
 				}
+                $data['tt_content'][$recUid]['module_sys_dmail_category'] = implode(',',$enabled);
 			}
 			$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 			$tce->stripslashes_values=0;
 			$tce->start($data,Array());
 			$tce->process_datamap();
 		}
-
+        //[ToDo] Perhaps we should here check if TV is installed and fetch cotnent from that instead of the old Columns...
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'colPos, CType, uid, header, bodytext, module_sys_dmail_category',
 			'tt_content',
@@ -599,6 +598,13 @@ class mod_web_dmail extends t3lib_SCbase {
 			$out='';
 			$colPosVal=99;
 			while($row=$TYPO3_DB->sql_fetch_assoc($res))	{
+                $row_categories = '';
+                $resCat = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign','sys_dmail_ttcontent_category_mm','uid_local='.$row['uid'].' ');
+                while($rowCat=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat)) {
+                    $row_categories .= $rowCat['uid_foreign'].',';
+                }
+                $row_categories = t3lib_div::rm_endComma($row_categories);
+
 				$out.='<tr><td colspan=3><img src="clear.gif" width="1" height="15"></td></tr>';
 				if ($colPosVal!=$row['colPos'])	{
 					$out.='<tr><td colspan="3" bgcolor="'.$this->doc->bgColor5.'">'.fw($LANG->getLL('nl_l_column').': <strong>'.t3lib_BEfunc::getProcessedValue('tt_content','colPos',$row['colPos']).'</strong>').'</td></tr>';
@@ -617,8 +623,9 @@ class mod_web_dmail extends t3lib_SCbase {
 				}
 				$out_check.='<br />';
 				reset($this->categories);
+
 				while(list($pKey,$pVal)=each($this->categories))	{
-					$out_check.='<input type="hidden" name="indata[categories]['.$row["uid"].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(($row['module_sys_dmail_category']&pow (2,$pKey)) ?' checked':'').'> '.$pVal.'<br />';
+					$out_check.='<input type="hidden" name="indata[categories]['.$row["uid"].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey) ?' checked':'').'> '.$pVal.'<br />';
 				}
 				$out.=fw($out_check).'</td></tr>';
 			}
@@ -767,7 +774,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 					$categories .= $row['uid_foreign'].',';
 				}
-				$categories = t3lib_div::rm_endComma($categories);				
+				$categories = t3lib_div::rm_endComma($categories);
 				$query = $GLOBALS['TYPO3_DB']->SELECTquery(
 					'DISTINCT('.$table.'.uid) as noEntry,'.$fields,
 					$table,
@@ -788,7 +795,8 @@ class mod_web_dmail extends t3lib_SCbase {
 					);
 			}
 		}
-//		printf("Query: $query<br />");
+		//printf("Query: $query<br />");
+        //exit();
 		return $query;
 	}
 
@@ -1367,11 +1375,13 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function cmd_displayUserInfo()	{
-		global $HTTP_POST_VARS;
+		global $HTTP_POST_VARS,$TCA;
 		$uid = intval(t3lib_div::_GP('uid'));
 
 		unset($row);
 		$table=t3lib_div::_GP('table');
+		t3lib_div::loadTCA($table);
+		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
 
 		switch($table)	{
 		case 'tt_address':
@@ -1380,23 +1390,24 @@ class mod_web_dmail extends t3lib_SCbase {
 				$data=array();
 				if (is_array($HTTP_POST_VARS['indata']['categories']))	{
 					reset($HTTP_POST_VARS['indata']['categories']);
-					while(list($recUid,$recValues)=each($HTTP_POST_VARS['indata']['categories']))	{
-						reset($recValues);
-						$data[$table][$uid]['module_sys_dmail_category']=0;
-						while(list($k,$b)=each($recValues))	{
-							if ($b)	{$data[$table][$uid]['module_sys_dmail_category']|= pow (2,$k);}
-						}
-					}
-				}
-				//debug($data[$table][$uid]['module_sys_dmail_category']);
-//					debug($HTTP_POST_VARS['indata']['categories']);
+        			while(list($recUid,$recValues)=each($HTTP_POST_VARS['indata']['categories']))	{
+        				reset($recValues);
+                        $enabled = array();
+        				while(list($k,$b)=each($recValues))	{
+        					if ($b)	{
+                                $enabled[] = $k;
+                            }
+        				}
+                        $data[$table][$uid]['module_sys_dmail_category'] = implode(',',$enabled);
+        			}
 
-				$data[$table][$uid]['module_sys_dmail_html'] = $HTTP_POST_VARS['indata']['html'] ? 1 : 0;
+				}
+                //t3lib_div::print_array($data);
+                $data[$table][$uid]['module_sys_dmail_html'] = $HTTP_POST_VARS['indata']['html'] ? 1 : 0;
 				$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 				$tce->stripslashes_values=0;
 				$tce->start($data,Array());
 				$tce->process_datamap();
-//								debug($data);
 			}
 			break;
 		}
@@ -1407,10 +1418,17 @@ class mod_web_dmail extends t3lib_SCbase {
 			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 			break;
 		case 'fe_users':
-
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('fe_users.*', 'fe_users,pages', 'pages.uid=fe_users.pid AND fe_users.uid='.intval($uid).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('fe_users').t3lib_BEfunc::deleteClause('pages'));
+			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 			break;
 		}
 		if (is_array($row))	{
+            $row_categories = '';
+            $resCat = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign',$mm_table,'uid_local='.$row['uid'].' ');
+            while($rowCat=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat)) {
+                $row_categories .= $rowCat['uid_foreign'].',';
+            }
+            $row_categories = t3lib_div::rm_endComma($row_categories);
 			$Eparams='&edit['.$table.']['.$row['uid'].']=edit';
 			$out='';
 			$out.='<img src="'.$GLOBALS['BACK_PATH'].t3lib_iconWorks::getIcon($table,$row).'" width=18 height=16 border=0 title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" align=top>'.$row['name'].htmlspecialchars(' <'.$row['email'].'>');
@@ -1423,9 +1441,9 @@ class mod_web_dmail extends t3lib_SCbase {
 			$out_check='';
 			reset($this->categories);
 			while(list($pKey,$pVal)=each($this->categories))	{
-				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(($row['module_sys_dmail_category']&pow(2,$pKey)) ?" checked":"").'> '.$pVal.'<BR>';
+				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey)?" checked":"").'> '.$pVal.'<BR>';
 			}
-			$out_check.='<BR><BR><input type="hidden" name="indata[html]" value="0"><input type="checkbox" name="indata[html]" value="1"'.($row['module_sys_dmail_html']?" checked":"").'> ';
+			$out_check.='<BR><BR><input type="checkbox" name="indata[html]" value="1"'.($row['module_sys_dmail_html']?" checked":"").'> ';
 			$out_check.='Receive HTML based mails<BR>';
 			$out.=fw($out_check);
 

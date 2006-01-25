@@ -14,9 +14,22 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
  	// tt_content modified
 t3lib_div::loadTCA('tt_content');
-t3lib_extMgm::addTCAcolumns('tt_content',array(
-		'module_sys_dmail_category' => Array('config'=>array('type'=>'passthrough'))
-));
+$tt_content_cols = Array(
+	'module_sys_dmail_category' => Array(
+		'label' => 'LLL:EXT:direct_mail/locallang_tca.php:module_sys_dmail_group.category',
+		'config' => Array (
+			'type' => 'select',
+			'foreign_table' => 'sys_dmail_category',
+//			'foreign_table_where' => 'AND sys_dmail_category.pid=###CURRENT_PID### ORDER BY sys_dmail_category.uid',
+			'foreign_table_where' => 'ORDER BY sys_dmail_category.uid',
+			'size' => 5,
+			'minitems' => 0,
+			'maxitems' => 30,
+			'MM' => 'sys_dmail_ttcontent_category_mm',
+			)
+		),
+);
+t3lib_extMgm::addTCAcolumns('tt_content',$tt_content_cols);
 
 $tempCols = Array(
 	'module_sys_dmail_category' => Array(
@@ -29,7 +42,7 @@ $tempCols = Array(
 			'size' => 5,
 			'minitems' => 0,
 			'maxitems' => 30,
-			'MM' => 'sys_dmail_group_category_mm',
+			'MM' => 'sys_dmail_ttaddress_category_mm',
 			)
 		),
 	'module_sys_dmail_html' => Array(
@@ -44,24 +57,33 @@ $tempCols = Array(
 t3lib_div::loadTCA('tt_address');
 t3lib_extMgm::addTCAcolumns('tt_address',$tempCols);
 t3lib_extMgm::addToAllTCATypes('tt_address','--div--;Direct mail,module_sys_dmail_category;;;;1-1-1,module_sys_dmail_html');
-/*
-  t3lib_extMgm::addTCAcolumns('tt_address',array(
-  'module_sys_dmail_category' => Array('config'=>array('type'=>'passthrough','MM'=>'sys_dmail_ttaddress_category_mm')),
-  'module_sys_dmail_html' => Array('config'=>array('type'=>'passthrough'))
-  ));
-*/
 $TCA['tt_address']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_category,module_sys_dmail_html';
+
+$tempCols = Array(
+	'module_sys_dmail_category' => Array(
+		'label' => 'LLL:EXT:direct_mail/locallang_tca.php:module_sys_dmail_group.category',
+		'config' => Array (
+			'type' => 'select',
+			'foreign_table' => 'sys_dmail_category',
+//			'foreign_table_where' => 'AND sys_dmail_category.pid=###CURRENT_PID### ORDER BY sys_dmail_category.uid',
+			'foreign_table_where' => 'ORDER BY sys_dmail_category.uid',
+			'size' => 5,
+			'minitems' => 0,
+			'maxitems' => 30,
+			'MM' => 'sys_dmail_feuser_category_mm',
+			)
+		),
+	'module_sys_dmail_html' => Array(
+        'label'=>'LLL:EXT:direct_mail/locallang_tca.php:module_sys_dmail_group.htmlemail',
+		'config'=>Array(
+			'type'=>'check'
+			)
+		)
+	);
 
 	// fe_users modified
 t3lib_div::loadTCA('fe_users');
 t3lib_extMgm::addTCAcolumns('fe_users',$tempCols);
-/*
-t3lib_extMgm::addTCAcolumns('fe_users',array(
-	'module_sys_dmail_category' => Array('config'=>array('type'=>'passthrough','MM'=>'sys_dmail_feuser_category_mm')),
-	'module_sys_dmail_category' => $tempArr,
-	'module_sys_dmail_html' => Array('config'=>array('type'=>'passthrough'))
-))
-*/;
 $TCA['fe_users']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_category,module_sys_dmail_html';
 
 // ******************************************************************

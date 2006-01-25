@@ -76,7 +76,7 @@
  */
 
 require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
-
+require_once(PATH_t3lib.'class.t3lib_befunc.php');
 class dmailer extends t3lib_htmlmail {
 	var $sendPerCycle =50;
 	var $logArray =array();
@@ -98,6 +98,7 @@ class dmailer extends t3lib_htmlmail {
 		if(strtolower($this->dmailerEncoding) == 'base64') { $this->useBase64(); }
 		if(strtolower($this->dmailerEncoding) == '8bit') { $this->use8Bit(); }
 		$this->theParts = unserialize($row['mailContent']);
+
 		$this->messageid = $this->theParts['messageid'];
 		$this->subject = $row['subject'];
 		$this->from_email = $row['from_email'];
@@ -107,7 +108,7 @@ class dmailer extends t3lib_htmlmail {
 		$this->organisation = ($row['organisation']) ? $row['organisation'] : '';
 		$this->priority = t3lib_div::intInRange($row['priority'],1,5);
 		$this->mailer = 'TYPO3 Direct Mail module';
-		
+
 		$this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
 		$this->dmailer['html_content'] = base64_decode($this->theParts['html']['content']);
 		$this->dmailer['plain_content'] = base64_decode($this->theParts['plain']['content']);
@@ -155,7 +156,8 @@ class dmailer extends t3lib_htmlmail {
 			$authCode = t3lib_div::stdAuthCode($recipRow['uid']);
 			$this->mediaList='';
 			if ($this->flag_html && $recipRow['module_sys_dmail_html'])		{
-				$tempContent_HTML = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],$recipRow['module_sys_dmail_category']);
+                $tempContent_HTML = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],$recipRow['sys_dmail_categories_list']);
+
 				reset($rowFieldsArray);
 				while(list(,$substField)=each($rowFieldsArray))	{
 					$tempContent_HTML = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $tempContent_HTML);
@@ -174,7 +176,7 @@ class dmailer extends t3lib_htmlmail {
 
 				// Plain
 			if ($this->flag_plain)		{
-				$tempContent_Plain = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'],$recipRow['module_sys_dmail_category']);
+				$tempContent_Plain = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'],$recipRow['sys_dmail_categories_list']);
 				reset($rowFieldsArray);
 				while(list(,$substField)=each($rowFieldsArray))	{
 					$tempContent_Plain = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $tempContent_Plain);
@@ -233,22 +235,34 @@ class dmailer extends t3lib_htmlmail {
 	}
 
 	/**
-	 * [Describe function...]
+	 * This function checks which content elements are suppsed to be sent to the recipient. tslib_content inserts dmail boudary markers in the content specifying which elements are intended for which categories, this functions check if the recipeient is subscribing to any of these categories and filters out the elements that are inteded for categories not subscribed to.
 	 *
-	 * @param	[type]		$cArray: ...
-	 * @param	[type]		$userCategories: ...
+	 * @param	[type]		$cArray: array of content split by dmail voundary
+	 * @param	[type]		$userCategories: The list of categories the user is subscrbing to.
 	 * @return	[type]		...
 	 */
 	function dmailer_getBoundaryParts($cArray,$userCategories)	{
-		$userCategories = intval($userCategories);
+		//$userCategories = intval($userCategories);
 		reset($cArray);
 		$returnVal='';
 		while(list(,$cP)=each($cArray))	{
 			$key=substr($cP[0],1);
-			if ($key=='END' || !$key || $userCategories<0 || (intval($key) & $userCategories)>0)	{
-				$returnVal.=$cP[1];
-				$this->mediaList.=$cP['mediaList'];
-			}
+            $isSubscribed = FALSE;
+
+			if ($key=='END' || !$key || intval($userCategories)==-1) {
+				    $returnVal.=$cP[1];
+				    $this->mediaList.=$cP['mediaList'];
+			} else {
+                foreach(explode(',',$key) as $group) {
+                    if(t3lib_div::inList($userCategories,$group)) {
+                        $isSubscribed= TRUE;
+                    }
+                }
+                if($isSubscribed)	{
+				    $returnVal.=$cP[1];
+				    $this->mediaList.=$cP['mediaList'];
+                }
+            }
 		}
 		return $returnVal;
 	}
@@ -274,6 +288,7 @@ class dmailer extends t3lib_htmlmail {
 			$numRows = $GLOBALS['TYPO3_DB']->sql_num_rows($res);
 			$cc=0;
 			while($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+                $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table,$recipRow['uid']);
 				if (!$this->dmailer_isSend($mid,$recipRow['uid'],$tKey))	{
 					$pt = t3lib_div::milliseconds();
 					if ($recipRow['telephone'])	$recipRow['phone'] = $recipRow['telephone'];	// Compensation for the fact that fe_users has the field, 'telephone' instead of 'phone'
@@ -336,6 +351,7 @@ class dmailer extends t3lib_htmlmail {
 							$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($table.'.*', $table, 'uid IN ('.$idList.') AND uid NOT IN ('.($sendIds?$sendIds:0).') AND '.($enableFields[$table]?$enableFields[$table]:'1=1'), '', '', $this->sendPerCycle+1);
 							if ($GLOBALS['TYPO3_DB']->sql_error())	{die ($GLOBALS['TYPO3_DB']->sql_error());}
 							while($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+                                $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table,$recipRow['uid']);
 								if ($c>=$this->sendPerCycle)	{$returnVal = false; break;}		// We are NOT finished!
 								$this->shipOfMail($mid,$recipRow,$tKey);
 								$ct++;
@@ -700,6 +716,23 @@ class dmailer extends t3lib_htmlmail {
 	function fullQuoteStr($str, $table)     {
 		return '\''.addslashes($str).'\'';
 	}
+    /**
+    *
+    *
+    */
+    function getListOfRecipentCategories($table,$uid) {
+		global $TCA;
+		t3lib_div::loadTCA($table);
+		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
+
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign',$mm_table.','.$table,'uid_local='.$uid.' AND '.$mm_table.'.uid_local='.$table.'.uid'.t3lib_BEfunc::deleteClause($table));
+        $list = '';
+        while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+            $list .= $row['uid_foreign'].',';
+        }
+
+        return t3lib_div::rm_endComma($list);
+    }
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/mod/class.dmailer.php'])	{

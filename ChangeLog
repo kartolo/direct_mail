@@ -1,3 +1,7 @@
+2006-01-25 Jan-Erik Revsbech <jer@moccmpany.com>
+	* fixed som e serious bugs concerning the migration from categories is TSconfig to the db table sys_dmail_categories. Now single content elements can be modified so its only displayed if the user is subscribing to the specifed category. Requires a pending patch in tslib/class.tslib_content.php
+	* fixed problem with editing subscription profile for tt_address and fe_users records.
+	
 2006-01-25 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add field use_rdct to table sys_dmail.
 	* Localize some elements of module configuration.
