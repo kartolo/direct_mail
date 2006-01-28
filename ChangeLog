@@ -1,3 +1,8 @@
+2006-01-28 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Fix problem when sending the final mail to a simple list.
+	* Add dmail boundaries wrapper class and typoscript (on behalf of Thorsten Kahler).
+	* Use $TYPO3_DB->fullQuoteStr in makeStaticListQuery.
+
 2006-01-25 Jan-Erik Revsbech <jer@moccmpany.com>
 	* fixed som e serious bugs concerning the migration from categories is TSconfig to the db table sys_dmail_categories. Now single content elements can be modified so its only displayed if the user is subscribing to the specifed category. Requires a pending patch in tslib/class.tslib_content.php
 	* fixed problem with editing subscription profile for tt_address and fe_users records.

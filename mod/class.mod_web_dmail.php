@@ -548,7 +548,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('nl_l_attach').'&nbsp;&nbsp;').' </b></td>
 					<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('nl_l_type').'&nbsp;&nbsp;').'</b></td>
 				</tr>';
-			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$out.='<tr>
 					<td><img src="'.$BACK_PATH.'gfx/i/mail.gif" width="18" height="16" border="0" align="top"></td>
 					<td>'.$this->linkDMail_record(fw(t3lib_div::fixed_lgd($row['subject'],30).'  '),$row['uid']).'</td>
@@ -599,8 +599,8 @@ class mod_web_dmail extends t3lib_SCbase {
 			$colPosVal=99;
 			while($row=$TYPO3_DB->sql_fetch_assoc($res))	{
                 $row_categories = '';
-                $resCat = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign','sys_dmail_ttcontent_category_mm','uid_local='.$row['uid'].' ');
-                while($rowCat=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat)) {
+                $resCat = $TYPO3_DB->exec_SELECTquery('uid_foreign','sys_dmail_ttcontent_category_mm','uid_local='.$row['uid'].' ');
+                while($rowCat=$TYPO3_DB->sql_fetch_assoc($resCat)) {
                     $row_categories .= $rowCat['uid_foreign'].',';
                 }
                 $row_categories = t3lib_div::rm_endComma($row_categories);
@@ -833,8 +833,8 @@ class mod_web_dmail extends t3lib_SCbase {
 		if($table == 'fe_users') {
 			$query = $TYPO3_DB->SELECTquery(
 				'DISTINCT(fe_users.uid),'.$fields,
-				'sys_dmail_group_mm LEFT JOIN fe_groups on fe_groups.uid=uid_foreign AND tablenames=\'fe_groups\' LEFT JOIN fe_users ON (FIND_IN_SET(fe_groups.uid,fe_users.usergroup)) OR (fe_users.uid=uid_foreign AND tablenames=\'fe_users\')',
-				'sys_dmail_group_mm.uid_local='.intval($uid).
+				'sys_dmail_group_mm LEFT JOIN fe_groups on fe_groups.uid=uid_foreign AND tablenames='.$TYPO3_DB->fullQuoteStr('fe_groups', 'fe_groups').' LEFT JOIN fe_users ON (FIND_IN_SET(fe_groups.uid,fe_users.usergroup)) OR (fe_users.uid=uid_foreign AND tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).')',
+				'sys_dmail_group_mm.uid_local='.$uid.
 				t3lib_pageSelect::enableFields('fe_users').	// Enable fields includes 'deleted'
 				t3lib_pageSelect::enableFields('fe_groups')
 				);
@@ -843,7 +843,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$fields,
 				$table.',sys_dmail_group,sys_dmail_group_mm',
 				'sys_dmail_group.uid = '.intval($uid).' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid AND
-								sys_dmail_group_mm.uid_foreign='.$table.'.uid AND sys_dmail_group_mm.tablenames="'.$table.'"'.
+								sys_dmail_group_mm.uid_foreign='.$table.'.uid AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
 				t3lib_pageSelect::enableFields($table).	// Enable fields includes 'deleted'
 				t3lib_pageSelect::enableFields('sys_dmail_group')
 				);
@@ -1078,10 +1078,11 @@ class mod_web_dmail extends t3lib_SCbase {
 //						debug($id_lists);
 					break;
 				case 2:	// Static MM list
-					$queries['tt_address'] = $this->makeStaticListQuery('tt_address',$group_uid,'tt_address.*');
+					$queries['tt_address'] = $this->makeStaticListQuery('tt_address', $group_uid,'tt_address.*');
 					if ($makeIdLists)	$id_lists['tt_address'] = $this->getStaticIdList('tt_address',$group_uid);
-					$queries['fe_users'] = $this->makeStaticListQuery('fe_users',$group_uid,'fe_users.*');
+					$queries['fe_users'] = $this->makeStaticListQuery('fe_users', $group_uid,'fe_users.*');
 					if ($makeIdLists)	$id_lists['fe_users'] = $this->getStaticIdList('fe_users',$group_uid);
+					printf(" $queries ");
 					if ($this->userTable)	{
 						$queries[$this->userTable] = $this->makeStaticListQuery($this->userTable,$group_uid,$this->userTable.'*');
 						if ($makeIdLists)	$id_lists[$this->userTable] = $this->getStaticIdList($this->userTable,$group_uid);
@@ -1919,7 +1920,7 @@ class mod_web_dmail extends t3lib_SCbase {
 
 		$msg='';
 		$msg.= $LANG->getLL('testmail_simple_msg') . '<br /><br />';
-		$msg.= '<input'.$TBE_TEMPLATE->formWidth().' type="text" name="SET[dmail_test_email]" value="'.$this->MOD_SETTINGS["dmail_test_email"].'" /><br /><br />';
+		$msg.= '<input'.$TBE_TEMPLATE->formWidth().' type="text" name="SET[dmail_test_email]" value="'.$this->MOD_SETTINGS['dmail_test_email'].'" /><br /><br />';
 
 		$msg.= '<input type="hidden" name="id" value="'.$this->id.'" />';
 		$msg.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'" />';
@@ -1968,7 +1969,7 @@ class mod_web_dmail extends t3lib_SCbase {
 
 		$msg='';
 		$msg.= $LANG->getLL('schedule_enter_emails') . '<br /><br />';
-		$msg.= '<textarea'.$TBE_TEMPLATE->formWidthText().' rows=30 name="email"></textarea><br /><br />';
+		$msg.= '<textarea'.$TBE_TEMPLATE->formWidthText().' rows="30" name="SET[dmail_test_email]"></textarea><br /><br />';
 		$msg.= '<input type="hidden" name="id" value="'.$this->id.'" />';
 		$msg.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'" />';
 		$msg.= '<input type="hidden" name="CMD" value="send_mail_final" />';
@@ -2179,9 +2180,10 @@ class mod_web_dmail extends t3lib_SCbase {
 		$sentFlag=false;
 		if (t3lib_div::_GP('mailingMode_simple'))	{
 				// Fixing addresses:
-			$addresses = t3lib_div::_GP("SET");
+			$addresses = t3lib_div::_GP('SET');
 			$addressList = $addresses['dmail_test_email'] ? $addresses['dmail_test_email'] : $this->MOD_SETTINGS['dmail_test_email'];
-			$addresses = split(chr(10)."|,|;",$addressList);
+			$addresses = split(chr(10).'|,|;',$addressList);
+			reset($addresses);
 			while(list($key,$val)=each($addresses))	{
 				$addresses[$key]=trim($val);
 				if (!strstr($addresses[$key],'@'))	{
