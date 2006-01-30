@@ -1,3 +1,6 @@
+2006-01-30 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Adjust default value of proposed messageid.
+
 2006-01-29 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* ext_tables.php: add module_sys_dmail_category and module_sys_dmail_html to all types in fe_users TCA
 	* Add option to use sendmail deferred delivery mode.

@@ -1078,13 +1078,10 @@ class mod_web_dmail extends t3lib_SCbase {
 					if ($makeIdLists)	$id_lists['tt_address'] = $this->getStaticIdList('tt_address',$group_uid);
 					$queries['fe_users'] = $this->makeStaticListQuery('fe_users', $group_uid,'fe_users.*');
 					if ($makeIdLists)	$id_lists['fe_users'] = $this->getStaticIdList('fe_users',$group_uid);
-					printf(" $queries ");
 					if ($this->userTable)	{
 						$queries[$this->userTable] = $this->makeStaticListQuery($this->userTable,$group_uid,$this->userTable.'*');
 						if ($makeIdLists)	$id_lists[$this->userTable] = $this->getStaticIdList($this->userTable,$group_uid);
 					}
-//						debug($queries);
-//						debug($id_lists);
 					break;
 				case 3:	// QUERY
 					//$theOutput.=$this->cmd_query($group_uid);

@@ -584,7 +584,7 @@ class dmailer extends t3lib_htmlmail {
 			$host = gethostbyaddr(gethostbyname($host));
 		}
 		if (!$host || $host == '127.0.0.1' || $host == 'localhost') {
-			$host = preg_replace('/[^A-Za-z0-9_\-]/', '_', $TYPO3_CONF_VARS['SYS']['sitename']) . '.TYPO3';
+			$host = $TYPO3_CONF_VARS['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $TYPO3_CONF_VARS['SYS']['sitename']) . '.TYPO3' : 'localhost.TYPO3';
 		}
 		$this->messageid = md5(microtime()) . '@' . $host;
 	}
