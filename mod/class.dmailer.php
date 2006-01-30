@@ -208,13 +208,13 @@ class dmailer extends t3lib_htmlmail {
 				// Set content
 			$this->Xid = $midRidId.'-'.md5($midRidId);
 			$this->returnPath = str_replace('###XID###',$midRidId,$this->dmailer['sys_dmail_rec']['return_path']);
-
-
+			
 			$this->part=0;
 			$this->setHeaders();
 			$this->setContent();
-			$this->setRecipient($recipRow['email']);
-
+			if ($recipRow['name']) $this->setRecipient('"' . $recipRow['name'] . '" <' . $recipRow['email'] . '>');
+				else $this->setRecipient($recipRow['email']);
+			
 			$this->message = str_replace($this->dmailer['messageID'], $uniqMsgId, $this->message);	// Put in the unique message id in whole message body
 			$this->sendtheMail();
 		}

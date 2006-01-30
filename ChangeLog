@@ -3,6 +3,7 @@
 	* Add option to use sendmail deferred delivery mode.
 	* Remove from class.dmailer.php redundant functions now corrected in TYPO3 4.0 core.
 	* Try to auto-detect charset when page is external.
+	* Fix issue 611 (add real name in To: field of emails).
 
 2006-01-28 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Fix problem when sending the final mail to a simple list.
