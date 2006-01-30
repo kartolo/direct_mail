@@ -185,7 +185,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function createDMail()	{
-		global $TCA, $LANG, $TYPO3_CONF_VARS;
+		global $TCA, $TYPO3_CONF_VARS;
 		if ($createMailFrom = t3lib_div::_GP('createMailFrom'))	{
 			// Set default values:
 			$dmail = array();
@@ -230,9 +230,6 @@ class mod_web_dmail extends t3lib_SCbase {
 				$this->params['enableHTML'] = $dmail['sys_dmail']['NEW']['HTMLParams'] ? 1 : 0;
 				
 				$dmail['sys_dmail']['NEW']['pid']=$this->pageinfo['uid'];
-				if (isset($this->params['direct_mail_charset'])) {
-					$dmail['sys_dmail']['NEW']['charset'] = $LANG->csConvObj->parse_charset($this->params['direct_mail_charset']);
-				}
 			}
 			
 				// Finally the enablePlain and enableHTML flags ultimately determines the sendOptions, IF they are set in the pageTSConfig
@@ -1763,7 +1760,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'quick_mail_encoding' => array('select', 'Encoding for quick mails', 'Select the content transfer encoding to use when sending quick mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'direct_mail_encoding' => array('select', 'Encoding for direct mails', 'Select the content transfer encoding to use when sending direct mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'quick_mail_charset' => array('short', 'Character set for quick mails', 'Character set used in quick mails. Default is iso-8859-1.', 'iso-8859-1'),
-			'direct_mail_charset' => array('short', 'Character set for direct mails built from external pages', 'Character set used in direct mails when they are built from external pages. Default is iso-8859-1.', 'iso-8859-1'),
+			'direct_mail_charset' => array('short', 'Default character set for direct mails built from external pages', 'Character set used in direct mails when they are built from external pages and character set cannot be auto-detected. Default is iso-8859-1.', 'iso-8859-1'),
 			'enablePlain' => array('check', 'Allow Plain Text emails', 'Set this if you want to allow plain text emails to be fetched. If in doubt, check this option.'),
 			'enableHTML' => array('check', 'Allow HTML emails', 'Set this if you want to allow HTML emails to be fetched. If in doubt, check this option.'),
 			'http_username' => array('short', 'HTTP username', 'If the mail content is protected by a HTTP authentication, enter the username here. The username and password is used to fetch the mail content. They are NOT sent in the mail!<br />If you don\'t enter a username and password and the newsletter pages happens to be protected, an error will occur and no mail content is fetched.'),
@@ -1798,7 +1795,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function cmd_fetch($row)        {
-		global $TCA, $TYPO3_DB;
+		global $TCA, $TYPO3_DB, $LANG;
 		
 			// Compile the mail
 		$htmlmail = t3lib_div::makeInstance('dmailer');
@@ -1806,17 +1803,29 @@ class mod_web_dmail extends t3lib_SCbase {
 			$htmlmail->jumperURL_prefix = $this->urlbase.'?id='.$row['page'].'&rid=###SYS_TABLE_NAME###_###USER_uid###&mid=###SYS_MAIL_ID###&jumpurl=';
 			$htmlmail->jumperURL_useId=1;
 		}
-		$htmlmail->charset = $row['charset'];
 		$htmlmail->start();
+		$htmlmail->charset = $row['charset'];
 		$htmlmail->useBase64();
 		$htmlmail->http_username = $this->params['http_username'];
 		$htmlmail->http_password = $this->params['http_password'];
 		
-		if ($this->url_plain)   {
+		if ($this->url_plain) {
 			$htmlmail->addPlain(t3lib_div::getURL($this->addUserPass($this->url_plain)));
 		}
-		if ($this->url_html)    {
+		if ($this->url_html) {
 			$htmlmail->addHTML($this->url_html);    // Username and password is added in htmlmail object
+			if (!$row['charset']) {		// If no charset was set, we have an external page.
+					// Try to auto-detect the charset of the message
+				$res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', $htmlmail->theParts['html_content'], $matches);
+				if ($res==1) {
+					$htmlmail->charset = $matches[1];
+				} elseif (isset($this->params['direct_mail_charset'])) {
+					$htmlmail->charset = $LANG->csConvObj->parse_charset($this->params['direct_mail_charset']);
+				} else {
+					$htmlmail->charset = 'iso-8859-1';
+				}
+				$htmlmail->useBase64();   // Reset content-type headers with new charset
+			}
 		}
 		
 		$attachmentArr = t3lib_div::trimExplode(',', $row['attachment'],1);
@@ -1836,6 +1845,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$mailContent = serialize($htmlmail->theParts);
 		$updateFields = array(
 			'issent' => 0,
+			'charset' => $htmlmail->charset,
 			'mailContent' => $mailContent,
 			'renderedSize' => strlen($mailContent)
 			);

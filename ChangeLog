@@ -2,6 +2,7 @@
 	* ext_tables.php: add module_sys_dmail_category and module_sys_dmail_html to all types in fe_users TCA
 	* Add option to use sendmail deferred delivery mode.
 	* Remove from class.dmailer.php redundant functions now corrected in TYPO3 4.0 core.
+	* Try to auto-detect charset when page is external.
 
 2006-01-28 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Fix problem when sending the final mail to a simple list.
