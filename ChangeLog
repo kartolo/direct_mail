@@ -1,3 +1,8 @@
+2006-01-29 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* ext_tables.php: add module_sys_dmail_category and module_sys_dmail_html to all types in fe_users TCA
+	* Add option to use sendmail deferred delivery mode.
+	* Remove from class.dmailer.php redundant functions now corrected in TYPO3 4.0 core.
+
 2006-01-28 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Fix problem when sending the final mail to a simple list.
 	* Add dmail boundaries wrapper class and typoscript (on behalf of Thorsten Kahler).

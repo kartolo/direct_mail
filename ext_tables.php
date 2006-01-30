@@ -85,6 +85,7 @@ $tempCols = Array(
 t3lib_div::loadTCA('fe_users');
 t3lib_extMgm::addTCAcolumns('fe_users',$tempCols);
 $TCA['fe_users']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_category,module_sys_dmail_html';
+t3lib_extMgm::addToAllTCATypes('fe_users','--div--;Direct mail,module_sys_dmail_category;;;;1-1-1,module_sys_dmail_html');
 
 // ******************************************************************
 // Categories

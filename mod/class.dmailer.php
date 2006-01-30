@@ -84,7 +84,6 @@ class dmailer extends t3lib_htmlmail {
 	var $flag_html = 0;
 	var $flag_plain = 0;
 	var $user_dmailerLang = 'en';
-	var $dmailerEncoding = 'quoted-printable';
 
 	/**
 	 * @param	[type]		$row: ...
@@ -92,13 +91,22 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function dmailer_prepare($row)	{
 		$sys_dmail_uid = $row['uid'];
-		$this->dmailerEncoding = $row['encoding'] ? $row['encoding'] : $this->dmailerEncoding;
-		$this->charset = $row['charset'] ? $row['charset'] : $this->charset;
-		if(strtolower($this->dmailerEncoding) == 'quoted-printable') { $this->useQuotedPrintable(); }
-		if(strtolower($this->dmailerEncoding) == 'base64') { $this->useBase64(); }
-		if(strtolower($this->dmailerEncoding) == '8bit') { $this->use8Bit(); }
+		if ($row['charset']) {
+			$this->charset = $row['charset'];
+		}
+		switch ($row['encoding']) {
+			case 'base64':
+				$this->useBase64();
+				break;
+			case '8bit':
+				$this->use8Bit();
+				break;
+			case 'printed-quotable':
+			default:
+				$this->useQuotedPrintable();
+		}
 		$this->theParts = unserialize($row['mailContent']);
-
+		
 		$this->messageid = $this->theParts['messageid'];
 		$this->subject = $row['subject'];
 		$this->from_email = $row['from_email'];
@@ -108,14 +116,14 @@ class dmailer extends t3lib_htmlmail {
 		$this->organisation = ($row['organisation']) ? $row['organisation'] : '';
 		$this->priority = t3lib_div::intInRange($row['priority'],1,5);
 		$this->mailer = 'TYPO3 Direct Mail module';
-
+		
 		$this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
 		$this->dmailer['html_content'] = base64_decode($this->theParts['html']['content']);
 		$this->dmailer['plain_content'] = base64_decode($this->theParts['plain']['content']);
 		$this->dmailer['messageID'] = $this->messageid;
 		$this->dmailer['sys_dmail_uid'] = $sys_dmail_uid;
 		$this->dmailer['sys_dmail_rec'] = $row;
-
+		
 		$this->dmailer['boundaryParts_html'] = explode($this->dmailer['sectionBoundary'], '_END-->'.$this->dmailer['html_content']);
 		while(list($bKey,$bContent)=each($this->dmailer['boundaryParts_html']))	{
 			$this->dmailer['boundaryParts_html'][$bKey] = explode('-->',$bContent,2);
@@ -156,8 +164,8 @@ class dmailer extends t3lib_htmlmail {
 			$authCode = t3lib_div::stdAuthCode($recipRow['uid']);
 			$this->mediaList='';
 			if ($this->flag_html && $recipRow['module_sys_dmail_html'])		{
-                $tempContent_HTML = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],$recipRow['sys_dmail_categories_list']);
-
+				$tempContent_HTML = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],$recipRow['sys_dmail_categories_list']);
+				
 				reset($rowFieldsArray);
 				while(list(,$substField)=each($rowFieldsArray))	{
 					$tempContent_HTML = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $tempContent_HTML);
@@ -247,22 +255,22 @@ class dmailer extends t3lib_htmlmail {
 		$returnVal='';
 		while(list(,$cP)=each($cArray))	{
 			$key=substr($cP[0],1);
-            $isSubscribed = FALSE;
-
+			$isSubscribed = FALSE;
+			
 			if ($key=='END' || !$key || intval($userCategories)==-1) {
 				    $returnVal.=$cP[1];
 				    $this->mediaList.=$cP['mediaList'];
 			} else {
-                foreach(explode(',',$key) as $group) {
-                    if(t3lib_div::inList($userCategories,$group)) {
-                        $isSubscribed= TRUE;
-                    }
-                }
-                if($isSubscribed)	{
-				    $returnVal.=$cP[1];
-				    $this->mediaList.=$cP['mediaList'];
-                }
-            }
+				foreach(explode(',',$key) as $group) {
+					if(t3lib_div::inList($userCategories,$group)) {
+						$isSubscribed= TRUE;
+					}
+				}
+				if ($isSubscribed) {
+					$returnVal.=$cP[1];
+					$this->mediaList.=$cP['mediaList'];
+				}
+			}
 		}
 		return $returnVal;
 	}
@@ -288,7 +296,7 @@ class dmailer extends t3lib_htmlmail {
 			$numRows = $GLOBALS['TYPO3_DB']->sql_num_rows($res);
 			$cc=0;
 			while($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-                $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table,$recipRow['uid']);
+				$recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table,$recipRow['uid']);
 				if (!$this->dmailer_isSend($mid,$recipRow['uid'],$tKey))	{
 					$pt = t3lib_div::milliseconds();
 					if ($recipRow['telephone'])	$recipRow['phone'] = $recipRow['telephone'];	// Compensation for the fact that fe_users has the field, 'telephone' instead of 'phone'
@@ -312,7 +320,9 @@ class dmailer extends t3lib_htmlmail {
 	 * @param	[type]		$mid: ...
 	 * @return	[type]		...
 	 */
-	function dmailer_masssend_list($query_info,$mid)	{
+	function dmailer_masssend_list($query_info,$mid) {
+		global $TYPO3_DB;
+		
 		$enableFields['tt_address']='tt_address.deleted=0 AND tt_address.hidden=0';
 		$enableFields['fe_users']='fe_users.deleted=0 AND fe_users.disable=0';
 
@@ -348,10 +358,18 @@ class dmailer extends t3lib_htmlmail {
 					} else {
 						$idList = implode(',',$listArr);
 						if ($idList)	{
-							$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($table.'.*', $table, 'uid IN ('.$idList.') AND uid NOT IN ('.($sendIds?$sendIds:0).') AND '.($enableFields[$table]?$enableFields[$table]:'1=1'), '', '', $this->sendPerCycle+1);
-							if ($GLOBALS['TYPO3_DB']->sql_error())	{die ($GLOBALS['TYPO3_DB']->sql_error());}
-							while($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-                                $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table,$recipRow['uid']);
+							$res = $TYPO3_DB->exec_SELECTquery(
+								$table.'.*',
+								$table,
+								'uid IN ('.$idList.') AND uid NOT IN ('.($sendIds?$sendIds:0).') AND '.($enableFields[$table]?$enableFields[$table]:'1=1'),
+								'',
+								'',
+								$this->sendPerCycle+1);
+							if ($TYPO3_DB->sql_error())	{
+								die ($TYPO3_DB->sql_error());
+							}
+							while($recipRow = $TYPO3_DB->sql_fetch_assoc($res))	{
+								$recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table,$recipRow['uid']);
 								if ($c>=$this->sendPerCycle)	{$returnVal = false; break;}		// We are NOT finished!
 								$this->shipOfMail($mid,$recipRow,$tKey);
 								$ct++;
@@ -441,8 +459,7 @@ class dmailer extends t3lib_htmlmail {
 	function dmailer_howManySendMails($mid,$rtbl='')	{
 		global $TYPO3_DB;
 		
-		//$res = $TYPO3_DB->exec_SELECTquery('count(*)', 'sys_dmail_maillog', 'mid='.intval($mid).' AND response_type=0'.($rtbl ? ' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog') : ''));
-		$res = $TYPO3_DB->exec_SELECTquery('count(*)', 'sys_dmail_maillog', 'mid='.intval($mid).' AND response_type=0'.($rtbl ? ' AND rtbl='.$this->fullQuoteStr($rtbl, 'sys_dmail_maillog') : ''));
+		$res = $TYPO3_DB->exec_SELECTquery('count(*)', 'sys_dmail_maillog', 'mid='.intval($mid).' AND response_type=0'.($rtbl ? ' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog') : ''));
 		$row = $TYPO3_DB->sql_fetch_row($res);
 		return $row[0];
 	}
@@ -458,8 +475,7 @@ class dmailer extends t3lib_htmlmail {
 	function dmailer_isSend($mid,$rid,$rtbl)	{
 		global $TYPO3_DB;
 		
-		//$res = $TYPO3_DB->exec_SELECTquery('uid', 'sys_dmail_maillog', 'rid='.intval($rid).' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog').' AND mid='.intval($mid).' AND response_type=0');
-		$res = $TYPO3_DB->exec_SELECTquery('uid', 'sys_dmail_maillog', 'rid='.intval($rid).' AND rtbl='.$this->fullQuoteStr($rtbl, 'sys_dmail_maillog').' AND mid='.intval($mid).' AND response_type=0');
+		$res = $TYPO3_DB->exec_SELECTquery('uid', 'sys_dmail_maillog', 'rid='.intval($rid).' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog').' AND mid='.intval($mid).' AND response_type=0');
 		return $TYPO3_DB->sql_num_rows($res);
 	}
 
@@ -473,8 +489,7 @@ class dmailer extends t3lib_htmlmail {
 	function dmailer_getSentMails($mid,$rtbl)	{
 		global $TYPO3_DB;
 		
-		//$res = $TYPO3_DB->exec_SELECTquery('rid', 'sys_dmail_maillog', 'mid='.intval($mid).' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog').' AND response_type=0');
-		$res = $TYPO3_DB->exec_SELECTquery('rid', 'sys_dmail_maillog', 'mid='.intval($mid).' AND rtbl='.$this->fullQuoteStr($rtbl, 'sys_dmail_maillog').' AND response_type=0');
+		$res = $TYPO3_DB->exec_SELECTquery('rid', 'sys_dmail_maillog', 'mid='.intval($mid).' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog').' AND response_type=0');
 		$list = array();
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			$list[] = $row['rid'];
@@ -520,6 +535,7 @@ class dmailer extends t3lib_htmlmail {
 		global $LANG, $TYPO3_CONF_VARS, $TYPO3_DB;
 		
 		$this->sendPerCycle = trim($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['sendPerCycle']) ? intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['sendPerCycle']) : 50;
+		$this->useDeferMode = trim($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) ? intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) : 0;
 
 		if(!is_object($LANG) ) {
 			require (PATH_typo3.'sysext/lang/lang.php');
@@ -532,9 +548,6 @@ class dmailer extends t3lib_htmlmail {
 		$pt = t3lib_div::milliseconds();
 
 		$res = $TYPO3_DB->exec_SELECTquery('*', 'sys_dmail', 'scheduled!=0 AND scheduled<'.time().' AND scheduled_end=0', '', 'scheduled');
-		if ($TYPO3_DB->sql_error())	{
-			die ($TYPO3_DB->sql_error());
-		}
 		$this->logArray[]=$LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y');
 		
 		if ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -555,183 +568,109 @@ class dmailer extends t3lib_htmlmail {
 		$parsetime=t3lib_div::milliseconds()-$pt;
 		$this->logArray[]=$LANG->getLL('dmailer_ending'). ' ' . $parsetime . ' ms';
 	}
-/**
- * t3lib_htmlmail system class extended by Stanislas Rolland so that quoted-printable messages can be correctly sent thus avoiding SPAM filtering
- *
- * @author      Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *
- * translate_uri($uri) code from http://ca.php.net/rawurlencode
- * replaces rawurlencode in substMediaNamesInHTML($absolute) and substHREFsInHTML()
- *
- */
-		var $charset = 'iso-8859-1';
-		var $alt_8bit = 0;
-		var $lineBreak;
-		var $innerMessageid;
-		var $plain_text_header = "Content-Type: text/plain; charset=iso-8859-1\nContent-Transfer-Encoding: quoted-printable";
-		var $html_text_header = "Content-Type: text/html; charset=iso-8859-1\nContent-Transfer-Encoding: quoted-printable"; 
-
-	function start ($user_dmailer_sendPerCycle=50,$user_dmailer_lang='en')       {
+	
+	function start($user_dmailer_sendPerCycle=50,$user_dmailer_lang='en') {
 		global $TYPO3_CONF_VARS;
-			// Sets the message id
-		$localhost = gethostbyaddr('127.0.0.1');
-		if (!$localhost || $localhost == '127.0.0.1' || $localhost == 'localhost') $localhost = md5($TYPO3_CONF_VARS['SYS']['sitename']).'.TYPO3'; 
-		$this->innerMessageid = md5(microtime()) . '@' . $localhost;
-		$this->messageid = $this->innerMessageid;
 		
-			// default line break (Unix)
-		$this->lineBreak = chr(10);
-			// line break for Windows
-		if (TYPO3_OS == 'WIN') {
-			$this->lineBreak = chr(13).chr(10);
-		}
+		parent::start();
 		
-		$this->charset = $this->charset ? $this->charset : 'iso-8859-1';
-
-			// Quoted-printable headers by default
-		$this->useQuotedPrintable();
-
 			// Mailer engine parameters
 		$this->sendPerCycle = $user_dmailer_sendPerCycle;
 		$this->user_dmailerLang = $user_dmailer_lang;
-	}
-
-	function useQuotedPrintable()    {
-		$this->plain_text_header = 'Content-Type: text/plain; charset=' . $this->charset . $this->lineBreak . 'Content-Transfer-Encoding: quoted-printable';
-		$this->html_text_header = 'Content-Type: text/html; charset=' . $this->charset . $this->lineBreak . 'Content-Transfer-Encoding: quoted-printable';
-		$this->dmailerEncoding = 'quoted-printable';
+		
+			// Sets the message id
+		$host = php_uname('n');
+		if (strpos('.',$host) === FALSE) {
+			$host = gethostbyaddr(gethostbyname($host));
+		}
+		if (!$host || $host == '127.0.0.1' || $host == 'localhost') {
+			$host = preg_replace('/[^A-Za-z0-9_\-]/', '_', $TYPO3_CONF_VARS['SYS']['sitename']) . '.TYPO3';
+		}
+		$this->messageid = md5(microtime()) . '@' . $host;
 	}
 	
-	function useBase64()    {
-		$this->plain_text_header = 'Content-Type: text/plain; charset=' . $this->charset . $this->lineBreak . 'Content-Transfer-Encoding: base64';
-		$this->html_text_header = 'Content-Type: text/html; charset=' . $this->charset . $this->lineBreak . 'Content-Transfer-Encoding: base64';
-		$this->alt_base64 = 1;
-		$this->dmailerEncoding = 'base64';
-	}
-
-	function use8Bit()    {
-		$this->plain_text_header = 'Content-Type: text/plain; charset=' . $this->charset . '; format=flowed' . $this->lineBreak . 'Content-Transfer-Encoding: 8bit';
-		$this->html_text_header = 'Content-Type: text/html; charset=' . $this->charset . $this->lineBreak . 'Content-Transfer-Encoding: 8bit';
-		$this->alt_8bit = 1;
-		$this->dmailerEncoding = '8bit';
-	}
-
-	function encodeMsg($content)    {
-		switch($this->dmailerEncoding) {
-			case 'base64': return $this->makeBase64($content);
-			case '8bit': return $content;
-			case 'quoted-printable': 
-			default: return $this->quoted_printable($content);
-		}
-	}
-
-	function setHeaders ()  {
-			// Clears the header-string and sets the headers based on object-vars.
-		$this->headers = "";
-			// Message_id
-		$this->add_header("Message-ID: <" . $this->innerMessageid . ">");
-			// Return path
-		if ($this->returnPath)  {
-			$this->add_header("Return-Path: ".$this->returnPath);
-		}
-                         // X-id
-                 if ($this->Xid) {
-                         $this->add_header("X-Typo3MID: ".$this->Xid);
-                 }
-                         // From
-                 if ($this->from_email)  {
-                         if ($this->from_name)   {
-                                 $name = $this->convertName($this->from_name);
-                                 $this->add_header("From: $name <$this->from_email>");
-                         } else {
-                                 $this->add_header("From: $this->from_email");
-                         }
-                 }
-                         // Reply
-                 if ($this->replyto_email)       {
-                         if ($this->replyto_name)        {
-                                 $name = $this->convertName($this->replyto_name);
-                                 $this->add_header("Reply-To: $name <$this->replyto_email>");
-                         } else {
-                                 $this->add_header("Reply-To: $this->replyto_email");
-                         }
-                 }
-                         // Organisation
-                 if ($this->organisation)        {
-                         $name = $this->convertName($this->organisation);
-                         $this->add_header("Organisation: $name");
-                 }
-                         // mailer
-                 if ($this->mailer)      {
-                         $this->add_header("X-Mailer: $this->mailer");
-                 }
-                         // priority
-                 if ($this->priority)    {
-                         $this->add_header("X-Priority: $this->priority");
-                 }
-                 $this->add_header("Mime-Version: 1.0");
-         }
-	 
-	/**
-	 * Quoted-printable encoding modified by Martin Kutschker <Martin.Kutschker@activesolution.at>
-	 *
-	 * @param       [type]          $string: ...
-	 * @return      [type]          ...
-	 */
-	function quoted_printable($string)      {
-			// This functions is buggy. It seems that in the part where the lines are breaked every 76th character, that it fails if the break happens right in a quoted_printable encode character!
-		$newString = "";
-			// unify internal line breaks
-		$string = str_replace(chr(13).chr(10),chr(10),$string); // DOS -> Unix
-		$string = str_replace(chr(13),chr(10),$string); // Mac -> Unix
-		$theLines = explode(chr(10),$string);   // Break lines. Doesn't work with mac eol's which seems to be 13. But 13-10 or 10 will work
-		while (list(,$val)=each($theLines))     {
-			$val = ereg_replace(chr(13)."$","",$val);               // removes possible character 13 at the end of line
-			$newVal = "";
-			$theValLen = strlen($val);
-			$len = 0;
-			for ($index=0;$index<$theValLen;$index++)       {
-				$char = substr($val,$index,1);
-				$ordVal =Ord($char);
-				if ($len>(76-4) || ($len>(66-4)&&$ordVal==32))  {
-					$len=0;
-					$newVal.="=".$this->lineBreak;
-				}
-				if (($ordVal>=33 && $ordVal<=60) || ($ordVal>=62 && $ordVal<=126) || $ordVal==9 || $ordVal==32) {
-					$newVal.=$char;
-					$len++;
+	function sendTheMail () {
+#debug(array($this->recipient,$this->subject,$this->message,$this->headers));
+			// Sends the mail, requires the recipient, message and headers to be set.
+		if (trim($this->recipient) && trim($this->message))	{	//  && trim($this->headers)
+			$returnPath = (strlen($this->returnPath)>0)?"-f".$this->returnPath:'';
+				//On windows the -f flag is not used (specific for Sendmail and Postfix), but instead the php.ini parameter sendmail_from is used.
+			if($this->returnPath) {
+				ini_set(sendmail_from, $this->returnPath);
+			}
+				// Setting defer mode
+			$deferMode = $this->useDeferMode ? (($returnPath ? ' ': '') . '-O DeliveryMode=defer') : '';
+			
+				//If safe mode is on, the fifth parameter to mail is not allowed, so the fix wont work on unix with safe_mode=On
+			if(!ini_get('safe_mode') && $this->forceReturnPath) {
+				mail($this->recipient,
+					  $this->subject,
+					  $this->message,
+					  $this->headers,
+					  $returnPath.$deferMode);
+			} else {
+				mail($this->recipient,
+					  $this->subject,
+					  $this->message,
+					  $this->headers);
+			}
+				// Sending copy:
+			if ($this->recipient_copy)	{
+				if(!ini_get('safe_mode') && $this->forceReturnPath) {
+					mail( 	$this->recipient_copy,
+								$this->subject,
+								$this->message,
+								$this->headers,
+								$returnPath.$deferMode);
 				} else {
-					$newVal.=sprintf("=%02X",$ordVal);
-					$len+=3;
+					mail( 	$this->recipient_copy,
+								$this->subject,
+								$this->message,
+								$this->headers	);
 				}
 			}
-			$newVal = ereg_replace(chr(32)."$","=20",$newVal);              // replaces a possible SPACE-character at the end of a line
-			$newVal = ereg_replace(chr(9)."$","=09",$newVal);               // replaces a possible TAB-character at the end of a line
-			$newString.=$newVal.$this->lineBreak;
-		}
-
-		return $newString;
+				// Auto response
+			if ($this->auto_respond_msg)	{
+				$theParts = explode('/',$this->auto_respond_msg,2);
+				$theParts[1] = str_replace("/",chr(10),$theParts[1]);
+				if(!ini_get('safe_mode') && $this->forceReturnPath) {
+					mail( 	$this->from_email,
+								$theParts[0],
+								$theParts[1],
+								"From: ".$this->recipient,
+								$returnPath.$deferMode);
+				} else {
+					mail( 	$this->from_email,
+								$theParts[0],
+								$theParts[1],
+								"From: ".$this->recipient);
+				}
+			}
+			if($this->returnPath) {
+				ini_restore(sendmail_from);
+			}
+			return true;
+		} else {return false;}
 	}
 	
-	function fullQuoteStr($str, $table)     {
-		return '\''.addslashes($str).'\'';
-	}
-    /**
-    *
-    *
-    */
-    function getListOfRecipentCategories($table,$uid) {
-		global $TCA;
+	/**
+	 * Get the list of categories ids subscribed to by recipient $uid from table $table
+	 *
+	 */
+	function getListOfRecipentCategories($table,$uid) {
+		global $TCA, $TYPO3_DB;
+		
 		t3lib_div::loadTCA($table);
 		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
-
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign',$mm_table.','.$table,'uid_local='.$uid.' AND '.$mm_table.'.uid_local='.$table.'.uid'.t3lib_BEfunc::deleteClause($table));
-        $list = '';
-        while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-            $list .= $row['uid_foreign'].',';
-        }
-
-        return t3lib_div::rm_endComma($list);
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'uid_foreign',
+			$mm_table.','.$table,
+			'uid_local='.intval($uid).' AND '.$mm_table.'.uid_local='.$table.'.uid'.t3lib_BEfunc::deleteClause($table));
+		$list = array();
+		while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
+			$list[] = $row['uid_foreign'];
+		}
+		return implode(',', $list);
     }
 }
 

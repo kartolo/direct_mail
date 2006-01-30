@@ -755,12 +755,13 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[string]		The resulting query.
 	 */
 	function makePidListQuery($table,$pidList,$fields,$group_uid,$cat)	{
-		global $TCA;
+		global $TCA, $TYPO3_DB;
+		
 		t3lib_div::loadTCA($table);
 		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
 		$cat = intval($cat);
 		if($cat < 1) {
-			$query = $GLOBALS['TYPO3_DB']->SELECTquery(
+			$query = $TYPO3_DB->SELECTquery(
 				$fields,
 				$table,
 				'pid IN ('.$pidList.')'.
@@ -770,23 +771,23 @@ class mod_web_dmail extends t3lib_SCbase {
 				);
 		} else {
 			if(empty($mm_table)) {
-				$res= $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign','sys_dmail_group_category_mm','uid_local='.intval($group_uid));
-				while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+				$res= $TYPO3_DB->exec_SELECTquery('uid_foreign','sys_dmail_group_category_mm','uid_local='.intval($group_uid));
+				while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
 					$categories .= $row['uid_foreign'].',';
 				}
 				$categories = t3lib_div::rm_endComma($categories);
-				$query = $GLOBALS['TYPO3_DB']->SELECTquery(
+				$query = $TYPO3_DB->SELECTquery(
 					'DISTINCT('.$table.'.uid) as noEntry,'.$fields,
 					$table,
 					'pid IN ('.$pidList.')'.
-					' AND FIND_IN_SET(sys_dmail_category,\''.$categories.'\')'.
+					' AND FIND_IN_SET(sys_dmail_category,'.$TYPO3_DB->fullQuoteStr($categories, $table).')'.
 					t3lib_BEfunc::deleteClause($table).
 					t3lib_pageSelect::enableFields($table)
 					);
 
 			} else {
 				$cat = intval($cat);
-				$query = $GLOBALS['TYPO3_DB']->SELECTquery(
+				$query = $TYPO3_DB->SELECTquery(
 					'DISTINCT('.$table.'.uid) as noEntry,'.$fields,
 					'sys_dmail_group as g LEFT JOIN sys_dmail_group_category_mm as g_mm ON g.uid=g_mm.uid_local INNER JOIN '.$mm_table.' as mm_1 on mm_1.uid_foreign=g_mm.uid_foreign LEFT JOIN '.$table.' ON '.$table.'.uid = mm_1.uid_local',
 					$table.'.pid IN ('.$pidList.') AND g.uid='.intval($group_uid).
@@ -795,8 +796,6 @@ class mod_web_dmail extends t3lib_SCbase {
 					);
 			}
 		}
-		//printf("Query: $query<br />");
-        //exit();
 		return $query;
 	}
 

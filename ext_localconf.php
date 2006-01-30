@@ -19,4 +19,9 @@ $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['sendPerCycle'] = $_EXTCONF['sendPerC
  */
 $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields'] = $_EXTCONF['addRecipFields'];
 
+/**
+ * Enable the use of sendmail defer mode:
+ */
+$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode'] = $_EXTCONF['useDeferMode'] ? $_EXTCONF['useDeferMode'] : 0;
+
 ?>
