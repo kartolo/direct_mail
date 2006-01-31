@@ -547,7 +547,7 @@ class dmailer extends t3lib_htmlmail {
 
 		$pt = t3lib_div::milliseconds();
 
-		$res = $TYPO3_DB->exec_SELECTquery('*', 'sys_dmail', 'scheduled!=0 AND scheduled<'.time().' AND scheduled_end=0', '', 'scheduled');
+		$res = $TYPO3_DB->exec_SELECTquery('*', 'sys_dmail', 'scheduled!=0 AND scheduled<'.time().' AND scheduled_end=0'.t3lib_BEfunc::deleteClause('sys_dmail'), '', 'scheduled');
 		$this->logArray[]=$LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y');
 		
 		if ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -584,7 +584,7 @@ class dmailer extends t3lib_htmlmail {
 			$host = gethostbyaddr(gethostbyname($host));
 		}
 		if (!$host || $host == '127.0.0.1' || $host == 'localhost') {
-			$host = $TYPO3_CONF_VARS['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $TYPO3_CONF_VARS['SYS']['sitename']) . '.TYPO3' : 'localhost.TYPO3';
+			$host = ($TYPO3_CONF_VARS['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $TYPO3_CONF_VARS['SYS']['sitename']) : 'localhost') . '.TYPO3';
 		}
 		$this->messageid = md5(microtime()) . '@' . $host;
 	}

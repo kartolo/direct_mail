@@ -65,7 +65,7 @@ $tempCols = Array(
 		'config' => Array (
 			'type' => 'select',
 			'foreign_table' => 'sys_dmail_category',
-//			'foreign_table_where' => 'AND sys_dmail_category.pid=###CURRENT_PID### ORDER BY sys_dmail_category.uid',
+//			'foreign_table_where' => 'AND sys_dmail_category.pid=###PAGE_TSCONFIG_IDLIST### ORDER BY sys_dmail_category.uid',
 			'foreign_table_where' => 'ORDER BY sys_dmail_category.uid',
 			'size' => 5,
 			'minitems' => 0,
@@ -121,6 +121,7 @@ $TCA['sys_dmail'] = Array (
 		'tstamp' => 'tstamp',
 		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.php:LGL.prependAtCopy',
 		'title' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail',
+		'delete' => 'deleted',
 		'iconfile' => 'mail.gif',
 		'type' => 'type',
 		'useColumnsForDefaultValues' => 'from_email,from_name,replyto_email,replyto_name,organisation,priority,encoding,charset,sendOptions,type'
@@ -489,8 +490,7 @@ $TCA['sys_dmail_group'] = Array (
 
 t3lib_extMgm::addLLrefForTCAdescr('sys_dmail','EXT:direct_mail/locallang_csh_sysdmail.php');
 t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_group','EXT:direct_mail/locallang_csh_sysdmailg.php');
-//$MCONF["name"]="web_direct_mailM1";
-//t3lib_extMgm::addModule("web","direct_mailM1","",t3lib_extMgm::extPath($_EXTKEY)."mod/");
+
 if (TYPO3_MODE=="BE")   {
   t3lib_extMgm::addModule("web","txdirectmailM1","",t3lib_extMgm::extPath('direct_mail')."mod/");
 }

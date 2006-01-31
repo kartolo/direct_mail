@@ -2218,7 +2218,7 @@ class mod_web_dmail extends t3lib_SCbase {
 						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_name') . '<br /><br />' . $this->back, $recipRow['name'].htmlspecialchars(' <'.$recipRow['email'].'>'))));
 						$this->noView=1;
 					}
-				} elseif (t3lib_div::GPvar('sys_dmail_group_uid'))	{
+				} elseif (t3lib_div::_GP('sys_dmail_group_uid'))	{
 					$result = $this->cmd_compileMailGroup(t3lib_div::_GP('sys_dmail_group_uid'));
 					
 					$idLists = $result['queryInfo']['id_lists'];
@@ -3021,7 +3021,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$out .= '<tr><td colspan=3 bgColor="' . $this->doc->bgColor5 . '" valign=top>'.fw($this->fName("subject")." <b>".t3lib_div::fixed_lgd($row["subject"],30)."  </b>").'</td></tr>';
 		$nameArr = explode(',','subject,from_name,from_email,replyto_name,replyto_email,organisation,attachment,priority,sendOptions,type,page,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
 		while(list(,$name)=each($nameArr))	{
-			$out.='<tr><td bgColor="'.$this->doc->bgColor4.'">'.fw($this->fName($name)).'</td><td bgColor="'.$this->doc->bgColor4.'">'.fw(t3lib_BEfunc::getProcessedValue("sys_dmail",$name,$row[$name])).'</td></tr>';
+			$out.='<tr><td bgColor="'.$this->doc->bgColor4.'">'.fw($this->fName($name)).'</td><td bgColor="'.$this->doc->bgColor4.'">'.fw(t3lib_BEfunc::getProcessedValue('sys_dmail',$name,$row[$name])).'</td></tr>';
 		}
 		$out='<table border="0" cellpadding="1" cellspacing="1" width="460">'.$out.'</table>';
 		if (!$row['issent'])	{
