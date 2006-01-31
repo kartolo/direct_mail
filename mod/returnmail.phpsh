@@ -78,22 +78,26 @@ if (trim($content))	{
 	if (!is_array($midArr))	{
 		$midArr = $readMail->find_MIDfromReturnPath($mailParts['to']);
 	}
-
+	
 		// Extract text content
 	$c = trim($readMail->getMessage($mailParts));
 	$cp = $readMail->analyseReturnError($c);
-
-	$temp_res = $TYPO3_DB->exec_SELECTquery('uid', 'sys_dmail_maillog', 'rid='.intval($midArr['rid']).' AND rtbl="'.$TYPO3_DB->quoteStr($midArr['rtbl'], 'sys_dmail_maillog').'" AND mid='.intval($midArr['mid']).' AND response_type=0');
-	if (!$TYPO3_DB->sql_num_rows($temp_res)) {
+	
+	$res = $TYPO3_DB->exec_SELECTquery('uid,email', 'sys_dmail_maillog', 'rid='.intval($midArr['rid']).' AND rtbl="'.$TYPO3_DB->quoteStr($midArr['rtbl'], 'sys_dmail_maillog').'" AND mid='.intval($midArr['mid']).' AND response_type=0');
+	if (!$TYPO3_DB->sql_num_rows($res)) {
 		$midArr = array();
 		$cp = $mailParts;
+	} else {
+		$row = $TYPO3_DB->sql_fetch_assoc($res);
+		$midArr['email'] = $row['email'];
 	}
-
+	
 	$insertFields = array(
 		'tstamp' => time(),
 		'response_type' => -127,
-		'mid' => $midArr['mid'],
-		'rid' => $midArr['rid'],
+		'mid' => intval($midArr['mid']),
+		'rid' => intval($midArr['rid']),
+		'email' => $midArr['email'],
 		'rtbl' => $midArr['rtbl'],
 		'return_content' => serialize($cp),
 		'return_code' => intval($cp['reason'])

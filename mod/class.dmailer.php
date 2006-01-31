@@ -51,7 +51,7 @@
  *  416:     function dmailer_howManySendMails($mid,$rtbl='')
  *  430:     function dmailer_isSend($mid,$rid,$rtbl)
  *  442:     function dmailer_getSentMails($mid,$rtbl)
- *  461:     function dmailer_addToMailLog($mid,$rid,$size,$parsetime,$html)
+ *  461:     function dmailer_addToMailLog($mid,$rid,$size,$parsetime,$html,$email)
  *  483:     function runcron()
  *
  * TOTAL FUNCTIONS: 14
@@ -303,7 +303,7 @@ class dmailer extends t3lib_htmlmail {
 					$recipRow['firstname']=strtok(trim($recipRow['name']),' ');
 
 					$rC = $this->dmailer_sendAdvanced($recipRow,$tKey);
-					$this->dmailer_addToMailLog($mid,$tKey.'_'.$recipRow['uid'],strlen($this->message),t3lib_div::milliseconds()-$pt,$rC);
+					$this->dmailer_addToMailLog($mid,$tKey.'_'.$recipRow['uid'],strlen($this->message),t3lib_div::milliseconds()-$pt,$rC,$recipRow['email']);
 				}
 				$cc++;
 			}
@@ -398,7 +398,7 @@ class dmailer extends t3lib_htmlmail {
 			$recipRow=$this->convertFields($recipRow);
 
 			$rC=$this->dmailer_sendAdvanced($recipRow,$tKey);
-			$this->dmailer_addToMailLog($mid,$tKey.'_'.$recipRow['uid'],strlen($this->message),t3lib_div::milliseconds()-$pt,$rC);
+			$this->dmailer_addToMailLog($mid,$tKey.'_'.$recipRow['uid'],strlen($this->message),t3lib_div::milliseconds()-$pt,$rC,$recipRow['email']);
 		}
 	}
 
@@ -507,7 +507,7 @@ class dmailer extends t3lib_htmlmail {
 	 * @param	[type]		$html: ...
 	 * @return	[type]		...
 	 */
-	function dmailer_addToMailLog($mid,$rid,$size,$parsetime,$html)	{
+	function dmailer_addToMailLog($mid,$rid,$size,$parsetime,$html,$email)	{
 		global $TYPO3_DB;
 		
 		$temp_recip = explode('_',$rid);
@@ -516,6 +516,7 @@ class dmailer extends t3lib_htmlmail {
 			'mid' => intval($mid),
 			'rtbl' => $temp_recip[0],
 			'rid' => intval($temp_recip[1]),
+			'email' => $email,
 			'tstamp' => time(),
 			'url' => '',
 			'size' => $size,
