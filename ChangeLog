@@ -1,5 +1,6 @@
 2006-01-31 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add deleted column to sys_dmail table.
+	* Remove message-id setting from dmailer class. Use updated version of core t3lib_htmlmail.
 
 2006-01-30 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Adjust default value of proposed messageid.

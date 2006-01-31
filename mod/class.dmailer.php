@@ -578,15 +578,6 @@ class dmailer extends t3lib_htmlmail {
 		$this->sendPerCycle = $user_dmailer_sendPerCycle;
 		$this->user_dmailerLang = $user_dmailer_lang;
 		
-			// Sets the message id
-		$host = php_uname('n');
-		if (strpos('.',$host) === FALSE) {
-			$host = gethostbyaddr(gethostbyname($host));
-		}
-		if (!$host || $host == '127.0.0.1' || $host == 'localhost') {
-			$host = ($TYPO3_CONF_VARS['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $TYPO3_CONF_VARS['SYS']['sitename']) : 'localhost') . '.TYPO3';
-		}
-		$this->messageid = md5(microtime()) . '@' . $host;
 	}
 	
 	function sendTheMail () {
