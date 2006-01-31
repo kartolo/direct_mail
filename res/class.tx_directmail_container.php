@@ -28,7 +28,7 @@
  /**
  * @author	Kasper Skårhøj <kasperYYYY>@typo3.com>
  * @author	Thorsten Kahler <thorsten.kahler@dkd.de>
- * @version  $Id$
+ * @version  class.tx_directmail_container.php,v 1.1 2006/01/28 07:37:06 stanrolland Exp
  */
  
  
@@ -42,52 +42,16 @@ class tx_directmail_container	{
 	var $boundaryEnd = '<!--DMAILER_SECTION_BOUNDARY_ END-->';
 	
 	var $cObj;
-	
+
 	/**
-	 * In
+	 * This function wrap HTML comments around the content, that contain
+	 * the uids of assigned direct mail categories.
+	 * It is called as "USER_FUNC" from TS.
 	 * 
-	 * Utilisation of hook [tslib/class.tslib_content.php][CONTENT-cObjValue-proc]
-	 * and hook [tslib/class.tslib_content.php][RECORDS-cObjValue-proc]
-	 * 
-	 * @param	object tslib_cObj	$pObj: back reference to the calling object 
-	 * @param	string	$value: the incoming string
-	 * @param	object tslib_cObj	$cObj: the (local) tslib_cObj that generated the content
-	 * @return string processed string with surrounding boundaries
+	 * @param	string	$content: incoming HTML code which will be wrapped
+	 * @param	array	$conf: 
 	 */
-	function insert_dMailer_boundaries ( $params, $pObj)	{
-		$value = $params['value'];
-		$cObj = &$params['cObj'];
-		
-		if( $GLOBALS['TSFE']->config['config']['insertDmailerBoundaries'] )	{
-			if ( $value != '' )	{
-				$categoryList = '';		// setting the default
-				if ( intval( $cObj->data['module_sys_dmail_category'] ) >= 1 )	{
-						// get categories of tt_content element
-					$foreign_table = 'sys_dmail_category';
-					$select = "$foreign_table.uid";
-					$local_table_uidlist = intval( $cObj->data['uid'] );
-					$local_table = 'tt_content';
-					$mm_table = 'sys_dmail_ttcontent_category_mm';
-					$whereClause = '';
-					$orderBy = '';
-					$res = $cObj->exec_mm_query_uidList( $select, $local_table_uidlist, $mm_table, $foreign_table, $whereClause, '', $orderBy);
-					if ( $GLOBALS['TYPO3_DB']->sql_num_rows($res) )	{
-						while( $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res) )	{
-							$categoryList .= $row['uid'] . ',';
-						}
-						$categoryList = t3lib_div::rm_endComma($categoryList);
-					}
-				}
-	
-					// wrap boundaries around content
-				$value = $pObj->wrap( $categoryList, $this->boundaryStartWrap ) . $value . $this->boundaryEnd;			
-			}
-		}
-		return $value;
-	}
-
-
-	function insert_dMailer_boundaries_userFunc ( $content, $conf )	{
+	function insert_dMailer_boundaries ( $content, $conf )	{
 
 			// this check could probably be moved to TS
 		if( $GLOBALS['TSFE']->config['config']['insertDmailerBoundaries'] )	{
@@ -128,6 +92,9 @@ class tx_directmail_container	{
 
 	function stripInnerBoundaries($content)	{
 			// only dummy code at the moment
+		$searchString = $this->cObj->wrap( '[\d,]*', $this->boundaryStartWrap );
+		$content = preg_replace( '/'.$searchString.'/', '', $content );
+		$content = preg_replace( '/'.$this->boundaryEnd.'/', '', $content );
 		return $content;
 	}
 

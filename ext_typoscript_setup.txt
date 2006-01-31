@@ -4,7 +4,7 @@
 
 includeLibs.tx_directmail_container = EXT:direct_mail/res/class.tx_directmail_container.php
 
-tt_content.stdWrap.postUserFunc = tx_directmail_container->insert_dMailer_boundaries_userFunc
+tt_content.stdWrap.postUserFunc = tx_directmail_container->insert_dMailer_boundaries
 tt_content.stdWrap.postUserFunc {
 	
 }
