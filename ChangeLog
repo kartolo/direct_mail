@@ -1,5 +1,6 @@
 2006-02-01 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction to emails sent by cron task to admin.
+	* Add file locking to dmailer cron script so that the dmailer cron never runs twice (bugtracker issue 2461).
 	
 2006-01-31 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add deleted column to sys_dmail table (bugtracker issue 2190).
