@@ -754,7 +754,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	function makePidListQuery($table,$pidList,$fields,$group_uid,$cat)	{
 		global $TCA, $TYPO3_DB;
 		
-		$emailIsNotNull = ' AND ' . $table . '.email != \'\'';
+		$emailIsNotNull = ' AND ' . $table . '.email !=' . $TYPO3_DB->fullQuoteStr('', $table);  // Direct Mail needs and email address!
 		t3lib_div::loadTCA($table);
 		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
 		$cat = intval($cat);
@@ -826,12 +826,14 @@ class mod_web_dmail extends t3lib_SCbase {
 	 */
 	function makeStaticListQuery($table,$uid,$fields)	{
 		global $TYPO3_DB;
-		
+
+		$emailIsNotNull = ' AND ' . $table . '.email !=' . $TYPO3_DB->fullQuoteStr('', $table);  // Direct Mail needs and email address!
 		$query = $TYPO3_DB->SELECTquery(
 			$fields,
 			$table.',sys_dmail_group,sys_dmail_group_mm',
 			'sys_dmail_group.uid = '.intval($uid).' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid AND
 							sys_dmail_group_mm.uid_foreign='.$table.'.uid AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
+			$emailIsNotNull.
 			t3lib_pageSelect::enableFields($table).	// Enable fields includes 'deleted'
 			t3lib_pageSelect::enableFields('sys_dmail_group')
 			);
@@ -841,6 +843,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$fields,
 				'(sys_dmail_group,sys_dmail_group_mm) LEFT JOIN fe_groups ON (fe_groups.uid=sys_dmail_group_mm.uid_foreign AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr('fe_groups', 'fe_groups').') LEFT JOIN fe_users ON FIND_IN_SET(fe_groups.uid,fe_users.usergroup)',
 				'sys_dmail_group.uid='.intval($uid).' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid'.
+				$emailIsNotNull.
 				t3lib_pageSelect::enableFields($table).	// Enable fields includes 'deleted'
 				t3lib_pageSelect::enableFields('fe_groups').
 				t3lib_pageSelect::enableFields('sys_dmail_group')

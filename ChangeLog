@@ -3,6 +3,7 @@
 	* Add file locking to dmailer cron script so that the dmailer cron never runs twice (bugtracker issue 2461).
 	* Correct query for the fe_users case in makeStaticListQuery.
 	* Comment out call to undefined getRecursiveSelect in funtion cmd_compileMailGroup
+	* Remove records without email address from distribution lists.
 	
 2006-01-31 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add deleted column to sys_dmail table (bugtracker issue 2190).
