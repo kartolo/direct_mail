@@ -438,17 +438,15 @@ class dmailer extends t3lib_htmlmail {
 			break;
 		}
 		$this->logArray[]=$subject.": ".$message;
-
+		
 		$headers[]='From: '.$this->from_name.' <'.$this->from_email.'>';
 		$headers[]='Reply-To: '.$this->replyto_email;
-
-		$this->charset = $LANG->origCharSet;
-		if ($TYPO3_CONF_VARS['BE']['forceCharset'] && $TYPO3_CONF_VARS['BE']['forceCharset']!=$this->charset)     {
-			$message = $LANG->csConvObj->conv($message, $LANG->charSet, $LANG->origCharSet, 1);
-		}
-		t3lib_div::plainMailEncoded($this->from_email,$subject,$message,implode(chr(13).chr(10),$headers),'quoted-printable',$this->charset);
+		
+		$email = $this->from_name.' <'.$this->from_email.'>';
+		
+		t3lib_div::plainMailEncoded($email,$subject,$message,implode(chr(10),$headers));
 	}
-
+	
 	/**
 	 * [Describe function...]
 	 *
@@ -571,7 +569,6 @@ class dmailer extends t3lib_htmlmail {
 	}
 	
 	function start($user_dmailer_sendPerCycle=50,$user_dmailer_lang='en') {
-		global $TYPO3_CONF_VARS;
 		
 		parent::start();
 		
