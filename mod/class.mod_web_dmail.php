@@ -754,6 +754,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	function makePidListQuery($table,$pidList,$fields,$group_uid,$cat)	{
 		global $TCA, $TYPO3_DB;
 		
+		$emailIsNotNull = ' AND ' . $table . '.email != \'\'';
 		t3lib_div::loadTCA($table);
 		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
 		$cat = intval($cat);
@@ -761,7 +762,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$query = $TYPO3_DB->SELECTquery(
 				$fields,
 				$table,
-				'pid IN ('.$pidList.')'.
+				'pid IN ('.$pidList.')'.$emailIsNotNull.
 				''.
 				t3lib_BEfunc::deleteClause($table).
 				t3lib_pageSelect::enableFields($table)
@@ -776,7 +777,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$query = $TYPO3_DB->SELECTquery(
 					'DISTINCT('.$table.'.uid) as noEntry,'.$fields,
 					$table,
-					'pid IN ('.$pidList.')'.
+					'pid IN ('.$pidList.')'.$emailIsNotNull.
 					' AND FIND_IN_SET(sys_dmail_category,'.$TYPO3_DB->fullQuoteStr($categories, $table).')'.
 					t3lib_BEfunc::deleteClause($table).
 					t3lib_pageSelect::enableFields($table)
@@ -787,7 +788,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$query = $TYPO3_DB->SELECTquery(
 					'DISTINCT('.$table.'.uid) as noEntry,'.$fields,
 					'sys_dmail_group as g LEFT JOIN sys_dmail_group_category_mm as g_mm ON g.uid=g_mm.uid_local INNER JOIN '.$mm_table.' as mm_1 on mm_1.uid_foreign=g_mm.uid_foreign LEFT JOIN '.$table.' ON '.$table.'.uid = mm_1.uid_local',
-					$table.'.pid IN ('.$pidList.') AND g.uid='.intval($group_uid).
+					$table.'.pid IN ('.$pidList.') AND g.uid='.intval($group_uid) . $emailIsNotNull.
 					t3lib_BEfunc::deleteClause($table).
 					t3lib_pageSelect::enableFields($table)
 					);
@@ -826,21 +827,22 @@ class mod_web_dmail extends t3lib_SCbase {
 	function makeStaticListQuery($table,$uid,$fields)	{
 		global $TYPO3_DB;
 		
-		if($table == 'fe_users') {
-			$query = $TYPO3_DB->SELECTquery(
-				'DISTINCT(fe_users.uid),'.$fields,
-				'sys_dmail_group_mm LEFT JOIN fe_groups on fe_groups.uid=uid_foreign AND tablenames='.$TYPO3_DB->fullQuoteStr('fe_groups', 'fe_groups').' LEFT JOIN fe_users ON (FIND_IN_SET(fe_groups.uid,fe_users.usergroup)) OR (fe_users.uid=uid_foreign AND tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).')',
-				'sys_dmail_group_mm.uid_local='.$uid.
-				t3lib_pageSelect::enableFields('fe_users').	// Enable fields includes 'deleted'
-				t3lib_pageSelect::enableFields('fe_groups')
-				);
-		} else {
-			$query = $TYPO3_DB->SELECTquery(
+		$query = $TYPO3_DB->SELECTquery(
+			$fields,
+			$table.',sys_dmail_group,sys_dmail_group_mm',
+			'sys_dmail_group.uid = '.intval($uid).' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid AND
+							sys_dmail_group_mm.uid_foreign='.$table.'.uid AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
+			t3lib_pageSelect::enableFields($table).	// Enable fields includes 'deleted'
+			t3lib_pageSelect::enableFields('sys_dmail_group')
+			);
+		if ($table == 'fe_users') {
+			$query .= ' UNION ';
+			$query .= $TYPO3_DB->SELECTquery(
 				$fields,
-				$table.',sys_dmail_group,sys_dmail_group_mm',
-				'sys_dmail_group.uid = '.intval($uid).' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid AND
-								sys_dmail_group_mm.uid_foreign='.$table.'.uid AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
+				'(sys_dmail_group,sys_dmail_group_mm) LEFT JOIN fe_groups ON (fe_groups.uid=sys_dmail_group_mm.uid_foreign AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr('fe_groups', 'fe_groups').') LEFT JOIN fe_users ON FIND_IN_SET(fe_groups.uid,fe_users.usergroup)',
+				'sys_dmail_group.uid='.intval($uid).' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid'.
 				t3lib_pageSelect::enableFields($table).	// Enable fields includes 'deleted'
+				t3lib_pageSelect::enableFields('fe_groups').
 				t3lib_pageSelect::enableFields('sys_dmail_group')
 				);
 		}
@@ -1016,7 +1018,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		if ($group_uid)	{
 			$mailGroup=t3lib_BEfunc::getRecord('sys_dmail_group',$group_uid);
 			if (is_array($mailGroup) && $mailGroup['pid']==$this->id)	{
-				$head = '<img src="'.$GLOBALS['BACK_PATH'].t3lib_iconWorks::getIcon('sys_dmail_group').'" width=18 height=16 border=0 align="top">'.t3lib_div::fixed_lgd($mailGroup['title'],30).'<BR>';
+				$head = '<img src="'.$GLOBALS['BACK_PATH'].t3lib_iconWorks::getIcon('sys_dmail_group').'" width="18" height="16" border="0" align="top" />'.t3lib_div::fixed_lgd($mailGroup['title'],30).'<BR>';
 				$theOutput.=$head;
 				switch($mailGroup['type'])	{
 				case 0:	// From pages
@@ -1030,9 +1032,10 @@ class mod_web_dmail extends t3lib_SCbase {
 							if (is_array($pageinfo))	{
 								$info['fromPages'][]=$pageinfo;
 								$pageIdArray[]=$pageUid;
-								if ($mailGroup['recursive'])	{
+								// getRecursiveSelect is not defined...
+								/*if ($mailGroup['recursive'])	{
 									$pageIdArray=array_merge($pageIdArray,$this->getRecursiveSelect($pageUid,$this->perms_clause));
-								}
+								}*/
 							}
 						}
 
