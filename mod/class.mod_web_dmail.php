@@ -1062,7 +1062,7 @@ class mod_web_dmail extends t3lib_SCbase {
 						}
 						if ($this->userTable && ($whichTables&4))	{	// user table
 							$queries[$this->userTable]=$this->makePidListQuery($this->userTable,$pidList,'*',$group_uid,$mailGroup['select_categories']);
-							if ($makeIdLists)	$id_lists[$this->userTable]=$this->getIdList($this->userTable,$pidList,$gropu_uid,$mailGroup['select_categories']);
+							if ($makeIdLists)	$id_lists[$this->userTable]=$this->getIdList($this->userTable,$pidList,$group_uid,$mailGroup['select_categories']);
 						}
 					}
 					//				debug($queries);
@@ -1378,7 +1378,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $HTTP_POST_VARS,$TCA;
 		$uid = intval(t3lib_div::_GP('uid'));
 
-		unset($row);
+
 		$table=t3lib_div::_GP('table');
 		t3lib_div::loadTCA($table);
 		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
@@ -1800,6 +1800,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	function cmd_fetch($row)        {
 		global $TCA, $TYPO3_DB, $LANG;
 		
+		$theOutput = '';
 			// Compile the mail
 		$htmlmail = t3lib_div::makeInstance('dmailer');
 		if($this->params['enable_jump_url']) {
@@ -1819,6 +1820,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$htmlmail->addHTML($this->url_html);    // Username and password is added in htmlmail object
 			if (!$row['charset']) {		// If no charset was set, we have an external page.
 					// Try to auto-detect the charset of the message
+				$matches = array();
 				$res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', $htmlmail->theParts['html_content'], $matches);
 				if ($res==1) {
 					$htmlmail->charset = $matches[1];
