@@ -1035,21 +1035,19 @@ class mod_web_dmail extends t3lib_SCbase {
 							if (is_array($pageinfo))	{
 								$info['fromPages'][]=$pageinfo;
 								$pageIdArray[]=$pageUid;
-								// getRecursiveSelect is not defined...
-								/*if ($mailGroup['recursive'])	{
+								if ($mailGroup['recursive'])	{
 									$pageIdArray=array_merge($pageIdArray,$this->getRecursiveSelect($pageUid,$this->perms_clause));
-								}*/
+								}
 							}
 						}
 
 					}
-					// Remove any duplicates
+						// Remove any duplicates
 					$pageIdArray=array_unique($pageIdArray);
 					$pidList = implode(',',$pageIdArray);
 					$info['recursive']=$mailGroup['recursive'];
-//						debug($pageIdArray);
-//						debug($info);
-					// Make queries
+					
+						// Make queries
 					if ($pidList)	{
 						$whichTables = intval($mailGroup['whichtables']);
 						if ($whichTables&1)	{	// tt_address
@@ -1127,6 +1125,17 @@ class mod_web_dmail extends t3lib_SCbase {
 			'queryInfo' => array('id_lists'=>$id_lists, 'queries'=>$queries)
 			);
 		return $outputArray;
+	}
+	
+	function getRecursiveSelect($id,$perms_clause)  {
+			// Finding tree and offer setting of values recursively.
+		$tree = t3lib_div::makeInstance('t3lib_pageTree');
+		$tree->init('AND '.$perms_clause);
+		$tree->makeHTML=0;
+		$tree->setRecs = 0;
+		$getLevels=10000;
+		$tree->getTree($id,$getLevels,'');
+		return $tree->ids;
 	}
 
 	/**
