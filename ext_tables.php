@@ -494,4 +494,7 @@ t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_group','EXT:direct_mail/locallang_c
 if (TYPO3_MODE=="BE")   {
   t3lib_extMgm::addModule("web","txdirectmailM1","",t3lib_extMgm::extPath('direct_mail')."mod/");
 }
+
+t3lib_extMgm::addStaticFile($_EXTKEY,'static/','Direct Mail');
+
 ?>
