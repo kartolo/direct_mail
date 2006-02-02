@@ -1,3 +1,6 @@
+2006-02-02  Thorsten Kahler  <thorsten.kahler@dkd.de>
+	* Include TS setup (for dmailer boundaries) optionally
+
 2006-02-01  Thorsten Kahler  <thorsten.kahler@dkd.de>
 	* Corrected misspelled and not initialized variables
 
