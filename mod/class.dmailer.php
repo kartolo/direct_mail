@@ -654,7 +654,7 @@ class dmailer extends t3lib_htmlmail {
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'uid_foreign',
 			$mm_table.','.$table,
-			'uid_local='.intval($uid).' AND '.$mm_table.'.uid_local='.$table.'.uid'.t3lib_BEfunc::deleteClause($table));
+			$mm_table.'.uid_local='.intval($uid).' AND '.$mm_table.'.uid_local='.$table.'.uid'.t3lib_BEfunc::deleteClause($table));
 		$list = array();
 		while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
 			$list[] = $row['uid_foreign'];
