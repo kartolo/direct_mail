@@ -155,7 +155,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function menuConfig()	{
-		global $LANG,$TYPO3_CONF_VARS;
+		global $LANG,$TYPO3_CONF_VARS,$BE_USER;
 
 		$this->MOD_MENU = Array (
 			'dmail_mode' => Array (
@@ -166,11 +166,11 @@ class mod_web_dmail extends t3lib_SCbase {
 				'conf' => $LANG->getLL('dmail_menu_conf'),
 				'mailerengine' => $LANG->getLL('dmail_menu_mailerengine'),
 				'help' => $LANG->getLL('dmail_menu_help'),
-				//'wizard' => 'Wizard',
+				'convert' => $LANG->getLL('dmail_menu_convert_categories'),
 				)
 			);
 			
-		// Hook for preprocessing of the content for formmails:
+			// Hook for preprocessing of the content for formmails:
 		if (is_array($TYPO3_CONF_VARS['EXT']['directmail']['append-functions'])) {
 			foreach($TYPO3_CONF_VARS['EXT']['directmail']['append-functions'] as $_funcRef) {
 				$_params = array();
@@ -310,7 +310,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			
 			$module = $this->pageinfo['module'];
 			if (!$module)	{
-				$pidrec=t3lib_BEfunc::getRecord("pages",intval($this->pageinfo["pid"]));
+				$pidrec=t3lib_BEfunc::getRecord('pages',intval($this->pageinfo['pid']));
 				$module=$pidrec['module'];
 			}
 			if ($module == 'dmail') {
@@ -1432,19 +1432,17 @@ class mod_web_dmail extends t3lib_SCbase {
 			break;
 		}
 		if (is_array($row))	{
-            $row_categories = '';
-            $resCat = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign',$mm_table,'uid_local='.$row['uid'].' ');
-            while($rowCat=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat)) {
-                $row_categories .= $rowCat['uid_foreign'].',';
-            }
-            $row_categories = t3lib_div::rm_endComma($row_categories);
+			$row_categories = '';
+			$resCat = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign',$mm_table,'uid_local='.$row['uid'].' ');
+			while($rowCat=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat)) {
+				$row_categories .= $rowCat['uid_foreign'].',';
+			}
+			$row_categories = t3lib_div::rm_endComma($row_categories);
 			$Eparams='&edit['.$table.']['.$row['uid'].']=edit';
 			$out='';
 			$out.='<img src="'.$GLOBALS['BACK_PATH'].t3lib_iconWorks::getIcon($table,$row).'" width=18 height=16 border=0 title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" align=top>'.$row['name'].htmlspecialchars(' <'.$row['email'].'>');
 			$out.='&nbsp;&nbsp;<A HREF="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$GLOBALS['BACK_PATH'],'').'"><img src="'.$GLOBALS['BACK_PATH'].'gfx/edit2.gif" width=11 height=12 hspace=2 border=0 title="Edit" align="top">'.fw('<B>EDIT</B>').'</a>';
 			$theOutput.= $this->doc->section('Subscriber info',$out);
-
-
 
 			$out='';
 			$out_check='';
@@ -1491,12 +1489,11 @@ class mod_web_dmail extends t3lib_SCbase {
 		case 'help':
 			$theOutput .= $this->getHelptext();
 			break;
-		case 'wizard':
-			$theOutput .= $this->cmd_wizard();			
+		case 'convert':
+			$theOutput .= $this->cmd_convertCategories();			
 			break;
 		default:
-			//Now check if a hook is defined.
-			// Hook for preprocessing of the content for formmails:
+				// Hook for preprocessing of the content for formmails:
 			if (is_array($TYPO3_CONF_VARS['EXT']['directmail']['handlemode-'.$mode])) {
 				foreach($TYPO3_CONF_VARS['EXT']['directmail']['handlemode-'.$mode] as $_funcRef) {
 					$_params = array();
@@ -1799,7 +1796,112 @@ class mod_web_dmail extends t3lib_SCbase {
 		$theOutput.= $this->doc->section($LANG->getLL('instructions_how'),nl2br(trim($LANG->getLL('instructions_text'))),0,1);
 		return $theOutput;
 	}
-
+	
+	function cmd_convertCategories() {
+		$theOutput = '';
+		$theOutput .= $this->createNewCategories();
+		$theOutput .= $this->convertCategoriesInRecords('fe_users');
+		$theOutput .= $this->convertCategoriesInRecords('tt_address');
+		if ($this->userTable)	{
+			$theOutput .= $this->convertCategoriesInRecords($this->userTable);
+		}
+		$theOutput .= $this->convertCategoriesInRecords('tt_content');
+		return $theOutput;
+	}
+	
+	function createNewCategories() {
+		global $TYPO3_DB, $BE_USER;
+		
+		$theOutput = 'Converting categories...';
+		$catRec = array();
+		$catRec['cruser_id'] = intval($BE_USER->user['uid']);
+		$today = getdate();
+		$catRec['crdate'] = $today[0];
+		reset($this->modList['rows']);
+		while(list(,$row) = each($this->modList['rows'])) {
+			$temp= t3lib_BEfunc::getModTSconfig($row['uid'],'mod.web_modules.dmail');
+			$params = $temp['properties'];
+			$count = 0;
+			$theOutput .= '<br />... from Direct Mail folder: ' . $row['title'];
+			if (is_array($params['categories.'])) {
+				$catRec['pid'] = $row['uid'];
+				reset($params['categories.']);
+				while(list($num,$cat) = each($params['categories.'])) {
+					$theOutput .= '<br />Category: '.$cat;
+					$res = $TYPO3_DB->exec_SELECTquery(
+						'*',
+						'sys_dmail_category',
+						'pid=' . intval($row['uid']) . ' AND old_cat_number=' . intval($num));
+					if (!$TYPO3_DB->sql_num_rows($res)) {
+						$catRec['category'] = $cat;
+						$catRec['old_cat_number'] = intval($num);
+						$catRec['tstamp'] = time();
+						$res = $TYPO3_DB->exec_INSERTquery('sys_dmail_category', $catRec);
+						$count++;
+					} else {
+						$theOutput .= ' was already created.';
+					}
+				}
+			}
+			$theOutput .= '<br />Number of new categories created in Direct Mail folder ' . $row['title'] . ': ' . $count;
+		}
+		return $theOutput;
+	}
+	
+	function convertCategoriesInRecords($table) {
+		global $TYPO3_DB, $TCA;
+		
+		$theOutput = '';
+		t3lib_div::loadTCA($table);
+		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
+		
+		$newConvertCount = 0;
+		$alreadyRelatedCount = 0;
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'uid, module_sys_dmail_category',
+			$table,
+			'module_sys_dmail_category != 0'
+			);
+		
+		while ($row = $TYPO3_DB->sql_fetch_assoc($res)) {
+				// If we find an mm relation with this uid as uid_local we assume that the record was already converted
+			$res_mm = $TYPO3_DB->exec_SELECTquery(
+				'uid_local',
+				$mm_table,
+				'uid_local=' . intval($row['uid'])
+			);
+			if (!$TYPO3_DB->sql_num_rows($res_mm)) {
+				$categoryArr = array();
+				$categoryCount = 0;
+				for ($a = 0; $a <= 30; $a++) {
+					if ($row['module_sys_dmail_category'] & pow(2, $a)) {
+						$categoryCount++;
+						$categoryArr[] = $a;
+					}
+				}
+				$categoryList = implode($categoryArr, ',');
+				$res_cat = $TYPO3_DB->exec_SELECTquery(
+					'uid,category',
+					'sys_dmail_category',
+					'pid=' . intval($this->id) . ' AND FIND_IN_SET(old_cat_number,' . $TYPO3_DB->fullQuoteStr($categoryList, 'sys_dmail_category') . ')'.
+					t3lib_BEfunc::deleteClause('sys_dmail_category')
+					);
+				$theOutput .= '<br />'. $row['uid'] . ' had ' . $categoryList . ' converted into:';
+				while ($cat_row = $TYPO3_DB->sql_fetch_assoc($res_cat)) {
+					$theOutput .= '<br />'. $cat_row['uid']. ' = ' . $cat_row['category'];
+				}
+				$newConvertCount++;
+			} else {
+				$alreadyRelatedCount++;
+			}
+		}
+		
+		$theOutput .= '<br />Number of records converted in ' . $table . ': ' . $newConvertCount;
+		$theOutput .= '<br />Number of records already related in ' . $table . ': ' . $alreadyRelatedCount;
+		
+		return $theOutput;
+	}
+	
 	/**
 	 * [Describe function...]
 	 *

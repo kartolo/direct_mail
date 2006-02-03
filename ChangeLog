@@ -1,3 +1,6 @@
+2006-02-03 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Initial draft of categories conversion.
+
 2006-02-02 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Small update to manual.
 	* Add getRecursiveSelect function in class mod_web_dmail.
