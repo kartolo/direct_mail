@@ -123,7 +123,8 @@ class mod_web_dmail extends t3lib_SCbase {
 		$this->include_once[]=t3lib_extMgm::extPath('direct_mail').'mod/class.dmailer.php';
 
 		parent::init();
-		$this->perms_clause = ' 1=1 '; //This need to be checked.
+// TODO: check if it works without override and delete this line then
+//		$this->perms_clause = ' 1=1 '; //This need to be checked.
 
 		$this->modList = t3lib_BEfunc::getListOfBackendModules(array('dmail'),$this->perms_clause,$BACK_PATH);
 		$temp= t3lib_BEfunc::getModTSconfig($this->id,'mod.web_modules.dmail');
@@ -1539,12 +1540,14 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function updatePageTS()	{
-		$pageTS = t3lib_div::_GP('pageTS');
-		if (is_array($pageTS))	{
-			t3lib_BEfunc::updatePagesTSconfig($this->id,$pageTS,$this->TSconfPrefix);
-
-//			debug(t3lib_div::getIndpEnv('REQUEST_URI'));
-			header('Location: '.t3lib_div::locationHeaderUrl(t3lib_div::getIndpEnv('REQUEST_URI')));
+		if ( $GLOBALS['BE_USER']->doesUserHaveAccess( t3lib_BEfunc::getRecord( 'pages', $this->id), 2) ) {
+			$pageTS = t3lib_div::_GP('pageTS');
+			if (is_array($pageTS))	{
+				t3lib_BEfunc::updatePagesTSconfig($this->id,$pageTS,$this->TSconfPrefix);
+	
+//				debug(t3lib_div::getIndpEnv('REQUEST_URI'));
+				header('Location: '.t3lib_div::locationHeaderUrl(t3lib_div::getIndpEnv('REQUEST_URI')));
+			}
 		}
 	}
 
