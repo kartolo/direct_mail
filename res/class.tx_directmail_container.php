@@ -38,8 +38,8 @@
   */
 class tx_directmail_container	{
 	
-	var $boundaryStartWrap = '<!--DMAILER_SECTION_BOUNDARY_ | _START-->';
-	var $boundaryEnd = '<!--DMAILER_SECTION_BOUNDARY_ END-->';
+	var $boundaryStartWrap = '<!--DMAILER_SECTION_BOUNDARY_ | -->';
+	var $boundaryEnd = '<!--DMAILER_SECTION_BOUNDARY_END-->';
 	
 	var $cObj;
 
@@ -81,14 +81,12 @@ class tx_directmail_container	{
 						$categoryList = t3lib_div::rm_endComma($categoryList);
 					}
 				}
-	
 					// wrap boundaries around content
 				$content = $this->cObj->wrap( $categoryList, $this->boundaryStartWrap ) . $content . $this->boundaryEnd;			
 			}
 		}
 		return $content;
 	}
-
 
 	function stripInnerBoundaries($content)	{
 			// only dummy code at the moment

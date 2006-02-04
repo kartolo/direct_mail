@@ -2260,6 +2260,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			reset($recs);
 			while(list($k,$rec)=each($recs))	{
 				$recipRow = dmailer::convertFields($rec);
+				$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table,$recipRow['uid']);
 				$kc = substr($table,0,1);
 				$htmlmail->dmailer_sendAdvanced($recipRow,$kc=="p"?"P":$kc);
 				$sentFlag++;
@@ -2335,6 +2336,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					$res = $TYPO3_DB->exec_SELECTquery('tt_address.*', 'tt_address,pages', 'pages.uid=tt_address.pid AND tt_address.uid='.intval(t3lib_div::_GP('tt_address_uid')).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('tt_address').t3lib_BEfunc::deleteClause('pages'));
 					if ($recipRow = $TYPO3_DB->sql_fetch_assoc($res))	{
 						$recipRow = dmailer::convertFields($recipRow);
+						$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address',$recipRow['uid']);
 						$htmlmail->dmailer_sendAdvanced($recipRow,'t');
 						$sentFlag=true;
 						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_name') . '<br /><br />' . $this->back, $recipRow['name'].htmlspecialchars(' <'.$recipRow['email'].'>'))));

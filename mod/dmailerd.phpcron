@@ -1,4 +1,4 @@
-#! /usr/bin/php -q
+#!/usr/bin/php -q
 <?php
 /***************************************************************
 *  Copyright notice
@@ -71,8 +71,23 @@ $result = $TYPO3_DB->sql_pconnect(TYPO3_db_host, TYPO3_db_username, TYPO3_db_pas
 if (!$result)	{
 	die("Couldn't connect to database at ".TYPO3_db_host);
 }
-$TYPO3_DB->sql_select_db(TYPO3_db); 
-	
+$TYPO3_DB->sql_select_db(TYPO3_db);
+
+// ****************************************************
+// Include tables customization (tables + ext_tables)
+// ****************************************************
+include (TYPO3_tables_script ? PATH_typo3conf.TYPO3_tables_script : PATH_t3lib.'stddb/tables.php');
+	// Extension additions
+if ($TYPO3_LOADED_EXT['_CACHEFILE'])    {
+	include (PATH_typo3conf.$TYPO3_LOADED_EXT['_CACHEFILE'].'_ext_tables.php');
+} else {
+	include (PATH_t3lib.'stddb/load_ext_tables.php');
+}
+	// extScript
+if (TYPO3_extTableDef_script)   {
+	include (PATH_typo3conf.TYPO3_extTableDef_script);
+}
+
 require_once(PATH_t3lib.'class.t3lib_cs.php');
 require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
 require_once('class.dmailer.php');

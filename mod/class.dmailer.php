@@ -81,6 +81,7 @@ class dmailer extends t3lib_htmlmail {
 	var $sendPerCycle =50;
 	var $logArray =array();
 	var $massend_id_lists = array();
+	var $mailHasContent;
 	var $flag_html = 0;
 	var $flag_plain = 0;
 	var $user_dmailerLang = 'en';
@@ -125,6 +126,7 @@ class dmailer extends t3lib_htmlmail {
 		$this->dmailer['sys_dmail_rec'] = $row;
 		
 		$this->dmailer['boundaryParts_html'] = explode($this->dmailer['sectionBoundary'], '_END-->'.$this->dmailer['html_content']);
+		reset($this->dmailer['boundaryParts_html']);
 		while(list($bKey,$bContent)=each($this->dmailer['boundaryParts_html']))	{
 			$this->dmailer['boundaryParts_html'][$bKey] = explode('-->',$bContent,2);
 				// Now, analyzing which media files are used in this part of the mail:
@@ -136,6 +138,7 @@ class dmailer extends t3lib_htmlmail {
 			}
 		}
 		$this->dmailer['boundaryParts_plain'] = explode($this->dmailer['sectionBoundary'], '_END-->'.$this->dmailer['plain_content']);
+		reset($this->dmailer['boundaryParts_plain']);
 		while(list($bKey,$bContent)=each($this->dmailer['boundaryParts_plain']))	{
 			$this->dmailer['boundaryParts_plain'][$bKey] = explode('-->',$bContent,2);
 		}
@@ -163,47 +166,52 @@ class dmailer extends t3lib_htmlmail {
 			$uppercaseFieldsArray = explode(',', 'name,firstname');
 			$authCode = t3lib_div::stdAuthCode($recipRow['uid']);
 			$this->mediaList='';
-			if ($this->flag_html && $recipRow['module_sys_dmail_html'])		{
+			$this->theParts['html']['content'] = '';
+			if ($this->flag_html && $recipRow['module_sys_dmail_html']) {
 				$tempContent_HTML = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],$recipRow['sys_dmail_categories_list']);
-				
-				reset($rowFieldsArray);
-				while(list(,$substField)=each($rowFieldsArray))	{
-					$tempContent_HTML = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $tempContent_HTML);
+				if ($this->mailHasContent) {
+					reset($rowFieldsArray);
+					while(list(,$substField)=each($rowFieldsArray))	{
+						$tempContent_HTML = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $tempContent_HTML);
+					}
+					reset($uppercaseFieldsArray);
+					while(list(,$substField)=each($uppercaseFieldsArray))	{
+						$tempContent_HTML = str_replace('###USER_'.strtoupper($substField).'###', strtoupper($recipRow[$substField]), $tempContent_HTML);
+					}
+					$tempContent_HTML = str_replace('###SYS_TABLE_NAME###', $tableNameChar, $tempContent_HTML);	// Put in the tablename of the userinformation
+					$tempContent_HTML = str_replace('###SYS_MAIL_ID###', $this->dmailer['sys_dmail_uid'], $tempContent_HTML);	// Put in the uid of the mail-record
+					$tempContent_HTML = str_replace('###SYS_AUTHCODE###', $authCode, $tempContent_HTML);
+					$tempContent_HTML = str_replace($this->dmailer['messageID'], $uniqMsgId, $tempContent_HTML);	// Put in the unique message id in HTML-code
+					$this->theParts['html']['content'] = $this->encodeMsg($tempContent_HTML);
+					$returnCode|=1;
 				}
-				reset($uppercaseFieldsArray);
-				while(list(,$substField)=each($uppercaseFieldsArray))	{
-					$tempContent_HTML = str_replace('###USER_'.strtoupper($substField).'###', strtoupper($recipRow[$substField]), $tempContent_HTML);
-				}
-				$tempContent_HTML = str_replace('###SYS_TABLE_NAME###', $tableNameChar, $tempContent_HTML);	// Put in the tablename of the userinformation
-				$tempContent_HTML = str_replace('###SYS_MAIL_ID###', $this->dmailer['sys_dmail_uid'], $tempContent_HTML);	// Put in the uid of the mail-record
-				$tempContent_HTML = str_replace('###SYS_AUTHCODE###', $authCode, $tempContent_HTML);
-				$tempContent_HTML = str_replace($this->dmailer['messageID'], $uniqMsgId, $tempContent_HTML);	// Put in the unique message id in HTML-code
-				$this->theParts['html']['content'] = $this->encodeMsg($tempContent_HTML);
-				$returnCode|=1;
-			} else $this->theParts['html']['content'] = '';
+			}
 
 				// Plain
-			if ($this->flag_plain)		{
+			$this->theParts['plain']['content'] = '';
+			if ($this->flag_plain) {
 				$tempContent_Plain = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'],$recipRow['sys_dmail_categories_list']);
-				reset($rowFieldsArray);
-				while(list(,$substField)=each($rowFieldsArray))	{
-					$tempContent_Plain = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $tempContent_Plain);
-				}
-				reset($uppercaseFieldsArray);
-				while(list(,$substField)=each($uppercaseFieldsArray))	{
-					$tempContent_Plain = str_replace('###USER_'.strtoupper($substField).'###', strtoupper($recipRow[$substField]), $tempContent_Plain);
-				}
-				$tempContent_Plain = str_replace('###SYS_TABLE_NAME###', $tableNameChar, $tempContent_Plain);	// Put in the tablename of the userinformation
-				$tempContent_Plain = str_replace('###SYS_MAIL_ID###', $this->dmailer['sys_dmail_uid'], $tempContent_Plain);	// Put in the uid of the mail-record
-				$tempContent_Plain = str_replace('###SYS_AUTHCODE###', $authCode, $tempContent_Plain);
+				if ($this->mailHasContent) {
+					reset($rowFieldsArray);
+					while(list(,$substField)=each($rowFieldsArray))	{
+						$tempContent_Plain = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $tempContent_Plain);
+					}
+					reset($uppercaseFieldsArray);
+					while(list(,$substField)=each($uppercaseFieldsArray))	{
+						$tempContent_Plain = str_replace('###USER_'.strtoupper($substField).'###', strtoupper($recipRow[$substField]), $tempContent_Plain);
+					}
+					$tempContent_Plain = str_replace('###SYS_TABLE_NAME###', $tableNameChar, $tempContent_Plain);	// Put in the tablename of the userinformation
+					$tempContent_Plain = str_replace('###SYS_MAIL_ID###', $this->dmailer['sys_dmail_uid'], $tempContent_Plain);	// Put in the uid of the mail-record
+					$tempContent_Plain = str_replace('###SYS_AUTHCODE###', $authCode, $tempContent_Plain);
 
-				if (trim($this->dmailer['sys_dmail_rec']['use_rdct']))        {
-					$tempContent_Plain = t3lib_div::substUrlsInPlainText($tempContent_Plain, $this->dmailer['sys_dmail_rec']['long_link_mode']?'all':'76');
-				}
+					if (trim($this->dmailer['sys_dmail_rec']['use_rdct']))        {
+						$tempContent_Plain = t3lib_div::substUrlsInPlainText($tempContent_Plain, $this->dmailer['sys_dmail_rec']['long_link_mode']?'all':'76');
+					}
 
-				$this->theParts['plain']['content'] = $this->encodeMsg($tempContent_Plain);
-				$returnCode|=2;
-			} else $this->theParts['plain']['content'] = '';
+					$this->theParts['plain']['content'] = $this->encodeMsg($tempContent_Plain);
+					$returnCode|=2;
+				}
+			}
 
 				// Set content
 			$this->Xid = $midRidId.'-'.md5($midRidId);
@@ -216,7 +224,9 @@ class dmailer extends t3lib_htmlmail {
 				else $this->setRecipient($recipRow['email']);
 			
 			$this->message = str_replace($this->dmailer['messageID'], $uniqMsgId, $this->message);	// Put in the unique message id in whole message body
-			$this->sendtheMail();
+			if ($returnCode) {
+				$this->sendtheMail();
+			}
 		}
 		return $returnCode;
 	}
@@ -250,16 +260,18 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	[type]		...
 	 */
 	function dmailer_getBoundaryParts($cArray,$userCategories)	{
-		//$userCategories = intval($userCategories);
-		reset($cArray);
 		$returnVal='';
+		$this->mailHasContent = FALSE;
+		reset($cArray);
 		while(list(,$cP)=each($cArray))	{
 			$key=substr($cP[0],1);
 			$isSubscribed = FALSE;
-			
 			if ($key=='END' || !$key || intval($userCategories)==-1) {
 				    $returnVal.=$cP[1];
 				    $this->mediaList.=$cP['mediaList'];
+				    if ($key != 'END') {
+					    $this->mailHasContent = TRUE;
+				    }
 			} else {
 				foreach(explode(',',$key) as $group) {
 					if(t3lib_div::inList($userCategories,$group)) {
@@ -269,6 +281,7 @@ class dmailer extends t3lib_htmlmail {
 				if ($isSubscribed) {
 					$returnVal.=$cP[1];
 					$this->mediaList.=$cP['mediaList'];
+					$this->mailHasContent = TRUE;
 				}
 			}
 		}
@@ -284,28 +297,28 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	[type]		...
 	 */
 	function dmailer_masssend($query_info,$table,$mid)	{
+		global $TYPO3_DB;
+		
 		$enableFields['tt_address']='tt_address.deleted=0 AND tt_address.hidden=0';
 		$enableFields['fe_users']='fe_users.deleted=0 AND fe_users.disable=0';
 		$tKey = substr($table,0,1);
 		$begin=intval($this->dmailer_howManySendMails($mid,$tKey));
 		if ($query_info[$table])	{
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($table.'.*', $table, $enableFields[$table].' AND ('.$query_info[$table].')', '', 'tstamp DESC', intval($begin).','.$this->sendPerCycle); // This way, we select newest edited records first. So if any record is added or changed in between, it'll end on top and do no harm
-			if ($GLOBALS['TYPO3_DB']->sql_error())	{
-				die ($GLOBALS['TYPO3_DB']->sql_error());
-			}
-			$numRows = $GLOBALS['TYPO3_DB']->sql_num_rows($res);
+			$res = $TYPO3_DB->exec_SELECTquery($table.'.*', $table, $enableFields[$table].' AND ('.$query_info[$table].')', '', 'tstamp DESC', intval($begin).','.$this->sendPerCycle); // This way, we select newest edited records first. So if any record is added or changed in between, it'll end on top and do no harm
+			$numRows = $TYPO3_DB->sql_num_rows($res);
 			$cc=0;
-			while($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-				$recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table,$recipRow['uid']);
+			while($recipRow = $TYPO3_DB->sql_fetch_assoc($res))	{
 				if (!$this->dmailer_isSend($mid,$recipRow['uid'],$tKey))	{
 					$pt = t3lib_div::milliseconds();
 					if ($recipRow['telephone'])	$recipRow['phone'] = $recipRow['telephone'];	// Compensation for the fact that fe_users has the field, 'telephone' instead of 'phone'
 					$recipRow['firstname']=strtok(trim($recipRow['name']),' ');
-
+					$recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table,$recipRow['uid']);
 					$rC = $this->dmailer_sendAdvanced($recipRow,$tKey);
-					$this->dmailer_addToMailLog($mid,$tKey.'_'.$recipRow['uid'],strlen($this->message),t3lib_div::milliseconds()-$pt,$rC,$recipRow['email']);
+					if ($rC) {
+						$this->dmailer_addToMailLog($mid,$tKey.'_'.$recipRow['uid'],strlen($this->message),t3lib_div::milliseconds()-$pt,$rC,$recipRow['email']);
+						$cc++;
+					}
 				}
-				$cc++;
 			}
 			$this->logArray[]='Sending '.$cc.' mails to table '.$table;
 			if ($numRows < $this->sendPerCycle)	return true;
@@ -398,7 +411,7 @@ class dmailer extends t3lib_htmlmail {
 			$recipRow=$this->convertFields($recipRow);
 
 			$rC=$this->dmailer_sendAdvanced($recipRow,$tKey);
-			$this->dmailer_addToMailLog($mid,$tKey.'_'.$recipRow['uid'],strlen($this->message),t3lib_div::milliseconds()-$pt,$rC,$recipRow['email']);
+			if ($rC) $this->dmailer_addToMailLog($mid,$tKey.'_'.$recipRow['uid'],strlen($this->message),t3lib_div::milliseconds()-$pt,$rC,$recipRow['email']);
 		}
 	}
 

@@ -1,6 +1,11 @@
+2006-02-03 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Debug dmailer boundaries.
+	* Debug retrieval of recipient categories.
+	* dmailer cron initialization was missing load of ext_tables.
+
 2006-02-02  Thorsten Kahler  <thorsten.kahler@dkd.de>
-	* check page permissions before writing page TS configuration
-	* don't override permissions of BE user in mod_web_dmail
+	* Check page permissions before writing page TS configuration
+	* Don't override permissions of BE user in mod_web_dmail
 
 2006-02-03 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Initial draft of categories conversion.
