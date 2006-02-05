@@ -1764,7 +1764,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'return_path' => array('string', $this->fName('return_path'), 'Enter the return path email address here. This is the address to which non-deliverable mails will be returned to. If you put in the marker ###XID### it\'ll be substituted with the unique id of the mail/recipient.'),
 			'organisation' => array('string', $this->fName('organisation'), '(Optional)'),
 			'spacer1' => 'Configure technical options',
-			'sendOptions' => array('select', 'Format of mail content', 'Select the format of the mail content. If in doubt, set it to \'Plain and HTML\'. The recipients are normally able to select their preferences anyway.', array(0=>'',1=>'Plain text only',2=>'HTML only',3=>'Plain and HTML')),
+			'sendOptions' => array('select', 'Format of mail content', 'Select the format of the mail content. If in doubt, set it to \'Plain and HTML\'. The recipients are normally able to select their preferences anyway.', array(3=>'Plain and HTML',1=>'Plain text only',2=>'HTML only')),
 			'HTMLParams' => array('short', $this->fName('HTMLParams'), 'Enter the additional URL parameters used to fetch the HTML content. If in doubt, leave it blank.'),
 			'plainParams' => array('short', $this->fName('plainParams'), 'Enter the additional URL parameters used to fetch the plain text content. If in doubt, set it to \'&type=99\' which is standard.', '&type=99'),
 			'use_rdct' => array('check', $this->fName('use_rdct'), 'Set this if you want long urls to be substituted with ?RDCT=[md5hash] parameters in plain text mails. This configuration determines how QuickMails are handled and further sets the default setting for DirectMails.'),
@@ -1777,16 +1777,10 @@ class mod_web_dmail extends t3lib_SCbase {
 			'enableHTML' => array('check', 'Allow HTML emails', 'Set this if you want to allow HTML emails to be fetched. If in doubt, check this option.'),
 			'http_username' => array('short', 'HTTP username', 'If the mail content is protected by a HTTP authentication, enter the username here. The username and password is used to fetch the mail content. They are NOT sent in the mail!<br />If you don\'t enter a username and password and the newsletter pages happens to be protected, an error will occur and no mail content is fetched.'),
 			'http_password' => array('short', 'HTTP password', '... and enter the password here.'),
-			'test_tt_address_uids' => array('short', 'List of UID numbers of test-recipients', 'Before sending mails you should test the mail content by sending testmails to one or more test recipients. The available recipients for testing are determined by the list of UID numbers, you enter here. So first, find out the UID-numbers of the recipients you wish to use for testing, then enter them here in a comma-separated list.'),
-			'test_dmail_group_uids' => array('short', 'List of UID numbers of test dmail_groups', 'Alternatively to sending test-mails to individuals, you can choose to send to a whole group. List the group ids available for this action here:'),
-//			'spacer3' => 'Available categories'
+			'test_tt_address_uids' => array('short', 'List of UID numbers of test recipients', 'Before sending mails you should test the mail content by sending testmails to one or more test recipients. The available recipients for testing are determined by the list of UID numbers, you enter here. So first, find out the UID-numbers of the recipients you wish to use for testing, then enter them here in a comma-separated list.'),
+			'test_dmail_group_uids' => array('short', 'List of UID numbers of test dmail groups', 'Alternatively to sending test-mails to individuals, you can choose to send to a whole group. List the group ids available for this action here:'),
 			);
-/*
-		for ($a=0;$a<9;$a++)	{
-			$configArray['categories.'.$a] = array('short', "Category ".$a, '');
-		}
-		$configArray['spacer4'] = array('comment','','(You can use categories from 0-30 inclusive. However this interface shows only 10 categories for your convenience.)');
-*/
+			
 		$theOutput.= $this->doc->section('Configure direct mail module',t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,'pageTS'),0,1);
 		return $theOutput;
 	}
