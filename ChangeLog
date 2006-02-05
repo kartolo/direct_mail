@@ -1,5 +1,5 @@
 2006-02-05 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
-	* Update to manual.
+	* Updates to manual.
 	* Add enable_jump_url parameter in Page TSConfig module configuration settings.
 	* Move t3lib_TStemplate instantiation to module initialization.
 
