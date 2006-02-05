@@ -134,13 +134,17 @@ class mod_web_dmail extends t3lib_SCbase {
 			$this->userTable = $this->params['userTable'];
 			t3lib_div::loadTCA($this->userTable);
 		}
-
 		$this->MOD_MENU['dmail_mode'] = t3lib_BEfunc::unsetMenuItems($this->params,$this->MOD_MENU['dmail_mode'],'menu.dmail_mode'); 
+		
+			// initialize the TS template
+		$GLOBALS['TT'] = new t3lib_timeTrack;
+		$this->tmpl = t3lib_div::makeInstance('t3lib_TStemplate');
+		$this->tmpl->init();
 		
 		t3lib_div::loadTCA('sys_dmail');
 		$this->updatePageTS();
-
 	}
+	
 	/**
 	 * Prints out the module HTML
 	 *
@@ -273,7 +277,6 @@ class mod_web_dmail extends t3lib_SCbase {
 		$this->pages_uid=t3lib_div::_GP('pages_uid');
 		$this->sys_dmail_uid=t3lib_div::_GP('sys_dmail_uid');
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
-		
 		$access = is_array($this->pageinfo) ? 1 : 0;
 		
 		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
@@ -3278,17 +3281,11 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $TYPO3_CONF_VARS;
 		
 			// initialize the page selector
-		if(!$this->sys_page) {
+		if (!$this->sys_page) {
 			$this->sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
 			$this->sys_page->init(true);
 		}
 		
-			// initialize the TS template
-		if(!$this->tmpl) {
-			$GLOBALS['TT'] = new t3lib_timeTrack;
-			$this->tmpl = t3lib_div::makeInstance('t3lib_TStemplate');
-			$this->tmpl->init();
-		}
 		$rootline = $this->sys_page->getRootLine($pageId);
 		$this->tmpl->forceTemplateParsing = 1;
 		$this->tmpl->start($rootline);
