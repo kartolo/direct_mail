@@ -1769,6 +1769,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'plainParams' => array('short', $this->fName('plainParams'), 'Enter the additional URL parameters used to fetch the plain text content. If in doubt, set it to \'&type=99\' which is standard.', '&type=99'),
 			'use_rdct' => array('check', $this->fName('use_rdct'), 'Set this if you want long urls to be substituted with ?RDCT=[md5hash] parameters in plain text mails. This configuration determines how QuickMails are handled and further sets the default setting for DirectMails.'),
 			'long_link_mode' => array('check', $this->fName('long_link_mode'), 'Option for the RDCT feature above.'),
+			'enable_jump_url' => array('check', 'Use jump URL\'s','Check this option to enable jump URL\'s'),
 			'quick_mail_encoding' => array('select', 'Encoding for quick mails', 'Select the content transfer encoding to use when sending quick mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'direct_mail_encoding' => array('select', 'Encoding for direct mails', 'Select the content transfer encoding to use when sending direct mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'quick_mail_charset' => array('short', 'Character set for quick mails', 'Character set used in quick mails. Default is iso-8859-1.', 'iso-8859-1'),
