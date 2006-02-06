@@ -2,6 +2,7 @@
 	* Delete file TODO.txt in folder doc.
 	* Small update to the manual.
 	* Add localization labels for import CSV list.
+	* Add description to csv import (see bugtracker issue 2063).
 
 2006-02-05 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Updates to manual.

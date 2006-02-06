@@ -55,29 +55,9 @@ mod.web_modules.dmail {
   http_password
 
   test_tt_address_uids
-  categories.[integer=bit, 0-30] = label
 }
 
-
-
 The be_users own TSconfig for the module will override by being merged onto this array.
-
-
-*/
-
-
-/**
-EXAMPLE of csv field specification:
-
-;user_date;name;email;zip;phone;module_sys_dmail_category[+1];module_sys_dmail_category[+2];module_sys_dmail_category[+4];module_sys_dmail_category[+8];module_sys_dmail_category[+16];user_age[=20];user_age[=26];user_age[=31];user_age[=36];user_age[=41];user_pregnant[=1];user_kids;user_kidsage[+1];user_kidsage[+2];user_kidsage[+4];user_kidsage[+8]
-
-184;12-02-01;Pia;kimjokumsen@mail.dk;;Nielsen;x;x;x;;;;;x;;;;1;x;;;
-185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x;x;x;;;;x;;;;;1;x;;;
-186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;;x;x;;;;x;;;;x;;;;;
-187;12-02-01;Anette Bentholm;madsenbentholm@mail.net4you.dk;;98373677;;x;x;;;;;x;;;;2;x;;;
-
-
-Import of 3541 records raw on PIII/500Mzh took 80 approx seconds
 
 */
 require_once (PATH_t3lib.'class.t3lib_scbase.php');
@@ -669,7 +649,6 @@ class mod_web_dmail extends t3lib_SCbase {
 			// In addition fields may be prepended with "[code]". This is used if the incoming value is true in which case '+[value]' adds that number to the field value (accummulation) and '=[value]' overrides any existing value in the field
 			$first = $lines[0];
 			$fieldListArr = explode(',',$this->fieldList);
-//			debug($fieldListArr);
 			reset($first);
 			$fieldName=1;
 			$fieldOrder=array();
@@ -1231,7 +1210,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$cmd['tt_address'][$row['uid']]['delete'] = 1;
 			}
 		}
-		if (is_array($categorizedRecords['insert']))	{
+		if (is_array($categorizedRecords['insert'])) {
 			reset($categorizedRecords['insert']);
 			$c=0;
 			while(list(,$rec)=each($categorizedRecords['insert']))	{
@@ -1240,7 +1219,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$data['tt_address']['NEW'.$c]['pid'] = $this->id;
 			}
 		}
-		if (is_array($categorizedRecords['update']))	{
+		if (is_array($categorizedRecords['update'])) {
 			reset($categorizedRecords['update']);
 			$c=0;
 			while(list($rUid,$rec)=each($categorizedRecords['update']))	{
@@ -1248,18 +1227,15 @@ class mod_web_dmail extends t3lib_SCbase {
 				$data['tt_address'][$rUid]=$rec;
 			}
 		}
-
+		
 		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 		$tce->stripslashes_values=0;
 		$tce->enableLogging=0;
 		$tce->start($data,$cmd);
 		$tce->process_datamap();
 		$tce->process_cmdmap();
-/*		debug($data);
-		debug($cmd);
-*/
 	}
-
+	
 	/**
 	 * [Describe function...]
 	 *
@@ -1364,8 +1340,9 @@ class mod_web_dmail extends t3lib_SCbase {
 			$opt[]='<option value=";"'.($indata['sep']==';'?' selected="selected"':'').'>; (' . $LANG->getLL('mailgroup_import_separator_semicolon') . ')</option>';
 			$opt[]='<option value=":"'.($indata['sep']==':'?' selected="selected"':'').'>: (' . $LANG->getLL('mailgroup_import_separator_colon') . ')</option>';
 			$sepSync='<select name="CSV_IMPORT[sep]">'.implode('',$opt).'</select>';
-
-			$out='<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"'.$this->doc->formWidthText(48,'','off').'>'.t3lib_div::formatForTextarea($indata['csv']).'</textarea><br />
+			
+			$out=$LANG->getLL('mailgroup_import_explain') . '<br /><br />
+			<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"'.$this->doc->formWidthText(48,'','off').'>'.t3lib_div::formatForTextarea($indata['csv']).'</textarea><br />
 			<br />
 						<strong>' . $LANG->getLL('mailgroup_import_rules') . '</strong><hr />
 			' . $LANG->getLL('mailgroup_import_update_rule') . '<br />'.$selectSync.'
