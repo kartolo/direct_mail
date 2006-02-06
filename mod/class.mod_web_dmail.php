@@ -1332,11 +1332,11 @@ class mod_web_dmail extends t3lib_SCbase {
 			$records = $this->rearrangeCsvValues($this->getCsvValues($indata['csv'],$indata['sep']));
 			$categorizedRecords = $this->importRecords_sort($records,$indata['syncSelect'],$indata['tstamp']);
 			
-			$theOutput.= $this->doc->section('INSERT RECORDS',$this->getRecordList($categorizedRecords['insert'],'tt_address',1));
+			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import_insert'),$this->getRecordList($categorizedRecords['insert'],'tt_address',1));
 			$theOutput.= $this->doc->spacer(20);
-			$theOutput.= $this->doc->section('UPDATE RECORDS',$this->getRecordList($categorizedRecords['update'],'tt_address',1));
+			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import_update'),$this->getRecordList($categorizedRecords['update'],'tt_address',1));
 			$theOutput.= $this->doc->spacer(20);
-			$theOutput.= $this->doc->section('NOT UPDATED - NEWER VERSION IN DATABASE',$this->getRecordList($categorizedRecords['newer_version_detected'],'tt_address',1));
+			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import_no_update'),$this->getRecordList($categorizedRecords['newer_version_detected'],'tt_address',1));
 			$theOutput.= $this->doc->spacer(20);
 			
 			if ($indata['doImport'])	{
@@ -1349,30 +1349,30 @@ class mod_web_dmail extends t3lib_SCbase {
 				// Selector, mode
 			if (!isset($indata['syncSelect']))	$indata['syncSelect']='email';
 			$opt=array();
-			$opt[]='<option value="email"'.($indata['syncSelect']=="email"?" selected":"").'>Email</option>';
-			$opt[]='<option value="name"'.($indata['syncSelect']=="name"?" selected":"").'>Name</option>';
-			$opt[]='<option value="uid"'.($indata['syncSelect']=="uid"?" selected":"").'>uid</option>';
-			$opt[]='<option value="phone"'.($indata['syncSelect']=="phone"?" selected":"").'>phone</option>';
-			$opt[]='<option value="0"'.($indata['syncSelect']=="0"?" selected":"").'>[Import ALL]</option>';
-			$opt[]='<option value="-1"'.($indata['syncSelect']=="-1"?" selected":"").'>[Import ALL and Remove Existing]</option>';
+			$opt[]='<option value="email"'.($indata['syncSelect']=='email'?' selected="selected"':'').'>' . $LANG->getLL('mailgroup_import_update_rule_email') . '</option>';
+			$opt[]='<option value="name"'.($indata['syncSelect']=='name'?' selected="selected"':'').'>' . $LANG->getLL('mailgroup_import_update_rule_name') . '</option>';
+			$opt[]='<option value="uid"'.($indata['syncSelect']=='uid'?' selected="selected"':'').'>' . $LANG->getLL('mailgroup_import_update_rule_uid') . '</option>';
+			$opt[]='<option value="phone"'.($indata['syncSelect']=='phone'?' selected="selected"':'').'>' . $LANG->getLL('mailgroup_import_update_rule_phone') . '</option>';
+			$opt[]='<option value="0"'.($indata['syncSelect']=='0'?' selected="selected"':'').'>' . $LANG->getLL('mailgroup_import_update_rule_all') . '</option>';
+			$opt[]='<option value="-1"'.($indata['syncSelect']=='-1'?' selected="selected"':'').'>' . $LANG->getLL('mailgroup_import_update_rule_all_delete') . '</option>';
 			$selectSync='<select name="CSV_IMPORT[syncSelect]">'.implode('',$opt).'</select>';
 			
 				// Selector, sep
 			if (!isset($indata['sep']))	$indata['sep']=',';
 			$opt=array();
-			$opt[]='<option value=","'.($indata['sep']==","?" selected":"").'>, (comma)</option>';
-			$opt[]='<option value=";"'.($indata['sep']==";"?" selected":"").'>; (semicolon)</option>';
-			$opt[]='<option value=":"'.($indata['sep']==":"?" selected":"").'>: (colon)</option>';
+			$opt[]='<option value=","'.($indata['sep']==','?' selected="selected"':'').'>, (' . $LANG->getLL('mailgroup_import_separator_comma') . ')</option>';
+			$opt[]='<option value=";"'.($indata['sep']==';'?' selected="selected"':'').'>; (' . $LANG->getLL('mailgroup_import_separator_semicolon') . ')</option>';
+			$opt[]='<option value=":"'.($indata['sep']==':'?' selected="selected"':'').'>: (' . $LANG->getLL('mailgroup_import_separator_colon') . ')</option>';
 			$sepSync='<select name="CSV_IMPORT[sep]">'.implode('',$opt).'</select>';
 
 			$out='<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"'.$this->doc->formWidthText(48,'','off').'>'.t3lib_div::formatForTextarea($indata['csv']).'</textarea><br />
 			<br />
 						<strong>' . $LANG->getLL('mailgroup_import_rules') . '</strong><hr />
-			Update existing records based on the '.$selectSync.'-field being unique. Import the rest.
+			' . $LANG->getLL('mailgroup_import_update_rule') . '<br />'.$selectSync.'
 			<hr />
-			<input type="checkbox" name="CSV_IMPORT[tstamp]" value="1"'.(($importButton && !$indata['tstamp'])?"":" checked").' />Update only records where the time stamp (tstamp) is NOT newer than the imported.
+			<input type="checkbox" name="CSV_IMPORT[tstamp]" value="1"'.(($importButton && !$indata['tstamp'])?'':' checked="checked"').'/>&nbsp;' . $LANG->getLL('mailgroup_import_update_rule_tstamp') . '
 			<hr />
-			'.$sepSync.' Separator character.
+			' . $LANG->getLL('mailgroup_import_separator') . '&nbsp;' . $sepSync.'
 			<hr />
 			<input type="submit" name="CSV_IMPORT[test_only]" value="' . $LANG->getLL('mailgroup_import_test') . '"> &nbsp; &nbsp; '.$importButton.'
 			<input type="hidden" name="CMD" value="displayImport">

@@ -1,3 +1,8 @@
+2006-02-06 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Delete file TODO.txt in folder doc.
+	* Small update to the manual.
+	* Add localization labels for import CSV list.
+
 2006-02-05 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Updates to manual.
 	* Add enable_jump_url parameter in Page TSConfig module configuration settings.
