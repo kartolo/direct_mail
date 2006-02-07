@@ -586,7 +586,7 @@ class mod_web_dmail extends t3lib_SCbase {
                 }
                 $row_categories = t3lib_div::rm_endComma($row_categories);
 
-				$out.='<tr><td colspan=3><img src="clear.gif" width="1" height="15"></td></tr>';
+				$out.='<tr><td colspan="3" style="height: 15px;"></td></tr>';
 				if ($colPosVal!=$row['colPos'])	{
 					$out.='<tr><td colspan="3" bgcolor="'.$this->doc->bgColor5.'">'.fw($LANG->getLL('nl_l_column').': <strong>'.t3lib_BEfunc::getProcessedValue('tt_content','colPos',$row['colPos']).'</strong>').'</td></tr>';
 					$colPosVal=$row["colPos"];
@@ -2012,7 +2012,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$result = $this->cmd_compileMailGroup(intval($row['uid']));
 				$msg.='<table border="0">
 				<tr>
-					<td><img src=clear.gif width="50" height="1" /></td>
+					<td style="width: 50px;"></td>
 					<td>'.$this->cmd_displayMailGroup_test($result).'</td>
 				</tr>
 				</table>';
@@ -2164,7 +2164,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					$msg='<strong>' . $LANG->getLL('quickmail_sent_to') . '</strong>';
 					$msg.='<table border="0">
 					<tr>
-						<td><img src="clear.gif" width="50" height="1" /></td>
+						<td style="width: 50px;"></td>
 						<td><em>'.implode(', ',$emailArr).'</em></td>
 					</tr>
 					</table>

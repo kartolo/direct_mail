@@ -1,3 +1,7 @@
+2006-02-07 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Delete clear.gif and remove references in class.mod_web_dmail.php
+	* Update to manual
+
 2006-02-07  Thorsten Kahler  <thorsten.kahler@dkd.de>
 	* Wrap direct_mail boundaries in plaintextLib.inc using TS and the userFunc from container class
 
