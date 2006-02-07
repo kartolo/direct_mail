@@ -53,6 +53,10 @@ class tx_directmail_container	{
 	 */
 	function insert_dMailer_boundaries ( $content, $conf )	{
 
+		if ( isset( $conf['useParentCObj']) && $conf['useParentCObj'] )	{
+			$this->cObj = &$conf['parentObj']->cObj;
+		}
+
 			// this check could probably be moved to TS
 		if( $GLOBALS['TSFE']->config['config']['insertDmailerBoundaries'] )	{
 			if ( $content != '' )	{
@@ -72,7 +76,7 @@ class tx_directmail_container	{
 					$local_table = 'tt_content';
 					$mm_table = 'sys_dmail_ttcontent_category_mm';
 					$whereClause = '';
-					$orderBy = '';
+					$orderBy = $foreign_table . '.uid';
 					$res = $this->cObj->exec_mm_query_uidList( $select, $local_table_uidlist, $mm_table, $foreign_table, $whereClause, '', $orderBy);
 					if ( $GLOBALS['TYPO3_DB']->sql_num_rows($res) )	{
 						while( $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res) )	{
