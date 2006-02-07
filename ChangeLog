@@ -1,3 +1,6 @@
+2006-02-07  Thorsten Kahler  <thorsten.kahler@dkd.de>
+	* Wrap direct_mail boundaries in plaintextLib.inc using TS and the userFunc from container class
+
 2006-02-06 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Delete file TODO.txt in folder doc.
 	* Small update to the manual.
