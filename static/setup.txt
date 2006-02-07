@@ -11,4 +11,6 @@ tt_content.stdWrap.postUserFunc = tx_directmail_container->insert_dMailer_bounda
 tt_content.stdWrap.postUserFunc {
 	
 }
- 
+
+lib.alt_plaintext.renderObj.userProc < tt_content.stdWrap.postUserFunc
+lib.alt_plaintext.renderObj.userProc.useParentCObj = 1
