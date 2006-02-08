@@ -171,7 +171,10 @@ class mod_web_dmail extends t3lib_SCbase {
 	 */
 	function createDMail()	{
 		global $TCA, $TYPO3_CONF_VARS;
-		if ($createMailFrom = t3lib_div::_GP('createMailFrom'))	{
+		
+		$createMailFrom_UID = t3lib_div::_GP('createMailFrom_UID');	// Internal page
+		$createMailFrom_URL = t3lib_div::_GP('createMailFrom_URL');	// External URL
+		if ($createMailFrom_UID || $createMailFrom_URL)	{
 			// Set default values:
 			$dmail = array();
 			$dmail['sys_dmail']['NEW'] = array (
@@ -193,9 +196,8 @@ class mod_web_dmail extends t3lib_SCbase {
 			if (isset($this->params['plainParams']))	$dmail['sys_dmail']['NEW']['plainParams'] = $this->params['plainParams'];
 			if (isset($this->params['direct_mail_encoding']))	$dmail['sys_dmail']['NEW']['encoding'] = $this->params['direct_mail_encoding'];
 			
-				// If createMailFrom is an integer, it's an internal page. If not, it's an external url
-			if (t3lib_div::testInt($createMailFrom))	{
-				$createFromMailRec = t3lib_BEfunc::getRecord ('pages',$createMailFrom);
+			if (t3lib_div::testInt($createMailFrom_UID))	{
+				$createFromMailRec = t3lib_BEfunc::getRecord ('pages',$createMailFrom_UID);
 				if (t3lib_div::inList($TYPO3_CONF_VARS['FE']['content_doktypes'],$createFromMailRec['doktype']))	{
 					$dmail['sys_dmail']['NEW']['subject'] = $createFromMailRec['title'];
 					$dmail['sys_dmail']['NEW']['type'] = 0;
@@ -204,7 +206,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					$dmail['sys_dmail']['NEW']['charset'] = $this->getPageCharSet($createFromMailRec['uid']);
 				}
 			} else {
-				$dmail['sys_dmail']['NEW']['subject'] = $createMailFrom;
+				$dmail['sys_dmail']['NEW']['subject'] = $createMailFrom_URL;
 				$dmail['sys_dmail']['NEW']['type'] = 1;
 				$dmail['sys_dmail']['NEW']['sendOptions'] = 0;
 				
@@ -515,7 +517,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$out="";
 		$out.='<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($this->pages_uid,$BACK_PATH).'"><img src="'.$BACK_PATH.'gfx/zoom.gif" width="12" height="12" hspace=3 vspace=2 border="0" align=top>'.$LANG->getLL("nl_viewPage").'</a><br />';
 		$out.='<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->pages_uid.']=edit&edit_content=1',$BACK_PATH,"",1).'"><img src="'.$BACK_PATH.'gfx/edit2.gif" width="11" height="12" hspace=3 vspace=2 border="0" align=top>'.$LANG->getLL("nl_editPage").'</a><br />';
-		$out.='<a href="index.php?id='.$this->id.'&createMailFrom='.$this->pages_uid.'&SET[dmail_mode]=direct"'.$onClick.'><img src="'.$BACK_PATH.'/gfx/newmail.gif" width="18" height="16" border="0" align=top>'.$LANG->getLL("nl_createDmailFromPage").'</a><br />';				
+		$out.='<a href="index.php?id='.$this->id.'&createMailFrom_UID='.$this->pages_uid.'&SET[dmail_mode]=direct"'.$onClick.'><img src="'.$BACK_PATH.'/gfx/newmail.gif" width="18" height="16" border="0" align=top>'.$LANG->getLL("nl_createDmailFromPage").'</a><br />';				
 
 		if ($TYPO3_DB->sql_num_rows($res))	{
 			$out.='<br /><b>'.$LANG->getLL('nl_alreadyBasedOn').':</b><br /><br />';
@@ -1617,7 +1619,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		} else {
 			$out = '';
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-				$out.= '<nobr><a href="index.php?id='.$this->id.'&createMailFrom='.$row['uid'].'&SET[dmail_mode]=direct"><img src="'.$BACK_PATH.t3lib_iconWorks::getIcon('pages',$row).'" width="18" height="16" border="0" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" align="top" />'.
+				$out.= '<nobr><a href="index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&SET[dmail_mode]=direct"><img src="'.$BACK_PATH.t3lib_iconWorks::getIcon('pages',$row).'" width="18" height="16" border="0" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" align="top" />'.
 					$row['title'].'</a></nobr><br />';
 			}
 		}
@@ -1631,7 +1633,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$LANG->getLL('dmail_plaintext_url') . '<br />
 				<input type="text" value="http://" name="createMailFrom_plainUrl"'.$TBE_TEMPLATE->formWidth(40).' /><br />' .
 				$LANG->getLL('dmail_subject') . '<br />
-				<input type="text" value="' . $LANG->getLL('dmail_write_subject') . '" name="createMailFrom" onFocus="this.value=\'\';"'.$TBE_TEMPLATE->formWidth(40).' /><br />
+				<input type="text" value="' . $LANG->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';"'.$TBE_TEMPLATE->formWidth(40).' /><br />
 				<input type="submit" value="'.$LANG->getLL("dmail_createMail").'" />
 				';
 		$theOutput.= $this->doc->spacer(20);

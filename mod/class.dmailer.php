@@ -266,10 +266,10 @@ class dmailer extends t3lib_htmlmail {
 		while(list(,$cP)=each($cArray))	{
 			$key=substr($cP[0],1);
 			$isSubscribed = FALSE;
-			if ($key=='END' || !$key || intval($userCategories)==-1) {
+			if ($key == 'END' || !$key || intval($userCategories)==-1) {
 				    $returnVal.=$cP[1];
 				    $this->mediaList.=$cP['mediaList'];
-				    if ($key != 'END') {
+				    if ($cP[1]) {
 					    $this->mailHasContent = TRUE;
 				    }
 			} else {

@@ -1,3 +1,7 @@
+2006-02-08 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction: no content selected when the Direct Mail was based on external URL.
+	* Correction: createMailFrom variable confusion in class.mod_web_dmail.php
+
 2006-02-07 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Delete clear.gif and remove references in class.mod_web_dmail.php
 	* Update to manual
