@@ -1,3 +1,12 @@
+2006-02-09 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add exclude=1 on all columnss of sys_dmail table in TCA.
+	* Add column authcode_fieldList to table sys_dmail.
+	* Add authcode_fieldList to configuration parameters.
+	* Modify authCode computation in dmailer class (requires modified stdAuthCode in t3lib_div from TYPO3core CVS)
+	* Remove columns issent and rendersize from all sys_dmail types in TCA.
+	* Modify TCA definition of module_sys_dmail_category fields to use PAGE_TSCONFIG_IDLIST to restrict selectable categories
+	* Add module_sys_dmail_category to all types in tt_content TCA.
+
 2006-02-08 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction: no content selected when the Direct Mail was based on external URL.
 	* Correction: createMailFrom variable confusion in class.mod_web_dmail.php

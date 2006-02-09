@@ -116,6 +116,7 @@ class dmailer extends t3lib_htmlmail {
 		$this->replyto_name = ($row['replyto_name']) ? $row['replyto_name'] : '';
 		$this->organisation = ($row['organisation']) ? $row['organisation'] : '';
 		$this->priority = t3lib_div::intInRange($row['priority'],1,5);
+		$this->authCode_fieldList = ($row['authcode_fieldList']) ? $row['authcode_fieldList'] : 'uid';
 		$this->mailer = 'TYPO3 Direct Mail module';
 		
 		$this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
@@ -164,7 +165,7 @@ class dmailer extends t3lib_htmlmail {
 				$rowFieldsArray = array_merge($rowFieldsArray, explode(',',$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields']));
 			}
 			$uppercaseFieldsArray = explode(',', 'name,firstname');
-			$authCode = t3lib_div::stdAuthCode($recipRow['uid']);
+			$authCode = t3lib_div::stdAuthCode($recipRow,$this->authCode_fieldList);
 			$this->mediaList='';
 			$this->theParts['html']['content'] = '';
 			if ($this->flag_html && $recipRow['module_sys_dmail_html']) {
