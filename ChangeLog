@@ -1,3 +1,6 @@
+2006-02-07  Thorsten Kahler  <thorsten.kahler@dkd.de>
+	* fixed 2 small typos in mod_web_dmail::cmd_conf()
+
 2006-02-09 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add exclude=1 on all columnss of sys_dmail table in TCA.
 	* Add column authcode_fieldList to table sys_dmail.
