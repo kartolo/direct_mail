@@ -1758,7 +1758,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'direct_mail_charset' => array('short', 'Default character set for direct mails built from external pages', 'Character set used in direct mails when they are built from external pages and character set cannot be auto-detected. Default is iso-8859-1.', 'iso-8859-1'),
 			'enablePlain' => array('check', 'Allow Plain Text emails', 'Set this if you want to allow plain text emails to be fetched. If in doubt, check this option.'),
 			'enableHTML' => array('check', 'Allow HTML emails', 'Set this if you want to allow HTML emails to be fetched. If in doubt, check this option.'),
-			'direct_mail_authcode_fieldList' => array('short', $this->fName('authcode_fieldList'), 'List of fields to be used in the computation of the authentication code included in unsubscribe links in direct mails.','uid,name,email,password');
+			'authcode_fieldList' => array('short', $this->fName('authcode_fieldList'), 'List of fields to be used in the computation of the authentication code included in unsubscribe links in direct mails.','uid,name,email,password'),
 			'http_username' => array('short', 'HTTP username', 'If the mail content is protected by a HTTP authentication, enter the username here. The username and password is used to fetch the mail content. They are NOT sent in the mail!<br />If you don\'t enter a username and password and the newsletter pages happens to be protected, an error will occur and no mail content is fetched.'),
 			'http_password' => array('short', 'HTTP password', '... and enter the password here.'),
 			'userTable' => array('short', 'Custom-defined table', 'Enter the name of a custom-defined table, with compatible columns defined, which may also be used for distribution.'),
