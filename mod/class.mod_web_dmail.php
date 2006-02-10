@@ -375,7 +375,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$mode = $this->MOD_SETTINGS['dmail_mode'];
 
 		if (!$this->sys_dmail_uid || $mode!='direct')	{
-			$this->makeCategories();
+			//$this->makeCategories();
 				// COMMAND:
 			switch($this->CMD) {
 			case 'displayPageInfo':
@@ -470,14 +470,13 @@ class mod_web_dmail extends t3lib_SCbase {
 	 *
 	 * @return	void		No return value, updates $this->categories
 	 */
-	function makeCategories()	{
+	function makeCategories($pidList='') {
 		$this->categories = array();
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,category','sys_dmail_category','NOT hidden '.t3lib_BEfunc::deleteClause('sys_dmail_category'));
-
-        while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-            $this->categories[$row['uid']]=$row['category'];
-        }
-        return;
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,category','sys_dmail_category','sys_dmail_category.pid IN (' . $pidList . ') AND NOT hidden '.t3lib_BEfunc::deleteClause('sys_dmail_category'));
+		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+			$this->categories[$row['uid']]=$row['category'];
+		}
+		return;
 	}
 
 	// ********************
@@ -554,13 +553,13 @@ class mod_web_dmail extends t3lib_SCbase {
 
 			while(list($recUid,$recValues)=each($HTTP_POST_VARS['indata']['categories']))	{
 				reset($recValues);
-                $enabled = array();
-				while(list($k,$b)=each($recValues))	{
+				$enabled = array();
+				while(list($k,$b)=each($recValues)) {
 					if ($b)	{
-                        $enabled[] = $k;
-                    }
+						$enabled[] = $k;
+					}
 				}
-                $data['tt_content'][$recUid]['module_sys_dmail_category'] = implode(',',$enabled);
+				$data['tt_content'][$recUid]['module_sys_dmail_category'] = implode(',',$enabled);
 			}
 			$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 			$tce->stripslashes_values=0;
@@ -569,7 +568,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
         //[ToDo] Perhaps we should here check if TV is installed and fetch cotnent from that instead of the old Columns...
 		$res = $TYPO3_DB->exec_SELECTquery(
-			'colPos, CType, uid, header, bodytext, module_sys_dmail_category',
+			'colPos, CType, uid, pid, header, bodytext, module_sys_dmail_category',
 			'tt_content',
 			'pid='.intval($this->pages_uid).t3lib_BEfunc::deleteClause('tt_content').' AND NOT hidden',
 			'',
@@ -581,13 +580,13 @@ class mod_web_dmail extends t3lib_SCbase {
 			$out='';
 			$colPosVal=99;
 			while($row=$TYPO3_DB->sql_fetch_assoc($res))	{
-                $row_categories = '';
-                $resCat = $TYPO3_DB->exec_SELECTquery('uid_foreign','sys_dmail_ttcontent_category_mm','uid_local='.$row['uid'].' ');
-                while($rowCat=$TYPO3_DB->sql_fetch_assoc($resCat)) {
-                    $row_categories .= $rowCat['uid_foreign'].',';
-                }
-                $row_categories = t3lib_div::rm_endComma($row_categories);
-
+				$row_categories = '';
+				$resCat = $TYPO3_DB->exec_SELECTquery('uid_foreign','sys_dmail_ttcontent_category_mm','uid_local='.$row['uid'].' ');
+				while($rowCat=$TYPO3_DB->sql_fetch_assoc($resCat)) {
+					$row_categories .= $rowCat['uid_foreign'].',';
+				}
+				$row_categories = t3lib_div::rm_endComma($row_categories);
+				
 				$out.='<tr><td colspan="3" style="height: 15px;"></td></tr>';
 				if ($colPosVal!=$row['colPos'])	{
 					$out.='<tr><td colspan="3" bgcolor="'.$this->doc->bgColor5.'">'.fw($LANG->getLL('nl_l_column').': <strong>'.t3lib_BEfunc::getProcessedValue('tt_content','colPos',$row['colPos']).'</strong>').'</td></tr>';
@@ -605,8 +604,12 @@ class mod_web_dmail extends t3lib_SCbase {
 					$out_check.='<font color="green"><strong>'.$LANG->getLL('nl_l_ALL').'</strong></font>';
 				}
 				$out_check.='<br />';
+				
+				$pageTSconfig = t3lib_BEfunc::getTCEFORM_TSconfig('tt_content', $row);
+				if (is_array($pageTSconfig['module_sys_dmail_category']) && $pageTSconfig['module_sys_dmail_category']['PAGE_TSCONFIG_IDLIST']) {
+					$this->makeCategories($pageTSconfig['module_sys_dmail_category']['PAGE_TSCONFIG_IDLIST']);
+				}
 				reset($this->categories);
-
 				while(list($pKey,$pVal)=each($this->categories))	{
 					$out_check.='<input type="hidden" name="indata[categories]['.$row["uid"].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey) ?' checked':'').'> '.$pVal.'<br />';
 				}
@@ -725,7 +728,7 @@ class mod_web_dmail extends t3lib_SCbase {
 
 	/**
 	 * Return all entries from $table where the $pid is in $pidList. If $cat is 0 or empty, then all entries (with pid $pid) is returned
-	 * else only entires which are subscribing to the categories of  the group with uid $group_uid is returned. 
+	 * else only entires which are subscribing to the categories of the group with uid $group_uid is returned. 
 	 * The relation between the recipients in $table and sys_dmail_categories can either be a csv list or a true MM relation (Must be 
 	 * correctly defined in TCA).
 	 *
@@ -1006,7 +1009,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		if ($group_uid)	{
 			$mailGroup=t3lib_BEfunc::getRecord('sys_dmail_group',$group_uid);
 			if (is_array($mailGroup) && $mailGroup['pid']==$this->id)	{
-				$head = '<img src="'.$GLOBALS['BACK_PATH'].t3lib_iconWorks::getIcon('sys_dmail_group').'" width="18" height="16" border="0" align="top" />'.t3lib_div::fixed_lgd($mailGroup['title'],30).'<BR>';
+				$head = '<img src="'.$GLOBALS['BACK_PATH'].t3lib_iconWorks::getIcon('sys_dmail_group').'" width="18" height="16" border="0" align="top" />'.t3lib_div::fixed_lgd($mailGroup['title'],30).'<br />';
 				$theOutput.=$head;
 				switch($mailGroup['type'])	{
 				case 0:	// From pages
@@ -1367,7 +1370,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function cmd_displayUserInfo()	{
-		global $HTTP_POST_VARS,$TCA;
+		global $HTTP_POST_VARS, $TCA, $LANG, $TYPO3_DB, $BACK_PATH;
 		$uid = intval(t3lib_div::_GP('uid'));
 
 
@@ -1382,20 +1385,18 @@ class mod_web_dmail extends t3lib_SCbase {
 				$data=array();
 				if (is_array($HTTP_POST_VARS['indata']['categories']))	{
 					reset($HTTP_POST_VARS['indata']['categories']);
-        			while(list($recUid,$recValues)=each($HTTP_POST_VARS['indata']['categories']))	{
-        				reset($recValues);
-                        $enabled = array();
-        				while(list($k,$b)=each($recValues))	{
-        					if ($b)	{
-                                $enabled[] = $k;
-                            }
-        				}
-                        $data[$table][$uid]['module_sys_dmail_category'] = implode(',',$enabled);
-        			}
-
+					while(list($recUid,$recValues)=each($HTTP_POST_VARS['indata']['categories']))	{
+						reset($recValues);
+						$enabled = array();
+						while(list($k,$b)=each($recValues))	{
+							if ($b)	{
+								$enabled[] = $k;
+							}
+						}
+						$data[$table][$uid]['module_sys_dmail_category'] = implode(',',$enabled);
+					}
 				}
-                //t3lib_div::print_array($data);
-                $data[$table][$uid]['module_sys_dmail_html'] = $HTTP_POST_VARS['indata']['html'] ? 1 : 0;
+				$data[$table][$uid]['module_sys_dmail_html'] = $HTTP_POST_VARS['indata']['html'] ? 1 : 0;
 				$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 				$tce->stripslashes_values=0;
 				$tce->start($data,Array());
@@ -1406,40 +1407,46 @@ class mod_web_dmail extends t3lib_SCbase {
 
 		switch($table)	{
 		case 'tt_address':
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tt_address.*', 'tt_address,pages', 'pages.uid=tt_address.pid AND tt_address.uid='.intval($uid).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('tt_address').t3lib_BEfunc::deleteClause('pages'));
-			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+			$res = $TYPO3_DB->exec_SELECTquery('tt_address.*', 'tt_address,pages', 'pages.uid=tt_address.pid AND tt_address.uid='.intval($uid).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('tt_address').t3lib_BEfunc::deleteClause('pages'));
+			$row = $TYPO3_DB->sql_fetch_assoc($res);
 			break;
 		case 'fe_users':
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('fe_users.*', 'fe_users,pages', 'pages.uid=fe_users.pid AND fe_users.uid='.intval($uid).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('fe_users').t3lib_BEfunc::deleteClause('pages'));
-			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+			$res = $TYPO3_DB->exec_SELECTquery('fe_users.*', 'fe_users,pages', 'pages.uid=fe_users.pid AND fe_users.uid='.intval($uid).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('fe_users').t3lib_BEfunc::deleteClause('pages'));
+			$row = $TYPO3_DB->sql_fetch_assoc($res);
 			break;
 		}
 		if (is_array($row))	{
 			$row_categories = '';
-			$resCat = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign',$mm_table,'uid_local='.$row['uid'].' ');
-			while($rowCat=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat)) {
+			$resCat = $TYPO3_DB->exec_SELECTquery('uid_foreign',$mm_table,'uid_local='.$row['uid'].' ');
+			while($rowCat=$TYPO3_DB->sql_fetch_assoc($resCat)) {
 				$row_categories .= $rowCat['uid_foreign'].',';
 			}
 			$row_categories = t3lib_div::rm_endComma($row_categories);
+			
 			$Eparams='&edit['.$table.']['.$row['uid'].']=edit';
 			$out='';
-			$out.='<img src="'.$GLOBALS['BACK_PATH'].t3lib_iconWorks::getIcon($table,$row).'" width=18 height=16 border=0 title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" align=top>'.$row['name'].htmlspecialchars(' <'.$row['email'].'>');
-			$out.='&nbsp;&nbsp;<A HREF="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$GLOBALS['BACK_PATH'],'').'"><img src="'.$GLOBALS['BACK_PATH'].'gfx/edit2.gif" width=11 height=12 hspace=2 border=0 title="Edit" align="top">'.fw('<B>EDIT</B>').'</a>';
-			$theOutput.= $this->doc->section('Subscriber info',$out);
+			$out.='<img src="'.$BACK_PATH.t3lib_iconWorks::getIcon($table,$row).'" width="18" height="16" border="0" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" align="top" />'.$row['name'].htmlspecialchars(' <'.$row['email'].'>');
+			$out.='&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH,'').'"><img src="'.$BACK_PATH.'gfx/edit2.gif" width="11" height="12" hspace="2" border="0" title="' . htmlspecialchars($LANG->getLL('dmail_edit')) . '" align="top" />' . fw('<b>' . $LANG->getLL('dmail_edit') . '</b>').'</a>';
+			$theOutput.= $this->doc->section($LANG->getLL('subscriber_info'),$out);
 
 			$out='';
 			$out_check='';
+			
+			$pageTSconfig = t3lib_BEfunc::getTCEFORM_TSconfig($table, $row);
+			if (is_array($pageTSconfig['module_sys_dmail_category']) && $pageTSconfig['module_sys_dmail_category']['PAGE_TSCONFIG_IDLIST']) {
+				$this->makeCategories($pageTSconfig['module_sys_dmail_category']['PAGE_TSCONFIG_IDLIST']);
+			}
 			reset($this->categories);
 			while(list($pKey,$pVal)=each($this->categories))	{
-				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey)?" checked":"").'> '.$pVal.'<BR>';
+				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0" /><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey)?' checked="checked"':'').' /> '.$pVal.'<br />';
 			}
-			$out_check.='<BR><BR><input type="checkbox" name="indata[html]" value="1"'.($row['module_sys_dmail_html']?" checked":"").'> ';
-			$out_check.='Receive HTML based mails<BR>';
+			$out_check.='<br /><br /><input type="checkbox" name="indata[html]" value="1"'.($row['module_sys_dmail_html']?' checked="checked"':'').' /> ';
+			$out_check.=$LANG->getLL('subscriber_profile_htmlemail') . '<br />';
 			$out.=fw($out_check);
 
-			$out.='<input type="hidden" name="table" value="'.$table.'"><input type="hidden" name="uid" value="'.$uid.'"><input type="hidden" name="CMD" value="'.$this->CMD.'"><BR><input type="submit" value="Update profile settings">';
+			$out.='<input type="hidden" name="table" value="'.$table.'" /><input type="hidden" name="uid" value="'.$uid.'" /><input type="hidden" name="CMD" value="'.$this->CMD.'" /><br /><input type="submit" value="' . htmlspecialchars($LANG->getLL('subscriber_profile_update')) . '" />';
 			$theOutput.= $this->doc->spacer(20);
-			$theOutput.= $this->doc->section('Subscriber profile',"Set categories of interest for the subscriber.<BR>".$out);
+			$theOutput.= $this->doc->section($LANG->getLL('subscriber_profile'), $LANG->getLL('subscriber_profile_instructions') . '<br /><br />'.$out);
 		}
 		return $theOutput;
 	}
@@ -1522,12 +1529,12 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function updatePageTS()	{
-		if ( $GLOBALS['BE_USER']->doesUserHaveAccess( t3lib_BEfunc::getRecord( 'pages', $this->id), 2) ) {
+		global $BE_USER;
+		
+		if ($BE_USER->doesUserHaveAccess(t3lib_BEfunc::getRecord( 'pages', $this->id), 2)) {
 			$pageTS = t3lib_div::_GP('pageTS');
 			if (is_array($pageTS))	{
 				t3lib_BEfunc::updatePagesTSconfig($this->id,$pageTS,$this->TSconfPrefix);
-	
-//				debug(t3lib_div::getIndpEnv('REQUEST_URI'));
 				header('Location: '.t3lib_div::locationHeaderUrl(t3lib_div::getIndpEnv('REQUEST_URI')));
 			}
 		}
@@ -1748,24 +1755,31 @@ class mod_web_dmail extends t3lib_SCbase {
 			'spacer1' => 'Configure technical options',
 			'sendOptions' => array('select', 'Format of mail content', 'Select the format of the mail content. If in doubt, set it to \'Plain and HTML\'. The recipients are normally able to select their preferences anyway.', array(3=>'Plain and HTML',1=>'Plain text only',2=>'HTML only')),
 			'HTMLParams' => array('short', $this->fName('HTMLParams'), 'Enter the additional URL parameters used to fetch the HTML content. If in doubt, leave it blank.'),
-			'plainParams' => array('short', $this->fName('plainParams'), 'Enter the additional URL parameters used to fetch the plain text content. If in doubt, set it to \'&type=99\' which is standard.', '&type=99'),
+			'plainParams' => array('short', $this->fName('plainParams'), 'Enter the additional URL parameters used to fetch the plain text content. If in doubt, set it to \'&type=99\'.'),
 			'use_rdct' => array('check', $this->fName('use_rdct'), 'Set this if you want long urls to be substituted with ?RDCT=[md5hash] parameters in plain text mails. This configuration determines how QuickMails are handled and further sets the default setting for DirectMails.'),
 			'long_link_mode' => array('check', $this->fName('long_link_mode'), 'Option for the RDCT feature above.'),
 			'enable_jump_url' => array('check', 'Use jump URL\'s','Check this option to enable jump URL\'s'),
 			'quick_mail_encoding' => array('select', 'Encoding for quick mails', 'Select the content transfer encoding to use when sending quick mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'direct_mail_encoding' => array('select', 'Encoding for direct mails', 'Select the content transfer encoding to use when sending direct mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
-			'quick_mail_charset' => array('short', 'Character set for quick mails', 'Character set used in quick mails. Default is iso-8859-1.', 'iso-8859-1'),
-			'direct_mail_charset' => array('short', 'Default character set for direct mails built from external pages', 'Character set used in direct mails when they are built from external pages and character set cannot be auto-detected. Default is iso-8859-1.', 'iso-8859-1'),
+			'quick_mail_charset' => array('short', 'Character set for quick mails', 'Character set used in quick mails.'),
+			'direct_mail_charset' => array('short', 'Default character set for direct mails built from external pages', 'Character set used in direct mails when they are built from external pages and character set cannot be auto-detected.'),
 			'enablePlain' => array('check', 'Allow Plain Text emails', 'Set this if you want to allow plain text emails to be fetched. If in doubt, check this option.'),
 			'enableHTML' => array('check', 'Allow HTML emails', 'Set this if you want to allow HTML emails to be fetched. If in doubt, check this option.'),
-			'authcode_fieldList' => array('short', $this->fName('authcode_fieldList'), 'List of fields to be used in the computation of the authentication code included in unsubscribe links in direct mails.','uid,name,email,password'),
+			'authcode_fieldList' => array('short', $this->fName('authcode_fieldList'), 'List of fields to be used in the computation of the authentication code included in unsubscribe links in direct mails.'),
 			'http_username' => array('short', 'HTTP username', 'If the mail content is protected by a HTTP authentication, enter the username here. The username and password is used to fetch the mail content. They are NOT sent in the mail!<br />If you don\'t enter a username and password and the newsletter pages happens to be protected, an error will occur and no mail content is fetched.'),
 			'http_password' => array('short', 'HTTP password', '... and enter the password here.'),
 			'userTable' => array('short', 'Custom-defined table', 'Enter the name of a custom-defined table, with compatible columns defined, which may also be used for distribution.'),
 			'test_tt_address_uids' => array('short', 'List of UID numbers of test recipients', 'Before sending mails you should test the mail content by sending testmails to one or more test recipients. The available recipients for testing are determined by the list of UID numbers, you enter here. So first, find out the UID-numbers of the recipients you wish to use for testing, then enter them here in a comma-separated list.'),
 			'test_dmail_group_uids' => array('short', 'List of UID numbers of test dmail groups', 'Alternatively to sending test-mails to individuals, you can choose to send to a whole group. List the group ids available for this action here:'),
 			);
-			
+		
+			// Set default values
+		if (!isset($this->implodedParams['plainParams'])) $this->implodedParams['plainParams'] = '&type=99';
+		if (!isset($this->implodedParams['quick_mail_charset'])) $this->implodedParams['quick_mail_charset'] = 'iso-8859-1';
+		if (!isset($this->implodedParams['direct_mail_charset'])) $this->implodedParams['direct_mail_charset'] = 'iso-8859-1';
+		if (!isset($this->implodedParams['enablePlain'])) $this->implodedParams['enablePlain'] = '1';
+		if (!isset($this->implodedParams['enableHTML'])) $this->implodedParams['enableHTML'] = '1';
+		
 		$theOutput.= $this->doc->section('Configure direct mail module',t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,'pageTS'),0,1);
 		return $theOutput;
 	}
@@ -1897,7 +1911,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			// Compile the mail
 		$htmlmail = t3lib_div::makeInstance('dmailer');
 		if($this->params['enable_jump_url']) {
-			$htmlmail->jumperURL_prefix = $this->urlbase.'?id='.$row['page'].'&rid=###SYS_TABLE_NAME###_###USER_uid###&mid=###SYS_MAIL_ID###&jumpurl=';
+			$htmlmail->jumperURL_prefix = $this->urlbase.'?id='.$row['page'].'&rid=###SYS_TABLE_NAME###_###USER_uid###&mid=###SYS_MAIL_ID###&aC=###SYS_AUTHCODE###&jumpurl=';
 			$htmlmail->jumperURL_useId=1;
 		}
 		$htmlmail->start();

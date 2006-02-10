@@ -1,8 +1,18 @@
-2006-02-07  Thorsten Kahler  <thorsten.kahler@dkd.de>
+2006-02-09 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to foreign_table_where clauses in categories mm tables
+	* Add class class.tx_directmail_checkjumpurl.php in res directory to implement hook on tslib_fe/checkDataSubmisssion.
+	* Configure hook on tslib_fe/checkDataSubmisssion in ext_localconf.php (requires modified tslib_fe and index_ts from TYPO3core CVS).
+	* Fix bugtracker issue 670: add aC to the jumpUrl prefix and forward it to the jumped-to URL so that the account cannot be hijacked.
+	* Set $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['defaultRecipFields'] in ext_localconf.php.
+	* Correction: set some defaults in the Module configuration form.
+	* Localize labels in function cmd_displayUserInfo.
+	* Restrict displayed categories to those specified by Page TSConfig in cmd_displayPageInfo and cmd_displayUserInfo
+	
+2006-02-09  Thorsten Kahler  <thorsten.kahler@dkd.de>
 	* fixed 2 small typos in mod_web_dmail::cmd_conf()
 
 2006-02-09 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
-	* Add exclude=1 on all columnss of sys_dmail table in TCA.
+	* Add exclude=1 on all columns of sys_dmail table in TCA.
 	* Add column authcode_fieldList to table sys_dmail.
 	* Add authcode_fieldList to configuration parameters.
 	* Modify authCode computation in dmailer class (requires modified stdAuthCode in t3lib_div from TYPO3core CVS)

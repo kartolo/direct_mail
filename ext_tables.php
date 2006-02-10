@@ -21,7 +21,7 @@ $tt_content_cols = Array(
 		'config' => Array (
 			'type' => 'select',
 			'foreign_table' => 'sys_dmail_category',
-			'foreign_table_where' => 'AND sys_dmail_category.pid=###PAGE_TSCONFIG_IDLIST### ORDER BY sys_dmail_category.uid',
+			'foreign_table_where' => 'AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.uid',
 			'size' => 5,
 			'minitems' => 0,
 			'maxitems' => 30,
@@ -40,7 +40,7 @@ $tempCols = Array(
 		'config' => Array (
 			'type' => 'select',
 			'foreign_table' => 'sys_dmail_category',
-			'foreign_table_where' => 'AND sys_dmail_category.pid=###PAGE_TSCONFIG_IDLIST### ORDER BY sys_dmail_category.uid',
+			'foreign_table_where' => 'AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.uid',
 			'size' => 5,
 			'minitems' => 0,
 			'maxitems' => 30,
@@ -69,7 +69,7 @@ $tempCols = Array(
 		'config' => Array (
 			'type' => 'select',
 			'foreign_table' => 'sys_dmail_category',
-			'foreign_table_where' => 'AND sys_dmail_category.pid=###PAGE_TSCONFIG_IDLIST### ORDER BY sys_dmail_category.uid',
+			'foreign_table_where' => 'AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.uid',
 			'size' => 5,
 			'minitems' => 0,
 			'maxitems' => 30,

@@ -160,12 +160,12 @@ class dmailer extends t3lib_htmlmail {
 		if ($recipRow['email'])	{
 			$midRidId = 'MID'.$this->dmailer['sys_dmail_uid'].'_'.$tableNameChar.$recipRow['uid'];
 			$uniqMsgId = md5(microtime()).'_'.$midRidId;
-			$rowFieldsArray = explode(',','uid,name,title,email,phone,www,address,company,city,zip,country,fax,firstname');
-			if ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields'])	{
+			$rowFieldsArray = explode(',', $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['defaultRecipFields']);
+			if ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields']) {
 				$rowFieldsArray = array_merge($rowFieldsArray, explode(',',$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields']));
 			}
 			$uppercaseFieldsArray = explode(',', 'name,firstname');
-			$authCode = t3lib_div::stdAuthCode($recipRow,$this->authCode_fieldList);
+			$authCode = t3lib_div::stdAuthCode($recipRow, $this->authCode_fieldList);
 			$this->mediaList='';
 			$this->theParts['html']['content'] = '';
 			if ($this->flag_html && $recipRow['module_sys_dmail_html']) {
