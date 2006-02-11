@@ -375,7 +375,6 @@ class mod_web_dmail extends t3lib_SCbase {
 		$mode = $this->MOD_SETTINGS['dmail_mode'];
 
 		if (!$this->sys_dmail_uid || $mode!='direct')	{
-			//$this->makeCategories();
 				// COMMAND:
 			switch($this->CMD) {
 			case 'displayPageInfo':
@@ -466,15 +465,25 @@ class mod_web_dmail extends t3lib_SCbase {
 	}
 
 	/**
-	 * Compile the categories. From version 2.0 the categories are fetched from the db table sys_dmail_category and not page TSconfig.
+	 * Compile the categories enables for this $row of this $table.
+	 * From version 2.0 the categories are fetched from the db table sys_dmail_category and not page TSconfig.
 	 *
 	 * @return	void		No return value, updates $this->categories
 	 */
-	function makeCategories($pidList='') {
+	function makeCategories($table,$row) {
+		global $TYPO3_DB;
+		
 		$this->categories = array();
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,category','sys_dmail_category','sys_dmail_category.pid IN (' . $pidList . ') AND NOT hidden '.t3lib_BEfunc::deleteClause('sys_dmail_category'));
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-			$this->categories[$row['uid']]=$row['category'];
+		$pidList = '';
+		$pageTSconfig = t3lib_BEfunc::getTCEFORM_TSconfig($table, $row);
+		if (is_array($pageTSconfig['module_sys_dmail_category'])) {
+			$pidList = $pageTSconfig['module_sys_dmail_category']['PAGE_TSCONFIG_IDLIST'];
+			if ($pidList) {
+				$res = $TYPO3_DB->exec_SELECTquery('uid,category','sys_dmail_category','sys_dmail_category.pid IN (' . $TYPO3_DB->fullQuoteStr($pidList, 'sys_dmail_category') . ')'.t3lib_pageSelect::enableFields('sys_dmail_category'));
+				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
+					$this->categories[$rowCat['uid']]=$rowCat['category'];
+				}
+			}
 		}
 		return;
 	}
@@ -605,10 +614,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				}
 				$out_check.='<br />';
 				
-				$pageTSconfig = t3lib_BEfunc::getTCEFORM_TSconfig('tt_content', $row);
-				if (is_array($pageTSconfig['module_sys_dmail_category']) && $pageTSconfig['module_sys_dmail_category']['PAGE_TSCONFIG_IDLIST']) {
-					$this->makeCategories($pageTSconfig['module_sys_dmail_category']['PAGE_TSCONFIG_IDLIST']);
-				}
+				$this->makeCategories('tt_content', $row);
 				reset($this->categories);
 				while(list($pKey,$pVal)=each($this->categories))	{
 					$out_check.='<input type="hidden" name="indata[categories]['.$row["uid"].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey) ?' checked':'').'> '.$pVal.'<br />';
@@ -1432,10 +1438,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$out='';
 			$out_check='';
 			
-			$pageTSconfig = t3lib_BEfunc::getTCEFORM_TSconfig($table, $row);
-			if (is_array($pageTSconfig['module_sys_dmail_category']) && $pageTSconfig['module_sys_dmail_category']['PAGE_TSCONFIG_IDLIST']) {
-				$this->makeCategories($pageTSconfig['module_sys_dmail_category']['PAGE_TSCONFIG_IDLIST']);
-			}
+			$this->makeCategories($table, $row);
 			reset($this->categories);
 			while(list($pKey,$pVal)=each($this->categories))	{
 				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0" /><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey)?' checked="checked"':'').' /> '.$pVal.'<br />';
@@ -1815,7 +1818,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$catRec['crdate'] = $today[0];
 		reset($this->modList['rows']);
 		while(list(,$row) = each($this->modList['rows'])) {
-			$temp= t3lib_BEfunc::getModTSconfig($row['uid'],'mod.web_modules.dmail');
+			$temp = t3lib_BEfunc::getModTSconfig($row['uid'],'mod.web_modules.dmail');
 			$params = $temp['properties'];
 			$count = 0;
 			$theOutput .= '<br />... from Direct Mail folder: ' . $row['title'];
@@ -1823,14 +1826,14 @@ class mod_web_dmail extends t3lib_SCbase {
 				$catRec['pid'] = $row['uid'];
 				reset($params['categories.']);
 				while(list($num,$cat) = each($params['categories.'])) {
-					$theOutput .= '<br />Category: '.$cat;
+					$theOutput .= '<br />Category: '.$cat. ' with number: ' . $num;
 					$res = $TYPO3_DB->exec_SELECTquery(
 						'*',
 						'sys_dmail_category',
-						'pid=' . intval($row['uid']) . ' AND old_cat_number=' . intval($num));
+						'pid=' . intval($row['uid']) . ' AND old_cat_number=' . $TYPO3_DB->fullQuoteStr(strval($num), 'sys_dmail_category'));
 					if (!$TYPO3_DB->sql_num_rows($res)) {
 						$catRec['category'] = $cat;
-						$catRec['old_cat_number'] = intval($num);
+						$catRec['old_cat_number'] = strval($num);
 						$catRec['tstamp'] = time();
 						$res = $TYPO3_DB->exec_INSERTquery('sys_dmail_category', $catRec);
 						$count++;
@@ -1872,19 +1875,32 @@ class mod_web_dmail extends t3lib_SCbase {
 				for ($a = 0; $a <= 30; $a++) {
 					if ($row['module_sys_dmail_category'] & pow(2, $a)) {
 						$categoryCount++;
-						$categoryArr[] = $a;
+						$categoryArr[] = strval($a);
 					}
 				}
-				$categoryList = implode($categoryArr, ',');
+				$categoryList = implode(',', $categoryArr);
+				$this->makeCategories($table,$row);
 				$res_cat = $TYPO3_DB->exec_SELECTquery(
 					'uid,category',
 					'sys_dmail_category',
-					'pid=' . intval($this->id) . ' AND FIND_IN_SET(old_cat_number,' . $TYPO3_DB->fullQuoteStr($categoryList, 'sys_dmail_category') . ')'.
-					t3lib_BEfunc::deleteClause('sys_dmail_category')
+					'sys_dmail_category.uid IN (' . $TYPO3_DB->fullQuoteStr(implode(',', array_keys($this->categories)), 'sys_dmail_category') . ')'.
+						' AND FIND_IN_SET(old_cat_number,' . $TYPO3_DB->fullQuoteStr($categoryList, 'sys_dmail_category') . ')'.
+						t3lib_pageSelect::enableFields('sys_dmail_category')
 					);
 				$theOutput .= '<br />'. $row['uid'] . ' had ' . $categoryList . ' converted into:';
-				while ($cat_row = $TYPO3_DB->sql_fetch_assoc($res_cat)) {
-					$theOutput .= '<br />'. $cat_row['uid']. ' = ' . $cat_row['category'];
+				if ($TYPO3_DB->sql_num_rows($res_cat)) {
+					$mm_count = 0;
+					while ($cat_row = $TYPO3_DB->sql_fetch_assoc($res_cat)) {
+						$mmRec['uid_local'] = intval($row['uid']);
+						$mmRec['uid_foreign'] = intval($cat_row['uid']);
+						$mmRec['sorting'] = intval($mm_count++);
+						$res_insert_mm = $TYPO3_DB->exec_INSERTquery($mm_table, $mmRec);
+						$theOutput .= '<br />'. $cat_row['uid']. ' = ' . $cat_row['category'];
+					}
+					$updateFields = array(
+						'module_sys_dmail_category' => intval($mm_count)
+					);
+					$res_update = $TYPO3_DB->exec_UPDATEquery($table, 'uid='.intval($row['uid']), $updateFields);
 				}
 				$newConvertCount++;
 			} else {
@@ -2010,7 +2026,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $LANG, $BACK_PATH, $TYPO3_DB, $TBE_TEMPLATE;
 
 		if ($this->params['test_tt_address_uids'])	{
-			$intList = implode(t3lib_div::intExplode(',',$this->params['test_tt_address_uids']),',');
+			$intList = implode(',', t3lib_div::intExplode(',',$this->params['test_tt_address_uids']));
 			$res = $TYPO3_DB->exec_SELECTquery('tt_address.*', 'tt_address,pages', 'pages.uid=tt_address.pid AND tt_address.uid IN ('.$intList.') AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('tt_address').t3lib_BEfunc::deleteClause('pages'));
 			$msg=$LANG->getLL('testmail_individual_msg') . '<br /><br />';
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -2021,7 +2037,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 
 		if ($this->params['test_dmail_group_uids'])	{
-			$intList = implode(t3lib_div::intExplode(',',$this->params['test_dmail_group_uids']),',');
+			$intList = implode(',', t3lib_div::intExplode(',',$this->params['test_dmail_group_uids']));
 			$res = $TYPO3_DB->exec_SELECTquery('sys_dmail_group.*', 'sys_dmail_group,pages', 'pages.uid=sys_dmail_group.pid AND sys_dmail_group.uid IN ('.$intList.') AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('sys_dmail_group').t3lib_BEfunc::deleteClause('pages'));
 			$msg=$LANG->getLL('testmail_mailgroup_msg') . '<br /><br />';
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -2314,7 +2330,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 			$hash = array_flip($addresses);
 			$addresses = array_keys($hash);
-			$addressList = implode($addresses,',');
+			$addressList = implode(',', $addresses);
 			
 			if ($addressList)	{
 					// Sending the same mail to lots of recipients
@@ -2641,7 +2657,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					}
 				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_list') .  '<br />';
-				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode($emails,chr(10))).'</textarea>';
+				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
@@ -2702,7 +2718,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					}
 				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_unknown_recipient_list') .  '<br />';
-				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode($emails,chr(10))).'</textarea>';
+				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
@@ -2759,7 +2775,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					}
 				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_mailbox_full_list') .  '<br />';
-				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode($emails,chr(10))).'</textarea>';
+				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
@@ -2816,7 +2832,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					}
 				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_bad_host_list') .  '<br />';
-				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode($emails,chr(10))).'</textarea>';
+				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
@@ -2874,7 +2890,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					}
 				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_bad_header_list') .  '<br />';
-				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode($emails,chr(10))).'</textarea>';
+				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
@@ -2931,7 +2947,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					}
 				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_reason_unknown_list') .  '<br />';
-				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode($emails,chr(10))).'</textarea>';
+				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
