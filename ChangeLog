@@ -1,3 +1,7 @@
+2006-02-10 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to returnmail.phpsh
+	* Restructure class.readmail.php
+
 2006-02-09 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction to foreign_table_where clauses in categories mm tables
 	* Add class class.tx_directmail_checkjumpurl.php in res directory to implement hook on tslib_fe/checkDataSubmisssion.

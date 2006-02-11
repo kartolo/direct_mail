@@ -69,7 +69,7 @@ $filename = 'php://stdin';
 
 $content = t3lib_div::getUrl($filename);
 if (trim($content))	{
-	$readMail = t3lib_div::makeInstance("t3lib_readmail");
+	$readMail = t3lib_div::makeInstance('readmail');
 	
 		// Split mail into head and content
 	$mailParts = $readMail->extractMailHeader($content);

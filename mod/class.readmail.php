@@ -37,8 +37,15 @@
 
 require_once (PATH_t3lib.'class.t3lib_readmail.php');
 
-class readmail extends t3lib_readmail { 
-
+class readmail extends t3lib_readmail {
+	
+	var $reason_text = array(
+		'550' => 'no mailbox|account does not exist|user unknown|user is unknown|unknown user|unknown local part|unrouteable address|does not have an account here|no such user|user not listed|account has been disabled or discontinued|user disabled|unknown recipient|invalid recipient|recipient problem|recipient name is not recognized|mailbox unavailable|550 5\.1\.1 recipient|status: 5\.1\.1|delivery failed 550|550 requested action not taken|receiver not found|unknown or illegal alias|is unknown at host|is not a valid mailbox|no mailbox here by that name|we do not relay|5\.7\.1 unable to relay|cuenta no activa|inactive user|user is inactive|mailaddress is administratively disabled|not found in directory|not listed in public name & address book|destination addresses were unknown|rejected address|not listed in domino directory|domino directory entry does not',
+		'551' => 'over quota|quota exceeded|mailbox full|mailbox is full|not enough space on the disk|mailfolder is over the allowed quota|recipient reached disk quota|temporalmente sobre utilizada|recipient storage full|mailbox lleno|user mailbox exceeds allowed size',
+		'552' => 't find any host named|unrouteable mail domain|not reached for any host after a long failure period|domain invalid|host lookup did not complete: retry timeout exceeded|no es posible conectar correctamente',
+		'554' => 'error in header|header error|invalid message|invalid structure|header line format error'
+	);
+	
 	/**
 	* The getMessage method is modified to avoid breaking the message when it contains a Content-Type: message/delivery-status
 	* 
@@ -71,10 +78,10 @@ class readmail extends t3lib_readmail {
 	* @return      array           key/value pairs with analysis result. Eg. "reason", "content", "reason_text", "mailserver" etc.
 	*/
 	function analyseReturnError($c) {
-		$cp=array();
-		if ( strstr($c,'--- Below this line is a copy of the message.') || strstr($c,'------ This is a copy of the message, including all the headers.') ) {               // QMAIL
-			if ( strstr($c,'--- Below this line is a copy of the message.') ) {
-				$parts = explode('--- Below this line is a copy of the message.',$c,2);		// Splits by the QMAIL divider
+		$cp = array();
+		if (preg_match('/' . preg_quote('--- Below this line is a copy of the message.') . '|' . preg_quote('------ This is a copy of the message, including all the headers.') . '/i', $c)) {               // QMAIL
+			if (preg_match('/' . preg_quote('--- Below this line is a copy of the message.') . '/i', $c)) {
+				$parts = explode('-- Below this line is a copy of the message.',$c,2);		// Splits by the QMAIL divider
 			} else {
 				$parts = explode('------ This is a copy of the message, including all the headers.',$c,2);	// Splits by the QMAIL divider
 			}
@@ -82,19 +89,8 @@ class readmail extends t3lib_readmail {
 			$parts = explode('>:',$cp['content'],2);
 			$cp['reason_text'] = trim($parts[1])?trim($parts[1]):$cp['content'];
 			$cp['mailserver'] = 'Qmail';
-			die($cp['content']);
-			if (eregi('over quota|quota exceeded|Quota Exceeded|mailbox full|mailbox is full|not enough space on the disk|mailfolder is over the allowed quota|recipient reached disk quota|temporalmente sobre utilizada|recipient storage full|mailbox lleno',$cp['reason_text'])) {
-				$cp['reason'] = 551;
-			} elseif (eregi('no mailbox|account does not exist|User unknown|User is unknown|unknown user|Unknown local part|unrouteable address|does not have an account here|No such user|account has been disabled or discontinued|user disabled|invalid recipient|Invalid Recipient|mailbox unavailable|550 5.1.1 Recipient|unknown or illegal alias|is unknown at host|is not a valid mailbox|no mailbox here by that name|we do not relay|5.7.1 Unable to relay|Cuenta no activa|inactive user|User is inactive|Mailaddress is administratively disabled',$cp['reason_text']))	{
-				$cp['reason'] = 550;	// 550 Invalid recipient
-			} elseif (eregi('t find any host named|unrouteable mail domain|not reached for any host after a long failure period|Domain invalid|host lookup did not complete: retry timeout exceeded',$cp['reason_text'])) {
-				$cp['reason'] = 552;	// Bad host
-			} elseif (eregi('Error in Header|Header Error|invalid Message|Invalid structure|header line format error',$cp['reason_text'])) {
-				$cp['reason'] = 554;
-			} else {
-				$cp['reason'] = -1;
-			}
-		} elseif ( strstr($c, 'The Postfix program') )     {               // Postfix
+			$cp['reason'] = $this->extractReason($cp['reason_text']);
+		} elseif (strstr($c, 'The Postfix program')) {               // Postfix
 			$cp['content'] = trim($c);
 			$parts = explode('>:',$c,2);
 			$cp['reason_text'] = trim($parts[1]);
@@ -110,55 +106,36 @@ class readmail extends t3lib_readmail {
 			} else {
 				$cp['reason'] = -1;
 			}
-		} elseif ( strstr($c, 'Your message cannot be delivered to the following recipients:') ) {        // whoever this is...
+		} elseif (strstr($c, 'Your message cannot be delivered to the following recipients:')) {        // whoever this is...
 			$cp['content'] = trim($c);
 			$cp['reason_text'] = trim(strstr($cp['content'],'Your message cannot be delivered to the following recipients:'));
 			$cp['reason_text']=trim(substr($cp['reason_text'],0,500));
 			$cp['mailserver']='unknown';
-			if (eregi('Not found in directory|Unknown Recipient|Delivery failed 550|Receiver not found|account has been disabled or discontinued|User not listed|recipient problem|User unknown|recipient name is not recognized|we do not relay|invalid recipient|550 Requested action not taken|unknown or illegal alias|not listed in public Name & Address Book|is unknown at host|is not a valid mailbox|unknown user|User is unknown|rejected address',$cp['reason_text'])) {
-				$cp['reason']=550;	// 550 Invalid maibox
-			} elseif (eregi('over quota|quota exceeded|Quota Exceeded|mailbox full|mailbox is full|not enough space on the disk|mailfolder is over the allowed quota|recipient reached disk quota|temporalmente sobre utilizada|recipient storage full',$cp['reason_text']))	{
-				$cp['reason']=551;	// 551 Mailbox full
-			} elseif (eregi('Error in Header|Header Error|invalid Message|header line format error',$cp['reason_text']))	{
-				$cp['reason']=554;
-			} elseif (eregi('t find any host named|unrouteable mail domain|no es posible conectar correctamente',$cp['reason_text'])) {
-				$cp['reason']=552;	// Bad host
-			} else {
-				$cp['reason']=-1;
-			}
-		} elseif ( strstr($c, 'Diagnostic-Code: X-Notes') ) {        // Lotus Notes
+			$cp['reason'] = $this->extractReason($cp['reason_text']);
+		} elseif (strstr($c, 'Diagnostic-Code: X-Notes')) {        // Lotus Notes
 			$cp['content'] = trim($c);
 			$cp['reason_text'] = trim(strstr($cp['content'],'Diagnostic-Code: X-Notes'));
 			$cp['reason_text'] = trim(substr($cp['reason_text'],0,200));
 			$cp['mailserver']='Notes';
-			if (eregi('not listed in public Name & Address Book|not listed in Domino Directory|Domino Directory entry does not|Not found in directory|Unknown Recipient|Delivery failed 550|Receiver not found|account has been disabled or discontinued|User not listed|recipient problem|User unknown|recipient name is not recognized|we do not relay|invalid recipient|550 Requested action not taken|unknown or illegal alias|is unknown at host|is not a valid mailbox|unknown user|User is unknown',$cp['reason_text'])) {
-				$cp['reason']=550;	// 550 Invalid maibox
-			} elseif (eregi('over quota|quota exceeded|Quota Exceeded|mailbox full|mailbox is full|not enough space on the disk|mailfolder is over the allowed quota|recipient reached disk quota|temporalmente sobre utilizada|recipient storage full',$cp['reason_text']))	{
-				$cp['reason']=551;	// 551 Mailbox full
-			} elseif (eregi('Error in Header|Header Error|invalid Message|header line format error',$cp['reason_text']))	{
-				$cp['reason']=554;
-			} elseif (eregi('t find any host named|unrouteable mail domain|no es posible conectar correctamente',$cp['reason_text'])) {
-				$cp['reason']=552;	// Bad host
-			} else {
-				$cp['reason']=-1;
-			}
+			$cp['reason'] = $this->extractReason($cp['reason_text']);
 		} else {        // No-named:
-			$cp['content']=trim($c);
-			$cp['reason_text']=trim(substr($c,0,1000));
-			$cp['mailserver']='unknown';
-			if (eregi('Unknown Recipient|Delivery failed 550|Receiver not found|Status: 5.1.1|account has been disabled or discontinued|User not listed|No such user|recipient problem|User unknown|recipient name is not recognized|we do not relay|invalid recipient|550 Requested action not taken|unknown or illegal alias|not listed in public Name & Address Book|is unknown at host|is not a valid mailbox|unknown user|User is unknown|destination addresses were unknown',$cp['reason_text'])) {
-				$cp['reason']=550;	// 550 Invalid maibox
-			} elseif (eregi('over quota|quota exceeded|Quota Exceeded|mailbox full|mailbox is full|not enough space on the disk|mailfolder is over the allowed quota|recipient reached disk quota|temporalmente sobre utilizada|recipient storage full|mailbox lleno|User mailbox exceeds allowed size',$cp['reason_text']))	{
-				$cp['reason']=551;	// 551 Mailbox full
-			} elseif (eregi('Error in Header|Header Error|invalid Message|header line format error',$cp['reason_text']))	{
-				$cp['reason']=554;
-			} elseif (eregi('t find any host named|Domain invalid|unrouteable mail domain|no es posible conectar correctamente',$cp['reason_text'])) {
-				$cp['reason']=552;	// Bad host
-			} else {
-				$cp['reason']=-1;
+			$cp['content'] = trim($c);
+			$cp['reason_text'] = trim(substr($c,0,1000));
+			$cp['mailserver'] = 'unknown';
+			$cp['reason'] = $this->extractReason($cp['reason_text']);
+		}
+		$cp['mailserver'] = 'Qmail';
+		return $cp;
+	}
+	
+	function extractReason($text) {
+		$reason = -1;
+		foreach ($this->reason_text as $case => $value) {
+			if (preg_match('/'. $value .'/i',$text)) {
+				return intval($case);
 			}
 		}
-		return $cp;     
+		return $reason;
 	}
 }
 
