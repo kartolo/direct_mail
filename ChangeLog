@@ -3,7 +3,7 @@
 	* Change state to Stable.
 	* Add conflicts with sr_direct_mail_ext, it_dmail_fix
 	* Modify function makeCategories.
-	* Add inserts and updates to categories conversion (still problem with category 0!).
+	* Complete conversion function, including localization.
 
 2006-02-10 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction to returnmail.phpsh
