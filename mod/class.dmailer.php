@@ -156,6 +156,8 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	[type]		...
 	 */
 	function dmailer_sendAdvanced($recipRow,$tableNameChar)	{
+		global $TYPO3_CONF_VARS;
+		
 		$returnCode=0;
 		if ($recipRow['email'])	{
 			$midRidId = 'MID'.$this->dmailer['sys_dmail_uid'].'_'.$tableNameChar.$recipRow['uid'];
@@ -206,7 +208,7 @@ class dmailer extends t3lib_htmlmail {
 					$tempContent_Plain = str_replace('###SYS_AUTHCODE###', $authCode, $tempContent_Plain);
 
 					if (trim($this->dmailer['sys_dmail_rec']['use_rdct']))        {
-						$tempContent_Plain = t3lib_div::substUrlsInPlainText($tempContent_Plain, $this->dmailer['sys_dmail_rec']['long_link_mode']?'all':'76');
+						$tempContent_Plain = t3lib_div::substUrlsInPlainText($tempContent_Plain, $this->dmailer['sys_dmail_rec']['long_link_mode']?'all':'76', $this->dmailer['sys_dmail_rec']['long_link_rdct_url']);
 					}
 
 					$this->theParts['plain']['content'] = $this->encodeMsg($tempContent_Plain);

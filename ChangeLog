@@ -1,3 +1,10 @@
+2006-02-13 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to class.tx_directmail_checkjumpurl.php and class.dmailer.php: missing global
+	* Modifying grouping of module configuration options.
+	* Fix RDCT usability issue by adding selection list of domains.
+	* Add use_domain in sys_dmail table and module configuration options.
+	* Fix bugtracker issue 253.
+
 2006-02-11 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Change version number to 2.0.0 so that we can refer to it easily in the manual.
 	* Change state to Stable.

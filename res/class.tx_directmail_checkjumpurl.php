@@ -43,7 +43,7 @@ class tx_directmail_checkjumpurl	{
 	 * @return	void
 	 */
 	function checkDataSubmission (&$feObj)	{
-		global $TCA, $TYPO3_DB;
+		global $TCA, $TYPO3_DB, $TYPO3_CONF_VARS;
 		
 		$JUMPURL_VARS = t3lib_div::_GET();
 		
@@ -60,7 +60,7 @@ class tx_directmail_checkjumpurl	{
 				$temp_res = $TYPO3_DB->exec_SELECTquery('mailContent', 'sys_dmail', 'uid='.intval($mid));
 				if ($row = $TYPO3_DB->sql_fetch_assoc($temp_res))	{
 					$temp_unpackedMail = unserialize($row['mailContent']);
-					$url_id=$jumpurl;
+					$url_id = $jumpurl;
 					if ($jumpurl>=0)	{
 						$responseType=1;	// Link (number)
 						$jumpurl = $temp_unpackedMail['html']['hrefs'][$url_id]['absRef'];
@@ -68,6 +68,7 @@ class tx_directmail_checkjumpurl	{
 						$responseType=2;	// Link (number, plaintext)
 						$jumpurl = $temp_unpackedMail['plain']['link_ids'][abs($url_id)];
 					}
+					
 					$jumpurl = t3lib_div::htmlspecialchars_decode($jumpurl);
 
 					switch($temp_recip[0])	{

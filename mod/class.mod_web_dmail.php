@@ -119,6 +119,10 @@ class mod_web_dmail extends t3lib_SCbase {
 		$this->tmpl = t3lib_div::makeInstance('t3lib_TStemplate');
 		$this->tmpl->init();
 		
+			// initialize the page selector
+		$this->sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
+		$this->sys_page->init(true);
+		
 		t3lib_div::loadTCA('sys_dmail');
 		$this->updatePageTS();
 	}
@@ -173,7 +177,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$createMailFrom_UID = t3lib_div::_GP('createMailFrom_UID');	// Internal page
 		$createMailFrom_URL = t3lib_div::_GP('createMailFrom_URL');	// External URL
 		if ($createMailFrom_UID || $createMailFrom_URL)	{
-			// Set default values:
+				// Set default values:
 			$dmail = array();
 			$dmail['sys_dmail']['NEW'] = array (
 				'from_email' => $this->params['from_email'],
@@ -181,13 +185,16 @@ class mod_web_dmail extends t3lib_SCbase {
 				'replyto_email' => $this->params['replyto_email'],
 				'replyto_name' => $this->params['replyto_name'],
 				'return_path' => $this->params['return_path'],
+				'use_domain' => $this->params['use_domain'],
 				'use_rdct' => $this->params['use_rdct'],
-				'long_link_rdct_url' => $this->params['long_link_rdct_url'],
 				'long_link_mode' => $this->params['long_link_mode'],
 				'organisation' => $this->params['organisation'],
 				'authcode_fieldList' => $this->params['authcode_fieldList']
 				);
+			
 			$dmail['sys_dmail']['NEW']['sendOptions'] = $TCA['sys_dmail']['columns']['sendOptions']['config']['default'];
+			$dmail['sys_dmail']['NEW']['long_link_rdct_url'] = $this->getUrlBase($this->params['use_domain']);
+			
 				// If params set, set default values:
 			if (isset($this->params['sendOptions']))	$dmail['sys_dmail']['NEW']['sendOptions'] = $this->params['sendOptions'];
 			if (isset($this->params['HTMLParams']))		$dmail['sys_dmail']['NEW']['HTMLParams'] = $this->params['HTMLParams'];
@@ -237,7 +244,6 @@ class mod_web_dmail extends t3lib_SCbase {
 				$tce->stripslashes_values=0;
 				$tce->start($dmail,Array());
 				$tce->process_datamap();
-				//			debug($tce->substNEWwithIDs['NEW']);
 				$this->sys_dmail_uid = $tce->substNEWwithIDs['NEW'];
 			} else {
 				// wrong page, could not...
@@ -394,15 +400,16 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 		} else {
 				// Here the single dmail record is shown.
-			$this->urlbase = substr(t3lib_div::getIndpEnv('TYPO3_REQUEST_DIR'),0,-(strlen(t3lib_div::resolveBackPath(TYPO3_mainDir.TYPO3_MOD_PATH)))).'index.php';
-
 			$this->sys_dmail_uid = intval($this->sys_dmail_uid);
-
 			$res = $TYPO3_DB->exec_SELECTquery('*', 'sys_dmail', 'pid='.intval($this->id).' AND uid='.intval($this->sys_dmail_uid).t3lib_BEfunc::deleteClause('sys_dmail'));
 
 			$this->noView = 0;
 			$this->back = '<input type="Submit" value="' . $LANG->getLL('dmail_back') . '" onClick="jumpToUrlD(\'index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'\'); return false;" />';
-			if($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+			if ($row = $TYPO3_DB->sql_fetch_assoc($res)) {
+				
+					// Finding the domain to use
+				$this->urlbase = $this->getUrlBase($row['use_domain']);
+				
 					// Finding the url to fetch content from
 				switch((string)$row['type'])	{
 				case 1:
@@ -958,7 +965,6 @@ class mod_web_dmail extends t3lib_SCbase {
 	 */
 	function downloadCSV($idArr)	{
 		$lines=array();
-#debug($idArr);
 		if (is_array($idArr) && count($idArr))	{
 			reset($idArr);
 			$lines[]=t3lib_div::csvValues(array_keys(current($idArr)),',','');
@@ -1742,30 +1748,40 @@ class mod_web_dmail extends t3lib_SCbase {
 	 *
 	 */
 	function cmd_conf() {
+		global $TYPO3_DB;
+		
 		$configArray = array(
-			'spacer0' => 'Set default values for Direct Mails:',
+			'spacer0' => 'Set default values for Direct Mails headers:',
 			'from_email' => array('string', $this->fName('from_email'), 'Enter the sender email address. (Required)'),
 			'from_name' => array('string', $this->fName('from_name'), 'Enter the sender name. (Required)'),
 			'replyto_email' => array('string', $this->fName('replyto_email'), 'Enter the email address to which replys are sent. If none, the \'From\' email is used. (Optional)'),
 			'replyto_name' => array('string', $this->fName('replyto_name'), 'Enter the name of the \'Reply To\' email address. If none, the \'From\' name is used. (Optional)'),
 			'return_path' => array('string', $this->fName('return_path'), 'Enter the return path email address here. This is the address to which non-deliverable mails will be returned to. If you put in the marker ###XID### it\'ll be substituted with the unique id of the mail/recipient.'),
 			'organisation' => array('string', $this->fName('organisation'), '(Optional)'),
-			'spacer1' => 'Configure technical options',
+			
+			'spacer1' => 'Set options for fetching mail content:',
 			'sendOptions' => array('select', 'Format of mail content', 'Select the format of the mail content. If in doubt, set it to \'Plain and HTML\'. The recipients are normally able to select their preferences anyway.', array(3=>'Plain and HTML',1=>'Plain text only',2=>'HTML only')),
 			'HTMLParams' => array('short', $this->fName('HTMLParams'), 'Enter the additional URL parameters used to fetch the HTML content. If in doubt, leave it blank.'),
 			'plainParams' => array('short', $this->fName('plainParams'), 'Enter the additional URL parameters used to fetch the plain text content. If in doubt, set it to \'&type=99\'.'),
-			'use_rdct' => array('check', $this->fName('use_rdct'), 'Set this if you want long urls to be substituted with ?RDCT=[md5hash] parameters in plain text mails. This configuration determines how QuickMails are handled and further sets the default setting for DirectMails.'),
-			'long_link_mode' => array('check', $this->fName('long_link_mode'), 'Option for the RDCT feature above.'),
-			'enable_jump_url' => array('check', 'Use jump URL\'s','Check this option to enable jump URL\'s'),
+			'enablePlain' => array('check', 'Allow Plain Text emails', 'Set this if you want to allow plain text emails to be fetched. If in doubt, check this option.'),
+			'enableHTML' => array('check', 'Allow HTML emails', 'Set this if you want to allow HTML emails to be fetched. If in doubt, check this option.'),
+			'use_domain' => array('select', $this->fName('use_domain'), 'Select any domain that should be used for fetching content from internal pages. This domain will also be used for all internal links contained in mail content. If not set, the domain currently in use in the backend with be used.', array(0 => '')),
+			'http_username' => array('short', 'HTTP username', 'If the mail content is protected by a HTTP authentication, enter the username here. The username and password is used to fetch the mail content. They are NOT sent in the mail!<br />If you don\'t enter a username and password and the newsletter pages happens to be protected, an error will occur and no mail content is fetched.'),
+			'http_password' => array('short', 'HTTP password', '... and enter the password here.'),
+			
+			'spacer2' => 'Set options for transfer encoding and character set',
 			'quick_mail_encoding' => array('select', 'Encoding for quick mails', 'Select the content transfer encoding to use when sending quick mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'direct_mail_encoding' => array('select', 'Encoding for direct mails', 'Select the content transfer encoding to use when sending direct mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
 			'quick_mail_charset' => array('short', 'Character set for quick mails', 'Character set used in quick mails.'),
 			'direct_mail_charset' => array('short', 'Default character set for direct mails built from external pages', 'Character set used in direct mails when they are built from external pages and character set cannot be auto-detected.'),
-			'enablePlain' => array('check', 'Allow Plain Text emails', 'Set this if you want to allow plain text emails to be fetched. If in doubt, check this option.'),
-			'enableHTML' => array('check', 'Allow HTML emails', 'Set this if you want to allow HTML emails to be fetched. If in doubt, check this option.'),
+			
+			'spacer3' => 'Set options for links in mail content',
+			'use_rdct' => array('check', $this->fName('use_rdct'), 'Set this if you want long urls to be substituted with ?RDCT=[md5hash] parameters in plain text mails. This configuration determines how QuickMails are handled and further sets the default setting for DirectMails.'),
+			'long_link_mode' => array('check', $this->fName('long_link_mode'), 'Option for the RDCT feature above.'),
+			'enable_jump_url' => array('check', 'Use jump URL\'s','Check this option to enable jump URL\'s and the collection of click statistics.'),
 			'authcode_fieldList' => array('short', $this->fName('authcode_fieldList'), 'List of fields to be used in the computation of the authentication code included in unsubscribe links in direct mails.'),
-			'http_username' => array('short', 'HTTP username', 'If the mail content is protected by a HTTP authentication, enter the username here. The username and password is used to fetch the mail content. They are NOT sent in the mail!<br />If you don\'t enter a username and password and the newsletter pages happens to be protected, an error will occur and no mail content is fetched.'),
-			'http_password' => array('short', 'HTTP password', '... and enter the password here.'),
+			
+			'spacer4' => 'Set additional module options',
 			'userTable' => array('short', 'Custom-defined table', 'Enter the name of a custom-defined table, with compatible columns defined, which may also be used for distribution.'),
 			'test_tt_address_uids' => array('short', 'List of UID numbers of test recipients', 'Before sending mails you should test the mail content by sending testmails to one or more test recipients. The available recipients for testing are determined by the list of UID numbers, you enter here. So first, find out the UID-numbers of the recipients you wish to use for testing, then enter them here in a comma-separated list.'),
 			'test_dmail_group_uids' => array('short', 'List of UID numbers of test dmail groups', 'Alternatively to sending test-mails to individuals, you can choose to send to a whole group. List the group ids available for this action here:'),
@@ -1777,6 +1793,13 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (!isset($this->implodedParams['direct_mail_charset'])) $this->implodedParams['direct_mail_charset'] = 'iso-8859-1';
 		if (!isset($this->implodedParams['enablePlain'])) $this->implodedParams['enablePlain'] = '1';
 		if (!isset($this->implodedParams['enableHTML'])) $this->implodedParams['enableHTML'] = '1';
+		
+			// Set domain selection list
+		$rootline = $this->sys_page->getRootLine($this->id);
+		$res_domain = $TYPO3_DB->exec_SELECTquery('uid,domainName', 'sys_domain', 'sys_domain.pid=' . intval($rootline[0]['uid']) . t3lib_BEfunc::deleteClause('sys_domain'));
+		while ($row_domain = $TYPO3_DB->sql_fetch_assoc($res_domain)) {
+			$configArray['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];
+		}
 		
 		$theOutput.= $this->doc->section('Configure direct mail module',t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,'pageTS'),0,1);
 		return $theOutput;
@@ -2174,11 +2197,11 @@ class mod_web_dmail extends t3lib_SCbase {
 			$message = t3lib_div::_GP('message');
 			$sendMode = t3lib_div::_GP('sendMode');
 			$breakLines = t3lib_div::_GP('breakLines');
-			if ($mailgroup_uid && $senderName && $senderEmail && $subject && $message)	{
+			if ($mailgroup_uid && $senderName && $senderEmail && $subject && $message) {
 				$emailArr = $this->getUniqueEmailsFromGroup($mailgroup_uid);
 				if (count($emailArr))	{
-					if (trim($this->params['use_rdct']))	{
-						$message = t3lib_div::substUrlsInPlainText($message,$this->params['long_link_mode']?'all':'76');
+					if (trim($this->params['use_rdct'])) {
+						$message = t3lib_div::substUrlsInPlainText($message,$this->params['long_link_mode']?'all':'76',$this->getUrlBase($this->params['use_domain']));
 					}
 					if ($breakLines)	{
 						$message = t3lib_div::breakTextForEmail($message);
@@ -2289,7 +2312,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$recipRow = dmailer::convertFields($rec);
 				$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table,$recipRow['uid']);
 				$kc = substr($table,0,1);
-				$htmlmail->dmailer_sendAdvanced($recipRow,$kc=="p"?"P":$kc);
+				$htmlmail->dmailer_sendAdvanced($recipRow,$kc=='p'?'P':$kc);
 				$sentFlag++;
 			}
 		}
@@ -3300,7 +3323,8 @@ class mod_web_dmail extends t3lib_SCbase {
 			return $out;
 		}
 	}
-		/**
+	
+	/**
 	 * [Describe function...]
 	 *
 	 * @param	[type]		$formname: ...
@@ -3309,18 +3333,37 @@ class mod_web_dmail extends t3lib_SCbase {
 	function getPageCharSet($pageId)	{
 		global $TYPO3_CONF_VARS;
 		
-			// initialize the page selector
-		if (!$this->sys_page) {
-			$this->sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
-			$this->sys_page->init(true);
-		}
-		
 		$rootline = $this->sys_page->getRootLine($pageId);
 		$this->tmpl->forceTemplateParsing = 1;
 		$this->tmpl->start($rootline);
 		$charSet = $this->tmpl->setup['config.']['metaCharset']?$this->tmpl->setup['config.']['metaCharset']:($TYPO3_CONF_VARS['BE']['forceCharset']?$TYPO3_CONF_VARS['BE']['forceCharset']:'iso-8859-1');
 		
 		return $charSet;
+	}
+	
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$formname: ...
+	 * @return	string		urlbase
+	 */
+	function getUrlBase($domainUid) {
+		global $TYPO3_DB;
+		
+		$domainName = '';
+		$scheme = '';
+		$port = '';
+		if ($domainUid) {
+			$res_domain = $TYPO3_DB->exec_SELECTquery('domainName', 'sys_domain', 'uid='.intval($domainUid).t3lib_BEfunc::deleteClause('sys_domain'));
+			if ($row_domain = $TYPO3_DB->sql_fetch_assoc($res_domain)) {
+				$domainName = $row_domain['domainName'];
+				$url_parts = parse_url(t3lib_div::getIndpEnv('TYPO3_REQUEST_DIR'));
+				$scheme = $url_parts['scheme'];
+				$port = $url_parts['port'];
+			}
+		}
+		
+		return ($domainName ? (($scheme?$scheme:'http') . '://' . $domainName . ($port?':'.$port:'') . '/') : substr(t3lib_div::getIndpEnv('TYPO3_REQUEST_DIR'),0,-(strlen(t3lib_div::resolveBackPath(TYPO3_mainDir.TYPO3_MOD_PATH))))).'index.php';
 	}
 }
 
