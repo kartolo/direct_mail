@@ -2,9 +2,14 @@
 
 if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
-$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:direct_mail/res/class.tx_directmail_checkjumpurl.php:&tx_directmail_checkjumpurl';
+	// Register jumpurl processing hook
+$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:direct_mail/res/scripts/class.tx_directmail_checkjumpurl.php:&tx_directmail_checkjumpurl';
 
-$_EXTCONF = unserialize($_EXTCONF);    // unserializing the configuration so we can use it here:
+	//Register tt_news plaintext rendering hook
+//$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'][] = 'EXT:direct_mail/res/class.tx_directmail_renderttnews.php:&tx_directmail_renderttnews';
+
+	// unserializing the configuration so we can use it here:
+$_EXTCONF = unserialize($_EXTCONF);
 
 /**
  * Language of the cron task:

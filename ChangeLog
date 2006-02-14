@@ -1,5 +1,13 @@
 2006-02-14 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Small correction to TCA (old_cat_number)
+	* Add scripts and gfx subdirectories in res directory.
+	* Move class.tx_directmail_container.php and class.tx_directmail_checkjumpurl.php to res/scripts directory
+	* Change tx_directmail_checkjumpurl hook configuration in ext_localconf
+	* Add boundaries subdirectory to static directory.
+	* Move current setup.text to static/boundaries directory
+	* Modify static/boundaries/setup.txt to refer to new location of class.tx_directmail_container.php
+	* Change configuration of "Direct Mail Content Boundaries" static template in ext_tables.php
+	* Add dmailerping.gif to res/gfx directory
 
 2006-02-13 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction to class.tx_directmail_checkjumpurl.php and class.dmailer.php: missing global

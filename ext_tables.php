@@ -8,6 +8,9 @@
 
 if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
+t3lib_extMgm::addStaticFile($_EXTKEY,'static/boundaries/','Direct Mail Content Boundaries');
+//t3lib_extMgm::addStaticFile($_EXTKEY,'static/plaintext/', 'Direct Mail Plain text');
+
 /**
  * Setting up the direct mail module
  */
@@ -542,7 +545,5 @@ t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_group','EXT:direct_mail/locallang_c
 if (TYPO3_MODE=="BE")   {
   t3lib_extMgm::addModule("web","txdirectmailM1","",t3lib_extMgm::extPath('direct_mail')."mod/");
 }
-
-t3lib_extMgm::addStaticFile($_EXTKEY,'static/','Direct Mail');
 
 ?>
