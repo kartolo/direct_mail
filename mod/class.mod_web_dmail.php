@@ -2022,7 +2022,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'charset' => $htmlmail->charset,
 			'mailContent' => $mailContent,
 			'renderedSize' => strlen($mailContent),
-			'long_link_rdct_url' = $this->urlbase
+			'long_link_rdct_url' => $this->urlbase
 			);
 		$TYPO3_DB->exec_UPDATEquery('sys_dmail', 'uid='.intval($this->sys_dmail_uid), $updateFields);
 		
@@ -2627,7 +2627,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 			$urlstr=substr($urlstr,0,40);
 			$img='<img src="'.$BACK_PATH.'gfx/zoom2.gif" width="12" height="12" border="0" title="'.htmlspecialchars($urlArr[$id]).'">';
-			$tblLines[]=array('Link #'.$id.' ('.$urlstr.')',$c,$urlCounter['html'][$id],$urlCounter['plain'][$id],$img);
+			$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.' ('.$urlstr.')',$c,$urlCounter['html'][$id],$urlCounter['plain'][$id],$img);
 		}
 		$output.='<br /><strong>' . $LANG->getLL('stats_response') . '</strong>';
 		$output.=$this->formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(0,0,0,0,1));
