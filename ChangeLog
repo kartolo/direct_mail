@@ -4,6 +4,7 @@
 	* Fix RDCT usability issue by adding selection list of domains.
 	* Add use_domain in sys_dmail table and module configuration options.
 	* Fix bugtracker issue 253.
+	* Make sure long_link_rdct_url is consistent with use_domain when the mail is compiled.
 
 2006-02-11 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Change version number to 2.0.0 so that we can refer to it easily in the manual.

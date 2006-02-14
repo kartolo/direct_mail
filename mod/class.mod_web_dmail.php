@@ -1965,6 +1965,11 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $TCA, $TYPO3_DB, $LANG;
 		
 		$theOutput = '';
+		
+			// Make sure long_link_rdct_url is consistent with use_domain.
+		$this->urlbase = $this->getUrlBase($row['use_domain']);
+		$row['long_link_rdct_url'] = $this->urlbase;
+		
 			// Compile the mail
 		$htmlmail = t3lib_div::makeInstance('dmailer');
 		if($this->params['enable_jump_url']) {
@@ -2016,7 +2021,8 @@ class mod_web_dmail extends t3lib_SCbase {
 			'issent' => 0,
 			'charset' => $htmlmail->charset,
 			'mailContent' => $mailContent,
-			'renderedSize' => strlen($mailContent)
+			'renderedSize' => strlen($mailContent),
+			'long_link_rdct_url' = $this->urlbase
 			);
 		$TYPO3_DB->exec_UPDATEquery('sys_dmail', 'uid='.intval($this->sys_dmail_uid), $updateFields);
 		
