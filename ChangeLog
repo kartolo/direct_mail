@@ -1,3 +1,6 @@
+2006-02-14 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Small correction to TCA (old_cat_number)
+
 2006-02-13 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction to class.tx_directmail_checkjumpurl.php and class.dmailer.php: missing global
 	* Modifying grouping of module configuration options.

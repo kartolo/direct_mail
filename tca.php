@@ -24,6 +24,16 @@ $TCA['sys_dmail_category'] = Array (
 				'size' => '30',
 			)
 		),
+		'old_cat_number ' => Array (
+			'exclude' => 1,
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_category.old_cat_number ',
+			'config' => Array (
+				'type' => 'input',
+				'size' => '2',
+				'eval' => 'trim',
+				'max' => '2',
+			)
+		),
 	),
 	'types' => Array (
 		'0' => Array('showitem' => 'hidden;;1;;1-1-1, category')
