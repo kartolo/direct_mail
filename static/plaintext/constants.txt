@@ -1,0 +1,16 @@
+/**
+ *
+ * @package TYPO3
+ * @subpackage tx_directmail
+ * @version setup.txt,v 1.1 2006/02/02 11:37:01 tkahler Exp
+ */
+
+plugin.tx_directmail_pi1 {
+
+    # cat=plugin.tx_directmail_pi1/file; type=file[tmpl,txt]; label= Template File: Plain text template file
+  file.template = EXT:direct_mail/pi1/tx_directmail_pi1_plaintext.tmpl
+  
+     # cat=plugin.tx_directmail_pi1//; type=string; label= Site url: Enter the url of the site here.
+  siteUrl = http://www.example.com.test/
+  
+}

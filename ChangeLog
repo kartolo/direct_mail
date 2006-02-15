@@ -7,7 +7,11 @@
 	* Move current setup.text to static/boundaries directory
 	* Modify static/boundaries/setup.txt to refer to new location of class.tx_directmail_container.php
 	* Change configuration of "Direct Mail Content Boundaries" static template in ext_tables.php
-	* Add dmailerping.gif to res/gfx directory
+	* Add dmailerping.gif to res/gfx directory.
+	* Add plaint text plugin will localized labels in directory pi1.
+	* Add static template "Direct Mail Plain Text" in directory static/plaintext.
+	* Add configuration of "Direct Mail Plain Text" static template in ext_tables.php
+	* Modify boundaries static template to add support for plaintext plugin.
 
 2006-02-13 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction to class.tx_directmail_checkjumpurl.php and class.dmailer.php: missing global

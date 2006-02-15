@@ -14,6 +14,14 @@ tt_content.stdWrap.postUserFunc {
 	
 }
 
-	// In plaintext content
+	// In old plaintext content
 lib.alt_plaintext.renderObj.userProc < tt_content.stdWrap.postUserFunc
 lib.alt_plaintext.renderObj.userProc.useParentCObj = 1
+
+	// In new direct mail plaintext content
+plugin.tx_directmail_pi1.userProc < tt_content.stdWrap.postUserFunc
+plugin.tx_directmail_pi1.userProc.useParentCObj = 1
+
+
+	// Enable the insertion of content boundaries
+config.insertDmailerBoundaries = 1
