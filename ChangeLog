@@ -1,3 +1,6 @@
+2006-02-15 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Restructure ext_tables.php and tca.php files
+
 2006-02-14 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Small correction to TCA (old_cat_number)
 	* Add scripts and gfx subdirectories in res directory.
