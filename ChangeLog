@@ -1,3 +1,9 @@
+2006-02-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Remove static/setup.txt
+	
+2006-02-16 Jan-Erik Revsbech <jer@moccompany.com>
+	* Add localization of categories.
+
 2006-02-15 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Restructure ext_tables.php and tca.php files
 
