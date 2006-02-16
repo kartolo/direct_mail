@@ -275,6 +275,37 @@ $TCA['sys_dmail_category'] = Array (
 	),
 	'feInterface' => $TCA['sys_dmail_category']['feInterface'],
 	'columns' => Array (
+        'sys_language_uid' => Array (
+            'exclude' => 1,
+            'label' => 'LLL:EXT:lang/locallang_general.php:LGL.language',
+            'config' => Array (
+                'type' => 'select',
+                'foreign_table' => 'sys_language',
+                'foreign_table_where' => 'ORDER BY sys_language.title',
+                'items' => Array(
+                    Array('LLL:EXT:lang/locallang_general.php:LGL.allLanguages',-1),
+                    Array('LLL:EXT:lang/locallang_general.php:LGL.default_value',0)
+                )
+            )
+        ),
+        'l18n_parent' => Array (
+            'displayCond' => 'FIELD:sys_language_uid:>:0',
+            'exclude' => 1,
+            'label' => 'LLL:EXT:lang/locallang_general.php:LGL.l18n_parent',
+            'config' => Array (
+                'type' => 'select',
+                'items' => Array (
+                    Array('', 0),
+                ),
+                'foreign_table' => 'sys_dmail_category',
+                'foreign_table_where' => 'AND sys_dmail_category.pid=###CURRENT_PID### AND sys_dmail_category.sys_language_uid IN (-1,0)',
+            )
+        ),
+        'l18n_diffsource' => Array (
+            'config' => Array (
+                'type' => 'passthrough'
+            )
+        ),
 		'hidden' => Array (
 			'exclude' => 1,
 			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.hidden',
@@ -303,7 +334,7 @@ $TCA['sys_dmail_category'] = Array (
 		),
 	),
 	'types' => Array (
-		'0' => Array('showitem' => 'hidden;;1;;1-1-1, category')
+		'0' => Array('showitem' => 'sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource,hidden;;1;;1-1-1, category')
 	),
 	'palettes' => Array (
 		'1' => Array('showitem' => '')
