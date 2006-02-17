@@ -11,6 +11,8 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 t3lib_extMgm::addStaticFile($_EXTKEY,'static/boundaries/','Direct Mail Content Boundaries');
 t3lib_extMgm::addStaticFile($_EXTKEY,'static/plaintext/', 'Direct Mail Plain text');
 
+require_once(t3lib_extMgm::extPath($_EXTKEY).'/res/scripts/class.tx_directmail_select_categories.php');
+
 /**
  * Setting up the direct mail module
  */
@@ -25,6 +27,11 @@ $tt_content_cols = Array(
 			'type' => 'select',
 			'foreign_table' => 'sys_dmail_category',
 			'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.uid',
+			'itemsProcFunc' => 'tx_directmail_select_categories->get_localized_categories',
+			'itemsProcFunc_config' => array (
+				'table' => 'sys_dmail_category',
+				'indexField' => 'uid',
+			),
 			'size' => 5,
 			'minitems' => 0,
 			'maxitems' => 30,

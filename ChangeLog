@@ -2,6 +2,7 @@
 	* Delete file static/setup.txt
 	* Localize categories in forms presented by class.mod_web_dmail.php
 	* Establish mm relations only with parent category records
+	* Localize right-hand side of categories select on tt_content form.
 	
 2006-02-16 Jan-Erik Revsbech <jer@moccompany.com>
 	* Add localization of categories.

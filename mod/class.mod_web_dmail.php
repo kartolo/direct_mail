@@ -126,7 +126,6 @@ class mod_web_dmail extends t3lib_SCbase {
 		
 			// initialize backend user language
 		if ($LANG->lang && t3lib_extMgm::isLoaded('static_info_tables')) {
-
 			$res = $TYPO3_DB->exec_SELECTquery(
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
