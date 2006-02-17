@@ -275,37 +275,37 @@ $TCA['sys_dmail_category'] = Array (
 	),
 	'feInterface' => $TCA['sys_dmail_category']['feInterface'],
 	'columns' => Array (
-        'sys_language_uid' => Array (
-            'exclude' => 1,
-            'label' => 'LLL:EXT:lang/locallang_general.php:LGL.language',
-            'config' => Array (
-                'type' => 'select',
-                'foreign_table' => 'sys_language',
-                'foreign_table_where' => 'ORDER BY sys_language.title',
-                'items' => Array(
-                    Array('LLL:EXT:lang/locallang_general.php:LGL.allLanguages',-1),
-                    Array('LLL:EXT:lang/locallang_general.php:LGL.default_value',0)
-                )
-            )
-        ),
-        'l18n_parent' => Array (
-            'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'exclude' => 1,
-            'label' => 'LLL:EXT:lang/locallang_general.php:LGL.l18n_parent',
-            'config' => Array (
-                'type' => 'select',
-                'items' => Array (
-                    Array('', 0),
-                ),
-                'foreign_table' => 'sys_dmail_category',
-                'foreign_table_where' => 'AND sys_dmail_category.pid=###CURRENT_PID### AND sys_dmail_category.sys_language_uid IN (-1,0)',
-            )
-        ),
-        'l18n_diffsource' => Array (
-            'config' => Array (
-                'type' => 'passthrough'
-            )
-        ),
+		'sys_language_uid' => Array (
+			'exclude' => 1,
+			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.language',
+			'config' => Array (
+				'type' => 'select',
+				'foreign_table' => 'sys_language',
+				'foreign_table_where' => 'ORDER BY sys_language.title',
+				'items' => Array(
+					Array('LLL:EXT:lang/locallang_general.php:LGL.allLanguages',-1),
+					Array('LLL:EXT:lang/locallang_general.php:LGL.default_value',0)
+				)
+			)
+	    	),
+		'l18n_parent' => Array (
+			'displayCond' => 'FIELD:sys_language_uid:>:0',
+			'exclude' => 1,
+			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.l18n_parent',
+			'config' => Array (
+				'type' => 'select',
+				'items' => Array (
+					Array('', 0),
+				),
+				'foreign_table' => 'sys_dmail_category',
+				'foreign_table_where' => 'AND sys_dmail_category.pid=###CURRENT_PID### AND sys_dmail_category.sys_language_uid IN (-1,0)',
+			)
+		),
+		'l18n_diffsource' => Array (
+			'config' => Array (
+	    			'type' => 'passthrough'
+			)
+	    	),
 		'hidden' => Array (
 			'exclude' => 1,
 			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.hidden',
@@ -325,6 +325,7 @@ $TCA['sys_dmail_category'] = Array (
 		'old_cat_number ' => Array (
 			'exclude' => 1,
 			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_category.old_cat_number',
+			'l10n_mode' => 'exclude',
 			'config' => Array (
 				'type' => 'input',
 				'size' => '2',
@@ -461,13 +462,13 @@ $TCA['sys_dmail_group'] = Array (
 			'config' => Array (
 				'type' => 'select',
 				'foreign_table' => 'sys_dmail_category',
-				'foreign_table_where' => 'AND sys_dmail_category.pid=###CURRENT_PID### ORDER BY sys_dmail_category.uid',
+				'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.uid',
 				'size' => 5,
 				'minitems' => 0,
 				'maxitems' => 30,
 				'MM' => 'sys_dmail_group_category_mm',
-            )
 			)
+		)
 
 	),
 	'types' => Array (

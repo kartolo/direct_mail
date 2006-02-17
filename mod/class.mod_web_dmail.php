@@ -86,12 +86,13 @@ class mod_web_dmail extends t3lib_SCbase {
 	var $mode;
 	var $implodedParams=array();
 	var $userTable;		// If set a valid user table is around
+	var $sys_language_uid = 0;
 
 	/**
 	 * @return	[type]		...
 	 */
 	function init()	{
-		global $BE_USER,$LANG,$BACK_PATH,$TCA_DESCR,$TCA,$CLIENT,$TYPO3_CONF_VARS;
+		global $LANG,$BACK_PATH,$TCA_DESCR,$TCA,$CLIENT,$TYPO3_CONF_VARS, $TYPO3_DB;
 		
 		$this->include_once[]=PATH_t3lib.'class.t3lib_tcemain.php';
 		$this->include_once[]=PATH_t3lib.'class.t3lib_page.php';
@@ -122,6 +123,20 @@ class mod_web_dmail extends t3lib_SCbase {
 			// initialize the page selector
 		$this->sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
 		$this->sys_page->init(true);
+		
+			// initialize backend user language
+		if ($LANG->lang && t3lib_extMgm::isLoaded('static_info_tables')) {
+
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'sys_language.uid',
+				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
+				'static_languages.lg_typo3='.$TYPO3_DB->fullQuoteStr($LANG->lang,'static_languages').
+				t3lib_pageSelect::enableFields('sys_language').t3lib_pageSelect::enableFields('static_languages')
+			);
+			while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
+				$this->sys_language_uid = $row['uid'];
+			}
+		}
 		
 		t3lib_div::loadTCA('sys_dmail');
 		$this->updatePageTS();
@@ -484,13 +499,85 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (is_array($pageTSconfig['module_sys_dmail_category'])) {
 			$pidList = $pageTSconfig['module_sys_dmail_category']['PAGE_TSCONFIG_IDLIST'];
 			if ($pidList) {
-				$res = $TYPO3_DB->exec_SELECTquery('uid,category','sys_dmail_category','sys_dmail_category.pid IN (' . $TYPO3_DB->fullQuoteStr($pidList, 'sys_dmail_category') . ')'.t3lib_pageSelect::enableFields('sys_dmail_category'));
+				$res = $TYPO3_DB->exec_SELECTquery(
+					'*',
+					'sys_dmail_category',
+					'sys_dmail_category.pid IN (' . $TYPO3_DB->fullQuoteStr($pidList, 'sys_dmail_category') . ')'.
+						' AND l18n_parent=0'.
+						t3lib_pageSelect::enableFields('sys_dmail_category')
+				);
 				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
-					$this->categories[$rowCat['uid']]=$rowCat['category'];
+					if($localizedRowCat = $this->getRecordOverlay('sys_dmail_category',$rowCat,$this->sys_language_uid,'')) {
+						$this->categories[$localizedRowCat['uid']] = $localizedRowCat['category'];
+					}
 				}
 			}
 		}
 		return;
+	}
+	
+	/**
+	 * Import from t3lib_page in order to eate backend version
+	 * Creates language-overlay for records in general (where translation is found in records from the same table)
+	 *
+	 * @param	string		Table name
+	 * @param	array		Record to overlay. Must containt uid, pid and $table]['ctrl']['languageField']
+	 * @param	integer		Pointer to the sys_language uid for content on the site.
+	 * @param	string		Overlay mode. If "hideNonTranslated" then records without translation will not be returned un-translated but unset (and return value is false)
+	 * @return	mixed		Returns the input record, possibly overlaid with a translation. But if $OLmode is "hideNonTranslated" then it will return false if no translation is found.
+	 */
+	function getRecordOverlay($table,$row,$sys_language_content,$OLmode='')	{
+		global $TCA, $TYPO3_DB;
+		if ($row['uid']>0 && $row['pid']>0)	{
+			if ($TCA[$table] && $TCA[$table]['ctrl']['languageField'] && $TCA[$table]['ctrl']['transOrigPointerField'])	{
+				if (!$TCA[$table]['ctrl']['transOrigPointerTable'])	{
+						// Will try to overlay a record only if the sys_language_content value is larger that zero.
+					if ($sys_language_content>0)	{
+							// Must be default language or [All], otherwise no overlaying:
+						if ($row[$TCA[$table]['ctrl']['languageField']]<=0)	{
+								// Select overlay record:
+							$res = $TYPO3_DB->exec_SELECTquery(
+										'*',
+										$table,
+										'pid='.intval($row['pid']).
+											' AND '.$TCA[$table]['ctrl']['languageField'].'='.intval($sys_language_content).
+											' AND '.$TCA[$table]['ctrl']['transOrigPointerField'].'='.intval($row['uid']).
+											t3lib_pageSelect::enableFields($table),
+										'',
+										'',
+										'1'
+									);
+							$olrow = $TYPO3_DB->sql_fetch_assoc($res);
+							//$this->versionOL($table,$olrow);
+							
+								// Merge record content by traversing all fields:
+							if (is_array($olrow))	{
+								foreach($row as $fN => $fV)	{
+									if ($fN!='uid' && $fN!='pid' && isset($olrow[$fN]))	{
+										if ($TCA[$table]['l10n_mode'][$fN]!='exclude' && ($TCA[$table]['l10n_mode'][$fN]!='mergeIfNotBlank' || strcmp(trim($olrow[$fN]),'')))	{
+											$row[$fN] = $olrow[$fN];
+										}
+									}
+								}
+							} elseif ($OLmode==='hideNonTranslated' && $row[$TCA[$table]['ctrl']['languageField']]==0)	{	// Unset, if non-translated records should be hidden. ONLY done if the source record really is default language and not [All] in which case it is allowed.
+								unset($row);
+							}
+
+							// Otherwise, check if sys_language_content is different from the value of the record - that means a japanese site might try to display french content.
+						} elseif ($sys_language_content!=$row[$TCA[$table]['ctrl']['languageField']])	{
+							unset($row);
+						}
+					} else {
+							// When default language is displayed, we never want to return a record carrying another language!:
+						if ($row[$TCA[$table]['ctrl']['languageField']]>0)	{
+							unset($row);
+						}
+					}
+				}
+			}
+		}
+
+		return $row;
 	}
 
 	// ********************
@@ -679,9 +766,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			if (!$fieldName)	{
 				$fieldOrder = array(array('name'),array('email'));
 			}
-//			debug($fieldOrder);
-//			debug($fieldName);
-//debug($lines);
+
 			// Re map values
 			reset($lines);
 			if ($fieldName)	{
@@ -690,7 +775,6 @@ class mod_web_dmail extends t3lib_SCbase {
 			$c=0;
 			while(list(,$data)=each($lines))	{
 				if (count($data)>1 || $data[0])	{	// Must be a line with content. This sorts out entries with one key which is empty. Those are empty lines.
-//					debug($data);
 
 					// Traverse fieldOrder and map values over
 					reset($fieldOrder);
@@ -1848,18 +1932,24 @@ class mod_web_dmail extends t3lib_SCbase {
 			$count = 0;
 			$theOutput .= '<br />' . $LANG->getLL('convert_from_folder') . ' ' . $row['title'];
 			if (is_array($params['categories.'])) {
-				$catRec['pid'] = $row['uid'];
 				reset($params['categories.']);
 				while(list($num,$cat) = each($params['categories.'])) {
 					$theOutput .= '<br />' . $LANG->getLL('convert_category') . ': '.$cat. ' ' . $LANG->getLL('convert_with_number') . ': ' . $num;
 					$res = $TYPO3_DB->exec_SELECTquery(
 						'*',
 						'sys_dmail_category',
-						'pid=' . intval($row['uid']) . ' AND old_cat_number=' . $TYPO3_DB->fullQuoteStr(strval($num), 'sys_dmail_category'));
+						'pid='.intval($row['uid']).
+							' AND l18n_parent=0'.
+							' AND old_cat_number='.$TYPO3_DB->fullQuoteStr(strval($num),'sys_dmail_category')
+					);
 					if (!$TYPO3_DB->sql_num_rows($res)) {
+						$catRec = array();
+						$catRec['pid'] = intval($row['uid']);
 						$catRec['category'] = $cat;
 						$catRec['old_cat_number'] = strval($num);
 						$catRec['tstamp'] = time();
+						$catRec['l18n_parent'] = 0;
+						$catRec['sys_language_uid'] = 0;
 						$res = $TYPO3_DB->exec_INSERTquery('sys_dmail_category', $catRec);
 						$count++;
 						$theOutput .= ' ' . $LANG->getLL('convert_was_converted');
@@ -1914,9 +2004,10 @@ class mod_web_dmail extends t3lib_SCbase {
 						'uid',
 						'sys_dmail_category',
 						'sys_dmail_category.uid IN (' . $categoryUids . ')'.
-							' AND sys_dmail_category.old_cat_number IN (' . $categoryList . ')' .
+							' AND l18n_parent=0'.
+							' AND sys_dmail_category.old_cat_number IN (' . $categoryList . ')'.
 							t3lib_pageSelect::enableFields('sys_dmail_category')
-							);
+					);
 					if ($TYPO3_DB->sql_num_rows($res_cat)) {
 						$mm_count = 0;
 						$converted = array();

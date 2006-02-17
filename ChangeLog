@@ -1,5 +1,7 @@
 2006-02-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
-	* Remove static/setup.txt
+	* Delete file static/setup.txt
+	* Localize categories in forms presented by class.mod_web_dmail.php
+	* Establish mm relations only with parent category records
 	
 2006-02-16 Jan-Erik Revsbech <jer@moccompany.com>
 	* Add localization of categories.
