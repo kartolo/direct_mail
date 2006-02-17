@@ -5,7 +5,7 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 	// Register jumpurl processing hook
 $TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:'.$_EXTKEY.'/res/scripts/class.tx_directmail_checkjumpurl.php:&tx_directmail_checkjumpurl';
 
-	//Register tt_news plaintext rendering hook
+//Register tt_news plaintext rendering hook
 //$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'][] = 'EXT:'.$_EXTKEY.'/res/scripts/class.tx_directmail_renderttnews.php:&tx_directmail_renderttnews';
 
 	// unserializing the configuration so we can use it here:

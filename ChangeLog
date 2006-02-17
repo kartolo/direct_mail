@@ -1,3 +1,6 @@
+2006-02-17 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Change mm relations renderMode to chekbox so that localization works.
+
 2006-02-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Delete file static/setup.txt
 	* Localize categories in forms presented by class.mod_web_dmail.php

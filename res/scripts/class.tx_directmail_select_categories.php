@@ -37,14 +37,16 @@ require_once (t3lib_extMgm::extPath('direct_mail').'mod/class.mod_web_dmail.php'
   */
 class tx_directmail_select_categories {
 	var $sys_language_uid = 0;
+	var $collate_locale = 'C';
 	
 	/**
-	 * Get the localization of the select field items.
+	 * Get the localization of the select field items (right-hand part of form)
+	 * Referenced by TCA
 	 * 
 	 * @param	array
 	 * @return	void
 	 */
-	function get_localized_categories ($params)	{
+	function get_localized_categories($params)	{
 		global $TCA, $TYPO3_DB, $LANG;
 
 /*
@@ -62,6 +64,7 @@ class tx_directmail_select_categories {
 			// initialize backend user language
 		if ($LANG->lang && t3lib_extMgm::isLoaded('static_info_tables')) {
 			$res = $TYPO3_DB->exec_SELECTquery(
+				//'sys_language.uid,static_languages.lg_collate_locale',
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
 				'static_languages.lg_typo3='.$TYPO3_DB->fullQuoteStr($LANG->lang,'static_languages').
@@ -69,27 +72,36 @@ class tx_directmail_select_categories {
 			);
 			while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
 				$this->sys_language_uid = $row['uid'];
+				$this->collate_locale = $row['lg_collate_locale'];
 			}
 		}
 		reset($params['items']);
 		while(list($k,$item) = each($params['items'])) {
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'*',
-					'sys_dmail_category',
-					'sys_dmail_category.uid='.intval($item[1])
+					$table,
+					'uid='.intval($item[1])
 				);
 				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
-					if($localizedRowCat = mod_web_dmail::getRecordOverlay('sys_dmail_category',$rowCat,$this->sys_language_uid,'')) {
+					if($localizedRowCat = mod_web_dmail::getRecordOverlay($table,$rowCat,$this->sys_language_uid,'')) {
 						$params['items'][$k][0] = $localizedRowCat['category'];
 					}
 				}
+				/*
+				$compare = create_function('$a,$b', 'return strcoll($a[0],$b[0]);');
+				$currentLocale = setlocale(LC_COLLATE, '');
+				$collateLocale = $this->collate_locale;
+				if( $collateLocale != 'C') { $collateLocale .= '.' . strtoupper($LANG->charSet);}
+				setlocale(LC_COLLATE, $collateLocale);
+				uasort($params['items'], $compare);
+				setlocale(LC_COLLATE, $currentLocale);
+				*/
 		}
-	}
 
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_select_categories.php'])	{
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_select_categories.php']);
 }
-
 ?>
