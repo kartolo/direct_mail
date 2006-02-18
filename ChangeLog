@@ -1,5 +1,6 @@
 2006-02-18 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add class.ext_update.php: access the Categories conversion function from the EM dropdown menu.
+	* Add explanation for non-converted records in the output of the conversion.
 
 2006-02-17 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Change mm relations renderMode to chekbox so that localization works.

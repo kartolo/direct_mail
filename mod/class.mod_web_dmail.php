@@ -2056,6 +2056,9 @@ class mod_web_dmail extends t3lib_SCbase {
 		
 		$theOutput .= '<br /><br />' . $LANG->getLL('number_of_records_converted_in') . ' ' . $table . ': ' . $newConvertCount;
 		$theOutput .= '<br />' . $LANG->getLL('number_of_records_not_converted_in') . ' ' . $table . ': ' . $notConvertCount;
+		if ($notConvertCount) {
+			$theOutput .= '<br />' . $LANG->getLL('records_not_converted_explain1') . ' TCEFORM.'.$table.'.'.$mm_field.'.PAGE_TSCONFIG_IDLIST '.$LANG->getLL('records_not_converted_explain2').' '.$LANG->getLL('records_not_converted_explain3');
+		}
 		$theOutput .= '<br />' . $LANG->getLL('number_of_records_already_related_in') . ' ' . $table . ': ' . $alreadyRelatedCount . '<br />';
 		
 		return $theOutput;
