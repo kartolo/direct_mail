@@ -23,6 +23,7 @@ $tt_content_cols = Array(
 	'module_sys_dmail_category' => Array(
 		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:sys_dmail_category.category',
 		'exclude' => '1',
+		'l10n_mode' => 'exclude',
 		'config' => Array (
 			'type' => 'select',
 			'foreign_table' => 'sys_dmail_category',
