@@ -1912,7 +1912,6 @@ class mod_web_dmail extends t3lib_SCbase {
 	
 	function cmd_convertCategories() {
 		global $LANG;
-		
 		$out = $this->doc->spacer(10);
 		$out .= $this->doc->section($LANG->getLL('convert_categories'), $this->createNewCategories());
 		$out .= $this->doc->spacer(10);
@@ -1934,10 +1933,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $TYPO3_DB, $BE_USER, $LANG;
 		
 		$theOutput = '';
-		$catRec = array();
-		$catRec['cruser_id'] = intval($BE_USER->user['uid']);
 		$today = getdate();
-		$catRec['crdate'] = $today[0];
 		reset($this->modList['rows']);
 		while(list(,$row) = each($this->modList['rows'])) {
 			$temp = t3lib_BEfunc::getModTSconfig($row['uid'],'mod.web_modules.dmail');
@@ -1963,6 +1959,8 @@ class mod_web_dmail extends t3lib_SCbase {
 						$catRec['tstamp'] = time();
 						$catRec['l18n_parent'] = 0;
 						$catRec['sys_language_uid'] = 0;
+						$catRec['cruser_id'] = intval($BE_USER->user['uid']);
+						$catRec['crdate'] = $today[0];
 						$res = $TYPO3_DB->exec_INSERTquery('sys_dmail_category', $catRec);
 						$count++;
 						$theOutput .= ' ' . $LANG->getLL('convert_was_converted');

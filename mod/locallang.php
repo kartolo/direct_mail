@@ -273,6 +273,8 @@ To create a direct mail, you must follow these steps:
 		'nl_cat_msg1' => 'There are no content elements on the page.',
 		'nl_cat' => 'Select categories',
 		'nl_cat_msg2' => 'Setting categories for a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.<br />If you do not set any category for an element, the element will appear in all mails.',
+		'update_convert_now' => 'Categories defined in Page TSConfig of existing Direct Mail folders need to be converted into database records. You may do this now or you may do it at a later time using the Categories Conversion function of the Direct Mail module. If in doubt, please review this topic in the Direct Mail manual. Do you want to perform this action now?',
+		'update_convert_do_it_now' => 'Do it now',
 	),
 	'dk' => Array (
 	),
@@ -745,6 +747,8 @@ Um einen Versand zu erstellen, müssen Sie folgende Schritte beachten:
 		'nl_cat_msg1' => 'La page ne contient aucun élément de contenu.',
 		'nl_cat' => 'Choisir les rubriques',
 		'nl_cat_msg2' => 'Choisir les rubriques d\'un élément de contenu signifie que cet élément apparaîtra dans le bulletin seulement lorsque le destinataire aura inclus cette rubrique dans son profil.<br /><br />Si vous ne choisissez aucune rubrique, l\'élément apparaîtra dans tous les bulletins.',
+		'update_convert_now' => 'Les rubriques définies dans les configurations Page TSConfig des dossiers existants d\'Envoi ciblé doivent être converties en enregistrements de la base de données. Vous pouvez effectuer cette conversion maintenant ou vous pouvez l\'effectuer plus tard en utilisant la fonction de conversion des rubriques du module d\'Envoi ciblé. Dans le doute, veuillez lire la section du manuel portant sur ce sujet. Désirez-vous effectuer cette conversion maintenant?',
+		'update_convert_do_it_now' => 'Convertir maintenant',
 	),
 	'es' => Array (
 		'dmail_noCreateAccess' => 'No puede enviar páginas escondidas o de acceso restricto.',
