@@ -1,5 +1,7 @@
 2006-02-17 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Change mm relations renderMode to chekbox so that localization works.
+	* Enable table fe_groups in dmail groups of type "From pages".
+	* Add conversion of mm-relation to categories in sys_dmail_group (column select_categories).
 
 2006-02-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Delete file static/setup.txt

@@ -433,8 +433,9 @@ $TCA['sys_dmail_group'] = Array (
 					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.whichtables.I.0', ''),
 					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.whichtables.I.1', ''),
 					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.whichtables.I.2', ''),
+					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.whichtables.I.3', ''),
 				),
-				'cols' => 3,
+				'cols' => 2,
 				'default' => 1
 			)
 		),
