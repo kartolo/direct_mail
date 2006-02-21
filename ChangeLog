@@ -1,5 +1,6 @@
 2006-02-21 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Path setting corrections in dmailerd.phpcron and returnmail.phpsh
+	* Correct jumpUrl hook so that it will work even if $TYPO3_CONF_VARS['SYS']['doNotCheckReferer'] is not set
 
 2006-02-18 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add class.ext_update.php: access the Categories conversion function from the EM dropdown menu.

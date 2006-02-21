@@ -50,8 +50,7 @@ class tx_directmail_checkjumpurl	{
 		$mid = $JUMPURL_VARS['mid'];
 		$rid = $JUMPURL_VARS['rid'];
 		$aC = $JUMPURL_VARS['aC'];
-		
-		$jumpurl = $feObj->jumpurl;
+		$jumpurl = $JUMPURL_VARS['jumpurl'];
 		
 		if ($mid && is_array($TCA['sys_dmail']))	{
 			$temp_recip=explode('_',$rid);
