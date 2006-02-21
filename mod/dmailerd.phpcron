@@ -36,12 +36,19 @@
  *
  */
 error_reporting (E_ALL ^ E_NOTICE);
-define('PATH_thisScript',str_replace('//','/', str_replace('\\','/', $_ENV["_"])));
-define('PATH_typo3', dirname(dirname(dirname(dirname(dirname(PATH_thisScript))))).'/typo3/');
-define('PATH_site', dirname(PATH_typo3).'/');
-define('PATH_tslib', PATH_site.'tslib/');
-define('PATH_t3lib', PATH_typo3.'t3lib/');
+if (!defined('PATH_thisScript')) define('PATH_thisScript',str_replace('//','/', str_replace('\\','/', $_ENV["_"])));
+if (!defined('PATH_site')) define('PATH_site', dirname(dirname(dirname(dirname(dirname(PATH_thisScript))))).'/');
+if (!defined('PATH_t3lib')) if (!defined('PATH_t3lib')) define('PATH_t3lib', PATH_site.'t3lib/');
 define('PATH_typo3conf', PATH_site.'typo3conf/');
+define('TYPO3_mainDir', 'typo3/');
+if (!defined('PATH_typo3')) define('PATH_typo3', PATH_site.TYPO3_mainDir);
+if (!defined('PATH_tslib')) {
+	if (@is_dir(PATH_site.'typo3/sysext/cms/tslib/')) {
+		define('PATH_tslib', PATH_site.'typo3/sysext/cms/tslib/');
+	} elseif (@is_dir(PATH_site.'tslib/')) {
+		define('PATH_tslib', PATH_site.'tslib/');
+	}
+}
 define('TYPO3_OS', stristr(PHP_OS,'win')&&!stristr(PHP_OS,'darwin')?'WIN':'');
 define('TYPO3_MODE', 'BE');
 
