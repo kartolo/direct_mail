@@ -211,6 +211,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			
 				// If params set, set default values:
 			if (isset($this->params['sendOptions']))	$dmail['sys_dmail']['NEW']['sendOptions'] = $this->params['sendOptions'];
+			if (isset($this->params['includeMedia'])) 	$dmail['sys_dmail']['NEW']['includeMedia'] = $this->params['includeMedia'];
 			if (isset($this->params['HTMLParams']))		$dmail['sys_dmail']['NEW']['HTMLParams'] = $this->params['HTMLParams'];
 			if (isset($this->params['plainParams']))	$dmail['sys_dmail']['NEW']['plainParams'] = $this->params['plainParams'];
 			if (isset($this->params['direct_mail_encoding']))	$dmail['sys_dmail']['NEW']['encoding'] = $this->params['direct_mail_encoding'];
@@ -1857,6 +1858,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			
 			'spacer1' => 'Set options for fetching mail content:',
 			'sendOptions' => array('select', 'Format of mail content', 'Select the format of the mail content. If in doubt, set it to \'Plain and HTML\'. The recipients are normally able to select their preferences anyway.', array(3=>'Plain and HTML',1=>'Plain text only',2=>'HTML only')),
+			'includeMedia' => array('check', $this->fName('includeMedia'), 'Set this option if you want to includes images and other media inside the HTML mail content. If not set, images and media are included in HTML content as absolute href\'s.'),
 			'HTMLParams' => array('short', $this->fName('HTMLParams'), 'Enter the additional URL parameters used to fetch the HTML content. If in doubt, leave it blank.'),
 			'plainParams' => array('short', $this->fName('plainParams'), 'Enter the additional URL parameters used to fetch the plain text content. If in doubt, set it to \'&type=99\'.'),
 			'enablePlain' => array('check', 'Allow Plain Text emails', 'Set this if you want to allow plain text emails to be fetched. If in doubt, check this option.'),

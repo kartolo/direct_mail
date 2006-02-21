@@ -7,7 +7,7 @@ if (!defined ('TYPO3_MODE'))     die ('Access denied.');
 $TCA['sys_dmail'] = Array (
 	'ctrl' => $TCA['sys_dmail']['ctrl'],
 	'interface' => Array (
-		'showRecordFieldList' => 'type,plainParams,HTMLParams,subject,from_name,from_email,replyto_name,replyto_email,organisation,attachment,priority,encoding,charset,sendOptions,issent,renderedsize,use_domain,use_rdct,long_link_mode,authcode_fieldList'
+		'showRecordFieldList' => 'type,plainParams,HTMLParams,subject,from_name,from_email,replyto_name,replyto_email,organisation,attachment,priority,encoding,charset,sendOptions,includeMedia,issent,renderedsize,use_domain,use_rdct,long_link_mode,authcode_fieldList'
 	),
 	'columns' => Array (
 		'subject' => Array (
@@ -142,15 +142,25 @@ $TCA['sys_dmail'] = Array (
 				'default' => '3'
 			)
 		),
-		'HTMLParams' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.HTMLParams',
+		'sendOptions' => Array (
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.sendOptions',
 			'exclude' => '1',
 			'config' => Array (
-				'type' => 'input',
-				'size' => '15',
-				'max' => '80',
-				'eval' => 'trim',
-				'default' => ''
+				'type' => 'check',
+				'items' => Array (
+					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.sendOptions.I.0', ''),
+					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.sendOptions.I.1', '')
+				),
+				'cols' => '2',
+				'default' => '3'
+			)
+		),
+		'includeMedia' => Array (
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.includeMedia',
+			'exclude' => '1',
+			'config' => Array (
+				'type' => 'check',
+				'default' => '0'
 			)
 		),
 		'plainParams' => Array (
@@ -257,11 +267,11 @@ $TCA['sys_dmail'] = Array (
 		)
 	),
 	'types' => Array (
-		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, charset, sendOptions, use_domain, use_rdct, long_link_mode, authcode_fieldList'),
+		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, charset, sendOptions, includeMedia, use_domain, use_rdct, long_link_mode, authcode_fieldList'),
 		'1' => Array('showitem' => 'type;;;;1-1-1,
 			plainParams;LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.plainParams.ALT.1,
 			HTMLParams;LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.HTMLParams.ALT.1,
-			--div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, encoding, charset, sendOptions, use_domain, use_rdct, long_link_mode, authcode_fieldList')
+			--div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, encoding, charset, sendOptions, includeMedia, use_domain, use_rdct, long_link_mode, authcode_fieldList')
 	)
 );
 

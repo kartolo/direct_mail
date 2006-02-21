@@ -84,6 +84,7 @@ class dmailer extends t3lib_htmlmail {
 	var $mailHasContent;
 	var $flag_html = 0;
 	var $flag_plain = 0;
+	var $includeMedia = 0;
 	var $user_dmailerLang = 'en';
 
 	/**
@@ -146,6 +147,7 @@ class dmailer extends t3lib_htmlmail {
 
 		$this->flag_html = $this->theParts['html']['content'] ? 1 : 0;
 		$this->flag_plain = $this->theParts['plain']['content'] ? 1 : 0;
+		$this->includeMedia = $this->flag_html && $row['includeMedia'];
 	}
 
 	/**
@@ -656,6 +658,61 @@ class dmailer extends t3lib_htmlmail {
 			}
 			return true;
 		} else {return false;}
+	}
+	
+	function addHTML($file)	{
+			// Adds HTML and media, encodes it from a URL or file
+		$status = $this->fetchHTML($file);
+		if (!$status)	{return false;}
+		if ($this->extractFramesInfo())	{
+			return "Document was a frameset. Stopped";
+		}
+		$this->extractMediaLinks();
+		$this->extractHyperLinks();
+		$this->fetchHTMLMedia();
+		$this->substMediaNamesInHTML(!$this->includeMedia);	// 0 = relative
+		$this->substHREFsInHTML();
+		$this->setHTML($this->encodeMsg($this->theParts["html"]["content"]));
+	}
+	
+	function getHTMLContentType()	{
+		return (count($this->theParts["html"]["media"]) && $this->includeMedia) ? 'multipart/related;' : 'multipart/alternative;';
+	}
+	
+	function constructHTML ($boundary)	{
+		if (count($this->theParts["html"]["media"]) && $this->includeMedia) {	// If media, then we know, the multipart/related content-type has been set before this function call...
+			$this->add_message("--".$boundary);
+				// HTML has media
+			$newBoundary = $this->getBoundary();
+			$this->add_message("Content-Type: multipart/alternative;");
+			$this->add_message(' boundary="'.$newBoundary.'"');
+			$this->add_message('Content-Transfer-Encoding: 7bit');
+			$this->add_message('');
+
+			$this->constructAlternative($newBoundary);	// Adding the plaintext/html mix
+
+			$this->constructHTML_media($boundary);
+		} else {
+			$this->constructAlternative($boundary);	// Adding the plaintext/html mix, and if no media, then use $boundary instead of $newBoundary
+		}
+	}
+	
+	function constructHTML_media($boundary) {
+			// media is added
+		if (is_array($this->theParts["html"]["media"]) && $this->includeMedia)	{
+			reset($this->theParts["html"]["media"]);
+			while(list($key,$media)=each($this->theParts["html"]["media"]))	{
+				if (!$this->mediaList || t3lib_div::inList($this->mediaList,$key))	{
+					$this->add_message("--".$boundary);
+					$this->add_message("Content-Type: ".$media["ctype"]);
+					$this->add_message("Content-ID: <part".$key.".".$this->messageid.">");
+					$this->add_message("Content-Transfer-Encoding: base64");
+					$this->add_message('');
+					$this->add_message($this->makeBase64($media["content"]));
+				}
+			}
+		}
+		$this->add_message("--".$boundary."--\n");
 	}
 	
 	/**
