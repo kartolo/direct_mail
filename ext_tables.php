@@ -174,9 +174,11 @@ $TCA['sys_dmail_group'] = Array (
 
 t3lib_extMgm::addLLrefForTCAdescr('sys_dmail','EXT:'.$_EXTKEY.'/locallang_csh_sysdmail.php');
 t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_group','EXT:'.$_EXTKEY.'/locallang_csh_sysdmailg.php');
+t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_category','EXT:'.$_EXTKEY.'/locallang_csh_sysdmailcat.php');
 
 if (TYPO3_MODE=='BE')   {
-  t3lib_extMgm::addModule('web','txdirectmailM1','',t3lib_extMgm::extPath($_EXTKEY).'mod/');
+	t3lib_extMgm::addModule('web','txdirectmailM1','',t3lib_extMgm::extPath($_EXTKEY).'mod/');
+	//t3lib_extMgm::addModule('web','txdirectmailM2','',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
 }
 
 ?>
