@@ -166,7 +166,6 @@ class mod_web_dmail extends t3lib_SCbase {
 				'recip' => $LANG->getLL('dmail_menu_list'),
 				'conf' => $LANG->getLL('dmail_menu_conf'),
 				'mailerengine' => $LANG->getLL('dmail_menu_mailerengine'),
-				'help' => $LANG->getLL('dmail_menu_help'),
 				'convert' => $LANG->getLL('dmail_menu_convert_categories'),
 				)
 			);
@@ -1577,11 +1576,8 @@ class mod_web_dmail extends t3lib_SCbase {
 		case 'conf':
 			$theOutput.= $this->cmd_conf();
 			break;
-		case 'help':
-			$theOutput .= $this->getHelptext();
-			break;
 		case 'convert':
-			$theOutput .= $this->cmd_convertCategories();			
+			$theOutput .= $this->cmd_convertCategories();
 			break;
 		default:
 				// Hook for preprocessing of the content for formmails:
@@ -1902,15 +1898,6 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 		
 		$theOutput.= $this->doc->section($LANG->getLL('configure_direct_mail_module'),t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,'pageTS'),0,1);
-		return $theOutput;
-	}
-	/**
-	 * Returns the help text. TOTO: Pprovide a link to the manual.
-	 */
-	function getHelptext(){
-		global $LANG;
-			// How this works.
-		$theOutput.= $this->doc->section($LANG->getLL('instructions_how'),nl2br(trim($LANG->getLL('instructions_text'))),0,1);
 		return $theOutput;
 	}
 	

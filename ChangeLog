@@ -2,6 +2,7 @@
 	* Update to csh files and to the localization of the module configuration function.
 	* Reverting change to jumpUrl after correction of bugtracker issue 2592 in TYPO3core.
 	* Update to manual (incomplete).
+	* Remove help function.
 
 2006-02-21 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Path setting corrections in dmailerd.phpcron and returnmail.phpsh

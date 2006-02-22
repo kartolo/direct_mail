@@ -20,7 +20,6 @@ $LOCAL_LANG = Array (
 		'dmail_menu_list' => 'Recipient list',
 		'dmail_menu_conf' => 'Module configuration',
 		'dmail_menu_mailerengine' => 'Mailer Engine Status',
-		'dmail_menu_help' => 'Instructions',
 		'dmail_menu_convert_categories' => 'Categories conversion',
 		'dmailer_mid' => 'Job No:',
 		'dmailer_job_begin' => 'Job begin',
@@ -144,45 +143,6 @@ $LOCAL_LANG = Array (
 		'configure_plain_and_html' => 'Plain text and HTML',
 		'configure_plain_only' => 'Plain text only',
 		'configure_html_only' => 'HTML only',
-		'instructions_how' => 'How this works...',
-		'instructions_text' => '
-In this module you can create newsletters (pages), which can be emailed as \'direct mails\' to people on a subscription list.
-
-To create a direct mail, you must follow these steps:
-<B>1)</B> Select \'Newsletter\' in the menu above.
-    <B>2)</B> Create a new \'newsletter\'. Put content in that newsletter, save it, preview it - exactly as you\'re used to with regular pages in Typo3. Actually a \'newsletter\' in this context is simply a Typo3 page destined for emailing!
-    <B>3)</B> Click your new newsletter in the list. Now you can see information about that page, categorize the content elements.
-    <B>4)</B> When your newsletter is ready to be distributed, click the link \'Create new direct mail based on this page\' and a new direct mail based on your newsletter is created.
-    <B>5)</B> The first thing to do with your new \'Direct Mail\' is to fetch the mail content. This process reads the content from the page and compiles a mail out of it.
-    <B>6)</B> Send a test. You should definitely send a testmail to yourself before mailing to your subscribers. Doing so, you can make sure that the mail and all links in it are correctly set up. Be aware if there are links to local network URLs. Those will not be accessible to the people receiving your newsletter!
-    <B>7)</B> Initialize distribution if everything is OK.
-    
-    <B>The difference of a newsletter and a direct mail</B>
-    A \'newsletter\' is basically a regular Typo3 page which resides here in the direct mail module. You can view the page in a browser and the point is that this page is finally send as a direct mail.
-    A \'direct mail\' is a record that contains a compiled version of either a newsletter page or alternatively the content of an external url. In addition the direct mail contains information like the mail subject, any attachments, priority settings, reply addresses and all that. For each direct mail a log is kept of who has received the direct mail and if they responded to it.
-
-    <B>Data fields in direct mails:</B>
-    You can insert personalized data in the mails by inserting these markers:
-    ###USER_uid### (the unique id of the recipient)
-    ###USER_name### (full name)
-    ###USER_firstname### (first name calculated)
-    ###USER_title###
-    ###USER_email###
-    ###USER_phone###
-    ###USER_www###
-    ###USER_address###
-    ###USER_company###
-    ###USER_city###
-    ###USER_zip###
-    ###USER_country###
-    ###USER_fax###
-    
-    ###SYS_TABLE_NAME###
-    ###SYS_MAIL_ID###
-    ###SYS_AUTHCODE###
-    
-    (In addition ###USER_NAME### and ###USER_FIRSTNAME### will insert uppercase versions of the equalents)
-',
 		'convert_categories' => 'Converting categories...',
 		'convert_from_folder' => '... from Direct Mail folder:',
 		'convert_category' => 'Category',
@@ -304,7 +264,6 @@ To create a direct mail, you must follow these steps:
 		'dmail_menu_list' => 'Empfängerliste',
 		'dmail_menu_conf' => 'Modulkonfiguration',
 		'dmail_menu_mailerengine' => 'Versand-Status',
-		'dmail_menu_help' => 'Anleitung',
 		'dmailer_mid' => 'Auftrags-Nr.:',
 		'dmailer_job_begin' => 'Auftrag begonnen',
 		'dmailer_job_end' => 'Auftrag beendet',
@@ -400,46 +359,6 @@ To create a direct mail, you must follow these steps:
 		'quickmail_copy_to' => 'Kopie an:',
 		'quickmail_mode' => 'Modus:',
 		'quickmail_no_recipient' => 'Keine Empfänger.',
-		'instructions_how' => 'Wie es funktioniert...',
-		'instructions_text' => '
-Mit Hilfe dieser Extension können Sie Typo3-Seiten als Newsletter an Personen aus einer Versandgruppe verschicken. 
-
-Um einen Versand zu erstellen, müssen Sie folgende Schritte beachten:
-
-<B>1)</B> Wählen Sie  \'Newsletter\' aus dem Menü oben aus.
-    <B>2)</B> Erstellen Sie einen neuen \'Newsletter\'. Fügen Sie Inhalt hinzu, speichern Sie und schauen Sie sich die Vorschau an - es ist alles genauso, als ob Sie eine ganz reguläre Seite im Typo3 bearbeiten würden. Nur mit dem einzigsten Unterschied, dass diese Seite für den Versand bestimmt ist. 
-    <B>3)</B> Wählen Sie nun Ihren Newsletter in der Liste aus. Nun sehen Sie Informationen betreffend dieser Seite und eine Aufzählung aller angelegten Content-Elemente. 
-    <B>4)</B> Wenn Sie mit allem zufrieden sind und der Newsletter nun versendet werden soll, klicken Sie \'Versand dieser Seite erstellen\'. 
-    <B>5)</B> Als Erstes muss der Inhalt der E-Mail generiert werden. Dazu wählen Sie unter OPTIONEN \'Inhalt der E-Mail generieren\' aus. 
-    <B>6)</B> Vor einer Massenversendung sollten Sie unbedingt eine Testmail verschicken, damit Sie alle Links und Bilder nochmal überprüfen können. Auf jeden Fall sollten Sie URLs aus lokalen Netwerken 
-    <B>7)</B> Wählen Sie \'Massenversendung\' aus, um den Newsletter zu verschicken. 
-    
-    <B>Der Unterschied zwischen einem Newsletter und einem Versand</B>
-    Bei einem \'Newsletter\' handelt sich um eine reguläre Typo3-Seite. Mit dem Unterschied, dass sich diese unterhalb des Systemordners für Newsletter befindet. 
-    EinA \'Versand\' ist ein Eintrag, der eine kompilierte Version des Newsletter oder der angegebenen externen URL enthält. 
-
-    <B>Datenfelder beim Versand:</B>
-    Personalisieren Sie Ihre Mails mit folgenden Zeichenfolgen:
-    ###USER_uid### (ID des Empfängers)
-    ###USER_name### (Vor- und Nachname)
-    ###USER_firstname### (Vorname)
-    ###USER_title###
-    ###USER_email###
-    ###USER_phone###
-    ###USER_www###
-    ###USER_address###
-    ###USER_company###
-    ###USER_city###
-    ###USER_zip###
-    ###USER_country###
-    ###USER_fax###
-    
-    ###SYS_TABLE_NAME###
-    ###SYS_MAIL_ID###
-    ###SYS_AUTHCODE###
-    
-    (Die Felder ###USER_NAME### and ###USER_FIRSTNAME### stehen für großgeschriebene Versionen der passenden Felder)
-',
 		'stats_general_information' => 'Allgemeine Informationen:',
 		'stats_total' => 'Insgesamt:',
 		'stats_HTML' => 'HTML:',
@@ -541,7 +460,6 @@ Um einen Versand zu erstellen, müssen Sie folgende Schritte beachten:
 		'dmail_menu_list' => 'Listes de distribution',
 		'dmail_menu_conf' => 'Configuration du module',
 		'dmail_menu_mailerengine' => 'État des envois massifs',
-		'dmail_menu_help' => 'Instructions',
 		'dmail_menu_convert_categories' => 'Conversion des rubriques',
 		'dmailer_mid' => 'Envoi numero:',
 		'dmailer_job_begin' => 'Début de l\'envoi',
@@ -784,7 +702,6 @@ Um einen Versand zu erstellen, müssen Sie folgende Schritte beachten:
 		'dmail_menu_list' => 'Listas de correo',
 		'dmail_menu_conf' => 'Configuración del módulo',
 		'dmail_menu_mailerengine' => 'Estado de los envíos masivos',
-		'dmail_menu_help' => 'Instrucciones',
 		'dmailer_mid' => 'Envío número:',
 		'dmailer_job_begin' => 'Inicio del envío',
 		'dmailer_job_end' => 'Final del envío',
@@ -881,20 +798,6 @@ Um einen Versand zu erstellen, müssen Sie folgende Schritte beachten:
 		'quickmail_mode' => 'Modo:',
 		'quickmail_no_recipient' => 'Ningún destinatario.',
 		'configure_direct_mail_module' => 'Configuración del módulo de correo masivo',
-		'instructions_how' => '¿Qué hacer?',
-		'instructions_text' => '
-	Mediante este módulo puede crear páginas que luego puede enviar como boletines por correo electrónico a las direcciones suscritas o incluidas en listas de correo.
-	
-	Para crear y enviar un boletín, siga los pasos siguientes:
-	<B>1)</b> Elija \'Páginas\' en el menú arriba.
-	<B>2)</b> Elija une página ya creada o cree una nueva página. Inciera contenido en la página nueva y guárdela de la misma manera que páginas regulares.
-	<B>3)</b> Pulse en su página en la lista de páginas: puede ver la información sobre esta página. Nota: En La Matatena, A.C., no utilizamos las categorías de contenido.
-	<B>4)</b> Cuando la página esta lista, pulse en el vínculo \'Crear un nuevo boletín basado en esta página\'.
-	<B>5)</b> En el menú bajo las informaciones del boletín, elija la opción \'Preparar el boletín para el envío masivo\' e siga las instrucciones en la página que aparece.
-	<B>6)</b> En el menú bajo las informaciones del boletín, elija la opción \'Enviar un correo de prueba\'. Es muy importante enviar un correo de prueba y comprobar que todos los vínculos del mensaje son correctos antes del envío del boletín a todos los suscriptores. 
-	<B>7)</b> Cuando el correo de prueba es correcto, elija en el menú bajo las informaciones del boletín la opción \'Requerer el envío masivo\'.
-	<B>8)</b> Elija \'Estado de los envíos masivos\' en el menú arriba para comprobar el estado de su envío. Es posible que sea necesario pulsar en el botón \'Iniciar los envíos\' para iniciar el envío de su boletín.
-',
 		'stats_general_information' => 'Estadísticas generales:',
 		'stats_total' => 'Total:',
 		'stats_HTML' => 'HTML:',
@@ -991,7 +894,6 @@ Um einen Versand zu erstellen, müssen Sie folgende Schritte beachten:
 		'dmail_menu_list' => 'Adressenlijst',
 		'dmail_menu_conf' => 'Module configuratie',
 		'dmail_menu_mailerengine' => 'Mailer Engine Status',
-		'dmail_menu_help' => 'Instructies',
 		'dmailer_mid' => 'Taak nummer:',
 		'dmailer_job_begin' => 'Taak begin',
 		'dmailer_job_end' => 'Taak einde',
@@ -1087,45 +989,6 @@ Um einen Versand zu erstellen, müssen Sie folgende Schritte beachten:
 		'quickmail_copy_to' => 'Kopie naar:',
 		'quickmail_mode' => 'Stand:',
 		'quickmail_no_recipient' => 'Geen geadresseerde.',
-		'instructions_how' => 'Hoe dit werkt...',
-		'instructions_text' => '
-In deze module kunt u nieuwsbrieven maken (eigenlijk zijn dat webpagina\'s), die gemaild kunnen worden als \'direct mails\' naar geadresseerden op een abonneelijst.
-
-Om een direct mail te maken, moet u deze stappen volgen:
-<B>1)</B> Selecteer \'Nieuwsbrief\' in het menu hierboven.
-    <B>2)</B> Maak een nieuwe \'nieuwsbrief\'. Voeg inhoud toe in de nieuwsbrief, sla deze op, controleer het met een preview - precies zoals u doet met normale webpagina\'s in TYPO3. Eigenlijk is een \'nieuwsbrief\' indeze context niets anders dan een TYPO3 webpagina bestemd voor e-mail verzending.
-    <B>3)</B> Klik op de nieuwe nieuwsbrief in de lijst. Nu kunt u informatie zien over die pagina, en de inhoudselementen categoriseren.
-    <B>4)</B> Als uw nieuwsbrief klaar is voor verzending, klik de link \'Maak nieuwe direct mail gebaseerd op deze pagina\' en een nieuwe direct mail gebaseerd op uw nieuwsbrief is gemaakt.
-    <B>5)</B> Het eerste wat u moet doen met de nieuwe \'Direct Mail\' is de e-mailinhoud ophalen. Dit proces leest de inhoud van van de pagina en stelt de e-mail eruit samen.
-    <B>6)</B> Zend eerst een test. U moet echt eerst een testmail aan uzelf sturen voordat de e-mail naar de abonnees gaat. Als u dat doet, bent u er zeker van dat de e-mail en de links die erin voorkomen correct zijn opgezet. Let op of er links in de e-mail voorkomen naar lokale netwerken. Deze zullen niet toegankelijk zijn voor voor de mensen die uw nieuwsbrief ontvangen!
-    <B>7)</B> Start het zenden als alles in orde is.
-
-    <B>Het verschil tussen een een nieuwsbrief en een direct mail</B>
-    Een \'nieuwsbrief\' is eigenlijk een normale TYPO3 pagina die voorkomt in de direct mail module. U kunt de pagina bekijken in een browser en het gaat erom dat deze pagina uiteindelijk verzonden wordt als direct mail.
-    Een \'direct mail\' is een record dat een samengestelde versie bevat van hetzij een nieuwsbrief pagina, hetzij de inhoud van een externe URL. Een direct mail bevat ook nog informatie zoals het e-mail onderwerp, bijlagen, prioriteit instellingen, antwoord adres enzovoort. Voor elke direct mail wordt bijgehouden wie de direct mail ontvangen heeft en wie heeft gereageerd.
-
-    <B>Datavelden in direct mails:</B>
-    U kunt gepersonaliseerde gegevens in de e-mails toevoegen door deze markers te gebruiken:
-    ###USER_uid### (uniek id van de geadresseerde)
-    ###USER_name### (volledige naam)
-    ###USER_firstname### (voornaam, gecalculeerd)
-    ###USER_title###
-    ###USER_email###
-    ###USER_phone###
-    ###USER_www###
-    ###USER_address###
-    ###USER_company###
-    ###USER_city###
-    ###USER_zip###
-    ###USER_country###
-    ###USER_fax###
-
-    ###SYS_TABLE_NAME###
-    ###SYS_MAIL_ID###
-    ###SYS_AUTHCODE###
-
-    (Bovendien, ###USER_NAME### en ###USER_FIRSTNAME### voegen de namen in in hoofdletters)
-',
 		'stats_general_information' => 'Algemene informatie:',
 		'stats_total' => 'Totaal:',
 		'stats_HTML' => 'HTML:',
@@ -1265,7 +1128,6 @@ Om een direct mail te maken, moet u deze stappen volgen:
 		'dmail_menu_list' => 'Vastaaottajalista',
 		'dmail_menu_conf' => 'Aliohjelman asetukset',
 		'dmail_menu_mailerengine' => 'Postitusohjelman tila',
-		'dmail_menu_help' => 'Ohjeet',
 		'dmailer_mid' => 'Työn numero:',
 		'dmailer_job_begin' => 'Työn alku:',
 		'dmailer_job_end' => 'Työn loppu:',
@@ -1362,8 +1224,6 @@ Om een direct mail te maken, moet u deze stappen volgen:
 		'quickmail_mode' => 'Tapa:',
 		'quickmail_no_recipient' => 'Ei vastaanottajia.',
 		'configure_direct_mail_module' => 'Konfiguroi suora postitus aliohjelma',
-		'instructions_how' => 'Kuinka tämä toimii ...',
-		'instructions_text' => 'Tällä modulilla voit luoda uutislehtiä (sivuja), jotka voidaan epostittaa ns. suorapostituksena henkilöille jotka ovat tilaajalistalla.  Luodaksesi suorapostituksen, Sinun tulee noudattaa seuraavia askelia: <B>1)</B> Valitse \'Uutislehti\' ylläolevasta valikosta <B>2)</B> Luo uusi \'uutislehti\'. Tee sisältö tähän uutislehteen, tallenna se, esikatsele - aivan samoin kuin olet tottunut tekemään tavallisia sivuka Typo3:ssa. Todellisuudessa \'uutislehti\' on yksinkertaisesti Typo3 sivuja, jotka on tarkoitettu sähköpostiin! <B>3)</B> Näpsäytä uutta uutislehteäsi listalla. Nyt voit nähdä sivun informaation. ja luokitella sisältö elementit. <B>4)</B> Kun uutislehtesi on valmis jakeluun, näpsäytä linkkiä \'Luo uusi suora postitus perustuen tähän sivuun\' ja uusi suora postitus joka perustuu tähän uuteen uutislehteen on luotu. <B>5)</B> Ensimmäinen asia uuteen suora postitukseesi on hakea postiin sisältö. Tämä prosessi lukee sivun sisällönja muotoilee siitä postin sisällön. <B>6)</B> Lähetä tesit. Sinun on ehdottomasti lähetettävä posti ensin itsellesi ennen kuin lähetät sitä tilaajille. Näin voit varmistua että posti ja kaikki linkit on oikein asetettu. Ole varuillasi jos linkkejä on asetettu paikallisen verkon URLeihin. Ne eivät ole käytettävissä henkilöillaä jotka saavat uutislehtesi! <B>7)</B> Käynnistä jakelu jos kaikki on oikein.  <B>Uutislehden ja suora postituksen erotl</B> Uutislehti on periaatteessa tavallinen Typo3 sivu joka sijaitsee tässä suora postitus modulissa. Voit selailla sivua selaimella ja lopullisena ideana on ett lähetät sen suora postituksella. Suora Postitus on tietue joka sisältää lähetettävän version uutislehti sivusta tai vaihtoehtoisesti linkin ulkoisen URLin (osoitetteen) sivuun. Lisäksi Suora postitus sisältää muita tietoja kuten postin otsikon , kaikki liitteet, prioriteetti asetukset, vastausosoitteet jne. Jokaista postitusta varten pidetään lokia josta selviävät vastaanottajien tiedot, ovatko saaneet ja ovatko vastanneet.  <B>Tietokentät suora postituksissaa:</B> Voit lisätä henkilökohtaisia tietoja postiin näillä markkereilla: ###USER_uid### (vastaanottajan yksilöllinen ID) ###USER_name### (koko nimi) ###USER_firstname### (etunimi) ###USER_title### ###USER_email### ###USER_phone### ###USER_www### ###USER_address### ###USER_company### ###USER_city### ###USER_zip### ###USER_country### ###USER_fax###  ###SYS_TABLE_NAME### ###SYS_MAIL_ID### ###SYS_AUTHCODE###  (Lisäksi ###USER_NAME### and ###USER_FIRSTNAME### lisäävät ison kirjaimin vastaavat tiedot)',
 		'stats_general_information' => 'Yleiset tiedot:',
 		'stats_total' => 'Yhteensä:',
 		'stats_HTML' => 'HTML:',
@@ -1531,7 +1391,6 @@ Om een direct mail te maken, moet u deze stappen volgen:
 		'dmail_menu_list' => 'Lista de destinatários',
 		'dmail_menu_conf' => 'Configuração do módulo',
 		'dmail_menu_mailerengine' => 'Status do Sistema de Envio',
-		'dmail_menu_help' => 'Instruções',
 		'dmailer_mid' => 'Trabalho No:',
 		'dmailer_job_begin' => 'Início do trabalho',
 		'dmailer_job_end' => 'Término do trabalho',
