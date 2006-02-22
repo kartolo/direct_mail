@@ -193,16 +193,17 @@ class mod_web_dmail extends t3lib_SCbase {
 				// Set default values:
 			$dmail = array();
 			$dmail['sys_dmail']['NEW'] = array (
-				'from_email' => $this->params['from_email'],
-				'from_name' => $this->params['from_name'],
-				'replyto_email' => $this->params['replyto_email'],
-				'replyto_name' => $this->params['replyto_name'],
-				'return_path' => $this->params['return_path'],
-				'use_domain' => $this->params['use_domain'],
-				'use_rdct' => $this->params['use_rdct'],
-				'long_link_mode' => $this->params['long_link_mode'],
-				'organisation' => $this->params['organisation'],
-				'authcode_fieldList' => $this->params['authcode_fieldList']
+				'from_email'		=> $this->params['from_email'],
+				'from_name'		=> $this->params['from_name'],
+				'replyto_email'		=> $this->params['replyto_email'],
+				'replyto_name'		=> $this->params['replyto_name'],
+				'return_path'		=> $this->params['return_path'],
+				'priority'		=> $this->params['priority'],
+				'use_domain'		=> $this->params['use_domain'],
+				'use_rdct'		=> $this->params['use_rdct'],
+				'long_link_mode'	=> $this->params['long_link_mode'],
+				'organisation'		=> $this->params['organisation'],
+				'authcode_fieldList'	=> $this->params['authcode_fieldList']
 				);
 			
 			$dmail['sys_dmail']['NEW']['sendOptions'] = $TCA['sys_dmail']['columns']['sendOptions']['config']['default'];
@@ -1851,6 +1852,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'replyto_name' => array('string', $this->fName('replyto_name'), $LANG->getLL('replyto_name.description').'<br />'.$LANG->getLL('replyto_name.details')),
 			'return_path' => array('string', $this->fName('return_path'), $LANG->getLL('return_path.description').'<br />'.$LANG->getLL('return_path.details')),
 			'organisation' => array('string', $this->fName('organisation'), $LANG->getLL('organisation.description').'<br />'.$LANG->getLL('organisation.details')),
+			'priority' => array('select', $this->fName('priority'), $LANG->getLL('priority.description').'<br />'.$LANG->getLL('priority.details'), array(3 => $LANG->getLL('configure_priority_normal'), 1 => $LANG->getLL('configure_priority_high'), 5 => $LANG->getLL('configure_priority_low'))),
 			
 			'spacer1' => $LANG->getLL('configure_default_content'),
 			'sendOptions' => array('select', $this->fName('sendOptions'), $LANG->getLL('sendOptions.description').'<br />'.$LANG->getLL('sendOptions.details'), array(3 => $LANG->getLL('configure_plain_and_html') ,1 => $LANG->getLL('configure_plain_only') ,2 => $LANG->getLL('configure_html_only'))),
@@ -3298,7 +3300,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		// Render record:
 		$out='';
 		$Eparams='&edit[sys_dmail]['.$row['uid'].']=edit';
-		$out .= '<tr><td colspan=3 bgColor="' . $this->doc->bgColor5 . '" valign=top>'.fw($this->fName("subject")." <b>".t3lib_div::fixed_lgd($row["subject"],30)."  </b>").'</td></tr>';
+		$out .= '<tr><td colspan=3 bgColor="' . $this->doc->bgColor5 . '" valign=top>'.fw($this->fName('subject').' <b>'.t3lib_div::fixed_lgd($row["subject"],30)."  </b>").'</td></tr>';
 		$nameArr = explode(',','subject,from_name,from_email,replyto_name,replyto_email,organisation,attachment,priority,sendOptions,type,page,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
 		while(list(,$name)=each($nameArr))	{
 			$out.='<tr><td bgColor="'.$this->doc->bgColor4.'">'.fw($this->fName($name)).'</td><td bgColor="'.$this->doc->bgColor4.'">'.fw(t3lib_BEfunc::getProcessedValue('sys_dmail',$name,$row[$name])).'</td></tr>';

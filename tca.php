@@ -123,7 +123,7 @@ $TCA['sys_dmail'] = Array (
 				'type' => 'select',
 				'items' => Array (
 					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.priority.I.0', '5'),
-					Array('LLL:EXT:lang/locallang_general.php:LGL.normal', '3'),
+					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.priority.I.1', '3'),
 					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.priority.I.2', '1')
 				),
 				'default' => '3'
