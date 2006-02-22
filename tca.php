@@ -142,25 +142,23 @@ $TCA['sys_dmail'] = Array (
 				'default' => '3'
 			)
 		),
-		'sendOptions' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.sendOptions',
-			'exclude' => '1',
-			'config' => Array (
-				'type' => 'check',
-				'items' => Array (
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.sendOptions.I.0', ''),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.sendOptions.I.1', '')
-				),
-				'cols' => '2',
-				'default' => '3'
-			)
-		),
 		'includeMedia' => Array (
 			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.includeMedia',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'check',
 				'default' => '0'
+			)
+		),
+		'HTMLParams' => Array (
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.HTMLParams',
+			'exclude' => '1',
+			'config' => Array (
+				'type' => 'input',
+				'size' => '15',
+				'max' => '80',
+				'eval' => 'trim',
+				'default' => ''
 			)
 		),
 		'plainParams' => Array (

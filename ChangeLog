@@ -4,6 +4,7 @@
 	* Update to manual (incomplete).
 	* Remove help function.
 	* Add priority as module configuration property.
+	* Correcting accidental removal of HTMLParams column in TCA.
 
 2006-02-21 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Path setting corrections in dmailerd.phpcron and returnmail.phpsh

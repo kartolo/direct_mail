@@ -1858,7 +1858,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'sendOptions' => array('select', $this->fName('sendOptions'), $LANG->getLL('sendOptions.description').'<br />'.$LANG->getLL('sendOptions.details'), array(3 => $LANG->getLL('configure_plain_and_html') ,1 => $LANG->getLL('configure_plain_only') ,2 => $LANG->getLL('configure_html_only'))),
 			'includeMedia' => array('check', $this->fName('includeMedia'), $LANG->getLL('includeMedia.description').'<br />'.$LANG->getLL('includeMedia.details')),
 
-			'spacer2' => 'Set options for fetching mail content:',
+			'spacer2' => $LANG->getLL('configure_default_fetching'),
 			'HTMLParams' => array('short', $this->fName('HTMLParams'), 'Enter the additional URL parameters used to fetch the HTML content. If in doubt, leave it blank.'),
 			'plainParams' => array('short', $this->fName('plainParams'), 'Enter the additional URL parameters used to fetch the plain text content. If in doubt, set it to \'&type=99\'.'),
 			'enablePlain' => array('check', 'Allow Plain Text emails', 'Set this if you want to allow plain text emails to be fetched. If in doubt, check this option.'),
