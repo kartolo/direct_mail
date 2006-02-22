@@ -35,6 +35,7 @@ require ('conf.php');
 require ($BACK_PATH.'init.php');
 require ($BACK_PATH.'template.php');
 $LANG->includeLLFile('EXT:direct_mail/mod/locallang.php');
+$LANG->includeLLFile('EXT:direct_mail/locallang_csh_sysdmail.php');
 $BE_USER->modAccess($MCONF,1);    // This checks permissions and exits if the users has no permission for entry.
 
 // Make instance:

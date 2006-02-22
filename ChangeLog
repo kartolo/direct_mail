@@ -1,3 +1,6 @@
+2006-02-22 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Update to csh files and to the localization of the module configuration function.
+
 2006-02-21 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Path setting corrections in dmailerd.phpcron and returnmail.phpsh
 	* Correct jumpUrl hook so that it will work even if $TYPO3_CONF_VARS['SYS']['doNotCheckReferer'] is not set.
