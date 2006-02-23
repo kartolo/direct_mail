@@ -34,32 +34,6 @@
  * $Id$
  */
 
-/**
-TS config:
-
-
-mod.web_modules.dmail {
-  from_email
-  from_name
-  replyto_email
-  replyto_name
-  organisation
- sendOptions (isset)
-  HTMLParams (isset) If
-  plainParams (isset)
-  userTable		(name of user defined table for mailing. Fields used from this table includes $this->fieldList)
-
-  enablePlain
-  enableHTML
-  http_username
-  http_password
-
-  test_tt_address_uids
-}
-
-The be_users own TSconfig for the module will override by being merged onto this array.
-
-*/
 require_once (PATH_t3lib.'class.t3lib_scbase.php');
 require_once (PATH_t3lib.'class.t3lib_tstemplate.php');
 require_once (PATH_t3lib.'class.t3lib_page.php');
@@ -1859,30 +1833,30 @@ class mod_web_dmail extends t3lib_SCbase {
 			'includeMedia' => array('check', $this->fName('includeMedia'), $LANG->getLL('includeMedia.description').'<br />'.$LANG->getLL('includeMedia.details')),
 
 			'spacer2' => $LANG->getLL('configure_default_fetching'),
-			'HTMLParams' => array('short', $this->fName('HTMLParams'), 'Enter the additional URL parameters used to fetch the HTML content. If in doubt, leave it blank.'),
-			'plainParams' => array('short', $this->fName('plainParams'), 'Enter the additional URL parameters used to fetch the plain text content. If in doubt, set it to \'&type=99\'.'),
-			'enablePlain' => array('check', 'Allow Plain Text emails', 'Set this if you want to allow plain text emails to be fetched. If in doubt, check this option.'),
-			'enableHTML' => array('check', 'Allow HTML emails', 'Set this if you want to allow HTML emails to be fetched. If in doubt, check this option.'),
-			'use_domain' => array('select', $this->fName('use_domain'), 'Select any domain that should be used for fetching content from internal pages. This domain will also be used for all internal links contained in mail content. If not set, the domain currently in use in the backend with be used.', array(0 => '')),
-			'http_username' => array('short', 'HTTP username', 'If the mail content is protected by a HTTP authentication, enter the username here. The username and password is used to fetch the mail content. They are NOT sent in the mail!<br />If you don\'t enter a username and password and the newsletter pages happens to be protected, an error will occur and no mail content is fetched.'),
-			'http_password' => array('short', 'HTTP password', '... and enter the password here.'),
+			'HTMLParams' => array('short', $this->fName('HTMLParams'), $LANG->getLL('configure_HTMLParams_description').'<br />'.$LANG->getLL('configure_HTMLParams_details')),
+			'plainParams' => array('short', $this->fName('plainParams'), $LANG->getLL('configure_plainParams_description').'<br />'.$LANG->getLL('configure_plainParams_details')),
+			'enablePlain' => array('check', $LANG->getLL('configure_allow_plain'), $LANG->getLL('configure_allow_plain_description')),
+			'enableHTML' => array('check', $LANG->getLL('configure_allow_HTML'), $LANG->getLL('configure_allow_HTML_description')),
+			'use_domain' => array('select', $this->fName('use_domain'), $LANG->getLL('use_domain.description').'<br />'.$LANG->getLL('use_domain.details'), array(0 => '')),
 			
-			'spacer3' => 'Set options for transfer encoding and character set',
-			'quick_mail_encoding' => array('select', 'Encoding for quick mails', 'Select the content transfer encoding to use when sending quick mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
-			'direct_mail_encoding' => array('select', 'Encoding for direct mails', 'Select the content transfer encoding to use when sending direct mails.', array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
-			'quick_mail_charset' => array('short', 'Character set for quick mails', 'Character set used in quick mails.'),
-			'direct_mail_charset' => array('short', 'Default character set for direct mails built from external pages', 'Character set used in direct mails when they are built from external pages and character set cannot be auto-detected.'),
+			'spacer3' => $LANG->getLL('configure_options_encoding'),
+			'quick_mail_encoding' => array('select', $LANG->getLL('configure_quickmail_encoding'), $LANG->getLL('configure_quickmail_encoding_description'), array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
+			'direct_mail_encoding' => array('select', $LANG->getLL('configure_directmail_encoding'), $LANG->getLL('configure_directmail_encoding_description'), array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
+			'quick_mail_charset' => array('short', $LANG->getLL('configure_quickmail_charset'), $LANG->getLL('configure_quickmail_charset_description')),
+			'direct_mail_charset' => array('short', $LANG->getLL('configure_directmail_charset'), $LANG->getLL('configure_directmail_charset_description')),
 			
-			'spacer4' => 'Set options for links in mail content',
-			'use_rdct' => array('check', $this->fName('use_rdct'), 'Set this if you want long urls to be substituted with ?RDCT=[md5hash] parameters in plain text mails. This configuration determines how QuickMails are handled and further sets the default setting for DirectMails.'),
-			'long_link_mode' => array('check', $this->fName('long_link_mode'), 'Option for the RDCT feature above.'),
-			'enable_jump_url' => array('check', 'Use jump URL\'s','Check this option to enable jump URL\'s and the collection of click statistics.'),
-			'authcode_fieldList' => array('short', $this->fName('authcode_fieldList'), 'List of fields to be used in the computation of the authentication code included in unsubscribe links in direct mails.'),
+			'spacer4' => $LANG->getLL('configure_options_links'),
+			'use_rdct' => array('check', $this->fName('use_rdct'), $LANG->getLL('use_rdct.description').'<br />'.$LANG->getLL('use_rdct.details').'<br />'.$LANG->getLL('configure_options_links_rdct')),
+			'long_link_mode' => array('check', $this->fName('long_link_mode'), $LANG->getLL('long_link_mode.description')),
+			'enable_jump_url' => array('check', $LANG->getLL('configure_options_links_jumpurl'), $LANG->getLL('configure_options_links_jumpurl_description')),
+			'authcode_fieldList' => array('short', $this->fName('authcode_fieldList'), $LANG->getLL('authcode_fieldList.description')),
 			
-			'spacer5' => 'Set additional module options',
-			'userTable' => array('short', 'Custom-defined table', 'Enter the name of a custom-defined table, with compatible columns defined, which may also be used for distribution.'),
-			'test_tt_address_uids' => array('short', 'List of UID numbers of test recipients', 'Before sending mails you should test the mail content by sending testmails to one or more test recipients. The available recipients for testing are determined by the list of UID numbers, you enter here. So first, find out the UID-numbers of the recipients you wish to use for testing, then enter them here in a comma-separated list.'),
-			'test_dmail_group_uids' => array('short', 'List of UID numbers of test dmail groups', 'Alternatively to sending test-mails to individuals, you can choose to send to a whole group. List the group ids available for this action here:'),
+			'spacer5' => $LANG->getLL('configure_options_additional'),
+			'http_username' => array('short', $LANG->getLL('configure_http_username'), $LANG->getLL('configure_http_username_description').'<br />'.$LANG->getLL('configure_http_username_details')),
+			'http_password' => array('short', $LANG->getLL('configure_http_password'), $LANG->getLL('configure_http_password_description')),
+			'userTable' => array('short', $LANG->getLL('configure_user_table'), $LANG->getLL('configure_user_table_description')),
+			'test_tt_address_uids' => array('short', $LANG->getLL('configure_test_tt_address_uids'), $LANG->getLL('configure_test_tt_address_uids_description')),
+			'test_dmail_group_uids' => array('short', $LANG->getLL('configure_test_dmail_group_uids'), $LANG->getLL('configure_test_dmail_group_uids_description')),
 			);
 		
 			// Set default values
@@ -1899,7 +1873,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$configArray['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];
 		}
 		
-		$theOutput.= $this->doc->section($LANG->getLL('configure_direct_mail_module'),t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,'pageTS'),0,1);
+		$theOutput.= $this->doc->section($LANG->getLL('configure_direct_mail_module'),str_replace('Update configuration', $LANG->getLL('configure_update_configuration'), t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,'pageTS')),0,1);
 		return $theOutput;
 	}
 	
@@ -2154,7 +2128,6 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 			
 			$msg.= $LANG->getLL('prefetch_patience') . '<br /><br />';
-			//$msg.= 'Be aware if the URL is password protected, you must set up the http username and password in the "Configuration" section. Else you will get an error.<br /><br />';
 			$msg.= '<input type="Submit" value="' . $LANG->getLL('prefetch_fetch') . '" onClick="jumpToUrlD(\'index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=fetch\'); return false;">  ';
 			$msg.= $this->back;
 			$theOutput.= $this->doc->section($LANG->getLL('prefetch_fetching'),fw($msg));

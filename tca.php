@@ -265,11 +265,11 @@ $TCA['sys_dmail'] = Array (
 		)
 	),
 	'types' => Array (
-		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, charset, sendOptions, includeMedia, use_domain, use_rdct, long_link_mode, authcode_fieldList'),
+		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, sendOptions, includeMedia, use_domain, use_rdct, long_link_mode, authcode_fieldList'),
 		'1' => Array('showitem' => 'type;;;;1-1-1,
 			plainParams;LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.plainParams.ALT.1,
 			HTMLParams;LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.HTMLParams.ALT.1,
-			--div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, encoding, charset, sendOptions, includeMedia, use_domain, use_rdct, long_link_mode, authcode_fieldList')
+			--div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, encoding, sendOptions, includeMedia, use_rdct, long_link_mode, authcode_fieldList')
 	)
 );
 
