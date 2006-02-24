@@ -125,7 +125,7 @@ $TCA['sys_dmail'] = Array (
 		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.php:LGL.prependAtCopy',
 		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:sys_dmail',
 		'delete' => 'deleted',
-		'iconfile' => 'mail.gif',
+		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY).'res/gfx/mail.gif',
 		'type' => 'type',
 		'useColumnsForDefaultValues' => 'from_email,from_name,replyto_email,replyto_name,organisation,priority,encoding,charset,sendOptions,type',
 		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY).'tca.php',
@@ -151,7 +151,7 @@ $TCA['sys_dmail_category'] = Array (
 			'disabled' => 'hidden',
 			),
 		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY).'tca.php',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY).'icon_tx_directmail_category.gif',
+		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY).'res/gfx/icon_tx_directmail_category.gif',
 		)
 );
 
@@ -166,7 +166,7 @@ $TCA['sys_dmail_group'] = Array (
 		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.php:LGL.prependAtCopy',
 		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:sys_dmail_group',
 		'delete' => 'deleted',
-		'iconfile' => 'mailgroup.gif',
+		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY).'res/gfx/mailgroup.gif',
 		'type' => 'type',
 		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY).'tca.php',
 	)

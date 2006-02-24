@@ -1,3 +1,10 @@
+2006-02-24 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Move attach.gif and mail.gif from mod to res/gfx directory.
+	* Move icon_tx_directmail_category.gif from extension root to res/gfx directory.
+	* Import newmail.gif from t3lib/gfx into res/gfx
+	* Import dmail.gif, dmail_list.gif, modules_dmail.gif, modules_dmail__h.gif into res/gfx
+	* Use t3lib_iconWorks for all icons.
+	
 2006-02-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Remove enablePlain and enableHTML configuration properties. Rely on sendOptions and submitted url's.
 	* Correct query of pages not yet direct mails in Direct mails function.

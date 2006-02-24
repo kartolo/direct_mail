@@ -40,6 +40,7 @@ require_once (PATH_t3lib.'class.t3lib_page.php');
 require_once(PATH_t3lib.'class.t3lib_timetrack.php');
 
 class mod_web_dmail extends t3lib_SCbase {
+	var $extKey = 'direct_mail';
 	var $TSconfPrefix = 'mod.web_modules.dmail.';
 	var $fieldList='uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html,description';
 	// Internal
@@ -592,9 +593,9 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 
 		$out="";
-		$out.='<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($this->pages_uid,$BACK_PATH).'"><img src="'.$BACK_PATH.'gfx/zoom.gif" width="12" height="12" hspace=3 vspace=2 border="0" align=top>'.$LANG->getLL("nl_viewPage").'</a><br />';
-		$out.='<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->pages_uid.']=edit&edit_content=1',$BACK_PATH,"",1).'"><img src="'.$BACK_PATH.'gfx/edit2.gif" width="11" height="12" hspace=3 vspace=2 border="0" align=top>'.$LANG->getLL("nl_editPage").'</a><br />';
-		$out.='<a href="index.php?id='.$this->id.'&createMailFrom_UID='.$this->pages_uid.'&SET[dmail_mode]=direct"'.$onClick.'><img src="'.$BACK_PATH.'/gfx/newmail.gif" width="18" height="16" border="0" align=top>'.$LANG->getLL("nl_createDmailFromPage").'</a><br />';				
+		$out.='<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($this->pages_uid,$BACK_PATH).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif', 'width="12" height="12"').' alt="" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" />'.$LANG->getLL("nl_viewPage").'</a><br />';
+		$out.='<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->pages_uid.']=edit&edit_content=1',$BACK_PATH,"",1).'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("nl_editPage").'" />'.$LANG->getLL("nl_editPage").'</a><br />';
+		$out.='<a href="index.php?id='.$this->id.'&createMailFrom_UID='.$this->pages_uid.'&SET[dmail_mode]=direct"'.$onClick.'><img '.t3lib_iconWorks::skinImg($BACK_PATH, t3lib_extMgm::extRelPath($this->extKey).'res/gfx/newmail.gif', 'width="18" height="16"').' width="18" height="16" style="vertical-align: top;" />'.$LANG->getLL("nl_createDmailFromPage").'</a><br />';				
 
 		if ($TYPO3_DB->sql_num_rows($res))	{
 			$out.='<br /><b>'.$LANG->getLL('nl_alreadyBasedOn').':</b><br /><br />';
@@ -610,12 +611,12 @@ class mod_web_dmail extends t3lib_SCbase {
 				</tr>';
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$out.='<tr>
-					<td><img src="'.$BACK_PATH.'gfx/i/mail.gif" width="18" height="16" border="0" align="top"></td>
+					<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
 					<td>'.$this->linkDMail_record(fw(t3lib_div::fixed_lgd($row['subject'],30).'  '),$row['uid']).'</td>
 					<td>'.fw(t3lib_BEfunc::date($row["tstamp"])."  ").'</td>
 					<td>'.($row['issent'] ? fw($LANG->getLL('dmail_yes')) : fw($LANG->getLL('dmail_no'))).'</td>
 					<td>'.($row['renderedsize'] ? fw(t3lib_div::formatSize($row['renderedsize']).'  ') : '').'</td>
-					<td>'.($row['attachment'] ? '<img src="attach.gif" width="9" height="13">' : '').'</td>
+					<td>'.($row['attachment'] ? '<img '.t3lib_iconWorks::skinImg($BACK_PATH, t3lib_extMgm::extRelPath($this->extKey).'res/gfx/attach.gif', 'width="9" height="13"').' alt="'.htmlspecialchars(fw($LANG->getLL('nl_l_attach'))).'" title="'.htmlspecialchars($row['attachment']).'" width="9" height="13">' : '').'</td>
 					<td>'.fw($row['type'] ? $LANG->getLL('nl_l_tUrl') : $LANG->getLL('nl_l_tPage')).'</td>
 				</tr>';
 			}
@@ -671,7 +672,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					$colPosVal=$row["colPos"];
 				}
 				$out.='<tr>';
-				$out.='<td valign="top" width="75%">'.fw('<img src="'.$BACK_PATH.t3lib_iconWorks::getIcon("tt_content",$row).'" width="18" height="16" border="0" title="'.htmlspecialchars(t3lib_BEfunc::getProcessedValue('tt_content','CType',$row['CType'])).'" align="top"> '.
+				$out.='<td valign="top" width="75%">'.fw(t3lib_iconWorks::getIconImage("tt_content", $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getProcessedValue('tt_content','CType',$row['CType'])).'" style="vertical-align: top;"').
 					$row['header'].'<br />'.t3lib_div::fixed_lgd(strip_tags($row['bodytext']),200).'<br />').'</td>';
 
 				$out.='<td>  </td><td nowrap valign="top">';
@@ -990,7 +991,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
 		
 		$group = t3lib_befunc::getRecord('sys_dmail_group',t3lib_div::_GP('group_uid'));
-		$out=t3lib_iconWorks::getIconImage('sys_dmail_group',$group,$BACK_PATH,'align="top"').$group['title'].'<br /><br />';
+		$out=t3lib_iconWorks::getIconImage('sys_dmail_group',$group,$BACK_PATH,'style="vertical-align: top;"').$group['title'].'<br /><br />';
 		
 		$lCmd=t3lib_div::_GP('lCmd');
 		
@@ -1086,14 +1087,16 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @param	[type]		$makeIdLists: ...
 	 * @return	[type]		...
 	 */
-	function cmd_compileMailGroup($group_uid,$makeIdLists=1)	{
+	function cmd_compileMailGroup($group_uid,$makeIdLists=1) {
+		global $BACKPATH;
+		
 		// $makeIdLists: Set to 0 if you don't want the list of table ids to be collected but only the queries to be stored.
 		$queries=array();
 		$id_lists=array();
 		if ($group_uid)	{
 			$mailGroup=t3lib_BEfunc::getRecord('sys_dmail_group',$group_uid);
 			if (is_array($mailGroup) && $mailGroup['pid']==$this->id)	{
-				$head = '<img src="'.$GLOBALS['BACK_PATH'].t3lib_iconWorks::getIcon('sys_dmail_group').'" width="18" height="16" border="0" align="top" />'.t3lib_div::fixed_lgd($mailGroup['title'],30).'<br />';
+				$head = t3lib_iconWorks::getIconImage('sys_dmail_group', $mailGroup, $BACKPATH, 'width="18" height="16" style="vertical-align: top;"').t3lib_div::fixed_lgd($mailGroup['title'],30).'<br />';
 				$theOutput.=$head;
 				switch($mailGroup['type'])	{
 				case 0:	// From pages
@@ -1357,13 +1360,18 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (is_array($listArr))	{
 			$count=count($listArr);
 			reset($listArr);
-			while(list(,$row)=each($listArr))	{
-				if ($editLinkFlag)	{
-					$editLink = '<td><a href="index.php?id='.$this->id.'&CMD=displayUserInfo&table='.$table.'&uid='.$row['uid'].'"><img src="'.$BACK_PATH.'gfx/zoom2.gif" width="12" height="12" hspace="5" border="0" title="' . $LANG->getLL('dmail_edit') . '" align="top"></a></td>';
+			while(list(,$row)=each($listArr)) {
+				$tableIcon = '';
+				$editLink = '';
+				if ($row['uid']) {
+					$tableIcon = '<td>'.t3lib_iconWorks::getIconImage($table,array(),$BACK_PATH,'title="'.($row['uid']?'uid: '.$row['uid']:'').'"',$dim).'</td>';
+					if ($editLinkFlag) {
+						$editLink = '<td><a href="index.php?id='.$this->id.'&CMD=displayUserInfo&table='.$table.'&uid='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="' . $LANG->getLL('dmail_edit') . '" width="12" height="12" style="margin:0px 5px; vertical-align:top;" title="' . $LANG->getLL('dmail_edit') . '" /></a></td>';
+					}
 				}
 
 				$lines[]='<tr bgcolor="'.$this->doc->bgColor4.'">
-				<td>'.t3lib_iconWorks::getIconImage($table,array(),$BACK_PATH,'title="'.($row['uid']?'uid: '.$row['uid']:'').'"',$dim).'</td>
+				'.$tableIcon.'
 				'.$editLink.'
 				<td nowrap> '.$row['email'].' </td>
 				<td nowrap> '.$row['name'].' </td>
@@ -1502,8 +1510,8 @@ class mod_web_dmail extends t3lib_SCbase {
 			
 			$Eparams='&edit['.$table.']['.$row['uid'].']=edit';
 			$out='';
-			$out.='<img src="'.$BACK_PATH.t3lib_iconWorks::getIcon($table,$row).'" width="18" height="16" border="0" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" align="top" />'.$row['name'].htmlspecialchars(' <'.$row['email'].'>');
-			$out.='&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH,'').'"><img src="'.$BACK_PATH.'gfx/edit2.gif" width="11" height="12" hspace="2" border="0" title="' . htmlspecialchars($LANG->getLL('dmail_edit')) . '" align="top" />' . fw('<b>' . $LANG->getLL('dmail_edit') . '</b>').'</a>';
+			$out.= t3lib_iconWorks::getIconImage($table, $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').$row['name'].htmlspecialchars(' <'.$row['email'].'>');
+			$out.='&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH,'').'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />' . fw('<b>' . $LANG->getLL('dmail_edit') . '</b>').'</a>';
 			$theOutput.= $this->doc->section($LANG->getLL('subscriber_info'),$out);
 
 			$out='';
@@ -1578,7 +1586,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $LANG, $BACK_PATH;
 		
 		$params = '&edit['.$table.']['.$uid.']=edit';
-		$str = '<a href="#" onClick="'.t3lib_BEfunc::editOnClick($params,$BACK_PATH,'').'"><img src="'.$BACK_PATH.'gfx/edit2.gif" width="11" height="12" hspace="3" vspace="2" border="0" align="top" title="' . $LANG->getLL('dmail_edit')  . '" alt="' . $LANG->getLL('dmail_edit') . '"></a>';
+		$str = '<a href="#" onClick="'.t3lib_BEfunc::editOnClick($params,$BACK_PATH,'').'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" /></a>';
 		return $str;
 	}
 
@@ -1639,7 +1647,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		} else {
 			$out='';
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-				$out.='<nobr><a href="index.php?id='.$this->id.'&CMD=displayPageInfo&pages_uid='.$row['uid'].'&SET[dmail_mode]=news"><img src="'.$BACK_PATH.t3lib_iconWorks::getIcon('pages',$row).'" width="18" height="16" border="0" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" align="top">'.
+				$out.='<nobr><a href="index.php?id='.$this->id.'&CMD=displayPageInfo&pages_uid='.$row['uid'].'&SET[dmail_mode]=news">'.t3lib_iconWorks::getIconImage('pages', $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').
 					$row['title'].'</a></nobr><br />';
 			}
 			$theOutput.= $this->doc->section($LANG->getLL('nl_select'),$out,0,1);
@@ -1677,12 +1685,12 @@ class mod_web_dmail extends t3lib_SCbase {
 					</tr>';
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			$out.='<tr>
-						<td><img src="'.$BACK_PATH.'gfx/i/mail.gif" width="18" height="16" border="0" align="top" /></td>
+						<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
 						<td>'.$this->linkDMail_record(fw(t3lib_div::fixed_lgd($row['subject'],30).'&nbsp;&nbsp;'),$row['uid']).'</td>
 						<td>'.fw(t3lib_BEfunc::date($row['tstamp']).'&nbsp;&nbsp;').'</td>
 						<td>'.($row['issent'] ? fw($LANG->getLL('dmail_yes')) : fw($LANG->getLL('dmail_no'))).'</td>
 						<td>'.($row['renderedsize'] ? fw(t3lib_div::formatSize($row['renderedsize']).'&nbsp;&nbsp;') : '').'</td>
-						<td>'.($row['attachment'] ? '<img src="attach.gif" width="9" height="13" />' : '').'</td>
+						<td>'.($row['attachment'] ? '<img '.t3lib_iconWorks::skinImg($BACK_PATH, t3lib_extMgm::extRelPath($this->extKey).'res/gfx/attach.gif', 'width="9" height="13"').' alt="'.htmlspecialchars(fw($LANG->getLL('nl_l_attach'))).'" title="'.htmlspecialchars($row['attachment']).'" width="9" height="13">' : '').'</td>
 						<td>'.fw($row['type'] ? $LANG->getLL('nl_l_tUrl') : $LANG->getLL('nl_l_tPage')).'</td>
 					</tr>';
 		}
@@ -1697,7 +1705,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		} else {
 			$out = '';
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-				$out.= '<nobr><a href="index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&SET[dmail_mode]=direct"><img src="'.$BACK_PATH.t3lib_iconWorks::getIcon('pages',$row).'" width="18" height="16" border="0" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" align="top" />'.
+				$out.= '<nobr><a href="index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&SET[dmail_mode]=direct">'.t3lib_iconWorks::getIconImage('pages', $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').
 					$row['title'].'</a></nobr><br />';
 			}
 		}
@@ -1737,7 +1745,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$TDparams=' valign="top"';
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			$out.='<tr>
-						<td'.$TDparams.' nowrap><img src="'.$BACK_PATH.t3lib_iconWorks::getIcon('sys_dmail_group').'" width="18" height="16" border="0" align="top" /></td>
+						<td'.$TDparams.' nowrap>'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
 						<td'.$TDparams.'>'.$this->editLink('sys_dmail_group',$row['uid']).'</td>
 						<td'.$TDparams.' nowrap>'.$this->linkRecip_record(fw('<strong>'.t3lib_div::fixed_lgd($row['title'],30).'</strong>&nbsp;&nbsp;'),$row['uid']).'</td>
 						<td'.$TDparams.' nowrap>'.fw(htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail_group','type',$row['type'])).'&nbsp;&nbsp;').'</td>
@@ -1793,7 +1801,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$countres = $TYPO3_DB->exec_SELECTquery('count(*)', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=0');
 			list($count) = $TYPO3_DB->sql_fetch_row($countres);
 			$out.='<tr>
-						<td><img src="'.$BACK_PATH.'gfx/i/mail.gif" width="18" height="16" border="0" align="top" /></td>
+						<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
 						<td>'.$this->linkDMail_record(fw(t3lib_div::fixed_lgd($row['subject'],30).'&nbsp;&nbsp;'),$row['uid']).'</td>
 						<td>'.fw(t3lib_BEfunc::datetime($row['scheduled']).'&nbsp;&nbsp;').'</td>
 						<td>'.fw(($row['scheduled_begin']?t3lib_BEfunc::datetime($row['scheduled_begin']):'').'&nbsp;&nbsp;').'</td>
@@ -2148,7 +2156,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$res = $TYPO3_DB->exec_SELECTquery('tt_address.*', 'tt_address,pages', 'pages.uid=tt_address.pid AND tt_address.uid IN ('.$intList.') AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('tt_address').t3lib_BEfunc::deleteClause('pages'));
 			$msg=$LANG->getLL('testmail_individual_msg') . '<br /><br />';
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-				$msg.='<a href="index.php?id='.$this->id.'&CMD=displayUserInfo&table=tt_address&uid='.$row['uid'].'"><img src="'.$BACK_PATH.'gfx/zoom2.gif" width="12" height="12" hspace="5" border="0" title="Edit" align="top" /></a><a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&tt_address_uid='.$row['uid'].'"><img src="'.$BACK_PATH.t3lib_iconWorks::getIcon('tt_address', $row).'" width="18" height="16" align="top" border="0" />'.htmlspecialchars($row['name'].' <'.$row['email'].'>'.($row['module_sys_dmail_html']?' html':'')).'</a><br />';
+				$msg.='<a href="index.php?id='.$this->id.'&CMD=displayUserInfo&table=tt_address&uid='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 5px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" /></a><a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&tt_address_uid='.$row['uid'].'">'.t3lib_iconWorks::getIconImage('tt_address', $row, $BACK_PATH, ' alt="'.htmlspecialchars($LANG->getLL('dmail_send')).'" title="'.htmlspecialchars($LANG->getLL('dmail_menuItems_testmail')).'" "width="18" height="16" style="margin: 0px 5px; vertical-align: top;"').htmlspecialchars($row['name'].' <'.$row['email'].'>'.($row['module_sys_dmail_html']?' html':'')).'</a><br />';
 			}
 			$theOutput.= $this->doc->section($LANG->getLL('testmail_individual'),fw($msg));
 			$theOutput.= $this->doc->divider(20);
@@ -2159,7 +2167,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$res = $TYPO3_DB->exec_SELECTquery('sys_dmail_group.*', 'sys_dmail_group,pages', 'pages.uid=sys_dmail_group.pid AND sys_dmail_group.uid IN ('.$intList.') AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('sys_dmail_group').t3lib_BEfunc::deleteClause('pages'));
 			$msg=$LANG->getLL('testmail_mailgroup_msg') . '<br /><br />';
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-				$msg.='<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&sys_dmail_group_uid='.$row['uid'].'"><img src="'.$BACK_PATH.t3lib_iconWorks::getIcon('sys_dmail_group', $row).'" width="18" height="16" align="top" border="0" />'.htmlspecialchars($row['title']).'</a><br />';
+				$msg.='<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&sys_dmail_group_uid='.$row['uid'].'">'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').htmlspecialchars($row['title']).'</a><br />';
 					// Members:
 				$result = $this->cmd_compileMailGroup(intval($row['uid']));
 				$msg.='<table border="0">
@@ -2580,7 +2588,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$this->makeStatTempTableContent($row);
 		}
 		$thisurl = 'index.php?id='.$this->id.'&sys_dmail_uid='.$row['uid'].'&CMD='.$this->CMD.'&recalcCache=1';
-		$output.=t3lib_iconWorks::getIconImage('sys_dmail',$row,$BACK_PATH,'align="top"').$row['subject'].'<br />';
+		$output.=t3lib_iconWorks::getIconImage('sys_dmail',$row,$BACK_PATH,'style="vertical-align: top;"').$row['subject'].'<br />';
 
 			// *****************************
 			// Mail responses, general:
@@ -2697,7 +2705,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$urlstr=$uParts['host'].$urlstr;
 			}
 			$urlstr=substr($urlstr,0,40);
-			$img='<img src="'.$BACK_PATH.'gfx/zoom2.gif" width="12" height="12" border="0" title="'.htmlspecialchars($urlArr[$id]).'">';
+			$img='<img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom2.gif', 'width="12" height="12"').' title="'.htmlspecialchars($urlArr[$id]).'">';
 			$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.' ('.$urlstr.')',$c,$urlCounter['html'][$id],$urlCounter['plain'][$id],$img);
 		}
 		$output.='<br /><strong>' . $LANG->getLL('stats_response') . '</strong>';
@@ -3277,19 +3285,19 @@ class mod_web_dmail extends t3lib_SCbase {
 		$out='<table border="0" cellpadding="1" cellspacing="1" width="460">'.$out.'</table>';
 		if (!$row['issent'])	{
 			if ($BE_USER->check('tables_modify','sys_dmail'))	{
-				$out.='<br /><a href="#" onClick="' . t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH, '') . '"><img src="'.$BACK_PATH.'gfx/edit2.gif" width="11" height="12" hspace="2" border="0" title="' . $LANG->getLL('dmail_edit') . '" align="top">'.fw('<b>'.$LANG->getLL('dmail_edit').'</b>').'</a>';
+				$out.='<br /><a href="#" onClick="' . t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH, '') . '"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />'.fw('<b>'.$LANG->getLL('dmail_edit').'</b>').'</a>';
 			} else {
-				$out.='<br /><img src="'.$BACK_PATH.'gfx/edit2.gif" width="11" height="12" hspace="2" border="0" title="'.$LANG->getLL("dmail_edit").'" align="top">'.fw('('.$LANG->getLL('dmail_noEdit_noPerms').')');
+				$out.='<br /><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />'.fw('('.$LANG->getLL('dmail_noEdit_noPerms').')');
 			}
 		} else {
-			$out.='<br /><img src="'.$BACK_PATH.'gfx/edit2.gif" width="11" height="12" hspace="2" border="0" title="'.$LANG->getLL('dmail_edit').'" align="top">'.fw('('.$LANG->getLL('dmail_noEdit_isSent').')');
+			$out.='<br /><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />'.fw('('.$LANG->getLL('dmail_noEdit_isSent').')');
 		}
 
 		if ($row['type']==0 && $row['page'])	{
 			$pageRow = t3lib_BEfunc::getRecord('pages',$row['page']);
 			if ($pageRow)	{
 				$out .= '<br /><br />' . $LANG->getLL('dmail_basedOn') . '<br />';
-				$out .= '<nobr><a href="index.php?id='.$this->id.'&CMD=displayPageInfo&pages_uid='.$pageRow['uid'].'&SET[dmail_mode]=news"><img src="'.$BACK_PATH.t3lib_iconWorks::getIcon('pages',$pageRow).'" width="18" height="16" border="0" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($pageRow['uid'],$this->perms_clause,20)).'" align="top">'.htmlspecialchars($pageRow['title']).'</a></nobr><br />';
+				$out .= '<nobr><a href="index.php?id='.$this->id.'&CMD=displayPageInfo&pages_uid='.$pageRow['uid'].'&SET[dmail_mode]=news">'.t3lib_iconWorks::getIconImage('pages',$pageRow, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($pageRow['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').htmlspecialchars($pageRow['title']).'</a></nobr><br />';
 			}
 		}
 
