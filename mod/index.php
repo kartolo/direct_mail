@@ -30,6 +30,7 @@
  */
 
 // DEFAULT initialization of a module [BEGIN]
+error_reporting (E_ALL ^ E_NOTICE);
 unset($MCONF);
 require ('conf.php');
 require ($BACK_PATH.'init.php');

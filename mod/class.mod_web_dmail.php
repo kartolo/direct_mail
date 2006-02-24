@@ -61,6 +61,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	var $implodedParams=array();
 	var $userTable;		// If set a valid user table is around
 	var $sys_language_uid = 0;
+	var $error='';
 
 	/**
 	 * @return	[type]		...
@@ -138,9 +139,9 @@ class mod_web_dmail extends t3lib_SCbase {
 				'direct' => $LANG->getLL('dmail_menu_direct_mails'),
 				'quick' => $LANG->getLL('dmail_menu_quickMail'),
 				'recip' => $LANG->getLL('dmail_menu_list'),
-				'conf' => $LANG->getLL('dmail_menu_conf'),
 				'mailerengine' => $LANG->getLL('dmail_menu_mailerengine'),
 				'convert' => $LANG->getLL('dmail_menu_convert_categories'),
+				'conf' => $LANG->getLL('dmail_menu_conf'),
 				)
 			);
 			
@@ -162,7 +163,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $TCA, $TYPO3_CONF_VARS;
 		
 		$createMailFrom_UID = t3lib_div::_GP('createMailFrom_UID');	// Internal page
-		$createMailFrom_URL = t3lib_div::_GP('createMailFrom_URL');	// External URL
+		$createMailFrom_URL = t3lib_div::_GP('createMailFrom_URL');	// External URL subject
 		if ($createMailFrom_UID || $createMailFrom_URL)	{
 				// Set default values:
 			$dmail = array();
@@ -196,46 +197,44 @@ class mod_web_dmail extends t3lib_SCbase {
 					$dmail['sys_dmail']['NEW']['subject'] = $createFromMailRec['title'];
 					$dmail['sys_dmail']['NEW']['type'] = 0;
 					$dmail['sys_dmail']['NEW']['page'] = $createFromMailRec['uid'];
-					$dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
 					$dmail['sys_dmail']['NEW']['charset'] = $this->getPageCharSet($createFromMailRec['uid']);
+					$dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
 				}
 			} else {
 				$dmail['sys_dmail']['NEW']['subject'] = $createMailFrom_URL;
 				$dmail['sys_dmail']['NEW']['type'] = 1;
-				$dmail['sys_dmail']['NEW']['sendOptions'] = 0;
 				
+					// Avoid parse_url warning at this stage
+				error_reporting (E_ALL ^ E_NOTICE ^ E_WARNING);
 				$dmail['sys_dmail']['NEW']['plainParams'] = t3lib_div::_GP('createMailFrom_plainUrl');
-				$this->params['enablePlain'] = $dmail['sys_dmail']['NEW']['plainParams'] ? 1 : 0;
-				
-				$dmail['sys_dmail']['NEW']['HTMLParams'] = t3lib_div::_GP('createMailFrom_HTMLUrl');
-				$this->params['enableHTML'] = $dmail['sys_dmail']['NEW']['HTMLParams'] ? 1 : 0;
-				
-				$dmail['sys_dmail']['NEW']['pid']=$this->pageinfo['uid'];
-			}
-			
-				// Finally the enablePlain and enableHTML flags ultimately determines the sendOptions, IF they are set in the pageTSConfig
-			if (isset($this->params['enablePlain']))	{
-				if ($this->params['enablePlain']) {
-					$dmail['sys_dmail']['NEW']['sendOptions']|=1;
-				} else {
+				$urlParts = parse_url($dmail['sys_dmail']['NEW']['plainParams']);
+				if (!$dmail['sys_dmail']['NEW']['plainParams'] || !$urlParts || !$urlParts['host']) {
+						// No plain text url
+					$dmail['sys_dmail']['NEW']['plainParams'] = '';
 					$dmail['sys_dmail']['NEW']['sendOptions']&=254;
 				}
-			}
-			if (isset($this->params['enableHTML']))	{
-				if ($this->params['enableHTML']) {
-					$dmail['sys_dmail']['NEW']['sendOptions']|=2;
-				} else {
+				$dmail['sys_dmail']['NEW']['HTMLParams'] = t3lib_div::_GP('createMailFrom_HTMLUrl');
+				$urlParts = parse_url($dmail['sys_dmail']['NEW']['HTMLParams']);				
+				if (!$dmail['sys_dmail']['NEW']['HTMLParams'] || !$urlParts || !$urlParts['host']) {
+						// No html url
+					$dmail['sys_dmail']['NEW']['HTMLParams'] = '';
 					$dmail['sys_dmail']['NEW']['sendOptions']&=253;
 				}
+				error_reporting (E_ALL ^ E_NOTICE);
+				
+				$dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
 			}
-			if ($dmail['sys_dmail']['NEW']['pid'])	{
+			
+			if ($dmail['sys_dmail']['NEW']['pid'] && $dmail['sys_dmail']['NEW']['sendOptions']) {
 				$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 				$tce->stripslashes_values=0;
 				$tce->start($dmail,Array());
 				$tce->process_datamap();
 				$this->sys_dmail_uid = $tce->substNEWwithIDs['NEW'];
 			} else {
-				// wrong page, could not...
+				if (!$dmail['sys_dmail']['NEW']['sendOptions']) {
+					$this->error = 'no_valid_url';
+				}
 			}
 		}
 	}
@@ -1691,8 +1690,8 @@ class mod_web_dmail extends t3lib_SCbase {
 		$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
 		$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_selectDmail'),$out,1,1);
 		
-			// Find all newsletters NOT created as DMAILS
-		$res = $TYPO3_DB->exec_SELECTquery('pages.uid,pages.title', 'pages LEFT JOIN sys_dmail ON pages.uid=sys_dmail.page', 'sys_dmail.page is NULL AND pages.doktype in (1,2) AND pages.pid='.$this->id.t3lib_BEfunc::deleteClause('sys_dmail').t3lib_BEfunc::deleteClause('pages'));
+			// Find all newsletters NOT created as non-deleted DMAILS
+		$res = $TYPO3_DB->exec_SELECTquery('pages.uid,pages.title', 'pages LEFT JOIN sys_dmail ON pages.uid=sys_dmail.page'.t3lib_BEfunc::deleteClause('sys_dmail'), 'sys_dmail.page IS NULL AND pages.doktype IN (1,2) AND pages.pid='.intval($this->id).t3lib_BEfunc::deleteClause('pages'));
 		if (!$TYPO3_DB->sql_num_rows($res))	{
 			$out = $LANG->getLL('dmail_msg1_crFromNL');
 		} else {
@@ -1711,9 +1710,10 @@ class mod_web_dmail extends t3lib_SCbase {
 				<input type="text" value="http://" name="createMailFrom_HTMLUrl"'.$TBE_TEMPLATE->formWidth(40).' /><br />' .
 				$LANG->getLL('dmail_plaintext_url') . '<br />
 				<input type="text" value="http://" name="createMailFrom_plainUrl"'.$TBE_TEMPLATE->formWidth(40).' /><br />' .
-				$LANG->getLL('dmail_subject') . '<br />
-				<input type="text" value="' . $LANG->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';"'.$TBE_TEMPLATE->formWidth(40).' /><br />
-				<input type="submit" value="'.$LANG->getLL("dmail_createMail").'" />
+				$LANG->getLL('dmail_subject') . '<br />' .
+				'<input type="text" value="' . $LANG->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';"'.$TBE_TEMPLATE->formWidth(40).' /><br />' .
+				(($this->error == 'no_valid_url')?('<br /><b>'.$LANG->getLL('dmail_no_valid_url').'</b><br /><br />'):'') .
+				'<input type="submit" value="'.$LANG->getLL("dmail_createMail").'" />
 				';
 		$theOutput.= $this->doc->spacer(20);
 		$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_crFromUrl'),$out,1,1);
@@ -1835,8 +1835,6 @@ class mod_web_dmail extends t3lib_SCbase {
 			'spacer2' => $LANG->getLL('configure_default_fetching'),
 			'HTMLParams' => array('short', $this->fName('HTMLParams'), $LANG->getLL('configure_HTMLParams_description').'<br />'.$LANG->getLL('configure_HTMLParams_details')),
 			'plainParams' => array('short', $this->fName('plainParams'), $LANG->getLL('configure_plainParams_description').'<br />'.$LANG->getLL('configure_plainParams_details')),
-			'enablePlain' => array('check', $LANG->getLL('configure_allow_plain'), $LANG->getLL('configure_allow_plain_description')),
-			'enableHTML' => array('check', $LANG->getLL('configure_allow_HTML'), $LANG->getLL('configure_allow_HTML_description')),
 			'use_domain' => array('select', $this->fName('use_domain'), $LANG->getLL('use_domain.description').'<br />'.$LANG->getLL('use_domain.details'), array(0 => '')),
 			
 			'spacer3' => $LANG->getLL('configure_options_encoding'),
@@ -1863,8 +1861,6 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (!isset($this->implodedParams['plainParams'])) $this->implodedParams['plainParams'] = '&type=99';
 		if (!isset($this->implodedParams['quick_mail_charset'])) $this->implodedParams['quick_mail_charset'] = 'iso-8859-1';
 		if (!isset($this->implodedParams['direct_mail_charset'])) $this->implodedParams['direct_mail_charset'] = 'iso-8859-1';
-		if (!isset($this->implodedParams['enablePlain'])) $this->implodedParams['enablePlain'] = '1';
-		if (!isset($this->implodedParams['enableHTML'])) $this->implodedParams['enableHTML'] = '1';
 		
 			// Set domain selection list
 		$rootline = $this->sys_page->getRootLine($this->id);

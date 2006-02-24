@@ -1,3 +1,8 @@
+2006-02-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Remove enablePlain and enableHTML configuration properties. Rely on sendOptions and submitted url's.
+	* Correct query of pages not yet direct mails in Direct mails function.
+	* Completed French translation.
+
 2006-02-22 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Update to csh files.
 	* Reverting change to jumpUrl after correction of bugtracker issue 2592 in TYPO3core.
