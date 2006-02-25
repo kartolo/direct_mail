@@ -4,6 +4,7 @@
 	* Import newmail.gif from t3lib/gfx into res/gfx
 	* Import dmail.gif, dmail_list.gif, modules_dmail.gif, modules_dmail__h.gif into res/gfx
 	* Use t3lib_iconWorks for all icons.
+	* Small cosmetic changes im class mod_web_dmail.
 	
 2006-02-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Remove enablePlain and enableHTML configuration properties. Rely on sendOptions and submitted url's.

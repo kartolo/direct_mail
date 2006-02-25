@@ -281,7 +281,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				</script>
 			';
 
-			$headerSection = $this->doc->getHeader('pages',$this->pageinfo,$this->pageinfo['_thePath']).'<br />'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'],50);
+			$headerSection = $this->doc->getHeader('pages',$this->pageinfo,$this->pageinfo['_thePath'],1).'<br />'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'],50);
 			
 			$this->content.=$this->doc->startPage($LANG->getLL('title'));
 			$this->content.=$this->doc->header($LANG->getLL('title'));
@@ -2156,7 +2156,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$res = $TYPO3_DB->exec_SELECTquery('tt_address.*', 'tt_address,pages', 'pages.uid=tt_address.pid AND tt_address.uid IN ('.$intList.') AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('tt_address').t3lib_BEfunc::deleteClause('pages'));
 			$msg=$LANG->getLL('testmail_individual_msg') . '<br /><br />';
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-				$msg.='<a href="index.php?id='.$this->id.'&CMD=displayUserInfo&table=tt_address&uid='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 5px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" /></a><a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&tt_address_uid='.$row['uid'].'">'.t3lib_iconWorks::getIconImage('tt_address', $row, $BACK_PATH, ' alt="'.htmlspecialchars($LANG->getLL('dmail_send')).'" title="'.htmlspecialchars($LANG->getLL('dmail_menuItems_testmail')).'" "width="18" height="16" style="margin: 0px 5px; vertical-align: top;"').htmlspecialchars($row['name'].' <'.$row['email'].'>'.($row['module_sys_dmail_html']?' html':'')).'</a><br />';
+				$msg.='<a href="index.php?id='.$this->id.'&CMD=displayUserInfo&table=tt_address&uid='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" /></a><a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&tt_address_uid='.$row['uid'].'">'.t3lib_iconWorks::getIconImage('tt_address', $row, $BACK_PATH, ' alt="'.htmlspecialchars($LANG->getLL('dmail_send')).'" title="'.htmlspecialchars($LANG->getLL('dmail_menuItems_testmail')).'" "width="18" height="16" style="margin: 0px 5px; vertical-align: top;"').htmlspecialchars($row['name'].' <'.$row['email'].'>'.($row['module_sys_dmail_html']?' html':'')).'</a><br />';
 			}
 			$theOutput.= $this->doc->section($LANG->getLL('testmail_individual'),fw($msg));
 			$theOutput.= $this->doc->divider(20);
@@ -2553,7 +2553,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @param	[type]		$tableParams: ...
 	 * @return	[type]		...
 	 */
-	function formatTable($tableLines,$cellParams,$header,$cellcmd=array(),$tableParams='border=0 cellpadding=2 cellspacing=1')	{
+	function formatTable($tableLines,$cellParams,$header,$cellcmd=array(),$tableParams='border="0" cellpadding="2" cellspacing="1"')	{
 		reset($tableLines);
 		$cols = count(current($tableLines));
 
@@ -2686,7 +2686,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 
 		$tblLines=array();
-		$tblLines[]=array('',$LANG->getLL('stats_total'),$LANG->getLL('stats_HTML'),$LANG->getLL('stats_plaintext'));
+		$tblLines[]=array('',$LANG->getLL('stats_total'),$LANG->getLL('stats_HTML'),$LANG->getLL('stats_plaintext'),'');
 		$tblLines[]=array($LANG->getLL('stats_total_responses'),$this->showWithPercent($table['1']['counter']+$table['2']['counter'],$sent_total),$this->showWithPercent($table['1']['counter'],$sent_html),$this->showWithPercent($table['2']['counter'],$sent_plain));
 		$tblLines[]=array($LANG->getLL('stats_unique_responses'),$this->showWithPercent($unique_html_responses+$unique_plain_responses,$sent_total),$this->showWithPercent($unique_html_responses,$sent_html),$this->showWithPercent($unique_plain_responses,$sent_plain));
 		$tblLines[]=array($LANG->getLL('stats_links_clicked_per_respondent'),
@@ -2705,11 +2705,11 @@ class mod_web_dmail extends t3lib_SCbase {
 				$urlstr=$uParts['host'].$urlstr;
 			}
 			$urlstr=substr($urlstr,0,40);
-			$img='<img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom2.gif', 'width="12" height="12"').' title="'.htmlspecialchars($urlArr[$id]).'">';
+			$img='<a href="'.htmlspecialchars($urlArr[$id]).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($urlArr[$id]).'" /></a>';
 			$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.' ('.$urlstr.')',$c,$urlCounter['html'][$id],$urlCounter['plain'][$id],$img);
 		}
 		$output.='<br /><strong>' . $LANG->getLL('stats_response') . '</strong>';
-		$output.=$this->formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(0,0,0,0,1));
+		$output.=$this->formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(0,0,0,0,1));
 
 		
 			// ******************
