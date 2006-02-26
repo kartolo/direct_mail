@@ -9,3 +9,7 @@ useDeferMode = 0
 
   # cat=basic; type=string; label= Additional DB fields of the recipient : Additional fields that may be substituted in the direct mail messages.
 addRecipFields =
+
+  # cat=basic/enable; type=boolean; label=Enable plain text rendering of News: If set, a script will be enabled to render News (tt_news records) in plain text content of email messages.
+enablePlainTextNews = 1
+

@@ -5,9 +5,6 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 	// Register jumpurl processing hook
 $TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:'.$_EXTKEY.'/res/scripts/class.tx_directmail_checkjumpurl.php:&tx_directmail_checkjumpurl';
 
-//Register tt_news plaintext rendering hook
-//$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'][] = 'EXT:'.$_EXTKEY.'/res/scripts/class.tx_directmail_renderttnews.php:&tx_directmail_renderttnews';
-
 	// unserializing the configuration so we can use it here:
 $_EXTCONF = unserialize($_EXTCONF);
 
@@ -35,5 +32,13 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['addRecipFields'] = $_EXTCONF['addRecipFie
  * Enable the use of sendmail defer mode:
  */
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['useDeferMode'] = $_EXTCONF['useDeferMode'] ? $_EXTCONF['useDeferMode'] : 0;
+
+/**
+ * Enable the use of News plain text rendering hook:
+ */
+if ($_EXTCONF['enablePlainTextNews']) {
+		// Register tt_news plain text processing hook
+	$TYPO3_CONF_VARS['EXTCONF']['tt_news']['extraCodesHook'][] = 'EXT:'.$_EXTKEY.'/res/scripts/class.tx_directmail_ttnews_plaintext.php:&tx_directmail_ttnews_plaintext';
+}
 
 ?>

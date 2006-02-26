@@ -1,3 +1,9 @@
+2006-02-26 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add class.tx_directmail_ttnews_plaintext.php in res/scripts: hook on tt_news to render tt_news records in plain text.
+	* Add static template tt_news_plaintext: "Direct Mail News Plain Text" to configure rendering of News in plain text.
+	* Corrections and adjustments to plain text rendering plugin class.
+	* Further minor cosmetic changes in class mod_web_dmail.
+
 2006-02-24 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Move attach.gif and mail.gif from mod to res/gfx directory.
 	* Move icon_tx_directmail_category.gif from extension root to res/gfx directory.

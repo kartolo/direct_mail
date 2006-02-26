@@ -130,7 +130,9 @@ class tx_directmail_pi1 extends tslib_pibase {
 	var $scriptRelPath = 'pi1/class.tx_directmail_pi1.php';
 	var $extKey = 'direct_mail';
 	var $charWidth=76;
-
+	var $siteUrl;
+	var $labelsList = 'header_date_prefix,header_link_prefix,uploads_header,images_header,image_link_prefix,caption_header,unrendered_content,link_prefix';
+	
 	/**
 	 * Main function, called from TypoScript
 	 * A content object that renders "tt_content" records. See the comment to this class for TypoScript example of how to trigger it.
@@ -143,11 +145,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	function main($content,$conf)	{
 		global $TSFE, $TYPO3_CONF_VARS;
 		
-		$this->tslib_pibase();
-		$this->conf = $conf;
-		$this->pi_loadLL();
-
-		$this->siteUrl=$conf['siteUrl'];
+		$this->init($conf);
+		
 		$lines = array();
 		$CType= (string)$this->cObj->data['CType'];
 		switch($CType)	{
@@ -225,6 +224,13 @@ class tx_directmail_pi1 extends tslib_pibase {
 		$content = $this->userProcess('userProc',$content);
 		return $content;
 	}
+	
+	function init($conf) {
+		$this->tslib_pibase();
+		$this->conf = $conf;
+		$this->pi_loadLL();
+		$this->siteUrl=$conf['siteUrl'];
+	}
 
 	/**
 	 * Creates a menu/sitemap
@@ -244,7 +250,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function getShortcut()	{
 		$str = $this->cObj->cObjGetSingle($this->conf['shortcut'],$this->conf['shortcut.']);
-		return $str;
+			//Remove shortcut inclusion html comment
+		return preg_replace('/<![ \r\n\t]*(--([^\-]|[\r\n]|-[^\-])*--[ \r\n\t]*)\>/','',$str);
 	}
 
 	/**
@@ -281,22 +288,29 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Parsing the bodytext field content, removing typical entities and <br /> tags.
 	 *
-	 * @param	string		Field content from "bodytext"
+	 * @param	string		Field content from "bodytext" or other text field
+	 * @param	string		Altername conf name (especially when bodyext field in other table then tt_content)
 	 * @return	string		Processed content
 	 */
-	function parseBody($str)	{
+	function parseBody($str,$altConf='bodytext')	{
+		
 			// First, regular parsing:
 		$str = eregi_replace('<br[ /]*>',' ',$str);
-		$str = $this->cObj->stdWrap($str,$this->conf['bodytext.']['stdWrap.']);
+		$str = $this->cObj->stdWrap($str,$this->conf[$altConf.'.']['stdWrap.']);
+		
 			// Then all a-tags:
 		$aConf = array();
-		$aConf['parseFunc.']['tags.']['a']='USER_INT';
+		$aConf['parseFunc.']['tags.']['a']='USER';
 		$aConf['parseFunc.']['tags.']['a.']['userFunc']='tx_directmail_pi1->atag_to_http';
 		$aConf['parseFunc.']['tags.']['a.']['siteUrl'] = $this->siteUrl;
-
 		$str = $this->cObj->stdWrap($str,$aConf);
 		$str = str_replace('&nbsp;',' ',t3lib_div::htmlspecialchars_decode($str));
-		return $str;
+		
+		if ($this->conf[$altConf.'.']['header']) {
+			$str = $this->getString($this->conf[$altConf.'.']['header']).chr(10).$str;
+		}
+		
+		return chr(10).$str;
 	}
 
 	/**
@@ -314,7 +328,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 		while(list($k,$file)=each($files))	{
 			$lines[]=$this->siteUrl.$upload_path.$file;
 		}
-		return implode(chr(10),$lines);
+		return chr(10).implode(chr(10),$lines);
 	}
 
 	/**
@@ -571,7 +585,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 			$lines[]=$this->breakContent($caption);
 		}
 
-		return implode(chr(10),$lines);
+		return chr(10).implode(chr(10),$lines);
 	}
 
 	/**
@@ -648,7 +662,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 		} elseif (substr($theLink,0,4)!='http')	{
 			$theLink=$this->siteUrl.$theLink;
 		}
-		return $this->cObj->getCurrentVal().' (Link: '.$theLink.' )';
+		return $this->cObj->getCurrentVal().' (###LINK_PREFIX### '.$theLink.' )';
 	}
 
 	/**
@@ -707,8 +721,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function addLabelsMarkers($markerArray) {
 
-		$labelsList = 'header_date_prefix,header_link_prefix,uploads_header,images_header,image_link_prefix,caption_header,unrendered_content';
-		$labels = t3lib_div::trimExplode(',', $labelsList);
+		$labels = t3lib_div::trimExplode(',', $this->labelsList);
 		while (list(, $labelName) = each($labels) ) {
 			$markerArray['###'.strtoupper($labelName).'###'] = $this->pi_getLL($labelName);
 		}

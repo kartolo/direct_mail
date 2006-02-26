@@ -5,7 +5,7 @@
  * @version setup.txt,v 1.1 2006/02/02 11:37:01 tkahler Exp
  */
 
-plugin.tx_directmail_pi1 = USER_INT
+plugin.tx_directmail_pi1 = USER
 plugin.tx_directmail_pi1.userFunc = tx_directmail_pi1->main
 plugin.tx_directmail_pi1 {
   header.defaultType = 1
@@ -56,27 +56,26 @@ plugin.tx_directmail_pi1 {
   bulletlist.3.secondRow = |.  |
   bulletlist.3.blanks = 1
 
-  menu = <tt_content.menu.20
-  shortcut = <tt_content.shortcut.20
-  shortcut.0.conf.tt_content = < plugin.tx_directmail_pi1
+  menu =< tt_content.menu.20
+  shortcut =< tt_content.shortcut.20
+  shortcut.0.conf.tt_content =< plugin.tx_directmail_pi1
   shortcut.0.tables = tt_content
 
   bodytext.stdWrap.parseFunc.tags {
-    link < styles.content.parseFunc.tags.link
-    typolist = USER_INT
+    link =< lib.parseFunc_RTE.tags.link
+    typolist = USER
     typolist.userFunc = tx_directmail_pi1->typolist
     typolist.siteUrl = {$plugin.tx_directmail_pi1.siteUrl} 
     typolist.bulletlist =< plugin.tx_directmail_pi1.bulletlist
-    typohead = USER_INT
+    typohead = USER
     typohead.userFunc = tx_directmail_pi1->typohead
     typohead.siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
     typohead.header =< plugin.tx_directmail_pi1.header
-    typocode = USER_INT
+    typocode = USER
     typocode.userFunc = tx_directmail_pi1->typocode
     typocode.siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
   }
 }
-
 
 includeLibs.tx_directmail_pi1 = EXT:direct_mail/pi1/class.tx_directmail_pi1.php
 
