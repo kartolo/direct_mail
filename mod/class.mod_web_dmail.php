@@ -260,7 +260,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
 			$this->doc->backPath = $BACK_PATH;
-			$this->doc->form='<form action="" method="GET">';
+			$this->doc->form='<form action="" method="POST">';
 			
 			// JavaScript
 			$this->doc->JScode = '
@@ -567,16 +567,16 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * Makes a wizardfor createing direct mail.
 	 */
 	function cmd_wizard() {
-
+		
 		return "In wizard mode";
 	}
-
+	
 	/**
 	 *
 	 *  @return	String	The infopage
 	 */
 	function cmd_displayPageInfo()	{
-		global $TCA, $HTTP_POST_VARS, $LANG, $TYPO3_DB, $BACK_PATH;
+		global $TCA, $LANG, $TYPO3_DB, $BACK_PATH;
 		
 			// Here the dmail list is rendered:
 		$res = $TYPO3_DB->exec_SELECTquery(
@@ -626,12 +626,13 @@ class mod_web_dmail extends t3lib_SCbase {
 
 		$theOutput.= $this->doc->section($LANG->getLL('nl_info'),$out,0,1);
 		$theOutput.= $this->doc->divider(20);
-
-		if (is_array($HTTP_POST_VARS['indata']['categories']))	{
+		
+		$indata = t3lib_div::_GP('indata');
+		if (is_array($indata['categories']))	{
 			$data=array();
-			reset($HTTP_POST_VARS['indata']['categories']);
+			reset($indata['categories']);
 
-			while(list($recUid,$recValues)=each($HTTP_POST_VARS['indata']['categories']))	{
+			while(list($recUid,$recValues)=each($indata['categories']))	{
 				reset($recValues);
 				$enabled = array();
 				while(list($k,$b)=each($recValues)) {
@@ -1230,10 +1231,11 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function cmd_query($dgUid)	{
-		global $HTTP_POST_VARS;
+
 		$this->MOD_SETTINGS=array();
-		$this->MOD_SETTINGS['dmail_queryConfig']=serialize($HTTP_POST_VARS['dmail_queryConfig']);
-		$this->MOD_SETTINGS['dmail_queryTable']=$HTTP_POST_VARS['SET']['dmail_queryTable'];
+		$this->MOD_SETTINGS['dmail_queryConfig']=serialize(t3lib_div::_GP('dmail_queryConfig'));
+		$set = t3lib_div::_GP('SET');
+		$this->MOD_SETTINGS['dmail_queryTable']=$set['dmail_queryTable'];
 		$this->MOD_SETTINGS['dmail_search_query_smallparts']=1;
 
 		$qGen = t3lib_div::makeInstance('mailSelect');
@@ -1456,10 +1458,9 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function cmd_displayUserInfo()	{
-		global $HTTP_POST_VARS, $TCA, $LANG, $TYPO3_DB, $BACK_PATH;
+		global $TCA, $LANG, $TYPO3_DB, $BACK_PATH;
 		$uid = intval(t3lib_div::_GP('uid'));
-
-
+		$indata = t3lib_div::_GP('indata');
 		$table=t3lib_div::_GP('table');
 		t3lib_div::loadTCA($table);
 		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
@@ -1467,11 +1468,11 @@ class mod_web_dmail extends t3lib_SCbase {
 		switch($table)	{
 		case 'tt_address':
 		case 'fe_users':
-			if (is_array($HTTP_POST_VARS['indata']))	{
+			if (is_array($indata))	{
 				$data=array();
-				if (is_array($HTTP_POST_VARS['indata']['categories']))	{
-					reset($HTTP_POST_VARS['indata']['categories']);
-					while(list($recUid,$recValues)=each($HTTP_POST_VARS['indata']['categories']))	{
+				if (is_array($indata['categories']))	{
+					reset($indata['categories']);
+					while(list($recUid,$recValues)=each($indata['categories']))	{
 						reset($recValues);
 						$enabled = array();
 						while(list($k,$b)=each($recValues))	{
@@ -1482,7 +1483,7 @@ class mod_web_dmail extends t3lib_SCbase {
 						$data[$table][$uid]['module_sys_dmail_category'] = implode(',',$enabled);
 					}
 				}
-				$data[$table][$uid]['module_sys_dmail_html'] = $HTTP_POST_VARS['indata']['html'] ? 1 : 0;
+				$data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
 				$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 				$tce->stripslashes_values=0;
 				$tce->start($data,Array());
