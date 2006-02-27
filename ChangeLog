@@ -1,7 +1,9 @@
 2006-02-27 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correct return address from backend form to directMail defaultView; in some cases was creating a new record based on same page!
 	* Add flowedFormat option for plain text content (Page TSConfig in BE and TS setup of plain text rendering plugin).
-	* Eliminate references to $HTTP_POST_VARS.
+	* Eliminate references to $HTTP_POST_VARS in mod_web_dmail class.
+	* Disable categories assignment fields on backend forms by default. Need to be added through Page TsConfig.
+	* Update manual section: "Configuring the use of categories".
 
 2006-02-26 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add class.tx_directmail_ttnews_plaintext.php in res/scripts: hook on tt_news to render tt_news records in plain text.

@@ -12,6 +12,12 @@ t3lib_extMgm::addStaticFile($_EXTKEY,'static/boundaries/','Direct Mail Content B
 t3lib_extMgm::addStaticFile($_EXTKEY,'static/plaintext/', 'Direct Mail Plain text');
 t3lib_extMgm::addStaticFile($_EXTKEY,'static/tt_news_plaintext/', 'Direct Mail News Plain text');
 
+	// Category field disabled by default in backend forms.
+t3lib_extMgm::addPageTSConfig('TCEFORM.tt_content.module_sys_dmail_category.disabled = 1
+TCEFORM.tt_address.module_sys_dmail_category.disabled = 1
+TCEFORM.fe_users.module_sys_dmail_category.disabled = 1
+TCEFORM.sys_dmail_group.select_categories.disabled = 1');
+
 require_once(t3lib_extMgm::extPath($_EXTKEY).'/res/scripts/class.tx_directmail_select_categories.php');
 
 /**
