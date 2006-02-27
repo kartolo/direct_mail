@@ -1,3 +1,7 @@
+2006-02-27 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correct return address from backend form to directMail defaultView; in some cases was creating a new record based on same page!
+	* Add flowedFormat option for plain text content (Page TSConfig in BE and TS setup of plain text rendering plugin).
+
 2006-02-26 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add class.tx_directmail_ttnews_plaintext.php in res/scripts: hook on tt_news to render tt_news records in plain text.
 	* Add static template tt_news_plaintext: "Direct Mail News Plain Text" to configure rendering of News in plain text.

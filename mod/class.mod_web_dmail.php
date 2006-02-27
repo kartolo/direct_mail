@@ -188,6 +188,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				// If params set, set default values:
 			if (isset($this->params['sendOptions']))	$dmail['sys_dmail']['NEW']['sendOptions'] = $this->params['sendOptions'];
 			if (isset($this->params['includeMedia'])) 	$dmail['sys_dmail']['NEW']['includeMedia'] = $this->params['includeMedia'];
+			if (isset($this->params['flowedFormat'])) 	$dmail['sys_dmail']['NEW']['flowedFormat'] = $this->params['flowedFormat'];
 			if (isset($this->params['HTMLParams']))		$dmail['sys_dmail']['NEW']['HTMLParams'] = $this->params['HTMLParams'];
 			if (isset($this->params['plainParams']))	$dmail['sys_dmail']['NEW']['plainParams'] = $this->params['plainParams'];
 			if (isset($this->params['direct_mail_encoding']))	$dmail['sys_dmail']['NEW']['encoding'] = $this->params['direct_mail_encoding'];
@@ -259,7 +260,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
 			$this->doc->backPath = $BACK_PATH;
-			$this->doc->form='<form action="" method="POST">';
+			$this->doc->form='<form action="" method="GET">';
 			
 			// JavaScript
 			$this->doc->JScode = '
@@ -1839,6 +1840,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'spacer1' => $LANG->getLL('configure_default_content'),
 			'sendOptions' => array('select', $this->fName('sendOptions'), $LANG->getLL('sendOptions.description').'<br />'.$LANG->getLL('sendOptions.details'), array(3 => $LANG->getLL('configure_plain_and_html') ,1 => $LANG->getLL('configure_plain_only') ,2 => $LANG->getLL('configure_html_only'))),
 			'includeMedia' => array('check', $this->fName('includeMedia'), $LANG->getLL('includeMedia.description').'<br />'.$LANG->getLL('includeMedia.details')),
+			'flowedFormat' => array('check', $this->fName('flowedFormat'), $LANG->getLL('flowedFormat.description').'<br />'.$LANG->getLL('flowedFormat.details')),
 
 			'spacer2' => $LANG->getLL('configure_default_fetching'),
 			'HTMLParams' => array('short', $this->fName('HTMLParams'), $LANG->getLL('configure_HTMLParams_description').'<br />'.$LANG->getLL('configure_HTMLParams_details')),
@@ -3274,25 +3276,27 @@ class mod_web_dmail extends t3lib_SCbase {
 	function directMail_defaultView($row)	{
 		global $LANG, $BE_USER, $BACK_PATH;
 
-		// Render record:
+			// Render record:
 		$out='';
 		$Eparams='&edit[sys_dmail]['.$row['uid'].']=edit';
-		$out .= '<tr><td colspan=3 bgColor="' . $this->doc->bgColor5 . '" valign=top>'.fw($this->fName('subject').' <b>'.t3lib_div::fixed_lgd($row["subject"],30)."  </b>").'</td></tr>';
-		$nameArr = explode(',','from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,attachment,type,page,sendOptions,includeMedia,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
+		$out .= '<tr><td colspan=3 bgColor="' . $this->doc->bgColor5 . '" valign=top>'.fw($this->fName('subject').' <b>'.t3lib_div::fixed_lgd($row['subject'],30).'  </b>').'</td></tr>';
+		$nameArr = explode(',','from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,attachment,type,page,sendOptions,includeMedia,flowedFormat,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
 		while(list(,$name)=each($nameArr))	{
-			$out.='<tr><td bgColor="'.$this->doc->bgColor4.'">'.fw($this->fName($name)).'</td><td bgColor="'.$this->doc->bgColor4.'">'.fw(t3lib_BEfunc::getProcessedValue('sys_dmail',$name,$row[$name])).'</td></tr>';
+			$out.='<tr><td bgColor="'.$this->doc->bgColor4.'">'.fw($this->fName($name)).'</td><td bgColor="'.$this->doc->bgColor4.'">'.fw(str_replace('Yes', $LANG->getLL('yes'),t3lib_BEfunc::getProcessedValue('sys_dmail',$name,$row[$name]))).'</td></tr>';
 		}
 		$out='<table border="0" cellpadding="1" cellspacing="1" width="460">'.$out.'</table>';
 		if (!$row['issent'])	{
-			if ($BE_USER->check('tables_modify','sys_dmail'))	{
-				$out.='<br /><a href="#" onClick="' . t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH, '') . '"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />'.fw('<b>'.$LANG->getLL('dmail_edit').'</b>').'</a>';
+			if ($BE_USER->check('tables_modify','sys_dmail')) {
+				$retUrl = 'returnUrl='.rawurlencode(t3lib_div::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
+				$editOnClick = 'document.location=\''.$BACK_PATH.'alt_doc.php?'.$retUrl.$Eparams.'\'; return false;';
+				$out.='<br /><a href="#" onClick="' .$editOnClick . '"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />'.fw('<b>'.$LANG->getLL('dmail_edit').'</b>').'</a>';
 			} else {
 				$out.='<br /><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />'.fw('('.$LANG->getLL('dmail_noEdit_noPerms').')');
 			}
 		} else {
 			$out.='<br /><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />'.fw('('.$LANG->getLL('dmail_noEdit_isSent').')');
 		}
-
+		
 		if ($row['type']==0 && $row['page'])	{
 			$pageRow = t3lib_BEfunc::getRecord('pages',$row['page']);
 			if ($pageRow)	{
@@ -3300,11 +3304,10 @@ class mod_web_dmail extends t3lib_SCbase {
 				$out .= '<nobr><a href="index.php?id='.$this->id.'&CMD=displayPageInfo&pages_uid='.$pageRow['uid'].'&SET[dmail_mode]=news">'.t3lib_iconWorks::getIconImage('pages',$pageRow, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($pageRow['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').htmlspecialchars($pageRow['title']).'</a></nobr><br />';
 			}
 		}
-
+		
 		$theOutput.= $this->doc->section($LANG->getLL('dmail_view'),$out,0,1);
 		
-		// Status:
-		
+			// Status:
 		$theOutput.= $this->doc->spacer(15);
 		$menuItems = array();
 		$menuItems[0]=$LANG->getLL('dmail_menuItems');

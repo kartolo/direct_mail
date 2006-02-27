@@ -37,6 +37,8 @@ Note that if PHP is executing in safe mode, the Direct mail module may not be ab
 		'includeMedia.description' => 'Set this option if you want to incorporate images and other media inside the HTML mail content.',
 		'includeMedia.details' => 'If the option is set, images and other media are encoded and incorporated into the messages. Sent messages will be heavier to transport.
 If the option is not set, images and media are included in HTML content by absolute reference (href) to their location on the site where they reside.',
+		'flowedFormat.description' => 'Set this option if you want to use normally flowing text inside the plain text mail content.',
+		'flowedFormat.details' => 'If the option is set, plain text mail content will be broken in fixed length lines, as is standard for plain text email content, but so-called flowed format will be used. This will allow client agents that support this format to display the text as normally flowing text. The option is ignored if \'quoted-printable\' is used.',
 		'HTMLParams.description' => 'If the Direct mail is of type \'TYPO3 Page\', enter the additional URL parameters used to fetch the HTML content.
 
 If the Direct Mail is of type \'External URL\',enter the complete URL used to fetch the HTML content.',
@@ -84,6 +86,8 @@ Notez que si PHP est exécuté en mode sécuritaire (safe mode), le module d\'Envoi
 		'includeMedia.description' => 'Spécifiez cette option si vous désirez que les images et autres média soient incorporés dans le contenu HTML des messages envoyés.',
 		'includeMedia.details' => 'Si l\'option est spécifiée, images et autres média sont encodés et incorporés aux messages. Les messages envoyés peuvent être plus lourds à transporter.
 Si l\'option n\'est pas spécifiée, images et autres média sont inclus dans le contenu HTML par référence (href) absolue à leur localisation sur le site où ils résident.',
+		'flowedFormat.description' => 'Spécifiez cette option si vous désirez que le format sans retour à la ligne soit utilisé dans le contenu texte simple des messages envoyés.',
+		'flowedFormat.details' => 'Si l\'option est spécifiée, le contenu texte simple des messages sera coupé en lignes de longueur fixe, selon les normes habituellement applicables à ce type de contenu, mais le format sans retour à la ligne sera utilisé. Ceci permettra aux agents clients qui supportent ce format de présenter le texte sans retours à la ligne artificiels. L\'option est ignorée si l\'encodage \'quoted-printable\' est utilisé.',
 		'HTMLParams.description' => 'Si le bulletin est de type \'Page TYPO3\', paramètres additionnels de l\'URL d\'acquisition du contenu HTML.
 
 Si le bulletin est de type \'URL externe\', URL complète d\'acquisition du contenu HTML.',

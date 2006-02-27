@@ -60,6 +60,7 @@ CREATE TABLE sys_dmail (
   charset varchar(20) DEFAULT 'iso-8859-1' NOT NULL,
   sendOptions tinyint(4) unsigned DEFAULT '0' NOT NULL,
   includeMedia tinyint(4) unsigned DEFAULT '0' NOT NULL,
+  flowedFormat tinyint(4) unsigned DEFAULT '0' NOT NULL,
   HTMLParams varchar(80) DEFAULT '' NOT NULL,
   plainParams varchar(80) DEFAULT '' NOT NULL,
   issent tinyint(4) unsigned DEFAULT '0' NOT NULL,

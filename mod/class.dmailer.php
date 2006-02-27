@@ -85,6 +85,7 @@ class dmailer extends t3lib_htmlmail {
 	var $flag_html = 0;
 	var $flag_plain = 0;
 	var $includeMedia = 0;
+	var $flowedFormat = 0;
 	var $user_dmailerLang = 'en';
 
 	/**
@@ -93,6 +94,9 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function dmailer_prepare($row)	{
 		$sys_dmail_uid = $row['uid'];
+		if ($row['flowedFormat']) {
+			$this->flowedFormat = 1;
+		}
 		if ($row['charset']) {
 			$this->charset = $row['charset'];
 		}
@@ -291,6 +295,26 @@ class dmailer extends t3lib_htmlmail {
 			}
 		}
 		return $returnVal;
+	}
+	
+	/**
+	 * Get the list of categories ids subscribed to by recipient $uid from table $table
+	 *
+	 */
+	function getListOfRecipentCategories($table,$uid) {
+		global $TCA, $TYPO3_DB;
+		
+		t3lib_div::loadTCA($table);
+		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'uid_foreign',
+			$mm_table.','.$table,
+			$mm_table.'.uid_local='.intval($uid).' AND '.$mm_table.'.uid_local='.$table.'.uid'.t3lib_BEfunc::deleteClause($table));
+		$list = array();
+		while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
+			$list[] = $row['uid_foreign'];
+		}
+		return implode(',', $list);
 	}
 
 	/**
@@ -596,6 +620,20 @@ class dmailer extends t3lib_htmlmail {
 		
 	}
 	
+	function useBase64()	{
+		parent::useBase64();
+		if ($this->flowedFormat) {
+			$this->plain_text_header = 'Content-Type: text/plain; charset='.$this->charset.'; format=flowed'.$this->linebreak.'Content-Transfer-Encoding: base64';
+		}
+	}
+	
+	function use8Bit()	{
+		parent::use8Bit();
+		if ($this->flowedFormat) {
+			$this->plain_text_header = 'Content-Type: text/plain; charset='.$this->charset.'; format=flowed'.$this->linebreak.'Content-Transfer-Encoding: 8bit';
+		}
+	}
+	
 	function sendTheMail () {
 #debug(array($this->recipient,$this->subject,$this->message,$this->headers));
 			// Sends the mail, requires the recipient, message and headers to be set.
@@ -714,26 +752,6 @@ class dmailer extends t3lib_htmlmail {
 		}
 		$this->add_message("--".$boundary."--\n");
 	}
-	
-	/**
-	 * Get the list of categories ids subscribed to by recipient $uid from table $table
-	 *
-	 */
-	function getListOfRecipentCategories($table,$uid) {
-		global $TCA, $TYPO3_DB;
-		
-		t3lib_div::loadTCA($table);
-		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
-		$res = $TYPO3_DB->exec_SELECTquery(
-			'uid_foreign',
-			$mm_table.','.$table,
-			$mm_table.'.uid_local='.intval($uid).' AND '.$mm_table.'.uid_local='.$table.'.uid'.t3lib_BEfunc::deleteClause($table));
-		$list = array();
-		while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
-			$list[] = $row['uid_foreign'];
-		}
-		return implode(',', $list);
-    }
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/mod/class.dmailer.php'])	{

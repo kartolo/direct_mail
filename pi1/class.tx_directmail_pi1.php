@@ -3,6 +3,7 @@
 *  Copyright notice
 *
 *  (c) 1999-2005 Kasper Skaarhoj (kasperYYYY@typo3.com)
+*  (c) 2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -25,12 +26,16 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 /**
- * Generating plain text content of content elements for Direct Mails
- *
- * $Id$
- * Revised for TYPO3 3.6 June/2003 by Kasper Skaarhoj
+ * Generating plain text rendering of content elements for inclusion as plain text content in Direct Mails
+ * That means text-only output. No HTML at all.
+ * To use and configure this plugin, you may include static template "Direct Mail Plain Text".
+ * If you do so, the plain text output will appear with type=99.
  *
  * @author	Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @author	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @package TYPO3
+ * @subpackage direct_mail
+ * $Id$
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
@@ -68,59 +73,6 @@
  *
  */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Alternative rendering of content elements for Plain Text emails. That means text-only output. No HTML at all. Used by the Direct Mail extension.
- * Normally the plain text output should appear with type=99.
- * To use this library you can include the static template "plugin.alt.plaintext"
- *
- * ## Insert DMailer Boundaries for all elements.
- * config.insertDmailerBoundaries = 1
- * includeLibs.plaintextLib = media/scripts/plaintextLib.inc
- *
- * ## Set up page/type number:
- * alt_plaintext >
- * alt_plaintext = PAGE
- * alt_plaintext.typeNum=99
- * alt_plaintext.config.disableAllHeaderCode = 1
- * alt_plaintext.10 = TEMPLATE
- * alt_plaintext.10 {
- *   template = FILE
- *   template.file = {$plugin.alt.plaintext.file.template}
- *   marks.CONTENT < styles.content.get
- *   marks.CONTENT.renderObj = < lib.alt_plaintext.renderObj
- *   marks.DATE = TEXT
- *   marks.DATE.data = date:U
- *   marks.DATE.strftime = %e. %B %Y
- * }
- *
- * (And then also "lib.alt_plaintext.renderObj" is configured extensively - basically with the TypoScript options passed to this class. See the static template "plugin.alt.plaintext")
- *
- * @author	Kasper Skaarhoj <kasperYYYY@typo3.com>
- * @package TYPO3
- * @subpackage tslib
- * @link http://typo3.org/doc.0.html?&tx_extrepmgm_pi1[extUid]=270&tx_extrepmgm_pi1[tocEl]=398&cHash=e3024de334
- */
-
 require_once(PATH_tslib.'class.tslib_pibase.php');
 
 class tx_directmail_pi1 extends tslib_pibase {
@@ -129,7 +81,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	var $prefixId = 'tx_directmail_pi1';
 	var $scriptRelPath = 'pi1/class.tx_directmail_pi1.php';
 	var $extKey = 'direct_mail';
-	var $charWidth=76;
+	var $charWidth = 76;
+	var $linebreak;
 	var $siteUrl;
 	var $labelsList = 'header_date_prefix,header_link_prefix,uploads_header,images_header,image_link_prefix,caption_header,unrendered_content,link_prefix';
 	
@@ -227,9 +180,16 @@ class tx_directmail_pi1 extends tslib_pibase {
 	
 	function init($conf) {
 		$this->tslib_pibase();
+		
 		$this->conf = $conf;
 		$this->pi_loadLL();
-		$this->siteUrl=$conf['siteUrl'];
+		$this->siteUrl= $this->conf['siteUrl'];
+		
+			// Default linebreak;
+		$this->linebreak = chr(10);
+		if ($this->conf['flowedFormat']) {
+			$this->linebreak = chr(32).chr(10);
+		}
 	}
 
 	/**
@@ -250,7 +210,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function getShortcut()	{
 		$str = $this->cObj->cObjGetSingle($this->conf['shortcut'],$this->conf['shortcut.']);
-			//Remove shortcut inclusion html comment
+			//Remove html comment reporting shortcut inclusion
 		return preg_replace('/<![ \r\n\t]*(--([^\-]|[\r\n]|-[^\-])*--[ \r\n\t]*)\>/','',$str);
 	}
 
@@ -612,7 +572,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @see t3lib_div::breakLinesForEmail()
 	 */
 	function breakLines($str,$implChar="\n",$charWidth=0)	{
-		return t3lib_div::breakLinesForEmail($str,$implChar,$charWidth?$charWidth:$this->charWidth);
+		return t3lib_div::breakLinesForEmail($str,$this->linebreak,$charWidth?$charWidth:$this->charWidth);
 	}
 
 	/**

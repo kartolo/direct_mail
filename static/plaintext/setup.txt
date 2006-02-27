@@ -8,6 +8,10 @@
 plugin.tx_directmail_pi1 = USER
 plugin.tx_directmail_pi1.userFunc = tx_directmail_pi1->main
 plugin.tx_directmail_pi1 {
+
+  siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
+  flowedFormat = {$plugin.tx_directmail_pi1.flowedFormat}
+  
   header.defaultType = 1
   header.date = D-m-Y
   header.datePrefix = |###HEADER_DATE_PREFIX### |
@@ -35,8 +39,6 @@ plugin.tx_directmail_pi1 {
   header.5.autonumber=1
   header.5.prefix = |: >> |
 
-
-  siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
   defaultOutput (
 |
 [###UNRENDERED_CONTENT### ###CType### ]
