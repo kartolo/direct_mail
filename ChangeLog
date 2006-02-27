@@ -4,6 +4,7 @@
 	* Eliminate references to $HTTP_POST_VARS in mod_web_dmail class.
 	* Disable categories assignment fields on backend forms by default. Need to be added through Page TsConfig.
 	* Update manual section: "Configuring the use of categories".
+	* Light cleanup on boundaries.
 
 2006-02-26 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add class.tx_directmail_ttnews_plaintext.php in res/scripts: hook on tt_news to render tt_news records in plain text.

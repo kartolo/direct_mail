@@ -31,8 +31,6 @@
  * @version  class.tx_directmail_container.php,v 1.1 2006/01/28 07:37:06 stanrolland Exp
  */
  
- 
- 
  /**
   * Container class for auxilliary functions of tx_directmail
   */
@@ -42,23 +40,24 @@ class tx_directmail_container	{
 	var $boundaryEnd = '<!--DMAILER_SECTION_BOUNDARY_END-->';
 	
 	var $cObj;
-
+	
 	/**
-	 * This function wrap HTML comments around the content, that contain
-	 * the uids of assigned direct mail categories.
+	 * This function wraps HTML comments around the content.
+	 * The comments contain the uids of assigned direct mail categories.
 	 * It is called as "USER_FUNC" from TS.
 	 * 
 	 * @param	string	$content: incoming HTML code which will be wrapped
 	 * @param	array	$conf: 
 	 */
-	function insert_dMailer_boundaries ( $content, $conf )	{
+	function insert_dMailer_boundaries ($content,&$conf) {
+		global $TSFE, $TYPO3_DB;
 
-		if ( isset( $conf['useParentCObj']) && $conf['useParentCObj'] )	{
-			$this->cObj = &$conf['parentObj']->cObj;
+		if (isset( $conf['useParentCObj']) && $conf['useParentCObj']) {
+			$this->cObj = $conf['parentObj']->cObj;
 		}
 
 			// this check could probably be moved to TS
-		if( $GLOBALS['TSFE']->config['config']['insertDmailerBoundaries'] )	{
+		if ($TSFE->config['config']['insertDmailerBoundaries']) {
 			if ( $content != '' )	{
 				$categoryList = '';		// setting the default
 				if ( intval( $this->cObj->data['module_sys_dmail_category'] ) >= 1 )	{
@@ -78,8 +77,8 @@ class tx_directmail_container	{
 					$whereClause = '';
 					$orderBy = $foreign_table . '.uid';
 					$res = $this->cObj->exec_mm_query_uidList( $select, $local_table_uidlist, $mm_table, $foreign_table, $whereClause, '', $orderBy);
-					if ( $GLOBALS['TYPO3_DB']->sql_num_rows($res) )	{
-						while( $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res) )	{
+					if ( $TYPO3_DB->sql_num_rows($res) )	{
+						while( $row = $TYPO3_DB->sql_fetch_assoc($res) )	{
 							$categoryList .= $row['uid'] . ',';
 						}
 						$categoryList = t3lib_div::rm_endComma($categoryList);

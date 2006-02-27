@@ -10,15 +10,12 @@ includeLibs.tx_directmail_container = EXT:direct_mail/res/scripts/class.tx_direc
 
 	// In html content
 tt_content.stdWrap.postUserFunc = tx_directmail_container->insert_dMailer_boundaries
-tt_content.stdWrap.postUserFunc {
-	
-}
 
-	// In old plaintext content
+	// In old plaintext content static tenmplate
 lib.alt_plaintext.renderObj.userProc < tt_content.stdWrap.postUserFunc
 lib.alt_plaintext.renderObj.userProc.useParentCObj = 1
 
-	// In new direct mail plaintext content
+	// In new direct mail plain text plugin
 plugin.tx_directmail_pi1.userProc < tt_content.stdWrap.postUserFunc
 plugin.tx_directmail_pi1.userProc.useParentCObj = 1
 
