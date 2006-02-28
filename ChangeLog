@@ -1,3 +1,6 @@
+2006-02-28 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Update structure of manual.
+
 2006-02-27 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correct return address from backend form to directMail defaultView; in some cases was creating a new record based on same page!
 	* Add flowedFormat option for plain text content (Page TSConfig in BE and TS setup of plain text rendering plugin).
