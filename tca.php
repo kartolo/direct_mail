@@ -11,7 +11,7 @@ $TCA['sys_dmail'] = Array (
 	),
 	'columns' => Array (
 		'subject' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.subject',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.subject',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -21,7 +21,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'page' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.page',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.page',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'group',
@@ -33,7 +33,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'from_email' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.from_email',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.from_email',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -43,7 +43,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'from_name' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.from_name',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.from_name',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -53,7 +53,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'replyto_email' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.replyto_email',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.replyto_email',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -63,7 +63,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'replyto_name' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.replyto_name',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.replyto_name',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -73,7 +73,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'return_path' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.return_path',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.return_path',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -83,7 +83,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'organisation' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.organisation',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.organisation',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -93,7 +93,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'encoding' => Array (
-			'label' =>  'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.transfer_encoding',
+			'label' =>  'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.transfer_encoding',
 			'exclude' => '1',
 			'config' => Array(
 				'type' => 'select',
@@ -106,7 +106,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'charset' => Array (
-			'label' =>  'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.charset',
+			'label' =>  'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.charset',
 			'exclude' => '1',
 			'config' => Array(
 				'type' => 'input',
@@ -117,33 +117,33 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'priority' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.priority',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.priority',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'select',
 				'items' => Array (
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.priority.I.0', '5'),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.priority.I.1', '3'),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.priority.I.2', '1')
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.priority.I.0', '5'),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.priority.I.1', '3'),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.priority.I.2', '1')
 				),
 				'default' => '3'
 			)
 		),
 		'sendOptions' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.sendOptions',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.sendOptions',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'check',
 				'items' => Array (
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.sendOptions.I.0', ''),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.sendOptions.I.1', '')
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.sendOptions.I.0', ''),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.sendOptions.I.1', '')
 				),
 				'cols' => '2',
 				'default' => '3'
 			)
 		),
 		'includeMedia' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.includeMedia',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.includeMedia',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'check',
@@ -151,7 +151,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'flowedFormat' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.flowedFormat',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.flowedFormat',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'check',
@@ -159,7 +159,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'HTMLParams' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.HTMLParams',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.HTMLParams',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -170,7 +170,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'plainParams' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.plainParams',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.plainParams',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -181,14 +181,14 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'issent' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.issent',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.issent',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'none'
 			)
 		),
 		'use_domain' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.use_domain',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.use_domain',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'group',
@@ -200,7 +200,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),		
 		'use_rdct' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.use_rdct',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.use_rdct',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'check',
@@ -208,7 +208,7 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'long_link_rdct_url' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.long_link_rdct_url',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.long_link_rdct_url',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -219,14 +219,14 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'long_link_mode' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.long_link_mode',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.long_link_mode',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'check'
 			)
 		),
 		'authcode_fieldList' => Array(
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.authcode_fieldList',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.authcode_fieldList',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'input',
@@ -237,14 +237,14 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'renderedsize' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.renderedsize',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.renderedsize',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'none'
 			)
 		),
 		'attachment' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.attachment',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.attachment',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'group',
@@ -260,13 +260,13 @@ $TCA['sys_dmail'] = Array (
 			)
 		),
 		'type' => Array (
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.type',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.type',
 			'exclude' => '1',
 			'config' => Array (
 				'type' => 'select',
 				'items' => Array (
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.type.I.0', '0'),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.type.I.1', '1')
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.type.I.0', '0'),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.type.I.1', '1')
 				),
 				'default' => '0'
 			)
@@ -275,8 +275,8 @@ $TCA['sys_dmail'] = Array (
 	'types' => Array (
 		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, sendOptions, includeMedia, flowedFormat, use_domain, use_rdct, long_link_mode, authcode_fieldList'),
 		'1' => Array('showitem' => 'type;;;;1-1-1,
-			plainParams;LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.plainParams.ALT.1,
-			HTMLParams;LLL:EXT:direct_mail/locallang_tca.php:sys_dmail.HTMLParams.ALT.1,
+			plainParams;LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.plainParams.ALT.1,
+			HTMLParams;LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.HTMLParams.ALT.1,
 			--div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, encoding, sendOptions, includeMedia, flowedFormat, use_rdct, long_link_mode, authcode_fieldList')
 	)
 );
@@ -293,21 +293,21 @@ $TCA['sys_dmail_category'] = Array (
 	'columns' => Array (
 		'sys_language_uid' => Array (
 			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.language',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.language',
 			'config' => Array (
 				'type' => 'select',
 				'foreign_table' => 'sys_language',
 				'foreign_table_where' => 'ORDER BY sys_language.title',
 				'items' => Array(
-					Array('LLL:EXT:lang/locallang_general.php:LGL.allLanguages',-1),
-					Array('LLL:EXT:lang/locallang_general.php:LGL.default_value',0)
+					Array('LLL:EXT:lang/locallang_general.xml:LGL.allLanguages',-1),
+					Array('LLL:EXT:lang/locallang_general.xml:LGL.default_value',0)
 				)
 			)
 	    	),
 		'l18n_parent' => Array (
 			'displayCond' => 'FIELD:sys_language_uid:>:0',
 			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.l18n_parent',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.l18n_parent',
 			'config' => Array (
 				'type' => 'select',
 				'items' => Array (
@@ -324,7 +324,7 @@ $TCA['sys_dmail_category'] = Array (
 	    	),
 		'hidden' => Array (
 			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.hidden',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
 			'config' => Array (
 				'type' => 'check',
 				'default' => '0'
@@ -332,7 +332,7 @@ $TCA['sys_dmail_category'] = Array (
 		),
 		'category' => Array (
 			'exclude' => 1,
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_category.category',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_category.category',
 			'config' => Array (
 				'type' => 'input',
 				'size' => '30',
@@ -340,7 +340,7 @@ $TCA['sys_dmail_category'] = Array (
 		),
 		'old_cat_number ' => Array (
 			'exclude' => 1,
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_category.old_cat_number',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_category.old_cat_number',
 			'l10n_mode' => 'exclude',
 			'config' => Array (
 				'type' => 'input',
@@ -368,7 +368,7 @@ $TCA['sys_dmail_group'] = Array (
 	),
 	'columns' => Array (
 		'title' => Array (
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.title',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.title',
 			'config' => Array (
 				'type' => 'input',
 				'size' => '30',
@@ -377,7 +377,7 @@ $TCA['sys_dmail_group'] = Array (
 			)
 		),
 		'description' => Array (
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.description',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.description',
 			'config' => Array (
 				'type' => 'text',
 				'cols' => '40',
@@ -385,21 +385,21 @@ $TCA['sys_dmail_group'] = Array (
 			)
 		),
 		'type' => Array (
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.type',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.type',
 			'config' => Array (
 				'type' => 'select',
 				'items' => Array (
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.type.I.0', '0'),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.type.I.1', '1'),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.type.I.2', '2'),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.type.I.3', '3'),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.type.I.4', '4')
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.type.I.0', '0'),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.type.I.1', '1'),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.type.I.2', '2'),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.type.I.3', '3'),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.type.I.4', '4')
 				),
 				'default' => '0'
 			)
 		),
 		'static_list' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.static_list',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.static_list',
 			'config' => Array (
 				'type' => 'group',
 				'internal_type' => 'db',
@@ -412,7 +412,7 @@ $TCA['sys_dmail_group'] = Array (
 			)
 		),
 		'pages' => Array (
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.startingpoint',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.startingpoint',
 			'config' => Array (
 				'type' => 'group',
 				'internal_type' => 'db',
@@ -424,7 +424,7 @@ $TCA['sys_dmail_group'] = Array (
 			)
 		),
 		'mail_groups' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.mail_groups',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.mail_groups',
 			'config' => Array (
 				'type' => 'group',
 				'internal_type' => 'db',
@@ -436,27 +436,27 @@ $TCA['sys_dmail_group'] = Array (
 			)
 		),
 		'recursive' => Array (
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.recursive',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.recursive',
 			'config' => Array (
 				'type' => 'check'
 			)
 		),
 		'whichtables' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.whichtables',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.whichtables',
 			'config' => Array (
 				'type' => 'check',
 				'items' => Array (
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.whichtables.I.0', ''),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.whichtables.I.1', ''),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.whichtables.I.2', ''),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.whichtables.I.3', ''),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.whichtables.I.0', ''),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.whichtables.I.1', ''),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.whichtables.I.2', ''),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.whichtables.I.3', ''),
 				),
 				'cols' => 2,
 				'default' => 1
 			)
 		),
 		'list' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.list',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.list',
 			'config' => Array (
 				'type' => 'text',
 				'cols' => '48',
@@ -464,18 +464,18 @@ $TCA['sys_dmail_group'] = Array (
 			)
 		),
 		'csv' => Array (
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.type',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.type',
 			'config' => Array (
 				'type' => 'select',
 				'items' => Array (
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.csv.I.0', '0'),
-					Array('LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.csv.I.1', '1')
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.csv.I.0', '0'),
+					Array('LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.csv.I.1', '1')
 				),
 				'default' => '0'
 			)
 		),
 		'select_categories' => Array (
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.php:sys_dmail_group.select_categories',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.select_categories',
 			'config' => Array (
 				'type' => 'select',
 				'foreign_table' => 'sys_dmail_category',

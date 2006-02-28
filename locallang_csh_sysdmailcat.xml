@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+    <meta type="array">
+        <description>Context Sensitive Help for Direct Mail Categories</description>
+        <type>CSH</type>
+        <csh_table>sys_dmail_category</csh_table>
+        <fileId>EXT:direct_mail/locallang_csh_sysdmailcat.xml</fileId>
+        <labelContext type="array">
+            <label index=".description"></label>
+            <label index=".details"></label>
+            <label index="_.seeAlso"></label>
+        </labelContext>
+    </meta>
+    <data type="array">
+        <languageKey index="default" type="array">
+            <label index=".description">Direct mail category</label>
+            <label index=".details">Direct mail categories are used to classify content elements by subject so that direct mails may be personalized.
+Direct mail categories may be assigned to content elements in pages that are used to build direct mails.
+Subscribers may also subscribe to direct mail categories of interest to them.
+When sending direct mails, the Direct mail module uses this information to personalize the email message sent to each subscriber.</label>
+            <label index="_.seeAlso">sys_dmail, sys_dmail_group</label>
+        </languageKey>
+        <languageKey index="fr" type="array">
+            <label index=".description">Rubrique de contenu</label>
+            <label index=".details">Les rubriques de contenu sont utilisées pour classifier les éléments de contenu par sujet de manière à ce que les bulletins puissent être personnalisés.
+Des rubriques de contenu peuvent être attribuées aux éléments de contenu des pages utilisées pour construire les bulletins.
+Les abonnés peuvent aussi s'abonner à des rubriques de contenu selon leurs domaines d'intérêt.
+Lors d'un envoi, le module d'Envoi ciblé utilise ces informations pour personnaliser le message électronique envoyé à chaque abonné.</label>
+        </languageKey>
+    </data>
+    <orig_hash type="array">
+        <languageKey index="default" type="array">
+            <label index=".description" type="integer">76723653</label>
+            <label index=".details" type="integer">174399142</label>
+            <label index="_.seeAlso" type="integer">5801918</label>
+        </languageKey>
+        <languageKey index="fr" type="array">
+            <label index=".description" type="integer">76723653</label>
+            <label index=".details" type="integer">174399142</label>
+        </languageKey>
+    </orig_hash>
+    <orig_text type="array">
+        <languageKey index="default" type="array">
+        </languageKey>
+        <languageKey index="fr" type="array">
+        </languageKey>
+    </orig_text>
+</T3locallang>

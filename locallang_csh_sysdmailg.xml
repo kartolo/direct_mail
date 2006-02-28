@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+    <meta type="array">
+        <description>Context Sensitive Help for Direct Mail Groups</description>
+        <type>CSH</type>
+        <csh_table>sys_dmail_group</csh_table>
+        <fileId>EXT:direct_mail/locallang_csh_sysdmailg.xml</fileId>
+        <labelContext type="array">
+            <label index=".description"></label>
+            <label index=".details"></label>
+            <label index="_.seeAlso"></label>
+        </labelContext>
+    </meta>
+    <data type="array">
+        <languageKey index="default" type="array">
+            <label index=".description">A group of recipients of direct mails or, mailing list</label>
+            <label index=".details">Direct mail groups are used by the Direct mail module to send newsletters to a group of recipients.
+A Direct mail group may be compiled either from individual addresses, or from all Address/Website User/Website User Group records within a page or branch, or from the result of an SQL query, or perhaps from other Direct mail groups.</label>
+            <label index="_.seeAlso">sys_dmail, sys_dmail_category</label>
+        </languageKey>
+        <languageKey index="fr" type="array">
+            <label index=".description">Liste de distribution d'envoi ciblé</label>
+            <label index=".details">Les listes de distribution sont utilisées dans le cadre du module d'Envoi ciblé pour envoyer des bulletins à des groupes de destinataines ou d'abonnés.
+Une liste de distribution peut être compilée à partir d'adresses individuelles, ou à partir de tous les enregistrements de type Adresse, Utilisateur de site ou Groupe d'utilisateur de site d'une page ou d'une arborescence, ou à partir du résultat d'une requête SQL, ou encore à partir d'autre listes de distribution.</label>
+            <label index="_.seeAlso">sys_dmail, sys_dmail_category</label>
+        </languageKey>
+    </data>
+    <orig_hash type="array">
+        <languageKey index="default" type="array">
+            <label index=".description" type="integer">247018705</label>
+            <label index=".details" type="integer">65962995</label>
+            <label index="_.seeAlso" type="integer">29877147</label>
+        </languageKey>
+        <languageKey index="fr" type="array">
+            <label index=".description" type="integer">247018705</label>
+            <label index=".details" type="integer">65962995</label>
+            <label index="_.seeAlso" type="integer">29877147</label>
+        </languageKey>
+    </orig_hash>
+    <orig_text type="array">
+        <languageKey index="default" type="array">
+        </languageKey>
+        <languageKey index="fr" type="array">
+        </languageKey>
+    </orig_text>
+</T3locallang>

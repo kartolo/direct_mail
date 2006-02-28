@@ -28,7 +28,7 @@ require_once(t3lib_extMgm::extPath($_EXTKEY).'/res/scripts/class.tx_directmail_s
 t3lib_div::loadTCA('tt_content');
 $tt_content_cols = Array(
 	'module_sys_dmail_category' => Array(
-		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:sys_dmail_category.category',
+		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:sys_dmail_category.category',
 		'exclude' => '1',
 		'l10n_mode' => 'exclude',
 		'config' => Array (
@@ -54,7 +54,7 @@ t3lib_extMgm::addToAllTCATypes('tt_content','module_sys_dmail_category;;;;1-1-1'
 	// tt_address modified
 $tempCols = Array(
 	'module_sys_dmail_category' => Array(
-		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:module_sys_dmail_group.category',
+		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.category',
 		'exclude' => '1',
 		'config' => Array (
 			'type' => 'select',
@@ -73,7 +73,7 @@ $tempCols = Array(
 		)
 	),
 	'module_sys_dmail_html' => Array(
-		'label'=>'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:module_sys_dmail_group.htmlemail',
+		'label'=>'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.htmlemail',
 		'exclude' => '1',
 		'config'=>Array(
 			'type'=>'check'
@@ -89,7 +89,7 @@ $TCA['tt_address']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_cate
 	// fe_users modified
 $tempCols = Array(
 	'module_sys_dmail_category' => Array(
-		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:module_sys_dmail_group.category',
+		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.category',
 		'exclude' => '1',
 		'config' => Array (
 			'type' => 'select',
@@ -108,7 +108,7 @@ $tempCols = Array(
 		)
 	),
 	'module_sys_dmail_html' => Array(
-		'label'=>'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:module_sys_dmail_group.htmlemail',
+		'label'=>'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.htmlemail',
 		'exclude' => '1',
 		'config'=>Array(
 			'type'=>'check'
@@ -129,8 +129,8 @@ $TCA['sys_dmail'] = Array (
 		'label' => 'subject',
 		'default_sortby' => 'ORDER BY tstamp DESC',
 		'tstamp' => 'tstamp',
-		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.php:LGL.prependAtCopy',
-		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:sys_dmail',
+		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.xml:LGL.prependAtCopy',
+		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:sys_dmail',
 		'delete' => 'deleted',
 		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY).'res/gfx/mail.gif',
 		'type' => 'type',
@@ -144,7 +144,7 @@ $TCA['sys_dmail'] = Array (
 // ******************************************************************
 $TCA['sys_dmail_category'] = Array (
 	'ctrl' => Array (
-		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:sys_dmail_category',
+		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:sys_dmail_category',
 		'label' => 'category',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -170,8 +170,8 @@ $TCA['sys_dmail_group'] = Array (
 		'label' => 'title',
 		'default_sortby' => 'ORDER BY title',
 		'tstamp' => 'tstamp',
-		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.php:LGL.prependAtCopy',
-		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.php:sys_dmail_group',
+		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.xml:LGL.prependAtCopy',
+		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:sys_dmail_group',
 		'delete' => 'deleted',
 		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY).'res/gfx/mailgroup.gif',
 		'type' => 'type',
@@ -179,9 +179,9 @@ $TCA['sys_dmail_group'] = Array (
 	)
 );
 
-t3lib_extMgm::addLLrefForTCAdescr('sys_dmail','EXT:'.$_EXTKEY.'/locallang_csh_sysdmail.php');
-t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_group','EXT:'.$_EXTKEY.'/locallang_csh_sysdmailg.php');
-t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_category','EXT:'.$_EXTKEY.'/locallang_csh_sysdmailcat.php');
+t3lib_extMgm::addLLrefForTCAdescr('sys_dmail','EXT:'.$_EXTKEY.'/locallang_csh_sysdmail.xml');
+t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_group','EXT:'.$_EXTKEY.'/locallang_csh_sysdmailg.xml');
+t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_category','EXT:'.$_EXTKEY.'/locallang_csh_sysdmailcat.xml');
 
 if (TYPO3_MODE=='BE')   {
 	t3lib_extMgm::addModule('web','txdirectmailM1','',t3lib_extMgm::extPath($_EXTKEY).'mod/');
