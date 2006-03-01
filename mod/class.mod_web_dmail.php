@@ -261,7 +261,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
 		
 			// Draw the header.
-			$this->doc = t3lib_div::makeInstance('bigDoc');
+			$this->doc = t3lib_div::makeInstance('template');
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->form='<form action="" method="POST">';
 			

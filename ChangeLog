@@ -1,3 +1,8 @@
+2007-03-01 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add dependency on TYPO3 4.0.0 in ext_emconf.php.
+	* Update the Configuration section of the manual, including conversion.
+	* Change the module form from "mediumDoc" to "template".
+
 2006-02-28 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Update structure of manual.
 	* Delete locallang.php files.
