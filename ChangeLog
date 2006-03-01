@@ -1,5 +1,8 @@
 2006-02-28 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Update structure of manual.
+	* Delete locallang.php files.
+	* Clean up mailSelect class
+	* Make special query mail group basically work.
 
 2006-02-27 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correct return address from backend form to directMail defaultView; in some cases was creating a new record based on same page!

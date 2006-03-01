@@ -68,6 +68,9 @@
             <label index="dmail_mailerengine_manual_explain"></label>
             <label index="dmail_mailerengine_invoke_now"></label>
             <label index="dmail_mailerengine_log"></label>
+            <label index="dmail_query"></label>
+	    <label index="dmail_makeQuery"></label>
+	    <label index="dmail_updateQuery"></label>
             <label index="subscriber_info"></label>
             <label index="subscriber_profile"></label>
             <label index="subscriber_profile_instructions"></label>
@@ -350,6 +353,9 @@
             <label index="dmail_mailerengine_manual_explain">If Typo3 is not configured to automatically invoke the Mailer Engine, you can invoke it by clicking here:</label>
             <label index="dmail_mailerengine_invoke_now">Invoke Mailer Engine</label>
             <label index="dmail_mailerengine_log">Log:</label>
+	    <label index="dmail_query">Query</label>
+	    <label index="dmail_makeQuery">Make query</label>
+	    <label index="dmail_updateQuery">Update query</label>
             <label index="subscriber_info">Subscriber Info</label>
             <label index="subscriber_profile">Subscriber Profile</label>
             <label index="subscriber_profile_instructions">Set categories of interest for the subscriber.</label>
@@ -829,6 +835,9 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="dmail_mailerengine_manual_explain">Si Typo3 n'est pas configuré pour inicier les envois automatiquement, vous pouvez les inicier en cliquant ici:</label>
             <label index="dmail_mailerengine_invoke_now">Déclencher les envois</label>
             <label index="dmail_mailerengine_log">Journal:</label>
+	    <label index="dmail_query">Requête</label>
+	    <label index="dmail_makeQuery">Construction de la requête</label>
+	    <label index="dmail_updateQuery">Mettre à jour la requête</label>
             <label index="subscriber_info">Information sur l'abonné</label>
             <label index="subscriber_profile">Profil de l'abonné</label>
             <label index="subscriber_profile_instructions">Choisissez les rubriques d'intérêt pour l'abonné:</label>

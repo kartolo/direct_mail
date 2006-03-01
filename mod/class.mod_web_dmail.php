@@ -38,6 +38,8 @@ require_once (PATH_t3lib.'class.t3lib_scbase.php');
 require_once (PATH_t3lib.'class.t3lib_tstemplate.php');
 require_once (PATH_t3lib.'class.t3lib_page.php');
 require_once(PATH_t3lib.'class.t3lib_timetrack.php');
+require_once(t3lib_extMgm::extPath('direct_mail').'mod/class.mailselect.php');
+require_once(t3lib_extMgm::extPath('direct_mail').'mod/class.dmailer.php');
 
 class mod_web_dmail extends t3lib_SCbase {
 	var $extKey = 'direct_mail';
@@ -63,6 +65,8 @@ class mod_web_dmail extends t3lib_SCbase {
 	var $userTable;		// If set a valid user table is around
 	var $sys_language_uid = 0;
 	var $error='';
+	var $allowedTables = array('tt_address','fe_users');
+	var $queryGenerator;
 
 	/**
 	 * @return	[type]		...
@@ -71,13 +75,8 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $LANG,$BACK_PATH,$TCA_DESCR,$TCA,$CLIENT,$TYPO3_CONF_VARS, $TYPO3_DB;
 		
 		$this->include_once[]=PATH_t3lib.'class.t3lib_tcemain.php';
-		$this->include_once[]=PATH_t3lib.'class.t3lib_page.php';
 		$this->include_once[]=PATH_t3lib.'class.t3lib_pagetree.php';
-		$this->include_once[]=PATH_t3lib.'class.t3lib_htmlmail.php';
 		$this->include_once[]=PATH_t3lib.'class.t3lib_readmail.php';
-		$this->include_once[]=PATH_t3lib.'class.t3lib_querygenerator.php';
-		$this->include_once[]=t3lib_extMgm::extPath('direct_mail').'mod/class.mailselect.php';
-		$this->include_once[]=t3lib_extMgm::extPath('direct_mail').'mod/class.dmailer.php';
 		
 		parent::init();
 		
@@ -88,6 +87,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		if ($this->params['userTable'] && is_array($TCA[$this->params['userTable']]))	{
 			$this->userTable = $this->params['userTable'];
 			t3lib_div::loadTCA($this->userTable);
+			$this->allowedTables[] = $this->userTable;
 		}
 		$this->MOD_MENU['dmail_mode'] = t3lib_BEfunc::unsetMenuItems($this->params,$this->MOD_MENU['dmail_mode'],'menu.dmail_mode'); 
 		
@@ -99,6 +99,9 @@ class mod_web_dmail extends t3lib_SCbase {
 			// initialize the page selector
 		$this->sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
 		$this->sys_page->init(true);
+
+			// initialize the query generator
+		$this->queryGenerator = t3lib_div::makeInstance('mailSelect');
 		
 			// initialize backend user language
 		if ($LANG->lang && t3lib_extMgm::isLoaded('static_info_tables')) {
@@ -258,7 +261,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
 		
 			// Draw the header.
-			$this->doc = t3lib_div::makeInstance('mediumDoc');
+			$this->doc = t3lib_div::makeInstance('bigDoc');
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->form='<form action="" method="POST">';
 			
@@ -900,7 +903,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @param	[String]		$fields: The fields to select
 	 * @return	[Strint]		The resulting query.
 	 */
-	function makeStaticListQuery($table,$uid,$fields)	{
+	function makeStaticListQuery($table,$uid,$fields) {
 		global $TYPO3_DB;
 
 		$emailIsNotNull = ' AND ' . $table . '.email !=' . $TYPO3_DB->fullQuoteStr('', $table);  // Direct Mail needs and email address!
@@ -936,15 +939,63 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function getStaticIdList($table,$uid)	{
+		global $TYPO3_DB;
+		
 		$query = $this->makeStaticListQuery($table,$uid,$table.'.uid');
-		$res = $GLOBALS['TYPO3_DB']->sql(TYPO3_db,$query);
+		$res = $TYPO3_DB->sql(TYPO3_db,$query);
 		$outArr=array();
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			$outArr[]=$row['uid'];
 		}
 		return $outArr;
 	}
-
+	
+	/**
+	 * Returns special query of mail group of such type
+	 *
+	 * @param	[String]		$table: The table to select from
+	 * @param	[Array]			$group: The direct_mail group record
+	 * @param	[String]		$fields: The fields to select
+	 * @return	[Strint]		The resulting query.
+	 */
+	function makeSpecialQuery($table,$group,$fields) {
+		global $TYPO3_DB;
+		
+		$query ='';
+		if ($group['query']) {
+			$this->queryGenerator->init('dmail_queryConfig', $table, (($fields == '*')?'':$fields));
+			$this->queryGenerator->queryConfig = unserialize($group['query']);
+			$query = $TYPO3_DB->SELECTquery(
+				$fields,
+				$table,
+				$this->queryGenerator->getQuery($this->queryGenerator->queryConfig).
+					t3lib_BEfunc::deleteClause($table)
+			);
+		}
+		return $query;
+	}
+	
+	/**
+	 * Construct the array of uid's from $table selected by special query of mail group of such type
+	 *
+	 * @param	[String]		$table: The table to select from
+	 * @param	[Array]			$group: The direct_mail group record
+	 * @return	[Array]			$outArr: the array of uid's
+	 */
+	function getSpecialQueryIdList($table,$group)	{
+		global $TYPO3_DB;
+		
+		$outArr = array();
+		$query = $this->makeSpecialQuery($table,$group,$table.'.uid');
+		if ($query) {
+			$res = $TYPO3_DB->sql(TYPO3_db, $query);
+			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+				$outArr[] = $row['uid'];
+			}
+		}
+		return $outArr;
+	}
+	
 	/**
 	 * [Describe function...]
 	 *
@@ -1032,6 +1083,9 @@ class mod_web_dmail extends t3lib_SCbase {
 				$theOutput.= $this->doc->spacer(20);
 				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_custom'),$LANG->getLL('mailgroup_recip_number') . ' ' .(is_array($idLists[$this->userTable])?count($idLists[$this->userTable]):0).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>$this->userTable)).'">' . $LANG->getLL('mailgroup_download') . '</a>');
 			}
+			if ($group['type'] == 3) {
+				$theOutput .= $this->cmd_specialQuery($group);
+			}
 			break;
 		}
 		return $theOutput;
@@ -1086,20 +1140,17 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * [Describe function...]
 	 *
 	 * @param	[type]		$group_uid: ...
-	 * @param	[type]		$makeIdLists: ...
+	 * @param	[type]		$makeIdLists: Set to 0 if you don't want the list of table ids to be collected but only the queries to be stored.
 	 * @return	[type]		...
 	 */
 	function cmd_compileMailGroup($group_uid,$makeIdLists=1) {
 		global $BACKPATH;
 		
-		// $makeIdLists: Set to 0 if you don't want the list of table ids to be collected but only the queries to be stored.
 		$queries=array();
 		$id_lists=array();
 		if ($group_uid)	{
 			$mailGroup=t3lib_BEfunc::getRecord('sys_dmail_group',$group_uid);
 			if (is_array($mailGroup) && $mailGroup['pid']==$this->id)	{
-				$head = t3lib_iconWorks::getIconImage('sys_dmail_group', $mailGroup, $BACKPATH, 'width="18" height="16" style="vertical-align: top;"').t3lib_div::fixed_lgd($mailGroup['title'],30).'<br />';
-				$theOutput.=$head;
 				switch($mailGroup['type'])	{
 				case 0:	// From pages
 					$thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;		// use current page if no else
@@ -1163,9 +1214,23 @@ class mod_web_dmail extends t3lib_SCbase {
 						if ($makeIdLists)	$id_lists[$this->userTable] = $this->getStaticIdList($this->userTable,$group_uid);
 					}
 					break;
-				case 3:	// QUERY
-					//$theOutput.=$this->cmd_query($group_uid);
-					$theOutput.=$this->doc->section('Special Query','UNDER CONSTRUCTION...');
+				case 3:	// Special query list
+					$mailGroup = $this->update_SpecialQuery($mailGroup);
+					$whichTables = intval($mailGroup['whichtables']);
+					$table = '';
+					if ($whichTables&1) {
+						$table = 'tt_address';
+					} elseif ($whichTables&2) {
+						$table = 'fe_users';
+					} elseif ($this->userTable && ($whichTables&4)) {
+						$table = $this->userTable;
+					}
+					if ($table) {
+						$queries[$table] = $this->makeSpecialQuery($table,$mailGroup,'*');
+						if ($makeIdLists) {
+							$id_lists[$table] = $this->getSpecialQueryIdList($table,$mailGroup);
+						}
+					}
 					break;
 				case 4:	//
 					$groups = array_unique($this->getMailGroups($mailGroup['mail_groups'],array($mailGroup['uid'])));
@@ -1190,9 +1255,8 @@ class mod_web_dmail extends t3lib_SCbase {
 				}
 			}
 		}
-		$outputArray=array(
-			'code'=>$theOutput,
-			'queryInfo' => array('id_lists'=>$id_lists, 'queries'=>$queries)
+		$outputArray = array(
+			'queryInfo' => array('id_lists' => $id_lists, 'queries' => $queries)
 			);
 		return $outputArray;
 	}
@@ -1223,36 +1287,85 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 		return $plainlist;
 	}
-
+	
 	/**
 	 * [Describe function...]
 	 *
 	 * @param	[type]		$dgUid: ...
 	 * @return	[type]		...
 	 */
-	function cmd_query($dgUid)	{
-
-		$this->MOD_SETTINGS=array();
-		$this->MOD_SETTINGS['dmail_queryConfig']=serialize(t3lib_div::_GP('dmail_queryConfig'));
+	function update_specialQuery($mailGroup) {
+		global $LANG, $TYPO3_DB;
+		
 		$set = t3lib_div::_GP('SET');
-		$this->MOD_SETTINGS['dmail_queryTable']=$set['dmail_queryTable'];
-		$this->MOD_SETTINGS['dmail_search_query_smallparts']=1;
-
-		$qGen = t3lib_div::makeInstance('mailSelect');
-		$qGen->init('queryConfig',$this->MOD_SETTINGS['queryTable']);
-		$qGen->noWrap='';
-		if ($this->userTable)	$qGen->allowedTables[]=$this->userTable;
-		$tmpCode=$qGen->makeSelectorTable($this->MOD_SETTINGS,'table,query');
-		$tmpCode.='<input type="hidden" name="CMD" value="displayMailGroup"><input type="hidden" name="group_uid" value="'.$dgUid.'">';
-		$theOutput.=$this->doc->section('Make Query',$tmpCode);
-
-//		$theOutput=$qGen->getFormElements();
-//		$theOutput.='<HR>';
-
-
-		$out = $qGen->getQuery($qGen->queryConfig);
-		$theOutput.=$this->doc->section('QUERY',$out);
-
+		$queryTable = $set['queryTable'];
+		$queryConfig = t3lib_div::_GP('dmail_queryConfig');
+		$dmailUpdateQuery = t3lib_div::_GP('dmailUpdateQuery');
+		
+		$whichTables = intval($mailGroup['whichtables']);
+		$table = '';
+		if ($whichTables&1) {
+			$table = 'tt_address';
+		} elseif ($whichTables&2) {
+			$table = 'fe_users';
+		} elseif ($this->userTable && ($whichTables&4)) {
+			$table = $this->userTable;
+		}
+		
+		$this->MOD_SETTINGS['queryTable'] = $queryTable ? $queryTable : $table;
+		$this->MOD_SETTINGS['queryConfig'] = $queryConfig ? serialize($queryConfig) : $mailGroup['query'];
+		$this->MOD_SETTINGS['search_query_smallparts'] = 1;
+		
+		if ($this->MOD_SETTINGS['queryTable'] != $table) {
+			$this->MOD_SETTINGS['queryConfig'] = '';
+		}
+		
+		if ($this->MOD_SETTINGS['queryTable'] != $table || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query']) {
+			$whichTables = 0;
+			if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
+				$whichTables = 1;
+			} elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
+				$whichTables = 2;
+			} elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
+				$whichTables = 4;
+			}
+			$updateFields = array(
+				'whichtables' => intval($whichTables),
+				'query' => $this->MOD_SETTINGS['queryConfig']
+			);
+			$res_update = $TYPO3_DB->exec_UPDATEquery('sys_dmail_group', 'uid='.intval($mailGroup['uid']), $updateFields);
+			$mailGroup = t3lib_BEfunc::getRecord('sys_dmail_group',$mailGroup['uid']);
+		}
+		return $mailGroup;
+	}
+	
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$dgUid: ...
+	 * @return	[type]		...
+	 */
+	function cmd_specialQuery($mailGroup) {
+		global $LANG;
+		
+		$this->queryGenerator->init('dmail_queryConfig',$this->MOD_SETTINGS['queryTable']);
+		
+		if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
+			$this->queryGenerator->queryConfig = unserialize($this->MOD_SETTINGS['queryConfig']);
+			$out .= $this->queryGenerator->getSelectQuery();
+			$out .= $this->doc->spacer(20);
+		}
+		
+		$this->queryGenerator->noWrap='';
+		$this->queryGenerator->allowedTables = $this->allowedTables;
+		$tmpCode = $this->queryGenerator->makeSelectorTable($this->MOD_SETTINGS,'table,query');
+		$tmpCode .= '<input type="hidden" name="CMD" value="displayMailGroup" /><input type="hidden" name="group_uid" value="'.$mailGroup['uid'].'" />';
+		$tmpCode .= '<input type="submit" value="'.$LANG->getLL('dmail_updateQuery').'" />';
+		$out .= $this->doc->section($LANG->getLL('dmail_makeQuery'),$tmpCode);
+		
+		$theOutput .= $this->doc->spacer(20);
+		$theOutput .= $this->doc->section($LANG->getLL('dmail_query'),$out);
+		
 		return $theOutput;
 	}
 
@@ -2135,7 +2248,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 			
 			$msg.= $LANG->getLL('prefetch_patience') . '<br /><br />';
-			$msg.= '<input type="Submit" value="' . $LANG->getLL('prefetch_fetch') . '" onClick="jumpToUrlD(\'index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=fetch\'); return false;">  ';
+			$msg.= '<input type="Submit" value="' . $LANG->getLL('prefetch_fetch') . '" onClick="jumpToUrlD(\'index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=fetch\'); return false;" />  ';
 			$msg.= $this->back;
 			$theOutput.= $this->doc->section($LANG->getLL('prefetch_fetching'),fw($msg));
 		} else {
