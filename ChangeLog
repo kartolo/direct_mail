@@ -1,3 +1,6 @@
+2007-03-03 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Update to the manual.
+
 2007-03-01 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add dependency on TYPO3 4.0.0 in ext_emconf.php.
 	* Update the Configuration section of the manual, including conversion.
