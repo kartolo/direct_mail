@@ -1,9 +1,8 @@
-/**
- *
- * @package TYPO3
- * @subpackage tx_directmail
- * @version setup.txt,v 1.1 2006/02/02 11:37:01 tkahler Exp
- */
+##
+## @package TYPO3
+## @subpackage tx_directmail
+## $Id$
+##
 
 plugin.tx_directmail_pi1 {
   shortcut.0.conf.tt_news =< plugin.tt_news
