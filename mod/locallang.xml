@@ -361,7 +361,7 @@
             <label index="subscriber_profile_instructions">Set categories of interest for the subscriber.</label>
             <label index="subscriber_profile_htmlemail">Receive HTML based mails</label>
             <label index="subscriber_profile_update">Update profile settings</label>
-            <label index="mailgroup_recip_from">Recipients from group:</label>
+            <label index="mailgroup_recip_from">Recipients from recipient list:</label>
             <label index="mailgroup_recip_number">Number of recipients:</label>
             <label index="mailgroup_list_all">List all recipients</label>
             <label index="mailgroup_table_address">Address Table</label>
@@ -389,9 +389,9 @@
             <label index="mailgroup_import_no_update">Do not update - newer version in database:</label>
             <label index="mailgroup_import_test">Test import (no data written)</label>
             <label index="mailgroup_import_now">Import now!</label>
-            <label index="recip_select_mailgroup">Select a Mail Group</label>
-            <label index="recip_create_mailgroup">New mail group</label>
-            <label index="recip_create_mailgroup_msg">Create new group?</label>
+            <label index="recip_select_mailgroup">Select a recipient list</label>
+            <label index="recip_create_mailgroup">New recipient list</label>
+            <label index="recip_create_mailgroup_msg">Create a new recipient list?</label>
             <label index="recip_import_mailgroup">Import</label>
             <label index="recip_import_mailgroup_msg">Click here to import CSV</label>
             <label index="prefetch_read_url">You're about to read the url with the mail-content from these URL's:</label>
@@ -401,8 +401,8 @@
             <label index="prefetch_error_choose">You must choose to send either HTML, plaintext or both. Nothing is selected at this time!</label>
             <label index="testmail_individual">Testmail - Individual</label>
             <label index="testmail_individual_msg">Select a recipient of the testmail. The mail will be generated based on the profile of the recipient you select.</label>
-            <label index="testmail_mailgroup">Testmail - Direct Mail Group</label>
-            <label index="testmail_mailgroup_msg">Select a recipient mail group for the testmail. The mails will be generated based on the profiles of the recipients in that group.</label>
+            <label index="testmail_mailgroup">Testmail - Recipient list</label>
+            <label index="testmail_mailgroup_msg">Select a recipient list for the testmail. The mails will be generated based on the profiles of the recipients in that list.</label>
             <label index="testmail_simple">Testmail - Simple</label>
             <label index="testmail_simple_msg">A simple testmail includes all mail elements regardless of category. But any USER_fields are not substituted with data. Enter an email-address for the testmail:</label>
             <label index="send_sending">Sending mail</label>
@@ -412,9 +412,9 @@
             <label index="send_recipients">Recipients:</label>
             <label index="send_was_scheduled">Mail scheduled for distribution</label>
             <label index="send_was_scheduled_for">The mail was scheduled for distribution at</label>
-            <label index="schedule_select_mailgroup">Select a Mail Group</label>
+            <label index="schedule_select_mailgroup">Select a recipient list</label>
             <label index="schedule_time">Distribution time (hh:mm dd-mm-yy):</label>
-            <label index="schedule_send_all">Send to all subscribers in mail group</label>
+            <label index="schedule_send_all">Send to all subscribers in recipient list</label>
             <label index="schedule_list_emails">Send mail - list of emails</label>
             <label index="schedule_enter_emails">Enter the email-addresses for the recipients. Separate the addresses with linebreak or comma &quot;,&quot;:</label>
             <label index="quickmail_message">Message:</label>
@@ -423,7 +423,7 @@
             <label index="quickmail_one_mail_bcc">One mail to all recipients in Blind Carbon Copy (Bcc)</label>
             <label index="quickmail_one_mail_cc">One mail to all recipients in Carbon Copy (Cc)</label>
             <label index="quickmail_many_mails">Many mails, one for each recipient</label>
-            <label index="quickmail_send_now">Send message to all members of group immediately</label>
+            <label index="quickmail_send_now">Send message to all recipients of list immediately</label>
             <label index="quickmail_break_lines">Break lines to 76 char:</label>
             <label index="quickmail_missing_fields">You didn't fill in all the fields correctly!</label>
             <label index="quickmail_sent_to">Sent to:</label>
@@ -470,8 +470,8 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="configure_user_table_description">Enter the name of a custom-defined table, with compatible columns defined, which may also be used for direct mails distribution.</label>
             <label index="configure_test_tt_address_uids">List of UID numbers of test recipients:</label>
             <label index="configure_test_tt_address_uids_description">Before sending mails, you should test the mail content by sending test mails to one or more test recipients. The available recipients for testing are determined by this list of UID numbers. So first, find out the UID numbers of the recipients you wish to use for testing, then enter them here in a comma-separated list.</label>
-            <label index="configure_test_dmail_group_uids">List of UID numbers of test direct mail groups:</label>
-            <label index="configure_test_dmail_group_uids_description">Alternatively to sending test-mails to individuals, you can choose to send to a whole group. This is the list of group UID numbers available for this action.</label>
+            <label index="configure_test_dmail_group_uids">List of UID numbers of test recipient lists:</label>
+            <label index="configure_test_dmail_group_uids_description">Alternatively to sending test-mails to individuals, you can choose to send to a whole list. This is the list of recipient lists UID numbers available for this action.</label>
             <label index="configure_update_configuration">Update configuration</label>
             <label index="convert_categories">Converting categories...</label>
             <label index="convert_from_folder">... from Direct Mail folder:</label>

@@ -1,4 +1,11 @@
 <?
+/**
+ *
+ * @package TYPO3
+ * @subpackage tx_directmail
+ * @version $Id$
+ */
+ 
 if (!defined ('TYPO3_MODE'))     die ('Access denied.');
 
 // ******************************************************************
@@ -436,7 +443,7 @@ $TCA['sys_dmail_group'] = Array (
 			)
 		),
 		'recursive' => Array (
-			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.recursive',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.recursive',
 			'config' => Array (
 				'type' => 'check'
 			)
@@ -464,7 +471,7 @@ $TCA['sys_dmail_group'] = Array (
 			)
 		),
 		'csv' => Array (
-			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.type',
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.csv',
 			'config' => Array (
 				'type' => 'select',
 				'items' => Array (

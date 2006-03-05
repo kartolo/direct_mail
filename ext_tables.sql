@@ -1,3 +1,10 @@
+##
+## @package TYPO3
+## @subpackage tx_directmail
+## @version $Id: constants.txt,v 1.3 2006/03/04 16:53:18 stanrolland Exp $
+##
+
+
 #
 # Table structure for table 'cache_sys_dmail_stat'
 #

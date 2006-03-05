@@ -1,5 +1,9 @@
 2007-03-04 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add copy of the static templates in the manual.
+	* Change English language labels of Direct Mail Group to Recipient list.
+	* Adjust a few more TCA labels.
+	* Update recipient list section of manual.
+	* Complete csh help in English and French for sys_dmail_group table.
 
 2007-03-03 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Update to the manual.
