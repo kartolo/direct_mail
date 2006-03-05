@@ -45,10 +45,10 @@
     </meta>
     <data type="array">
         <languageKey index="default" type="array">
-            <label index=".description">Direct mail</label>
-            <label index=".details">A 'Direct mail' is a highly customized and personalized newsletter sent to subscribers either as HTML or Plain text, with or without attachments.
-'Direct mail' records are produced by the \|Direct mail' module.
-A 'Direct mail' record contains information about a newsletter such as subject, sender, priority, attachments and whether HTML or Plain text content is allowed. Furthermore, it also holds the compiled mail content which is sent to the subscribers.</label>
+            <label index=".description">A direct mail is a highly customized and personalized newsletter sent to subscribers either as HTML or Plain text, with or without attachments.</label>
+            <label index=".details">Direct mail records are produced by the Direct Mail module.
+
+A direct mail record contains information about a newsletter such as subject, sender, priority, attachments and whether HTML or Plain text content is allowed. Furthermore, it also holds the compiled mail content which is sent to the subscribers.</label>
             <label index="_.seeAlso">sys_dmail_group, sys_dmail_category</label>
             <label index="type.description">Type of source of the Direct mail</label>
             <label index="type.details">The Direct mail may be compiled from a page extracted from the page tree of the TYPO3 site: 'TYPO3 Page', or from a page from another site: 'External URL'.</label>
@@ -95,10 +95,10 @@ When the Direct Mail is of type 'External URL', this field should contain the co
             <label index="authcode_fieldList.description">List of fields used in the computation of the authentication code included in unsubscribe links and jump URL's in direct mails.</label>
         </languageKey>
         <languageKey index="fr" type="array">
-            <label index=".description">Bulletin d'Envoi ciblé</label>
-            <label index=".details">Un 'Bulletin' est un bulletin de nouvelles personnalisé envoyé à des abonnés en format HTML ou texte simple, avec ou sans pièces jointes.
-Les enregistrements de type 'Bulletin' sont produits par le module d'Envoi ciblé.
-Un enregistrement de type 'Bulletin' contient l'information relative à un bulletin tel que le sujet, l'expéditeur, la priorité, les pièces jointes, ainsi que ses caractéristiques techniques. Cet enregistrement contient de plus le message compilé envoyé aux abonnés.</label>
+            <label index=".description">Un bulletin est un bulletin de nouvelles personnalisé envoyé à des abonnés en format HTML ou texte simple, avec ou sans pièces jointes.</label>
+            <label index=".details">Les enregistrements de type Bulletin sont produits par le module d'Envoi ciblé.
+
+Un enregistrement de type Bulletin contient l'information relative à un bulletin tel que le sujet, l'expéditeur, la priorité, les pièces jointes, ainsi que ses caractéristiques techniques. Cet enregistrement contient de plus le message compilé envoyé aux abonnés.</label>
             <label index="type.description">Type de source du bulletin</label>
             <label index="type.details">Le bulletin peut être contruit à partie d'une page tirée de l'arborescence des pages du site TYPO3: 'Page TYPO3', ou d'une page tirée d'un autre site: 'URL externe'.</label>
             <label index="from_email.description">L'adresse de l'expéditeur du message. (Requis)</label>

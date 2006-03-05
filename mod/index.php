@@ -35,7 +35,8 @@ unset($MCONF);
 require ('conf.php');
 require ($BACK_PATH.'init.php');
 require ($BACK_PATH.'template.php');
-$LANG->includeLLFile('EXT:direct_mail/mod/locallang.xml');
+$LANG->includeLLFile('EXT:direct_mail/mod/locallang_mod_web_txdirectmailM1.xml');
+//$LANG->includeLLFile('EXT:direct_mail/mod/locallang_csh_web_directmail.xml');
 $LANG->includeLLFile('EXT:direct_mail/locallang_csh_sysdmail.xml');
 $BE_USER->modAccess($MCONF,1);    // This checks permissions and exits if the users has no permission for entry.
 

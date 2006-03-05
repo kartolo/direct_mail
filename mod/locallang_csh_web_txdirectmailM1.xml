@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<description>CSH for Direct Mail Module</description>
+		<type>CSH</type>
+		<fileId>EXT:direct_mail/mod/locallang_csh_web_txdirectmailM1</fileId>
+		<csh_table>_MOD_web_txdirectmailM1</csh_table>
+		<keep_original_text>1</keep_original_text>
+		<labelContext type="array">
+		</labelContext>
+	</meta>
+    <data type="array">
+        <languageKey index="default" type="array">alttitle
+	    <label index=".alttitle">Direct Mail Module</label>
+            <label index=".description">This module sends newsletters to lists of targeted recipients. Each Direct Mail folder is a specifically configured work area for this module. Select the folder you wish to work with.</label>
+            <label index=".details">The Direct Mail process let you create newsletter pages which can then be emailed to people on a recipient list. The following are the main steps of the Direct mail process:
+
+1. Creating a newsletter: a newsletter is basically a regular Typo3 page which resides in the Direct Mail folder.
+
+2. Categorizing the content elements: you may assign categories to the content elements of the newsletter; the newsletter emailed to each subscriber will be tailored to the categories the subscriber has subscribed to.
+
+3. Creating a Direct Mail: a Direct Mail is a record that contains a compiled version of the newsletter page and all the information required for the mailing.
+
+4. Building recipient lists: there is a number of ways by which recipient lists may be built.
+
+5. Sending a test: it is good practice to send a test mail to make sure that the newsletter that will be send to the recipient list looks as expected when received in a client email application.
+
+6. Invoking the mailer engine: schedule the actual sending of the newsletter to a specific recipient list.
+
+7. Viewing the status of mass mailings: monitor the sending of the newsletters, view response statistics, and take action on returned mails.
+
+Other available functions are:
+8. Importing a csv list of email addresses;
+9. Sending a quick mail.</label>
+            <label index="_.seeAlso">sys_dmail, sys_dmail_group, sys_dmail_category</label>
+	    <label index="select_newsletter.description">Select one of these already created newsletter.</label>
+            <label index="select_newsletter.details"></label>
+	    <label index="create_newsletter.description">Click on this link if you want to create a new newsletter.</label>
+            <label index="create_newsletter.details"></label>
+	    <label index="select_directmail.description">The following direct mails have not yet been sent. Click on the one you want to work on.</label>
+            <label index="select_directmail.details"></label>
+	    <label index="create_directmail_from_nl.description">No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</label>
+            <label index="create_directmail_from_nl.details"></label>
+	    <label index="create_directmail_from_url.description">Use this form to create a new direct mail based on content grabbed from an external URL.</label>
+            <label index="create_directmail_from_url.details"></label>
+        </languageKey>
+        <languageKey index="fr" type="array">
+	    <label index=".alttitle">Module d'Envoi ciblé</label>
+            <label index=".description">Ce module envoi des bulletins de nouvelles à des listes de destinataires ciblés. Chaque dossier d'Envoi ciblé constitue une aire de travail spécifiquement configurée pour ce module. Sélectionnez le dossier sur lequel vous désirez travailler.</label>
+            <label index=".details"></label>
+        </languageKey>
+    </data>
+    <orig_hash type="array">
+        <languageKey index="default" type="array">
+        </languageKey>
+        <languageKey index="fr" type="array">
+        </languageKey>
+    </orig_hash>
+    <orig_text type="array">
+        <languageKey index="default" type="array">
+        </languageKey>
+        <languageKey index="fr" type="array">
+        </languageKey>
+    </orig_text>
+</T3locallang>

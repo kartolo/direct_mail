@@ -583,7 +583,7 @@ class dmailer extends t3lib_htmlmail {
 			$LANG = t3lib_div::makeInstance('language');
 			$L = $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cron_language'] ? $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cron_language'] : $this->user_dmailerLang;
 			$LANG->init(trim($L));
-			$LANG->includeLLFile('EXT:direct_mail/mod/locallang.xml');
+			$LANG->includeLLFile('EXT:direct_mail/mod/locallang_mod_web_txdirectmailM1.xml');
 		}
 
 		$pt = t3lib_div::milliseconds();

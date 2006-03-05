@@ -11,5 +11,5 @@ $MCONF['script']='index.php';
 
 
 $MLANG['default']['tabs_images']['tab'] = 'mod_icon.gif';
-$MLANG['default']['ll_ref']='LLL:EXT:direct_mail/mod/locallang_mod.xml';
+$MLANG['default']['ll_ref']='LLL:EXT:direct_mail/mod/locallang_mod_web_txdirectmailM1.xml';
 ?>

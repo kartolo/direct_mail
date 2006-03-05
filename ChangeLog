@@ -1,3 +1,11 @@
+2007-03-05 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Minor adjustments to tables csh files.
+	* Complete csh help in English and French for sys_dmail_category table.
+	* Update section of manual: Categorizing newsletter content.
+	* Rename and reorganize module locallang files in mod directory.
+	* Add module csh file locallang_csh_web_txdirectmailM1.xml
+	* Initialize module csh file and test configuration with a few labels.
+
 2007-03-04 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add copy of the static templates in the manual.
 	* Change English language labels of Direct Mail Group to Recipient list.
