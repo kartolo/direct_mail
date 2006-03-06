@@ -8,6 +8,7 @@
 	* Add item 'dmail' on column 'module' of table 'pages' in ext_tables.php (pending removal from typo3/sysext/cms/ext_tables.php)
 	* Add methods find_MIDfromReturnPath and find_XTypo3MID in mod/class.readmail.php (pending removal from t3lib/class.t3lib_readmail.php)
 	* Update to manual and contextual help.
+	* Add simulated conversion of records, until conversion is explicitly confirmed.
 
 2007-03-04 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add copy of the static templates in the manual.

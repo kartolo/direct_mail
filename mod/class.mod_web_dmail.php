@@ -2007,19 +2007,33 @@ class mod_web_dmail extends t3lib_SCbase {
 	
 	function cmd_convertCategories() {
 		global $LANG;
+		
+		$outRec = '';
+		$convert_confirm = t3lib_div::_GP('convert_confirm');
+		
 		$out = $this->doc->spacer(10);
 		$out .= $this->doc->section($LANG->getLL('convert_categories'), $this->createNewCategories());
 		$out .= $this->doc->spacer(10);
-		$outRec = $this->convertCategoriesInRecords('fe_users');
-		$outRec .= $this->convertCategoriesInRecords('tt_address');
-		if ($this->userTable)	{
-			$outRec .= $this->convertCategoriesInRecords($this->userTable);
+		
+		if (!$convert_confirm) {
+			$out .= $this->doc->section($LANG->getLL('convert_simulation'), '');
 		}
-		$outRec .= $this->convertCategoriesInRecords('sys_dmail_group');
-		$outRec .= $this->convertCategoriesInRecords('tt_content');
+		$outRec .= $this->convertCategoriesInRecords('fe_users',$convert_confirm);
+		$outRec .= $this->convertCategoriesInRecords('tt_address',$convert_confirm);
+		if ($this->userTable)	{
+			$outRec .= $this->convertCategoriesInRecords($this->userTable,$convert_confirm);
+		}
+		$outRec .= $this->convertCategoriesInRecords('sys_dmail_group',$convert_confirm);
+		$outRec .= $this->convertCategoriesInRecords('tt_content',$convert_confirm);
 		$out .= $this->doc->section($LANG->getLL('convert_records'), $outRec);
+
 		$out .= $this->doc->spacer(10);
-		$out .= $this->doc->section($LANG->getLL('convert_completed'), '');
+		if ($convert_confirm) {
+			$out .= $this->doc->section($LANG->getLL('convert_completed'), '');
+		} else {
+			$out.= '<input type="submit" name="convert_confirm" value="' . $LANG->getLL('convert_confirm') . '" />';
+			$out.= '<br /><input type="submit" name="cancel" value="' . $LANG->getLL('dmail_cancel') . '" />';
+		}
 		$theOutput = $this->doc->section($LANG->getLL('dmail_menu_convert_categories'), $out, 0, 1);
 		return $theOutput;
 	}
@@ -2069,7 +2083,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		return $theOutput;
 	}
 	
-	function convertCategoriesInRecords($table) {
+	function convertCategoriesInRecords($table,$convert_confirm=0) {
 		global $TYPO3_DB, $TCA, $LANG;
 		
 		$theOutput = '<br />' . $LANG->getLL('convert_records_from_table') . ': ' . $table;
@@ -2105,7 +2119,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					}
 				}
 				$categoryList = implode(',', $categoryArr);
-				$theOutput .= '<br />'. $LANG->getLL('convert_record') . ':' . ' ' . $row['uid'] . ' ' . $LANG->getLL('convert_had_categories') . ': ' . $categoryList;
+				$out = '<br />'. $LANG->getLL('convert_record') . ':' . ' ' . $row['uid'] . ' ' . $LANG->getLL('convert_had_categories') . ': ' . $categoryList;
 				$this->makeCategories($table,$row);
 				$categoryUids = implode(',', array_keys($this->categories));
 				
@@ -2127,28 +2141,32 @@ class mod_web_dmail extends t3lib_SCbase {
 							$mmRec['uid_foreign'] = intval($cat_row['uid']);
 							$mmRec['tablenames'] = '';
 							$mmRec['sorting'] = intval($mm_count);
-							$res_insert_mm = $TYPO3_DB->exec_INSERTquery($mm_table, $mmRec);
+							if ($convert_confirm) {
+								$res_insert_mm = $TYPO3_DB->exec_INSERTquery($mm_table, $mmRec);
+							}
 							$converted[] = $cat_row['uid'];
 						}
-						$theOutput .= ' ' . $LANG->getLL('convert_converted_into') . ': ' . implode(',', $converted);
+						$out .= ' ' . $LANG->getLL('convert_converted_into') . ': ' . implode(',', $converted);
 						$updateFields = array(
 							$mm_field => intval($mm_count)
 						);
-						$res_update = $TYPO3_DB->exec_UPDATEquery($table, 'uid='.intval($row['uid']), $updateFields);
+						if ($convert_confirm) {
+							$res_update = $TYPO3_DB->exec_UPDATEquery($table, 'uid='.intval($row['uid']), $updateFields);
+						}
 						$newConvertCount++;
 					} else {
 						$notConvertCount++;
-						$theOutput .= ' ' . $LANG->getLL('convert_could_not_be_converted');
+						$out .= ' ' . $LANG->getLL('convert_could_not_be_converted');
 					}
 				} else {
 					$notConvertCount++;
-					$theOutput .= ' ' . $LANG->getLL('convert_could_not_be_converted');
+					$out .= ' ' . $LANG->getLL('convert_could_not_be_converted');
 				}
+				$theOutput .= $out;
 			} else {
 				$alreadyRelatedCount++;
 			}
 		}
-		
 		$theOutput .= '<br /><br />' . $LANG->getLL('number_of_records_converted_in') . ' ' . $table . ': ' . $newConvertCount;
 		$theOutput .= '<br />' . $LANG->getLL('number_of_records_not_converted_in') . ' ' . $table . ': ' . $notConvertCount;
 		if ($notConvertCount) {

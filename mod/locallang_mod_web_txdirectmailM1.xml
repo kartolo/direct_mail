@@ -208,6 +208,8 @@
             <label index="records_not_converted_explain2"></label>
             <label index="records_not_converted_explain3"></label>
             <label index="number_of_records_already_related_in"></label>
+	    <label index="convert_simulation"></label>
+	    <label index="convert_confirm"></label>
             <label index="convert_completed"></label>
             <label index="stats_general_information"></label>
             <label index="stats_total"></label>
@@ -498,6 +500,8 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="records_not_converted_explain2">in Page TSConfig on the pages containing the records that could not be converted.</label>
             <label index="records_not_converted_explain3">Please review the topic in the manual, configure Page TSConfig, and execute the conversion again.</label>
             <label index="number_of_records_already_related_in">Number of records already related in</label>
+	    <label index="convert_simulation">The following steps will be simulated only, until you press the confirmation button at the bottom of the window.</label>
+	    <label index="convert_confirm">Confirm this conversion</label>
             <label index="convert_completed">Conversion completed.</label>
             <label index="stats_general_information">General information:</label>
             <label index="stats_total">Total:</label>
@@ -983,6 +987,8 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="records_not_converted_explain2">dans Page TSConfig sur les pages contenant les enregistrements qui n'ont pas pu être convertis.</label>
             <label index="records_not_converted_explain3">Veuillez lire la section pertinente du manuel, configurer Page TSConfig, et exécuter la conversion de nouveau.</label>
             <label index="number_of_records_already_related_in">Nombre d'enregistrements déjà reliés dans</label>
+	    <label index="convert_simulation">Les étapes suivantes ne seront que simulées, tant que vous n'aurez pas appuyé sur le bouton de confirmation au bas de la fenêtre.</label>
+            <label index="convert_confirm">Confimer cette conversion</label>
             <label index="convert_completed">Conversion complétée.</label>
             <label index="stats_general_information">Statistiques générales:</label>
             <label index="stats_total">Total:</label>
