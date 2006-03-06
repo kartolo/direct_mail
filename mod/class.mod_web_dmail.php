@@ -150,9 +150,9 @@ class mod_web_dmail extends t3lib_SCbase {
 			'dmail_mode' => Array (
 				'news' => $LANG->getLL('dmail_menu_newsletters'),
 				'direct' => $LANG->getLL('dmail_menu_direct_mails'),
-				'quick' => $LANG->getLL('dmail_menu_quickMail'),
 				'recip' => $LANG->getLL('dmail_menu_list'),
 				'mailerengine' => $LANG->getLL('dmail_menu_mailerengine'),
+				'quick' => $LANG->getLL('dmail_menu_quickMail'),
 				'convert' => $LANG->getLL('dmail_menu_convert_categories'),
 				'conf' => $LANG->getLL('dmail_menu_conf'),
 				)
@@ -306,13 +306,13 @@ class mod_web_dmail extends t3lib_SCbase {
 				$module=$pidrec['module'];
 			}
 			if ($module == 'dmail') {
-				$this->content.=$this->doc->section('',$this->doc->funcMenu($headerSection,t3lib_BEfunc::getFuncMenu($this->id,'SET[dmail_mode]',$this->MOD_SETTINGS['dmail_mode'],$this->MOD_MENU['dmail_mode'])));
+				$this->content.=$this->doc->section('',$this->doc->funcMenu($headerSection, t3lib_BEfunc::cshItem($this->cshTable,'',$BACK_PATH).t3lib_BEfunc::getFuncMenu($this->id,'SET[dmail_mode]',$this->MOD_SETTINGS['dmail_mode'],$this->MOD_MENU['dmail_mode'])));
 
 					// Render content:
 				$this->createDMail();
 				$this->moduleContent();
 			} else {
-				$this->content.=$this->doc->section($LANG->getLL('dmail_folders'), t3lib_BEfunc::cshItem($this->cshTable,'',$BACK_PATH).'<br />'.$this->modList['list'], 0, 1);
+				$this->content.=$this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'folders',$BACK_PATH).$LANG->getLL('dmail_folders'), $this->modList['list'], 0, 1, 0 , TRUE);
 			}
 
 			// ShortCut
@@ -1769,17 +1769,17 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (!$TYPO3_DB->sql_num_rows($res))	{
 			$theOutput.= $this->doc->section($LANG->getLL('nl_select'),$LANG->getLL('nl_select_msg1'),0,1);
 		} else {
-			$out = t3lib_BEfunc::cshItem($this->cshTable,'select_newsletter',$BACK_PATH).'<br />';
+			$out = '';
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$out.='<nobr><a href="index.php?id='.$this->id.'&CMD=displayPageInfo&pages_uid='.$row['uid'].'&SET[dmail_mode]=news">'.t3lib_iconWorks::getIconImage('pages', $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').
 					$row['title'].'</a></nobr><br />';
 			}
-			$theOutput.= $this->doc->section($LANG->getLL('nl_select'),$out,0,1);
+			$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'select_newsletter',$BACK_PATH).$LANG->getLL('nl_select'),$out,0,1, 0, TRUE);
 		}
 		
 			// Create a new page
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section($LANG->getLL('nl_create'),t3lib_BEfunc::cshItem($this->cshTable,'create_newsletter',$BACK_PATH).'<br />'.'<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->id.']=new&edit[tt_content][prev]=new',$BACK_PATH,'').'"><b>'.$LANG->getLL('nl_create_msg1').'</b></a>',0,1);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_newsletter',$BACK_PATH).$LANG->getLL('nl_create'),'<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->id.']=new&edit[tt_content][prev]=new',$BACK_PATH,'').'"><b>'.$LANG->getLL('nl_create_msg1').'</b></a>',0,1,0,TRUE);
 		return $theOutput;
 	}
 
@@ -1797,8 +1797,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'',
 			$TYPO3_DB->stripOrderBy($TCA['sys_dmail']['ctrl']['default_sortby'])
 			);
-		$out = t3lib_BEfunc::cshItem($this->cshTable,'select_directmail',$BACK_PATH).'<br />';
-		$out.='<tr>
+		$out ='<tr>
 						<td bgColor="'.$this->doc->bgColor5.'">'.fw('&nbsp;').'</td>
 						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('nl_l_subject').'&nbsp;&nbsp;').'</b></td>
 						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('nl_l_lastM').'&nbsp;&nbsp;').'</b></td>
@@ -1820,25 +1819,24 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 		
 		$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
-		$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_selectDmail'),$out,1,1);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'select_directmail',$BACK_PATH).$LANG->getLL('dmail_dovsk_selectDmail'),$out,1,1, 0, TRUE);
 		
 			// Find all newsletters NOT created as non-deleted DMAILS
 		$res = $TYPO3_DB->exec_SELECTquery('pages.uid,pages.title', 'pages LEFT JOIN sys_dmail ON pages.uid=sys_dmail.page'.t3lib_BEfunc::deleteClause('sys_dmail'), 'sys_dmail.page IS NULL AND pages.doktype IN (1,2) AND pages.pid='.intval($this->id).t3lib_BEfunc::deleteClause('pages'));
 		if (!$TYPO3_DB->sql_num_rows($res))	{
 			$out = $LANG->getLL('dmail_msg1_crFromNL');
 		} else {
-			$out = t3lib_BEfunc::cshItem($this->cshTable,'create_directmail_from_nl',$BACK_PATH).'<br />';
+			$out = '';
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$out.= '<nobr><a href="index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&SET[dmail_mode]=direct">'.t3lib_iconWorks::getIconImage('pages', $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').
 					$row['title'].'</a></nobr><br />';
 			}
 		}
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_crFromNL'),$out,1,1);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_directmail_from_nl',$BACK_PATH).$LANG->getLL('dmail_dovsk_crFromNL'),$out,1,1, 0, TRUE);
 		
 			// Create
-		$out = t3lib_BEfunc::cshItem($this->cshTable,'create_directmail_from_url',$BACK_PATH).'<br />';
-		$out .='
+		$out ='
 				' . $LANG->getLL('dmail_HTML_url') . '<br />
 				<input type="text" value="http://" name="createMailFrom_HTMLUrl"'.$TBE_TEMPLATE->formWidth(40).' /><br />' .
 				$LANG->getLL('dmail_plaintext_url') . '<br />
@@ -1849,7 +1847,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				'<input type="submit" value="'.$LANG->getLL("dmail_createMail").'" />
 				';
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_crFromUrl'),$out,1,1);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_directmail_from_url',$BACK_PATH).$LANG->getLL('dmail_dovsk_crFromUrl'),$out,1,1, 0, TRUE);
 		
 		return $theOutput;
 	}
@@ -1878,17 +1876,17 @@ class mod_web_dmail extends t3lib_SCbase {
 					</tr>';
 		}
 		$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
-		$theOutput.= $this->doc->section($LANG->getLL('recip_select_mailgroup'),$out,0,1);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'select_mailgroup',$BACK_PATH).$LANG->getLL('recip_select_mailgroup'),$out,0,1, 0, TRUE);
 		
 			// New:
 		$out='<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[sys_dmail_group]['.$this->id.']=new',$BACK_PATH,'').'">'.t3lib_iconWorks::getIconImage('sys_dmail_group',array(),$BACK_PATH,'align="top"'). $LANG->getLL('recip_create_mailgroup_msg') . '</a>';
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section($LANG->getLL('recip_create_mailgroup'),$out);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_mailgroup',$BACK_PATH).$LANG->getLL('recip_create_mailgroup'),$out, 0, 1, 0, TRUE);
 		
 			// Import
 		$out='<a href="index.php?id='.$this->id.'&CMD=displayImport">' . $LANG->getLL('recip_import_mailgroup_msg') . '</a>';
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section($LANG->getLL('recip_import_mailgroup'),$out);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'import_mailgroup',$BACK_PATH).$LANG->getLL('recip_import_mailgroup'),$out, 0, 1, 0, TRUE);
 		return $theOutput;
 	}
 
@@ -1937,12 +1935,12 @@ class mod_web_dmail extends t3lib_SCbase {
 		
 		$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
 		$out.='<br />'. $LANG->getLL('dmail_mailerengine_current_time') . ' '.t3lib_BEfunc::datetime(time()).'<br />';
-		$theOutput.= $this->doc->section($LANG->getLL('dmail_mailerengine_status'),$out,0,1);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_status',$BACK_PATH).$LANG->getLL('dmail_mailerengine_status'),$out,0,1, 0, TRUE);
 		
 			// Invoke engine
 		$out=$LANG->getLL('dmail_mailerengine_manual_explain') . '&nbsp;&nbsp;<a href="index.php?id='.$this->id.'&invokeMailerEngine=1"><strong>' . $LANG->getLL('dmail_mailerengine_invoke_now') . '</strong></a>';
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section($LANG->getLL('dmail_mailerengine_manual_invoke'),$out);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_invoke',$BACK_PATH).$LANG->getLL('dmail_mailerengine_manual_invoke'), $out, 0, 1, 0, TRUE);
 		return $theOutput;
 	}
 	/**

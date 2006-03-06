@@ -6,6 +6,7 @@
         <csh_table></csh_table>
         <fileId>EXT:direct_mail/locallang_tca.xml</fileId>
         <labelContext type="array">
+	    <label index="pages.module.I.5"></label>
             <label index="module_sys_dmail_group.category"></label>
             <label index="module_sys_dmail_group.htmlemail"></label>
             <label index="sys_dmail_category"></label>
@@ -78,6 +79,7 @@
     </meta>
     <data type="array">
         <languageKey index="default" type="array">
+	    <label index="pages.module.I.5">Direct Mail</label>
             <label index="module_sys_dmail_group.category">Subscribe to categories</label>
             <label index="module_sys_dmail_group.htmlemail">Recieve e-mails as HTML?</label>
             <label index="sys_dmail_category">Direct Mail Category</label>
@@ -354,6 +356,7 @@
             <label index="sys_dmail_group.select_categories.I.9">Cat 9</label>
         </languageKey>
         <languageKey index="fr" type="array">
+	    <label index="pages.module.I.5">Envoi ciblé</label>
             <label index="module_sys_dmail_group.category">S'abonner aux rubriques:</label>
             <label index="module_sys_dmail_group.htmlemail">Recevoir les messages en format HTML</label>
             <label index="sys_dmail_category">Rubrique de contenu</label>

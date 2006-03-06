@@ -24,6 +24,10 @@ require_once(t3lib_extMgm::extPath($_EXTKEY).'/res/scripts/class.tx_directmail_s
  * Setting up the direct mail module
  */
 
+ 	// pages modified
+t3lib_div::loadTCA('pages');
+$TCA['pages']['columns']['module']['config']['items'][] = Array('LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:pages.module.I.5', 'dmail');
+
  	// tt_content modified
 t3lib_div::loadTCA('tt_content');
 $tt_content_cols = Array(

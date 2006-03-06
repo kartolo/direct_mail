@@ -12,31 +12,34 @@
     <data type="array">
         <languageKey index="default" type="array">alttitle
 	    <label index=".alttitle">Direct Mail Module</label>
-            <label index=".description">This module sends newsletters to lists of targeted recipients. Each Direct Mail folder is a specifically configured work area for this module. Select the folder you wish to work with.</label>
-            <label index=".details">The Direct Mail process let you create newsletter pages which can then be emailed to people on a recipient list. The following are the main steps of the Direct mail process:
+            <label index=".description">This module sends newsletters to lists of targeted recipients.</label>
+            <label index=".details">The Direct Mail process let you create newsletter pages which can then be emailed to people on a recipient list. The following are the main steps of the Direct Mail process:
 
-1. Creating a newsletter: a newsletter is basically a regular Typo3 page which resides in the Direct Mail folder.
+1. Creating a newsletter: a newsletter is basically a regular Typo3 page which resides in the Direct Mail folder. Select menu option "Newsletters" and follow the instructions.
 
-2. Categorizing the content elements: you may assign categories to the content elements of the newsletter; the newsletter emailed to each subscriber will be tailored to the categories the subscriber has subscribed to.
+2. Categorizing the content elements of the newsletter: you may assign categories to the content elements of the newsletter; the newsletter emailed to each subscriber will be tailored to the categories the subscriber has subscribed to. Select menu option "Newsletters" and follow the instructions.
 
-3. Creating a Direct Mail: a Direct Mail is a record that contains a compiled version of the newsletter page and all the information required for the mailing.
+3. Creating a Direct Mail: a Direct Mail is a record that contains a compiled version of the newsletter page and all the information required for the mailing. Select menu option "Direct Mails" and follow the instructions.
 
-4. Building recipient lists: there is a number of ways by which recipient lists may be built.
+4. Building a recipient list: there is a number of ways by which recipient lists may be built. Recipient lists may be built beforehand and be reused as needed. Select menu option "Recipient Lists" and follow the instructions.
 
-5. Sending a test: it is good practice to send a test mail to make sure that the newsletter that will be send to the recipient list looks as expected when received in a client email application.
+5. Sending a test: it is good practice to send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application. Select menu option "Direct Mails", click on a direct mail, select option "Send a test mail" in menu "OPTIONS:", and follow the instructions.
 
-6. Invoking the mailer engine: schedule the actual sending of the newsletter to a specific recipient list.
+6. Invoking the mailer engine: schedule the actual sending of the direct mail to a specific recipient list. Select menu option "Direct Mails", click on a direct mail, select "Mass-send mail" option menu "OPTIONS:", and follow the instructions.
 
-7. Viewing the status of mass mailings: monitor the sending of the newsletters, view response statistics, and take action on returned mails.
+7. Viewing the status of mass mailings: monitor the sending of the newsletters, view response statistics, and take action on returned mails. Select menu option "Mailer Engine Status" and follow the instructions.
 
-Other available functions are:
-8. Importing a csv list of email addresses;
-9. Sending a quick mail.</label>
+At any point, you may, if needed, use the module context sensitive help.</label>
             <label index="_.seeAlso">sys_dmail, sys_dmail_group, sys_dmail_category</label>
-	    <label index="select_newsletter.description">Select one of these already created newsletter.</label>
-            <label index="select_newsletter.details"></label>
+	    <label index="folders.alttitle">Available Direct Mail folders</label>
+	    <label index="folders.description">This module sends newsletters to lists of targeted recipients. Select the folder you wish to work with.</label>
+            <label index="folders.details">Each Direct Mail folder is a specifically configured work area for this module.</label>
+	    <label index="select_newsletter.alttitle">Select a newsletter</label>
+	    <label index="select_newsletter.description">Click on one of these already created newsletters.</label>
+            <label index="select_newsletter.details">You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</label>
+	    <label index="create_newsletter.alttitle">Create a newsletter</label>	    
 	    <label index="create_newsletter.description">Click on this link if you want to create a new newsletter.</label>
-            <label index="create_newsletter.details"></label>
+            <label index="create_newsletter.details">A newsletter is basically a regular Typo3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.</label>
 	    <label index="select_directmail.description">The following direct mails have not yet been sent. Click on the one you want to work on.</label>
             <label index="select_directmail.details"></label>
 	    <label index="create_directmail_from_nl.description">No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</label>
@@ -46,8 +49,30 @@ Other available functions are:
         </languageKey>
         <languageKey index="fr" type="array">
 	    <label index=".alttitle">Module d'Envoi ciblé</label>
-            <label index=".description">Ce module envoi des bulletins de nouvelles à des listes de destinataires ciblés. Chaque dossier d'Envoi ciblé constitue une aire de travail spécifiquement configurée pour ce module. Sélectionnez le dossier sur lequel vous désirez travailler.</label>
-            <label index=".details"></label>
+            <label index=".description">Ce module envoie des bulletins de nouvelles à des listes de destinataires ciblés.</label>
+            <label index=".details">Le processus d'Envoi ciblé vous permet de créer des pages de nouvelles que vous pouvez ensuite envoyer aux destinataires figurant sur une liste de distribution. Voici les principales étapes de ce processus:
+
+1. Créer une page de nouvelles: une page de nouvelle est essentiellement une page régulière TYPO3 insérée dans un dossier d'Envoi ciblé. Sélectionnez l'option de menu "Pages" et suivez les indications.
+
+2. Classifier les éléments de contenu de la page: vous pouvez assigner des rubriques aux éléments de contenu de la page de nouvelles. Le bulletin envoyé à chaque destinataire ne contiendra que les éléments de contenu portant une rubrique à laquelle il est abonné. Cliquez sur l'option de menu "Pages" et suivez les indications.
+
+3. Créer un bulletin: une bulletin est un enregistrement qui contient une version compilée de la page de nouvelles et toute l'information requise pour les envois. Sélectionnez l'option de menu "Bulletins" et suivez les indications.
+
+4. Construire une liste de distribution: il y a plusieurs façons de construire des listes de distribution; les listes de distribution peuvent être créées à l'avance et réutilisées au besoin. Sélectionnez l'option de menu "Listes de distribution" et suivez les indications.
+
+5. Envoyer un message d'essai: avant de procéder à un envoi massif, il est recommandé d'envoyer un message d'essai afin de vérifier la qualité du bulletin. Sélectionnez l'option de menu "Bulletins", cliquez sur un bulletin, utilisez le menu "OPTIONS:" et suivez les indications.
+
+6. Déclencher l'envoi massif: vous spécifiez la liste de distribution à laquelle le bulletin sera envoyé ainsi que la date et l'heure à laquelle vous désirez que le processus d'envoi soit déclenché. Sélectionnez l'option de menu "Bulletins", cliquez sur un bulletin, utilisez le menu "OPTIONS:" et suivez les indications.
+
+7. Visionner l'état des envois massifs: vous pouvez suivre la progression d'un envoi, voir les statistiques de réponse, et prendre action sur les messages retournés. Sélectionnez l'option de menu "État des envois massifs" et suivez les indications.
+
+Vous pouvez, au besoin, vous référer à l'aide contextuelle.</label>
+	    <label index="folders.description">Ce module envoie des bulletins de nouvelles à des listes de destinataires ciblés. Sélectionnez le dossier sur lequel vous désirez travailler.</label>
+	    <label index="folders.alttitle">Dossiers d'Envoi ciblé disponibles</label>
+            <label index="folders.details">Chaque dossier d'Envoi ciblé constitue une aire de travail spécifiquement configurée pour ce module.</label>
+	    <label index="select_newsletter.alttitle">Choisissez une page existante</label>
+	    <label index="select_newsletter.description">Cliquez sur une de ces pages déjà existantes.</label>
+            <label index="select_newsletter.details">Vous pouvez cliquer sur une des pages de cette liste pour voir l'information à propos de cette page, classifier ses éléments de contenu, ou encore l'utiliser pour créer un bulletin.</label>
         </languageKey>
     </data>
     <orig_hash type="array">

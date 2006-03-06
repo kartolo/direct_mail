@@ -47,6 +47,50 @@ class readmail extends t3lib_readmail {
 	);
 	
 	/**
+	 * Returns special TYPO3 Message ID (MID) from input TO header (the return address of the sent mail from Dmailer)
+	 *
+	 * @param	string		email address, return address string
+	 * @return	mixed		array with 'mid', 'rtbl' and 'rid' keys are returned.
+	 * @internal
+	 */
+	function find_MIDfromReturnPath($to)	{
+		$parts = explode('mid',strtolower($to));
+		$moreParts=explode('_',$parts[1]);
+		$out=array(
+			'mid' => $moreParts[0],
+			'rtbl' => substr($moreParts[1],0,1),
+			'rid' => intval(substr($moreParts[1],1))
+		);
+		if ($out['rtbl']=='p')		$out['rtbl']='P';
+		
+		return($out);
+	}
+	
+	/**
+	 * Returns special TYPO3 Message ID (MID) from input mail content
+	 *
+	 * @param	string		Mail (header) content
+	 * @return	mixed		If "X-Typo3MID" header is found and integrity is OK, then an array with 'mid', 'rtbl' and 'rid' keys are returned. Otherwise void.
+	 * @internal
+	 */
+	function find_XTypo3MID($content)	{
+		if (strstr($content,'X-Typo3MID:'))	{
+			$p=explode('X-Typo3MID:',$content,2);
+			$l=explode(chr(10),$p[1],2);
+			list($mid,$hash)=t3lib_div::trimExplode('-',$l[0]);
+			if (md5($mid)==$hash)	{
+				$moreParts=explode('_',substr($mid,3));
+				$out=array(
+					'mid' => $moreParts[0],
+					'rtbl' => substr($moreParts[1],0,1),
+					'rid' => substr($moreParts[1],1)
+				);
+				return($out);
+			}
+		}
+	}
+	
+	/**
 	* The getMessage method is modified to avoid breaking the message when it contains a Content-Type: message/delivery-status
 	* 
 	*/

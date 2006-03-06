@@ -312,10 +312,10 @@
             <label index="dmail_menu_newsletters">Newsletters</label>
             <label index="dmail_menu_direct_mails">Direct Mails</label>
             <label index="dmail_menu_quickMail">QuickMail</label>
-            <label index="dmail_menu_list">Recipient list</label>
+            <label index="dmail_menu_list">Recipient Lists</label>
             <label index="dmail_menu_conf">Module configuration</label>
             <label index="dmail_menu_mailerengine">Mailer Engine Status</label>
-            <label index="dmail_menu_convert_categories">Categories conversion</label>
+            <label index="dmail_menu_convert_categories">Categories Conversion</label>
             <label index="dmailer_mid">Job No:</label>
             <label index="dmailer_job_begin">Job begin</label>
             <label index="dmailer_job_end">Job end</label>
@@ -881,7 +881,7 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="mailgroup_import_test">Essai d'importation sans écriture</label>
             <label index="mailgroup_import_now">Importer maintenant!</label>
             <label index="recip_select_mailgroup">Choisissez une liste de distribution</label>
-            <label index="recip_create_mailgroup">Nouvelle liste de distribution</label>
+            <label index="recip_create_mailgroup">Créer une nouvelle liste de distribution</label>
             <label index="recip_create_mailgroup_msg">Cliquez ici pour créer une nouvelle liste de distribution</label>
             <label index="recip_import_mailgroup">Importer une liste de distribution</label>
             <label index="recip_import_mailgroup_msg">Cliquez ici pour importer une liste de format CSV</label>
@@ -1039,7 +1039,7 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="stats_recalculate_cached_data">Recalculer les données en cache:</label>
             <label index="nl_select_msg1">Il n'y a aucune page dans le dossier d'envoi massif.</label>
             <label index="nl_select">Choisissez une page existante</label>
-            <label index="nl_create">Créez une nouvelle page</label>
+            <label index="nl_create">Créer une nouvelle page</label>
             <label index="nl_create_msg1">Cliquez ici pour créer une nouvelle page qui pourra être envoyée comme bulletin.</label>
             <label index="nl_info">Information sur la page</label>
             <label index="nl_viewPage">Voir la page</label>
