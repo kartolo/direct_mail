@@ -2154,13 +2154,16 @@ class mod_web_dmail extends t3lib_SCbase {
 							$res_update = $TYPO3_DB->exec_UPDATEquery($table, 'uid='.intval($row['uid']), $updateFields);
 						}
 						$newConvertCount++;
+						if ($newConvertCount > 50) $out = '';
 					} else {
 						$notConvertCount++;
 						$out .= ' ' . $LANG->getLL('convert_could_not_be_converted');
+						if ($notConvertCount > 50) $out = '';
 					}
 				} else {
 					$notConvertCount++;
 					$out .= ' ' . $LANG->getLL('convert_could_not_be_converted');
+					if ($notConvertCount > 50) $out = '';
 				}
 				$theOutput .= $out;
 			} else {
@@ -2168,9 +2171,15 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 		}
 		$theOutput .= '<br /><br />' . $LANG->getLL('number_of_records_converted_in') . ' ' . $table . ': ' . $newConvertCount;
+		if ($newConvertCount > 50) {
+			$theOutput .= '<br />' . $LANG->getLL('records_converted_too_many');
+		}
 		$theOutput .= '<br />' . $LANG->getLL('number_of_records_not_converted_in') . ' ' . $table . ': ' . $notConvertCount;
 		if ($notConvertCount) {
 			$theOutput .= '<br />' . $LANG->getLL('records_not_converted_explain1') . ' TCEFORM.'.$table.'.'.$mm_field.'.PAGE_TSCONFIG_IDLIST '.$LANG->getLL('records_not_converted_explain2').' '.$LANG->getLL('records_not_converted_explain3');
+		}
+		if ($notConvertCount > 50) {
+			$theOutput .= '<br />' . $LANG->getLL('records_not_converted_too_many');
 		}
 		$theOutput .= '<br />' . $LANG->getLL('number_of_records_already_related_in') . ' ' . $table . ': ' . $alreadyRelatedCount . '<br />';
 		

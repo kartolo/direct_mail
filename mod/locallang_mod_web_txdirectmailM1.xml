@@ -203,7 +203,9 @@
             <label index="convert_converted_into"></label>
             <label index="convert_could_not_be_converted"></label>
             <label index="number_of_records_converted_in"></label>
+	    <label index="records_converted_too_many"></label>
             <label index="number_of_records_not_converted_in"></label>
+	    <label index="records_not_converted_too_many"></label>
             <label index="records_not_converted_explain1"></label>
             <label index="records_not_converted_explain2"></label>
             <label index="records_not_converted_explain3"></label>
@@ -495,7 +497,9 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="convert_converted_into">converted into</label>
             <label index="convert_could_not_be_converted">which could not be converted.</label>
             <label index="number_of_records_converted_in">Number of records converted in</label>
+	    <label index="records_converted_too_many">There were too many records converted (more than 50) to report each individually.</label>
             <label index="number_of_records_not_converted_in">Number of records not converted in</label>
+	    <label index="records_not_converted_too_many">There were too many records not converted (more than 50) to report each individually.</label>
             <label index="records_not_converted_explain1">You may need to configure variable</label>
             <label index="records_not_converted_explain2">in Page TSConfig on the pages containing the records that could not be converted.</label>
             <label index="records_not_converted_explain3">Please review the topic in the manual, configure Page TSConfig, and execute the conversion again.</label>
@@ -982,7 +986,9 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="convert_converted_into">converties vers</label>
             <label index="convert_could_not_be_converted">qui n'ont pas pu être converties.</label>
             <label index="number_of_records_converted_in">Nombre d'enregistrements convertis dans</label>
+	    <label index="records_converted_too_many">Trop d'enregistrements ont été convertis (plus de 50) pour rapporter chacun individuellement.</label>
             <label index="number_of_records_not_converted_in">Nombre d'enregistrements non convertis dans</label>
+	    <label index="records_not_converted_too_many">Trop d'enregistrements non pas pu être convertis (plus de 50) pour rapporter chacun individuellement.</label>
             <label index="records_not_converted_explain1">Il se peut qu'il soit nécessaire de configurer la variable</label>
             <label index="records_not_converted_explain2">dans Page TSConfig sur les pages contenant les enregistrements qui n'ont pas pu être convertis.</label>
             <label index="records_not_converted_explain3">Veuillez lire la section pertinente du manuel, configurer Page TSConfig, et exécuter la conversion de nouveau.</label>
