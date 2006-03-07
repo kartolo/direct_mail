@@ -44,7 +44,7 @@ require_once(t3lib_extMgm::extPath('direct_mail').'mod/class.dmailer.php');
 class mod_web_dmail extends t3lib_SCbase {
 	var $extKey = 'direct_mail';
 	var $TSconfPrefix = 'mod.web_modules.dmail.';
-	var $fieldList='uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html,description';
+	var $fieldList='uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
 	// Internal
 	var $modList='';
 	var $params=array();
@@ -306,13 +306,13 @@ class mod_web_dmail extends t3lib_SCbase {
 				$module=$pidrec['module'];
 			}
 			if ($module == 'dmail') {
-				$this->content.=$this->doc->section('',$this->doc->funcMenu($headerSection, t3lib_BEfunc::cshItem($this->cshTable,'',$BACK_PATH).t3lib_BEfunc::getFuncMenu($this->id,'SET[dmail_mode]',$this->MOD_SETTINGS['dmail_mode'],$this->MOD_MENU['dmail_mode'])));
+				$this->content.=$this->doc->section('',$this->doc->funcMenu($headerSection, t3lib_BEfunc::getFuncMenu($this->id,'SET[dmail_mode]',$this->MOD_SETTINGS['dmail_mode'],$this->MOD_MENU['dmail_mode']).t3lib_BEfunc::cshItem($this->cshTable,'',$BACK_PATH)));
 
 					// Render content:
 				$this->createDMail();
 				$this->moduleContent();
 			} else {
-				$this->content.=$this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'folders',$BACK_PATH).$LANG->getLL('dmail_folders'), $this->modList['list'], 0, 1, 0 , TRUE);
+				$this->content.=$this->doc->section($LANG->getLL('dmail_folders').t3lib_BEfunc::cshItem($this->cshTable,'folders',$BACK_PATH), $this->modList['list'], 1, 1, 0 , TRUE);
 			}
 
 			// ShortCut
@@ -377,7 +377,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	function mailModule_main()	{
 		global $LANG, $TYPO3_DB;
 		
-		$theOutput.=$this->doc->divider(5);
+		//$theOutput.=$this->doc->divider(5);
 		$mode = $this->MOD_SETTINGS['dmail_mode'];
 
 		if (!$this->sys_dmail_uid || $mode!='direct')	{
@@ -447,24 +447,27 @@ class mod_web_dmail extends t3lib_SCbase {
 					$row = t3lib_befunc::getRecord('sys_dmail',$row['uid']);
 					break;
 				case 'prefetch':
-					$theOutput.=$this->cmd_prefetch($row);
+					$theOutput .= $this->cmd_prefetch($row);
 					break;
 				case 'testmail':
-					$theOutput.=$this->cmd_testmail($row);
+					$theOutput .= $this->cmd_testmail($row);
 					break;
 				case 'finalmail':
 					$theOutput.=$this->cmd_finalmail($row);
 					break;
 				case 'send_mail_test':
+					$theOutput.=$this->cmd_send_mail($row);
+					break;
 				case 'send_mail_final':
 					$theOutput.=$this->cmd_send_mail($row);
 					break;
 				case 'stats':
-					$theOutput.=$this->cmd_stats($row);
+					$theOutput .= $this->cmd_stats($row);
 					break;
 				}
+				$theOutput = $this->directMail_optionsMenu($row, $this->CMD) . $theOutput;
 				if (!$this->noView)	{
-					$theOutput.=$this->directMail_defaultView($row);
+					$theOutput .= $this->directMail_defaultView($row);
 				}
 			}
 		}
@@ -604,7 +607,8 @@ class mod_web_dmail extends t3lib_SCbase {
 		} else {
 			$onClick = '';
 		}
-
+		$page = t3lib_befunc::getRecord('pages',$this->pages_uid);
+		$pageTitle = t3lib_iconWorks::getIconImage('pages',$row,$BACK_PATH,'style="vertical-align: top;"').$page['title'];
 		$out="";
 		$out.='<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($this->pages_uid,$BACK_PATH).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif', 'width="12" height="12"').' alt="" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" />'.$LANG->getLL("nl_viewPage").'</a><br />';
 		$out.='<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->pages_uid.']=edit&edit_content=1',$BACK_PATH,"",1).'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("nl_editPage").'" />'.$LANG->getLL("nl_editPage").'</a><br />';
@@ -636,8 +640,8 @@ class mod_web_dmail extends t3lib_SCbase {
 			$out.='</table>';
 		}
 
-		$theOutput.= $this->doc->section($LANG->getLL('nl_info'),$out,0,1);
-		$theOutput.= $this->doc->divider(20);
+		$theOutput.= $this->doc->section($LANG->getLL('nl_info').' '.$pageTitle, $out , 1, 1, 0, TRUE);
+		$theOutput.= $this->doc->spacer(20);
 		
 		$indata = t3lib_div::_GP('indata');
 		if (is_array($indata['categories']))	{
@@ -707,7 +711,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 			$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
 			$out.='<input type="hidden" name="pages_uid" value="'.$this->pages_uid.'"><input type="hidden" name="CMD" value="'.$this->CMD.'"><br /><input type="submit" value="'.$LANG->getLL('nl_l_update').'">';
-			$theOutput.= $this->doc->section($LANG->getLL('nl_cat'),$LANG->getLL('nl_cat_msg2').'<br /><br />'.$out);
+			$theOutput.= $this->doc->section($LANG->getLL('nl_cat').t3lib_BEfunc::cshItem($this->cshTable,'assign_categories',$BACK_PATH), $out, 1, 1, 0, TRUE);
 		}
 		return $theOutput;
 	}
@@ -1053,27 +1057,35 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
 		
 		$group = t3lib_befunc::getRecord('sys_dmail_group',t3lib_div::_GP('group_uid'));
-		$out=t3lib_iconWorks::getIconImage('sys_dmail_group',$group,$BACK_PATH,'style="vertical-align: top;"').$group['title'].'<br /><br />';
+		$out=t3lib_iconWorks::getIconImage('sys_dmail_group',$group,$BACK_PATH,'style="vertical-align: top;"').$group['title'];
 		
 		$lCmd=t3lib_div::_GP('lCmd');
 		
-		$mainC = $out . $LANG->getLL('mailgroup_recip_number') . ' <strong>'.$count.'</strong>';
+		$mainC = $LANG->getLL('mailgroup_recip_number') . ' <strong>'.$count.'</strong>';
 		if (!$lCmd)	{
 			$mainC.= '<br /><br /><a href="'.t3lib_div::linkThisScript(array('lCmd'=>'listall')).'">' . $LANG->getLL('mailgroup_list_all') . '</a>';
 		}
 		
-		$theOutput.= $this->doc->section($LANG->getLL('mailgroup_recip_from'),$mainC);
+		$theOutput.= $this->doc->section($LANG->getLL('mailgroup_recip_from').' '.$out,$mainC, 1, 1, 0, TRUE);
 		$theOutput.= $this->doc->spacer(20);
 		
 		switch($lCmd)	{
 		case 'listall':
-			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_address'),$this->getRecordList($this->fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address'));
+			if (is_array($idLists['tt_address'])) {
+				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_address'),$this->getRecordList($this->fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address'));
+				$theOutput.= $this->doc->spacer(20);
+			}
+			if (is_array($idLists['fe_users'])) {
+				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_fe_users'),$this->getRecordList($this->fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users'));
 			$theOutput.= $this->doc->spacer(20);
-			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_fe_users'),$this->getRecordList($this->fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users'));
-			$theOutput.= $this->doc->spacer(20);
-			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_plain_list'),$this->getRecordList($idLists['PLAINLIST'],'default',1));
-			$theOutput.= $this->doc->spacer(20);
-			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_custom') . ' ' . $this->userTable,$this->getRecordList($this->fetchRecordsListValues($idLists[$this->userTable],$this->userTable),$this->userTable));
+			}
+			if (is_array($idLists['PLAINLIST'])) {
+				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_plain_list'),$this->getRecordList($idLists['PLAINLIST'],'default',1));
+				$theOutput.= $this->doc->spacer(20);
+			}
+			if (is_array($idLists[$this->userTable])) {
+				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_custom') . ' ' . $this->userTable,$this->getRecordList($this->fetchRecordsListValues($idLists[$this->userTable],$this->userTable),$this->userTable));
+			}
 			break;
 		default:
 			if (t3lib_div::_GP('csv'))	{
@@ -1081,16 +1093,16 @@ class mod_web_dmail extends t3lib_SCbase {
 				if ($csvValue=='PLAINLIST')	{
 					$this->downloadCSV($idLists['PLAINLIST']);
 				} elseif (t3lib_div::inList('tt_address,fe_users,'.$this->userTable, $csvValue)) {
-					$this->downloadCSV($this->fetchRecordsListValues($idLists[$csvValue],$csvValue,$this->fieldList.',tstamp'));
+					$this->downloadCSV($this->fetchRecordsListValues($idLists[$csvValue],$csvValue,(($csvValue == 'fe_users') ? str_replace('phone','telephone',$this->fieldList) : $this->fieldList).',tstamp'));
 				}
 			} else {
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_address'),$LANG->getLL('mailgroup_recip_number') . ' ' . (is_array($idLists['tt_address'])?count($idLists['tt_address']):0).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>'tt_address')).'">' . $LANG->getLL('mailgroup_download') . '</a>');
+				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_address'),$LANG->getLL('mailgroup_recip_number') . ' ' . (is_array($idLists['tt_address'])?count($idLists['tt_address']).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>'tt_address')).'">' . $LANG->getLL('mailgroup_download') . '</a>':0));
 				$theOutput.= $this->doc->spacer(20);
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_fe_users'),$LANG->getLL('mailgroup_recip_number') . ' ' .(is_array($idLists['fe_users'])?count($idLists['fe_users']):0).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>'fe_users')).'">' . $LANG->getLL('mailgroup_download') . '</a>');
+				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_fe_users'),$LANG->getLL('mailgroup_recip_number') . ' ' .(is_array($idLists['fe_users'])?count($idLists['fe_users']).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>'fe_users')).'">' . $LANG->getLL('mailgroup_download') . '</a>':0));
 				$theOutput.= $this->doc->spacer(20);
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_plain_list'),$LANG->getLL('mailgroup_recip_number') . ' ' .(is_array($idLists['PLAINLIST'])?count($idLists['PLAINLIST']):0).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>'PLAINLIST')).'">' . $LANG->getLL('mailgroup_download') . '</a>');
+				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_plain_list'),$LANG->getLL('mailgroup_recip_number') . ' ' .(is_array($idLists['PLAINLIST'])?count($idLists['PLAINLIST']).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>'PLAINLIST')).'">' . $LANG->getLL('mailgroup_download') . '</a>':0));
 				$theOutput.= $this->doc->spacer(20);
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_custom'),$LANG->getLL('mailgroup_recip_number') . ' ' .(is_array($idLists[$this->userTable])?count($idLists[$this->userTable]):0).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>$this->userTable)).'">' . $LANG->getLL('mailgroup_download') . '</a>');
+				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_custom'),$LANG->getLL('mailgroup_recip_number') . ' ' .(is_array($idLists[$this->userTable])?count($idLists[$this->userTable]).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>$this->userTable)).'">' . $LANG->getLL('mailgroup_download') . '</a>':0));
 			}
 			if ($group['type'] == 3) {
 				$theOutput .= $this->cmd_specialQuery($group);
@@ -1445,7 +1457,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$tce->process_datamap();
 		$tce->process_cmdmap();
 	}
-	
+
 	/**
 	 * [Describe function...]
 	 *
@@ -1454,13 +1466,15 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @param	[type]		$fields: ...
 	 * @return	[type]		...
 	 */
-	function fetchRecordsListValues($listArr,$table,$fields='uid,name,email')	{
+	function fetchRecordsListValues($listArr,$table,$fields='uid,name,email') {
+		global $TYPO3_DB;
+		
 		$count = 0;
 		$outListArr = array();
 		if (is_array($listArr) && count($listArr))	{
 			$idlist = implode(',',$listArr);
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($fields, $table, 'uid IN ('.$idlist.')'.t3lib_befunc::deleteClause($table));
-			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+			$res = $TYPO3_DB->exec_SELECTquery($fields, $table, 'uid IN ('.$idlist.')'.t3lib_befunc::deleteClause($table));
+			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$outListArr[$row['uid']] = $row;
 			}
 		}
@@ -1516,7 +1530,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function cmd_displayImport()	{
-		global $LANG;
+		global $LANG, $BACK_PATH;
 		
 		$indata = t3lib_div::_GP('CSV_IMPORT');
 		if (is_array($indata))	{
@@ -1570,7 +1584,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			<input type="hidden" name="CMD" value="displayImport">
 			';
 		}
-		$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import'),$out);
+		$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import').t3lib_BEfunc::cshItem($this->cshTable,'mailgroup_import',$BACK_PATH),$out, 1, 1, 0, TRUE);
 		return $theOutput;
 	}
 
@@ -1774,12 +1788,12 @@ class mod_web_dmail extends t3lib_SCbase {
 				$out.='<nobr><a href="index.php?id='.$this->id.'&CMD=displayPageInfo&pages_uid='.$row['uid'].'&SET[dmail_mode]=news">'.t3lib_iconWorks::getIconImage('pages', $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').
 					$row['title'].'</a></nobr><br />';
 			}
-			$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'select_newsletter',$BACK_PATH).$LANG->getLL('nl_select'),$out,0,1, 0, TRUE);
+			$theOutput.= $this->doc->section($LANG->getLL('nl_select').t3lib_BEfunc::cshItem($this->cshTable,'select_newsletter',$BACK_PATH), $out, 1, 1, 0, TRUE);
 		}
 		
 			// Create a new page
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_newsletter',$BACK_PATH).$LANG->getLL('nl_create'),'<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->id.']=new&edit[tt_content][prev]=new',$BACK_PATH,'').'"><b>'.$LANG->getLL('nl_create_msg1').'</b></a>',0,1,0,TRUE);
+		$theOutput.= $this->doc->section($LANG->getLL('nl_create').t3lib_BEfunc::cshItem($this->cshTable,'create_newsletter',$BACK_PATH),'<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->id.']=new&edit[tt_content][prev]=new',$BACK_PATH,'').'"><b>'.$LANG->getLL('nl_create_msg1').'</b></a>', 1, 1, 0, TRUE);
 		return $theOutput;
 	}
 
@@ -1819,7 +1833,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 		
 		$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'select_directmail',$BACK_PATH).$LANG->getLL('dmail_dovsk_selectDmail'),$out,1,1, 0, TRUE);
+		$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_selectDmail').t3lib_BEfunc::cshItem($this->cshTable,'select_directmail',$BACK_PATH), $out, 1, 1, 0, TRUE);
 		
 			// Find all newsletters NOT created as non-deleted DMAILS
 		$res = $TYPO3_DB->exec_SELECTquery('pages.uid,pages.title', 'pages LEFT JOIN sys_dmail ON pages.uid=sys_dmail.page'.t3lib_BEfunc::deleteClause('sys_dmail'), 'sys_dmail.page IS NULL AND pages.doktype IN (1,2) AND pages.pid='.intval($this->id).t3lib_BEfunc::deleteClause('pages'));
@@ -1833,7 +1847,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 		}
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_directmail_from_nl',$BACK_PATH).$LANG->getLL('dmail_dovsk_crFromNL'),$out,1,1, 0, TRUE);
+		$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_crFromNL').t3lib_BEfunc::cshItem($this->cshTable,'create_directmail_from_nl',$BACK_PATH), $out, 1, 1, 0, TRUE);
 		
 			// Create
 		$out ='
@@ -1847,7 +1861,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				'<input type="submit" value="'.$LANG->getLL("dmail_createMail").'" />
 				';
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_directmail_from_url',$BACK_PATH).$LANG->getLL('dmail_dovsk_crFromUrl'),$out,1,1, 0, TRUE);
+		$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_crFromUrl').t3lib_BEfunc::cshItem($this->cshTable,'create_directmail_from_url',$BACK_PATH), $out, 1, 1, 0, TRUE);
 		
 		return $theOutput;
 	}
@@ -1876,20 +1890,20 @@ class mod_web_dmail extends t3lib_SCbase {
 					</tr>';
 		}
 		$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'select_mailgroup',$BACK_PATH).$LANG->getLL('recip_select_mailgroup'),$out,0,1, 0, TRUE);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'select_mailgroup',$BACK_PATH).$LANG->getLL('recip_select_mailgroup'),$out,1,1, 0, TRUE);
 		
 			// New:
 		$out='<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[sys_dmail_group]['.$this->id.']=new',$BACK_PATH,'').'">'.t3lib_iconWorks::getIconImage('sys_dmail_group',array(),$BACK_PATH,'align="top"'). $LANG->getLL('recip_create_mailgroup_msg') . '</a>';
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_mailgroup',$BACK_PATH).$LANG->getLL('recip_create_mailgroup'),$out, 0, 1, 0, TRUE);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_mailgroup',$BACK_PATH).$LANG->getLL('recip_create_mailgroup'),$out, 1, 1, 0, TRUE);
 		
 			// Import
 		$out='<a href="index.php?id='.$this->id.'&CMD=displayImport">' . $LANG->getLL('recip_import_mailgroup_msg') . '</a>';
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'import_mailgroup',$BACK_PATH).$LANG->getLL('recip_import_mailgroup'),$out, 0, 1, 0, TRUE);
+		$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import'),$out, 1, 1, 0, TRUE);
 		return $theOutput;
 	}
-
+	
 	/**
 	 * Shows the status of the mailer engine. TODO: Should really only show some entries, or provide a browsing interface.
 	 */
@@ -1898,7 +1912,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		
 		if (t3lib_div::_GP('invokeMailerEngine'))	{
 			$out='<strong>' . $LANG->getLL('dmail_mailerengine_log') . '</strong><br /><font color=#666666>' . nl2br($this->invokeMEngine()) . '</font><br />';
-			$theOutput.= $this->doc->section($LANG->getLL('dmail_mailerengine_invoked'),$out);
+			$theOutput.= $this->doc->section($LANG->getLL('dmail_mailerengine_invoked'), $out, 1);
 			$theOutput.= $this->doc->spacer(20);
 		}
 		
@@ -1935,12 +1949,12 @@ class mod_web_dmail extends t3lib_SCbase {
 		
 		$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
 		$out.='<br />'. $LANG->getLL('dmail_mailerengine_current_time') . ' '.t3lib_BEfunc::datetime(time()).'<br />';
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_status',$BACK_PATH).$LANG->getLL('dmail_mailerengine_status'),$out,0,1, 0, TRUE);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_status',$BACK_PATH).$LANG->getLL('dmail_mailerengine_status'),$out,1,1, 0, TRUE);
 		
 			// Invoke engine
 		$out=$LANG->getLL('dmail_mailerengine_manual_explain') . '&nbsp;&nbsp;<a href="index.php?id='.$this->id.'&invokeMailerEngine=1"><strong>' . $LANG->getLL('dmail_mailerengine_invoke_now') . '</strong></a>';
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_invoke',$BACK_PATH).$LANG->getLL('dmail_mailerengine_manual_invoke'), $out, 0, 1, 0, TRUE);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_invoke',$BACK_PATH).$LANG->getLL('dmail_mailerengine_manual_invoke'), $out, 1, 1, 0, TRUE);
 		return $theOutput;
 	}
 	/**
@@ -2001,7 +2015,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$configArray['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];
 		}
 		
-		$theOutput.= $this->doc->section($LANG->getLL('configure_direct_mail_module'),str_replace('Update configuration', $LANG->getLL('configure_update_configuration'), t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,'pageTS')),0,1);
+		$theOutput.= $this->doc->section($LANG->getLL('configure_direct_mail_module'),str_replace('Update configuration', $LANG->getLL('configure_update_configuration'), t3lib_BEfunc::makeConfigForm($configArray,$this->implodedParams,'pageTS')),1,1,0, TRUE);
 		return $theOutput;
 	}
 	
@@ -2034,7 +2048,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$out.= '<input type="submit" name="convert_confirm" value="' . $LANG->getLL('convert_confirm') . '" />';
 			$out.= '<br /><input type="submit" name="cancel" value="' . $LANG->getLL('dmail_cancel') . '" />';
 		}
-		$theOutput = $this->doc->section($LANG->getLL('dmail_menu_convert_categories'), $out, 0, 1);
+		$theOutput = $this->doc->section($LANG->getLL('dmail_menu_convert_categories'), $out, 1, 1, 0, TRUE);
 		return $theOutput;
 	}
 	
@@ -2272,7 +2286,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 */
 	function cmd_prefetch($row)	{
 		global $LANG;
-
+		
 		if ($row['sendOptions'])	{
 			$msg = $LANG->getLL('prefetch_read_url') . '<br /><br />';
 			if ($this->url_plain)	{
@@ -2284,10 +2298,9 @@ class mod_web_dmail extends t3lib_SCbase {
 			
 			$msg.= $LANG->getLL('prefetch_patience') . '<br /><br />';
 			$msg.= '<input type="Submit" value="' . $LANG->getLL('prefetch_fetch') . '" onClick="jumpToUrlD(\'index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=fetch\'); return false;" />  ';
-			$msg.= $this->back;
-			$theOutput.= $this->doc->section($LANG->getLL('prefetch_fetching'),fw($msg));
+			$theOutput.= $this->doc->section($LANG->getLL('prefetch_fetching'),fw($msg), 1, 1, 0, TRUE);
 		} else {
-			$theOutput.= $this->doc->section($LANG->getLL('dmail_error'),fw($LANG->getLL('prefetch_error_choose') .  '<br /><br />'.$this->back));
+			$theOutput.= $this->doc->section($LANG->getLL('dmail_error'),fw($LANG->getLL('prefetch_error_choose') .'<br /><br />'.$this->back));
 		}
 		$this->noView=1;
 		return $theOutput;
@@ -2301,7 +2314,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 */
 	function cmd_testmail($row)	{
 		global $LANG, $BACK_PATH, $TYPO3_DB, $TBE_TEMPLATE;
-
+		
 		if ($this->params['test_tt_address_uids'])	{
 			$intList = implode(',', t3lib_div::intExplode(',',$this->params['test_tt_address_uids']));
 			$res = $TYPO3_DB->exec_SELECTquery('tt_address.*', 'tt_address,pages', 'pages.uid=tt_address.pid AND tt_address.uid IN ('.$intList.') AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('tt_address').t3lib_BEfunc::deleteClause('pages'));
@@ -2309,8 +2322,8 @@ class mod_web_dmail extends t3lib_SCbase {
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$msg.='<a href="index.php?id='.$this->id.'&CMD=displayUserInfo&table=tt_address&uid='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" /></a><a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&tt_address_uid='.$row['uid'].'">'.t3lib_iconWorks::getIconImage('tt_address', $row, $BACK_PATH, ' alt="'.htmlspecialchars($LANG->getLL('dmail_send')).'" title="'.htmlspecialchars($LANG->getLL('dmail_menuItems_testmail')).'" "width="18" height="16" style="margin: 0px 5px; vertical-align: top;"').htmlspecialchars($row['name'].' <'.$row['email'].'>'.($row['module_sys_dmail_html']?' html':'')).'</a><br />';
 			}
-			$theOutput.= $this->doc->section($LANG->getLL('testmail_individual'),fw($msg));
-			$theOutput.= $this->doc->divider(20);
+			$theOutput.= $this->doc->section($LANG->getLL('testmail_individual'),fw($msg), 1, 1, 0, TRUE);
+			$theOutput.= $this->doc->spacer(20);
 		}
 
 		if ($this->params['test_dmail_group_uids'])	{
@@ -2328,8 +2341,8 @@ class mod_web_dmail extends t3lib_SCbase {
 				</tr>
 				</table>';
 			}
-			$theOutput.= $this->doc->section($LANG->getLL('testmail_mailgroup'),fw($msg));
-			$theOutput.= $this->doc->divider(20);
+			$theOutput.= $this->doc->section($LANG->getLL('testmail_mailgroup'),fw($msg), 1, 1, 0, TRUE);
+			$theOutput.= $this->doc->spacer(20);
 		}
 
 		$msg='';
@@ -2341,10 +2354,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$msg.= '<input type="hidden" name="CMD" value="send_mail_test" />';
 		$msg.= '<input type="Submit" name="mailingMode_simple" value="' . $LANG->getLL('dmail_send') . '" />';
 
-		$theOutput.= $this->doc->section($LANG->getLL('testmail_simple'),fw($msg));
-		$this->back = '<input type="Submit" value="' . $LANG->getLL('dmail_back') . '" onClick="jumpToUrlD(\'index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'\'); return false;">';
-		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section('',$this->back);		
+		$theOutput.= $this->doc->section($LANG->getLL('testmail_simple'),fw($msg), 1, 1, 0, TRUE);
 
 		$this->noView=1;
 		return $theOutput;
@@ -2373,13 +2383,13 @@ class mod_web_dmail extends t3lib_SCbase {
 		$msg.= '<input type="hidden" name="id" value="'.$this->id.'" />';
 		$msg.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'" />';
 		$msg.= '<input type="hidden" name="CMD" value="send_mail_final" />';
-		$msg.= $select.'<br />';
-		$msg.=$LANG->getLL('schedule_time') . '<br /><input type="text" name="send_mail_datetime_hr'.'" onChange="typo3FormFieldGet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);"'.$TBE_TEMPLATE->formWidth(20).'><input type="hidden" value="'.time().'" name="send_mail_datetime" /><br />';
+		$msg.= $LANG->getLL('schedule_mailgroup') . ' '.$select.'<br /><br />';
+		$msg.= $LANG->getLL('schedule_time') . ' <input type="text" name="send_mail_datetime_hr'.'" onChange="typo3FormFieldGet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);"'.$TBE_TEMPLATE->formWidth(20).'><input type="hidden" value="'.time().'" name="send_mail_datetime" /><br />';
 		$this->extJSCODE.='typo3FormFieldSet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);';
-		$msg.= '<input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" />';
+		$msg.= '<br /><input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" />';
 
-		$theOutput.= $this->doc->section($LANG->getLL('schedule_select_mailgroup'),fw($msg));
-		$theOutput.= $this->doc->divider(20);
+		$theOutput.= $this->doc->section($LANG->getLL('schedule_select_mailgroup'),fw($msg), 1, 1, 0, TRUE);
+		$theOutput.= $this->doc->spacer(20);
 
 		$msg='';
 		$msg.= $LANG->getLL('schedule_enter_emails') . '<br /><br />';
@@ -2390,7 +2400,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$msg.= '<input type="Submit" name="mailingMode_simple" value="' . $LANG->getLL('dmail_send') . '" />';
 		$msg.=$this->JSbottom();
 
-		$theOutput.= $this->doc->section($LANG->getLL('schedule_list_emails'),fw($msg));
+		$theOutput.= $this->doc->section($LANG->getLL('schedule_list_emails'),fw($msg), 1, 1, 0, TRUE);
 		$this->noView=1;
 		return $theOutput;
 	}
@@ -2422,6 +2432,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $TCA, $BE_USER, $LANG, $TYPO3_DB;
 		
 		$theOutput='';
+		$errorOutput='';
 		$whichMode='';
 		
 			// Check if send mail:
@@ -2485,10 +2496,9 @@ class mod_web_dmail extends t3lib_SCbase {
 				} else {
 					$msg=$LANG->getLL('quickmail_no_recipient');
 				}
-				$theOutput.= $this->doc->section($LANG->getLL('send_was_sent'),$msg,0,1);
+				$theOutput.= $this->doc->section($LANG->getLL('dmail_menu_quickMail'), $LANG->getLL('send_was_sent').'<br />'.$msg,1, 1, 0, TRUE);
 			} else {
-
-				$theOutput.= $this->doc->section($LANG->getLL('dmail_error'),$LANG->getLL('quickmail_missing_fields'),0,1);
+				$errorOutput.= $this->doc->section($LANG->getLL('quickmail_missing_fields'),'',1);
 			}
 		}
 
@@ -2510,7 +2520,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				// Set up form:		
 			$msg='';
 			$msg.= '<input type="hidden" name="id" value="'.$this->id.'" />';
-			$msg.= $select.$selectMode.'<br />';
+			$msg.= $LANG->getLL('quickmail_mailgroup') . '<br />' . $select.$selectMode.'<br />';
 			if ($mailgroup_uid)	{
 				$msg.=$LANG->getLL('send_recipients') . '<br /><em>'.implode(', ',$this->getUniqueEmailsFromGroup($mailgroup_uid)).'</em><br /><br />';
 			}
@@ -2519,10 +2529,10 @@ class mod_web_dmail extends t3lib_SCbase {
 			$msg.= $LANG->getLL('dmail_subject') . '<br /><input type="text" name="subject" value="'.$subject.'"'.$this->doc->formWidth().' /><br />';
 			$msg.= $LANG->getLL('quickmail_message') . '<br /><textarea rows="20" name="message"'.$this->doc->formWidthText().'>'.t3lib_div::formatForTextarea($message).'</textarea><br />';
 			$msg.= $LANG->getLL('quickmail_break_lines') . ' <input type="checkbox" name="breakLines" value="1"'.($breakLines?' checked="checked"':'').' /><br /><br />';
+			$msg.= $errorOutput;
 			$msg.= '<input type="Submit" name="quick_mail_send" value="' . $LANG->getLL('quickmail_send_now') . '" />';
-			$msg.= '<br /><input type="Submit" name="cancel" value="' . $LANG->getLL('dmail_cancel') . '" />';
 
-			$theOutput.= $this->doc->section($LANG->getLL('dmail_menu_quickMail'),$msg,0,1);
+			$theOutput.= $this->doc->section($LANG->getLL('dmail_menu_quickMail'),$msg,1,1,0,TRUE);
 		}
 		return $theOutput;
 	}
@@ -2613,7 +2623,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					// Sending the same mail to lots of recipients
 				$htmlmail->dmailer_sendSimple($addressList);
 				$sentFlag=true;
-				$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw($LANG->getLL('send_was_sent'). '<br /><br />' . $LANG->getLL('send_recipients') . '<br />'.$addressList.'<br /><br />'.$this->back));
+				$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw($LANG->getLL('send_was_sent'). '<br /><br />' . $LANG->getLL('send_recipients') . '<br />'.$addressList), 1, 1, 0, TRUE);
 				$this->noView=1;
 			}
 		} else {	// extended, personalized emails.
@@ -2625,7 +2635,7 @@ class mod_web_dmail extends t3lib_SCbase {
 						$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address',$recipRow['uid']);
 						$htmlmail->dmailer_sendAdvanced($recipRow,'t');
 						$sentFlag=true;
-						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_name') . '<br /><br />' . $this->back, $recipRow['name'].htmlspecialchars(' <'.$recipRow['email'].'>'))));
+						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_name'), $recipRow['name'].htmlspecialchars(' <'.$recipRow['email'].'>'))), 1, 1, 0, TRUE);
 						$this->noView=1;
 					}
 				} elseif (t3lib_div::_GP('sys_dmail_group_uid'))	{
@@ -2639,7 +2649,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					$sendFlag+=$this->sendTestMailToTable($idLists,$this->userTable,$htmlmail);
 
 					if ($sendFlag)	{
-						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_number') . '<br /><br />' .$this->back, $sendFlag)));
+						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_number'), $sendFlag)), 1, 1, 0, TRUE);
 						$this->noView=1;
 					}
 				}
@@ -2660,7 +2670,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					$TYPO3_DB->exec_UPDATEquery('sys_dmail', 'uid='.intval($this->sys_dmail_uid), $updateFields);
 
 					$sentFlag=true;
-					$theOutput.= $this->doc->section($LANG->getLL('send_was_scheduled'),fw($LANG->getLL('send_was_scheduled_for') . ' '.t3lib_BEfunc::datetime($distributionTime).'.<br /><br />'.$this->back));
+					$theOutput.= $this->doc->section($LANG->getLL('send_was_scheduled'),fw($LANG->getLL('send_was_scheduled_for') . ' '.t3lib_BEfunc::datetime($distributionTime)), 1, 1, 0, TRUE);
 					$this->noView=1;
 				}
 			}
@@ -3229,10 +3239,10 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 
 		$this->noView=1;
-		$theOutput.= $this->doc->section($LANG->getLL('stats_direct_mail'),$output);
+		$theOutput.= $this->doc->section($LANG->getLL('stats_direct_mail'),$output, 1, 1, 0, TRUE);
 		$link = '<a href="'.$thisurl.'">' . $LANG->getLL('stats_recalculate_stats') . '</a>';
-		$theOutput.= $this->doc->divider(10);
-		$theOutput.= $this->doc->section($LANG->getLL('stats_recalculate_cached_data'),$link);
+		$theOutput.= $this->doc->spacer(20);
+		$theOutput.= $this->doc->section($LANG->getLL('stats_recalculate_cached_data'), $link, 1, 1, 0, TRUE);
 		return $theOutput;
 	}
 
@@ -3424,8 +3434,9 @@ class mod_web_dmail extends t3lib_SCbase {
 	 */
 	function directMail_defaultView($row)	{
 		global $LANG, $BE_USER, $BACK_PATH;
-
+		
 			// Render record:
+		$dmailTitle=t3lib_iconWorks::getIconImage('sys_dmail',$row,$BACK_PATH,'style="vertical-align: top;"').$row['subject'];
 		$out='';
 		$Eparams='&edit[sys_dmail]['.$row['uid'].']=edit';
 		$out .= '<tr><td colspan=3 bgColor="' . $this->doc->bgColor5 . '" valign=top>'.fw($this->fName('subject').' <b>'.t3lib_div::fixed_lgd($row['subject'],30).'  </b>').'</td></tr>';
@@ -3454,10 +3465,21 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 		}
 		
-		$theOutput.= $this->doc->section($LANG->getLL('dmail_view'),$out,0,1);
+		$theOutput.= $this->doc->section($LANG->getLL('dmail_view').' '.$dmailTitle, $out, 1, 1, 0, TRUE);
 		
-			// Status:
-		$theOutput.= $this->doc->spacer(15);
+		return $theOutput;
+	}
+	
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$row: ...
+	 * @return	[type]		...
+	 */
+	function directMail_optionsMenu($row, $current='') {
+		global $LANG, $BACK_PATH;
+		
+			// Direct mail options menu:
 		$menuItems = array();
 		$menuItems[0]=$LANG->getLL('dmail_menuItems');
 		if (!$row['issent'])	{
@@ -3472,24 +3494,12 @@ class mod_web_dmail extends t3lib_SCbase {
 		if ($row['issent'])	{
 			$menuItems['stats']=$LANG->getLL('dmail_menuItems_stats');
 		}
-
-		$menu = t3lib_BEfunc::getFuncMenu($this->id,'CMD','',$menuItems,'','&sys_dmail_uid=' . $row['uid']);
-		$theOutput.= $this->doc->section($LANG->getLL('dmail_menuItems_options'),$menu);
 		
-		if (!$row['renderedsize'])	{
-			$theOutput.= $this->doc->divider(15);
-			$theOutput.= $this->doc->section($LANG->getLL('dmail_menuItems_note'),$LANG->getLL('dmail_menuItems_note_use_menu'));
-		} elseif(!$row['from_email'])	{
-			$theOutput.= $this->doc->divider(15);
-			$theOutput.= $this->doc->section($LANG->getLL('dmail_menuItems_note'),$LANG->getLL('dmail_menuItems_note_enter_sender'));
-		} else {
-			$theOutput.= $this->doc->divider(15);
-			$theOutput.= $this->doc->section($LANG->getLL('dmail_menuItems_note'),$LANG->getLL('dmail_menuItems_note_send_test'));
-		}
-		$theOutput.= $this->doc->section('','<br /><br /><input type="submit" value="' . $LANG->getLL('dmail_back') . '">');
-		return $theOutput;
+		$menu = t3lib_BEfunc::getFuncMenu($this->id,'CMD',$current,$menuItems,'','&sys_dmail_uid=' . $row['uid']);
+		
+		return $this->doc->section('','<div style="text-align: right;">'.$menu.t3lib_BEfunc::cshItem($this->cshTable,'directmail_actions',$BACK_PATH).'</div>');
 	}
-
+	
 	/**
 	 * [Describe function...]
 	 *

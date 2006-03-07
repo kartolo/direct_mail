@@ -131,11 +131,13 @@
             <label index="send_was_scheduled"></label>
             <label index="send_was_scheduled_for"></label>
             <label index="schedule_select_mailgroup"></label>
+	    <label index="schedule_mailgroup"></label>
             <label index="schedule_time"></label>
             <label index="schedule_send_all"></label>
             <label index="schedule_list_emails"></label>
             <label index="schedule_enter_emails"></label>
             <label index="quickmail_message"></label>
+	    <label index="quickmail_mailgroup"></label>
             <label index="quickmail_sender_name"></label>
             <label index="quickmail_sender_email"></label>
             <label index="quickmail_one_mail_bcc"></label>
@@ -290,7 +292,6 @@
             <label index="nl_l_warning"></label>
             <label index="nl_cat_msg1"></label>
             <label index="nl_cat"></label>
-            <label index="nl_cat_msg2"></label>
             <label index="update_convert_now"></label>
             <label index="update_convert_do_it_now"></label>
             <label index="yes"></label>
@@ -309,7 +310,7 @@
             <label index="dmail_msg1_crFromNL">There are no newsletters which are not present as a Direct Mail already!</label>
             <label index="dmail_dovsk_crFromUrl">Create a new Direct Mail from external URL</label>
             <label index="dmail_createMail">Create mail</label>
-            <label index="dmail_view">View direct mail record</label>
+            <label index="dmail_view">Information on direct mail record:</label>
             <label index="dmail_noEdit_noPerms">Cannot edit - you don't have permissions to edit Direct Mails.</label>
             <label index="dmail_noEdit_isSent">Cannot edit - mail has been sent</label>
             <label index="dmail_basedOn">The Direct Mail is based on this page/newsletter.&lt;br /&gt;Click to see page info:</label>
@@ -328,8 +329,8 @@
             <label index="dmailer_ending">Ending, parsetime:</label>
             <label index="dmailer_sys_dmail_record">sys_dmail record</label>
             <label index="dmailer_processed">processed...</label>
-            <label index="dmail_menuItems">[MENU]</label>
-            <label index="dmail_menuItems_prefetch">Fetch and compile maildata (read url)</label>
+            <label index="dmail_menuItems">[Select an action]</label>
+            <label index="dmail_menuItems_prefetch">Fetch and compile mail content</label>
             <label index="dmail_menuItems_testmail">Send a testmail</label>
             <label index="dmail_menuItems_finalmail">Mass-send mail</label>
             <label index="dmail_menuItems_stats">See statistics of this mail</label>
@@ -338,18 +339,18 @@
             <label index="dmail_menuItems_note_use_menu">Use the menu to fetch content for the email</label>
             <label index="dmail_menuItems_note_enter_sender">You must enter a 'Sender email' address for the mail!</label>
             <label index="dmail_menuItems_note_send_test">Use the menu to send a test-mail to your own email address or finally send the mail to all recipients.</label>
-            <label index="dmail_back">&lt; BACK</label>
+            <label index="dmail_back">Cancel</label>
             <label index="dmail_yes">YES</label>
             <label index="dmail_no">NO</label>
-            <label index="dmail_error">ERROR</label>
+            <label index="dmail_error">An error was encountered.</label>
             <label index="dmail_send">Send</label>
             <label index="dmail_edit">Edit</label>
             <label index="dmail_cancel">Cancel</label>
             <label index="dmail_number_records">Number of records:</label>
             <label index="dmail_subject">Subject:</label>
             <label index="dmail_write_subject">[write subject]</label>
-            <label index="dmail_HTML_url">HTML URL:</label>
-            <label index="dmail_plaintext_url">Plain Text URL:</label>
+            <label index="dmail_HTML_url">URL of HTML content:</label>
+            <label index="dmail_plaintext_url">URL of plain text content:</label>
             <label index="dmail_no_valid_url">Enter at least one valid URL!</label>
             <label index="dmail_mailerengine_subject">Subject</label>
             <label index="dmail_mailerengine_scheduled">Scheduled</label>
@@ -404,10 +405,10 @@
             <label index="recip_create_mailgroup_msg">Create a new recipient list?</label>
             <label index="recip_import_mailgroup">Import</label>
             <label index="recip_import_mailgroup_msg">Click here to import CSV</label>
-            <label index="prefetch_read_url">You're about to read the url with the mail-content from these URL's:</label>
+            <label index="prefetch_read_url">You are about to read the direct mail content from these URL's:</label>
             <label index="prefetch_fetching">Fetching the mail content</label>
-            <label index="prefetch_patience">This operation may take a while. Therefore be patient.</label>
-            <label index="prefetch_fetch">Read URL</label>
+            <label index="prefetch_patience">This operation may take a while. Please be patient.</label>
+            <label index="prefetch_fetch">Fetch and compile content</label>
             <label index="prefetch_error_choose">You must choose to send either HTML, plaintext or both. Nothing is selected at this time!</label>
             <label index="testmail_individual">Testmail - Individual</label>
             <label index="testmail_individual_msg">Select a recipient of the testmail. The mail will be generated based on the profile of the recipient you select.</label>
@@ -422,12 +423,14 @@
             <label index="send_recipients">Recipients:</label>
             <label index="send_was_scheduled">Mail scheduled for distribution</label>
             <label index="send_was_scheduled_for">The mail was scheduled for distribution at</label>
-            <label index="schedule_select_mailgroup">Select a recipient list</label>
-            <label index="schedule_time">Distribution time (hh:mm dd-mm-yy):</label>
+            <label index="schedule_select_mailgroup">Send mail - recipient list</label>
+	    <label index="schedule_mailgroup">Recipient list:</label>
+            <label index="schedule_time">Distribution time (hh:mm dd-mm-yyyy):</label>
             <label index="schedule_send_all">Send to all subscribers in recipient list</label>
             <label index="schedule_list_emails">Send mail - list of emails</label>
             <label index="schedule_enter_emails">Enter the email-addresses for the recipients. Separate the addresses with linebreak or comma &quot;,&quot;:</label>
             <label index="quickmail_message">Message:</label>
+	    <label index="quickmail_mailgroup">Recipient list:</label>
             <label index="quickmail_sender_name">Sender Name:</label>
             <label index="quickmail_sender_email">Sender Email:</label>
             <label index="quickmail_one_mail_bcc">One mail to all recipients in Blind Carbon Copy (Bcc)</label>
@@ -564,7 +567,7 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="nl_select">Select a newsletter</label>
             <label index="nl_create">Create a newsletter</label>
             <label index="nl_create_msg1">Click here to create a new page that you can later send as a direct mail.</label>
-            <label index="nl_info">Newsletter info</label>
+            <label index="nl_info">Information on the newsletter:</label>
             <label index="nl_viewPage">View page</label>
             <label index="nl_editPage">Edit page</label>
             <label index="nl_createDmailFromPage">Create new direct mail based on this page</label>
@@ -583,8 +586,7 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="nl_l_update">Update category settings</label>
             <label index="nl_l_warning">There are already %s Direct Mails based on this newsletter. Are you sure you want to create another one?</label>
             <label index="nl_cat_msg1">There are no content elements on the page.</label>
-            <label index="nl_cat">Select categories</label>
-            <label index="nl_cat_msg2">Setting categories for a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.&lt;br /&gt;If you do not set any category for an element, the element will appear in all mails.</label>
+            <label index="nl_cat">Assign categories to content elements</label>
             <label index="update_convert_now">Categories defined in Page TSConfig of existing Direct Mail folders need to be converted into database records. You may do this now or you may do it at a later time using the Categories Conversion function of the Direct Mail module. If in doubt, please review this topic in the Direct Mail manual. Do you want to perform this action now?</label>
             <label index="update_convert_do_it_now">Do it now</label>
             <label index="yes">Yes</label>
@@ -780,7 +782,6 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="nl_l_warning">Für diesen Newsletter wurden bereits %s Versandobjekte erstellt. Sind Sie sicher, dass Sie einen weiteren Versand erstellen möchten?</label>
             <label index="nl_cat_msg1">Es wurden keine Seiteninhalte auf der Seite gefunden.</label>
             <label index="nl_cat">Ausschluss von Seiteninhalten anhand von Kategorien</label>
-            <label index="nl_cat_msg2">Das Setzen einer Kategorie für bestimmte Seiteninhalte bedeutet, dass nur Empfänger, die dieser Kategorie angehören, den Seiteninhalt auch tatsächlich bekommen.</label>
         </languageKey>
         <languageKey index="no" type="array">
         </languageKey>
@@ -798,7 +799,7 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="dmail_msg1_crFromNL">Il n'y a aucune page qui ne soit déjà un bulletin!</label>
             <label index="dmail_dovsk_crFromUrl">Créer un bulletin basé sur une URL externe</label>
             <label index="dmail_createMail">Créer un bulletin</label>
-            <label index="dmail_view">Voir le bulletin</label>
+            <label index="dmail_view">Information sur le bulletin:</label>
             <label index="dmail_noEdit_noPerms">Vous n'avez pas la permission d'éditer les bulletins.</label>
             <label index="dmail_noEdit_isSent">Vous ne pouvez éditer ce bulletin car il est déjà envoyé.</label>
             <label index="dmail_basedOn">Le bulletin est basé sur cette page.&lt;br /&gt;Cliquez ici pour voir l'information sur la page:</label>
@@ -817,7 +818,7 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="dmailer_ending">Terminé avec durée de traitement de</label>
             <label index="dmailer_sys_dmail_record">Enregistrement sys_dmail</label>
             <label index="dmailer_processed">traité...</label>
-            <label index="dmail_menuItems">[MENU]</label>
+            <label index="dmail_menuItems">[Sélectionnez une action]</label>
             <label index="dmail_menuItems_prefetch">Préparer le bulletin pour l'envoi massif</label>
             <label index="dmail_menuItems_testmail">Envoyer un message d'essai</label>
             <label index="dmail_menuItems_finalmail">Déclencher l'envoi massif</label>
@@ -827,10 +828,10 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="dmail_menuItems_note_use_menu">Utilisez le menu pour préparer le bulletin pour l'envoi massif</label>
             <label index="dmail_menuItems_note_enter_sender">Vous devez spécifier une adresse d'expéditeur pour ce bulletin!</label>
             <label index="dmail_menuItems_note_send_test">Utilisez le menu pour envoyer un message d'essai ou déclencher l'envoi à tous les destinataires.</label>
-            <label index="dmail_back">&lt; Retour</label>
+            <label index="dmail_back">Annuler</label>
             <label index="dmail_yes">OUI</label>
             <label index="dmail_no">NON</label>
-            <label index="dmail_error">ERREUR</label>
+            <label index="dmail_error">Une erreur a été rencontrée.</label>
             <label index="dmail_send">Envoyer</label>
             <label index="dmail_edit">Éditer</label>
             <label index="dmail_cancel">Annuler</label>
@@ -838,7 +839,7 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="dmail_subject">Sujet:</label>
             <label index="dmail_write_subject">[insérez ici le sujet]</label>
             <label index="dmail_HTML_url">URL du contenu HTML:</label>
-            <label index="dmail_plaintext_url">URL du texte simple:</label>
+            <label index="dmail_plaintext_url">URL du contentu texte simple:</label>
             <label index="dmail_no_valid_url">Entrez au moins une URL valide!</label>
             <label index="dmail_mailerengine_subject">Sujet</label>
             <label index="dmail_mailerengine_scheduled">Envoi déclenché</label>
@@ -909,14 +910,16 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="send_was_sent_to_name">Le message a été envoyé à &lt;strong&gt;%s&lt;/strong&gt;.</label>
             <label index="send_was_sent_to_number">Le message a été envoyé à &lt;strong&gt;%s&lt;/strong&gt; destinataires.</label>
             <label index="send_recipients">Destinataires:</label>
-            <label index="send_was_scheduled">Envoi du message programmé</label>
+            <label index="send_was_scheduled">Envoi du bulletin programmé</label>
             <label index="send_was_scheduled_for">L'envoi du bulletin a été programmé pour</label>
-            <label index="schedule_select_mailgroup">Choisissez une liste de distribution</label>
-            <label index="schedule_time">Heure d'envoi (hh:mm jj-mm-aa):</label>
+            <label index="schedule_select_mailgroup">Envoi du bulletin à une liste de distribution</label>
+            <label index="schedule_mailgroup">Liste de distribution:</label>
+            <label index="schedule_time">Heure d'envoi (hh:mm jj-mm-aaaa):</label>
             <label index="schedule_send_all">Envoyer à tous les membres de la liste de distribution</label>
-            <label index="schedule_list_emails">Envoi du message à une liste d'adresses</label>
+            <label index="schedule_list_emails">Envoi du bulletin à une liste d'adresses</label>
             <label index="schedule_enter_emails">Écrivez les adresses des destinataires, une par ligne ou séparées par des virgules &quot;,&quot;:</label>
             <label index="quickmail_message">Message:</label>
+	    <label index="quickmail_mailgroup">Liste de distribution:</label>
             <label index="quickmail_sender_name">Nom de l'expéditeur:</label>
             <label index="quickmail_sender_email">Adresse de l'expéditeur:</label>
             <label index="quickmail_one_mail_bcc">Un seul message avec copie cachée à tous les destinataires (Bcc)</label>
@@ -1053,7 +1056,7 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_select">Choisissez une page existante</label>
             <label index="nl_create">Créer une nouvelle page</label>
             <label index="nl_create_msg1">Cliquez ici pour créer une nouvelle page qui pourra être envoyée comme bulletin.</label>
-            <label index="nl_info">Information sur la page</label>
+            <label index="nl_info">Information sur la page:</label>
             <label index="nl_viewPage">Voir la page</label>
             <label index="nl_editPage">Éditer la page</label>
             <label index="nl_createDmailFromPage">Créer un bulletin basé sur cette page</label>
@@ -1072,8 +1075,7 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_update">Mettre à jour les rubriques du bulletin</label>
             <label index="nl_l_warning">Il existe déjà %s bulletin(s) basé(s) sur cette page. Êtes-vous certain de vouloir en créer un autre?</label>
             <label index="nl_cat_msg1">La page ne contient aucun élément de contenu.</label>
-            <label index="nl_cat">Choisir les rubriques</label>
-            <label index="nl_cat_msg2">Choisir les rubriques d'un élément de contenu signifie que cet élément apparaîtra dans le bulletin seulement lorsque le destinataire aura inclus cette rubrique dans son profil.&lt;br /&gt;&lt;br /&gt;Si vous ne choisissez aucune rubrique, l'élément apparaîtra dans tous les bulletins.</label>
+            <label index="nl_cat">Assigner les rubriques aux éléments de contenu</label>
             <label index="update_convert_now">Les rubriques définies dans les configurations Page TSConfig des dossiers existants d'Envoi ciblé doivent être converties en enregistrements de la base de données. Vous pouvez effectuer cette conversion maintenant ou vous pouvez l'effectuer plus tard en utilisant la fonction de conversion des rubriques du module d'Envoi ciblé. Dans le doute, veuillez lire la section du manuel portant sur ce sujet. Désirez-vous effectuer cette conversion maintenant?</label>
             <label index="update_convert_do_it_now">Convertir maintenant</label>
             <label index="yes">Oui</label>
@@ -1268,7 +1270,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning">Ya existen %s boletínes basados en esta página. Es seguro que desea crear un más?</label>
             <label index="nl_cat_msg1">La página no tiene ningún elemento de contenido.</label>
             <label index="nl_cat">Elegir categorías</label>
-            <label index="nl_cat_msg2">Elegir categorías para un elemento de contenido signífica que este elemento aparecerá en el boletín sólo cuando el destinario elige esta categoría en su perfil.&lt;br /&gt;Si no elige ninguna categoría, el elemento aparecerá en todos les boletines.</label>
         </languageKey>
         <languageKey index="nl" type="array">
             <label index="dmail_noCreateAccess">U kunt geen pagina's versturen die zijn verborgen of die beperkte toegang hebben.</label>
@@ -1459,7 +1460,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning">Er zijn al %s Direct Mails op basis van deze nieuwsbrief. Weet u zeker dat u een andere wilt aanmaken?</label>
             <label index="nl_cat_msg1">Er zijn geen inhoudselementen op de pagina.</label>
             <label index="nl_cat">Selecteer categorieën</label>
-            <label index="nl_cat_msg2">Categorieën instellen voor een inhoudselement betekent dat het element alleen in de e-mail verschijnt als de geadresseerde voor die categorie heeft gekozen in zijn profiel.&lt;br /&gt;Als u geen categorie instelt voor een element, komt het element in alle e-mails terecht.</label>
         </languageKey>
         <languageKey index="cz" type="array">
         </languageKey>
@@ -1502,7 +1502,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning">Na podlagi te okrožnice je ustvarjeno že %s Direct Mail-ov. Vseeno želite novega?</label>
             <label index="nl_cat_msg1">There are no content elements on the page.</label>
             <label index="nl_cat">Izberite kategorije</label>
-            <label index="nl_cat_msg2">Izbira kategorij za element vsebine pomeni, da se bo ta element pojavil v sporočilu le, če je prejemnik v svoji nastavitvah izbral to kategorijo.&lt;br /&gt;Če za element ne izberete nobene kategorije, se bo pojavil v vseh sporočilih.</label>
         </languageKey>
         <languageKey index="fi" type="array">
             <label index="dmail_noCreateAccess">Et voi postittaa sivuja jotka ovat piilotettuja tai käytöltä rajattuja.</label>
@@ -1694,7 +1693,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning">On jo %s Suora Postitusta jotka perustuvat tähän uutislehteen. Oletko varma että haluat luoda uuden ?</label>
             <label index="nl_cat_msg1">Sivulla ei ole sisältöelementtejä.</label>
             <label index="nl_cat">Valitse luokat</label>
-            <label index="nl_cat_msg2">Kun sisältö elementille asetetaan luokka tarkoittaa se että seotetaan mukaan postiin vain jos vastaanottaja on valinnut tämän luokan profiiliinsa.&lt;br&gt;Jos et aseta mitään luokkaa elementtiin, otetaan se mukaan kaikkiin postituksiin.</label>
         </languageKey>
         <languageKey index="tr" type="array">
             <label index="dmail_noCreateAccess">Gizli veya erişim engelli sayfaları postalayamazsınız.</label>
@@ -1733,7 +1731,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning">Bu Doğrudan Mailler %s bu haber mektubuna dayanıyor. Bir başkasını yaratmak istediğinizden emin misiniz?</label>
             <label index="nl_cat_msg1">Bu sayfa üzerinde içerik elemanı bulunmamaktadır.</label>
             <label index="nl_cat">Kategorileri seç</label>
-            <label index="nl_cat_msg2">Eğer alıcı kendi profilindeki kategoriyi seçerse içerik elemanı için ayar kategorilerinin elemanı olan nesne sadece mail içinde görünecektir.&lt;br /&gt;Eğer nesne için kategori kurmazsanız, nesne tüm maillerde görünecektir.</label>
         </languageKey>
         <languageKey index="se" type="array">
         </languageKey>
@@ -2151,7 +2148,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning" type="integer">217503643</label>
             <label index="nl_cat_msg1" type="integer">175151490</label>
             <label index="nl_cat" type="integer">160463016</label>
-            <label index="nl_cat_msg2" type="integer">66307771</label>
             <label index="update_convert_now" type="integer">95365460</label>
             <label index="update_convert_do_it_now" type="integer">223386575</label>
             <label index="yes" type="integer">154974727</label>
@@ -2347,7 +2343,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning" type="integer">217503643</label>
             <label index="nl_cat_msg1" type="integer">175151490</label>
             <label index="nl_cat" type="integer">160463016</label>
-            <label index="nl_cat_msg2" type="integer">66307771</label>
         </languageKey>
         <languageKey index="no" type="array">
         </languageKey>
@@ -2631,7 +2626,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning" type="integer">217503643</label>
             <label index="nl_cat_msg1" type="integer">175151490</label>
             <label index="nl_cat" type="integer">160463016</label>
-            <label index="nl_cat_msg2" type="integer">66307771</label>
             <label index="update_convert_now" type="integer">95365460</label>
             <label index="update_convert_do_it_now" type="integer">223386575</label>
             <label index="yes" type="integer">154974727</label>
@@ -2826,7 +2820,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning" type="integer">217503643</label>
             <label index="nl_cat_msg1" type="integer">175151490</label>
             <label index="nl_cat" type="integer">160463016</label>
-            <label index="nl_cat_msg2" type="integer">66307771</label>
         </languageKey>
         <languageKey index="nl" type="array">
             <label index="dmail_noCreateAccess" type="integer">65109584</label>
@@ -3017,7 +3010,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning" type="integer">217503643</label>
             <label index="nl_cat_msg1" type="integer">175151490</label>
             <label index="nl_cat" type="integer">160463016</label>
-            <label index="nl_cat_msg2" type="integer">66307771</label>
         </languageKey>
         <languageKey index="cz" type="array">
         </languageKey>
@@ -3060,7 +3052,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning" type="integer">217503643</label>
             <label index="nl_cat_msg1" type="integer">175151490</label>
             <label index="nl_cat" type="integer">160463016</label>
-            <label index="nl_cat_msg2" type="integer">66307771</label>
         </languageKey>
         <languageKey index="fi" type="array">
             <label index="dmail_noCreateAccess" type="integer">65109584</label>
@@ -3252,7 +3243,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning" type="integer">217503643</label>
             <label index="nl_cat_msg1" type="integer">175151490</label>
             <label index="nl_cat" type="integer">160463016</label>
-            <label index="nl_cat_msg2" type="integer">66307771</label>
         </languageKey>
         <languageKey index="tr" type="array">
             <label index="dmail_noCreateAccess" type="integer">65109584</label>
@@ -3291,7 +3281,6 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_warning" type="integer">217503643</label>
             <label index="nl_cat_msg1" type="integer">175151490</label>
             <label index="nl_cat" type="integer">160463016</label>
-            <label index="nl_cat_msg2" type="integer">66307771</label>
         </languageKey>
         <languageKey index="se" type="array">
         </languageKey>
