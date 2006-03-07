@@ -246,7 +246,9 @@ class dmailer extends t3lib_htmlmail {
 	 * @param	[type]		$addressList: ...
 	 * @return	[type]		...
 	 */
-	function dmailer_sendSimple($addressList)	{
+	function dmailer_sendSimple($addressList) {
+		global $TYPO3_CONF_VARS;
+		
 		if ($this->theParts['html']['content'])		{
 			$this->theParts['html']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],-1));
 		} else $this->theParts['html']['content'] = '';

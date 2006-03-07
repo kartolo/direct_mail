@@ -4,6 +4,7 @@
 	* In the Direct Mails function, do not display direct mails that were already sent.
 	* In list of pages not yet direct mails, do not display pages that are hidden or with restricted-access (they cannot be fetched).
 	* Update to module context sensitive help and manual.
+	* Missing global declaration in class.dmailer.php
 
 2007-03-06 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Remove unknown field "description" from the list $this->fieldlist in class.mod_web_dmail.php
