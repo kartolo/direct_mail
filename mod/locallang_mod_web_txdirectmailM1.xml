@@ -303,8 +303,8 @@
             <label index="mlang_labels_tablabel">Direct Mailer</label>
             <label index="mlang_labels_tabdescr">Direct mailing of newsletters to targeted recipients.</label>
             <label index="dmail_folders">Available Direct Mail folders</label>
-            <label index="dmail_noCreateAccess">You cannot mail pages that are hidden or access-restricted.</label>
-            <label index="dmail_noRegular">This pagetype cannot be sent as an email. Please select a regular page.</label>
+            <label index="dmail_noCreateAccess">You cannot create direct mails using pages that are hidden or access-restricted.</label>
+            <label index="dmail_noRegular">This type of page cannot be used to create direct mails. Please select a regular page.</label>
             <label index="dmail_dovsk_selectDmail">Select Direct Mail</label>
             <label index="dmail_dovsk_crFromNL">Create a new Direct Mail from newsletter</label>
             <label index="dmail_msg1_crFromNL">There are no newsletters which are not present as a Direct Mail already!</label>
@@ -792,8 +792,8 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="mlang_labels_tablabel">Module d'envoi ciblé de bulletins électroniques</label>
             <label index="mlang_labels_tabdescr">Ce module offre des fonctionnalités de création de bulletins et d'envoi ciblé de ces bulletins par courrier électonique.</label>
             <label index="dmail_folders">Dossiers d'Envoi ciblé disponibles</label>
-            <label index="dmail_noCreateAccess">Vous ne pouvez pas envoyer des pages cachées ou à accès restreint.</label>
-            <label index="dmail_noRegular">Ce type de page ne peut pas être envoyé comme message de courrier. Veuillez choisir une page ordinaire.</label>
+            <label index="dmail_noCreateAccess">Vous ne pouvez pas construire de bulletins à partir de pages cachées ou à accès restreint.</label>
+            <label index="dmail_noRegular">Une page de ce type ne peut pas être utilisée pour construire un bulletin. Veuillez choisir une page ordinaire.</label>
             <label index="dmail_dovsk_selectDmail">Choisissez un bulletin</label>
             <label index="dmail_dovsk_crFromNL">Créer un nouveau bulletin basé sur une page</label>
             <label index="dmail_msg1_crFromNL">Il n'y a aucune page qui ne soit déjà un bulletin!</label>
@@ -1072,7 +1072,7 @@ Si vous ne spécifiez pas un nom d'utilisateur et un mot de passe et que les pag
             <label index="nl_l_column">Colonne</label>
             <label index="nl_l_ALL">TOUT</label>
             <label index="nl_l_ONLY">SEULEMENT</label>
-            <label index="nl_l_update">Mettre à jour les rubriques du bulletin</label>
+            <label index="nl_l_update">Mettre à jour les rubriques des éléments de contenu</label>
             <label index="nl_l_warning">Il existe déjà %s bulletin(s) basé(s) sur cette page. Êtes-vous certain de vouloir en créer un autre?</label>
             <label index="nl_cat_msg1">La page ne contient aucun élément de contenu.</label>
             <label index="nl_cat">Assigner les rubriques aux éléments de contenu</label>

@@ -253,7 +253,9 @@ class dmailer extends t3lib_htmlmail {
 		if ($this->theParts['plain']['content'])		{
 			$this->theParts['plain']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'],-1));
 		} else $this->theParts['plain']['content'] = '';
-
+		
+		$this->useDeferMode = trim($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) ? intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) : 0;
+		$this->returnPath = $this->dmailer['sys_dmail_rec']['return_path'];
 		$this->setHeaders();
 		$this->setContent();
 		$this->setRecipient($addressList);
