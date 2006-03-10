@@ -1,3 +1,6 @@
+2007-03-10 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to typo error in locallang_mod_web_txdirectmailM1.xml
+
 2007-03-07 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Honor return path and defer mode settings in dmailer_sendSimple.
 	* Do not display the statistics option for direct mails that where sent to a list of addresses (they are not available).

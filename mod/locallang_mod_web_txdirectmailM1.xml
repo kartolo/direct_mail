@@ -790,7 +790,7 @@ If you do not specify a username and password and a newsletter page happens to b
         <languageKey index="fr" type="array">
 	    <label index="mlang_tabs_tab">Envoi ciblé</label>
             <label index="mlang_labels_tablabel">Module d'envoi ciblé de bulletins électroniques</label>
-            <label index="mlang_labels_tabdescr">Ce module offre des fonctionnalités de création de bulletins et d'envoi ciblé de ces bulletins par courrier électonique.</label>
+            <label index="mlang_labels_tabdescr">Ce module offre des fonctionnalités de création de bulletins et d'envoi ciblé de ces bulletins par courrier électronique.</label>
             <label index="dmail_folders">Dossiers d'Envoi ciblé disponibles</label>
             <label index="dmail_noCreateAccess">Vous ne pouvez pas construire de bulletins à partir de pages cachées ou à accès restreint.</label>
             <label index="dmail_noRegular">Une page de ce type ne peut pas être utilisée pour construire un bulletin. Veuillez choisir une page ordinaire.</label>
