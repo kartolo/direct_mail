@@ -849,9 +849,9 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="dmail_mailerengine_invoked">Envoi déclenché!</label>
             <label index="dmail_mailerengine_status">État des envois massifs</label>
             <label index="dmail_mailerengine_current_time">Heure présente:</label>
-            <label index="dmail_mailerengine_manual_invoke">Déclencher les envois manuellement</label>
-            <label index="dmail_mailerengine_manual_explain">Si Typo3 n'est pas configuré pour inicier les envois automatiquement, vous pouvez les inicier en cliquant ici:</label>
-            <label index="dmail_mailerengine_invoke_now">Déclencher les envois</label>
+            <label index="dmail_mailerengine_manual_invoke">Initier les envois manuellement</label>
+            <label index="dmail_mailerengine_manual_explain">Si Typo3 n'est pas configuré pour initier les envois automatiquement, vous pouvez les initier en cliquant ici:</label>
+            <label index="dmail_mailerengine_invoke_now">Initier les envois</label>
             <label index="dmail_mailerengine_log">Journal:</label>
 	    <label index="dmail_query">Requête</label>
 	    <label index="dmail_makeQuery">Construction de la requête</label>

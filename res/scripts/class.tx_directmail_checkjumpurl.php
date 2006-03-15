@@ -57,7 +57,11 @@ class tx_directmail_checkjumpurl	{
 			$temp_recip=explode('_',$rid);
 			$url_id=0;
 			if (t3lib_div::testInt($jumpurl))	{
-				$temp_res = $TYPO3_DB->exec_SELECTquery('mailContent', 'sys_dmail', 'uid='.intval($mid));
+				$temp_res = $TYPO3_DB->exec_SELECTquery(
+					'mailContent',
+					'sys_dmail',
+					'uid='.intval($mid)
+					);
 				if ($row = $TYPO3_DB->sql_fetch_assoc($temp_res))	{
 					$temp_unpackedMail = unserialize($row['mailContent']);
 					$url_id = $jumpurl;
@@ -118,7 +122,10 @@ class tx_directmail_checkjumpurl	{
 					'url_id' => intval($url_id)
 				);
 
-				$TYPO3_DB->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+				$res = $TYPO3_DB->exec_INSERTquery(
+					'sys_dmail_maillog',
+					$insertFields
+					);
 			}
 		}
 		

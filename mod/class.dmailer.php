@@ -312,8 +312,10 @@ class dmailer extends t3lib_htmlmail {
 		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'uid_foreign',
-			$mm_table.','.$table,
-			$mm_table.'.uid_local='.intval($uid).' AND '.$mm_table.'.uid_local='.$table.'.uid'.t3lib_BEfunc::deleteClause($table));
+			$mm_table.' LEFT JOIN '.$table.' ON '.$mm_table.'.uid_local='.$table.'.uid',
+			$mm_table.'.uid_local='.intval($uid).
+				t3lib_BEfunc::deleteClause($table)
+			);
 		$list = array();
 		while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
 			$list[] = $row['uid_foreign'];
@@ -337,7 +339,15 @@ class dmailer extends t3lib_htmlmail {
 		$tKey = substr($table,0,1);
 		$begin=intval($this->dmailer_howManySendMails($mid,$tKey));
 		if ($query_info[$table])	{
-			$res = $TYPO3_DB->exec_SELECTquery($table.'.*', $table, $enableFields[$table].' AND ('.$query_info[$table].')', '', 'tstamp DESC', intval($begin).','.$this->sendPerCycle); // This way, we select newest edited records first. So if any record is added or changed in between, it'll end on top and do no harm
+			$res = $TYPO3_DB->exec_SELECTquery(
+				$table.'.*',
+				$table,
+				$enableFields[$table].
+					' AND ('.$query_info[$table].')',
+				'',
+				'tstamp DESC',
+				intval($begin).','.$this->sendPerCycle
+				); // This way, we select newest edited records first. So if any record is added or changed in between, it'll end on top and do no harm
 			$numRows = $TYPO3_DB->sql_num_rows($res);
 			$cc=0;
 			while($recipRow = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -407,10 +417,13 @@ class dmailer extends t3lib_htmlmail {
 							$res = $TYPO3_DB->exec_SELECTquery(
 								$table.'.*',
 								$table,
-								'uid IN ('.$idList.') AND uid NOT IN ('.($sendIds?$sendIds:0).') AND '.($enableFields[$table]?$enableFields[$table]:'1=1'),
+								'uid IN ('.$idList.')'.
+									' AND uid NOT IN ('.($sendIds?$sendIds:0).')'.
+									($enableFields[$table]?(' AND '.$enableFields[$table]):''),
 								'',
 								'',
-								$this->sendPerCycle+1);
+								$this->sendPerCycle+1
+								);
 							if ($TYPO3_DB->sql_error())	{
 								die ($TYPO3_DB->sql_error());
 							}
@@ -472,7 +485,11 @@ class dmailer extends t3lib_htmlmail {
 	function dmailer_setBeginEnd($mid,$key)	{
 		global $LANG, $TYPO3_CONF_VARS, $TYPO3_DB;
 		
-		$TYPO3_DB->exec_UPDATEquery('sys_dmail', 'uid='.intval($mid), array('scheduled_'.$key => time()));
+		$res = $TYPO3_DB->exec_UPDATEquery(
+			'sys_dmail',
+			'uid='.intval($mid),
+			array('scheduled_'.$key => time())
+			);
 		switch($key)	{
 			case 'begin':
 				$subject=$LANG->getLL('dmailer_mid').' '.$mid. ' ' . $LANG->getLL('dmailer_job_begin');
@@ -503,7 +520,13 @@ class dmailer extends t3lib_htmlmail {
 	function dmailer_howManySendMails($mid,$rtbl='')	{
 		global $TYPO3_DB;
 		
-		$res = $TYPO3_DB->exec_SELECTquery('count(*)', 'sys_dmail_maillog', 'mid='.intval($mid).' AND response_type=0'.($rtbl ? ' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog') : ''));
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'count(*)',
+			'sys_dmail_maillog',
+			'mid='.intval($mid).
+				' AND response_type=0'.
+				($rtbl ? ' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog') : '')
+			);
 		$row = $TYPO3_DB->sql_fetch_row($res);
 		return $row[0];
 	}
@@ -519,7 +542,14 @@ class dmailer extends t3lib_htmlmail {
 	function dmailer_isSend($mid,$rid,$rtbl)	{
 		global $TYPO3_DB;
 		
-		$res = $TYPO3_DB->exec_SELECTquery('uid', 'sys_dmail_maillog', 'rid='.intval($rid).' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog').' AND mid='.intval($mid).' AND response_type=0');
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'uid',
+			'sys_dmail_maillog',
+			'rid='.intval($rid).
+				' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog').
+				' AND mid='.intval($mid).
+				' AND response_type=0'
+			);
 		return $TYPO3_DB->sql_num_rows($res);
 	}
 
@@ -533,7 +563,13 @@ class dmailer extends t3lib_htmlmail {
 	function dmailer_getSentMails($mid,$rtbl)	{
 		global $TYPO3_DB;
 		
-		$res = $TYPO3_DB->exec_SELECTquery('rid', 'sys_dmail_maillog', 'mid='.intval($mid).' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl, 'sys_dmail_maillog').' AND response_type=0');
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'rid',
+			'sys_dmail_maillog',
+			'mid='.intval($mid).
+				' AND rtbl='.$TYPO3_DB->fullQuoteStr($rtbl,'sys_dmail_maillog').
+				' AND response_type=0'
+			);
 		$list = array();
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			$list[] = $row['rid'];
@@ -566,9 +602,12 @@ class dmailer extends t3lib_htmlmail {
 			'size' => $size,
 			'parsetime' => $parsetime,
 			'html_sent' => intval($html)
-		);
+			);
 
-		$TYPO3_DB->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+		$res = $TYPO3_DB->exec_INSERTquery(
+			'sys_dmail_maillog',
+			$insertFields
+			);
 	}
 
 	/**
@@ -592,7 +631,16 @@ class dmailer extends t3lib_htmlmail {
 
 		$pt = t3lib_div::milliseconds();
 
-		$res = $TYPO3_DB->exec_SELECTquery('*', 'sys_dmail', 'scheduled!=0 AND scheduled<'.time().' AND scheduled_end=0'.t3lib_BEfunc::deleteClause('sys_dmail'), '', 'scheduled');
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'*',
+			'sys_dmail',
+			'scheduled!=0'.
+				' AND scheduled<'.time().
+				' AND scheduled_end=0'.
+				t3lib_BEfunc::deleteClause('sys_dmail'),
+			'',
+			'scheduled'
+			);
 		$this->logArray[]=$LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y');
 		
 		if ($row = $TYPO3_DB->sql_fetch_assoc($res))	{

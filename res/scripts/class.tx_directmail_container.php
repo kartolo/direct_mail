@@ -76,7 +76,14 @@ class tx_directmail_container	{
 					$mm_table = 'sys_dmail_ttcontent_category_mm';
 					$whereClause = '';
 					$orderBy = $foreign_table . '.uid';
-					$res = $this->cObj->exec_mm_query_uidList( $select, $local_table_uidlist, $mm_table, $foreign_table, $whereClause, '', $orderBy);
+					$res = $this->cObj->exec_mm_query_uidList(
+						$select,
+						$local_table_uidlist,
+						$mm_table,
+						$foreign_table,
+						$whereClause,
+						'',
+						$orderBy);
 					if ( $TYPO3_DB->sql_num_rows($res) )	{
 						while( $row = $TYPO3_DB->sql_fetch_assoc($res) )	{
 							$categoryList .= $row['uid'] . ',';

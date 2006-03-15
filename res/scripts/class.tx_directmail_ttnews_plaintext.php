@@ -72,7 +72,11 @@ class tx_directmail_ttnews_plaintext {
 			$lines = array();
 			$singleWhere = 'tt_news.uid=' . intval($this->tt_news_uid);
 			$singleWhere .= ' AND type=0' . $this->enableFields; // type=0->only real news.
-			$res = $TYPO3_DB->exec_SELECTquery('*', 'tt_news', $singleWhere);
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'*',
+				'tt_news',
+				$singleWhere
+				);
 			$row = $TYPO3_DB->sql_fetch_assoc($res);
 				// get the translated record if the content language is not the default language
 			if ($TSFE->sys_language_content) {

@@ -113,8 +113,9 @@ class mod_web_dmail extends t3lib_SCbase {
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
 				'static_languages.lg_typo3='.$TYPO3_DB->fullQuoteStr($LANG->lang,'static_languages').
-				t3lib_pageSelect::enableFields('sys_language').t3lib_pageSelect::enableFields('static_languages')
-			);
+					t3lib_pageSelect::enableFields('sys_language').
+					t3lib_pageSelect::enableFields('static_languages')
+				);
 			while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
 				$this->sys_language_uid = $row['uid'];
 			}
@@ -403,7 +404,13 @@ class mod_web_dmail extends t3lib_SCbase {
 		} else {
 				// Here the single dmail record is shown.
 			$this->sys_dmail_uid = intval($this->sys_dmail_uid);
-			$res = $TYPO3_DB->exec_SELECTquery('*', 'sys_dmail', 'pid='.intval($this->id).' AND uid='.intval($this->sys_dmail_uid).t3lib_BEfunc::deleteClause('sys_dmail'));
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'*',
+				'sys_dmail',
+				'pid='.intval($this->id).
+					' AND uid='.intval($this->sys_dmail_uid).
+					t3lib_BEfunc::deleteClause('sys_dmail')
+				);
 
 			$this->noView = 0;
 			$this->back = '<input type="Submit" value="' . $LANG->getLL('dmail_back') . '" onClick="jumpToUrlD(\'index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'\'); return false;" />';
@@ -500,7 +507,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					'sys_dmail_category.pid IN (' . $TYPO3_DB->fullQuoteStr($pidList, 'sys_dmail_category') . ')'.
 						' AND l18n_parent=0'.
 						t3lib_pageSelect::enableFields('sys_dmail_category')
-				);
+					);
 				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
 					if($localizedRowCat = $this->getRecordOverlay('sys_dmail_category',$rowCat,$this->sys_language_uid,'')) {
 						$this->categories[$localizedRowCat['uid']] = $localizedRowCat['category'];
@@ -532,16 +539,16 @@ class mod_web_dmail extends t3lib_SCbase {
 						if ($row[$TCA[$table]['ctrl']['languageField']]<=0)	{
 								// Select overlay record:
 							$res = $TYPO3_DB->exec_SELECTquery(
-										'*',
-										$table,
-										'pid='.intval($row['pid']).
-											' AND '.$TCA[$table]['ctrl']['languageField'].'='.intval($sys_language_content).
-											' AND '.$TCA[$table]['ctrl']['transOrigPointerField'].'='.intval($row['uid']).
-											t3lib_pageSelect::enableFields($table),
-										'',
-										'',
-										'1'
-									);
+								'*',
+								$table,
+								'pid='.intval($row['pid']).
+									' AND '.$TCA[$table]['ctrl']['languageField'].'='.intval($sys_language_content).
+									' AND '.$TCA[$table]['ctrl']['transOrigPointerField'].'='.intval($row['uid']).
+									t3lib_pageSelect::enableFields($table),
+								'',
+								'',
+								'1'
+								);
 							$olrow = $TYPO3_DB->sql_fetch_assoc($res);
 							//$this->versionOL($table,$olrow);
 							
@@ -598,7 +605,10 @@ class mod_web_dmail extends t3lib_SCbase {
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'uid,pid,subject,tstamp,issent,renderedsize,attachment,type',
 			'sys_dmail',
-			'pid='.intval($this->id).' AND type=0 AND page='.intval($this->pages_uid).t3lib_BEfunc::deleteClause('sys_dmail'),
+			'pid='.intval($this->id).
+				' AND type=0'.
+				' AND page='.intval($this->pages_uid).
+				t3lib_BEfunc::deleteClause('sys_dmail'),
 			'',
 			$TYPO3_DB->stripOrderBy($TCA['sys_dmail']['ctrl']['default_sortby'])
 			);
@@ -668,7 +678,9 @@ class mod_web_dmail extends t3lib_SCbase {
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'colPos, CType, uid, pid, header, bodytext, module_sys_dmail_category',
 			'tt_content',
-			'pid='.intval($this->pages_uid).t3lib_BEfunc::deleteClause('tt_content').' AND NOT hidden',
+			'pid='.intval($this->pages_uid).
+				t3lib_BEfunc::deleteClause('tt_content').
+				' AND NOT hidden',
 			'',
 			'colPos,sorting'
 			);
@@ -679,7 +691,11 @@ class mod_web_dmail extends t3lib_SCbase {
 			$colPosVal=99;
 			while($row=$TYPO3_DB->sql_fetch_assoc($res))	{
 				$row_categories = '';
-				$resCat = $TYPO3_DB->exec_SELECTquery('uid_foreign','sys_dmail_ttcontent_category_mm','uid_local='.$row['uid'].' ');
+				$resCat = $TYPO3_DB->exec_SELECTquery(
+					'uid_foreign',
+					'sys_dmail_ttcontent_category_mm',
+					'uid_local='.$row['uid']
+					);
 				while($rowCat=$TYPO3_DB->sql_fetch_assoc($resCat)) {
 					$row_categories .= $rowCat['uid_foreign'].',';
 				}
@@ -847,8 +863,9 @@ class mod_web_dmail extends t3lib_SCbase {
 			if ($table == 'fe_groups') {
 				$query = $TYPO3_DB->SELECTquery(
 					$fields,
-					'fe_users LEFT JOIN fe_groups ON FIND_IN_SET(fe_groups.uid,fe_users.usergroup)',
+					'fe_users, fe_groups',
 					'fe_groups.pid IN ('.$pidList.')'.
+						' AND fe_groups.uid IN(fe_users.usergroup)'.
 						$emailIsNotNull.
 						t3lib_pageSelect::enableFields($switchTable).
 						t3lib_pageSelect::enableFields($table)
@@ -865,18 +882,25 @@ class mod_web_dmail extends t3lib_SCbase {
 		} else {
 			if ($table == 'fe_groups') {
 				$query = $TYPO3_DB->SELECTquery(
-					'DISTINCT('.$switchTable.'.uid) as noEntry,'.$fields,
-					'sys_dmail_group as g LEFT JOIN sys_dmail_group_category_mm as g_mm ON g.uid=g_mm.uid_local INNER JOIN '.$mm_table.' as mm_1 on mm_1.uid_foreign=g_mm.uid_foreign LEFT JOIN '.$switchTable.' ON '.$switchTable.'.uid = mm_1.uid_local LEFT JOIN fe_groups ON FIND_IN_SET(fe_groups.uid,fe_users.usergroup)',
-					'fe_groups.pid IN ('.$pidList.') AND g.uid='.intval($group_uid).
+					'DISTINCT '.$switchTable.'.uid as noEntry,'.$fields,
+					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, '.$mm_table.' as mm_1, fe_groups LEFT JOIN '.$switchTable.' ON '.$switchTable.'.uid = mm_1.uid_local',
+					'fe_groups.pid IN ('.$pidList.')'.
+						' AND fe_groups.uid IN (fe_users.usergroup)'.
+						' AND mm_1.uid_foreign=g_mm.uid_foreign'.
+						' AND sys_dmail_group.uid=g_mm.uid_local'.
+						' AND sys_dmail_group.uid='.intval($group_uid).
 						$emailIsNotNull.
 						t3lib_pageSelect::enableFields($table).
 						t3lib_pageSelect::enableFields($switchTable)
 				);
 			} else {
 				$query = $TYPO3_DB->SELECTquery(
-					'DISTINCT('.$table.'.uid) as noEntry,'.$fields,
-					'sys_dmail_group as g LEFT JOIN sys_dmail_group_category_mm as g_mm ON g.uid=g_mm.uid_local INNER JOIN '.$mm_table.' as mm_1 on mm_1.uid_foreign=g_mm.uid_foreign LEFT JOIN '.$table.' ON '.$table.'.uid = mm_1.uid_local',
-					$table.'.pid IN ('.$pidList.') AND g.uid='.intval($group_uid).
+					'DISTINCT '.$table.'.uid as noEntry,'.$fields,
+					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, '.$mm_table.' as mm_1 LEFT JOIN '.$table.' ON '.$table.'.uid = mm_1.uid_local',
+					$table.'.pid IN ('.$pidList.')'.
+						' AND mm_1.uid_foreign=g_mm.uid_foreign'.
+						' AND sys_dmail_group.uid=g_mm.uid_local'.
+						' AND sys_dmail_group.uid='.intval($group_uid).
 						$emailIsNotNull.
 						t3lib_pageSelect::enableFields($table)
 				);
@@ -919,27 +943,31 @@ class mod_web_dmail extends t3lib_SCbase {
 	 */
 	function makeStaticListQuery($table,$uid,$fields) {
 		global $TYPO3_DB;
-
+		
 		$emailIsNotNull = ' AND ' . $table . '.email !=' . $TYPO3_DB->fullQuoteStr('', $table);  // Direct Mail needs and email address!
 		$query = $TYPO3_DB->SELECTquery(
 			$fields,
-			$table.',sys_dmail_group,sys_dmail_group_mm',
-			'sys_dmail_group.uid = '.intval($uid).' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid AND
-							sys_dmail_group_mm.uid_foreign='.$table.'.uid AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
-			$emailIsNotNull.
-			t3lib_pageSelect::enableFields($table).	// Enable fields includes 'deleted'
-			t3lib_pageSelect::enableFields('sys_dmail_group')
+			'sys_dmail_group, ' . $table . ' LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_foreign='.$table.'.uid',
+			'sys_dmail_group.uid = '.intval($uid).
+				' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid'.
+				' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
+				$emailIsNotNull.
+				t3lib_pageSelect::enableFields($table).
+				t3lib_pageSelect::enableFields('sys_dmail_group')
 			);
 		if ($table == 'fe_users') {
 			$query .= ' UNION ';
 			$query .= $TYPO3_DB->SELECTquery(
 				$fields,
-				'(sys_dmail_group,sys_dmail_group_mm) LEFT JOIN fe_groups ON (fe_groups.uid=sys_dmail_group_mm.uid_foreign AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr('fe_groups', 'fe_groups').') LEFT JOIN fe_users ON FIND_IN_SET(fe_groups.uid,fe_users.usergroup)',
-				'sys_dmail_group.uid='.intval($uid).' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid'.
-				$emailIsNotNull.
-				t3lib_pageSelect::enableFields($table).	// Enable fields includes 'deleted'
-				t3lib_pageSelect::enableFields('fe_groups').
-				t3lib_pageSelect::enableFields('sys_dmail_group')
+				'fe_users, fe_groups, sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
+				'sys_dmail_group.uid='.intval($uid).
+					' AND fe_groups.uid=sys_dmail_group_mm.uid_foreign'.
+					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr('fe_groups', 'fe_groups').
+					' AND fe_groups.uid IN(fe_users.usergroup)'.
+					$emailIsNotNull.
+					t3lib_pageSelect::enableFields($table).
+					t3lib_pageSelect::enableFields('fe_groups').
+					t3lib_pageSelect::enableFields('sys_dmail_group')
 				);
 		}
 		return $query;
@@ -1021,12 +1049,14 @@ class mod_web_dmail extends t3lib_SCbase {
 		$groupIdList = t3lib_div::intExplode(',',$list);
 		$groups = array();
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('sys_dmail_group.*', 'sys_dmail_group,pages', '
-					sys_dmail_group.uid IN ('.implode(',',$groupIdList).')
-					AND pages.uid=sys_dmail_group.pid
-					AND '.$this->perms_clause.
-					t3lib_BEfunc::deleteClause('pages').
-					t3lib_pageSelect::enableFields('sys_dmail_group'));
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'sys_dmail_group.*',
+			'sys_dmail_group LEFT JOIN pages ON pages.uid=sys_dmail_group.pid',
+			'sys_dmail_group.uid IN ('.implode(',',$groupIdList).')'.
+				' AND '.$this->perms_clause.
+				t3lib_BEfunc::deleteClause('pages').
+				t3lib_pageSelect::enableFields('sys_dmail_group')
+			);
 
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 			if ($row['type']==4)	{	// Other mail group...
@@ -1355,7 +1385,11 @@ class mod_web_dmail extends t3lib_SCbase {
 				'whichtables' => intval($whichTables),
 				'query' => $this->MOD_SETTINGS['queryConfig']
 			);
-			$res_update = $TYPO3_DB->exec_UPDATEquery('sys_dmail_group', 'uid='.intval($mailGroup['uid']), $updateFields);
+			$res_update = $TYPO3_DB->exec_UPDATEquery(
+				'sys_dmail_group',
+				'uid='.intval($mailGroup['uid']),
+				$updateFields
+				);
 			$mailGroup = t3lib_BEfunc::getRecord('sys_dmail_group',$mailGroup['uid']);
 		}
 		return $mailGroup;
@@ -1404,7 +1438,16 @@ class mod_web_dmail extends t3lib_SCbase {
 		$kinds=array();
 		while(list(,$recdata)=each($records))	{
 			if ($syncSelect && !t3lib_div::testInt($syncSelect))	{
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,tstamp', 'tt_address', 'pid='.intval($this->id).' AND '.$syncSelect.'="'.$GLOBALS['TYPO3_DB']->quoteStr($recdata[$syncSelect], 'tt_address').'"'.t3lib_BEfunc::deleteClause('tt_address'), '', '', '1');
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+					'uid,tstamp',
+					'tt_address',
+					'pid='.intval($this->id).
+						' AND '.$syncSelect.'="'.$GLOBALS['TYPO3_DB']->quoteStr($recdata[$syncSelect], 'tt_address').'"'
+						.t3lib_BEfunc::deleteClause('tt_address'),
+					'',
+					'',
+					'1'
+				);
 				if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 					if ($tstampFlag)	{
 						if ($row['tstamp']>intval($recdata['tstamp']))	{
@@ -1428,7 +1471,12 @@ class mod_web_dmail extends t3lib_SCbase {
 		$cmd = array();
 		$data = array();
 		if ($removeExisting)	{		// Deleting:
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tt_address', 'pid='.intval($this->id).t3lib_BEfunc::deleteClause('tt_address'));
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				'uid',
+				'tt_address',
+				'pid='.intval($this->id).
+				t3lib_BEfunc::deleteClause('tt_address')
+			);
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				$cmd['tt_address'][$row['uid']]['delete'] = 1;
 			}
@@ -1474,7 +1522,12 @@ class mod_web_dmail extends t3lib_SCbase {
 		$outListArr = array();
 		if (is_array($listArr) && count($listArr))	{
 			$idlist = implode(',',$listArr);
-			$res = $TYPO3_DB->exec_SELECTquery($fields, $table, 'uid IN ('.$idlist.')'.t3lib_BEfunc::deleteClause($table));
+			$res = $TYPO3_DB->exec_SELECTquery(
+				$fields,
+				$table,
+				'uid IN ('.$idlist.')'.
+					t3lib_BEfunc::deleteClause($table)
+				);
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$outListArr[$row['uid']] = $row;
 			}
@@ -1631,17 +1684,35 @@ class mod_web_dmail extends t3lib_SCbase {
 
 		switch($table)	{
 		case 'tt_address':
-			$res = $TYPO3_DB->exec_SELECTquery('tt_address.*', 'tt_address,pages', 'pages.uid=tt_address.pid AND tt_address.uid='.intval($uid).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('tt_address').t3lib_BEfunc::deleteClause('pages'));
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'tt_address.*',
+				'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
+				'tt_address.uid='.intval($uid).
+					' AND '.$this->perms_clause.
+					t3lib_BEfunc::deleteClause('tt_address').
+					t3lib_BEfunc::deleteClause('pages')
+				);
 			$row = $TYPO3_DB->sql_fetch_assoc($res);
 			break;
 		case 'fe_users':
-			$res = $TYPO3_DB->exec_SELECTquery('fe_users.*', 'fe_users,pages', 'pages.uid=fe_users.pid AND fe_users.uid='.intval($uid).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('fe_users').t3lib_BEfunc::deleteClause('pages'));
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'fe_users.*',
+				'fe_users LEFT JOIN pages ON pages.uid=fe_users.pid',
+				'fe_users.uid='.intval($uid).
+					' AND '.$this->perms_clause.
+					t3lib_BEfunc::deleteClause('fe_users').
+					t3lib_BEfunc::deleteClause('pages')
+				);
 			$row = $TYPO3_DB->sql_fetch_assoc($res);
 			break;
 		}
 		if (is_array($row))	{
 			$row_categories = '';
-			$resCat = $TYPO3_DB->exec_SELECTquery('uid_foreign',$mm_table,'uid_local='.$row['uid'].' ');
+			$resCat = $TYPO3_DB->exec_SELECTquery(
+				'uid_foreign',
+				$mm_table,
+				'uid_local='.$row['uid']
+				);
 			while($rowCat=$TYPO3_DB->sql_fetch_assoc($resCat)) {
 				$row_categories .= $rowCat['uid_foreign'].',';
 			}
@@ -1780,7 +1851,16 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $LANG, $TYPO3_DB, $BACK_PATH;
 		
 			// Here the list of subpages, news, is rendered
-		$res = $TYPO3_DB->exec_SELECTquery('uid,doktype,title,abstract', 'pages', 'pid='.intval($this->id).' AND doktype IN ('.$GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'].') AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('pages').t3lib_pageSelect::enableFields('pages'), '', 'sorting');
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'uid,doktype,title,abstract',
+			'pages',
+			'pid='.intval($this->id).
+				' AND doktype IN ('.$GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'].')'.
+				' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('pages').
+				t3lib_pageSelect::enableFields('pages'),
+			'',
+			'sorting'
+			);
 		if (!$TYPO3_DB->sql_num_rows($res))	{
 			$theOutput.= $this->doc->section($LANG->getLL('nl_select'),$LANG->getLL('nl_select_msg1'),0,1);
 		} else {
@@ -1808,7 +1888,9 @@ class mod_web_dmail extends t3lib_SCbase {
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'uid,pid,subject,tstamp,issent,renderedsize,attachment,type',
 			'sys_dmail',
-			'pid='.intval($this->id).' AND scheduled=0 AND issent=0'.t3lib_BEfunc::deleteClause('sys_dmail'),
+			'pid='.intval($this->id).
+				' AND scheduled=0 AND issent=0'.
+				t3lib_BEfunc::deleteClause('sys_dmail'),
 			'',
 			$TYPO3_DB->stripOrderBy($TCA['sys_dmail']['ctrl']['default_sortby'])
 			);
@@ -1837,16 +1919,32 @@ class mod_web_dmail extends t3lib_SCbase {
 		$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_selectDmail').t3lib_BEfunc::cshItem($this->cshTable,'select_directmail',$BACK_PATH), $out, 1, 1, 0, TRUE);
 		
 			// Find all newsletters NOT created as non-deleted DMAILS
-		$res = $TYPO3_DB->exec_SELECTquery('pages.uid,pages.title', 'pages LEFT JOIN sys_dmail ON pages.uid=sys_dmail.page'.t3lib_BEfunc::deleteClause('sys_dmail'), 'sys_dmail.page IS NULL AND pages.doktype IN (1,2) AND pages.pid='.intval($this->id).t3lib_pageSelect::enableFields('pages'));
-		if (!$TYPO3_DB->sql_num_rows($res))	{
-			$out = $LANG->getLL('dmail_msg1_crFromNL');
-		} else {
-			$out = '';
-			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'DISTINCT pages.uid,pages.title',
+			'pages LEFT JOIN sys_dmail ON pages.uid=sys_dmail.page',
+			'(sys_dmail.page IS NULL OR sys_dmail.deleted>0)'.
+				' AND pages.doktype IN (1,2)'.
+				' AND pages.pid='.intval($this->id).
+				t3lib_pageSelect::enableFields('pages')
+			);
+		$out = '';
+		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+				// Working around DBAL limitation in ON conditional expression
+			$countRes = $TYPO3_DB->exec_SELECTquery(
+				'uid',
+				'sys_dmail',
+				'sys_dmail.page='.intval($row['uid']).
+					t3lib_BEfunc::deleteClause('sys_dmail')
+				);
+			if (!$TYPO3_DB->sql_num_rows($countRes)) {
 				$out.= '<nobr><a href="index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&SET[dmail_mode]=direct">'.t3lib_iconWorks::getIconImage('pages', $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath($row['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').
 					$row['title'].'</a></nobr><br />';
 			}
 		}
+		if (!$out) {
+			$out = $LANG->getLL('dmail_msg1_crFromNL');
+		}
+
 		$theOutput.= $this->doc->spacer(20);
 		$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_crFromNL').t3lib_BEfunc::cshItem($this->cshTable,'create_directmail_from_nl',$BACK_PATH), $out, 1, 1, 0, TRUE);
 		
@@ -1872,7 +1970,14 @@ class mod_web_dmail extends t3lib_SCbase {
 	function cmd_recip() {
 		global $LANG, $TYPO3_DB, $BACK_PATH;
 		
-		$res = $TYPO3_DB->exec_SELECTquery('uid,pid,title,description,type', 'sys_dmail_group', 'pid='.intval($this->id).t3lib_BEfunc::deleteClause('sys_dmail_group'), '', $TYPO3_DB->stripOrderBy($TCA['sys_dmail_group']['ctrl']['default_sortby']));
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'uid,pid,title,description,type',
+			'sys_dmail_group',
+			'pid='.intval($this->id).
+				t3lib_BEfunc::deleteClause('sys_dmail_group'),
+			'',
+			$TYPO3_DB->stripOrderBy($TCA['sys_dmail_group']['ctrl']['default_sortby'])
+			);
 		$out = '';
 		$out.='<tr>
 						<td class="'.$this->doc->bgColor5.'" colspan=2>'.fw('&nbsp;').'</td>
@@ -1921,9 +2026,11 @@ class mod_web_dmail extends t3lib_SCbase {
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'uid,pid,subject,scheduled,scheduled_begin,scheduled_end',
 			'sys_dmail',
-			'pid='.intval($this->id).' AND scheduled>0'.t3lib_BEfunc::deleteClause('sys_dmail'),
+			'pid='.intval($this->id).
+				' AND scheduled>0'.
+				t3lib_BEfunc::deleteClause('sys_dmail'),
 			'',
-			$TYPO3_DB->stripOrderBy($TCA['sys_dmail']['ctrl']['default_sortby'])
+			'scheduled DESC'
 			);
 		$out='';
 		$out.='<tr>
@@ -1936,7 +2043,12 @@ class mod_web_dmail extends t3lib_SCbase {
 					</tr>';
 		
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-			$countres = $TYPO3_DB->exec_SELECTquery('count(*)', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=0');
+			$countres = $TYPO3_DB->exec_SELECTquery(
+				'count(*)',
+				'sys_dmail_maillog',
+				'mid='.intval($row['uid']).
+					' AND response_type=0'
+				);
 			list($count) = $TYPO3_DB->sql_fetch_row($countres);
 			$out.='<tr>
 						<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
@@ -2011,7 +2123,12 @@ class mod_web_dmail extends t3lib_SCbase {
 		
 			// Set domain selection list
 		$rootline = $this->sys_page->getRootLine($this->id);
-		$res_domain = $TYPO3_DB->exec_SELECTquery('uid,domainName', 'sys_domain', 'sys_domain.pid=' . intval($rootline[0]['uid']) . t3lib_BEfunc::deleteClause('sys_domain'));
+		$res_domain = $TYPO3_DB->exec_SELECTquery(
+			'uid,domainName',
+			'sys_domain',
+			'sys_domain.pid='.intval($rootline[0]['uid']).
+				t3lib_BEfunc::deleteClause('sys_domain')
+			);
 		while ($row_domain = $TYPO3_DB->sql_fetch_assoc($res_domain)) {
 			$configArray['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];
 		}
@@ -2085,7 +2202,10 @@ class mod_web_dmail extends t3lib_SCbase {
 						$catRec['sys_language_uid'] = 0;
 						$catRec['cruser_id'] = intval($BE_USER->user['uid']);
 						$catRec['crdate'] = $today[0];
-						$res = $TYPO3_DB->exec_INSERTquery('sys_dmail_category', $catRec);
+						$res = $TYPO3_DB->exec_INSERTquery(
+							'sys_dmail_category',
+							$catRec
+							);
 						$count++;
 						$theOutput .= ' ' . $LANG->getLL('convert_was_converted');
 					} else {
@@ -2115,9 +2235,9 @@ class mod_web_dmail extends t3lib_SCbase {
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'uid,'.$mm_field,
 			$table,
-			$mm_field.' != 0'.
+			$mm_field.'!=0'.
 				t3lib_pageSelect::enableFields($table)
-		);
+			);
 		
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res)) {
 				// If we find a mm relation with this uid as uid_local, we assume that the record was already converted.
@@ -2125,7 +2245,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				'uid_local',
 				$mm_table,
 				'uid_local='.intval($row['uid'])
-			);
+				);
 			if (!$TYPO3_DB->sql_num_rows($res_mm)) {
 				$categoryArr = array();
 				for ($a = 0; $a <= 30; $a++) {
@@ -2146,7 +2266,7 @@ class mod_web_dmail extends t3lib_SCbase {
 							' AND l18n_parent=0'.
 							' AND sys_dmail_category.old_cat_number IN (' . $categoryList . ')'.
 							t3lib_pageSelect::enableFields('sys_dmail_category')
-					);
+						);
 					if ($TYPO3_DB->sql_num_rows($res_cat)) {
 						$mm_count = 0;
 						$converted = array();
@@ -2157,7 +2277,10 @@ class mod_web_dmail extends t3lib_SCbase {
 							$mmRec['tablenames'] = '';
 							$mmRec['sorting'] = intval($mm_count);
 							if ($convert_confirm) {
-								$res_insert_mm = $TYPO3_DB->exec_INSERTquery($mm_table, $mmRec);
+								$res_insert_mm = $TYPO3_DB->exec_INSERTquery(
+									$mm_table,
+									$mmRec
+									);
 							}
 							$converted[] = $cat_row['uid'];
 						}
@@ -2166,7 +2289,11 @@ class mod_web_dmail extends t3lib_SCbase {
 							$mm_field => intval($mm_count)
 						);
 						if ($convert_confirm) {
-							$res_update = $TYPO3_DB->exec_UPDATEquery($table, 'uid='.intval($row['uid']), $updateFields);
+							$res_update = $TYPO3_DB->exec_UPDATEquery(
+								$table,
+								'uid='.intval($row['uid']),
+								$updateFields
+								);
 						}
 						$newConvertCount++;
 						if ($newConvertCount > 50) $out = '';
@@ -2270,10 +2397,20 @@ class mod_web_dmail extends t3lib_SCbase {
 			'renderedSize' => strlen($mailContent),
 			'long_link_rdct_url' => $this->urlbase
 			);
-		$TYPO3_DB->exec_UPDATEquery('sys_dmail', 'uid='.intval($this->sys_dmail_uid), $updateFields);
+		$TYPO3_DB->exec_UPDATEquery(
+			'sys_dmail',
+			'uid='.intval($this->sys_dmail_uid),
+			$updateFields
+			);
 		
 			// Read again:
-		$res = $TYPO3_DB->exec_SELECTquery('*', 'sys_dmail', 'pid='.intval($this->id).' AND uid='.intval($this->sys_dmail_uid).t3lib_BEfunc::deleteClause('sys_dmail'));
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'*',
+			'sys_dmail',
+			'pid='.intval($this->id).
+				' AND uid='.intval($this->sys_dmail_uid).
+				t3lib_BEfunc::deleteClause('sys_dmail')
+			);
 		$row = $TYPO3_DB->sql_fetch_assoc($res);
 		
 		return $theOutput;
@@ -2318,7 +2455,14 @@ class mod_web_dmail extends t3lib_SCbase {
 		
 		if ($this->params['test_tt_address_uids'])	{
 			$intList = implode(',', t3lib_div::intExplode(',',$this->params['test_tt_address_uids']));
-			$res = $TYPO3_DB->exec_SELECTquery('tt_address.*', 'tt_address,pages', 'pages.uid=tt_address.pid AND tt_address.uid IN ('.$intList.') AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('tt_address').t3lib_BEfunc::deleteClause('pages'));
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'tt_address.*',
+				'tt_address LEFT JOIN pages ON tt_address.pid=pages.uid',
+				'tt_address.uid IN ('.$intList.')'.
+					' AND '.$this->perms_clause.
+					t3lib_BEfunc::deleteClause('tt_address').
+					t3lib_BEfunc::deleteClause('pages')
+				);
 			$msg=$LANG->getLL('testmail_individual_msg') . '<br /><br />';
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$msg.='<a href="index.php?id='.$this->id.'&CMD=displayUserInfo&table=tt_address&uid='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" /></a><a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&tt_address_uid='.$row['uid'].'">'.t3lib_iconWorks::getIconImage('tt_address', $row, $BACK_PATH, ' alt="'.htmlspecialchars($LANG->getLL('dmail_send')).'" title="'.htmlspecialchars($LANG->getLL('dmail_menuItems_testmail')).'" "width="18" height="16" style="margin: 0px 5px; vertical-align: top;"').htmlspecialchars($row['name'].' <'.$row['email'].'>'.($row['module_sys_dmail_html']?' html':'')).'</a><br />';
@@ -2329,7 +2473,14 @@ class mod_web_dmail extends t3lib_SCbase {
 
 		if ($this->params['test_dmail_group_uids'])	{
 			$intList = implode(',', t3lib_div::intExplode(',',$this->params['test_dmail_group_uids']));
-			$res = $TYPO3_DB->exec_SELECTquery('sys_dmail_group.*', 'sys_dmail_group,pages', 'pages.uid=sys_dmail_group.pid AND sys_dmail_group.uid IN ('.$intList.') AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('sys_dmail_group').t3lib_BEfunc::deleteClause('pages'));
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'sys_dmail_group.*',
+				'sys_dmail_group LEFT JOIN pages ON sys_dmail_group.pid=pages.uid',
+				'sys_dmail_group.uid IN ('.$intList.')'.
+					' AND '.$this->perms_clause.
+					t3lib_BEfunc::deleteClause('sys_dmail_group').
+					t3lib_BEfunc::deleteClause('pages')
+				);
 			$msg=$LANG->getLL('testmail_mailgroup_msg') . '<br /><br />';
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$msg.='<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&sys_dmail_group_uid='.$row['uid'].'">'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').htmlspecialchars($row['title']).'</a><br />';
@@ -2371,7 +2522,14 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $TCA, $LANG, $TYPO3_DB, $TBE_TEMPLATE;
 
 			// Mail groups
-		$res = $TYPO3_DB->exec_SELECTquery('uid,pid,title', 'sys_dmail_group', 'pid='.intval($this->id).t3lib_BEfunc::deleteClause('sys_dmail_group'), '', $TYPO3_DB->stripOrderBy($TCA['sys_dmail_group']['ctrl']['default_sortby']));
+		$res = $TYPO3_DB->exec_SELECTquery(
+			'uid,pid,title',
+			'sys_dmail_group',
+			'pid='.intval($this->id).
+				t3lib_BEfunc::deleteClause('sys_dmail_group'),
+			'',
+			$TYPO3_DB->stripOrderBy($TCA['sys_dmail_group']['ctrl']['default_sortby'])
+			);
 		$opt = array();
 		$opt[] = '<option></option>';
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -2505,7 +2663,14 @@ class mod_web_dmail extends t3lib_SCbase {
 
 		if (!$whichMode)	{
 				// Mail groups
-			$res = $TYPO3_DB->exec_SELECTquery('uid,pid,title', 'sys_dmail_group', 'pid='.intval($this->id).t3lib_BEfunc::deleteClause('sys_dmail_group'), '', $TYPO3_DB->stripOrderBy($TCA['sys_dmail_group']['ctrl']['default_sortby']));
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'uid,pid,title',
+				'sys_dmail_group',
+				'pid='.intval($this->id).
+					t3lib_BEfunc::deleteClause('sys_dmail_group'),
+				'',
+				$TYPO3_DB->stripOrderBy($TCA['sys_dmail_group']['ctrl']['default_sortby'])
+				);
 			$opt = array();
 			$opt[] = '<option></option>';
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -2630,7 +2795,14 @@ class mod_web_dmail extends t3lib_SCbase {
 		} else {	// extended, personalized emails.
 			if ($this->CMD=='send_mail_test')	{
 				if (t3lib_div::_GP('tt_address_uid'))	{
-					$res = $TYPO3_DB->exec_SELECTquery('tt_address.*', 'tt_address,pages', 'pages.uid=tt_address.pid AND tt_address.uid='.intval(t3lib_div::_GP('tt_address_uid')).' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('tt_address').t3lib_BEfunc::deleteClause('pages'));
+					$res = $TYPO3_DB->exec_SELECTquery(
+						'tt_address.*',
+						'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
+						'tt_address.uid='.intval(t3lib_div::_GP('tt_address_uid')).
+							' AND '.$this->perms_clause.
+							t3lib_BEfunc::deleteClause('tt_address').
+							t3lib_BEfunc::deleteClause('pages')
+						);
 					if ($recipRow = $TYPO3_DB->sql_fetch_assoc($res))	{
 						$recipRow = dmailer::convertFields($recipRow);
 						$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address',$recipRow['uid']);
@@ -2668,7 +2840,11 @@ class mod_web_dmail extends t3lib_SCbase {
 						'scheduled' => $distributionTime,
 						'query_info' => serialize($query_info)
 						);
-					$TYPO3_DB->exec_UPDATEquery('sys_dmail', 'uid='.intval($this->sys_dmail_uid), $updateFields);
+					$TYPO3_DB->exec_UPDATEquery(
+						'sys_dmail',
+						'uid='.intval($this->sys_dmail_uid),
+						$updateFields
+						);
 
 					$sentFlag=true;
 					$theOutput.= $this->doc->section($LANG->getLL('send_was_scheduled'),fw($LANG->getLL('send_was_scheduled_for') . ' '.t3lib_BEfunc::datetime($distributionTime)), 1, 1, 0, TRUE);
@@ -2680,7 +2856,11 @@ class mod_web_dmail extends t3lib_SCbase {
 			// Setting flags:
 		if ($sentFlag && $this->CMD=='send_mail_final')	{
 				// Update the record:
-			$TYPO3_DB->exec_UPDATEquery('sys_dmail', 'uid='.intval($this->sys_dmail_uid), array('issent' => 1));
+			$TYPO3_DB->exec_UPDATEquery(
+				'sys_dmail',
+				'uid='.intval($this->sys_dmail_uid),
+				array('issent' => 1)
+				);
 		}
 		return $theOutput;
 	}
@@ -2894,7 +3074,12 @@ class mod_web_dmail extends t3lib_SCbase {
 		$output.='<a href="'.$thisurl.'&returnCSV=1">' . $LANG->getLL('stats_CSV_returned') . '</a><br />';
 
 		if (t3lib_div::_GP('returnList')||t3lib_div::_GP('returnDisable')||t3lib_div::_GP('returnCSV'))		{
-			$res = $TYPO3_DB->exec_SELECTquery('rid,rtbl', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=-127');
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'rid,rtbl',
+				'sys_dmail_maillog',
+				'mid='.intval($row['uid']).
+					' AND response_type=-127'
+				);
 			$idLists = array();
 			while($rrow = $TYPO3_DB->sql_fetch_assoc($res))	{
 				switch($rrow['rtbl'])	{
@@ -2951,7 +3136,13 @@ class mod_web_dmail extends t3lib_SCbase {
 		$output.='<a href="'.$thisurl.'&unknownCSV=1">' . $LANG->getLL('stats_CSV_returned_unknown_recipient') . '</a><br />';
 
 		if (t3lib_div::_GP('unknownList')||t3lib_div::_GP('unknownDisable')||t3lib_div::_GP('unknownCSV'))		{
-			$res = $TYPO3_DB->exec_SELECTquery('rid,rtbl', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=-127 AND ( return_code=550 OR return_code=553 ) ');
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'rid,rtbl',
+				'sys_dmail_maillog',
+				'mid='.intval($row['uid']).
+					' AND response_type=-127'.
+					' AND (return_code=550 OR return_code=553)'
+				);
 			$idLists = array();
 			while($rrow = $TYPO3_DB->sql_fetch_assoc($res))	{
 				switch($rrow['rtbl'])	{
@@ -3012,7 +3203,13 @@ class mod_web_dmail extends t3lib_SCbase {
 		$output.='<a href="'.$thisurl.'&fullCSV=1">' . $LANG->getLL('stats_CSV_returned_mailbox_full') . '</a><br />';
 
 		if (t3lib_div::_GP('fullList')||t3lib_div::_GP('fullDisable')||t3lib_div::_GP('fullCSV'))		{
-			$res = $TYPO3_DB->exec_SELECTquery('rid,rtbl', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=-127 AND return_code=551');
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'rid,rtbl',
+				'sys_dmail_maillog',
+				'mid='.intval($row['uid']).
+					' AND response_type=-127'.
+					' AND return_code=551'
+				);
 			$idLists = array();
 			while($rrow = $TYPO3_DB->sql_fetch_assoc($res))	{
 				switch($rrow['rtbl'])	{
@@ -3069,7 +3266,13 @@ class mod_web_dmail extends t3lib_SCbase {
 		$output.='<a href="'.$thisurl.'&badHostCSV=1">' . $LANG->getLL('stats_CSV_returned_bad_host') . '</a><br />';
 
 		if (t3lib_div::_GP('badHostList')||t3lib_div::_GP('badHostDisable')||t3lib_div::_GP('badHostCSV'))		{
-			$res = $TYPO3_DB->exec_SELECTquery('rid,rtbl', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=-127 AND return_code=552');
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'rid,rtbl',
+				'sys_dmail_maillog',
+				'mid='.intval($row['uid']).
+					' AND response_type=-127'.
+					' AND return_code=552'
+				);
 			$idLists = array();
 			while($rrow = $TYPO3_DB->sql_fetch_assoc($res))	{
 				switch($rrow['rtbl'])	{
@@ -3126,7 +3329,13 @@ class mod_web_dmail extends t3lib_SCbase {
 		$output.='<a href="'.$thisurl.'&badHeaderCSV=1">' . $LANG->getLL('stats_CSV_returned_bad_header') . '</a><br />';
 
 		if (t3lib_div::_GP('badHeaderList')||t3lib_div::_GP('badHeaderDisable')||t3lib_div::_GP('badHeaderCSV'))		{
-			$res = $TYPO3_DB->exec_SELECTquery('rid,rtbl', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=-127 AND return_code=554');
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'rid,rtbl',
+				'sys_dmail_maillog',
+				'mid='.intval($row['uid']).
+					' AND response_type=-127'.
+					' AND return_code=554'
+				);
 			$idLists = array();
 			while($rrow = $TYPO3_DB->sql_fetch_assoc($res))	{
 				switch($rrow['rtbl'])	{
@@ -3184,7 +3393,13 @@ class mod_web_dmail extends t3lib_SCbase {
 		$output.='<a href="'.$thisurl.'&reasonUnknownCSV=1">' . $LANG->getLL('stats_CSV_returned_reason_unknown') . '</a><br />';
 
 		if (t3lib_div::_GP('reasonUnknownList')||t3lib_div::_GP('reasonUnknownDisable')||t3lib_div::_GP('reasonUnknownCSV'))		{
-			$res = $TYPO3_DB->exec_SELECTquery('rid,rtbl', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=-127 AND return_code=-1');
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'rid,rtbl',
+				'sys_dmail_maillog',
+				'mid='.intval($row['uid']).
+					' AND response_type=-127'.
+					' AND return_code=-1'
+				);
 			$idLists = array();
 			while($rrow = $TYPO3_DB->sql_fetch_assoc($res))	{
 				switch($rrow['rtbl'])	{
@@ -3259,7 +3474,11 @@ class mod_web_dmail extends t3lib_SCbase {
 				$count=count($arr);
 				$uidList = array_keys($arr);
 				if (count($uidList))	{
-					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($table, 'uid IN ('.implode(',',$GLOBALS['TYPO3_DB']->cleanIntArray($uidList)).')', $fields_values);
+					$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+						$table,
+						'uid IN ('.implode(',',$GLOBALS['TYPO3_DB']->cleanIntArray($uidList)).')',
+						$fields_values
+						);
 				}
 			}
 		}
@@ -3274,9 +3493,18 @@ class mod_web_dmail extends t3lib_SCbase {
 	 */
 	function makeStatTempTableContent($mrow)	{
 		// Remove old:
-		$GLOBALS['TYPO3_DB']->exec_DELETEquery('cache_sys_dmail_stat', 'mid='.intval($mrow['uid']));
+		$GLOBALS['TYPO3_DB']->exec_DELETEquery(
+			'cache_sys_dmail_stat',
+			'mid='.intval($mrow['uid'])
+			);
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('rid,rtbl,tstamp,response_type,url_id,html_sent,size', 'sys_dmail_maillog', 'mid='.intval($mrow['uid']), '', 'rtbl,rid,tstamp');
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'rid,rtbl,tstamp,response_type,url_id,html_sent,size',
+			'sys_dmail_maillog',
+			'mid='.intval($mrow['uid']),
+			'',
+			'rtbl,rid,tstamp'
+			);
 
 		$currentRec = '';
 		$recRec = '';
@@ -3369,7 +3597,10 @@ class mod_web_dmail extends t3lib_SCbase {
 			$recRec['time_first_link'] = t3lib_div::intInRange($recRec['links_first']-$recRec['tstamp'],0);
 			$recRec['time_last_link'] = t3lib_div::intInRange($recRec['links_last']-$recRec['tstamp'],0);
 
-			$GLOBALS['TYPO3_DB']->exec_INSERTquery('cache_sys_dmail_stat', $recRec);
+			$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery(
+				'cache_sys_dmail_stat',
+				$recRec
+				);
 		}
 	}
 
@@ -3597,7 +3828,12 @@ class mod_web_dmail extends t3lib_SCbase {
 		$scheme = '';
 		$port = '';
 		if ($domainUid) {
-			$res_domain = $TYPO3_DB->exec_SELECTquery('domainName', 'sys_domain', 'uid='.intval($domainUid).t3lib_BEfunc::deleteClause('sys_domain'));
+			$res_domain = $TYPO3_DB->exec_SELECTquery(
+				'domainName',
+				'sys_domain',
+				'uid='.intval($domainUid).
+					t3lib_BEfunc::deleteClause('sys_domain')
+				);
 			if ($row_domain = $TYPO3_DB->sql_fetch_assoc($res_domain)) {
 				$domainName = $row_domain['domainName'];
 				$url_parts = parse_url(t3lib_div::getIndpEnv('TYPO3_REQUEST_DIR'));

@@ -68,8 +68,9 @@ class tx_directmail_select_categories {
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
 				'static_languages.lg_typo3='.$TYPO3_DB->fullQuoteStr($LANG->lang,'static_languages').
-				t3lib_pageSelect::enableFields('sys_language').t3lib_pageSelect::enableFields('static_languages')
-			);
+					t3lib_pageSelect::enableFields('sys_language').
+					t3lib_pageSelect::enableFields('static_languages')
+				);
 			while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
 				$this->sys_language_uid = $row['uid'];
 				$this->collate_locale = $row['lg_collate_locale'];
@@ -81,7 +82,7 @@ class tx_directmail_select_categories {
 					'*',
 					$table,
 					'uid='.intval($item[1])
-				);
+					);
 				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
 					if($localizedRowCat = mod_web_dmail::getRecordOverlay($table,$rowCat,$this->sys_language_uid,'')) {
 						$params['items'][$k][0] = $localizedRowCat['category'];
