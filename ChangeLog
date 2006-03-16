@@ -1,5 +1,6 @@
 2007-03-15 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
-	* Systematic review and adjustment of all SQL queries to ensure compatibility with dbal system extension
+	* Systematic review and adjustment of all SQL queries to ensure compatibility with dbal system extension.
+	* Fix bugtracker issue 2821.
 
 2007-03-10 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction to typo error in locallang_mod_web_txdirectmailM1.xml
