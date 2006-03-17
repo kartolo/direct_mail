@@ -833,20 +833,19 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 		return $out;
 	}
-
+	
 	/**
-	 * Return all entries from $table where the $pid is in $pidList. If $cat is 0 or empty, then all entries (with pid $pid) is returned
-	 * else only entires which are subscribing to the categories of the group with uid $group_uid is returned. 
+	 * Return all uid's from $table where the $pid is in $pidList. If $cat is 0 or empty, then all entries (with pid $pid) is returned
+	 * else only entires which are subscribing to the categories of the group with uid $group_uid is returned.
 	 * The relation between the recipients in $table and sys_dmail_categories is a true MM relation (Must be correctly defined in TCA).
 	 *
 	 * @param	[String]		$table: The table to select from
 	 * @param	[String]		$pidList: The pidList
-	 * @param	[String]		$fields: The fields to select
 	 * @param	[int]			$group_uid: The groupUid.
 	 * @param	[int]			$cat: The number of relations from sys_dmail_group to sysmail_categories
-	 * @return	[string]		The resulting query.
+	 * @return	[array]			The resulting array of uid's
 	 */
-	function makePidListQuery($table,$pidList,$fields,$group_uid,$cat)	{
+	function getIdList($table,$pidList,$group_uid,$cat) {
 		global $TCA, $TYPO3_DB;
 		
 		if ($table == 'fe_groups') {
@@ -856,33 +855,34 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 			 // Direct Mail needs an email address!
 		$emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $TYPO3_DB->fullQuoteStr('', $switchTable);
+		
 		t3lib_div::loadTCA($switchTable);
 		$mm_table = $TCA[$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
 		$cat = intval($cat);
 		if($cat < 1) {
 			if ($table == 'fe_groups') {
-				$query = $TYPO3_DB->SELECTquery(
-					$fields,
-					'fe_users, fe_groups',
+				$res = $TYPO3_DB->exec_SELECTquery(
+					'DISTINCT '.$switchTable.'.uid',
+					$switchTable.','.$table,
 					'fe_groups.pid IN ('.$pidList.')'.
 						' AND fe_groups.uid IN(fe_users.usergroup)'.
 						$emailIsNotNull.
 						t3lib_pageSelect::enableFields($switchTable).
 						t3lib_pageSelect::enableFields($table)
-				);
+					);
 			} else {
-				$query = $TYPO3_DB->SELECTquery(
-					$fields,
-					$table,
+				$res = $TYPO3_DB->exec_SELECTquery(
+					'DISTINCT '.$switchTable.'.uid',
+					$switchTable,
 					'pid IN ('.$pidList.')'.
 						$emailIsNotNull.
-						t3lib_pageSelect::enableFields($table)
-				);
+						t3lib_pageSelect::enableFields($switchTable)
+					);
 			}
 		} else {
 			if ($table == 'fe_groups') {
-				$query = $TYPO3_DB->SELECTquery(
-					'DISTINCT '.$switchTable.'.uid as noEntry,'.$fields,
+				$res = $TYPO3_DB->exec_SELECTquery(
+					'DISTINCT '.$switchTable.'.uid',
 					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, '.$mm_table.' as mm_1, fe_groups LEFT JOIN '.$switchTable.' ON '.$switchTable.'.uid = mm_1.uid_local',
 					'fe_groups.pid IN ('.$pidList.')'.
 						' AND fe_groups.uid IN (fe_users.usergroup)'.
@@ -892,129 +892,75 @@ class mod_web_dmail extends t3lib_SCbase {
 						$emailIsNotNull.
 						t3lib_pageSelect::enableFields($table).
 						t3lib_pageSelect::enableFields($switchTable)
-				);
+					);
 			} else {
-				$query = $TYPO3_DB->SELECTquery(
-					'DISTINCT '.$table.'.uid as noEntry,'.$fields,
+				$res = $TYPO3_DB->exec_SELECTquery(
+					'DISTINCT '.$switchTable.'.uid',
 					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, '.$mm_table.' as mm_1 LEFT JOIN '.$table.' ON '.$table.'.uid = mm_1.uid_local',
 					$table.'.pid IN ('.$pidList.')'.
 						' AND mm_1.uid_foreign=g_mm.uid_foreign'.
 						' AND sys_dmail_group.uid=g_mm.uid_local'.
 						' AND sys_dmail_group.uid='.intval($group_uid).
 						$emailIsNotNull.
-						t3lib_pageSelect::enableFields($table)
-				);
+						t3lib_pageSelect::enableFields($switchTable)
+					);
 			}
 		}
-		return $query;
-	}
-
-	/**
-	 * Get list of uids for a list of page uid's. See makePidListQuery for explanation.
-	 *
-	 * @param	[type]		$table: The table to select from
-	 * @param	[type]		$pidList: Records must be in this CSV string.
-	 * @param	[int]			$gropu_uid: See makePidListQuery
-	 * @param	[int/String]$cat: See makePidListQuery
-	 * @return	[String]		CVS list of uid's.
-	 */
-	function getIdList($table,$pidList,$group_uid,$cat)	{
-		global $TYPO3_DB;
-		if ($table == 'fe_groups') {
-			$query = $this->makePidListQuery($table,$pidList,'fe_users.uid',$group_uid,$cat);
-		} else {
-			$query = $this->makePidListQuery($table,$pidList,$table.'.uid',$group_uid,$cat);
-		}
-		$res = $TYPO3_DB->sql(TYPO3_db,$query);
 		$outArr = array();
-		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			$outArr[] = $row['uid'];
-		}
-		return $outArr;
-	}
-
-	/**
-	 * Returns a query for selecting user from a statuc direct mail group.
-	 *
-	 * @param	[String]		$table: The table to select from
-	 * @param	[int]			$uid: The uid of the direct_mail group
-	 * @param	[String]		$fields: The fields to select
-	 * @return	[Strint]		The resulting query.
-	 */
-	function makeStaticListQuery($table,$uid,$fields) {
-		global $TYPO3_DB;
-		
-		$emailIsNotNull = ' AND ' . $table . '.email !=' . $TYPO3_DB->fullQuoteStr('', $table);  // Direct Mail needs and email address!
-		$query = $TYPO3_DB->SELECTquery(
-			$fields,
-			'sys_dmail_group, ' . $table . ' LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_foreign='.$table.'.uid',
-			'sys_dmail_group.uid = '.intval($uid).
-				' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid'.
-				' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
-				$emailIsNotNull.
-				t3lib_pageSelect::enableFields($table).
-				t3lib_pageSelect::enableFields('sys_dmail_group')
-			);
-		if ($table == 'fe_users') {
-			$query .= ' UNION ';
-			$query .= $TYPO3_DB->SELECTquery(
-				$fields,
-				'fe_users, fe_groups, sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
-				'sys_dmail_group.uid='.intval($uid).
-					' AND fe_groups.uid=sys_dmail_group_mm.uid_foreign'.
-					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr('fe_groups', 'fe_groups').
-					' AND fe_groups.uid IN(fe_users.usergroup)'.
-					$emailIsNotNull.
-					t3lib_pageSelect::enableFields($table).
-					t3lib_pageSelect::enableFields('fe_groups').
-					t3lib_pageSelect::enableFields('sys_dmail_group')
-				);
-		}
-		return $query;
-	}
-
-	/**
-	 * [Describe function...]
-	 *
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$uid: ...
-	 * @return	[type]		...
-	 */
-	function getStaticIdList($table,$uid)	{
-		global $TYPO3_DB;
-		
-		$query = $this->makeStaticListQuery($table,$uid,$table.'.uid');
-		$res = $TYPO3_DB->sql(TYPO3_db,$query);
-		$outArr=array();
-		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-			$outArr[]=$row['uid'];
 		}
 		return $outArr;
 	}
 	
 	/**
-	 * Returns special query of mail group of such type
+	 * Return all uid's from $table for a static direct mail group.
 	 *
 	 * @param	[String]		$table: The table to select from
-	 * @param	[Array]			$group: The direct_mail group record
-	 * @param	[String]		$fields: The fields to select
-	 * @return	[Strint]		The resulting query.
+	 * @param	[int]			$uid: The uid of the direct_mail group
+	 * @return	[array]			The resulting array of uid's
 	 */
-	function makeSpecialQuery($table,$group,$fields) {
+	function getStaticIdList($table,$uid) {
 		global $TYPO3_DB;
 		
-		$query ='';
-		if ($group['query']) {
-			$this->queryGenerator->init('dmail_queryConfig', $table, (($fields == '*')?'':$fields));
-			$this->queryGenerator->queryConfig = unserialize($group['query']);
-			$query = $TYPO3_DB->SELECTquery(
-				$fields,
-				$table,
-				$this->queryGenerator->getQuery($this->queryGenerator->queryConfig).
-					t3lib_BEfunc::deleteClause($table)
-			);
+		if ($table == 'fe_groups') {
+			$switchTable = 'fe_users';
+		} else {
+			$switchTable = $table;
 		}
-		return $query;
+		$emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $TYPO3_DB->fullQuoteStr('', $switchTable);
+		
+		if ($table == 'fe_groups') {
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'DISTINCT '.$switchTable.'.uid',
+				$switchTable.','.$table.',sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
+				'sys_dmail_group.uid='.intval($uid).
+					' AND fe_groups.uid=sys_dmail_group_mm.uid_foreign'.
+					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
+					' AND fe_groups.uid IN (fe_users.usergroup)'.
+					$emailIsNotNull.
+					t3lib_pageSelect::enableFields($table).
+					t3lib_pageSelect::enableFields($switchTable).
+					t3lib_pageSelect::enableFields('sys_dmail_group')
+				);
+		} else {
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'DISTINCT '.$switchTable.'.uid',
+				'sys_dmail_group,'.$switchTable.' LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_foreign='.$switchTable.'.uid',
+				'sys_dmail_group.uid = '.intval($uid).
+					' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid'.
+					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($switchTable, $switchTable).
+					$emailIsNotNull.
+					t3lib_pageSelect::enableFields($switchTable).
+					t3lib_pageSelect::enableFields('sys_dmail_group')
+				);
+		}
+		
+		$outArr=array();
+		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+			$outArr[]=$row['uid'];
+		}
+		return $outArr;
 	}
 	
 	/**
@@ -1022,16 +968,23 @@ class mod_web_dmail extends t3lib_SCbase {
 	 *
 	 * @param	[String]		$table: The table to select from
 	 * @param	[Array]			$group: The direct_mail group record
-	 * @return	[Array]			$outArr: the array of uid's
+	 * @return	[Strint]		The resulting query.
 	 */
-	function getSpecialQueryIdList($table,$group)	{
+	function getSpecialQueryIdList($table,$group) {
 		global $TYPO3_DB;
 		
 		$outArr = array();
-		$query = $this->makeSpecialQuery($table,$group,$table.'.uid');
-		if ($query) {
-			$res = $TYPO3_DB->sql(TYPO3_db, $query);
-			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+		if ($group['query']) {
+			$this->queryGenerator->init('dmail_queryConfig', $table, 'uid');
+			$this->queryGenerator->queryConfig = unserialize($group['query']);
+			$whereClause = $this->queryGenerator->getQuery($this->queryGenerator->queryConfig).t3lib_BEfunc::deleteClause($table);
+			$res = $TYPO3_DB->exec_SELECTquery(
+				$table.'.uid',
+				$table,
+				$whereClause
+				);
+			
+			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$outArr[] = $row['uid'];
 			}
 		}
@@ -1046,10 +999,12 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function getMailGroups($list,$parsedGroups)	{
+		global $TYPO3_DB;
+		
 		$groupIdList = t3lib_div::intExplode(',',$list);
 		$groups = array();
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+		$res = $TYPO3_DB->exec_SELECTquery(
 			'sys_dmail_group.*',
 			'sys_dmail_group LEFT JOIN pages ON pages.uid=sys_dmail_group.pid',
 			'sys_dmail_group.uid IN ('.implode(',',$groupIdList).')'.
@@ -1058,7 +1013,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				t3lib_pageSelect::enableFields('sys_dmail_group')
 			);
 
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			if ($row['type']==4)	{	// Other mail group...
 				if (!in_array($row['uid'],$parsedGroups))	{
 					$parsedGroups[]=$row['uid'];
@@ -1195,10 +1150,8 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @param	[type]		$makeIdLists: Set to 0 if you don't want the list of table ids to be collected but only the queries to be stored.
 	 * @return	[type]		...
 	 */
-	function cmd_compileMailGroup($group_uid,$makeIdLists=1) {
-		global $BACKPATH;
+	function cmd_compileMailGroup($group_uid) {
 		
-		$queries=array();
 		$id_lists=array();
 		if ($group_uid)	{
 			$mailGroup=t3lib_BEfunc::getRecord('sys_dmail_group',$group_uid);
@@ -1220,7 +1173,6 @@ class mod_web_dmail extends t3lib_SCbase {
 								}
 							}
 						}
-
 					}
 						// Remove any duplicates
 					$pageIdArray=array_unique($pageIdArray);
@@ -1231,20 +1183,17 @@ class mod_web_dmail extends t3lib_SCbase {
 					if ($pidList)	{
 						$whichTables = intval($mailGroup['whichtables']);
 						if ($whichTables&1)	{	// tt_address
-							$queries['tt_address']=$this->makePidListQuery('tt_address',$pidList,'tt_address.*',$group_uid,$mailGroup['select_categories']);
-							if ($makeIdLists)	$id_lists['tt_address']=$this->getIdList('tt_address',$pidList,$group_uid,$mailGroup['select_categories']);
+							$id_lists['tt_address']=$this->getIdList('tt_address',$pidList,$group_uid,$mailGroup['select_categories']);
 						}
 						if ($whichTables&2)	{	// fe_users
-							$queries['fe_users']=$this->makePidListQuery('fe_users',$pidList,'fe_users.*',$group_uid,$mailGroup['select_categories']);
-							if ($makeIdLists)	$id_lists['fe_users']=$this->getIdList('fe_users',$pidList,$group_uid,$mailGroup['select_categories']);
+							$id_lists['fe_users']=$this->getIdList('fe_users',$pidList,$group_uid,$mailGroup['select_categories']);
 						}
 						if ($this->userTable && ($whichTables&4))	{	// user table
-							$queries[$this->userTable]=$this->makePidListQuery($this->userTable,$pidList,$this->userTable.'*',$group_uid,$mailGroup['select_categories']);
-							if ($makeIdLists)	$id_lists[$this->userTable]=$this->getIdList($this->userTable,$pidList,$group_uid,$mailGroup['select_categories']);
+							$id_lists[$this->userTable]=$this->getIdList($this->userTable,$pidList,$group_uid,$mailGroup['select_categories']);
 						}
 						if ($whichTables&8)	{	// fe_groups
-							$queries['fe_users'] .= ' UNION '.$this->makePidListQuery('fe_groups',$pidList,'fe_users.*',$group_uid,$mailGroup['select_categories']);
-							if ($makeIdLists)	$id_lists['fe_users'] = array_merge($id_lists['fe_users'], $this->getIdList('fe_groups',$pidList,$group_uid,$mailGroup['select_categories']));
+							if (!is_array($id_lists['fe_users'])) $id_lists['fe_users'] = array();
+							$id_lists['fe_users'] = array_unique(array_merge($id_lists['fe_users'], $this->getIdList('fe_groups',$pidList,$group_uid,$mailGroup['select_categories'])));
 						}
 					}
 					break;
@@ -1257,13 +1206,11 @@ class mod_web_dmail extends t3lib_SCbase {
 					$id_lists['PLAINLIST'] = $this->cleanPlainList($recipients);
 					break;
 				case 2:	// Static MM list
-					$queries['tt_address'] = $this->makeStaticListQuery('tt_address', $group_uid,'tt_address.*');
-					if ($makeIdLists)	$id_lists['tt_address'] = $this->getStaticIdList('tt_address',$group_uid);
-					$queries['fe_users'] = $this->makeStaticListQuery('fe_users', $group_uid,'fe_users.*');
-					if ($makeIdLists)	$id_lists['fe_users'] = $this->getStaticIdList('fe_users',$group_uid);
+					$id_lists['tt_address'] = $this->getStaticIdList('tt_address',$group_uid);
+					$id_lists['fe_users'] = $this->getStaticIdList('fe_users',$group_uid);
+					$id_lists['fe_users'] = array_unique(array_merge($id_lists['fe_users'],$this->getStaticIdList('fe_groups',$group_uid)));
 					if ($this->userTable)	{
-						$queries[$this->userTable] = $this->makeStaticListQuery($this->userTable,$group_uid,$this->userTable.'*');
-						if ($makeIdLists)	$id_lists[$this->userTable] = $this->getStaticIdList($this->userTable,$group_uid);
+						$id_lists[$this->userTable] = $this->getStaticIdList($this->userTable,$group_uid);
 					}
 					break;
 				case 3:	// Special query list
@@ -1278,23 +1225,15 @@ class mod_web_dmail extends t3lib_SCbase {
 						$table = $this->userTable;
 					}
 					if ($table) {
-						$queries[$table] = $this->makeSpecialQuery($table,$mailGroup,'*');
-						if ($makeIdLists) {
-							$id_lists[$table] = $this->getSpecialQueryIdList($table,$mailGroup);
-						}
+						$id_lists[$table] = $this->getSpecialQueryIdList($table,$mailGroup);
 					}
 					break;
 				case 4:	//
 					$groups = array_unique($this->getMailGroups($mailGroup['mail_groups'],array($mailGroup['uid'])));
 					reset($groups);
-					$queries=array();
-					$id_lists=array();
 					while(list(,$v)=each($groups))	{
 						$collect=$this->cmd_compileMailGroup($v);
-						if (is_array($collect['queryInfo']['queries']))	{
-							$queries=t3lib_div::array_merge_recursive_overrule($queries,$collect['queryInfo']['queries']);
-						}
-						if (is_array($collect['queryInfo']['id_lists']))	{
+						if (is_array($collect['queryInfo']['id_lists'])) {
 							$id_lists=t3lib_div::array_merge_recursive_overrule($id_lists,$collect['queryInfo']['id_lists']);
 						}
 					}
@@ -1308,7 +1247,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 		}
 		$outputArray = array(
-			'queryInfo' => array('id_lists' => $id_lists, 'queries' => $queries)
+			'queryInfo' => array('id_lists' => $id_lists)
 			);
 		return $outputArray;
 	}
@@ -1408,6 +1347,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		
 		if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
 			$this->queryGenerator->queryConfig = unserialize($this->MOD_SETTINGS['queryConfig']);
+			$this->queryGenerator->extFieldLists['queryFields'] = 'uid';
 			$out .= $this->queryGenerator->getSelectQuery();
 			$out .= $this->doc->spacer(20);
 		}
@@ -1434,21 +1374,23 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function importRecords_sort($records,$syncSelect,$tstampFlag)	{
+		global $TYPO3_DB;
+		
 		reset($records);
 		$kinds=array();
 		while(list(,$recdata)=each($records))	{
 			if ($syncSelect && !t3lib_div::testInt($syncSelect))	{
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				$res = $TYPO3_DB->exec_SELECTquery(
 					'uid,tstamp',
 					'tt_address',
 					'pid='.intval($this->id).
-						' AND '.$syncSelect.'="'.$GLOBALS['TYPO3_DB']->quoteStr($recdata[$syncSelect], 'tt_address').'"'
+						' AND '.$syncSelect.'="'.$TYPO3_DB->quoteStr($recdata[$syncSelect], 'tt_address').'"'
 						.t3lib_BEfunc::deleteClause('tt_address'),
 					'',
 					'',
 					'1'
 				);
-				if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+				if ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 					if ($tstampFlag)	{
 						if ($row['tstamp']>intval($recdata['tstamp']))	{
 							$kinds['newer_version_detected'][]=$recdata;
@@ -1468,16 +1410,18 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function importRecords($categorizedRecords,$removeExisting)	{
+		global $TYPO3_DB;
+		
 		$cmd = array();
 		$data = array();
 		if ($removeExisting)	{		// Deleting:
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			$res = $TYPO3_DB->exec_SELECTquery(
 				'uid',
 				'tt_address',
 				'pid='.intval($this->id).
 				t3lib_BEfunc::deleteClause('tt_address')
-			);
-			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+				);
+			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 				$cmd['tt_address'][$row['uid']]['delete'] = 1;
 			}
 		}
@@ -3492,13 +3436,15 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function makeStatTempTableContent($mrow)	{
+		global $TYPO3_DB;
+		
 		// Remove old:
-		$GLOBALS['TYPO3_DB']->exec_DELETEquery(
+		$TYPO3_DB->exec_DELETEquery(
 			'cache_sys_dmail_stat',
 			'mid='.intval($mrow['uid'])
 			);
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+		$res = $TYPO3_DB->exec_SELECTquery(
 			'rid,rtbl,tstamp,response_type,url_id,html_sent,size',
 			'sys_dmail_maillog',
 			'mid='.intval($mrow['uid']),
@@ -3508,7 +3454,7 @@ class mod_web_dmail extends t3lib_SCbase {
 
 		$currentRec = '';
 		$recRec = '';
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			$thisRecPointer=$row['rtbl'].$row['rid'];
 			if ($thisRecPointer!=$currentRec)	{
 				$this->storeRecRec($recRec);
@@ -3603,28 +3549,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				);
 		}
 	}
-
-	/**
-	 * [Describe function...]
-	 *
-	 * @param	[type]		$query: ...
-	 * @return	[type]		...
-	 */
-	function showQueryRes($query)	{
-		$res = $GLOBALS['TYPO3_DB']->sql(TYPO3_db,$query);
-		$lines = array();
-		$first = 1;
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-			if ($first)	{
-				$lines[]='<tr bgcolor=#cccccc><td><b>'.implode('</b></td><td><b>',array_keys($row)).'</b></td></tr>';
-				$first=0;
-			}
-			$lines[]='<tr bgcolor=#eeeeee><td>'.implode('</td><td>',$row).'</td></tr>';
-		}
-		$str = '<table border=1 cellpadding=0 cellspacing=0>'.implode('',$lines).'</table>';
-		return $str;
-	}
-
+	
 	/**
 	 * [Describe function...]
 	 *

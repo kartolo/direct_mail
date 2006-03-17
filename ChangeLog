@@ -1,11 +1,14 @@
-2007-03-15 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
-	* Systematic review and adjustment of all SQL queries to ensure compatibility with dbal system extension.
+2006-03-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Fix bugtracker issue 2821.
+	* Eliminate use of deprecated $TYPO3_DB->sql($db,$query) to ensure dbal compliance.
 
-2007-03-10 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+2006-03-15 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Systematic review and adjustment of all SQL queries to ensure compatibility with dbal system extension.
+
+2006-03-10 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction to typo error in locallang_mod_web_txdirectmailM1.xml
 
-2007-03-07 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+2006-03-07 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Honor return path and defer mode settings in dmailer_sendSimple.
 	* Do not display the statistics option for direct mails that where sent to a list of addresses (they are not available).
 	* In the Direct Mails function, do not display direct mails that were already sent.
@@ -14,13 +17,13 @@
 	* Correction to XCLASS declaration in res/scripts/class.tx_directmail_ttnews_plaintext.php
 	* Update to ext_emconf.php
 
-2007-03-06 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+2006-03-06 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Remove unknown field "description" from the list $this->fieldlist in class.mod_web_dmail.php
 	* Various changes to the user interface.
 	* Completed manual.
 	* Update module context sensitive help.
 
-2007-03-05 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+2006-03-05 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Minor adjustments to tables csh files.
 	* Complete csh help in English and French for sys_dmail_category table.
 	* Update section of manual: Categorizing newsletter content.
@@ -34,17 +37,17 @@
 	* Stop reporting each converted record after the 50th converted record in a table.
 	* Stop reporting each not-converted record after the 50th not-converted record in a table.
 
-2007-03-04 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+2006-03-04 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add copy of the static templates in the manual.
 	* Change English language labels of Direct Mail Group to Recipient list.
 	* Adjust a few more TCA labels.
 	* Update recipient list section of manual.
 	* Complete csh help in English and French for sys_dmail_group table.
 
-2007-03-03 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+2006-03-03 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Update to the manual.
 
-2007-03-01 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+2006-03-01 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add dependency on TYPO3 4.0.0 in ext_emconf.php.
 	* Update the Configuration section of the manual, including conversion.
 	* Change the module form from "mediumDoc" to "template".
