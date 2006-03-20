@@ -161,7 +161,7 @@ CREATE TABLE sys_dmail_category (
     deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
     hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
     category tinytext NOT NULL,
-    old_cat_number varchar(2) DEFAULT '' NOT NULL,
+    old_cat_number char(2) DEFAULT '' NOT NULL,
     
     PRIMARY KEY (uid),
     KEY parent (pid)
