@@ -2904,7 +2904,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$tblLines[]=array($LANG->getLL('stats_mails_sent'),$sent_total,$sent_html,$sent_plain);
 		$tblLines[]=array($LANG->getLL('stats_mails_returned'),$this->showWithPercent($table['-127']['counter'],$sent_total));
 		$tblLines[]=array($LANG->getLL('stats_HTML_mails_viewed'),'',$this->showWithPercent($unique_ping_responses,$sent_html));
-		$tblLines[]=array($LANG->getLL('stats_unique_responses'),$this->showWithPercent($unique_html_responses+$unique_plain_responses,$sent_total),$this->showWithPercent($unique_html_responses,$sent_html),$this->showWithPercent($unique_plain_responses,$sent_plain));
+		$tblLines[]=array($LANG->getLL('stats_unique_responses'),$this->showWithPercent($unique_html_responses+$unique_plain_responses,$sent_total),$this->showWithPercent($unique_html_responses,$sent_html),$this->showWithPercent($unique_plain_responses,$sent_plain?$sent_plain:$sent_html));
 		
 		$output.='<br /><strong>' . $LANG->getLL('stats_general_information') . '</strong>';
 		$output.=$this->formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1);
@@ -2969,12 +2969,12 @@ class mod_web_dmail extends t3lib_SCbase {
 
 		$tblLines=array();
 		$tblLines[]=array('',$LANG->getLL('stats_total'),$LANG->getLL('stats_HTML'),$LANG->getLL('stats_plaintext'),'');
-		$tblLines[]=array($LANG->getLL('stats_total_responses'),$table['1']['counter']+$table['2']['counter'],$table['1']['counter'],$table['2']['counter']);
-		$tblLines[]=array($LANG->getLL('stats_unique_responses'),$this->showWithPercent($unique_html_responses+$unique_plain_responses,$sent_total),$this->showWithPercent($unique_html_responses,$sent_html),$this->showWithPercent($unique_plain_responses,$sent_plain));
+		$tblLines[]=array($LANG->getLL('stats_total_responses'),$table['1']['counter']+$table['2']['counter'],$table['1']['counter']?$table['1']['counter']:'0',$table['2']['counter']?$table['2']['counter']:'0');
+		$tblLines[]=array($LANG->getLL('stats_unique_responses'),$this->showWithPercent($unique_html_responses+$unique_plain_responses,$sent_total), $this->showWithPercent($unique_html_responses,$sent_html), $this->showWithPercent($unique_plain_responses,$sent_plain?$sent_plain:$sent_html));
 		$tblLines[]=array($LANG->getLL('stats_links_clicked_per_respondent'),
-			($unique_html_responses+$unique_plain_responses ? number_format(($table['1']['counter']+$table['2']['counter'])/($unique_html_responses+$unique_plain_responses),2):''),
-			($unique_html_responses ? number_format(($table['1']['counter'])/($unique_html_responses),2):''),
-			($unique_plain_responses ? number_format(($table['2']['counter'])/($unique_plain_responses),2):'')
+			($unique_html_responses+$unique_plain_responses ? number_format(($table['1']['counter']+$table['2']['counter'])/($unique_html_responses+$unique_plain_responses),2):'-'),
+			($unique_html_responses ? number_format(($table['1']['counter'])/($unique_html_responses),2):'-'),
+			($unique_plain_responses ? number_format(($table['2']['counter'])/($unique_plain_responses),2):'-')
 		);
 		arsort($urlCounter['total']);
 		arsort($urlCounter['html']);
@@ -3002,12 +3002,12 @@ class mod_web_dmail extends t3lib_SCbase {
 
 		$tblLines=array();
 		$tblLines[]=array('',$LANG->getLL('stats_count'));
-		$tblLines[]=array($LANG->getLL('stats_total_mails_returned'),$table['-127']['counter']);
-		$tblLines[]=array($LANG->getLL('stats_recipient_unknown'),$this->showWithPercent($table_ret['550']['counter']+$table_ret['553']['counter'],$table['-127']['counter']));
-		$tblLines[]=array($LANG->getLL('stats_mailbox_full'),$this->showWithPercent($table_ret['551']['counter'],$table['-127']['counter']));
-		$tblLines[]=array($LANG->getLL('stats_bad_host'),$this->showWithPercent($table_ret['552']['counter'],$table['-127']['counter']));
-		$tblLines[]=array($LANG->getLL('stats_error_in_header'),$this->showWithPercent($table_ret['554']['counter'],$table['-127']['counter']));
-		$tblLines[]=array($LANG->getLL('stats_reason_unkown'),$this->showWithPercent($table_ret['-1']['counter'],$table['-127']['counter']));
+		$tblLines[]=array($LANG->getLL('stats_total_mails_returned'), ($table['-127']['counter']?number_format(intval($table['-127']['counter'])):'0'));
+		$tblLines[]=array($LANG->getLL('stats_recipient_unknown'), $this->showWithPercent($table_ret['550']['counter']+$table_ret['553']['counter'],$table['-127']['counter']));
+		$tblLines[]=array($LANG->getLL('stats_mailbox_full'), $this->showWithPercent($table_ret['551']['counter'],$table['-127']['counter']));
+		$tblLines[]=array($LANG->getLL('stats_bad_host'), $this->showWithPercent($table_ret['552']['counter'],$table['-127']['counter']));
+		$tblLines[]=array($LANG->getLL('stats_error_in_header'), $this->showWithPercent($table_ret['554']['counter'],$table['-127']['counter']));
+		$tblLines[]=array($LANG->getLL('stats_reason_unkown'), $this->showWithPercent($table_ret['-1']['counter'],$table['-127']['counter']));
 
 		$output.='<br /><strong>' . $LANG->getLL('stats_mails_returned') . '</strong>';
 		$output.=$this->formatTable($tblLines,array('nowrap','nowrap align="right"'),1);

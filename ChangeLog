@@ -5,6 +5,7 @@
 	* Remove reference to t3lib_extMgm::extPath('direct_mail') in ext_update.php. Fix issue 2920.
 	* Do not allow database update before the extension is installed (TCA not yet initialised). Fix issue 2920.
 	* Remove reference to t3lib_extMgm::extPath('direct_mail') in require_once in class.mod_wed_dmail.php.
+	* Fix issue 2895.
 
 2006-03-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Fix bugtracker issue 2821.
