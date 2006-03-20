@@ -1,3 +1,6 @@
+2006-03-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Fix bugtracker issue 2924.
+
 2006-03-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Fix bugtracker issue 2821.
 	* Eliminate use of deprecated $TYPO3_DB->sql($db,$query) to ensure dbal compliance.
