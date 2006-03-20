@@ -38,8 +38,8 @@ require_once (PATH_t3lib.'class.t3lib_scbase.php');
 require_once (PATH_t3lib.'class.t3lib_tstemplate.php');
 require_once (PATH_t3lib.'class.t3lib_page.php');
 require_once(PATH_t3lib.'class.t3lib_timetrack.php');
-require_once(t3lib_extMgm::extPath('direct_mail').'mod/class.mailselect.php');
-require_once(t3lib_extMgm::extPath('direct_mail').'mod/class.dmailer.php');
+require_once('class.mailselect.php');
+require_once('class.dmailer.php');
 
 class mod_web_dmail extends t3lib_SCbase {
 	var $extKey = 'direct_mail';

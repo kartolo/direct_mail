@@ -56,8 +56,8 @@ class ext_update  {
 	function main()	{
 		global $LANG, $BE_USER;
 		
-		$LANG->includeLLFile('EXT:direct_mail/mod/locallang.php');
-		require_once(t3lib_extMgm::extPath('direct_mail').'mod/class.mod_web_dmail.php');
+		$LANG->includeLLFile('EXT:direct_mail/mod/locallang_mod_web_txdirectmailM1.xml');
+		require_once('mod/class.mod_web_dmail.php');
 		$dmail = t3lib_div::makeInstance('mod_web_dmail');
 		$dmail->init();
 		
@@ -76,42 +76,33 @@ class ext_update  {
 	/**
 	 * Checks how many rows are found and returns true if there are any
 	 * 
-	 * @return	boolean		
+	 * @return	boolean
 	 */
 	function access() {
 		global $TYPO3_DB;
-		
-		$res = $TYPO3_DB->sql(TYPO3_db,$this->query('count(*)'));
-			// If we already have categories, do not try to update now.
-		if ($TYPO3_DB->sql_error() || $TYPO3_DB->sql_num_rows($res)) {
-			return FALSE;
-		} else {
-				// If we do not find any Direct mail folder, do not try to update now.
-			require_once(t3lib_extMgm::extPath('direct_mail').'mod/class.mod_web_dmail.php');
-			$dmail = t3lib_div::makeInstance('mod_web_dmail');
-			$dmail->init();
-			if (!is_array($dmail->modList['rows'])) {
-				return FALSE;
-			}
-		}
-		return TRUE;
-	}
-	
-	/**
-	 * Creates 	query finding all tt_content elements of plugin/newloginbox type which has any of the message/header fields set.
-	 * 
-	 * @param	string		Select fields, eg. "*" or "tx_newloginbox_show_forgot_password,tx_newloginbox_header_welcome" or "count(*)"
-	 * @return	string		Full query
-	 */
-	function query($fields)	{
-		global $TYPO3_DB;
-		
-		$query = $TYPO3_DB->SELECTquery(
-				$fields,
+			// We cannot update before the extension is installed: required tables are not yet in TCA
+		if (t3lib_extMgm::isLoaded('direct_mail')) {
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'count(*)',
 				'sys_dmail_category',
 				'1=1'
-		);
-		return $query;
+				);
+				// If we already have categories, do not try to update now.
+			if ($TYPO3_DB->sql_error() || $TYPO3_DB->sql_num_rows($res)) {
+				return FALSE;
+			} else {
+					// If we do not find any Direct mail folder, do not try to update now.
+				require_once('mod/class.mod_web_dmail.php');
+				$dmail = t3lib_div::makeInstance('mod_web_dmail');
+				$dmail->init();
+				if (!is_array($dmail->modList['rows'])) {
+					return FALSE;
+				}
+			}
+			return TRUE;
+		} else {
+			return FALSE;
+		}
 	}
 }
 
