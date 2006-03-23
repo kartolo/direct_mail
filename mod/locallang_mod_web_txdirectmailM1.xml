@@ -102,9 +102,13 @@
             <label index="mailgroup_import_separator_comma"></label>
             <label index="mailgroup_import_separator_semicolon"></label>
             <label index="mailgroup_import_separator_colon"></label>
+	    <label index="mailgroup_import_csv_validemail-description"></label>
+	    <label index="mailgroup_import_csv_dublette-description"></label>
             <label index="mailgroup_import_insert"></label>
             <label index="mailgroup_import_update"></label>
             <label index="mailgroup_import_no_update"></label>
+	    <label index="mailgroup_import_no_invalid_email"></label>
+	    <label index="mailgroup_import_filter_csv_dublettes"></label>
             <label index="mailgroup_import_test"></label>
             <label index="mailgroup_import_now"></label>
             <label index="recip_select_mailgroup"></label>
@@ -395,9 +399,13 @@
             <label index="mailgroup_import_separator_comma">comma</label>
             <label index="mailgroup_import_separator_semicolon">semicolon</label>
             <label index="mailgroup_import_separator_colon">colon</label>
+	    <label index="mailgroup_import_csv_validemail-description">Only update/import valid emails from csv data.</label>
+	    <label index="mailgroup_import_csv_dublette-description">Filter email dublettes from csv data. If a dublette is found, only the first entry is imported.</label>
             <label index="mailgroup_import_insert">Insert the following records:</label>
             <label index="mailgroup_import_update">Update the following records:</label>
             <label index="mailgroup_import_no_update">Do not update - newer version in database:</label>
+	    <label index="mailgroup_import_no_invalid_email">Do not insert/update invalid emails found in csv data:'</label>
+	    <label index="mailgroup_import_filter_csv_dublettes">Do not insert dublettes found in csv data:</label>
             <label index="mailgroup_import_test">Test import (no data written)</label>
             <label index="mailgroup_import_now">Import now!</label>
             <label index="recip_select_mailgroup">Select a recipient list</label>
@@ -594,6 +602,10 @@ If you do not specify a username and password and a newsletter page happens to b
         <languageKey index="dk" type="array">
         </languageKey>
         <languageKey index="de" type="array">
+            <label index="mlang_tabs_tab">Direct Mail</label>
+            <label index="mlang_labels_tablabel">Direct Mailer</label>
+            <label index="mlang_labels_tabdescr">Direct mailing von Newslettern an ausgewählte Empfänger.</label>
+            <label index="dmail_folders">Für Direct Mail konfigurierte Ordner</label>
             <label index="dmail_noCreateAccess">Sie besitzen nicht die Möglichkeit, versteckte oder zugriffsbeschränkte Seiten zu verschicken.</label>
             <label index="dmail_noRegular">Dieser Seitentyp kann nicht als E-Mail versendet werden. Bitte wählen Sie eine reguläre Seite.</label>
             <label index="dmail_dovsk_selectDmail">Auswahl des Versandobjektes</label>
@@ -602,20 +614,21 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="dmail_dovsk_crFromUrl">Neuen Versand anhand einer externen URL erstellen</label>
             <label index="dmail_createMail">E-Mail erstellen</label>
             <label index="dmail_view">Versand</label>
-            <label index="dmail_noEdit_noPerms">Kein Editieren möglich - Sie haben nicht die Berechtigung, Versandobjekte zu editieren.</label>
-            <label index="dmail_noEdit_isSent">Kein Editieren möglich - E-Mail wurde bereits versandt.</label>
-            <label index="dmail_basedOn">Der Versand basiert auf dieser Seite/diesem Newsletter.&lt;br /&gt;Klicken Sie hier für mehr Informationen:</label>
+	    <label index="dmail_noEdit_noPerms">Kein Editieren möglich - Sie haben nicht die Berechtigung, Versandobjekte zu editieren.</label>
+	    <label index="dmail_noEdit_isSent">Kein Editieren möglich - E-Mail wurde bereits versandt.</label>
+	    <label index="dmail_basedOn">Der Versand basiert auf dieser Seite/diesem Newsletter.&lt;br /&gt;Klicken Sie hier für mehr Informationen:</label>
             <label index="dmail_menu_newsletters">Newsletter</label>
             <label index="dmail_menu_direct_mails">Versand</label>
             <label index="dmail_menu_quickMail">QuickMail</label>
-            <label index="dmail_menu_list">Empfängerliste</label>
+	    <label index="dmail_menu_list">Empfängerliste</label>
             <label index="dmail_menu_conf">Modulkonfiguration</label>
             <label index="dmail_menu_mailerengine">Versand-Status</label>
+	    <label index="dmail_menu_convert_categories">Konvertierung von Kategorien</label>
             <label index="dmailer_mid">Auftrags-Nr.:</label>
             <label index="dmailer_job_begin">Auftrag begonnen</label>
             <label index="dmailer_job_end">Auftrag beendet</label>
-            <label index="dmailer_invoked_at">Aufgerufen: </label>
-            <label index="dmailer_nothing_to_do">Keine Aufträge.</label>
+	    <label index="dmailer_invoked_at">Aufgerufen:</label>
+	    <label index="dmailer_nothing_to_do">Keine Aufträge.</label>
             <label index="dmailer_ending">Beendet, Laufzeit:</label>
             <label index="dmailer_sys_dmail_record">Inhalt der Tabelle sys_dmail</label>
             <label index="dmailer_processed">bearbeitet...</label>
@@ -661,10 +674,30 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="mailgroup_plain_list">Liste</label>
             <label index="mailgroup_table_custom">Benutzerdefinierte Tabelle</label>
             <label index="mailgroup_download">Download CSV-Datei</label>
-            <label index="mailgroup_import">Import: CSV-Datei =&gt; 'ADDRESS' - Tabelle</label>
-            <label index="mailgroup_import_rules">Regeln:</label>
-            <label index="mailgroup_import_test">Test-Import (es werden keine Daten gespeichert)</label>
-            <label index="mailgroup_import_now">Jetzt importieren!</label>
+	    <label index="mailgroup_import">Import: CSV-Datei =&gt; 'ADDRESS' - Tabelle</label>
+	    <label index="mailgroup_import_explain">Falls in der ersten Zeile keine Liste von Feldbezeichnern angegeben wird, wird das Standardformat 'name,email' erwartet. Verfügbare Feldbezeichner sind im Manual angegeben.</label>
+	    <label index="mailgroup_import_rules">Regeln:</label>
+	    <label index="mailgroup_import_update_rule">Bedingungen für Aktualisierung existierender Datensätze</label>
+	    <label index="mailgroup_import_update_rule_email">Übereinstimmung des Feldes 'email'.</label>
+	    <label index="mailgroup_import_update_rule_name">Übereinstimmung des Feldes 'name'.</label>
+	    <label index="mailgroup_import_update_rule_uid">Übereinstimmung des Feldes 'uid'.</label>
+	    <label index="mailgroup_import_update_rule_phone">Übereinstimmung des Feldes 'phone'.</label>
+	    <label index="mailgroup_import_update_rule_all">[ALLE importieren]</label>
+	    <label index="mailgroup_import_update_rule_all_delete">[ALLE importieren, existierende löschen]</label>
+	    <label index="mailgroup_import_update_rule_tstamp">Nur Datensätze aktualisieren, bei denen der Zeitstempel (Feld 'tstamp') älter ist als der des zu importierenden (tstamp muss dazu mit angegeben werden).</label>
+	    <label index="mailgroup_import_separator">Zeichen für Feldtrennung:</label>
+	    <label index="mailgroup_import_separator_comma">Komma</label>
+	    <label index="mailgroup_import_separator_semicolon">Semikolon</label>
+	    <label index="mailgroup_import_separator_colon">Doppelpunkt</label>
+	    <label index="mailgroup_import_csv_validemail-description">Nur aktualisieren/importieren, wenn die zu importierende E-Mail ein gültiges Format besitzt.</label>
+	    <label index="mailgroup_import_csv_dublette-description">E-Mail-Dubletten in den CSV-Daten herausfiltern. Nur der erste CSV-Datensatz mit einer mehrfach vorkommenden E-Mail-Adresse wird importiert.</label>
+	    <label index="mailgroup_import_insert">Folgende Einträge werden importiert:</label>
+	    <label index="mailgroup_import_update">Folgende Einträge werden aktualisiert:</label>
+	    <label index="mailgroup_import_no_update">Folgende Einträge werden nicht aktualisiert, da eine neuere Version bereits gespeichert ist:</label>
+	    <label index="mailgroup_import_no_invalid_email">Folgende Einträge werden nicht aktualisiert/importiert, da die E-Mail-Adresse kein gültiges Format besitzt:'</label>
+	    <label index="mailgroup_import_filter_csv_dublettes">Folgende Einträge werden nicht importiert, da es sich um E-Mail-Dubletten in den CSV-Daten handelt:</label>
+	    <label index="mailgroup_import_test">Test-Import (es werden keine Daten gespeichert)</label>
+	    <label index="mailgroup_import_now">Jetzt importieren!</label>
             <label index="recip_select_mailgroup">Auswahl der Versandgruppe</label>
             <label index="recip_create_mailgroup">Neue Versandgruppe</label>
             <label index="recip_create_mailgroup_msg">Neue Versandgruppe erstellen?</label>
@@ -689,11 +722,13 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="send_was_scheduled">Die E-Mail wurde für den Versand freigeben.</label>
             <label index="send_was_scheduled_for">Planversand der E-Mail:</label>
             <label index="schedule_select_mailgroup">Auswahl der Versandgruppe</label>
+	    <label index="schedule_mailgroup">Empfängerliste:</label>
             <label index="schedule_time">Zeitpunkt des Versands (SS:MM TT-MM-YY):</label>
             <label index="schedule_send_all">An alle Empfänger der Versandgruppe versenden</label>
             <label index="schedule_list_emails">Mailversand - Liste der E-Mails</label>
             <label index="schedule_enter_emails">Geben Sie hier die E-Mail-Adressen der Empfänger an. Trennen Sie die Adressen mit Zeilenumbrüchen oder Kommata:</label>
             <label index="quickmail_message">Nachricht:</label>
+	    <label index="quickmail_mailgroup">Empfängerliste:</label>
             <label index="quickmail_sender_name">Absender (Name):</label>
             <label index="quickmail_sender_email">Absender (E-Mail):</label>
             <label index="quickmail_one_mail_bcc">Eine E-Mail an alle Empfänger über &quot;Blind Carbon Copy&quot; (Bcc)</label>
@@ -782,6 +817,9 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="nl_l_warning">Für diesen Newsletter wurden bereits %s Versandobjekte erstellt. Sind Sie sicher, dass Sie einen weiteren Versand erstellen möchten?</label>
             <label index="nl_cat_msg1">Es wurden keine Seiteninhalte auf der Seite gefunden.</label>
             <label index="nl_cat">Ausschluss von Seiteninhalten anhand von Kategorien</label>
+	    <label index="update_convert_now">Kategorien in Direct Mail Ordnern, die über die Page TSConfig definiert sind, müssen in Datenbankeinträge konvertiert werden. Sie können die Konvertierung jetzt durchführen oder zu einem späteren Zeitpunkt über die Funktion 'Kategorien konvertieren' in der Direct Mail-Erweiterung. Im Zweifelsfall konsultieren sie das Manual zu diesem Thema. Wollen sie die Konvertierung jetzt durchführen?</label>
+	    <label index="update_convert_do_it_now">Jetzt konvertieren</label>
+	    <label index="yes">Ja</label>
         </languageKey>
         <languageKey index="no" type="array">
         </languageKey>
@@ -884,9 +922,13 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="mailgroup_import_separator_comma">virgule</label>
             <label index="mailgroup_import_separator_semicolon">pont-virgule</label>
             <label index="mailgroup_import_separator_colon">deux points</label>
+	    <label index="mailgroup_import_csv_validemail-description">Mettre à jour ou importer seulement les adresses de courrier électronique valides.</label>
+	    <label index="mailgroup_import_csv_dublette-description">Filtrer les boublons dans les données d'entrée. Si un doublon est rencontré, un seul élément est importé.</label>
             <label index="mailgroup_import_insert">Insérer les enregistrements suivants:</label>
             <label index="mailgroup_import_update">Mettre à jour les enregistrements suivants:</label>
-            <label index="mailgroup_import_no_update">Ne pas mettre à jour - la version existante est plus récente:</label>
+            <label index="mailgroup_import_no_update">Ne pas mettre à jour si la version existante est plus récente:</label>
+	    <label index="mailgroup_import_no_invalid_email">Ne pas insérer ni mettre à jour si l'adresse est invalide:</label>
+	    <label index="mailgroup_import_filter_csv_dublettes">Ne pas insérer les doublons:</label>
             <label index="mailgroup_import_test">Essai d'importation sans écriture</label>
             <label index="mailgroup_import_now">Importer maintenant!</label>
             <label index="recip_select_mailgroup">Choisissez une liste de distribution</label>

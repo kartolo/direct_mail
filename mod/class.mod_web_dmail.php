@@ -775,12 +775,11 @@ class mod_web_dmail extends t3lib_SCbase {
 				$fieldOrder[]=array($fName,$fConf);
 				if ($fName && substr($fName,0,5)!="user_" && !in_array($fName,$fieldListArr))	{$fieldName=0; break;}
 			}
-			// If not field list, then:
+				// If not field list, then:
 			if (!$fieldName)	{
 				$fieldOrder = array(array('name'),array('email'));
 			}
-
-			// Re map values
+				// Re-map values
 			reset($lines);
 			if ($fieldName)	{
 				next($lines);	// Advance pointer if the first line was field names
@@ -1521,7 +1520,107 @@ class mod_web_dmail extends t3lib_SCbase {
 		}
 		return $out;
 	}
+	
+	/**
+	 * [Describe function...]
+	 * @author	Ralf Hettinger
+	 *
+	 * @param	[type]		$records: array of csv records to check for valid email-addresses
+	 * @return	[type]		array of filtered csv records
+	 */
+	function importRecords_checkMail($records)   {
+		$copyArrays = array('newer_version_detected');
+		$checkArrays = array('insert','update');
+		$filteredRecords = array();
+		if (is_array($records)) {
+			reset($records);
+			reset($copyArrays);
+			while (list(,$arraycmd) = each($copyArrays)) {
+				$filteredRecords[$arraycmd] = $records[$arraycmd];
+			}
+			reset($checkArrays);
+			while (list(,$arraycmd) = each($checkArrays)) {
+				if (is_array($records[$arraycmd])) {
+					foreach ($records[$arraycmd] as $key => $valarray) {
+						if ((t3lib_div::validEmail ($valarray['email']))) {
+							$filteredRecords[$arraycmd][] = $valarray;
+						} else {
+							$filteredRecords['invalid_email'][] = $valarray;
+						}
+					}
+				}
+			}
+		}
+		return $filteredRecords;
+	}
 
+	/**
+	 * [Describe function...]
+	 * @author	Ralf Hettinger
+	 *
+	 * @param	[type]		$records: array of csv records to check for dublettes
+	 * @param	[type]		$syncCsv: field of the records array to check for dublettes (this is set to 'email' by cmd_displayImport())
+	 * @return	[type]		array of filtered csv records
+	 */
+	function importRecords_checkImportDublettes($records,$syncCsv)   {
+		$copyArrays = array('newer_version_detected','invalid_email','update');
+		$checkArrays = array('insert');
+		$filteredRecords = array();
+		if (is_array($records)) {
+			reset($records);
+			$uniqueImportField = array();
+			reset($copyArrays);
+			while (list(,$arraycmd) = each($copyArrays)) {
+				$filteredRecords[$arraycmd] = $records[$arraycmd];
+			}
+			reset($checkArrays);
+			while (list(,$arraycmd) = each($checkArrays)) {
+				if (is_array($records[$arraycmd])) {
+					foreach ($records[$arraycmd] as $key => $valarray) {
+						if ( $uniqueImportField[$valarray[$syncCsv]] == 1 ) {
+							$filteredRecords['import_dublette'][] = $valarray;
+						} else {
+							$filteredRecords[$arraycmd][] = $valarray;
+							$uniqueImportField[$valarray[$syncCsv]] = 1;
+						}
+					}
+				}
+			}
+		}
+		return $filteredRecords;
+	}
+
+	/**
+	 * [Describe function...]
+	 * @author	Ralf Hettinger
+	 *
+	 * @param	[type]		$records: array of csv records
+	 * @return	[type]		array of csv records with name field set if only first_name or last_name is given
+	 */
+	function importRecords_makeName($records) {
+		$copyArrays = array('newer_version_detected','invalid_email','import_dublette','insert','update');
+		$checkArrays = array('insert','update');
+		$filteredRecords = array();
+		if (is_array($records)) {
+			reset($records);
+			reset($copyArrays);
+			while (list(,$arraycmd) = each($copyArrays)) {
+				$filteredRecords[$arraycmd] = $records[$arraycmd];
+			}
+			reset($checkArrays);
+			while (list(,$arraycmd) = each($checkArrays)) {
+				if (is_array($records[$arraycmd])) {
+					foreach ($records[$arraycmd] as $key => $valarray) {
+						if (!$filteredRecords[$arraycmd][$key]['name']) {
+							$filteredRecords[$arraycmd][$key]['name'] = $filteredRecords[$arraycmd][$key]['first_name'].' '.$filteredRecords[$arraycmd][$key]['last_name'];
+						}
+					}
+				}
+			}
+		}
+		return $filteredRecords;
+	}
+	
 	/**
 	 * [Describe function...]
 	 *
@@ -1535,11 +1634,28 @@ class mod_web_dmail extends t3lib_SCbase {
 			$records = $this->rearrangeCsvValues($this->getCsvValues($indata['csv'],$indata['sep']));
 			$categorizedRecords = $this->importRecords_sort($records,$indata['syncSelect'],$indata['tstamp']);
 			
+				// Check for email-validity and dublettes in the csv-records itself (syncSelect only checks against existing db-records),
+			if ($indata['csv_validmail']) {
+				$categorizedRecords = $this->importRecords_checkMail($categorizedRecords);
+			}
+			if ($indata['csv_dublette']) {
+				$categorizedRecords = $this->importRecords_checkImportDublettes($categorizedRecords,'email');
+			}
+				// Create name from first and/or last name
+			$categorizedRecords = $this->importRecords_makeName($categorizedRecords);
+			
 			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import_insert'),$this->getRecordList($categorizedRecords['insert'],'tt_address',1));
 			$theOutput.= $this->doc->spacer(20);
 			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import_update'),$this->getRecordList($categorizedRecords['update'],'tt_address',1));
 			$theOutput.= $this->doc->spacer(20);
 			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import_no_update'),$this->getRecordList($categorizedRecords['newer_version_detected'],'tt_address',1));
+			$theOutput.= $this->doc->spacer(20);
+			
+				// Invalid emails are not updated nor inserted
+			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import_no_invalid_email'),$this->getRecordList($categorizedRecords['invalid_email'],'tt_address',1));
+			$theOutput.= $this->doc->spacer(20);
+				// Import dublettes from csv are imported only once
+			$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import_filter_csv_dublettes'),$this->getRecordList($categorizedRecords['import_dublette'],'tt_address',1));
 			$theOutput.= $this->doc->spacer(20);
 			
 			if ($indata['doImport'])	{
@@ -1577,6 +1693,10 @@ class mod_web_dmail extends t3lib_SCbase {
 			<input type="checkbox" name="CSV_IMPORT[tstamp]" value="1"'.(($importButton && !$indata['tstamp'])?'':' checked="checked"').'/>&nbsp;' . $LANG->getLL('mailgroup_import_update_rule_tstamp') . '
 			<hr />
 			' . $LANG->getLL('mailgroup_import_separator') . '&nbsp;' . $sepSync.'
+			<hr />
+			<input type="checkbox" name="CSV_IMPORT[csv_validmail]" value="1"'.(($importButton && !$indata['csv_validmail'])?'':' checked="checked"').'/> '.$LANG->getLL('mailgroup_import_csv_validemail-description').'
+			<hr />
+			<input type="checkbox" name="CSV_IMPORT[csv_dublette]" value="1"'.(($importButton && !$indata['csv_dublette'])?'':' checked="checked"').'/> '.$LANG->getLL('mailgroup_import_csv_dublette-description').'
 			<hr />
 			<input type="submit" name="CSV_IMPORT[test_only]" value="' . $LANG->getLL('mailgroup_import_test') . '"> &nbsp; &nbsp; '.$importButton.'
 			<input type="hidden" name="CMD" value="displayImport">
