@@ -89,7 +89,7 @@ If you do not assign any category to an element, the element will appear in all 
 	    <label index="mailgroup_import.description">This option lets you import a csv, or comma-separated, list of address records and create a recipient list containing the imported records.</label>
             <label index="mailgroup_import.details">The records to import are entered one per line. Each record to import is a comma-separated list of field values. You may also specify the use of a semicolon(;) or of a colon (:) as separator instead of the comma.
 
-On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be “name, email”.
+On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be "name, email".
 
 Each field name listed on the first line is analyzed as follows:
 
