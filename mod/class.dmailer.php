@@ -135,6 +135,10 @@ class dmailer extends t3lib_htmlmail {
 		reset($this->dmailer['boundaryParts_html']);
 		while(list($bKey,$bContent)=each($this->dmailer['boundaryParts_html']))	{
 			$this->dmailer['boundaryParts_html'][$bKey] = explode('-->',$bContent,2);
+				// Remove useless HTML comments
+			if (substr($this->dmailer['boundaryParts_html'][$bKey][0],1) == 'END') {
+				$this->dmailer['boundaryParts_html'][$bKey][1] = $this->removeHTMLComments($this->dmailer['boundaryParts_html'][$bKey][1]);
+			}
 				// Now, analyzing which media files are used in this part of the mail:
 			$mediaParts = explode('cid:part',$this->dmailer['boundaryParts_html'][$bKey][1]);
 			reset($mediaParts);
@@ -148,12 +152,16 @@ class dmailer extends t3lib_htmlmail {
 		while(list($bKey,$bContent)=each($this->dmailer['boundaryParts_plain']))	{
 			$this->dmailer['boundaryParts_plain'][$bKey] = explode('-->',$bContent,2);
 		}
-
+		
 		$this->flag_html = $this->theParts['html']['content'] ? 1 : 0;
 		$this->flag_plain = $this->theParts['plain']['content'] ? 1 : 0;
 		$this->includeMedia = $this->flag_html && $row['includeMedia'];
 	}
-
+	
+	function removeHTMLComments($content) {
+		return preg_replace('/[\t\v\n\r\f]*<!(?:--[\s\S]*?--\s*)?>[\t\v\n\r\f]*/','',$content);
+	}
+	
 	/**
 	 * [Describe function...]
 	 *
@@ -275,16 +283,23 @@ class dmailer extends t3lib_htmlmail {
 	function dmailer_getBoundaryParts($cArray,$userCategories)	{
 		$returnVal='';
 		$this->mailHasContent = FALSE;
+		$boundaryMax = count($cArray)-1;
 		reset($cArray);
-		while(list(,$cP)=each($cArray))	{
+		while(list($bKey,$cP)=each($cArray))	{
 			$key=substr($cP[0],1);
 			$isSubscribed = FALSE;
-			if ($key == 'END' || !$key || intval($userCategories)==-1) {
-				    $returnVal.=$cP[1];
-				    $this->mediaList.=$cP['mediaList'];
-				    if ($cP[1]) {
-					    $this->mailHasContent = TRUE;
-				    }
+			if (!$key || intval($userCategories)==-1) {
+				$returnVal.=$cP[1];
+				$this->mediaList.=$cP['mediaList'];
+				if ($cP[1]) {
+					$this->mailHasContent = TRUE;
+				}
+			} elseif ($key == 'END') {
+				$returnVal.=$cP[1];
+				$this->mediaList.=$cP['mediaList'];
+				if ($cP[1] && !($bKey == 0 || $bKey == $boundaryMax)) {
+					$this->mailHasContent = TRUE;
+				}
 			} else {
 				foreach(explode(',',$key) as $group) {
 					if(t3lib_div::inList($userCategories,$group)) {

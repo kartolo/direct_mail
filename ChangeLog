@@ -1,5 +1,6 @@
 2006-03-24 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Use $_SERVER['PHP_SELF'] when available in dmailerd.phpcron and returnmail.phpsh
+	* Fix bugtracker issue 2982: do not send emails without any content.
 
 2006-03-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* On behalf of Ralf Hettinger: three new functions importRecords_checkMail, importRecords_checkImportDublettes and importRecords_makeName for more filtering of the imported CSV values.

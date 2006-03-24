@@ -2788,8 +2788,10 @@ class mod_web_dmail extends t3lib_SCbase {
 				$recipRow = dmailer::convertFields($rec);
 				$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table,$recipRow['uid']);
 				$kc = substr($table,0,1);
-				$htmlmail->dmailer_sendAdvanced($recipRow,$kc=='p'?'P':$kc);
-				$sentFlag++;
+				$returnCode = $htmlmail->dmailer_sendAdvanced($recipRow,$kc=='p'?'P':$kc);
+				if ($returnCode) {
+					$sentFlag++;
+				}
 			}
 		}
 		return $sentFlag;
@@ -2884,11 +2886,8 @@ class mod_web_dmail extends t3lib_SCbase {
 					$sendFlag+=$this->sendTestMailToTable($idLists,'fe_users',$htmlmail);
 					$sendFlag+=$this->sendTestMailToTable($idLists,'PLAINLIST',$htmlmail);
 					$sendFlag+=$this->sendTestMailToTable($idLists,$this->userTable,$htmlmail);
-
-					if ($sendFlag)	{
-						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_number'), $sendFlag)), 1, 1, 0, TRUE);
-						$this->noView=1;
-					}
+					$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_number'), $sendFlag)), 1, 1, 0, TRUE);
+					$this->noView=1;
 				}
 			} else {
 				$mailgroup_uid = t3lib_div::_GP('mailgroup_uid');
