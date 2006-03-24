@@ -757,23 +757,31 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @param	[type]		$lines: ...
 	 * @return	[type]		...
 	 */
-	function rearrangeCsvValues($lines)	{
+	function rearrangeCsvValues($lines) {
+		global $TYPO3_CONF_VARS;
+		
 		$out=array();
 		if (is_array($lines) && count($lines)>0)	{
 			// Analyse if first line is fieldnames.
-			// Required is it that every value is either 1) found in the list, fieldsList in this class (see top) 2) the value is empty (value omitted then) or 3) the field starts with "user_".
+			// Required is it that every value is either 1) found in the list fieldsList in this class, the value is empty (value omitted then) or 3) the field starts with "user_".
 			// In addition fields may be prepended with "[code]". This is used if the incoming value is true in which case '+[value]' adds that number to the field value (accummulation) and '=[value]' overrides any existing value in the field
 			$first = $lines[0];
 			$fieldListArr = explode(',',$this->fieldList);
+			if ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields']) {
+				$fieldListArr = array_merge($fieldListArr, explode(',',$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields']));
+			}
 			reset($first);
 			$fieldName=1;
 			$fieldOrder=array();
 			while(list(,$v)=each($first))	{
-				list($fName,$fConf) = split("\[|\]",$v);
+				list($fName,$fConf) = split('\[|\]',$v);
 				$fName =trim($fName);
 				$fConf =trim($fConf);
 				$fieldOrder[]=array($fName,$fConf);
-				if ($fName && substr($fName,0,5)!="user_" && !in_array($fName,$fieldListArr))	{$fieldName=0; break;}
+				if ($fName && substr($fName,0,5) != 'user_' && !in_array($fName,$fieldListArr))	{
+					$fieldName = 0;
+					break;
+				}
 			}
 				// If not field list, then:
 			if (!$fieldName)	{
@@ -1542,7 +1550,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			while (list(,$arraycmd) = each($checkArrays)) {
 				if (is_array($records[$arraycmd])) {
 					foreach ($records[$arraycmd] as $key => $valarray) {
-						if ((t3lib_div::validEmail ($valarray['email']))) {
+						if (t3lib_div::validEmail($valarray['email'])) {
 							$filteredRecords[$arraycmd][] = $valarray;
 						} else {
 							$filteredRecords['invalid_email'][] = $valarray;

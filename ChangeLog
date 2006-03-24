@@ -2,6 +2,7 @@
 	* Use $_SERVER['PHP_SELF'] when available in dmailerd.phpcron and returnmail.phpsh
 	* Fix bugtracker issue 2982: do not send emails without any content.
 	* Correction to two incorrect characters in locallang_csh_web_txdirectmailM1.xml
+	* Allow $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['addRecipFields'] to extend the list of fields that may be imported.
 
 2006-03-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* On behalf of Ralf Hettinger: three new functions importRecords_checkMail, importRecords_checkImportDublettes and importRecords_makeName for more filtering of the imported CSV values.
