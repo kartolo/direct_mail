@@ -158,8 +158,17 @@ class dmailer extends t3lib_htmlmail {
 		$this->includeMedia = $this->flag_html && $row['includeMedia'];
 	}
 	
+	/**
+	 * Removes html comments when outside script and style pairs
+	 *
+	 * @param	[type]		$recipRow: ...
+	 * @param	[type]		$tableNameChar: ...
+	 * @return	[type]		...
+	 */
 	function removeHTMLComments($content) {
-		return preg_replace('/[\t\v\n\r\f]*<!(?:--[\s\S]*?--\s*)?>[\t\v\n\r\f]*/','',$content);
+		$content = preg_replace('/\/\*<!\[CDATA\[\*\/[\t\v\n\r\f]*<!--/','/*<![CDATA[*/',$content);
+		$content = preg_replace('/[\t\v\n\r\f]*<!(?:--[\s\S]*?--\s*)?>[\t\v\n\r\f]*/','',$content);
+		return preg_replace('/\/\*<!\[CDATA\[\*\//','/*<![CDATA[*/<!--',$content);
 	}
 	
 	/**
