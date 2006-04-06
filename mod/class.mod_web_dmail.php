@@ -3055,7 +3055,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (is_array($temp_unpackedMail['html']['hrefs']))	{
 			reset($temp_unpackedMail['html']['hrefs']);
 			while(list($k,$v)=each($temp_unpackedMail['html']['hrefs']))	{
-				$urlArr[$k]=$v['absRef'];
+				$urlArr[$k]=html_entity_decode($v['absRef']);	// convert &amp; of query params back
 				$urlMd5Map[md5($v['absRef'])]=$k;
 			}
 		}
@@ -3065,33 +3065,34 @@ class mod_web_dmail extends t3lib_SCbase {
 				$urlArr[intval(-$k)]=$v;
 			}
 		}
-		// Traverse plain urls:
-		reset($plainUrlsTable);
-		$plainUrlsTable_mapped=array();
-		while(list($id,$c)=each($plainUrlsTable))	{
-			$url = $urlArr[intval($id)];
-			if (isset($urlMd5Map[md5($url)]))	{
-				$plainUrlsTable_mapped[$urlMd5Map[md5($url)]]=$c;
-			} else {
-				$plainUrlsTable_mapped[$id]=$c;
-			}
-		}
-
+		
 		// Traverse html urls:
 		$urlCounter['html']=array();
 		reset($htmlUrlsTable);
 		while(list($id,$c)=each($htmlUrlsTable))	{	
 			$urlCounter['html'][$id]=$c['counter'];
 		}
-
 		$urlCounter['total']=$urlCounter['html'];
-
+		
 		// Traverse plain urls:
-		$urlCounter['plain']=array();
-		reset($plainUrlsTable_mapped);
-		while(list($id,$c)=each($plainUrlsTable_mapped))	{
-			$urlCounter['plain'][$id]=$c['counter'];
-			$urlCounter['total'][$id]+=$c['counter'];
+		$urlCounter['plain'] = array();
+		reset($plainUrlsTable);
+		while(list($id,$c) = each($plainUrlsTable))	{
+			// Look up plain url in html urls
+			$htmlLinkFound = FALSE;
+			foreach ($urlCounter['html'] as $htmlId => $htmlLink)	{		
+				if ($urlArr[$id] == $urlArr[$htmlId])	{
+					$urlCounter['html'][$htmlId]['plainId'] = $id;
+					$urlCounter['html'][$htmlId]['plainCounter'] = $c['counter'];
+					$urlCounter['total'][$htmlId]['counter'] += $c['counter'];
+					$htmlLinkFound = TRUE;
+					break;
+				}
+			}
+			if (!$htmlLinkFound)	{
+				$urlCounter['plain'][$id]['counter'] = $c['counter'];
+				$urlCounter['total'][$id]['counter'] += $c['counter'];
+			}
 		}
 
 		$tblLines=array();
@@ -3107,6 +3108,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		arsort($urlCounter['html']);
 		arsort($urlCounter['plain']);
 		reset($urlCounter['total']);
+		/*
 		while(list($id,$c)=each($urlCounter['total']))	{
 			$uParts = parse_url($urlArr[intval($id)]);
 			$urlstr = $uParts['path'].($uParts['query']?'?'.$uParts['query']:'');
@@ -3116,10 +3118,46 @@ class mod_web_dmail extends t3lib_SCbase {
 			$urlstr=substr($urlstr,0,40);
 			$img='<a href="'.htmlspecialchars($urlArr[$id]).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($urlArr[$id]).'" /></a>';
 			$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.' ('.$urlstr.')',$c,$urlCounter['html'][$id],$urlCounter['plain'][$id],$img);
+		}*/
+		while(list($id,$c)=each($urlCounter['total']))	{
+			$uParts = parse_url($urlArr[intval($id)]);
+			$urlinfo = '';
+				// a link to this host?
+			if (t3lib_div::getIndpEnv('TYPO3_HOST_ONLY') == $uParts['host'])	{
+				$m = array();
+					// we have an id?
+				if (preg_match('/(?:^|&)id=([0-9a-z_]+)/',$uParts['query'],$m))	{
+					if (t3lib_div::testInt($m[1]))	{
+						$uid = intval($m[1]);
+					} else {
+						$uid = $this->sys_page->getPageIdFromAlias($m[1]);
+					}
+					$temp_root_line = $this->sys_page->getRootLine($uid);
+					$temp_page = array_shift($temp_root_line);
+					$temp_root_line = array_reverse($temp_root_line);	// array_shift reverses the array (rootline has numeric index in the wrong order!)
+					$query = preg_replace('/(?:^|&)id=([0-9a-z_]+)/','',$uParts['query']);
+					$urlstr = t3lib_div::fixed_lgd_cs($temp_page['title'],40).t3lib_div::fixed_lgd_cs(($query?' / '.$query:''),20);
+					$urlinfo = $temp_sys_page->getPathFromRootline($temp_root_line,15);
+				} else {
+					$urlstr = $uParts['path'].($uParts['query']?'?'.$uParts['query']:'');
+					$urlstr = t3lib_div::fixed_lgd_cs($urlstr,50);
+				}
+			} else {
+				$urlstr = $uParts['host'].$uParts['path'].($uParts['query']?'?'.$uParts['query']:'');
+				$urlstr = t3lib_div::fixed_lgd_cs($urlstr,50);
+			}
+			
+			$img = '<a href="'.htmlspecialchars($urlArr[$id]).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($urlArr[$id]).'" /></a>';
+			if ($urlinfo) $img .= '<img src="'.$BACK_PATH.'gfx/zoom2.gif" width="12" height="12" border="0" title="'.htmlspecialchars($urlinfo).'">';
+			
+			if (isset($urlCounter['html'][$id]['plainId']))	{
+				$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.'/'.$urlCounter['html'][$id]['plainId'].' ('.$urlstr.')',$c['counter'],$urlCounter['html'][$id]['counter'],$urlCounter['html'][$id]['plainCounter'],$img);
+			} else	{
+				$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.' ('.$urlstr.')',$c['counter'],$urlCounter['html'][$id]['counter'],$urlCounter['plain'][$id]['counter'],$img);
+			}
 		}
 		$output.='<br /><strong>' . $LANG->getLL('stats_response') . '</strong>';
 		$output.=$this->formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(0,0,0,0,1));
-
 		
 			// ******************
 			// Returned mails

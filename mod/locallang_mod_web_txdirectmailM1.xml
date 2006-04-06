@@ -33,6 +33,8 @@
             <label index="dmailer_job_end"></label>
             <label index="dmailer_invoked_at"></label>
             <label index="dmailer_nothing_to_do"></label>
+	    <label index="dmailer_sending"></label>
+	    <label index="dmailer_sending_to_table"></label>
             <label index="dmailer_ending"></label>
             <label index="dmailer_sys_dmail_record"></label>
             <label index="dmailer_processed"></label>
@@ -330,6 +332,8 @@
             <label index="dmailer_job_end">Job end</label>
             <label index="dmailer_invoked_at">Invoked at</label>
             <label index="dmailer_nothing_to_do">Nothing to do.</label>
+	    <label index="dmailer_sending">Sending</label>
+	    <label index="dmailer_sending_to_table">mails using records from table</label>
             <label index="dmailer_ending">Ending, parsetime:</label>
             <label index="dmailer_sys_dmail_record">sys_dmail record</label>
             <label index="dmailer_processed">processed...</label>
@@ -853,6 +857,8 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="dmailer_job_end">Fin de l'envoi</label>
             <label index="dmailer_invoked_at">Envoi demandé à</label>
             <label index="dmailer_nothing_to_do">Rien à envoyer.</label>
+	    <label index="dmailer_sending">Envoi de</label>
+	    <label index="dmailer_sending_to_table">messages utilisant des enregistrements de la table</label>
             <label index="dmailer_ending">Terminé avec durée de traitement de</label>
             <label index="dmailer_sys_dmail_record">Enregistrement sys_dmail</label>
             <label index="dmailer_processed">traité...</label>

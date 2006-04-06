@@ -401,7 +401,7 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	[type]		...
 	 */
 	function dmailer_masssend_list($query_info,$mid) {
-		global $TYPO3_DB;
+		global $TYPO3_DB, $LANG;
 		
 		$enableFields['tt_address']='tt_address.deleted=0 AND tt_address.hidden=0';
 		$enableFields['fe_users']='fe_users.deleted=0 AND fe_users.disable=0';
@@ -460,7 +460,7 @@ class dmailer extends t3lib_htmlmail {
 							}
 						}
 					}
-					$this->logArray[]='Sending '.$ct.' mails to table '.$table;
+					$this->logArray[] = $LANG->getLL('dmailer_sending').' '.$ct.' '.$LANG->getLL('dmailer_sending_to_table').' '.$table.'.';
 				}
 			}
 		}
