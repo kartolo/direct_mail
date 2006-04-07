@@ -3068,6 +3068,18 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 		}
 		
+		// Traverse plain urls:
+		reset($plainUrlsTable);
+		$plainUrlsTable_mapped=array();
+		while(list($id,$c)=each($plainUrlsTable))	{
+			$url = $urlArr[intval($id)];
+			if (isset($urlMd5Map[md5($url)]))	{
+				$plainUrlsTable_mapped[$urlMd5Map[md5($url)]]=$c;
+			} else {
+				$plainUrlsTable_mapped[$id]=$c;
+			}
+		}
+		
 		// Traverse html urls:
 		$urlCounter['html']=array();
 		reset($htmlUrlsTable);
@@ -3078,8 +3090,8 @@ class mod_web_dmail extends t3lib_SCbase {
 		
 		// Traverse plain urls:
 		$urlCounter['plain'] = array();
-		reset($plainUrlsTable);
-		while(list($id,$c) = each($plainUrlsTable))	{
+		reset($plainUrlsTable_mapped);
+		while(list($id,$c) = each($plainUrlsTable_mapped))	{
 			// Look up plain url in html urls
 			$htmlLinkFound = FALSE;
 			foreach ($urlCounter['html'] as $htmlId => $htmlLink)	{		

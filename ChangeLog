@@ -1,3 +1,6 @@
+2006-04-07 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to plain text links statistics.
+
 2006-04-06 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Add missing label localization in dmailer log.
 	* Statistics: group links, so that identical links of html and text mails are listed on the same line. Thanks to Martin Kutschker.
