@@ -2428,7 +2428,8 @@ class mod_web_dmail extends t3lib_SCbase {
 		$htmlmail->useBase64();
 		$htmlmail->http_username = $this->params['http_username'];
 		$htmlmail->http_password = $this->params['http_password'];
-		
+		$htmlmail->includeMedia = $row['includeMedia'];
+
 		if ($this->url_plain) {
 			$htmlmail->addPlain(t3lib_div::getURL($this->addUserPass($this->url_plain)));
 		}

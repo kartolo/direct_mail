@@ -1,3 +1,6 @@
+2006-04-07 Jan-Erik Revsbech <jer@moccompany.com>
+	* Fix Option includeMedia was not used when fetching direct mail. All mails were sent using absolute links.
+	
 2006-04-07 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction to plain text links statistics.
 
