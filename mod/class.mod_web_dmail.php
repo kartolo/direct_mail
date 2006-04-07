@@ -745,6 +745,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		fwrite ($fh, trim($str));
 		fseek ($fh,0);
 		$lines=array();
+		if ($sep == 'tab') $sep = chr(9);
 		while ($data = fgetcsv ($fh, 1000, $sep)) {
 			$lines[]=$data;
 		}
@@ -1690,6 +1691,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$opt[]='<option value=","'.($indata['sep']==','?' selected="selected"':'').'>, (' . $LANG->getLL('mailgroup_import_separator_comma') . ')</option>';
 			$opt[]='<option value=";"'.($indata['sep']==';'?' selected="selected"':'').'>; (' . $LANG->getLL('mailgroup_import_separator_semicolon') . ')</option>';
 			$opt[]='<option value=":"'.($indata['sep']==':'?' selected="selected"':'').'>: (' . $LANG->getLL('mailgroup_import_separator_colon') . ')</option>';
+			$opt[]='<option value="tab"'.($indata['sep']== 'tab'?' selected="selected"':'').'>'.htmlentities(chr(9)).' (' . $LANG->getLL('mailgroup_import_separator_tab') . ')</option>';
 			$sepSync='<select name="CSV_IMPORT[sep]">'.implode('',$opt).'</select>';
 			
 			$out=$LANG->getLL('mailgroup_import_explain') . '<br /><br />

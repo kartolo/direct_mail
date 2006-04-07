@@ -2,6 +2,7 @@
 	* Add missing label localization in dmailer log.
 	* Statistics: group links, so that identical links of html and text mails are listed on the same line. Thanks to Martin Kutschker.
 	* Statistics: parse the links, so that for internal urls page title and path (tooltip) are shown. Thanks to Martin Kutschker.
+	* Allow tab as option for CSV-import field separator. See bugtracker issue 3139.
 
 2006-04-04 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* dmailer should not remove comments when inside script and style tags.

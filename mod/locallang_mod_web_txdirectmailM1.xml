@@ -104,6 +104,7 @@
             <label index="mailgroup_import_separator_comma"></label>
             <label index="mailgroup_import_separator_semicolon"></label>
             <label index="mailgroup_import_separator_colon"></label>
+	    <label index="mailgroup_import_separator_tab"></label>
 	    <label index="mailgroup_import_csv_validemail-description"></label>
 	    <label index="mailgroup_import_csv_dublette-description"></label>
             <label index="mailgroup_import_insert"></label>
@@ -403,6 +404,7 @@
             <label index="mailgroup_import_separator_comma">comma</label>
             <label index="mailgroup_import_separator_semicolon">semicolon</label>
             <label index="mailgroup_import_separator_colon">colon</label>
+	    <label index="mailgroup_import_separator_colon">horizontal tab</label>
 	    <label index="mailgroup_import_csv_validemail-description">Only update/import valid emails from csv data.</label>
 	    <label index="mailgroup_import_csv_dublette-description">Filter email dublettes from csv data. If a dublette is found, only the first entry is imported.</label>
             <label index="mailgroup_import_insert">Insert the following records:</label>
@@ -928,6 +930,7 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="mailgroup_import_separator_comma">virgule</label>
             <label index="mailgroup_import_separator_semicolon">pont-virgule</label>
             <label index="mailgroup_import_separator_colon">deux points</label>
+	    <label index="mailgroup_import_separator_tab">tabulation</label>
 	    <label index="mailgroup_import_csv_validemail-description">Mettre à jour ou importer seulement les adresses de courrier électronique valides.</label>
 	    <label index="mailgroup_import_csv_dublette-description">Filtrer les boublons dans les données d'entrée. Si un doublon est rencontré, un seul élément est importé.</label>
             <label index="mailgroup_import_insert">Insérer les enregistrements suivants:</label>
