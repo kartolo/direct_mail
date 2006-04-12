@@ -1,3 +1,6 @@
+2006-04-12 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Fix getMimeType method until it is fixed in the core. See bugtracker issue 3172.
+
 2006-04-11 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Systematic review of enableFields and deleteClause in mod_web_dmail. Use BEfunc instead of pageSelect method.
 	* Recover extension constraints in ext_emconf.php.

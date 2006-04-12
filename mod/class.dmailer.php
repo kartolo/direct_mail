@@ -828,6 +828,35 @@ class dmailer extends t3lib_htmlmail {
 		}
 		$this->add_message("--".$boundary."--\n");
 	}
+	
+	/**
+	 * This function overloads t3lib_htmlmail which contains a bug in TYPO3 4.0 final. Remove after next release of TYPO3 4.0.
+	 *
+	 * @param	[type]		$url: ...
+	 * @return	[type]		...
+	 */
+	function getMimeType($url)	{
+			// Opens a connection to the server and returns the mime-type of the file
+			// takes url only
+		$pathInfo = parse_url($url);
+		if (!$pathInfo["scheme"])	{return false;}
+		$getAdr = ($pathInfo["query"])?$pathInfo["path"]."?".$pathInfo["query"]:$pathInfo["path"];
+		$fp = fsockopen($pathInfo['host'], ($pathInfo['port']?$pathInfo['port']:80), $errno, $errstr);
+		if(!$fp) {
+			return false;
+		} else {
+			fputs($fp,'HEAD '.$getAdr." HTTP/1.0\r\nHost: ".$pathInfo['host']."\r\n\r\n");
+			while(!feof($fp)) {
+				$thePortion= fgets($fp,128);
+				if (eregi("(^Content-Type: )(.*)",trim($thePortion), $reg))	{
+					$res = trim($reg[2]);
+					break;
+				}
+			}
+			fclose($fp);
+		}
+		return $res;
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/mod/class.dmailer.php'])	{
