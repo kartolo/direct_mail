@@ -101,7 +101,7 @@ if (TYPO3_extTableDef_script)   {
 
 require_once(PATH_t3lib.'class.t3lib_cs.php');
 require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
-require_once('class.dmailer.php');
+require_once(t3lib_extMgm::extPath('direct_mail').'mod/class.dmailer.php');
 
 $htmlmail = t3lib_div::makeInstance('dmailer');
 $htmlmail->start();

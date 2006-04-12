@@ -74,7 +74,7 @@ if (!$result)	{
 }
 $TYPO3_DB->sql_select_db(TYPO3_db); 
 
-require_once('class.readmail.php');
+require_once(t3lib_extMgm::extPath('direct_mail').'mod/class.readmail.php');
 
 // MAIL CONTENT
 $filename = 'php://stdin';
