@@ -2329,7 +2329,6 @@ class mod_web_dmail extends t3lib_SCbase {
 			'uid,'.$mm_field,
 			$table,
 			$mm_field.'!=0'.
-				t3lib_BEfunc::BEenableFields($table).
 				t3lib_BEfunc::deleteClause($table)
 			);
 		
