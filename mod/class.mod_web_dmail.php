@@ -113,8 +113,9 @@ class mod_web_dmail extends t3lib_SCbase {
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
 				'static_languages.lg_typo3='.$TYPO3_DB->fullQuoteStr($LANG->lang,'static_languages').
-					t3lib_pageSelect::enableFields('sys_language').
-					t3lib_pageSelect::enableFields('static_languages')
+					t3lib_BEfunc::BEenableFields('sys_language').
+					t3lib_BEfunc::deleteClause('sys_language').
+					t3lib_BEfunc::deleteClause('static_languages')
 				);
 			while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
 				$this->sys_language_uid = $row['uid'];
@@ -506,7 +507,8 @@ class mod_web_dmail extends t3lib_SCbase {
 					'sys_dmail_category',
 					'sys_dmail_category.pid IN (' . $TYPO3_DB->fullQuoteStr($pidList, 'sys_dmail_category') . ')'.
 						' AND l18n_parent=0'.
-						t3lib_pageSelect::enableFields('sys_dmail_category')
+						t3lib_BEfunc::BEenableFields('sys_dmail_category').
+						t3lib_BEfunc::deleteClause('sys_dmail_category')
 					);
 				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
 					if($localizedRowCat = $this->getRecordOverlay('sys_dmail_category',$rowCat,$this->sys_language_uid,'')) {
@@ -544,7 +546,8 @@ class mod_web_dmail extends t3lib_SCbase {
 								'pid='.intval($row['pid']).
 									' AND '.$TCA[$table]['ctrl']['languageField'].'='.intval($sys_language_content).
 									' AND '.$TCA[$table]['ctrl']['transOrigPointerField'].'='.intval($row['uid']).
-									t3lib_pageSelect::enableFields($table),
+									t3lib_BEfunc::BEenableFields($table).
+									t3lib_BEfunc::deleteClause($table),
 								'',
 								'',
 								'1'
@@ -872,11 +875,13 @@ class mod_web_dmail extends t3lib_SCbase {
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
 					$switchTable.','.$table,
-					'fe_groups.pid IN ('.$pidList.')'.
+					'fe_groups.pid IN('.$pidList.')'.
 						' AND fe_groups.uid IN(fe_users.usergroup)'.
 						$emailIsNotNull.
-						t3lib_pageSelect::enableFields($switchTable).
-						t3lib_pageSelect::enableFields($table)
+						t3lib_BEfunc::BEenableFields($switchTable).
+						t3lib_BEfunc::deleteClause($switchTable).
+						t3lib_BEfunc::BEenableFields($table).
+						t3lib_BEfunc::deleteClause($table)
 					);
 			} else {
 				$res = $TYPO3_DB->exec_SELECTquery(
@@ -884,7 +889,8 @@ class mod_web_dmail extends t3lib_SCbase {
 					$switchTable,
 					'pid IN ('.$pidList.')'.
 						$emailIsNotNull.
-						t3lib_pageSelect::enableFields($switchTable)
+						t3lib_BEfunc::BEenableFields($switchTable).
+						t3lib_BEfunc::deleteClause($switchTable)
 					);
 			}
 		} else {
@@ -893,24 +899,29 @@ class mod_web_dmail extends t3lib_SCbase {
 					'DISTINCT '.$switchTable.'.uid',
 					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, '.$mm_table.' as mm_1, fe_groups LEFT JOIN '.$switchTable.' ON '.$switchTable.'.uid = mm_1.uid_local',
 					'fe_groups.pid IN ('.$pidList.')'.
-						' AND fe_groups.uid IN (fe_users.usergroup)'.
+						' AND fe_groups.uid IN(fe_users.usergroup)'.
 						' AND mm_1.uid_foreign=g_mm.uid_foreign'.
 						' AND sys_dmail_group.uid=g_mm.uid_local'.
 						' AND sys_dmail_group.uid='.intval($group_uid).
 						$emailIsNotNull.
-						t3lib_pageSelect::enableFields($table).
-						t3lib_pageSelect::enableFields($switchTable)
+						t3lib_BEfunc::BEenableFields($switchTable).
+						t3lib_BEfunc::deleteClause($switchTable).
+						t3lib_BEfunc::BEenableFields($table).
+						t3lib_BEfunc::deleteClause($table).
+						t3lib_BEfunc::deleteClause('sys_dmail_group')
 					);
 			} else {
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
 					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, '.$mm_table.' as mm_1 LEFT JOIN '.$table.' ON '.$table.'.uid = mm_1.uid_local',
-					$table.'.pid IN ('.$pidList.')'.
+					$switchTable.'.pid IN('.$pidList.')'.
 						' AND mm_1.uid_foreign=g_mm.uid_foreign'.
 						' AND sys_dmail_group.uid=g_mm.uid_local'.
 						' AND sys_dmail_group.uid='.intval($group_uid).
 						$emailIsNotNull.
-						t3lib_pageSelect::enableFields($switchTable)
+						t3lib_BEfunc::BEenableFields($switchTable).
+						t3lib_BEfunc::deleteClause($switchTable).
+						t3lib_BEfunc::deleteClause('sys_dmail_group')
 					);
 			}
 		}
@@ -947,9 +958,11 @@ class mod_web_dmail extends t3lib_SCbase {
 					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
 					' AND fe_groups.uid IN (fe_users.usergroup)'.
 					$emailIsNotNull.
-					t3lib_pageSelect::enableFields($table).
-					t3lib_pageSelect::enableFields($switchTable).
-					t3lib_pageSelect::enableFields('sys_dmail_group')
+					t3lib_BEfunc::BEenableFields($switchTable).
+					t3lib_BEfunc::deleteClause($switchTable).
+					t3lib_BEfunc::BEenableFields($table).
+					t3lib_BEfunc::deleteClause($table).
+					t3lib_BEfunc::deleteClause('sys_dmail_group')
 				);
 		} else {
 			$res = $TYPO3_DB->exec_SELECTquery(
@@ -959,8 +972,9 @@ class mod_web_dmail extends t3lib_SCbase {
 					' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid'.
 					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($switchTable, $switchTable).
 					$emailIsNotNull.
-					t3lib_pageSelect::enableFields($switchTable).
-					t3lib_pageSelect::enableFields('sys_dmail_group')
+					t3lib_BEfunc::BEenableFields($switchTable).
+					t3lib_BEfunc::deleteClause($switchTable).
+					t3lib_BEfunc::deleteClause('sys_dmail_group')
 				);
 		}
 		
@@ -1018,7 +1032,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			'sys_dmail_group.uid IN ('.implode(',',$groupIdList).')'.
 				' AND '.$this->perms_clause.
 				t3lib_BEfunc::deleteClause('pages').
-				t3lib_pageSelect::enableFields('sys_dmail_group')
+				t3lib_BEfunc::deleteClause('sys_dmail_group')
 			);
 
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -1763,8 +1777,9 @@ class mod_web_dmail extends t3lib_SCbase {
 				'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
 				'tt_address.uid='.intval($uid).
 					' AND '.$this->perms_clause.
-					t3lib_BEfunc::deleteClause('tt_address').
-					t3lib_BEfunc::deleteClause('pages')
+					t3lib_BEfunc::deleteClause('pages').
+					t3lib_BEfunc::BEenableFields('tt_address').
+					t3lib_BEfunc::deleteClause('tt_address')
 				);
 			$row = $TYPO3_DB->sql_fetch_assoc($res);
 			break;
@@ -1774,8 +1789,9 @@ class mod_web_dmail extends t3lib_SCbase {
 				'fe_users LEFT JOIN pages ON pages.uid=fe_users.pid',
 				'fe_users.uid='.intval($uid).
 					' AND '.$this->perms_clause.
-					t3lib_BEfunc::deleteClause('fe_users').
-					t3lib_BEfunc::deleteClause('pages')
+					t3lib_BEfunc::deleteClause('pages').
+					t3lib_BEfunc::BEenableFields('fe_users').
+					t3lib_BEfunc::deleteClause('fe_users')
 				);
 			$row = $TYPO3_DB->sql_fetch_assoc($res);
 			break;
@@ -1930,8 +1946,9 @@ class mod_web_dmail extends t3lib_SCbase {
 			'pages',
 			'pid='.intval($this->id).
 				' AND doktype IN ('.$GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'].')'.
-				' AND '.$this->perms_clause.t3lib_BEfunc::deleteClause('pages').
-				t3lib_pageSelect::enableFields('pages'),
+				' AND '.$this->perms_clause.
+				t3lib_BEfunc::BEenableFields('pages').
+				t3lib_BEfunc::deleteClause('pages'),
 			'',
 			'sorting'
 			);
@@ -1999,7 +2016,9 @@ class mod_web_dmail extends t3lib_SCbase {
 			'(sys_dmail.page IS NULL OR sys_dmail.deleted>0)'.
 				' AND pages.doktype IN (1,2)'.
 				' AND pages.pid='.intval($this->id).
-				t3lib_pageSelect::enableFields('pages')
+				' AND '.$this->perms_clause.
+				t3lib_BEfunc::BEenableFields('pages').
+				t3lib_BEfunc::deleteClause('pages')
 			);
 		$out = '';
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -2310,7 +2329,8 @@ class mod_web_dmail extends t3lib_SCbase {
 			'uid,'.$mm_field,
 			$table,
 			$mm_field.'!=0'.
-				t3lib_pageSelect::enableFields($table)
+				t3lib_BEfunc::BEenableFields($table).
+				t3lib_BEfunc::deleteClause($table)
 			);
 		
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res)) {
@@ -2339,7 +2359,7 @@ class mod_web_dmail extends t3lib_SCbase {
 						'sys_dmail_category.uid IN (' . $categoryUids . ')'.
 							' AND l18n_parent=0'.
 							' AND sys_dmail_category.old_cat_number IN (' . $categoryList . ')'.
-							t3lib_pageSelect::enableFields('sys_dmail_category')
+							t3lib_BEfunc::deleteClause('sys_dmail_category')
 						);
 					if ($TYPO3_DB->sql_num_rows($res_cat)) {
 						$mm_count = 0;
@@ -2535,8 +2555,9 @@ class mod_web_dmail extends t3lib_SCbase {
 				'tt_address LEFT JOIN pages ON tt_address.pid=pages.uid',
 				'tt_address.uid IN ('.$intList.')'.
 					' AND '.$this->perms_clause.
-					t3lib_BEfunc::deleteClause('tt_address').
-					t3lib_BEfunc::deleteClause('pages')
+					t3lib_BEfunc::deleteClause('pages').
+					t3lib_BEfunc::BEenableFields('tt_address').
+					t3lib_BEfunc::deleteClause('tt_address')
 				);
 			$msg=$LANG->getLL('testmail_individual_msg') . '<br /><br />';
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -2553,8 +2574,8 @@ class mod_web_dmail extends t3lib_SCbase {
 				'sys_dmail_group LEFT JOIN pages ON sys_dmail_group.pid=pages.uid',
 				'sys_dmail_group.uid IN ('.$intList.')'.
 					' AND '.$this->perms_clause.
-					t3lib_BEfunc::deleteClause('sys_dmail_group').
-					t3lib_BEfunc::deleteClause('pages')
+					t3lib_BEfunc::deleteClause('pages').
+					t3lib_BEfunc::deleteClause('sys_dmail_group')
 				);
 			$msg=$LANG->getLL('testmail_mailgroup_msg') . '<br /><br />';
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -2877,8 +2898,9 @@ class mod_web_dmail extends t3lib_SCbase {
 						'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
 						'tt_address.uid='.intval(t3lib_div::_GP('tt_address_uid')).
 							' AND '.$this->perms_clause.
-							t3lib_BEfunc::deleteClause('tt_address').
-							t3lib_BEfunc::deleteClause('pages')
+							t3lib_BEfunc::deleteClause('pages').
+							t3lib_BEfunc::BEenableFields('tt_address').
+							t3lib_BEfunc::deleteClause('tt_address')
 						);
 					if ($recipRow = $TYPO3_DB->sql_fetch_assoc($res))	{
 						$recipRow = dmailer::convertFields($recipRow);
