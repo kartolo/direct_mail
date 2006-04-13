@@ -1,4 +1,9 @@
+2006-04-13 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Rewrite method getMimeType so that it uses the API form t3lib_div
+	* If the backend does not use the same charset as the page used for creating the direct mail, the from/to/organization names need to be converted since they are entered from the backend.
+
 2006-04-12 Jan-Erik Revsbech <jer@moccompany.com>
+	* Version 2.1.0
 	* Update dmailer.phpcrom and returnmail.phpsh changed require('XXX') to require_once(t3lib_extMgm::extPath('direct_mail')'mod/XXX').
 
 2006-04-12 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
