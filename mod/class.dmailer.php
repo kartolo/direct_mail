@@ -842,7 +842,7 @@ class dmailer extends t3lib_htmlmail {
 		$headers = trim(t3lib_div::getURL($url, 2));
 		if ($headers) {
 			$matches = array();
-			if (preg_match('/(Content-Type:[\s]*)([a-zA-Z_0-9\/\-]*)([\s]|$)/', $headers, $matches)) {
+			if (preg_match('/(Content-Type:[\s]*)([a-zA-Z_0-9\/\-\+\.]*)([\s]|$)/', $headers, $matches)) {
 				$mimeType = trim($matches[2]);
 			}
 		}
