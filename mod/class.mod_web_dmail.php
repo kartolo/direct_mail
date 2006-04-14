@@ -875,8 +875,8 @@ class mod_web_dmail extends t3lib_SCbase {
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
 					$switchTable.','.$table,
-					'fe_groups.pid IN('.$pidList.')'.
-						' AND fe_groups.uid IN(fe_users.usergroup)'.
+					'fe_group.pid IN('.$pidList.')'.
+						' AND fe_group.uid IN(fe_users.usergroup)'.
 						$emailIsNotNull.
 						t3lib_BEfunc::BEenableFields($switchTable).
 						t3lib_BEfunc::deleteClause($switchTable).
@@ -887,7 +887,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
 					$switchTable,
-					'pid IN ('.$pidList.')'.
+					$switchTable.'.pid IN('.$pidList.')'.
 						$emailIsNotNull.
 						t3lib_BEfunc::BEenableFields($switchTable).
 						t3lib_BEfunc::deleteClause($switchTable)
@@ -2672,7 +2672,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$emailArr = $this->addMailAddresses($idLists,'tt_address',$emailArr);
 		$emailArr = $this->addMailAddresses($idLists,'fe_users',$emailArr);
 		$emailArr = $this->addMailAddresses($idLists,'PLAINLIST',$emailArr);
-		$emailArr = $this->addMailAddresses($idLists,$this->userTable,$emailArr);
+		$emailArr = $this->addMailAddresses($idLists,$this->$this->userTable,$emailArr);
 		$emailArr = array_unique($emailArr);
 		return $emailArr;
 	}
@@ -2810,13 +2810,13 @@ class mod_web_dmail extends t3lib_SCbase {
 		$sentFlag=0;
 		if (is_array($idLists[$table]))	{
 			if ($table!='PLAINLIST')	{
-				$recs=$this->fetchRecordsListValues($idLists[$table],$table,'*');
+				$recs = $this->fetchRecordsListValues($idLists[$table],$table,'*');
 			} else {
 				$recs = $idLists['PLAINLIST'];
 			}
 			reset($recs);
 			while(list($k,$rec)=each($recs))	{
-				$recipRow = dmailer::convertFields($rec);
+				$recipRow = $htmlmail->convertFields($rec);
 				$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table,$recipRow['uid']);
 				$kc = substr($table,0,1);
 				$returnCode = $htmlmail->dmailer_sendAdvanced($recipRow,$kc=='p'?'P':$kc);

@@ -1,5 +1,7 @@
 2006-04-14 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Version 2.1.1
 	* Mime types may contain . and +
+	* Correct sql error when sending mails to a plain recipient list.
 
 2006-04-13 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Rewrite method getMimeType so that it uses the API form t3lib_div

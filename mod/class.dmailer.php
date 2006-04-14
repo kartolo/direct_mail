@@ -334,6 +334,8 @@ class dmailer extends t3lib_htmlmail {
 	function getListOfRecipentCategories($table,$uid) {
 		global $TCA, $TYPO3_DB;
 		
+		if ($table == 'PLAINLIST') return '';
+		
 		t3lib_div::loadTCA($table);
 		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
 		$res = $TYPO3_DB->exec_SELECTquery(
@@ -420,17 +422,22 @@ class dmailer extends t3lib_htmlmail {
 						$tKey = substr($table,0,1);
 					} elseif ($table=='PLAINLIST')	{
 						$tKey='P';
-					} else {$tKey='u';}
+					} else {
+						$tKey='u';
+					}
 
 						// Send mails
-					$sendIds=$this->dmailer_getSentMails($mid,$tKey);
+					$sendIds = $this->dmailer_getSentMails($mid,$tKey);
 					if ($table=='PLAINLIST')	{
-						$sendIdsArr=explode(',',$sendIds);
+						$sendIdsArr = explode(',',$sendIds);
 						reset($listArr);
 						while(list($kval,$recipRow)=each($listArr))	{
 							$kval++;
 							if (!in_array($kval,$sendIdsArr))	{
-								if ($c>=$this->sendPerCycle)	{$returnVal = false; break;}		// We are NOT finished!
+								if ($c >= $this->sendPerCycle)	{
+									$returnVal = false;
+									break;
+								}
 								$recipRow['uid']=$kval;
 								$this->shipOfMail($mid,$recipRow,$tKey);
 								$ct++;
@@ -480,9 +487,9 @@ class dmailer extends t3lib_htmlmail {
 	function shipOfMail($mid,$recipRow,$tKey)	{
 		if (!$this->dmailer_isSend($mid,$recipRow['uid'],$tKey))	{
 			$pt = t3lib_div::milliseconds();
-			$recipRow=$this->convertFields($recipRow);
+			$recipRow = $this->convertFields($recipRow);
 
-			$rC=$this->dmailer_sendAdvanced($recipRow,$tKey);
+			$rC = $this->dmailer_sendAdvanced($recipRow,$tKey);
 			if ($rC) $this->dmailer_addToMailLog($mid,$tKey.'_'.$recipRow['uid'],strlen($this->message),t3lib_div::milliseconds()-$pt,$rC,$recipRow['email']);
 		}
 	}
@@ -528,10 +535,12 @@ class dmailer extends t3lib_htmlmail {
 		}
 		$this->logArray[]=$subject.": ".$message;
 		
-		$headers[]='From: '.$this->from_name.' <'.$this->from_email.'>';
+		$from_name = ($this->from_name) ? $LANG->csConvObj->conv($this->from_name, $this->charset, $LANG->charSet) : '';
+		
+		$headers[]='From: '.$from_name.' <'.$this->from_email.'>';
 		$headers[]='Reply-To: '.$this->replyto_email;
 		
-		$email = $this->from_name.' <'.$this->from_email.'>';
+		$email = $from_name.' <'.$this->from_email.'>';
 		
 		t3lib_div::plainMailEncoded($email,$subject,$message,implode(chr(10),$headers));
 	}
