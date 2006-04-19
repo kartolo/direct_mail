@@ -308,7 +308,8 @@ class dmailer extends t3lib_htmlmail {
 			} elseif ($key == 'END') {
 				$returnVal.=$cP[1];
 				$this->mediaList.=$cP['mediaList'];
-				if ($cP[1] && !($bKey == 0 || $bKey == $boundaryMax)) {
+					// There is content and it is not just the header and footer content, or it is the only content because we have no direct mail boundaries.
+				if (($cP[1] && !($bKey == 0 || $bKey == $boundaryMax)) || count($cArray) == 1) {
 					$this->mailHasContent = TRUE;
 				}
 			} else {
@@ -788,7 +789,9 @@ class dmailer extends t3lib_htmlmail {
 	function addHTML($file)	{
 			// Adds HTML and media, encodes it from a URL or file
 		$status = $this->fetchHTML($file);
-		if (!$status)	{return false;}
+		if (!$status)	{
+			return false;
+		}
 		if ($this->extractFramesInfo())	{
 			return "Document was a frameset. Stopped";
 		}
@@ -798,6 +801,7 @@ class dmailer extends t3lib_htmlmail {
 		$this->substMediaNamesInHTML(!$this->includeMedia);	// 0 = relative
 		$this->substHREFsInHTML();
 		$this->setHTML($this->encodeMsg($this->theParts["html"]["content"]));
+		return true;
 	}
 	
 	function getHTMLContentType()	{

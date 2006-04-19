@@ -2431,6 +2431,10 @@ class mod_web_dmail extends t3lib_SCbase {
 		global $TCA, $TYPO3_DB, $LANG;
 		
 		$theOutput = '';
+		$errorMsg = '';
+		$warningMsg = '';
+		$content ='';
+		$success = FALSE;
 		
 			// Make sure long_link_rdct_url is consistent with use_domain.
 		$this->urlbase = $this->getUrlBase($row['use_domain']);
@@ -2448,12 +2452,18 @@ class mod_web_dmail extends t3lib_SCbase {
 		$htmlmail->http_username = $this->params['http_username'];
 		$htmlmail->http_password = $this->params['http_password'];
 		$htmlmail->includeMedia = $row['includeMedia'];
-
+		
 		if ($this->url_plain) {
-			$htmlmail->addPlain(t3lib_div::getURL($this->addUserPass($this->url_plain)));
+			$content = t3lib_div::getURL($this->addUserPass($this->url_plain));
+			$htmlmail->addPlain($content);
+			if (!$content || !$htmlmail->theParts['plain']['content']) {
+				$errorMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_plain_content') . '</strong>';
+			} elseif (!strstr($htmlmail->theParts['plain']['content'],'<!--DMAILER_SECTION_BOUNDARY')) {
+				$warningMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_plain_boundaries') . '</strong>';
+			}
 		}
 		if ($this->url_html) {
-			$htmlmail->addHTML($this->url_html);    // Username and password is added in htmlmail object
+			$success = $htmlmail->addHTML($this->url_html);    // Username and password is added in htmlmail object
 			if (!$row['charset']) {		// If no charset was set, we have an external page.
 					// Try to auto-detect the charset of the message
 				$matches = array();
@@ -2466,6 +2476,13 @@ class mod_web_dmail extends t3lib_SCbase {
 					$htmlmail->charset = 'iso-8859-1';
 				}
 				$htmlmail->useBase64();   // Reset content-type headers with new charset
+			}
+			if ($htmlmail->extractFramesInfo()) {
+				$errorMsg .= '<br /><strong>' . $LANG->getLL('dmail_frames_not allowed') . '</strong>';
+			} elseif (!$success || !$htmlmail->theParts['html']['content']) {
+				$errorMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_html_content') . '</strong>';
+			} elseif (!strstr($htmlmail->theParts['html']['content'],'<!--DMAILER_SECTION_BOUNDARY')) {
+				$warningMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_html_boundaries') . '</strong>';
 			}
 		}
 		
@@ -2481,31 +2498,37 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 		}
 		
-			// Update the record:
-		$htmlmail->theParts['messageid'] = $htmlmail->messageid;
-		$mailContent = serialize($htmlmail->theParts);
-		$updateFields = array(
-			'issent' => 0,
-			'charset' => $htmlmail->charset,
-			'mailContent' => $mailContent,
-			'renderedSize' => strlen($mailContent),
-			'long_link_rdct_url' => $this->urlbase
-			);
-		$TYPO3_DB->exec_UPDATEquery(
-			'sys_dmail',
-			'uid='.intval($this->sys_dmail_uid),
-			$updateFields
-			);
-		
-			// Read again:
-		$res = $TYPO3_DB->exec_SELECTquery(
-			'*',
-			'sys_dmail',
-			'pid='.intval($this->id).
-				' AND uid='.intval($this->sys_dmail_uid).
-				t3lib_BEfunc::deleteClause('sys_dmail')
-			);
-		$row = $TYPO3_DB->sql_fetch_assoc($res);
+		if (!$errorMsg) {
+				// Update the record:
+			$htmlmail->theParts['messageid'] = $htmlmail->messageid;
+			$mailContent = serialize($htmlmail->theParts);
+			$updateFields = array(
+				'issent' => 0,
+				'charset' => $htmlmail->charset,
+				'mailContent' => $mailContent,
+				'renderedSize' => strlen($mailContent),
+				'long_link_rdct_url' => $this->urlbase
+				);
+			$TYPO3_DB->exec_UPDATEquery(
+				'sys_dmail',
+				'uid='.intval($this->sys_dmail_uid),
+				$updateFields
+				);
+			
+				// Read again:
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'*',
+				'sys_dmail',
+				'pid='.intval($this->id).
+					' AND uid='.intval($this->sys_dmail_uid).
+					t3lib_BEfunc::deleteClause('sys_dmail')
+					);
+			$row = $TYPO3_DB->sql_fetch_assoc($res);
+			$theOutput .= $warningMsg.'<br /><br />';
+		} else {
+			$theOutput .= $this->doc->section($LANG->getLL('dmail_error'), $errorMsg.'<br /><br />'.$this->back);
+			$this->noView = 1;
+		}
 		
 		return $theOutput;
 	}
@@ -2735,7 +2758,6 @@ class mod_web_dmail extends t3lib_SCbase {
 						}
 						$whichMode=$LANG->getLL('quickmail_many_mails');
 					}
-					
 					
 					$msg='<strong>' . $LANG->getLL('quickmail_sent_to') . '</strong>';
 					$msg.='<table border="0">
@@ -3120,14 +3142,14 @@ class mod_web_dmail extends t3lib_SCbase {
 				if ($urlArr[$id] == $urlArr[$htmlId])	{
 					$urlCounter['html'][$htmlId]['plainId'] = $id;
 					$urlCounter['html'][$htmlId]['plainCounter'] = $c['counter'];
-					$urlCounter['total'][$htmlId]['counter'] += $c['counter'];
+					$urlCounter['total'][$htmlId]['counter'] = $urlCounter['total'][$htmlId]['counter'] + $c['counter'];
 					$htmlLinkFound = TRUE;
 					break;
 				}
 			}
 			if (!$htmlLinkFound)	{
 				$urlCounter['plain'][$id]['counter'] = $c['counter'];
-				$urlCounter['total'][$id]['counter'] += $c['counter'];
+				$urlCounter['total'][$id]['counter'] = $urlCounter['total'][$id]['counter'] + $c['counter'];
 			}
 		}
 
@@ -3144,17 +3166,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		arsort($urlCounter['html']);
 		arsort($urlCounter['plain']);
 		reset($urlCounter['total']);
-		/*
-		while(list($id,$c)=each($urlCounter['total']))	{
-			$uParts = parse_url($urlArr[intval($id)]);
-			$urlstr = $uParts['path'].($uParts['query']?'?'.$uParts['query']:'');
-			if (strlen($urlstr)<10)	{
-				$urlstr=$uParts['host'].$urlstr;
-			}
-			$urlstr=substr($urlstr,0,40);
-			$img='<a href="'.htmlspecialchars($urlArr[$id]).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($urlArr[$id]).'" /></a>';
-			$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.' ('.$urlstr.')',$c,$urlCounter['html'][$id],$urlCounter['plain'][$id],$img);
-		}*/
+		
 		while(list($id,$c)=each($urlCounter['total']))	{
 			$uParts = parse_url($urlArr[intval($id)]);
 			$urlinfo = '';
@@ -3173,7 +3185,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					$temp_root_line = array_reverse($temp_root_line);	// array_shift reverses the array (rootline has numeric index in the wrong order!)
 					$query = preg_replace('/(?:^|&)id=([0-9a-z_]+)/','',$uParts['query']);
 					$urlstr = t3lib_div::fixed_lgd_cs($temp_page['title'],40).t3lib_div::fixed_lgd_cs(($query?' / '.$query:''),20);
-					$urlinfo = $temp_sys_page->getPathFromRootline($temp_root_line,15);
+					$urlinfo = $this->sys_page->getPathFromRootline($temp_root_line,15);
 				} else {
 					$urlstr = $uParts['path'].($uParts['query']?'?'.$uParts['query']:'');
 					$urlstr = t3lib_div::fixed_lgd_cs($urlstr,50);

@@ -1,3 +1,12 @@
+2006-04-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Version 2.1.2
+  	* Fix issue 3298: Fatal error: Call to a member function on a non-object in statistics function
+	* Fix issue 3301: tca.php has short php open tag.
+	* Remove most field exclusions in tca.php.
+	* Issue error messages when content cannot be fetched.
+	* Issue warning message when fetched content contains no direct mail boundaries.
+	* Include all content in messages when there are no boundaries in the content.
+
 2006-04-14 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Version 2.1.1
 	* Mime types may contain . and +
