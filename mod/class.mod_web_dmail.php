@@ -2458,7 +2458,7 @@ class mod_web_dmail extends t3lib_SCbase {
 			$htmlmail->addPlain($content);
 			if (!$content || !$htmlmail->theParts['plain']['content']) {
 				$errorMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_plain_content') . '</strong>';
-			} elseif (!strstr($htmlmail->theParts['plain']['content'],'<!--DMAILER_SECTION_BOUNDARY')) {
+			} elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']),'<!--DMAILER_SECTION_BOUNDARY')) {
 				$warningMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_plain_boundaries') . '</strong>';
 			}
 		}
@@ -2481,7 +2481,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				$errorMsg .= '<br /><strong>' . $LANG->getLL('dmail_frames_not allowed') . '</strong>';
 			} elseif (!$success || !$htmlmail->theParts['html']['content']) {
 				$errorMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_html_content') . '</strong>';
-			} elseif (!strstr($htmlmail->theParts['html']['content'],'<!--DMAILER_SECTION_BOUNDARY')) {
+			} elseif (!strstr(base64_decode($htmlmail->theParts['html']['content']),'<!--DMAILER_SECTION_BOUNDARY')) {
 				$warningMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_html_boundaries') . '</strong>';
 			}
 		}

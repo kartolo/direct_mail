@@ -1,4 +1,7 @@
 2006-04-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction: warning message when fetched content contains no direct mail boundaries issued too often.
+
+2006-04-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Version 2.1.2
   	* Fix issue 3298: Fatal error: Call to a member function on a non-object in statistics function
 	* Fix issue 3301: tca.php has short php open tag.
