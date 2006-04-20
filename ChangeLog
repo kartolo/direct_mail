@@ -1,6 +1,7 @@
 2006-04-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction: warning message when fetched content contains no direct mail boundaries issued too often.
 	* Update to the manual.
+	* Synchronize ext_emconf.php.
 
 2006-04-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Version 2.1.2
