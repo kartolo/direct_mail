@@ -103,7 +103,7 @@ class tx_directmail_ttnews_plaintext {
 				$lines[] = $this->renderPlainText->renderUploads($row['news_files']);
 				
 			} elseif ($this->sys_language_mode == 'strict' && $this->tt_news_uid) {
-				$noTranslMsg = $this->local_cObj->stdWrap($invokingObj->pi_getLL('noTranslMsg','Sorry, there is no translation for this news-article'), $this->conf['noNewsIdMsg_stdWrap.']);
+				$noTranslMsg = $this->cObj->stdWrap($invokingObj->pi_getLL('noTranslMsg','Sorry, there is no translation for this news-article'), $this->conf['noNewsIdMsg_stdWrap.']);
 				$content .= $noTranslMsg;
 			}
 		}

@@ -1,3 +1,6 @@
+2006-05-15  Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Fixed Bug in tx_directmail_ttnews_plaintext::extraCodesProcessor()
+
 2006-04-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction: warning message when fetched content contains no direct mail boundaries issued too often.
 	* Update to the manual.
