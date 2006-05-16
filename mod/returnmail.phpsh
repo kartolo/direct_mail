@@ -63,7 +63,7 @@ require_once(PATH_t3lib.'config_default.php');
 require_once(PATH_typo3conf.'localconf.php');
 	
 if (!defined ('TYPO3_db'))  die ('The configuration file was not included.');
-if (isset($HTTP_POST_VARS['GLOBALS']) || isset($HTTP_GET_VARS['GLOBALS']))      die('You cannot set the GLOBALS-array from outside this script.');
+if (isset($_POST['GLOBALS']) || isset($_GET['GLOBALS']))      die('You cannot set the GLOBALS-array from outside this script.');
 	
 	// Connect to the database
 require_once(PATH_t3lib.'class.t3lib_db.php');

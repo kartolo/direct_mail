@@ -53,21 +53,23 @@ class tx_directmail_ttnews_plaintext {
 	 */
 	function extraCodesProcessor(&$invokingObj) {
 		global $TYPO3_DB, $TSFE;
-
-		$this->conf = $invokingObj->conf;
-		$this->cObj = $invokingObj->cObj;
-		$this->config = $invokingObj->config;
-		$this->tt_news_uid = $invokingObj->tt_news_uid;
-		$this->enableFields = $invokingObj->enableFields;
-		$this->sys_language_mode = $invokingObj->sys_language_mode;
-		$this->templateCode = $invokingObj->templateCode;
 		
-		$this->renderPlainText = t3lib_div::makeInstance('tx_directmail_pi1');
-		$this->renderPlainText->init($TSFE->tmpl->setup['plugin.']['tx_directmail_pi1.']);
-		$this->renderPlainText->cObj = $this->cObj;
-		$this->renderPlainText->labelsList = 'tt_news_author_prefix,tt_news_author_date_prefix,tt_news_author_email_prefix,tt_news_short_header,tt_news_bodytext_header';
+		$content = '';
+		$this->conf = $invokingObj->conf;
 		
 		if ($this->conf['code'] == 'PLAINTEXT') {
+			
+			$this->cObj = $invokingObj->cObj;
+			$this->config = $invokingObj->config;
+			$this->tt_news_uid = $invokingObj->tt_news_uid;
+			$this->enableFields = $invokingObj->enableFields;
+			$this->sys_language_mode = $invokingObj->sys_language_mode;
+			$this->templateCode = $invokingObj->templateCode;
+			
+			$this->renderPlainText = t3lib_div::makeInstance('tx_directmail_pi1');
+			$this->renderPlainText->init($TSFE->tmpl->setup['plugin.']['tx_directmail_pi1.']);
+			$this->renderPlainText->cObj = $this->cObj;
+			$this->renderPlainText->labelsList = 'tt_news_author_prefix,tt_news_author_date_prefix,tt_news_author_email_prefix,tt_news_short_header,tt_news_bodytext_header';
 			
 			$lines = array();
 			$singleWhere = 'tt_news.uid=' . intval($this->tt_news_uid);
@@ -106,14 +108,18 @@ class tx_directmail_ttnews_plaintext {
 				$noTranslMsg = $this->cObj->stdWrap($invokingObj->pi_getLL('noTranslMsg','Sorry, there is no translation for this news-article'), $this->conf['noNewsIdMsg_stdWrap.']);
 				$content .= $noTranslMsg;
 			}
+			
+			if (!empty($lines)) {
+				$content = implode(chr(10),$lines).$content;
+			}
+			
+				// Substitute labels
+			if (!empty($content)) {
+				$markerArray = array();
+				$markerArray = $this->renderPlainText->addLabelsMarkers($markerArray);
+				$content = $this->cObj->substituteMarkerArray($content, $markerArray);
+			}
 		}
-		
-		$content = implode(chr(10),$lines).$content;
-		
-					// Substitute labels
-		$markerArray = array();
-		$markerArray = $this->renderPlainText->addLabelsMarkers($markerArray);
-		$content = $this->cObj->substituteMarkerArray($content, $markerArray);
 		
 		return $content;
 	}
