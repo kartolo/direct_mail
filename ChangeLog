@@ -1,3 +1,8 @@
+2006-06-12 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Delete file pi1/locallang.php
+	* Add Spanish labels in pi1/locallang.xml
+	* Replace br tag by linefeed (instead of space) in plain text rendering plugin.
+
 2006-05-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Update version number to 2.1.3
 	* Fix issue 3444: missing value-check in tt_news plain-text rendering script.

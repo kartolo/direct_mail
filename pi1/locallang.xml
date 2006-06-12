@@ -2,24 +2,8 @@
 <T3locallang>
     <meta type="array">
         <description>Labels for the Direct Mail plain text rendering plugin</description>
-        <type>module</type>
+        <type></type>
         <csh_table></csh_table>
-        <fileId>EXT:direct_mail/pi1/locallang.xml</fileId>
-        <labelContext type="array">
-            <label index="header_date_prefix"></label>
-            <label index="header_link_prefix"></label>
-            <label index="uploads_header"></label>
-            <label index="images_header"></label>
-            <label index="image_link_prefix"></label>
-            <label index="caption_header"></label>
-            <label index="unrendered_content"></label>
-            <label index="link_prefix"></label>
-            <label index="tt_news_author_prefix"></label>
-            <label index="tt_news_author_date_prefix"></label>
-            <label index="tt_news_author_email_prefix"></label>
-            <label index="tt_news_short_header"></label>
-            <label index="tt_news_bodytext_header"></label>
-        </labelContext>
     </meta>
     <data type="array">
         <languageKey index="default" type="array">
@@ -61,6 +45,19 @@
             <label index="tt_news_bodytext_header">TEXTE COMPLET:</label>
         </languageKey>
         <languageKey index="es" type="array">
+	    <label index="header_date_prefix">Fecha:</label>
+            <label index="header_link_prefix">- Vínculo en el título:</label>
+            <label index="uploads_header">DESCARGAS:</label>
+            <label index="images_header">IMÁGENES:</label>
+            <label index="image_link_prefix">- Vínculo a la imagen:</label>
+            <label index="caption_header">LEYENDA:</label>
+            <label index="unrendered_content">Elemento de contenido no presentado:</label>
+            <label index="link_prefix">Vínculo:</label>
+            <label index="tt_news_author_prefix">AUTOR:</label>
+            <label index="tt_news_author_date_prefix">Fecha:</label>
+            <label index="tt_news_author_email_prefix">- Correo electrónico:</label>
+            <label index="tt_news_short_header">RESUMEN:</label>
+            <label index="tt_news_bodytext_header">TEXTO COMPLETO:</label>
         </languageKey>
         <languageKey index="nl" type="array">
         </languageKey>

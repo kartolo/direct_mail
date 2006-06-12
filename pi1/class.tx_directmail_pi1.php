@@ -255,7 +255,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	function parseBody($str,$altConf='bodytext')	{
 		
 			// First, regular parsing:
-		$str = eregi_replace('<br[ /]*>',' ',$str);
+		$str = eregi_replace('<br[ /]*>', chr(10), $str);
 		$str = $this->cObj->stdWrap($str,$this->conf[$altConf.'.']['stdWrap.']);
 		
 			// Then all a-tags:
