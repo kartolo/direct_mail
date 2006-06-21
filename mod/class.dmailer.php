@@ -95,6 +95,9 @@ class dmailer extends t3lib_htmlmail {
 	function dmailer_prepare($row)	{
 		global $LANG;
 		
+			// We need to take care of header encoding ourselves, otherwise the subject may get encoded multiple times.
+		$this->dontEncodeHeader = 1;
+		
 		$sys_dmail_uid = $row['uid'];
 		if ($row['flowedFormat']) {
 			$this->flowedFormat = 1;
@@ -116,7 +119,11 @@ class dmailer extends t3lib_htmlmail {
 		$this->theParts = unserialize($row['mailContent']);
 		
 		$this->messageid = $this->theParts['messageid'];
+		
 		$this->subject = $row['subject'];
+		$this->subject = $LANG->csConvObj->conv($this->subject, $LANG->charSet, $this->charset);
+		$this->subject = t3lib_div::encodeHeader($this->subject, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		
 		$this->from_email = $row['from_email'];
 		$this->from_name = ($row['from_name']) ? $LANG->csConvObj->conv($row['from_name'], $LANG->charSet, $this->charset) : '';
 		$this->replyto_email = ($row['replyto_email']) ? $row['replyto_email'] : '';
@@ -240,16 +247,19 @@ class dmailer extends t3lib_htmlmail {
 					$returnCode|=2;
 				}
 			}
-
+			
 				// Set content
 			$this->Xid = $midRidId.'-'.md5($midRidId);
 			$this->returnPath = str_replace('###XID###',$midRidId,$this->dmailer['sys_dmail_rec']['return_path']);
 			
 			$this->part=0;
-			$this->setHeaders();
-			$this->setContent();
+			
 			if ($recipRow['name']) $this->setRecipient('"' . $recipRow['name'] . '" <' . $recipRow['email'] . '>');
 				else $this->setRecipient($recipRow['email']);
+			$this->recipient = t3lib_div::encodeHeader($this->recipient, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+			
+			$this->setHeaders();
+			$this->setContent();
 			
 			$this->message = str_replace($this->dmailer['messageID'], $uniqMsgId, $this->message);	// Put in the unique message id in whole message body
 			if ($returnCode) {
@@ -258,7 +268,7 @@ class dmailer extends t3lib_htmlmail {
 		}
 		return $returnCode;
 	}
-
+	
 	/**
 	 * [Describe function...]
 	 *
@@ -277,9 +287,13 @@ class dmailer extends t3lib_htmlmail {
 		
 		$this->useDeferMode = trim($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) ? intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) : 0;
 		$this->returnPath = $this->dmailer['sys_dmail_rec']['return_path'];
+		
+		$this->setRecipient($addressList);
+		$this->recipient = t3lib_div::encodeHeader($this->recipient, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		
 		$this->setHeaders();
 		$this->setContent();
-		$this->setRecipient($addressList);
+		
 		$this->sendtheMail();
 		return true;
 	}

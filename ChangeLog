@@ -1,3 +1,7 @@
+2006-06-21 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction: missing character set conversion of mail subject when mail character set is different from the backend charset
+	* Mail subject would be encoded multiple times. Thanks to David Bocher.
+
 2006-06-12 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Delete file pi1/locallang.php
 	* Add Spanish labels in pi1/locallang.xml
