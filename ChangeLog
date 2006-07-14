@@ -1,3 +1,6 @@
+2006-07-14 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Chapter "Personalizing direct mail content" extended in manual.sxw
+
 2006-06-21 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Correction: missing character set conversion of mail subject when mail character set is different from the backend charset
 	* Mail subject would be encoded multiple times. Thanks to David Bocher.
