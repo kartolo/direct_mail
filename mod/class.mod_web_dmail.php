@@ -867,6 +867,14 @@ class mod_web_dmail extends t3lib_SCbase {
 			 // Direct Mail needs an email address!
 		$emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $TYPO3_DB->fullQuoteStr('', $switchTable);
 		
+			// fe user group uid should be in list of fe users list of user groups
+		$field = $switchTable.'.usergroup';
+		$command = $table.'.uid';
+		// This approach, using standard SQL, does not work, even when fe_users.usergroup is defined as varchar(255) instead of tinyblob
+		//$usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
+		// The following will work but INSTR and CONCAT are available only in mySQL
+		$usergroupInList = ' AND INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )';
+		
 		t3lib_div::loadTCA($switchTable);
 		$mm_table = $TCA[$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
 		$cat = intval($cat);
@@ -875,8 +883,8 @@ class mod_web_dmail extends t3lib_SCbase {
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
 					$switchTable.','.$table,
-					'fe_group.pid IN('.$pidList.')'.
-						' AND fe_group.uid IN(fe_users.usergroup)'.
+					'fe_groups.pid IN('.$pidList.')'.
+						$usergroupInList.
 						$emailIsNotNull.
 						t3lib_BEfunc::BEenableFields($switchTable).
 						t3lib_BEfunc::deleteClause($switchTable).
@@ -899,7 +907,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					'DISTINCT '.$switchTable.'.uid',
 					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, '.$mm_table.' as mm_1, fe_groups LEFT JOIN '.$switchTable.' ON '.$switchTable.'.uid = mm_1.uid_local',
 					'fe_groups.pid IN ('.$pidList.')'.
-						' AND fe_groups.uid IN(fe_users.usergroup)'.
+						$usergroupInList.
 						' AND mm_1.uid_foreign=g_mm.uid_foreign'.
 						' AND sys_dmail_group.uid=g_mm.uid_local'.
 						' AND sys_dmail_group.uid='.intval($group_uid).
@@ -948,6 +956,12 @@ class mod_web_dmail extends t3lib_SCbase {
 			$switchTable = $table;
 		}
 		$emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $TYPO3_DB->fullQuoteStr('', $switchTable);
+			// fe user group uid should be in list of fe users list of user groups
+		$field = $switchTable.'.usergroup';
+		$command = $table.'.uid';
+		// See comment above
+		// $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
+		$usergroupInList = ' AND INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )';
 		
 		if ($table == 'fe_groups') {
 			$res = $TYPO3_DB->exec_SELECTquery(
@@ -956,7 +970,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				'sys_dmail_group.uid='.intval($uid).
 					' AND fe_groups.uid=sys_dmail_group_mm.uid_foreign'.
 					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
-					' AND fe_groups.uid IN (fe_users.usergroup)'.
+					$usergroupInList.
 					$emailIsNotNull.
 					t3lib_BEfunc::BEenableFields($switchTable).
 					t3lib_BEfunc::deleteClause($switchTable).
@@ -1256,7 +1270,7 @@ class mod_web_dmail extends t3lib_SCbase {
 					while(list(,$v)=each($groups))	{
 						$collect=$this->cmd_compileMailGroup($v);
 						if (is_array($collect['queryInfo']['id_lists'])) {
-							$id_lists=t3lib_div::array_merge_recursive_overrule($id_lists,$collect['queryInfo']['id_lists']);
+							$id_lists = array_merge_recursive($id_lists,$collect['queryInfo']['id_lists']);
 						}
 					}
 					// Make unique entries
@@ -3127,10 +3141,9 @@ class mod_web_dmail extends t3lib_SCbase {
 		// Traverse html urls:
 		$urlCounter['html']=array();
 		reset($htmlUrlsTable);
-		while(list($id,$c)=each($htmlUrlsTable))	{	
-			$urlCounter['html'][$id]=$c['counter'];
+		while(list($id,$c)=each($htmlUrlsTable))	{
+			$urlCounter['html'][$id]['counter']=$urlCounter['total'][$id]['counter']=$c['counter'];
 		}
-		$urlCounter['total']=$urlCounter['html'];
 		
 		// Traverse plain urls:
 		$urlCounter['plain'] = array();
@@ -3199,9 +3212,9 @@ class mod_web_dmail extends t3lib_SCbase {
 			if ($urlinfo) $img .= '<img src="'.$BACK_PATH.'gfx/zoom2.gif" width="12" height="12" border="0" title="'.htmlspecialchars($urlinfo).'">';
 			
 			if (isset($urlCounter['html'][$id]['plainId']))	{
-				$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.'/'.$urlCounter['html'][$id]['plainId'].' ('.$urlstr.')',$c['counter'],$urlCounter['html'][$id]['counter'],$urlCounter['html'][$id]['plainCounter'],$img);
+				$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.'/'.$urlCounter['html'][$id]['plainId'].' ('.$urlstr.')',$urlCounter['total'][$id]['counter'],$urlCounter['html'][$id]['counter'],$urlCounter['html'][$id]['plainCounter'],$img);
 			} else	{
-				$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.' ('.$urlstr.')',$c['counter'],$urlCounter['html'][$id]['counter'],$urlCounter['plain'][$id]['counter'],$img);
+				$tblLines[]=array($LANG->getLL('stats_link') . ' #'.$id.' ('.$urlstr.')',$urlCounter['total'][$id]['counter'],$urlCounter['html'][$id]['counter'],$urlCounter['plain'][$id]['counter'],$img);
 			}
 		}
 		$output.='<br /><strong>' . $LANG->getLL('stats_response') . '</strong>';
@@ -3697,7 +3710,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				break;
 			case '1':
 			case '2':
-				$recRec[($row['response_type']==1?"html_links":"plain_links")][] = $row['tstamp'];
+				$recRec[($row['response_type']==1?'html_links':'plain_links')][] = $row['tstamp'];
 				$recRec['links'][]=$row['tstamp'];
 				if (!$recRec['firstlink'])	{
 					$recRec['firstlink']=$row['url_id'];

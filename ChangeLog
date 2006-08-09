@@ -1,3 +1,9 @@
+2006-08-8 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Version 2.1.5
+	* Correction: display of some statistics was erroneous. Thanks to David Bocher.
+	* Two new constants in the Direct Mail Plain Text static template: doubleLF and removeSplitChar.
+	* Partial fix for bugtracker issue 3207: Recipient list from Website User Group and users with multiple user groups. Will work at least with MySQL.
+
 2006-07-14 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Chapter "Personalizing direct mail content" extended in manual.sxw
 

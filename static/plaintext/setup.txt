@@ -34,6 +34,7 @@ plugin.tx_directmail_pi1 {
   header.4.preLineBlanks= 1
   header.4.postLineBlanks= 1
 
+  header.5.removeSplitChar = {$plugin.tx_directmail_pi1.removeSplitChar}
   header.5.preBlanks=1
   header.5.autonumber=1
   header.5.prefix = |: >> |
@@ -62,6 +63,7 @@ plugin.tx_directmail_pi1 {
   shortcut.0.conf.tt_content =< plugin.tx_directmail_pi1
   shortcut.0.tables = tt_content
 
+  bodytext.doubleLF = {$plugin.tx_directmail_pi1.doubleLF}
   bodytext.stdWrap.parseFunc.tags {
     link =< lib.parseFunc_RTE.tags.link
     typolist = USER

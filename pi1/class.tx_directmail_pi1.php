@@ -254,7 +254,10 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function parseBody($str,$altConf='bodytext')	{
 		
-			// First, regular parsing:
+		if ($this->conf[$altConf.'.']['doubleLF']) {
+			$str = eregi_replace(chr(10), chr(10).chr(10), $str);
+		}
+			// Regular parsing:
 		$str = eregi_replace('<br[ /]*>', chr(10), $str);
 		$str = $this->cObj->stdWrap($str,$this->conf[$altConf.'.']['stdWrap.']);
 		
@@ -306,6 +309,10 @@ class tx_directmail_pi1 extends tslib_pibase {
 			if (!$type)	$type=$defaultType;
 			if ($type!=6)	{	// not hidden
 				$tConf = $hConf[$type.'.'];
+				
+				if ($tConf['removeSplitChar']) {
+					$str = preg_replace('/'.preg_quote($tConf['removeSplitChar'],'/').'/', '', $str);
+				}
 
 				$lines=array();
 
