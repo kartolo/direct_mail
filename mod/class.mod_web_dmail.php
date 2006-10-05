@@ -3920,7 +3920,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	function JSbottom($formname='forms[0]')	{
 		if ($this->extJSCODE)	{
 			$out.='
-			<script language="javascript" type="text/javascript" src="'.$GLOBALS['BACK_PATH'].'t3lib/jsfunc.evalfield.js"></script>
+			<script language="javascript" type="text/javascript" src="/' . substr(PATH_t3lib,strlen(PATH_site)) . 'jsfunc.evalfield.js"></script>
 			<script language="javascript" type="text/javascript">
 				var evalFunc = new evalFunc;
 				function typo3FormFieldSet(theField, evallist, is_in, checkbox, checkboxValue)	{
