@@ -178,6 +178,31 @@ $TCA['sys_dmail'] = Array (
 				'type' => 'none'
 			)
 		),
+		'scheduled' => Array (
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.scheduled',
+			'exclude' => '1',
+			'config' => Array (
+				'type' => 'none',
+				'cols' => '30',
+				'format' => 'datetime',
+			)
+		),
+		'scheduled_begin' => Array (
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.scheduled_begin',
+			'config' => Array (
+				'type' => 'none',
+				'cols' => '15',
+				'format' => 'datetime',
+			)
+		),
+		'scheduled_end' => Array (
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.scheduled_end',
+			'config' => Array (
+				'type' => 'none',
+				'cols' => '15',
+				'format' => 'datetime',
+			)
+		),
 		'use_domain' => Array (
 			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.use_domain',
 			'config' => Array (
@@ -257,11 +282,14 @@ $TCA['sys_dmail'] = Array (
 		)
 	),
 	'types' => Array (
-		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, sendOptions, includeMedia, flowedFormat, use_domain, use_rdct, long_link_mode, authcode_fieldList'),
+		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, sendOptions, includeMedia, flowedFormat, use_domain, use_rdct, long_link_mode, authcode_fieldList, scheduled;;1;;5-5-5'),
 		'1' => Array('showitem' => 'type;;;;1-1-1,
 			plainParams;LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.plainParams.ALT.1,
 			HTMLParams;LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.HTMLParams.ALT.1,
 			--div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5, encoding, sendOptions, includeMedia, flowedFormat, use_rdct, long_link_mode, authcode_fieldList')
+	),
+	'palettes' => Array (
+		'1' => Array ('showitem' => 'scheduled_begin,scheduled_end'),
 	)
 );
 

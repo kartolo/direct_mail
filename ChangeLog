@@ -1,4 +1,10 @@
-2006-07-14 Thorsten Kahler <thorsten.kahler@dkd.de>
+
+2006-09-09 Martin Kutschker <martin.t.kutschker@blackbox.net>
+	* Added fields scheduled, scheduled_begin, scheduled_end to TCA as type "none" (format "datetime")
+	* Implement issue #4214: change form encoding of module to multipart/form-data
+	* Fix bug #4297: broken SQL in getListOfRecipentCategories() when the table has no MM-table
+
+2006-09-05 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Fixed path to jsfunc.evalfield.js in BE module
 
 2006-08-8 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
