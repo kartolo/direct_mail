@@ -3,6 +3,7 @@
 	* Added fields scheduled, scheduled_begin, scheduled_end to TCA as type "none" (format "datetime")
 	* Implement issue #4214: change form encoding of module to multipart/form-data
 	* Fix bug #4297: broken SQL in getListOfRecipentCategories() when the table has no MM-table
+	* Add hooks to modify the module menu and the menu of the "direct mail" mode
 
 2006-09-05 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Fixed path to jsfunc.evalfield.js in BE module
