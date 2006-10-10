@@ -173,7 +173,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (is_array($TYPO3_CONF_VARS['EXT']['directmail']['modify-functions'])) {
 			foreach($TYPO3_CONF_VARS['EXT']['directmail']['modify-functions'] as $_funcRef) {
 				$_params = array('menuItems' => &$this->MOD_MENU['dmail_mode']);
-				t3lib_div::callUserFunction($_funcRef,$_params,&$this);
+				t3lib_div::callUserFunction($_funcRef,$_params,$this);
 			}
 		}
 
@@ -387,7 +387,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function mailModule_main()	{
-		global $LANG, $TYPO3_DB;
+		global $LANG, $TYPO3_DB, $TYPO3_CONF_VARS;
 		
 		//$theOutput.=$this->doc->divider(5);
 		$mode = $this->MOD_SETTINGS['dmail_mode'];
@@ -484,10 +484,11 @@ class mod_web_dmail extends t3lib_SCbase {
 					$theOutput .= $this->cmd_stats($row);
 					break;
 				default:
+						// Hook for handling of custom direct mail commands:
 					if (is_array($TYPO3_CONF_VARS['EXT']['directmail']['handledirectmailcmd-'.$this->CMD])) {
 						foreach($TYPO3_CONF_VARS['EXT']['directmail']['handledirectmailcmd-'.$this->CMD] as $_funcRef) {
 							$_params = array('pObj' => &$this);
-							$theOutput .= t3lib_div::callUserFunction($_funcRef,$_params,&$this);
+							$theOutput .= t3lib_div::callUserFunction($_funcRef,$_params,$this);
 						}
 					}
 				}
@@ -3873,8 +3874,8 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function directMail_optionsMenu($row, $current='') {
-		global $LANG, $BACK_PATH;
-		
+		global $LANG, $BACK_PATH, $TYPO3_CONF_VARS;
+
 			// Direct mail options menu:
 		$menuItems = array();
 		$menuItems[0]=$LANG->getLL('dmail_menuItems');
@@ -3895,7 +3896,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		if (is_array($TYPO3_CONF_VARS['EXT']['directmail']['modify-directmailcmds'])) {
 			foreach($TYPO3_CONF_VARS['EXT']['directmail']['modify-directmailcmds'] as $_funcRef) {
 				$_params = array('menuItems' => &$menuItems, 'current' => $current, 'row' => $row);
-				t3lib_div::callUserFunction($_funcRef,$_params,&$this);
+				t3lib_div::callUserFunction($_funcRef,$_params,$this);
 			}
 		}
 
