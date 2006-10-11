@@ -1,12 +1,15 @@
 
-2006-09-09 Martin Kutschker <martin.t.kutschker@blackbox.net>
+2006-10-11 Martin Kutschker <martin.t.kutschker@blackbox.net>
+	* parse_url(): suppress warnings and check results
+
+2006-10-09 Martin Kutschker <martin.t.kutschker@blackbox.net>
 	* Added fields scheduled, scheduled_begin, scheduled_end to TCA as type "none" (format "datetime")
 	* Implement issue #4214: change form encoding of module to multipart/form-data
 	* Fix bug #4297: broken SQL in getListOfRecipentCategories() when the table has no MM-table
 	* Add hooks to modify the module menu and the menu of the "direct mail" mode
 	* Add hook handle new commands of the "direct mail" mode
 
-2006-09-05 Thorsten Kahler <thorsten.kahler@dkd.de>
+2006-10-05 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Fixed path to jsfunc.evalfield.js in BE module
 
 2006-08-8 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>

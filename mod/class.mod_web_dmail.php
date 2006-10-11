@@ -229,18 +229,16 @@ class mod_web_dmail extends t3lib_SCbase {
 				$dmail['sys_dmail']['NEW']['subject'] = $createMailFrom_URL;
 				$dmail['sys_dmail']['NEW']['type'] = 1;
 				
-					// Avoid parse_url warning at this stage
-				error_reporting (E_ALL ^ E_NOTICE ^ E_WARNING);
 				$dmail['sys_dmail']['NEW']['plainParams'] = t3lib_div::_GP('createMailFrom_plainUrl');
-				$urlParts = parse_url($dmail['sys_dmail']['NEW']['plainParams']);
-				if (!$dmail['sys_dmail']['NEW']['plainParams'] || !$urlParts || !$urlParts['host']) {
+				$urlParts = @parse_url($dmail['sys_dmail']['NEW']['plainParams']);
+				if (!$dmail['sys_dmail']['NEW']['plainParams'] || $urlParts===FALSE || !$urlParts['host']) {
 						// No plain text url
 					$dmail['sys_dmail']['NEW']['plainParams'] = '';
 					$dmail['sys_dmail']['NEW']['sendOptions']&=254;
 				}
 				$dmail['sys_dmail']['NEW']['HTMLParams'] = t3lib_div::_GP('createMailFrom_HTMLUrl');
-				$urlParts = parse_url($dmail['sys_dmail']['NEW']['HTMLParams']);				
-				if (!$dmail['sys_dmail']['NEW']['HTMLParams'] || !$urlParts || !$urlParts['host']) {
+				$urlParts = @parse_url($dmail['sys_dmail']['NEW']['HTMLParams']);				
+				if (!$dmail['sys_dmail']['NEW']['HTMLParams'] || $urlParts===FALSE || !$urlParts['host']) {
 						// No html url
 					$dmail['sys_dmail']['NEW']['HTMLParams'] = '';
 					$dmail['sys_dmail']['NEW']['sendOptions']&=253;
@@ -444,7 +442,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				if (!($row['sendOptions']&1) || !$this->url_plain)	{	// plain
 					$this->url_plain='';
 				} else {
-					$urlParts = parse_url($this->url_plain);
+					$urlParts = @parse_url($this->url_plain);
 					if (!$urlParts['scheme'])	{
 						$this->url_plain='http://'.$this->url_plain;
 					}
@@ -452,7 +450,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				if (!($row['sendOptions']&2) || !$this->url_html)	{	// html
 					$this->url_html='';
 				} else {
-					$urlParts = parse_url($this->url_html);
+					$urlParts = @parse_url($this->url_html);
 					if (!$urlParts['scheme'])	{
 						$this->url_html='http://'.$this->url_html;
 					}
@@ -3199,10 +3197,10 @@ class mod_web_dmail extends t3lib_SCbase {
 		reset($urlCounter['total']);
 		
 		while(list($id,$c)=each($urlCounter['total']))	{
-			$uParts = parse_url($urlArr[intval($id)]);
+			$uParts = @parse_url($urlArr[intval($id)]);
 			$urlinfo = '';
 				// a link to this host?
-			if (t3lib_div::getIndpEnv('TYPO3_HOST_ONLY') == $uParts['host'])	{
+			if (is_array($uParts) && t3lib_div::getIndpEnv('TYPO3_HOST_ONLY') == $uParts['host'])	{
 				$m = array();
 					// we have an id?
 				if (preg_match('/(?:^|&)id=([0-9a-z_]+)/',$uParts['query'],$m))	{
@@ -4014,7 +4012,7 @@ class mod_web_dmail extends t3lib_SCbase {
 				);
 			if ($row_domain = $TYPO3_DB->sql_fetch_assoc($res_domain)) {
 				$domainName = $row_domain['domainName'];
-				$url_parts = parse_url(t3lib_div::getIndpEnv('TYPO3_REQUEST_DIR'));
+				$url_parts = @parse_url(t3lib_div::getIndpEnv('TYPO3_REQUEST_DIR'));
 				$scheme = $url_parts['scheme'];
 				$port = $url_parts['port'];
 			}
