@@ -28,8 +28,8 @@
  ***************************************************************/
 /**
  * @author	Kasper Skårhøj <kasper@typo3.com>
- * @author  	Jan-Erik Revsbech <jer@moccompany.com>
- * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @author	Jan-Erik Revsbech <jer@moccompany.com>
+ * @author	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
  * $Id$
  */
@@ -74,9 +74,9 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	[type]		...
 	 */
 	function init()	{
-		global $LANG,$BACK_PATH,$TCA_DESCR,$TCA,$CLIENT,$TYPO3_CONF_VARS, $TYPO3_DB, $MCONF;
+		global $LANG,$BACK_PATH,$TCA,$TYPO3_CONF_VARS,$TYPO3_DB;
 		
-		$this->MCONF = $MCONF;
+		$this->MCONF = $GLOBALS['MCONF'];
 		
 		$this->include_once[]=PATH_t3lib.'class.t3lib_tcemain.php';
 		$this->include_once[]=PATH_t3lib.'class.t3lib_pagetree.php';
@@ -243,7 +243,6 @@ class mod_web_dmail extends t3lib_SCbase {
 					$dmail['sys_dmail']['NEW']['HTMLParams'] = '';
 					$dmail['sys_dmail']['NEW']['sendOptions']&=253;
 				}
-				error_reporting (E_ALL ^ E_NOTICE);
 				
 				$dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
 			}
@@ -254,12 +253,22 @@ class mod_web_dmail extends t3lib_SCbase {
 				$tce->start($dmail,Array());
 				$tce->process_datamap();
 				$this->sys_dmail_uid = $tce->substNEWwithIDs['NEW'];
+
+				if (t3lib_div::_GP('fetchAtOnce'))	{
+						// Read new record (necessary because TCEmain sets default field values)
+					$dmailRec = t3lib_BEfunc::getRecord ('sys_dmail',$this->sys_dmail_uid);
+						// Set up URLs from record data for fetch command
+					$this->setURLs($dmailRec);
+					$theOutput .= $this->cmd_fetch($dmailRec,TRUE);
+				}
 			} else {
 				if (!$dmail['sys_dmail']['NEW']['sendOptions']) {
 					$this->error = 'no_valid_url';
 				}
 			}
 		}
+
+		return $theOutput;
 	}
 
 	/**
@@ -268,7 +277,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @return	void		...
 	 */
 	function main()	{
-		global $BE_USER,$LANG,$BACK_PATH,$TCA_DESCR,$TCA,$CLIENT,$TYPO3_CONF_VARS;
+		global $BE_USER,$LANG,$BACK_PATH,$TCA,$TYPO3_CONF_VARS;
 		
 		$this->CMD = t3lib_div::_GP('CMD');
 		$this->pages_uid=t3lib_div::_GP('pages_uid');
@@ -424,37 +433,8 @@ class mod_web_dmail extends t3lib_SCbase {
 			$this->noView = 0;
 			$this->back = '<input type="Submit" value="' . $LANG->getLL('dmail_back') . '" onClick="jumpToUrlD(\'index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'\'); return false;" />';
 			if ($row = $TYPO3_DB->sql_fetch_assoc($res)) {
-				
-					// Finding the domain to use
-				$this->urlbase = $this->getUrlBase($row['use_domain']);
-				
-					// Finding the url to fetch content from
-				switch((string)$row['type'])	{
-				case 1:
-					$this->url_html = $row['HTMLParams'];
-					$this->url_plain = $row['plainParams'];
-					break;
-				default:
-					$this->url_html = $this->urlbase.'?id='.$row['page'].$row['HTMLParams'];
-					$this->url_plain = $this->urlbase.'?id='.$row['page'].$row['plainParams'];
-					break;
-				}
-				if (!($row['sendOptions']&1) || !$this->url_plain)	{	// plain
-					$this->url_plain='';
-				} else {
-					$urlParts = @parse_url($this->url_plain);
-					if (!$urlParts['scheme'])	{
-						$this->url_plain='http://'.$this->url_plain;
-					}
-				}
-				if (!($row['sendOptions']&2) || !$this->url_html)	{	// html
-					$this->url_html='';
-				} else {
-					$urlParts = @parse_url($this->url_html);
-					if (!$urlParts['scheme'])	{
-						$this->url_html='http://'.$this->url_html;
-					}
-				}
+					// Set URL data for commands
+				$this->setURLs($row);				
 
 					// COMMAND:
 				switch($this->CMD) {
@@ -497,6 +477,44 @@ class mod_web_dmail extends t3lib_SCbase {
 			}
 		}
 		return $theOutput;
+	}
+
+	/**
+	 * Set up URL variables for this $row.
+	 *
+	 */
+	function setURLs($row)	{
+			// Finding the domain to use
+		$this->urlbase = $this->getUrlBase($row['use_domain']);
+	
+			// Finding the url to fetch content from
+		switch((string)$row['type'])	{
+			case 1:
+				$this->url_html = $row['HTMLParams'];
+				$this->url_plain = $row['plainParams'];
+				break;
+			default:
+				$this->url_html = $this->urlbase.'?id='.$row['page'].$row['HTMLParams'];
+				$this->url_plain = $this->urlbase.'?id='.$row['page'].$row['plainParams'];
+				break;
+		}
+
+		if (!($row['sendOptions']&1) || !$this->url_plain)	{	// plain
+			$this->url_plain='';
+		} else {
+			$urlParts = @parse_url($this->url_plain);
+			if (!$urlParts['scheme'])	{
+				$this->url_plain='http://'.$this->url_plain;
+			}
+		}
+		if (!($row['sendOptions']&2) || !$this->url_html)	{	// html
+			$this->url_html='';
+		} else {
+			$urlParts = @parse_url($this->url_html);
+			if (!$urlParts['scheme'])	{
+				$this->url_html='http://'.$this->url_html;
+			}
+		}
 	}
 
 	/**
@@ -643,6 +661,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$out.='<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($this->pages_uid,$BACK_PATH).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif', 'width="12" height="12"').' alt="" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" />'.$LANG->getLL("nl_viewPage").'</a><br />';
 		$out.='<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->pages_uid.']=edit&edit_content=1',$BACK_PATH,"",1).'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("nl_editPage").'" />'.$LANG->getLL("nl_editPage").'</a><br />';
 		$out.='<a href="index.php?id='.$this->id.'&createMailFrom_UID='.$this->pages_uid.'&SET[dmail_mode]=direct"'.$onClick.'><img '.t3lib_iconWorks::skinImg($BACK_PATH, t3lib_extMgm::extRelPath($this->extKey).'res/gfx/newmail.gif', 'width="18" height="16"').' width="18" height="16" style="vertical-align: top;" />'.$LANG->getLL("nl_createDmailFromPage").'</a><br />';				
+		$out.='<a href="index.php?id='.$this->id.'&createMailFrom_UID='.$this->pages_uid.'&fetchAtOnce=1&SET[dmail_mode]=direct"'.$onClick.'><img '.t3lib_iconWorks::skinImg($BACK_PATH, t3lib_extMgm::extRelPath($this->extKey).'res/gfx/newmail.gif', 'width="18" height="16"').' width="18" height="16" style="vertical-align: top;" />'.$LANG->getLL("nl_createDmailFromPageAndFetchURL").'</a><br />';				
 
 		if ($TYPO3_DB->sql_num_rows($res))	{
 			$out.='<br /><b>'.$LANG->getLL('nl_alreadyBasedOn').':</b><br /><br />';
@@ -2457,7 +2476,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @param	[type]		$row: ...
 	 * @return	[type]		...
 	 */
-	function cmd_fetch($row)        {
+	function cmd_fetch($row,$embed=FALSE)	{
 		global $TCA, $TYPO3_DB, $LANG;
 		
 		$theOutput = '';
@@ -2544,7 +2563,8 @@ class mod_web_dmail extends t3lib_SCbase {
 				'uid='.intval($this->sys_dmail_uid),
 				$updateFields
 				);
-			
+
+			/*			
 				// Read again:
 			$res = $TYPO3_DB->exec_SELECTquery(
 				'*',
@@ -2554,12 +2574,17 @@ class mod_web_dmail extends t3lib_SCbase {
 					t3lib_BEfunc::deleteClause('sys_dmail')
 					);
 			$row = $TYPO3_DB->sql_fetch_assoc($res);
-			$theOutput .= $warningMsg.'<br /><br />';
+			*/
+
+			if ($warningMsg)	{
+				$theOutput .= $this->doc->section($LANG->getLL('dmail_warning'), $warningMsg.'<br /><br />');
+			}
+
 		} else {
-			$theOutput .= $this->doc->section($LANG->getLL('dmail_error'), $errorMsg.'<br /><br />'.$this->back);
+			$theOutput .= $this->doc->section($LANG->getLL('dmail_error'), $errorMsg.'<br /><br />'.($embed?'':$this->back));
 			$this->noView = 1;
 		}
-		
+
 		return $theOutput;
 	}
 

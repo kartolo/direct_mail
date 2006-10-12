@@ -288,6 +288,7 @@
             <label index="nl_viewPage"></label>
             <label index="nl_editPage"></label>
             <label index="nl_createDmailFromPage"></label>
+            <label index="nl_createDmailFromPageAndFetchURL"></label>
             <label index="nl_alreadyBasedOn"></label>
             <label index="nl_l_subject"></label>
             <label index="nl_l_lastM"></label>
@@ -595,6 +596,7 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="nl_viewPage">View page</label>
             <label index="nl_editPage">Edit page</label>
             <label index="nl_createDmailFromPage">Create new direct mail based on this page</label>
+            <label index="nl_createDmailFromPageAndFetchURL">Create new direct mail with current content from this page</label>
             <label index="nl_alreadyBasedOn">These mails are already based on this page!</label>
             <label index="nl_l_subject">Subject</label>
             <label index="nl_l_lastM">Last mod.</label>
@@ -817,6 +819,7 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="nl_viewPage">Seite anzeigen</label>
             <label index="nl_editPage">Seite ändern</label>
             <label index="nl_createDmailFromPage">Versand dieser Seite erstellen</label>
+            <label index="nl_createDmailFromPageAndFetchURL">Versand dieser Seite mit aktuellem Inhalt erstellen</label>
             <label index="nl_alreadyBasedOn">Diese Versandobjekte basieren bereits auf der ausgewählten Seite!</label>
             <label index="nl_l_subject">Betreff</label>
             <label index="nl_l_lastM">Letzte Änderung:</label>

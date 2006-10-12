@@ -1,4 +1,7 @@
 
+2006-10-12 Martin Kutschker <martin.t.kutschker@blackbox.net>
+	* Add an option to create direct mail and fetch URL in one step
+
 2006-10-11 Martin Kutschker <martin.t.kutschker@blackbox.net>
 	* parse_url(): suppress warnings and check results
 

@@ -209,9 +209,9 @@
             <label index="sys_dmail.from_name">Absender-Name:</label>
             <label index="sys_dmail.replyto_email">Antwort-E-Mail:</label>
             <label index="sys_dmail.replyto_name">Antwort-Name:</label>
-            <label index="sys_dmail.return_path">Return-Path:</label>
+            <label index="sys_dmail.return_path">Retouradresse (Return Path):</label>
             <label index="sys_dmail.organisation">Organisation:</label>
-            <label index="sys_dmail.transfer_encoding">E-Mail-Transferformat (transfer encoding):</label>
+            <label index="sys_dmail.transfer_encoding">E-Mail-Übertragungsformat (transfer encoding):</label>
             <label index="sys_dmail.charset">E-Mail-Zeichensatz (character set):</label>
             <label index="sys_dmail.priority">Priorität:</label>
             <label index="sys_dmail.priority.I.0">Niedrig</label>
