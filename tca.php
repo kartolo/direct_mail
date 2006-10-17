@@ -251,7 +251,8 @@ $TCA['sys_dmail'] = Array (
 			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.renderedsize',
 			'exclude' => '1',
 			'config' => Array (
-				'type' => 'none'
+				'type' => 'none',
+				'format' => 'filesize'
 			)
 		),
 		'attachment' => Array (
@@ -282,7 +283,7 @@ $TCA['sys_dmail'] = Array (
 		)
 	),
 	'types' => Array (
-		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, sendOptions, includeMedia, flowedFormat, use_domain, use_rdct, long_link_mode, authcode_fieldList, scheduled;;1;;5-5-5'),
+		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, sendOptions, includeMedia, flowedFormat, use_domain, use_rdct, long_link_mode, authcode_fieldList, scheduled;;1;;5-5-5, renderedsize'),
 		'1' => Array('showitem' => 'type;;;;1-1-1,
 			plainParams;LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.plainParams.ALT.1,
 			HTMLParams;LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.HTMLParams.ALT.1,
