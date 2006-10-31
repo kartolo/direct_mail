@@ -1,4 +1,7 @@
 
+2006-10-31 Martin Kutschker <martin.t.kutschker@blackbox.net>
+	* Show a compact info of direct mail in all commands of mode "direct mail"
+
 2006-10-25 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Dropped PAGE object tx_directmail_pi1_test (typeNum 199), send correct Content-type with tx_directmail_pi1 (typeNum 99) instead
 

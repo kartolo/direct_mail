@@ -308,6 +308,12 @@
             <label index="update_convert_now"></label>
             <label index="update_convert_do_it_now"></label>
             <label index="yes"></label>
+            <label index="view_from"></label>
+            <label index="view_dmail"></label>
+            <label index="view_mail"></label>
+            <label index="view_replyto"></label>
+            <label index="view_media"></label>
+            <label index="view_flowed"></label>
         </labelContext>
     </meta>
     <data type="array">
@@ -616,6 +622,12 @@ If you do not specify a username and password and a newsletter page happens to b
             <label index="update_convert_now">Categories defined in Page TSConfig of existing Direct Mail folders need to be converted into database records. You may do this now or you may do it at a later time using the Categories Conversion function of the Direct Mail module. If in doubt, please review this topic in the Direct Mail manual. Do you want to perform this action now?</label>
             <label index="update_convert_do_it_now">Do it now</label>
             <label index="yes">Yes</label>
+            <label index="view_from">Sender:</label>
+            <label index="view_dmail">Direct Mail:</label>
+            <label index="view_mail">Email format/attachments:</label>
+            <label index="view_replyto">Reply:</label>
+            <label index="view_media">Include media:</label>
+            <label index="view_flowed">Flowed text:</label>
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>
@@ -839,6 +851,12 @@ If you do not specify a username and password and a newsletter page happens to b
 	    <label index="update_convert_now">Kategorien in Direct Mail Ordnern, die über die Page TSConfig definiert sind, müssen in Datenbankeinträge konvertiert werden. Sie können die Konvertierung jetzt durchführen oder zu einem späteren Zeitpunkt über die Funktion 'Kategorien konvertieren' in der Direct Mail-Erweiterung. Im Zweifelsfall konsultieren sie das Manual zu diesem Thema. Wollen sie die Konvertierung jetzt durchführen?</label>
 	    <label index="update_convert_do_it_now">Jetzt konvertieren</label>
 	    <label index="yes">Ja</label>
+            <label index="view_from">Absender:</label>
+            <label index="view_dmail">Versand:</label>
+            <label index="view_mail">Email-Format/Attachments:</label>
+            <label index="view_replyto">Antwort:</label>
+            <label index="view_media">Medien einbinden:</label>
+            <label index="view_flowed">Fließender Text:</label>
         </languageKey>
         <languageKey index="no" type="array">
         </languageKey>
