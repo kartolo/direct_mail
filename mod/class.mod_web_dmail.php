@@ -3899,6 +3899,53 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @param	[type]		$row: ...
 	 * @return	[type]		...
 	 */
+<<<<<<< .mine
+	function directMail_compactView($row)	{
+		global $LANG, $BE_USER, $BACK_PATH;
+		
+			// Render record:
+		$dmailTitle = t3lib_iconWorks::getIconImage('sys_dmail',$row,$BACK_PATH,'style="vertical-align: top;"').$row['subject'];
+		if ($row['type'])	{
+			$dmailData = $row['plainParams'].', '.$row['HTMLParams'];
+		} else {
+			$page = t3lib_BEfunc::getRecord('pages',$row['page'],'title');
+			$dmailData = $row['page'].', '.htmlspecialchars($page['title']);
+
+			$dmail_info = $this->fName('plainParams').' '.htmlspecialchars($row['plainParams'].chr(10).$this->fName('HTMLParams').$row['HTMLParams']).'; '.chr(10);
+		}
+		$dmail_info .= $LANG->getLL('view_media').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','includeMedia',$row['includeMedia']).'; '.chr(10).
+			$LANG->getLL('view_flowed').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','flowedFormat',$row['flowedFormat']);
+		$dmail_info = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif','width="12" height="12"').' title="'.$dmail_info.'">';
+
+		$from_info = $LANG->getLL('view_replyto').' '.htmlspecialchars($row['replyto_name'].' <'.$row['replyto_email'].'>').'; '.chr(10).
+			$this->fName('organisation').' '.htmlspecialchars($row['organisation']).'; '.chr(10).
+			$this->fName('return_path').' '.htmlspecialchars($row['return_path']);
+		$from_info = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif','width="12" height="12"').' title="'.$from_info.'">';
+
+		$mail_info = $this->fName('priority').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','priority',$row['priority']).'; '.chr(10).
+			$this->fName('encoding').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','encoding',$row['encoding']).'; '.chr(10).
+			$this->fName('charset').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','charset',$row['charset']);
+		$mail_info = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif','width="12" height="12"').' title="'.$mail_info.'">';
+
+		$out = '<table border="0" cellpadding="1" cellspacing="1" width="460">';
+		$out .= '<tr bgColor="'.$this->doc->bgColor4.'"><td>'.$LANG->getLL('view_from').'</td><td>'.htmlspecialchars($row['from_name'].' <'.$row['from_email'].'>').'</td><td>'.$from_info.'</td></tr>';
+		$out .= '<tr bgColor="'.$this->doc->bgColor4.'"><td>'.$LANG->getLL('view_dmail').'</td><td>'.t3lib_BEfunc::getProcessedValue('sys_dmail','type',$row['type']).': '.$dmailData.'</td><td>'.$dmail_info.'</td></tr>';
+		$out .= '<tr bgColor="'.$this->doc->bgColor4.'"><td>'.$LANG->getLL('view_mail').'</td><td>'.t3lib_BEfunc::getProcessedValue('sys_dmail','sendOptions',$row['sendOptions']).($row['attachment']?'; ':'').t3lib_BEfunc::getProcessedValue('sys_dmail','attachment',$row['attachment']).'</td><td>'.$mail_info.'</td></tr>';
+		$out .= '</table>';
+		$out .= $this->doc->spacer(5);
+
+		$theOutput .= $this->doc->section($LANG->getLL('dmail_view').' '.$dmailTitle, $out, 1, 1, 0, TRUE);
+		
+		return $theOutput;
+	}
+
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$row: ...
+	 * @return	[type]		...
+	 */
+=======
 	function directMail_compactView($row)	{
 		global $LANG, $BE_USER, $BACK_PATH;
 		
@@ -3946,6 +3993,7 @@ class mod_web_dmail extends t3lib_SCbase {
 	 * @param	[type]		$row: ...
 	 * @return	[type]		...
 	 */
+>>>>>>> .r3993
 	function directMail_optionsMenu($row, $current='') {
 		global $LANG, $BACK_PATH, $TYPO3_CONF_VARS;
 
