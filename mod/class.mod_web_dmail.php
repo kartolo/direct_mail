@@ -324,7 +324,27 @@ class mod_web_dmail extends t3lib_SCbase {
 				$module=$pidrec['module'];
 			}
 			if ($module == 'dmail') {
-				$this->content.=$this->doc->section('',$this->doc->funcMenu($headerSection, t3lib_BEfunc::getFuncMenu($this->id,'SET[dmail_mode]',$this->MOD_SETTINGS['dmail_mode'],$this->MOD_MENU['dmail_mode']).t3lib_BEfunc::cshItem($this->cshTable,'',$BACK_PATH)));
+				if ( $this->params['menu.']['tabmenu'] )	{
+					$tabMenu =  $this->doc->getTabMenu(
+						$this->id,
+						'SET[dmail_mode]',
+						$this->MOD_SETTINGS['dmail_mode'],
+						$this->MOD_MENU['dmail_mode']
+					);
+					$this->content .= $this->doc->section(
+						'',
+						'<div style="text-align:right;">'.
+						t3lib_BEfunc::cshItem(
+							$this->cshTable,
+							'',
+							$BACK_PATH
+						)
+						.'</div>'
+						. t3lib_div::deHSCentities($tabMenu)
+					);
+				} else	{
+					$this->content.=$this->doc->section('',$this->doc->funcMenu($headerSection, t3lib_BEfunc::getFuncMenu($this->id,'SET[dmail_mode]',$this->MOD_SETTINGS['dmail_mode'],$this->MOD_MENU['dmail_mode']).t3lib_BEfunc::cshItem($this->cshTable,'',$BACK_PATH)));
+				}
 
 					// Render content:
 				$this->createDMail();
