@@ -3164,6 +3164,12 @@ class mod_web_dmail extends t3lib_SCbase {
 			// Links:
 			// ******************
 		
+			// initialize $urlCounter
+		$urlCounter = array(
+			'total' => array(),
+			'plain' => array(),
+			'html' => array(),
+		);
 			// Most popular links, html:
 		$queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=1', 'url_id', 'counter');
 		$htmlUrlsTable=$this->getQueryRows($queryArray,'url_id');

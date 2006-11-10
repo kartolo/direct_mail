@@ -1,3 +1,6 @@
+2006-11-10 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Fix bug #4380: initialise $urlCounter correctly in mod_web_dmail:cmd_stats():
+
 2006-11-07 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Optional tab-style menu
 	* Added some german translations to CSH
