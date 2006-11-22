@@ -1,3 +1,6 @@
+2006-11-22 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Added option to disable manual invocation of mailer engine
+
 2006-11-10 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Fix bug #4380: initialise $urlCounter correctly in mod_web_dmail:cmd_stats():
 
