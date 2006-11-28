@@ -3,7 +3,7 @@
 ########################################################################
 # Extension Manager/Repository config file for ext: "direct_mail"
 #
-# Auto generated 09-08-2006 00:54
+# Auto generated 28-11-2006 15:16
 #
 # Manual updates:
 # Only the data in the array - anything else is removed by next write.
@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'Advanced Direct Mail/Newsletter mailer system with sophisticated options for personalization of emails including response statistics.',
 	'category' => 'module',
 	'shy' => 0,
-	'version' => '2.1.5',
+	'version' => '2.2.0',
 	'dependencies' => 'cms,tt_address',
 	'conflicts' => 'sr_direct_mail_ext,it_dmail_fix,plugin_mgm',
 	'priority' => '',
@@ -47,7 +47,7 @@ $EM_CONF[$_EXTKEY] = array(
 		'suggests' => array(
 		),
 	),
-	'_md5_values_when_last_written' => 'a:45:{s:9:"ChangeLog";s:4:"5ce6";s:20:"class.ext_update.php";s:4:"2575";s:21:"ext_conf_template.txt";s:4:"1a86";s:12:"ext_icon.gif";s:4:"a143";s:17:"ext_localconf.php";s:4:"72b3";s:14:"ext_tables.php";s:4:"ee9b";s:14:"ext_tables.sql";s:4:"8e3c";s:26:"locallang_csh_sysdmail.xml";s:4:"f4a1";s:29:"locallang_csh_sysdmailcat.xml";s:4:"a2b1";s:27:"locallang_csh_sysdmailg.xml";s:4:"0ecd";s:17:"locallang_tca.xml";s:4:"a33a";s:7:"tca.php";s:4:"e5f6";s:14:"doc/manual.sxw";s:4:"46d3";s:21:"mod/class.dmailer.php";s:4:"2dda";s:24:"mod/class.mailselect.php";s:4:"d2f5";s:27:"mod/class.mod_web_dmail.php";s:4:"8180";s:22:"mod/class.readmail.php";s:4:"ffad";s:12:"mod/conf.php";s:4:"10f3";s:20:"mod/dmailerd.phpcron";s:4:"ea09";s:13:"mod/index.php";s:4:"2d85";s:40:"mod/locallang_csh_web_txdirectmailM1.xml";s:4:"97ed";s:40:"mod/locallang_mod_web_txdirectmailM1.xml";s:4:"8b7f";s:16:"mod/mod_icon.gif";s:4:"a143";s:20:"mod/returnmail.phpsh";s:4:"b6a6";s:31:"pi1/class.tx_directmail_pi1.php";s:4:"8163";s:17:"pi1/locallang.xml";s:4:"3e84";s:36:"pi1/tx_directmail_pi1_plaintext.tmpl";s:4:"2027";s:18:"res/gfx/attach.gif";s:4:"5559";s:17:"res/gfx/dmail.gif";s:4:"4d4f";s:22:"res/gfx/dmail_list.gif";s:4:"8d58";s:23:"res/gfx/dmailerping.gif";s:4:"cc11";s:39:"res/gfx/icon_tx_directmail_category.gif";s:4:"9398";s:16:"res/gfx/mail.gif";s:4:"4174";s:21:"res/gfx/mailgroup.gif";s:4:"1cc5";s:25:"res/gfx/modules_dmail.gif";s:4:"a143";s:28:"res/gfx/modules_dmail__h.gif";s:4:"040c";s:19:"res/gfx/newmail.gif";s:4:"ffa9";s:48:"res/scripts/class.tx_directmail_checkjumpurl.php";s:4:"fab2";s:45:"res/scripts/class.tx_directmail_container.php";s:4:"615f";s:53:"res/scripts/class.tx_directmail_select_categories.php";s:4:"03aa";s:52:"res/scripts/class.tx_directmail_ttnews_plaintext.php";s:4:"770c";s:27:"static/boundaries/setup.txt";s:4:"f9f1";s:30:"static/plaintext/constants.txt";s:4:"b61b";s:26:"static/plaintext/setup.txt";s:4:"f85e";s:34:"static/tt_news_plaintext/setup.txt";s:4:"672a";}',
+	'_md5_values_when_last_written' => 'a:46:{s:9:"ChangeLog";s:4:"27ea";s:20:"class.ext_update.php";s:4:"2575";s:21:"ext_conf_template.txt";s:4:"1a86";s:12:"ext_icon.gif";s:4:"a143";s:17:"ext_localconf.php";s:4:"72b3";s:14:"ext_tables.php";s:4:"ee9b";s:14:"ext_tables.sql";s:4:"8e3c";s:26:"locallang_csh_sysdmail.xml";s:4:"3da0";s:29:"locallang_csh_sysdmailcat.xml";s:4:"8089";s:27:"locallang_csh_sysdmailg.xml";s:4:"3c14";s:17:"locallang_tca.xml";s:4:"0115";s:7:"tca.php";s:4:"2b5b";s:21:"mod/class.dmailer.php";s:4:"6dd1";s:24:"mod/class.mailselect.php";s:4:"20c8";s:27:"mod/class.mod_web_dmail.php";s:4:"ff10";s:22:"mod/class.readmail.php";s:4:"ffad";s:12:"mod/conf.php";s:4:"10f3";s:20:"mod/dmailerd.phpcron";s:4:"5f5c";s:13:"mod/index.php";s:4:"2d85";s:40:"mod/locallang_csh_web_txdirectmailM1.xml";s:4:"34b8";s:40:"mod/locallang_mod_web_txdirectmailM1.xml";s:4:"d1b4";s:16:"mod/mod_icon.gif";s:4:"a143";s:20:"mod/returnmail.phpsh";s:4:"dec4";s:30:"static/plaintext/constants.txt";s:4:"49c5";s:26:"static/plaintext/setup.txt";s:4:"45dd";s:27:"static/boundaries/setup.txt";s:4:"05da";s:34:"static/tt_news_plaintext/setup.txt";s:4:"0bb9";s:18:"res/gfx/attach.gif";s:4:"5559";s:17:"res/gfx/dmail.gif";s:4:"4d4f";s:22:"res/gfx/dmail_list.gif";s:4:"8d58";s:23:"res/gfx/dmailerping.gif";s:4:"cc11";s:39:"res/gfx/icon_tx_directmail_category.gif";s:4:"9398";s:16:"res/gfx/mail.gif";s:4:"4174";s:21:"res/gfx/mailgroup.gif";s:4:"1cc5";s:25:"res/gfx/modules_dmail.gif";s:4:"a143";s:28:"res/gfx/modules_dmail__h.gif";s:4:"040c";s:19:"res/gfx/newmail.gif";s:4:"ffa9";s:48:"res/scripts/class.tx_directmail_checkjumpurl.php";s:4:"fab2";s:45:"res/scripts/class.tx_directmail_container.php";s:4:"615f";s:53:"res/scripts/class.tx_directmail_select_categories.php";s:4:"03aa";s:52:"res/scripts/class.tx_directmail_ttnews_plaintext.php";s:4:"e93f";s:31:"pi1/class.tx_directmail_pi1.php";s:4:"8fcd";s:17:"pi1/locallang.php";s:4:"1203";s:17:"pi1/locallang.xml";s:4:"2d6b";s:36:"pi1/tx_directmail_pi1_plaintext.tmpl";s:4:"2027";s:14:"doc/manual.sxw";s:4:"24ca";}',
 	'suggests' => array(
 	),
 );
