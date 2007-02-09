@@ -2778,7 +2778,7 @@ class mod_web_dmail extends t3lib_SCbase {
 		$emailArr = $this->addMailAddresses($idLists,'tt_address',$emailArr);
 		$emailArr = $this->addMailAddresses($idLists,'fe_users',$emailArr);
 		$emailArr = $this->addMailAddresses($idLists,'PLAINLIST',$emailArr);
-		$emailArr = $this->addMailAddresses($idLists,$this->$this->userTable,$emailArr);
+		$emailArr = $this->addMailAddresses($idLists,$this->userTable,$emailArr);
 		$emailArr = array_unique($emailArr);
 		return $emailArr;
 	}
