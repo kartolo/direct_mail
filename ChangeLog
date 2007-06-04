@@ -1,4 +1,7 @@
 2006-11-22 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* bug #5318: Note added in manual about PagesTS:return_path
+
+2006-11-22 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Fix bug #4853: typo in mod_web_dmail::getUniqueEmailsFromGroup()
 
 2006-11-22 Thorsten Kahler <thorsten.kahler@dkd.de>
