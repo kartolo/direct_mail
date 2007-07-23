@@ -1,9 +1,18 @@
-2006-11-22 Thorsten Kahler <thorsten.kahler@dkd.de>
-	* bug #5318: Note added in manual about PagesTS:return_path
+2007-07-23 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* upload to typo3xdev
+	
+2007-06-17 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Version 2.5.1
+	* Fixed bug: Fatal error function getCsvValues in class.tx_directmail_dmail.php
+	* Static functions are put in a static class.
 
-2006-11-22 Thorsten Kahler <thorsten.kahler@dkd.de>
-	* Fix bug #4853: typo in mod_web_dmail::getUniqueEmailsFromGroup()
-
+2007-02-26 Ivan Kartolo <ivan.kartolo@dkd.de>	
+	* Version 2.5.0
+	* Folder structure is changed
+	* New module structure
+	* Better GUI
+	* Improved version based on 2.2.0
+	
 2006-11-22 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Added option to disable manual invocation of mailer engine
 

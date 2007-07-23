@@ -25,29 +25,48 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
- /**
- * @author	Kasper Skårhøj <kasperYYYY>@typo3.com>
- * @author	Thorsten Kahler <thorsten.kahler@dkd.de>
- * @version  class.tx_directmail_container.php,v 1.1 2006/01/28 07:37:06 stanrolland Exp
+/**
+ * @author		Kasper Skårhøj <kasperYYYY>@typo3.com>
+ * @author		Thorsten Kahler <thorsten.kahler@dkd.de>
+ *
+ * @package 	TYPO3
+ * @subpackage 	tx_directmail
+ * @version 	$Id$
  */
- 
- /**
-  * Container class for auxilliary functions of tx_directmail
-  */
+
+/**
+ * [CLASS/FUNCTION INDEX of SCRIPT]
+ *
+ *
+ *
+ *   55: class tx_directmail_container
+ *   71:     function insert_dMailer_boundaries ($content,&$conf)
+ *  126:     function stripInnerBoundaries($content)
+ *
+ * TOTAL FUNCTIONS: 2
+ * (This index is automatically created/updated by the extension "extdeveval")
+ *
+ */
+
+/**
+ * Container class for auxilliary functions of tx_directmail
+ *
+ */
 class tx_directmail_container	{
-	
+
 	var $boundaryStartWrap = '<!--DMAILER_SECTION_BOUNDARY_ | -->';
 	var $boundaryEnd = '<!--DMAILER_SECTION_BOUNDARY_END-->';
-	
+
 	var $cObj;
-	
+
 	/**
 	 * This function wraps HTML comments around the content.
 	 * The comments contain the uids of assigned direct mail categories.
 	 * It is called as "USER_FUNC" from TS.
-	 * 
-	 * @param	string	$content: incoming HTML code which will be wrapped
-	 * @param	array	$conf: 
+	 *
+	 * @param	string		$content: incoming HTML code which will be wrapped
+	 * @param	array		$conf: pointer to the conf array (TS)
+	 * @return	string		content of the email with dmail boundaries
 	 */
 	function insert_dMailer_boundaries ($content,&$conf) {
 		global $TSFE, $TYPO3_DB;
@@ -61,13 +80,13 @@ class tx_directmail_container	{
 			if ( $content != '' )	{
 				$categoryList = '';		// setting the default
 				if ( intval( $this->cObj->data['module_sys_dmail_category'] ) >= 1 )	{
-					
+
 						// if content type "RECORDS" we have to strip off
 						// boundaries from indcluded records
 					if ( $this->cObj->data['CType'] == 'shortcut' )	{
 						$content = $this->stripInnerBoundaries($content);
 					}
-					
+
 						// get categories of tt_content element
 					$foreign_table = 'sys_dmail_category';
 					$select = "$foreign_table.uid";
@@ -92,12 +111,18 @@ class tx_directmail_container	{
 					}
 				}
 					// wrap boundaries around content
-				$content = $this->cObj->wrap( $categoryList, $this->boundaryStartWrap ) . $content . $this->boundaryEnd;			
+				$content = $this->cObj->wrap( $categoryList, $this->boundaryStartWrap ) . $content . $this->boundaryEnd;
 			}
 		}
 		return $content;
 	}
 
+	/**
+	 * remove boundaries from TYPO3 content
+	 *
+	 * @param	string		$content: the content with boundaries in comment
+	 * @return	string		the content without boundaries
+	 */
 	function stripInnerBoundaries($content)	{
 			// only dummy code at the moment
 		$searchString = $this->cObj->wrap( '[\d,]*', $this->boundaryStartWrap );

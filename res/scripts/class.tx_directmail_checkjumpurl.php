@@ -25,34 +25,52 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
- /**
- * @author	Kasper Skårhøj <kasperYYYY>@typo3.com>
- * @author	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- * @version	class.tx_directmail_container.php,v 1.1 2006/01/28 07:37:06 stanrolland Exp
+
+/**
+ * @author		Kasper Skårhøj <kasperYYYY>@typo3.com>
+ * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ *
+ * @package 	TYPO3
+ * @subpackage 	tx_directmail
+ * @version		$Id$
  */
- 
- /**
-  * JumpUrl processing hook on class.tslib_fe.php
-  */
+
+/**
+ * [CLASS/FUNCTION INDEX of SCRIPT]
+ *
+ *
+ *
+ *   55: class tx_directmail_checkjumpurl
+ *   63:     function checkDataSubmission (&$feObj)
+ *
+ * TOTAL FUNCTIONS: 1
+ * (This index is automatically created/updated by the extension "extdeveval")
+ *
+ */
+
+/**
+ * JumpUrl processing hook on class.tslib_fe.php
+ *
+ */
 class tx_directmail_checkjumpurl	{
-	
+
 	/**
 	 * Get the url to jump to as set by Direct Mail
-	 * 
-	 * @param	object	&$feObj: reference to invoking instance
-	 * @return	void
+	 *
+	 * @param	object		&$feObj: reference to invoking instance
+	 * @return	void		...
 	 */
 	function checkDataSubmission (&$feObj)	{
 		global $TCA, $TYPO3_DB, $TYPO3_CONF_VARS;
-		
+
 		$JUMPURL_VARS = t3lib_div::_GET();
-		
+
 		$mid = $JUMPURL_VARS['mid'];
 		$rid = $JUMPURL_VARS['rid'];
 		$aC = $JUMPURL_VARS['aC'];
 
 		$jumpurl = $feObj->jumpurl;
-		
+
 		if ($mid && is_array($TCA['sys_dmail']))	{
 			$temp_recip=explode('_',$rid);
 			$url_id=0;
@@ -72,7 +90,7 @@ class tx_directmail_checkjumpurl	{
 						$responseType=2;	// Link (number, plaintext)
 						$jumpurl = $temp_unpackedMail['plain']['link_ids'][abs($url_id)];
 					}
-					
+
 					$jumpurl = t3lib_div::htmlspecialchars_decode($jumpurl);
 
 					switch($temp_recip[0])	{
@@ -128,7 +146,7 @@ class tx_directmail_checkjumpurl	{
 					);
 			}
 		}
-		
+
 		$feObj->jumpurl = $jumpurl;
 	}
 

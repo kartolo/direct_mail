@@ -5,7 +5,7 @@
  * @subpackage tx_directmail
  * @version $Id$
  */
- 
+
 if (!defined ('TYPO3_MODE'))     die ('Access denied.');
 
 // ******************************************************************
@@ -185,6 +185,7 @@ $TCA['sys_dmail'] = Array (
 				'type' => 'none',
 				'cols' => '30',
 				'format' => 'datetime',
+				'default' => 0
 			)
 		),
 		'scheduled_begin' => Array (
@@ -193,6 +194,7 @@ $TCA['sys_dmail'] = Array (
 				'type' => 'none',
 				'cols' => '15',
 				'format' => 'datetime',
+				'default' => 0
 			)
 		),
 		'scheduled_end' => Array (
@@ -201,6 +203,7 @@ $TCA['sys_dmail'] = Array (
 				'type' => 'none',
 				'cols' => '15',
 				'format' => 'datetime',
+				'default' => 0
 			)
 		),
 		'use_domain' => Array (
@@ -213,7 +216,7 @@ $TCA['sys_dmail'] = Array (
 				'maxitems' => 1,
 				'minitems' => 0
 			)
-		),		
+		),
 		'use_rdct' => Array (
 			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.use_rdct',
 			'config' => Array (
@@ -251,8 +254,7 @@ $TCA['sys_dmail'] = Array (
 			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.renderedsize',
 			'exclude' => '1',
 			'config' => Array (
-				'type' => 'none',
-				'format' => 'filesize'
+				'type' => 'none'
 			)
 		),
 		'attachment' => Array (
@@ -263,7 +265,7 @@ $TCA['sys_dmail'] = Array (
 				'allowed' => '',	// Must be empty for disallowed to work.
 				'disallowed' => 'php,php3',
 				'max_size' => '500',
-				'uploadfolder' => 'uploads/dmail_att',
+				'uploadfolder' => 'uploads/tx_directmail',
 				'show_thumbs' => '0',
 				'size' => '3',
 				'maxitems' => '5',
@@ -283,7 +285,7 @@ $TCA['sys_dmail'] = Array (
 		)
 	),
 	'types' => Array (
-		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, sendOptions, includeMedia, flowedFormat, use_domain, use_rdct, long_link_mode, authcode_fieldList, scheduled;;1;;5-5-5, renderedsize'),
+		'0' => Array('showitem' => 'type;;;;1-1-1, page, plainParams, HTMLParams, --div--, subject;;;;3-3-3, from_email, from_name, replyto_email, replyto_name, return_path, organisation, attachment;;;;4-4-4, priority;;;;5-5-5,encoding, sendOptions, includeMedia, flowedFormat, use_domain, use_rdct, long_link_mode, authcode_fieldList, scheduled;;1;;5-5-5'),
 		'1' => Array('showitem' => 'type;;;;1-1-1,
 			plainParams;LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.plainParams.ALT.1,
 			HTMLParams;LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.HTMLParams.ALT.1,

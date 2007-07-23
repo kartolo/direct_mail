@@ -24,27 +24,45 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
- /**
- * @author	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- * @version	class.tx_directmail_select_categories.php,v 1.1 2006/01/28 07:37:06 stanrolland Exp
+
+/**
+ * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ *
+ * @package 	TYPO3
+ * @subpackage 	tx_directmail
+ * @version		$Id$
  */
- 
+
+/**
+ * [CLASS/FUNCTION INDEX of SCRIPT]
+ *
+ *
+ *
+ *   56: class tx_directmail_select_categories
+ *   67:     function get_localized_categories($params)
+ *
+ * TOTAL FUNCTIONS: 1
+ * (This index is automatically created/updated by the extension "extdeveval")
+ *
+ */
+
 require_once (PATH_t3lib.'class.t3lib_page.php');
-require_once (t3lib_extMgm::extPath('direct_mail').'mod/class.mod_web_dmail.php');
- 
- /**
-  * Localize categories in backend forms
-  */
+require_once (t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directmail_static.php');
+
+/**
+ * Localize categories in backend forms
+ *
+ */
 class tx_directmail_select_categories {
 	var $sys_language_uid = 0;
 	var $collate_locale = 'C';
-	
+
 	/**
 	 * Get the localization of the select field items (right-hand part of form)
 	 * Referenced by TCA
-	 * 
-	 * @param	array
-	 * @return	void
+	 *
+	 * @param	array		$params: array of searched translation 
+	 * @return	void		...
 	 */
 	function get_localized_categories($params)	{
 		global $TCA, $TYPO3_DB, $LANG;
@@ -60,7 +78,7 @@ class tx_directmail_select_categories {
 		$items = $params['items'];
 		$config = $params['config'];
 		$table = $config['itemsProcFunc_config']['table'];
-		
+
 			// initialize backend user language
 		if ($LANG->lang && t3lib_extMgm::isLoaded('static_info_tables')) {
 			$res = $TYPO3_DB->exec_SELECTquery(
@@ -84,7 +102,7 @@ class tx_directmail_select_categories {
 					'uid='.intval($item[1])
 					);
 				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
-					if($localizedRowCat = mod_web_dmail::getRecordOverlay($table,$rowCat,$this->sys_language_uid,'')) {
+					if($localizedRowCat = tx_directmail_static::getRecordOverlay($table,$rowCat,$this->sys_language_uid,'')) {
 						$params['items'][$k][0] = $localizedRowCat['category'];
 					}
 				}

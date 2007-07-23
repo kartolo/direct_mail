@@ -34,6 +34,22 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['addRecipFields'] = $_EXTCONF['addRecipFie
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['useDeferMode'] = $_EXTCONF['useDeferMode'] ? $_EXTCONF['useDeferMode'] : 0;
 
 /**
+ * Admin email for sending the cronjob error message
+ */
+$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['adminEmail'] = $_EXTCONF['adminEmail'];
+
+/**
+ * Direct Mail send a notification every time a job starts or ends
+ */
+$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['notificationJob'] = $_EXTCONF['notificationJob'];
+
+/**
+ * Interval of teh cronjob
+ */
+$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['cronInt'] = $_EXTCONF['cronInt'];
+
+
+/**
  * Enable the use of News plain text rendering hook:
  */
 if ($_EXTCONF['enablePlainTextNews']) {

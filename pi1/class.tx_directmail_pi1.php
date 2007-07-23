@@ -25,56 +25,64 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
+
 /**
- * Generating plain text rendering of content elements for inclusion as plain text content in Direct Mails
- * That means text-only output. No HTML at all.
- * To use and configure this plugin, you may include static template "Direct Mail Plain Text".
- * If you do so, the plain text output will appear with type=99.
+ * @author		Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
- * @author	Kasper Skaarhoj <kasperYYYY@typo3.com>
- * @author	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- * @package TYPO3
- * @subpackage direct_mail
- * $Id$
+ * @package 	TYPO3
+ * @subpackage 	direct_mail
+ *
+ * @version		$Id$
  */
+
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *  123: class user_plaintext
- *  137:     function main_plaintext($content,$conf)
- *  209:     function getMenuSitemap()
- *  220:     function getShortcut()
- *  231:     function getHTML($str=array())
- *  241:     function getHeader()
- *  251:     function getImages()
- *  262:     function parseBody($str)
- *  284:     function renderUploads($str,$upload_path='uploads/media/')
- *  302:     function renderHeader($str,$type=0)
- *  353:     function pad($lines,$preLineChar,$len)
- *  369:     function breakContent($str)
- *  385:     function breakBulletlist($str)
- *  416:     function breakTable($str)
- *  472:     function addDiv($messure,$content,$divChar,$joinChar,$cols)
- *  488:     function traverseTable($tableLines)
- *  515:     function renderImages($str,$links,$caption,$upload_path='uploads/pics/')
- *  554:     function getLink($ll)
- *  571:     function breakLines($str,$implChar="\n",$charWidth=0)
- *  583:     function getString($str)
- *  595:     function userProcess($mConfKey,$passVar)
- *  613:     function atag_to_http($content,$conf)
- *  632:     function typolist($content,$conf)
- *  647:     function typohead($content,$conf)
- *  666:     function typocode($content,$conf)
+ *   86: class tx_directmail_pi1 extends tslib_pibase
+ *  106:     function main($content,$conf)
+ *  195:     function init($conf)
+ *  214:     function getMenuSitemap()
+ *  225:     function getShortcut()
+ *  237:     function getHTML($str=array())
+ *  247:     function getHeader()
+ *  257:     function getImages()
+ *  269:     function parseBody($str,$altConf='bodytext')
+ *  300:     function renderUploads($str,$upload_path='uploads/media/')
+ *  318:     function renderHeader($str,$type=0)
+ *  373:     function pad($lines,$preLineChar,$len)
+ *  389:     function breakContent($str)
+ *  405:     function breakBulletlist($str)
+ *  436:     function breakTable($str)
+ *  492:     function addDiv($messure,$content,$divChar,$joinChar,$cols)
+ *  508:     function traverseTable($tableLines)
+ *  535:     function renderImages($str,$links,$caption,$upload_path='uploads/pics/')
+ *  578:     function getLink($ll)
+ *  595:     function breakLines($str,$implChar="\n",$charWidth=0)
+ *  607:     function getString($str)
+ *  619:     function userProcess($mConfKey,$passVar)
+ *  637:     function atag_to_http($content,$conf)
+ *  656:     function typolist($content,$conf)
+ *  671:     function typohead($content,$conf)
+ *  690:     function typocode($content,$conf)
+ *  703:     function addLabelsMarkers($markerArray)
  *
- * TOTAL FUNCTIONS: 24
+ * TOTAL FUNCTIONS: 26
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
 
 require_once(PATH_tslib.'class.tslib_pibase.php');
 
+/**
+ * Generating plain text rendering of content elements for inclusion as plain text content in Direct Mails
+ * That means text-only output. No HTML at all.
+ * To use and configure this plugin, you may include static template "Direct Mail Plain Text".
+ * If you do so, the plain text output will appear with type=99.
+ *
+ */
 class tx_directmail_pi1 extends tslib_pibase {
 	var $cObj;
 	var $conf=array();
@@ -85,21 +93,21 @@ class tx_directmail_pi1 extends tslib_pibase {
 	var $linebreak;
 	var $siteUrl;
 	var $labelsList = 'header_date_prefix,header_link_prefix,uploads_header,images_header,image_link_prefix,caption_header,unrendered_content,link_prefix';
-	
+
 	/**
 	 * Main function, called from TypoScript
 	 * A content object that renders "tt_content" records. See the comment to this class for TypoScript example of how to trigger it.
 	 * This detects the CType of the current content element and renders it accordingly. Only wellknown types are rendered.
 	 *
-	 * @param	string		Empty, ignore.
-	 * @param	array		TypoScript properties for this content object/function call
-	 * @return	string		Plain text content
+	 * @param	string		$content: Empty, ignore.
+	 * @param	array		$conf: TypoScript properties for this content object/function call
+	 * @return	string		$content: Plain text content
 	 */
 	function main($content,$conf)	{
 		global $TSFE, $TYPO3_CONF_VARS;
-		
+
 		$this->init($conf);
-		
+
 		$lines = array();
 		$CType= (string)$this->cObj->data['CType'];
 		switch($CType)	{
@@ -167,7 +175,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 
 		$lines[]='';	// First break.
 		$content = implode(chr(10),$lines);
-		
+
 			// Substitute labels
 		$markerArray = array();
 		$markerArray = $this->addLabelsMarkers($markerArray);
@@ -177,14 +185,20 @@ class tx_directmail_pi1 extends tslib_pibase {
 		$content = $this->userProcess('userProc',$content);
 		return $content;
 	}
-	
+
+	/**
+	 * initializing the parent class
+	 *
+	 * @param	array		$conf: TS conf
+	 * @return	void		...
+	 */
 	function init($conf) {
 		$this->tslib_pibase();
-		
+
 		$this->conf = $conf;
 		$this->pi_loadLL();
 		$this->siteUrl= $this->conf['siteUrl'];
-		
+
 			// Default linebreak;
 		$this->linebreak = chr(10);
 		if ($this->conf['flowedFormat']) {
@@ -195,7 +209,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Creates a menu/sitemap
 	 *
-	 * @return	string		Content
+	 * @return	string		$str: Content
 	 */
 	function getMenuSitemap()	{
 		$str = $this->cObj->cObjGetSingle($this->conf['menu'],$this->conf['menu.']);
@@ -206,7 +220,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Creates a shortcut ("Insert Records")
 	 *
-	 * @return	string		Content
+	 * @return	string		Plain Content without HTML comments
 	 */
 	function getShortcut()	{
 		$str = $this->cObj->cObjGetSingle($this->conf['shortcut'],$this->conf['shortcut.']);
@@ -217,8 +231,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Creates an HTML element (stripping tags of course)
 	 *
-	 * @param	string		HTML content to process. If not passed along, the bodytext field is used.
-	 * @return	string		Content
+	 * @param	mixed		$str: HTML content (as string or in an array) to process. If not passed along, the bodytext field is used.
+	 * @return	string		Plain content.
 	 */
 	function getHTML($str=array())	{
 		return $this->breakContent(strip_tags(eregi_replace('<br[ /]*>',chr(10),$this->parseBody(is_string($str)?$str:$this->cObj->data['bodytext']))));
@@ -248,19 +262,19 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Parsing the bodytext field content, removing typical entities and <br /> tags.
 	 *
-	 * @param	string		Field content from "bodytext" or other text field
-	 * @param	string		Altername conf name (especially when bodyext field in other table then tt_content)
+	 * @param	string		$str: Field content from "bodytext" or other text field
+	 * @param	string		$altConf: Altername conf name (especially when bodyext field in other table then tt_content)
 	 * @return	string		Processed content
 	 */
 	function parseBody($str,$altConf='bodytext')	{
-		
+
 		if ($this->conf[$altConf.'.']['doubleLF']) {
 			$str = eregi_replace(chr(10), chr(10).chr(10), $str);
 		}
 			// Regular parsing:
 		$str = eregi_replace('<br[ /]*>', chr(10), $str);
 		$str = $this->cObj->stdWrap($str,$this->conf[$altConf.'.']['stdWrap.']);
-		
+
 			// Then all a-tags:
 		$aConf = array();
 		$aConf['parseFunc.']['tags.']['a']='USER';
@@ -268,19 +282,19 @@ class tx_directmail_pi1 extends tslib_pibase {
 		$aConf['parseFunc.']['tags.']['a.']['siteUrl'] = $this->siteUrl;
 		$str = $this->cObj->stdWrap($str,$aConf);
 		$str = str_replace('&nbsp;',' ',t3lib_div::htmlspecialchars_decode($str));
-		
+
 		if ($this->conf[$altConf.'.']['header']) {
 			$str = $this->getString($this->conf[$altConf.'.']['header']).chr(10).$str;
 		}
-		
+
 		return chr(10).$str;
 	}
 
 	/**
 	 * Creates a list of links to uploaded files.
 	 *
-	 * @param	string		List of uploaded filenames from "uploads/media/" (or $upload_path)
-	 * @param	string		Alternative path value
+	 * @param	string		$str: List of uploaded filenames from "uploads/media/" (or $upload_path)
+	 * @param	string		$upload_path: Alternative path value
 	 * @return	string		Content
 	 */
 	function renderUploads($str,$upload_path='uploads/media/')	{
@@ -297,8 +311,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Renders a content element header, observing the layout type giving different header formattings
 	 *
-	 * @param	string		The header string
-	 * @param	integer		The layout type of the header (in the content element)
+	 * @param	string		$str: The header string
+	 * @param	integer		$type: The layout type of the header (in the content element)
 	 * @return	string		Content
 	 */
 	function renderHeader($str,$type=0)	{
@@ -309,7 +323,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 			if (!$type)	$type=$defaultType;
 			if ($type!=6)	{	// not hidden
 				$tConf = $hConf[$type.'.'];
-				
+
 				if ($tConf['removeSplitChar']) {
 					$str = preg_replace('/'.preg_quote($tConf['removeSplitChar'],'/').'/', '', $str);
 				}
@@ -350,9 +364,9 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Function used to repeat a char pattern in head lines (like if you want "********" above/below a header)
 	 *
-	 * @param	array		Array of existing lines to which the new char-pattern should be added
-	 * @param	string		The character pattern to repeat. Default is "-"
-	 * @param	integer		The length of the line. $preLineChar will be repeated to fill in this length.
+	 * @param	array		$lines: Array of existing lines to which the new char-pattern should be added
+	 * @param	string		$preLineChar: The character pattern to repeat. Default is "-"
+	 * @param	integer		$len: The length of the line. $preLineChar will be repeated to fill in this length.
 	 * @return	array		The input array with a new line added.
 	 * @see renderHeader()
 	 */
@@ -368,7 +382,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Function used to wrap the bodytext field content (or image caption) into lines of a max length of
 	 *
-	 * @param	string		The content to break
+	 * @param	string		$str: The content to break
 	 * @return	string		Processed value.
 	 * @see main_plaintext(), breakLines()
 	 */
@@ -385,7 +399,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Breaks content lines into a bullet list
 	 *
-	 * @param	string		Content string to make into a bullet list
+	 * @param	string		$str: Content string to make into a bullet list
 	 * @return	string		Processed value
 	 */
 	function breakBulletlist($str)	{
@@ -416,7 +430,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Formatting a table in plain text (based on the paradigm of lines being content rows and cells separated by "|")
 	 *
-	 * @param	string		Content string
+	 * @param	string		$str: Content string
 	 * @return	string		Processed value
 	 */
 	function breakTable($str)	{
@@ -466,11 +480,11 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Subfunction for breakTable(): Adds a divider line between table rows.
 	 *
-	 * @param	array		Some information about sizes
-	 * @param	string		Empty string.
-	 * @param	string		Character to use for the divider line, typically "-"
-	 * @param	string		Join character, typically "+"
-	 * @param	integer		Number of table columns
+	 * @param	array		$messure: Some information about sizes
+	 * @param	string		$content: Empty string.
+	 * @param	string		$divChar: Character to use for the divider line, typically "-"
+	 * @param	string		$joinChar: Join character, typically "+"
+	 * @param	integer		$cols: Number of table columns
 	 * @return	string		Divider line for the table
 	 * @access private
 	 * @see breakTable()
@@ -486,7 +500,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Traverses the table lines/cells and creates arrays with statistics for line numbers and lengths
 	 *
-	 * @param	array		Array with [table rows] [table cells] [lines in cell]
+	 * @param	array		$tableLines: Array with [table rows] [table cells] [lines in cell]
 	 * @return	array		Statistics (max lines/lengths)
 	 * @access private
 	 * @see breakTable()
@@ -511,10 +525,10 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Render block of images - which means creating lines with links to the images.
 	 *
-	 * @param	string		List of image filenames (from "image" field in tt_content records)
-	 * @param	string		Link value from the "image_link" field in tt_content records
-	 * @param	string		Caption text
-	 * @param	string		Alternative relative path for the files listed in $str
+	 * @param	string		$str: List of image filenames (from "image" field in tt_content records)
+	 * @param	string		$links: Link value from the "image_link" field in tt_content records
+	 * @param	string		$caption: Caption text
+	 * @param	string		$upload_path: Alternative relative path for the files listed in $str
 	 * @return	string		Content
 	 * @see getImages()
 	 */
@@ -558,7 +572,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Returns a typolink URL based on input.
 	 *
-	 * @param	string		Parameter to typolink
+	 * @param	string		$ll: Parameter to typolink
 	 * @return	string		The URL returned from $this->cObj->getTypoLink_URL(); - possibly it prefixed with the URL of the site if not present already
 	 */
 	function getLink($ll)	{
@@ -572,9 +586,9 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Breaking lines into fixed length lines, using t3lib_div::breakLinesForEmail()
 	 *
-	 * @param	string		The string to break
-	 * @param	string		Line break character
-	 * @param	integer		Length of lines, default is $this->charWidth
+	 * @param	string		$str: The string to break
+	 * @param	string		$implChar: Line break character
+	 * @param	integer		$charWitdh: Length of lines, default is $this->charWidth
 	 * @return	string		Processed string
 	 * @see t3lib_div::breakLinesForEmail()
 	 */
@@ -586,7 +600,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * Explodes a string with "|" and if the second part is found it will return this, otherwise the first part.
 	 * Used for many TypoScript properties used in this class since they need preceeding whitespace to be preserved.
 	 *
-	 * @param	string		Input string
+	 * @param	string		$str: Input string
 	 * @return	string		Output string
 	 * @access private
 	 */
@@ -598,8 +612,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Calls a user function for processing of data
 	 *
-	 * @param	string		TypoScript property name, pointing to the definition of the user function to call (from the TypoScript array internally in this class). This array is passed to the user function. Notice that "parentObj" property is a reference to this class ($this)
-	 * @param	mixed		Variable to process
+	 * @param	string		$mConfKey: TypoScript property name, pointing to the definition of the user function to call (from the TypoScript array internally in this class). This array is passed to the user function. Notice that "parentObj" property is a reference to this class ($this)
+	 * @param	mixed		$passVar: Variable to process
 	 * @return	mixed		The processed $passVar as returned by the function call
 	 */
 	function userProcess($mConfKey,$passVar)	{
@@ -615,8 +629,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * Function used by TypoScript "parseFunc" to process links in the bodytext.
 	 * Extracts the link and shows it in plain text in a parathesis next to the link text. If link was relative the site URL was prepended.
 	 *
-	 * @param	string		Empty, ignore.
-	 * @param	array		TypoScript parameters
+	 * @param	string		$content: Empty, ignore.
+	 * @param	array		$conf: TypoScript parameters
 	 * @return	string		Processed output.
 	 * @see parseBody()
 	 */
@@ -635,8 +649,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * User function (called from TypoScript) for generating a bullet list (used in parsefunc)
 	 *
-	 * @param	string		Empty, ignore.
-	 * @param	array		TypoScript parameters
+	 * @param	string		$content: Empty, ignore.
+	 * @param	array		$conf: TypoScript parameters
 	 * @return	string		Processed output.
 	 */
 	function typolist($content,$conf)	{
@@ -650,8 +664,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * User function (called from TypoScript) for generating a typo header tag (used in parsefunc)
 	 *
-	 * @param	string		Empty, ignore.
-	 * @param	array		TypoScript parameters
+	 * @param	string		$content: Empty, ignore.
+	 * @param	array		$conf: TypoScript parameters
 	 * @return	string		Processed output.
 	 */
 	function typohead($content,$conf)	{
@@ -669,8 +683,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * User function (called from TypoScript) for generating a code listing (used in parsefunc)
 	 *
-	 * @param	string		Empty, ignore.
-	 * @param	array		TypoScript parameters
+	 * @param	string		$content: Empty, ignore.
+	 * @param	array		$conf: TypoScript parameters
 	 * @return	string		Processed output.
 	 */
 	function typocode($content,$conf)	{
@@ -679,12 +693,12 @@ class tx_directmail_pi1 extends tslib_pibase {
 		$this->siteUrl=$conf['siteUrl'];
 		return $this->cObj->getCurrentVal();
 	}
-	
+
 	/**
 	 * Adds language-dependent label markers
 	 *
-	 * @param array  $markerArray: the input marker array
-	 * @return array  the output marker array
+	 * @param	array		$markerArray: the input marker array
+	 * @return	array		the output marker array
 	 */
 	function addLabelsMarkers($markerArray) {
 

@@ -1,7 +1,7 @@
 <?php
 /***************************************************************
 *  Copyright notice
-*  
+*
 *  (c) 2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 *  All rights reserved
 *
@@ -29,20 +29,19 @@
  *
  *
  *
- *   52: class ext_update  
- *   59:     function main()	
- *  174:     function access()	
- *  188:     function query($fields)	
+ *   48: class ext_update
+ *   55:     function main()
+ *   80:     function access()
  *
- * TOTAL FUNCTIONS: 3
+ * TOTAL FUNCTIONS: 2
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
 
 /**
  * Class for updating Direct Mail to version 2.0.0
- * 
- * @author	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ *
+ * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
@@ -50,17 +49,17 @@ class ext_update  {
 
 	/**
 	 * Main function, returning the HTML content of the module
-	 * 
+	 *
 	 * @return	string		HTML
 	 */
 	function main()	{
 		global $LANG, $BE_USER;
-		
-		$LANG->includeLLFile('EXT:direct_mail/mod/locallang_mod_web_txdirectmailM1.xml');
-		require_once('mod/class.mod_web_dmail.php');
-		$dmail = t3lib_div::makeInstance('mod_web_dmail');
+
+		$LANG->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
+		require_once('mod6/class.tx_directmail_configuration.php');
+		$dmail = t3lib_div::makeInstance('tx_directmail_configuration');
 		$dmail->init();
-		
+
 		if (!t3lib_div::GPvar('do_update'))	{
 			$onClick = "document.location='".t3lib_div::linkThisScript(array('do_update'=>1))."'; return false;";
 			return htmlspecialchars($LANG->getLL('update_convert_now')).'
@@ -72,11 +71,11 @@ class ext_update  {
 			return $dmail->cmd_convertCategories();
 		}
 	}
-	
+
 	/**
 	 * Checks how many rows are found and returns true if there are any
-	 * 
-	 * @return	boolean
+	 *
+	 * @return	boolean		true if user have access, otherwise false
 	 */
 	function access() {
 		global $TYPO3_DB;
@@ -92,8 +91,8 @@ class ext_update  {
 				return FALSE;
 			} else {
 					// If we do not find any Direct mail folder, do not try to update now.
-				require_once('mod/class.mod_web_dmail.php');
-				$dmail = t3lib_div::makeInstance('mod_web_dmail');
+				require_once('mod6/class.tx_directmail_configuration.php');
+				$dmail = t3lib_div::makeInstance('tx_directmail_configuration');
 				$dmail->init();
 				if (!is_array($dmail->modList['rows'])) {
 					return FALSE;

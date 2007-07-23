@@ -183,13 +183,42 @@ $TCA['sys_dmail_group'] = Array (
 	)
 );
 
-t3lib_extMgm::addLLrefForTCAdescr('sys_dmail','EXT:'.$_EXTKEY.'/locallang_csh_sysdmail.xml');
-t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_group','EXT:'.$_EXTKEY.'/locallang_csh_sysdmailg.xml');
-t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_category','EXT:'.$_EXTKEY.'/locallang_csh_sysdmailcat.xml');
-t3lib_extMgm::addLLrefForTCAdescr('_MOD_web_txdirectmailM1','EXT:'.$_EXTKEY.'/mod/locallang_csh_web_txdirectmailM1.xml');
+t3lib_extMgm::addLLrefForTCAdescr('sys_dmail','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmail.xml');
+t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_group','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmailg.xml');
+t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_category','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmailcat.xml');
+t3lib_extMgm::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM2','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM2.xml');
+t3lib_extMgm::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM3','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM3.xml');
+t3lib_extMgm::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM4','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM4.xml');
+t3lib_extMgm::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM5','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM5.xml');
+t3lib_extMgm::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM6','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM6.xml');
+//old
+t3lib_extMgm::addLLrefForTCAdescr('_MOD_web_txdirectmailM','EXT:'.$_EXTKEY.'/locallang/locallang_csh_web_txdirectmail.xml');
+
 
 if (TYPO3_MODE=='BE')   {
-	t3lib_extMgm::addModule('web','txdirectmailM1','',t3lib_extMgm::extPath($_EXTKEY).'mod/');
+	$extPath = t3lib_extMgm::extPath($_EXTKEY);
+	
+		// add module before 'Help'
+	if (!isset($TBE_MODULES['txdirectmailM1']))	{
+		$temp_TBE_MODULES = array();
+		foreach($TBE_MODULES as $key => $val) {
+			if ($key == 'help') {
+				$temp_TBE_MODULES['txdirectmailM1'] = '';
+				$temp_TBE_MODULES[$key] = $val;
+			} else {
+				$temp_TBE_MODULES[$key] = $val;
+			}
+		}
+
+		$TBE_MODULES = $temp_TBE_MODULES;
+	}
+	t3lib_extMgm::addModule('txdirectmailM1', '', '', $extPath.'mod1/');
+	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM2', 'bottom', $extPath.'mod2/');
+	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM3', 'bottom', $extPath.'mod3/');
+	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM4', 'bottom', $extPath.'mod4/');
+	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM5', 'bottom', $extPath.'mod5/');
+	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM6', 'bottom', $extPath.'mod6/');
+	
 	//t3lib_extMgm::addModule('web','txdirectmailM2','',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
 }
 

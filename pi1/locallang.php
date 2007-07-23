@@ -1,8 +1,8 @@
-<?php 
-/** 
- * Language labels for plugin "tx_directmail_pi1" 
- *  
- * This file is detected by the translation tool. 
+<?php
+/**
+ * Language labels for plugin "tx_directmail_pi1"
+ *
+ * This file is detected by the translation tool.
  */
 
 $LOCAL_LANG = Array (
