@@ -36,7 +36,7 @@
  * @package 	TYPO3
  * @subpackage	tx_directmail
  *
- * @version 	$Id: class.dmail.php 94 2007-01-20 12:19:37Z ivan $
+ * @version 	$Id$
  */
 
 /**

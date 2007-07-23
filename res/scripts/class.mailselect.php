@@ -34,7 +34,7 @@
  *
  * @package 	TYPO3
  * @subpackage 	tx_directmail
- * @version 	$Id: class.mailselect.php 77 2007-01-10 12:16:44Z ivan $
+ * @version 	$Id$
  */
 
 /**

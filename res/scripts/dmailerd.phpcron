@@ -34,7 +34,7 @@
  *
  * @package 	TYPO3
  * @subpackage 	tx_directmail
- * @version		$Id: dmailerd.phpcron 85 2007-01-17 23:31:23Z ivan $
+ * @version		$Id$
  *
  */
 error_reporting (E_ALL ^ E_NOTICE);

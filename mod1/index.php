@@ -42,7 +42,7 @@ $LANG->includeLLFile('EXT:direct_mail/locallang/locallang_csh_sysdmail.xml');
  *
  * @package 	TYPO3
  * @subpackage 	tx_directmail
- * @version 	$Id: class.dmail.php 76 2007-01-03 11:19:28Z ivan $
+ * @version 	$Id$
  */
 
 /**

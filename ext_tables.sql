@@ -1,7 +1,7 @@
 ##
 ## @package TYPO3
 ## @subpackage tx_directmail
-## @version $Id: ext_tables.sql 116 2007-01-31 22:08:34Z ivan $
+## @version $Id$
 ##
 
 

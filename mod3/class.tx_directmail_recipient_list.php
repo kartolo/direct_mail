@@ -36,7 +36,7 @@
  * @package 	TYPO3
  * @subpackage	tx_directmail
  *
- * @version		$Id: 11 2006-11-16 10:22:16Z ivan $
+ * @version		$Id$
  */
 
 /**

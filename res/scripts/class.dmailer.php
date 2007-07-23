@@ -31,7 +31,7 @@
  *
  * @package 	TYPO3
  * @subpackage 	tx_directmail
- * @version		$Id: class.dmailer.php 90 2007-01-18 23:01:31Z ivan $
+ * @version		$Id$
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
