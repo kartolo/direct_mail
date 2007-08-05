@@ -169,8 +169,11 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 				</script>
 			';
 
+			$headerSection = $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'],50);
+			
 			$this->content.=$this->doc->startPage($LANG->getLL('title'));
 			$this->content.=$this->doc->header($LANG->getLL('title'));
+			$this->content.=$this->doc->section('',$headerSection,1,0,0,TRUE);
 			$this->content.=$this->doc->spacer(5);
 
 			$module = $this->pageinfo['module'];

@@ -145,7 +145,7 @@ class tx_directmail_navframe{
 		$out = '';
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res)){
 			$out .= '<tr onmouseover="this.style.backgroundColor=\''.t3lib_div::modifyHTMLColorAll($this->doc->bgColor,-5).'\'" onmouseout="this.style.backgroundColor=\'\'">'.
-				'<td id="dmail_'.$row['uid'].'" ><a href="#" onclick="jumpTo(\'id='.$row['uid'].'\',this,\'dmail_'.$row['uid'].'\');">&nbsp;&nbsp;'.
+				'<td id="dmail_'.$row['uid'].'" ><a href="#" onclick="top.fsMod.recentIds[\'txdirectmailM1\']='.$row['uid'].';jumpTo(\'id='.$row['uid'].'\',this,\'dmail_'.$row['uid'].'\');">&nbsp;&nbsp;'.
 				t3lib_iconWorks::getIconImage('pages',$row,$BACK_PATH,'title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath($row['uid'], ' 1=1',20)).'" align="top"').
 				htmlspecialchars($row['title']).'</a></td></tr>';
 		}

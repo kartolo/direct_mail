@@ -233,14 +233,19 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				$pidrec=t3lib_BEfunc::getRecord('pages',intval($this->pageinfo['pid']));
 				$module=$pidrec['module'];
 			}
+			
+			$headerSection = $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'],50);
+			
 			if ($module == 'dmail') {
 
 					// Render content:
 				$this->content.=$this->doc->startPage($LANG->getLL('mailgroup_header'));
+				$this->content.=$this->doc->section('',$headerSection,1,0,0,TRUE);
 				$this->content.=$this->doc->section($LANG->getLL('mailgroup_header').t3lib_BEfunc::cshItem($this->cshTable,'',$BACK_PATH), '', 1, 1, 0 , TRUE);
 				$this->moduleContent();
 			} else {
 				$this->content.=$this->doc->startPage($LANG->getLL(''));
+				$this->content.=$this->doc->section('',$headerSection,1,0,0,TRUE);
 				$this->content.=$this->doc->section($LANG->getLL('header_recip'), $LANG->getLL('select_folder'), 1, 1, 0 , TRUE);
 			}
 

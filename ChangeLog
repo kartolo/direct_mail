@@ -1,4 +1,7 @@
 2007-08-05 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* added: changing between modules doesn't need to choose SysFolder again
+	
+2007-08-05 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* fixed: option for removing all recepients records before importing
 	* fixed: wrong field name in the mailer engine module
 	* added: added some authentification libraries in cron script, might be used by other extensions
