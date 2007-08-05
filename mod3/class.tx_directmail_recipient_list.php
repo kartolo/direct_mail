@@ -1164,7 +1164,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		$resultImport = array();
 
 		//empty table if flag is set
-		if($this->indata['remove_existing'] && $this->indata['doImport']){
+		if($this->indata['remove_existing']){
 			$res = $TYPO3_DB->exec_DELETEquery('tt_address','pid = '.$TYPO3_DB->fullQuoteStr($this->indata['storage'],'tt_address'));
 		}
 

@@ -263,7 +263,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 
 		if(file_exists(PATH_site.'typo3temp/tx_directmail_cron.lock')){
 			//cron running or error (die function in dmailer_log)
-			$res = $TYPO3_DB->exec_SELECTquery('*','sys_dmail_maillog','response = 0', 'tstamp DESC');
+			$res = $TYPO3_DB->exec_SELECTquery('*','sys_dmail_maillog','response_type = 0', 'tstamp DESC');
 			$lastSend = $TYPO3_DB->sql_fetch_assoc($res);
 
 			if( ($lastSend['tstamp'] < time()) && ($lastSend['tstamp']> time()-$cronInt) ){

@@ -63,6 +63,13 @@ require_once(PATH_t3lib.'class.t3lib_extmgm.php');
 require_once(PATH_t3lib.'config_default.php');
 require_once(PATH_typo3conf.'localconf.php');
 
+/**
+ * added some auth library. Might be needed by other extension
+ */
+require_once(PATH_t3lib.'class.t3lib_userauth.php');
+require_once(PATH_t3lib.'class.t3lib_userauthgroup.php');
+require_once(PATH_t3lib.'class.t3lib_beuserauth.php');
+
 if (!defined ('TYPO3_db'))  die ('The configuration file was not included.');
 if (isset($_POST['GLOBALS']) || isset($_GET['GLOBALS']))      die('You cannot set the GLOBALS-array from outside this script.');
 
