@@ -129,6 +129,7 @@
 			<label index="dmail_wiz4_testmail"></label>
 			<label index="dmail_wiz5_sendmass"></label>
 			<label index="dmail_wiz_next"></label>
+			<label index="dmail_wiz_back"></label>
 			<label index="dmail_write_subject"></label>
 			<label index="dmail_yes"></label>
 			<label index="dmailer_ending"></label>
@@ -460,6 +461,7 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="dmail_wiz4_testmail">Test Mail</label>
 			<label index="dmail_wiz5_sendmass">Mass Send</label>
 			<label index="dmail_wiz_next">next</label>
+			<label index="dmail_wiz_back">back</label>
 			<label index="dmail_write_subject">[write subject]</label>
 			<label index="dmail_yes">YES</label>
 			<label index="dmailer_ending">Ending, parsetime:</label>
@@ -790,6 +792,7 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="dmail_wiz4_testmail">Testversand</label>
 			<label index="dmail_wiz5_sendmass">Massenversand</label>
 			<label index="dmail_wiz_next">weiter</label>
+			<label index="dmail_wiz_back">zurück</label>
 			<label index="dmail_write_subject">[Betreff schreiben]</label>
 			<label index="dmail_yes">JA</label>
 			<label index="dmailer_ending">Beendet, Laufzeit:</label>

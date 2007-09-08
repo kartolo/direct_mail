@@ -247,7 +247,10 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					div.step_box {margin-left: 5em;}
 					div.step_box span {font-size: 22pt; font-weight: bold; font-family: verdana; color: white;}
 					div.step_box span.black {color: black}
-					input.next {position: absolute; top: 45px; left: 300px;}
+					input.next {position: absolute; top: 55px; left: 350px;}
+					input.back {position: absolute; top: 55px; left: 300px;}
+					input.disabled {background: #ccc;}
+					}
 					';
 
 			// JavaScript
@@ -623,6 +626,34 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		if(t3lib_div::_GP('mailingMode_simple')){
 			$this->CMD = 'send_mail_test';
 		}
+
+		if(t3lib_div::_GP('back')){
+				//CMD move 1 step back
+			switch (t3lib_div::_GP('currentCMD')) {
+				case 'info':
+					$this->CMD = '';
+					break;
+					
+				case 'cats':
+					$this->CMD = 'info';
+					break;
+					
+				case 'send_test':
+				case 'send_mail_test':
+					if(($this->CMD == 'send_mass') && ($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] == 'cat')){
+						$this->CMD = 'info';	
+					} else {
+						$this->CMD = 'cats';
+					}
+					break;
+					
+				case 'send_mail_final':
+				case 'send_mass':
+					$this->CMD = 'send_test';
+					break;
+			}
+		}
+
 		switch ($this->CMD) {
 			case 'info':
 				//TODO: greyed out next-button if fetching is not successful??
@@ -664,7 +695,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$theOutput = $this->doc->section($LANG->getLL('dmail_wiz2_detail'),$theOutput,1,1,0, TRUE);
 				$theOutput.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
 				$theOutput.= !empty($row['page'])?'<input type="hidden" name="pages_uid" value="'.$row['page'].'">':'';
-				$theOutput.= '<input class="next" type="submit" value="'.$LANG->getLL('dmail_wiz_next').'">';
+				$theOutput.= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
+				$theOutput.= '<input type="submit" value="'.$LANG->getLL('dmail_wiz_next').'" '.($fetchError?'disabled class="next disabled"':' class="next"').'>';
+				$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
 				break;
 
 			case 'cats':
@@ -679,7 +712,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$theOutput.= '<input type="hidden" name="CMD" value="send_test">';
 				$theOutput.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
 				$theOutput.= '<input type="hidden" name="pages_uid" value="'.t3lib_div::_GP('pages_uid').'">';
+				$theOutput.= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
 				$theOutput.= '<input class="next" type="submit" value="'.$LANG->getLL('dmail_wiz_next').'">';
+				$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
 				break;
 
 			case 'send_test':
@@ -698,7 +733,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$theOutput.= '<input type="hidden" name="CMD" value="send_mass">';
 				$theOutput.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
 				$theOutput.= '<input type="hidden" name="pages_uid" value="'.t3lib_div::_GP('pages_uid').'">';
+				$theOutput.= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
 				$theOutput.= '<input class="next" type="submit" value="'.$LANG->getLL('dmail_wiz_next').'">';
+				$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
 				break;
 
 			case 'send_mail_final':
@@ -725,6 +762,11 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$theOutput.= '<input type="hidden" name="CMD" value="send_mail_final">';
 				$theOutput.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
 				$theOutput.= '<input type="hidden" name="pages_uid" value="'.t3lib_div::_GP('pages_uid').'">';
+				$theOutput.= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
+				if($this->CMD =='send_mass'){
+					$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
+				}
+				
 				break;
 
 			default:

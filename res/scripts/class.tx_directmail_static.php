@@ -281,7 +281,7 @@ class tx_directmail_static {
 			if ($table == 'fe_groups') {
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
-					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, '.$mm_table.' as mm_1, fe_groups LEFT JOIN '.$switchTable.' ON '.$switchTable.'.uid = mm_1.uid_local',
+					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, fe_groups, '.$mm_table.' as mm_1 LEFT JOIN '.$switchTable.' ON '.$switchTable.'.uid = mm_1.uid_local',
 					'fe_groups.pid IN ('.$pidList.')'.
 						$usergroupInList.
 						' AND mm_1.uid_foreign=g_mm.uid_foreign'.

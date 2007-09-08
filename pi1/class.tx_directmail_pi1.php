@@ -537,21 +537,26 @@ class tx_directmail_pi1 extends tslib_pibase {
 		$linksArr = explode(',',$links);
 		reset($images);
 		$lines=array();
-		if ($this->conf['images.']['header']) {
-			$lines[]= $this->getString($this->conf['images.']['header']);
-		}
+		$imageExists = FALSE;
+		
 		while(list($k,$file)=each($images))	{
-			$lines[]=$this->siteUrl.$upload_path.$file;
-			if ($links && count($linksArr)>1)	{
-				if (isset($linksArr[$k]))	{
-					$ll=$linksArr[$k];
-				} else {
-					$ll=$linksArr[0];
+			if (strlen(trim($file))>0) {
+				$lines[]=$this->siteUrl.$upload_path.$file;
+				if ($links && count($linksArr)>1)	{
+					if (isset($linksArr[$k]))	{
+						$ll=$linksArr[$k];
+					} else {
+						$ll=$linksArr[0];
+					}
+	
+					$theLink = $this->getLink($ll);
+					if ($theLink)	{$lines[]=$this->getString($this->conf['images.']['linkPrefix']).$theLink;}
 				}
-
-				$theLink = $this->getLink($ll);
-				if ($theLink)	{$lines[]=$this->getString($this->conf['images.']['linkPrefix']).$theLink;}
+				$imageExists = TRUE;
 			}
+		}
+		if ($this->conf['images.']['header'] && $imageExists) {
+			array_unshift($lines, $this->getString($this->conf['images.']['header']));
 		}
 		if ($links && count($linksArr)==1)	{
 			$theLink = $this->getLink($links);

@@ -1,4 +1,9 @@
 2007-08-05 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fix bug #6026: in plaintext base URL is not shown if there's no image
+	* Fix bug #6027: corrected JOIN statement in tx_directmail_static::getIdList
+	* added: back button in the send wizard ( request: #6294)
+	
+2007-08-05 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* added: changing between modules doesn't need to choose SysFolder again
 	
 2007-08-05 Ivan Kartolo <ivan.kartolo@dkd.de>
