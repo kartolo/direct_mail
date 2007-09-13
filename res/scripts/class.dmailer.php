@@ -206,7 +206,7 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	integer		which kind of email is sent, 1 = HTML, 2 = plain, 3 = both
 	 */
 	function dmailer_sendAdvanced($recipRow,$tableNameChar)	{
-		global $TYPO3_CONF_VARS;
+		global $TYPO3_CONF_VARS, $LANG;
 
 		$returnCode=0;
 		if ($recipRow['email'])	{
@@ -225,11 +225,13 @@ class dmailer extends t3lib_htmlmail {
 				if ($this->mailHasContent) {
 					reset($rowFieldsArray);
 					while(list(,$substField)=each($rowFieldsArray))	{
-						$tempContent_HTML = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $tempContent_HTML);
+						$subst = $LANG->csConvObj->conv($recipRow[$substField], $LANG->charSet, $this->charset);
+						$tempContent_HTML = str_replace('###USER_'.$substField.'###', $subst, $tempContent_HTML);
 					}
 					reset($uppercaseFieldsArray);
 					while(list(,$substField)=each($uppercaseFieldsArray))	{
-						$tempContent_HTML = str_replace('###USER_'.strtoupper($substField).'###', strtoupper($recipRow[$substField]), $tempContent_HTML);
+						$subst = $LANG->csConvObj->conv($recipRow[$substField], $LANG->charSet, $this->charset);
+						$tempContent_HTML = str_replace('###USER_'.strtoupper($substField).'###', strtoupper($subst), $tempContent_HTML);
 					}
 					$tempContent_HTML = str_replace('###SYS_TABLE_NAME###', $tableNameChar, $tempContent_HTML);	// Put in the tablename of the userinformation
 					$tempContent_HTML = str_replace('###SYS_MAIL_ID###', $this->dmailer['sys_dmail_uid'], $tempContent_HTML);	// Put in the uid of the mail-record
@@ -247,11 +249,13 @@ class dmailer extends t3lib_htmlmail {
 				if ($this->mailHasContent) {
 					reset($rowFieldsArray);
 					while(list(,$substField)=each($rowFieldsArray))	{
-						$tempContent_Plain = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $tempContent_Plain);
+						$subst = $LANG->csConvObj->conv($recipRow[$substField], $LANG->charSet, $this->charset);
+						$tempContent_Plain = str_replace('###USER_'.$substField.'###', $subst, $tempContent_Plain);
 					}
 					reset($uppercaseFieldsArray);
 					while(list(,$substField)=each($uppercaseFieldsArray))	{
-						$tempContent_Plain = str_replace('###USER_'.strtoupper($substField).'###', strtoupper($recipRow[$substField]), $tempContent_Plain);
+						$subst = $LANG->csConvObj->conv($recipRow[$substField], $LANG->charSet, $this->charset);
+						$tempContent_Plain = str_replace('###USER_'.strtoupper($substField).'###', strtoupper($subst), $tempContent_Plain);
 					}
 					$tempContent_Plain = str_replace('###SYS_TABLE_NAME###', $tableNameChar, $tempContent_Plain);	// Put in the tablename of the userinformation
 					$tempContent_Plain = str_replace('###SYS_MAIL_ID###', $this->dmailer['sys_dmail_uid'], $tempContent_Plain);	// Put in the uid of the mail-record
@@ -272,8 +276,11 @@ class dmailer extends t3lib_htmlmail {
 
 			$this->part=0;
 
-			if ($recipRow['name']) $this->setRecipient('"' . $recipRow['name'] . '" <' . $recipRow['email'] . '>');
-				else $this->setRecipient($recipRow['email']);
+			if (trim($recipRow['name'])) {
+				$this->setRecipient('"' . $LANG->csConvObj->conv($recipRow['name'], $LANG->charSet, $this->charset) . '" <' . $recipRow['email'] . '>');	
+			} else {
+				$this->setRecipient($recipRow['email']);	
+			}
 			$this->recipient = t3lib_div::encodeHeader($this->recipient, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
 
 			$this->setHeaders();
