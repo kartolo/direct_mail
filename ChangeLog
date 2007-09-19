@@ -1,3 +1,6 @@
+2007-09-19 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #5413: problem by fetching plaintext
+
 2007-09-13 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fix bug #4661: convert the charset of the USER markers
 	* Fix bug #6297: trimming the "name" field before set it as recipient

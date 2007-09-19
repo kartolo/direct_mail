@@ -1,7 +1,7 @@
 ##
 ## @package TYPO3
 ## @subpackage tx_directmail
-## @version $Id$
+## @version $Id:setup.txt 6012 2007-07-23 12:54:25 +0000 (Mo, 23 Jul 2007) ivankartolo $
 ##
 
 plugin.tx_directmail_pi1 = USER
@@ -93,7 +93,7 @@ tx_directmail_pi1.config {
 tx_directmail_pi1.10 = TEMPLATE
 tx_directmail_pi1.10 {
 	template = FILE
-	template.file = {$plugin.tx_directmail_pi1.file.template}
+	template.file = EXT:direct_mail/pi1/tx_directmail_pi1_plaintext.tmpl
 	marks.CONTENT < styles.content.get
 	marks.CONTENT.renderObj = < plugin.tx_directmail_pi1
 	marks.DATE = TEXT
