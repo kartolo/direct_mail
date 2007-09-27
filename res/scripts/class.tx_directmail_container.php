@@ -131,6 +131,18 @@ class tx_directmail_container	{
 		return $content;
 	}
 
+	/**
+	 * Breaking lines into fixed length lines, using t3lib_div::breakLinesForEmail()
+	 *
+	 * @param	string	The string to break
+	 * @param	array	configuration options: linebreak, charWidth; stdWrap enabled	 * @return	string		Processed string
+	 * @see t3lib_div::breakLinesForEmail()
+	 */
+	function breakLines( $content, $conf )	{
+		$linebreak = $GLOBALS['TSFE']->cObj->stdWrap( ( $conf['linebreak'] ? $conf['linebreak'] : chr(32).chr(10) ), $conf['linebreak.'] );
+		$charWidth = $GLOBALS['TSFE']->cObj->stdWrap( ( $conf['charWidth'] ? intval( $conf['charWidth'] ) : 76 ), $conf['charWidth.'] );
+		return t3lib_div::breakTextForEmail( $content, $linebreak, $charWidth );
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_container.php'])	{
