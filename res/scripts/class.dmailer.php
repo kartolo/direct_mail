@@ -276,7 +276,7 @@ class dmailer extends t3lib_htmlmail {
 
 			$this->part=0;
 
-			if (trim($recipRow['name'])) {
+			if (strlen(trim($recipRow['name']))) {
 				$this->setRecipient('"' . $LANG->csConvObj->conv($recipRow['name'], $LANG->charSet, $this->charset) . '" <' . $recipRow['email'] . '>');	
 			} else {
 				$this->setRecipient($recipRow['email']);	

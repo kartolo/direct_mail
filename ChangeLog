@@ -1,3 +1,7 @@
+2007-10-11 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #6484: HTML parameter set in configuration is not applied
+	* Fixed bug #5812: remove white spaces in recipient's name 
+
 2007-09-19 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #5413: problem by fetching plaintext
 
