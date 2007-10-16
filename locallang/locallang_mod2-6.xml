@@ -493,6 +493,9 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="mailgroup_import_header_upload">Upload CSV</label>
 			<label index="mailgroup_import_import">Import</label>
 			<label index="mailgroup_import_mapping_conf">Field mapping</label>
+			<label index="mailgroup_import_mapping_conf_add">Additional options</label>
+			<label index="mailgroup_import_mapping_all_html">All recipients receive HTML newsletter</label>
+			<label index="mailgroup_import_mapping_cats">Assign the following categories to all recipients:</label>
 			<label index="mailgroup_import_mapping_description">Description</label>
 			<label index="mailgroup_import_mapping_error">Mapping error</label>
 			<label index="mailgroup_import_mapping_error_detail">Please fix following error(s):</label>
@@ -824,6 +827,9 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="mailgroup_import_header_upload">Hochladen CSV-Daten</label>
 			<label index="mailgroup_import_import">Importieren</label>
 			<label index="mailgroup_import_mapping_conf">Feldzuordnung</label>
+			<label index="mailgroup_import_mapping_conf_add">Zusatzoptionen</label>
+			<label index="mailgroup_import_mapping_all_html">Alle Empfängern bekommen HTML Newsletter</label>
+			<label index="mailgroup_import_mapping_cats">Weist folgende Kategorien an allen empfängern:</label>
 			<label index="mailgroup_import_mapping_description">Bezeichnung</label>
 			<label index="mailgroup_import_mapping_error">Zuordnungsfehler</label>
 			<label index="mailgroup_import_mapping_error_detail">Korrigieren Sie folgenden Fehler:</label>

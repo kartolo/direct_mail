@@ -1,3 +1,6 @@
+2007-10-16 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* added: Imported tt_address can be assigned to categories and have HTML-flag by default
+
 2007-10-11 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #6484: HTML parameter set in configuration is not applied
 	* Fixed bug #5812: remove white spaces in recipient's name 

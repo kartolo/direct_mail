@@ -986,7 +986,28 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 					$out.= '</ul>';
 				}
 
+				//additional options
+					//get categories 
+				$temp = t3lib_BEfunc::getModTSconfig($this->id,'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
+				$rowCat = $TYPO3_DB->exec_SELECTgetRows(
+					'*',
+					'sys_dmail_category',
+					'pid = '. $temp['value'].t3lib_BEfunc::deleteClause('sys_dmail_category').t3lib_BEfunc::BEenableFields('sys_dmail_category')
+				);
+
+				$tblLinesAdd = array();
+					//header
+				$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"'.(!$this->indata['all_html']?'':' checked="checked"').'/> ');
+				$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats'), '');
+				foreach ($rowCat as $k => $v){
+					$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.$v['category'], '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
+				}
+				
 				$out.= $this->formatTable($tblLines,array('nowrap','nowrap','nowrap','nowrap'),1,array(0,0,1,1),'border="0" cellpadding="2" cellspacing="0"',1);
+				$out.= '<br /><br />';
+				//additional options
+				$out.= '<hr /><h3>'.$LANG->getLL('mailgroup_import_mapping_conf_add').'</h3>';
+				$out.= $this->formatTable($tblLinesAdd,array('nowrap','nowrap'),0,array(1,1),'border="0" cellpadding="2" cellspacing="0"',1);
 				$out.= '<br /><br />';
 				$out.= '<input type="submit" name="CSV_IMPORT[back]" value="'.$LANG->getLL('mailgroup_import_back').'"/>
 						<input type="submit" name="CSV_IMPORT[next]" value="' . $LANG->getLL('mailgroup_import_next') . '"/>'.
@@ -1003,7 +1024,8 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 							'CSV_IMPORT[valid_email]' => $this->indata['valid_email'],
 							'CSV_IMPORT[remove_dublette]' => $this->indata['remove_dublette'],
 							'CSV_IMPORT[update_unique]' => $this->indata['update_unique'],
-							'CSV_IMPORT[record_unique]' => $this->indata['record_unique']));
+							'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
+						));
 
 			break;
 
@@ -1027,10 +1049,15 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 							'CSV_IMPORT[valid_email]' => $this->indata['valid_email'],
 							'CSV_IMPORT[remove_dublette]' => $this->indata['remove_dublette'],
 							'CSV_IMPORT[update_unique]' => $this->indata['update_unique'],
-							'CSV_IMPORT[record_unique]' => $this->indata['record_unique']));
+							'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
+							'CSV_IMPORT[all_html]' => $this->indata['all_html'],
+						));
 				$hiddenMapped = array();
 				foreach($this->indata['map'] as $fieldNr => $fieldMapped){
 					$hiddenMapped[]	= $this->makeHidden('CSV_IMPORT[map]['.$fieldNr.']', $fieldMapped);
+				}
+				foreach($this->indata['cat'] as $k => $catUID){
+					$hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat]['.$k.']', $catUID);
 				}
 				$out.=implode('',$hiddenMapped);
 
@@ -1077,10 +1104,15 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 							'CSV_IMPORT[valid_email]' => $this->indata['valid_email'],
 							'CSV_IMPORT[remove_dublette]' => $this->indata['remove_dublette'],
 							'CSV_IMPORT[update_unique]' => $this->indata['update_unique'],
-							'CSV_IMPORT[record_unique]' => $this->indata['record_unique']));
+							'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
+							'CSV_IMPORT[all_html]' => $this->indata['all_html'],
+						));
 				$hiddenMapped = array();
 				foreach($this->indata['map'] as $fieldNr => $fieldMapped){
 					$hiddenMapped[]	= $this->makeHidden('CSV_IMPORT[map]['.$fieldNr.']', $fieldMapped);
+				}
+				foreach($this->indata['cat'] as $k => $catUID){
+					$hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat]['.$k.']', $catUID);
 				}
 				$out.=implode('',$hiddenMapped);
 
@@ -1203,8 +1235,10 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		}
 
 			//array for the process_datamap();
-		$data=array();
+		$data=array(); 
 		if($this->indata['update_unique']){
+			$user = array();
+			$userID = array();
 			$res = $TYPO3_DB->exec_SELECTquery(
 						'uid,'.$this->indata['record_unique'],
 						'tt_address',
@@ -1224,6 +1258,14 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 					if(count($foundUser)==1){
 						$data['tt_address'][$userID[$foundUser[0]]]= $dataArray;
 						$data['tt_address'][$userID[$foundUser[0]]]['pid'] = $this->indata['storage'];
+						if($this->indata['all_html']){
+							$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_html'] = $this->indata['all_html'];
+						}
+						if(is_array($this->indata['cat'])){
+							foreach($this->indata['cat'] as $k => $v){
+								$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][$k] = $v;
+							}
+						}
 						$resultImport['update'][]=$dataArray;
 					} else {
 						//which one to update? all?
@@ -1237,6 +1279,14 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 					//write new user
 					$data['tt_address']['NEW'.$c] = $dataArray;
 					$data['tt_address']['NEW'.$c]['pid'] = $this->indata['storage'];
+					if($this->indata['all_html']){
+						$data['tt_address']['NEW'.$c]['module_sys_dmail_html'] = $this->indata['all_html'];
+					}
+					if(is_array($this->indata['cat'])){
+						foreach($this->indata['cat'] as $k => $v){
+							$data['tt_address']['NEW'.$c]['module_sys_dmail_category'][$k] = $v;
+						}
+					}
 					$resultImport['new'][]=$dataArray;
 					$c++;		//counter
 				}
@@ -1247,6 +1297,14 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			foreach($mappedCSV as $k => $dataArray){
 				$data['tt_address']['NEW'.$c] = $dataArray;
 				$data['tt_address']['NEW'.$c]['pid'] = $this->indata['storage'];
+				if($this->indata['all_html']){
+					$data['tt_address']['NEW'.$c]['module_sys_dmail_html'] = $this->indata['all_html'];
+				}
+				if(is_array($this->indata['cat'])){
+					foreach($this->indata['cat'] as $k => $v){
+						$data['tt_address']['NEW'.$c]['module_sys_dmail_category'][$k] = $v;
+					}
+				}
 				$resultImport['new'][]=$dataArray;
 				$c++;
 			}
@@ -1325,7 +1383,10 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		$encaps = ($encaps === 'singleQuote') ? "'" : $encaps;
 		$encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
 		while (($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== FALSE) {
-			$mydata[] = $data;
+			//remove empty line in csv
+			if((count($data) >= 1) && (strlen(trim($data[0])) != 0)) {
+				$mydata[] = $data;
+			}
 		}
 		fclose ($handle);
 		reset ($mydata);
@@ -1351,10 +1412,13 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		$delimiter = ($delimiter === 'tab') ? chr(9) : $delimiter;
 		$encaps = ($encaps === 'singleQuote') ? "'" : $encaps;
 		$encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
-		while (($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== FALSE) {
-			$mydata[] = $data;
-			$i++;
-			if($i>=$records)break;
+		while ((($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== FALSE)) {
+			//remove empty line in csv
+			if((count($data) >= 1) && (strlen(trim($data[0])) != 0)) {
+				$mydata[] = $data;
+				$i++;
+				if($i>=$records)break;
+			}
 		}
 		fclose ($handle);
 		reset ($mydata);
