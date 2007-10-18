@@ -987,20 +987,21 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				}
 
 				//additional options
-					//get categories 
-				$temp = t3lib_BEfunc::getModTSconfig($this->id,'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
-				$rowCat = $TYPO3_DB->exec_SELECTgetRows(
-					'*',
-					'sys_dmail_category',
-					'pid = '. $temp['value'].t3lib_BEfunc::deleteClause('sys_dmail_category').t3lib_BEfunc::BEenableFields('sys_dmail_category')
-				);
-
 				$tblLinesAdd = array();
 					//header
 				$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"'.(!$this->indata['all_html']?'':' checked="checked"').'/> ');
-				$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats'), '');
-				foreach ($rowCat as $k => $v){
-					$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.$v['category'], '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
+				//get categories 
+				$temp = t3lib_BEfunc::getModTSconfig($this->id,'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
+				if(trim($temp)){
+					$rowCat = $TYPO3_DB->exec_SELECTgetRows(
+						'*',
+						'sys_dmail_category',
+						'pid IN ('. $temp['value'].')'.t3lib_BEfunc::deleteClause('sys_dmail_category').t3lib_BEfunc::BEenableFields('sys_dmail_category')
+					);
+					$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats'), '');
+					foreach ($rowCat as $k => $v){
+						$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.$v['category'], '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
+					}
 				}
 				
 				$out.= $this->formatTable($tblLines,array('nowrap','nowrap','nowrap','nowrap'),1,array(0,0,1,1),'border="0" cellpadding="2" cellspacing="0"',1);
