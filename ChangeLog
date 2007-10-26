@@ -1,4 +1,7 @@
-2006-11-10 Thorsten Kahler <thorsten.kahler@dkd.de>
+2006-10-26 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Added: Hooks in the recipient lists (cmd_displayImport and doImport)
+
+2006-10-26 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Fixed: delete lock file if DB connect failed
 
 2007-10-16 Ivan Kartolo <ivan.kartolo@dkd.de>

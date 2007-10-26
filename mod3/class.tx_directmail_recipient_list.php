@@ -1151,6 +1151,25 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		}
 
 		$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import').t3lib_BEfunc::cshItem($this->cshTable,'mailgroup_import',$BACK_PATH),$out, 1, 1, 0, TRUE);
+		
+		/**
+		 *  Hook for cmd_displayImport
+		 *  use it to manipulate the steps in the import process
+		 */
+		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport'])) {
+	   		$hookObjectsArr = array();
+	   		foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport'] as $classRef) {
+				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+	   			}
+	        }
+	        			
+	        foreach($hookObjectsArr as $hookObj)    {
+	           if (method_exists($hookObj, 'cmd_displayImport')) {
+      				$theOutput = '';
+	           		$theOutput = $hookObj->cmd_displayImport($this);	           	
+	           }
+	     }		
+	     
 		return $theOutput;
 	}
 
@@ -1321,6 +1340,23 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		$tce->start($data,array());
 		$tce->process_datamap();
 
+		/**
+		 * Hook for doImport Mail
+		 * will be called every time a record is inserted
+		 */
+		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'])) {
+	   		$hookObjectsArr = array();
+	   		foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'] as $classRef) {
+				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+	   			}
+	        }
+	        			
+	        foreach($hookObjectsArr as $hookObj)    {
+	           if (method_exists($hookObj, 'doImport')) {      				
+	           		$hookObj->doImport($this,$data,$c);	          	
+	           }
+	     }	
+		
 		return $resultImport;
 	}
 
