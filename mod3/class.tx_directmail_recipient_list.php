@@ -998,9 +998,11 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 						'sys_dmail_category',
 						'pid IN ('. $temp['value'].')'.t3lib_BEfunc::deleteClause('sys_dmail_category').t3lib_BEfunc::BEenableFields('sys_dmail_category')
 					);
-					$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats'), '');
-					foreach ($rowCat as $k => $v){
-						$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.$v['category'], '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
+					if(!empty($rowCat)){
+						$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats'), '');
+						foreach ($rowCat as $k => $v){
+							$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.$v['category'], '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
+						}	
 					}
 				}
 				
@@ -1057,8 +1059,10 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				foreach($this->indata['map'] as $fieldNr => $fieldMapped){
 					$hiddenMapped[]	= $this->makeHidden('CSV_IMPORT[map]['.$fieldNr.']', $fieldMapped);
 				}
-				foreach($this->indata['cat'] as $k => $catUID){
-					$hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat]['.$k.']', $catUID);
+				if(is_array($this->indata['cat'])){
+					foreach($this->indata['cat'] as $k => $catUID){
+						$hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat]['.$k.']', $catUID);
+					}
 				}
 				$out.=implode('',$hiddenMapped);
 
@@ -1112,8 +1116,10 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				foreach($this->indata['map'] as $fieldNr => $fieldMapped){
 					$hiddenMapped[]	= $this->makeHidden('CSV_IMPORT[map]['.$fieldNr.']', $fieldMapped);
 				}
-				foreach($this->indata['cat'] as $k => $catUID){
-					$hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat]['.$k.']', $catUID);
+				if(is_array($this->indata['cat'])){
+					foreach($this->indata['cat'] as $k => $catUID){
+						$hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat]['.$k.']', $catUID);
+					}
 				}
 				$out.=implode('',$hiddenMapped);
 
@@ -1162,13 +1168,14 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
 	   			}
 	        }
-	        			
-	        foreach($hookObjectsArr as $hookObj)    {
-	           if (method_exists($hookObj, 'cmd_displayImport')) {
-      				$theOutput = '';
-	           		$theOutput = $hookObj->cmd_displayImport($this);	           	
-	           }
-	     }		
+	        if(is_array($hookObjectsArr)){
+		        foreach($hookObjectsArr as $hookObj)    {
+		           if (method_exists($hookObj, 'cmd_displayImport')) {
+	      				$theOutput = '';
+		           		$theOutput = $hookObj->cmd_displayImport($this);	           	
+		           }
+		     	}
+	        }	
 	     
 		return $theOutput;
 	}

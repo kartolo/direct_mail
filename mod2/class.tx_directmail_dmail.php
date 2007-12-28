@@ -656,19 +656,21 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 		switch ($this->CMD) {
 			case 'info':
-				//TODO: greyed out next-button if fetching is not successful??
+				//greyed out next-button if fetching is not successful (on error)
 				$fetchError = true;
 				//create dmail and fetch
 				$quickmail = t3lib_div::_GP('quickmail');
 
 				if((t3lib_div::_GP('createMailFrom_UID') || t3lib_div::_GP('createMailFrom_URL')) && !$quickmail['send']){
 					//internal or external page
-					$fetchError = $this->createDMail();
+					$fetchMsg = $this->createDMail();
+					$fetchError = ((strstr($fetchMsg,$LANG->getLL('dmail_error')) === false) ? false : true);
 					$row = t3lib_BEfunc::getRecord('sys_dmail',intval($this->sys_dmail_uid));
 					$nextCMD?$nextCMD:'cats';
 					$theOutput.= t3lib_div::testInt(t3lib_div::_GP('createMailFrom_UID'))?'<input type="hidden" name="CMD" value="'.$nextCMD.'">':'<input type="hidden" name="CMD" value="send_test">';
 				} elseif ($quickmail['send']){
-					$fetchError = $this->createDMail_quick($quickmail);
+					$fetchMsg = $this->createDMail_quick($quickmail);
+					$fetchError = ((strstr($fetchMsg,$LANG->getLL('dmail_error')) === false) ? false : true);
 					$row = t3lib_BEfunc::getRecord('sys_dmail',$this->sys_dmail_uid);
 					$theOutput.= '<input type="hidden" name="CMD" value="send_test">';
 				}else {
@@ -679,14 +681,15 @@ class tx_directmail_dmail extends t3lib_SCbase {
 							$fetchError = false;
 							$theOutput.= '<input type="hidden" name="CMD" value="send_test">';
 						} else {
-							$fetchError = $this->cmd_fetch($row);
+							$fetchMsg = $this->cmd_fetch($row);
+							$fetchError = ((strstr($fetchMsg,$LANG->getLL('dmail_error')) === false) ? false : true);
 							$theOutput.= ($row['type']==0)?'<input type="hidden" name="CMD" value="'.$nextCMD.'">':'<input type="hidden" name="CMD" value="send_test">';
 						}
 					}
 				}
 
 				$theOutput .= $this->showSteps(2,$totalSteps);
-				$theOutput .= $fetchError ? (($fetchError===true)?'error':$fetchError) : $LANG->getLL('dmail_wiz2_fetch_success');
+				$theOutput .= $fetchMsg ? $fetchMsg : $LANG->getLL('dmail_wiz2_fetch_success');
 
 				$theOutput.= '<br /><div id="box-1" class="toggleBox">';
 				$theOutput.= $row ? $this->directMail_defaultView($row): '';

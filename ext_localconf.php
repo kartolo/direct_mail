@@ -44,9 +44,22 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['adminEmail'] = $_EXTCONF['adminEmail'];
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['notificationJob'] = $_EXTCONF['notificationJob'];
 
 /**
- * Interval of teh cronjob
+ * Interval of the cronjob
  */
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['cronInt'] = $_EXTCONF['cronInt'];
+
+/**
+ * SMTP options
+ */
+$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['smtp'] = array(
+	'enabled'  => ($_EXTCONF['SmtpEnabled'] == 1),
+	'host'     => $_EXTCONF['SmtpHost'],
+	'port'     => $_EXTCONF['SmtpPort'],
+	'auth'     => ($_EXTCONF['SmtpAuth'] == 1),
+	'username' => $_EXTCONF['SmtpUser'],
+	'password' => $_EXTCONF['SmtpPassword'],
+	'persist'  => ($_EXTCONF['smtpPersist'] == 1)
+);
 
 
 /**

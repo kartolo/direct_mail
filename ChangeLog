@@ -1,3 +1,8 @@
+2006-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Added: Support sending direct mail with SMTP (needs PEAR:mail class). Manual updated. Thanks to Benjamin Mack.
+	* Fixed: in send Wizard: if only warning, next button will be enabled
+	* Fixed bug #6904, #6905: in recipient list import module: check if some array (categories array) are empty (during import process)
+
 2006-10-26 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Added: Hooks in the recipient lists (cmd_displayImport and doImport)
 

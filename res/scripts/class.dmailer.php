@@ -90,6 +90,9 @@
 require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
 require_once(PATH_t3lib.'class.t3lib_befunc.php');
 
+// include Pear::Mail if exists
+@include_once('Mail.php');
+
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
  *
@@ -104,6 +107,7 @@ class dmailer extends t3lib_htmlmail {
 	var $includeMedia = 0;
 	var $flowedFormat = 0;
 	var $user_dmailerLang = 'en';
+	var $mailObject = NULL;
 
 	/**
 	 * Preparing the Email. Headers are set in global variables
@@ -609,7 +613,33 @@ class dmailer extends t3lib_htmlmail {
 		$email = $from_name.' <'.$this->from_email.'>';
 
 		if($this->notificationJob){
-			t3lib_div::plainMailEncoded($email,$subject,$message,implode(chr(10),$headers));
+			$useSmtp = ($this->confSMTP['enabled'] && class_exists('Mail'));
+	
+				// format headers for SMTP use
+			if ($useSmtp) {
+				$headersSMTP = array();
+//				$headerlines = explode("\n",trim($this->headers));
+				foreach($headers as $k => $hd) {
+					if (substr($hd[$i],0,9)==" boundary") {
+						$headersSMTP['Content-Type'] .= "\n " . $hd;
+					} else {
+						$current = explode(':',$hd);
+						$headersSMTP[$current[0]] = trim($current[1]);
+					}
+				}
+				$headersSMTP['To']      = $email;
+				$headersSMTP['Subject'] = $subject;
+	
+				// create a new mail object if not existing
+				if (!is_a($this->mailObject, 'Mail_smtp') || $this->confSMTP['persist'] == 1) {
+					$this->mailObject = NULL;
+					$this->mailObject =& Mail::factory('smtp', $this->confSMTP);
+				}
+				$res = $this->mailObject->send($email, $headersSMTP, $message);
+				
+			} else {
+				t3lib_div::plainMailEncoded($email,$subject,$message,implode(chr(10),$headers));
+			}
 		}
 	}
 
@@ -749,6 +779,18 @@ class dmailer extends t3lib_htmlmail {
 		$this->logArray[]=$LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y');
 
 		if ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+			$this->confSMTP = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['smtp'];
+			$useSmtp = ($this->confSMTP['enabled'] && class_exists('Mail'));
+	
+				// format headers for SMTP use
+			if ($useSmtp) {
+				// create a new mail object to be used to sending the mass email and notification job
+				if (!is_a($this->mailObject, 'Mail_smtp') || $this->confSMTP['persist'] == 1) {
+					$this->mailObject = NULL;
+					$this->mailObject =& Mail::factory('smtp', $this->confSMTP['smtp']);
+				}
+			}
+
 			$this->logArray[]=$LANG->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid']. ", '" . $row['subject'] . "' " . $LANG->getLL('dmailer_processed');
 			$this->dmailer_prepare($row);
 			$query_info=unserialize($row['query_info']);
@@ -855,8 +897,35 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	boolean		true if there is recipient and content, otherwise false
 	 */
 	function sendTheMail () {
-#debug(array($this->recipient,$this->subject,$this->message,$this->headers));
-			// Sends the mail, requires the recipient, message and headers to be set.
+//		$conf = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail'];
+		if(empty($this->confSMTP)){
+			$this->confSMTP = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['smtp'];
+		}
+		$useSmtp = ($this->confSMTP['enabled'] && class_exists('Mail'));
+
+			// format headers for SMTP use
+		if ($useSmtp) {
+			$headers = array();
+			$headerlines = explode("\n",trim($this->headers));
+			foreach($headerlines as $k => $hd) {
+				if (substr($hd[$i],0,9)==" boundary") {
+					$headers['Content-Type'] .= "\n " . $hd;
+				} else {
+					$current = explode(':',$hd);
+					$headers[$current[0]] = $current[1];
+				}
+			}
+			$headers['To']      = $this->recipient;
+			$headers['Subject'] = $this->subject;
+
+			// create a new mail object if not existing
+			if (!is_a($this->mailObject, 'Mail_smtp') || $this->confSMTP['persist'] == 1) {
+				$this->mailObject = NULL;
+				$this->mailObject =& Mail::factory('smtp', $this->confSMTP);
+			}
+		}
+
+		// Sends the mail, requires the recipient, message and headers to be set.
 		if (trim($this->recipient) && trim($this->message))	{	//  && trim($this->headers)
 			$returnPath = (strlen($this->returnPath)>0)?"-f".$this->returnPath:'';
 				//On windows the -f flag is not used (specific for Sendmail and Postfix), but instead the php.ini parameter sendmail_from is used.
@@ -866,8 +935,11 @@ class dmailer extends t3lib_htmlmail {
 				// Setting defer mode
 			$deferMode = $this->useDeferMode ? (($returnPath ? ' ': '') . '-O DeliveryMode=defer') : '';
 
+			if ($useSmtp)	{
+				$res = $this->mailObject->send($this->recipient, $headers, $this->message);
+			} 
+			elseif(!ini_get('safe_mode') && $this->forceReturnPath) {
 				//If safe mode is on, the fifth parameter to mail is not allowed, so the fix wont work on unix with safe_mode=On
-			if(!ini_get('safe_mode') && $this->forceReturnPath) {
 				mail($this->recipient,
 					  $this->subject,
 					  $this->message,
@@ -881,14 +953,16 @@ class dmailer extends t3lib_htmlmail {
 			}
 				// Sending copy:
 			if ($this->recipient_copy)	{
-				if(!ini_get('safe_mode') && $this->forceReturnPath) {
-					mail( 	$this->recipient_copy,
+				if ($useSmtp)	{
+					$res = $this->mailObject->send($this->recipient_copy, $headers, $this->message);
+				} elseif (!ini_get('safe_mode') && $this->forceReturnPath) {
+					mail($this->recipient_copy,
 								$this->subject,
 								$this->message,
 								$this->headers,
 								$returnPath.$deferMode);
 				} else {
-					mail( 	$this->recipient_copy,
+					mail($this->recipient_copy,
 								$this->subject,
 								$this->message,
 								$this->headers	);
@@ -898,14 +972,18 @@ class dmailer extends t3lib_htmlmail {
 			if ($this->auto_respond_msg)	{
 				$theParts = explode('/',$this->auto_respond_msg,2);
 				$theParts[1] = str_replace("/",chr(10),$theParts[1]);
-				if(!ini_get('safe_mode') && $this->forceReturnPath) {
-					mail( 	$this->from_email,
+				if ($useSmtp)	{
+	                                $headers['Subject'] = $theParts[0];
+	                                $headers['From'] = $this->recipient;
+	                                $res = $this->mailObject->send($this->from_email, $headers, $theParts[1]);
+				} elseif (!ini_get('safe_mode') && $this->forceReturnPath) {
+					mail($this->from_email,
 								$theParts[0],
 								$theParts[1],
 								"From: ".$this->recipient,
 								$returnPath.$deferMode);
 				} else {
-					mail( 	$this->from_email,
+					mail($this->from_email,
 								$theParts[0],
 								$theParts[1],
 								"From: ".$this->recipient);
@@ -915,8 +993,11 @@ class dmailer extends t3lib_htmlmail {
 				ini_restore(sendmail_from);
 			}
 			return true;
-		} else {return false;}
+		} else {
+			return false;
+		}
 	}
+
 
 	/**
 	 * add HTML to an email
