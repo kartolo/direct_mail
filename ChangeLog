@@ -1,15 +1,19 @@
-2006-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
+2008-01-09 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* added the options not to encode the headers if sending with SMTP.
+	* manual updates
+
+2007-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #5111: List of categories PID is correctly quoted.
 	
-2006-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
+2007-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Added: Support sending direct mail with SMTP (needs PEAR:mail class). Manual updated. Thanks to Benjamin Mack.
 	* Fixed: in send Wizard: if only warning, next button will be enabled
 	* Fixed bug #6904, #6905: in recipient list import module: check if some array (categories array) are empty (during import process)
 
-2006-10-26 Ivan Kartolo <ivan.kartolo@dkd.de>
+2007-10-26 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Added: Hooks in the recipient lists (cmd_displayImport and doImport)
 
-2006-10-26 Thorsten Kahler <thorsten.kahler@dkd.de>
+2007-10-26 Thorsten Kahler <thorsten.kahler@dkd.de>
 	* Fixed: delete lock file if DB connect failed
 
 2007-10-16 Ivan Kartolo <ivan.kartolo@dkd.de>

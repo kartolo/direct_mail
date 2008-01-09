@@ -285,8 +285,10 @@ class dmailer extends t3lib_htmlmail {
 			} else {
 				$this->setRecipient($recipRow['email']);	
 			}
-			$this->recipient = t3lib_div::encodeHeader($this->recipient, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
-
+			
+			if(!$this->dontEncodeHeader){
+				$this->recipient = t3lib_div::encodeHeader($this->recipient, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);	
+			}
 			$this->setHeaders();
 			$this->setContent();
 
@@ -318,7 +320,9 @@ class dmailer extends t3lib_htmlmail {
 		$this->returnPath = $this->dmailer['sys_dmail_rec']['return_path'];
 
 		$this->setRecipient($addressList);
-		$this->recipient = t3lib_div::encodeHeader($this->recipient, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		if(!$this->dontEncodeHeader){
+			$this->recipient = t3lib_div::encodeHeader($this->recipient, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);	
+		}
 
 		$this->setHeaders();
 		$this->setContent();
@@ -613,10 +617,8 @@ class dmailer extends t3lib_htmlmail {
 		$email = $from_name.' <'.$this->from_email.'>';
 
 		if($this->notificationJob){
-			$useSmtp = ($this->confSMTP['enabled'] && class_exists('Mail'));
-	
 				// format headers for SMTP use
-			if ($useSmtp) {
+			if ($this->useSmtp) {
 				$headersSMTP = array();
 //				$headerlines = explode("\n",trim($this->headers));
 				foreach($headers as $k => $hd) {
@@ -779,11 +781,8 @@ class dmailer extends t3lib_htmlmail {
 		$this->logArray[]=$LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y');
 
 		if ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-			$this->confSMTP = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['smtp'];
-			$useSmtp = ($this->confSMTP['enabled'] && class_exists('Mail'));
-	
 				// format headers for SMTP use
-			if ($useSmtp) {
+			if ($this->useSmtp) {
 				// create a new mail object to be used to sending the mass email and notification job
 				if (!is_a($this->mailObject, 'Mail_smtp') || $this->confSMTP['persist'] == 1) {
 					$this->mailObject = NULL;
@@ -825,6 +824,15 @@ class dmailer extends t3lib_htmlmail {
 		$this->user_dmailerLang = $user_dmailer_lang;
 		if(!$this->nonCron){
 			$this->dmailer_log('w','starting directmail cronjob');
+		}
+		
+		// Ivan Kartolo
+		// set conf for SMTP
+		$this->confSMTP = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['smtp'];
+		$this->useSmtp = ($this->confSMTP['enabled'] && class_exists('Mail'));
+		if($this->useSmtp){
+			//if using SMTP, don't encode the headers
+			$this->dontEncodeHeader = TRUE;
 		}
 	}
 
@@ -898,13 +906,9 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function sendTheMail () {
 //		$conf = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail'];
-		if(empty($this->confSMTP)){
-			$this->confSMTP = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['smtp'];
-		}
-		$useSmtp = ($this->confSMTP['enabled'] && class_exists('Mail'));
 
 			// format headers for SMTP use
-		if ($useSmtp) {
+		if ($this->useSmtp) {
 			$headers = array();
 			$headerlines = explode("\n",trim($this->headers));
 			foreach($headerlines as $k => $hd) {
@@ -935,7 +939,7 @@ class dmailer extends t3lib_htmlmail {
 				// Setting defer mode
 			$deferMode = $this->useDeferMode ? (($returnPath ? ' ': '') . '-O DeliveryMode=defer') : '';
 
-			if ($useSmtp)	{
+			if ($this->useSmtp)	{
 				$res = $this->mailObject->send($this->recipient, $headers, $this->message);
 			} 
 			elseif(!ini_get('safe_mode') && $this->forceReturnPath) {
@@ -953,7 +957,7 @@ class dmailer extends t3lib_htmlmail {
 			}
 				// Sending copy:
 			if ($this->recipient_copy)	{
-				if ($useSmtp)	{
+				if ($this->useSmtp)	{
 					$res = $this->mailObject->send($this->recipient_copy, $headers, $this->message);
 				} elseif (!ini_get('safe_mode') && $this->forceReturnPath) {
 					mail($this->recipient_copy,
@@ -972,7 +976,7 @@ class dmailer extends t3lib_htmlmail {
 			if ($this->auto_respond_msg)	{
 				$theParts = explode('/',$this->auto_respond_msg,2);
 				$theParts[1] = str_replace("/",chr(10),$theParts[1]);
-				if ($useSmtp)	{
+				if ($this->useSmtp)	{
 	                                $headers['Subject'] = $theParts[0];
 	                                $headers['From'] = $this->recipient;
 	                                $res = $this->mailObject->send($this->from_email, $headers, $theParts[1]);
