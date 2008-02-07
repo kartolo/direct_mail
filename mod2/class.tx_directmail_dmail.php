@@ -613,16 +613,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		if(t3lib_div::_GP('update_cats')){
 			$this->CMD = 'cats';
 		}
-		if($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] && ($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] == 'cat')){
-			$totalSteps = 4;
-			if(($this->CMD == 'info') && ($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] == 'cat')){
-				$nextCMD = 'send_test';
-			}
-		}else{
-			$totalSteps = 5;
-			 if($this->CMD == 'info')
-				$nextCMD = 'cats';
-		}
+		
 		if(t3lib_div::_GP('mailingMode_simple')){
 			$this->CMD = 'send_mail_test';
 		}
@@ -652,6 +643,17 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					$this->CMD = 'send_test';
 					break;
 			}
+		}
+		
+		if($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] && ($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] == 'cat')){
+			$totalSteps = 4;
+			if(($this->CMD == 'info') && ($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] == 'cat')){
+				$nextCMD = 'send_test';
+			}
+		}else{
+			$totalSteps = 5;
+			 if($this->CMD == 'info')
+				$nextCMD = 'cats';
 		}
 
 		switch ($this->CMD) {
@@ -1057,7 +1059,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				);
 			$msg=$LANG->getLL('testmail_individual_msg') . '<br /><br />';
 			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-				$requestURI = t3lib_div::getIndpEnv('REQUEST_URI').'&CMD=send_test&sys_dmail_uid='.$this->sys_dmail_uid.'&pages_uid='.t3lib_div::_GP('pages_uid');
+				$requestURI = t3lib_div::getIndpEnv('REQUEST_URI').'&CMD=send_test&sys_dmail_uid='.$this->sys_dmail_uid.'&pages_uid='.$this->pages_uid;
 				$msg.='<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[tt_address]['.$row['uid'].']=edit',$BACK_PATH,$requestURI).'">' .
 						'<img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />' .
 						'</a><a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&tt_address_uid='.$row['uid'].'">'.
@@ -1151,7 +1153,8 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				if ($row['uid']) {
 					$tableIcon = '<td>'.t3lib_iconWorks::getIconImage($table,array(),$BACK_PATH,'title="'.($row['uid']?'uid: '.$row['uid']:'').'"',$dim).'</td>';
 					if ($editLinkFlag) {
-						$editLink = '<td><a href="index.php?id='.$this->id.'&CMD=displayUserInfo&table='.$table.'&uid='.$row['uid'].'">' .
+						$requestURI = t3lib_div::getIndpEnv('REQUEST_URI').'&CMD=send_test&sys_dmail_uid='.$this->sys_dmail_uid.'&pages_uid='.$this->pages_uid;
+						$editLink = '<td><a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[tt_address]['.$row['uid'].']=edit',$BACK_PATH,$requestURI).'">' .
 								'<img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="' . $LANG->getLL('dmail_edit') . '" width="12" height="12" style="margin:0px 5px; vertical-align:top;" title="' . $LANG->getLL('dmail_edit') . '" />' .
 								'</a></td>';
 					}
