@@ -1,3 +1,8 @@
+2008-02-18 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #7244: bug in the recipient list "from other recipient list"
+	* Fixed bug #7127: wrong SQL "sort by" at calculating statistics 
+	* Fixed bug #7296: the listed SysFolder is filtered by the page access
+
 2008-02-07 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #7100: back button.
 

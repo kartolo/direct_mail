@@ -1313,7 +1313,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		foreach( $id_lists['id_lists'] as $table => $idArray){
 			$totalRecip += count($idArray);
 		}
-		$sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*','sys_dmail_maillog','mid='.$row['uid'], 'rid ASC'));
+		$sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*','sys_dmail_maillog','mid='.$row['uid'],'','rid ASC'));
 
 		$out = '<table border="0" cellpadding="1" cellspacing="1" width="460">';
 		$out .= '<tr bgColor="'.$this->doc->bgColor4.'"><td>'.$LANG->getLL('view_from').'</td><td>'.htmlspecialchars($row['from_name'].' <'.$row['from_email'].'>').'</td><td>'.$from_info.'</td></tr>';
