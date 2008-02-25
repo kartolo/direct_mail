@@ -1517,11 +1517,18 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		global $FILEMOUNTS;
 
 		foreach($FILEMOUNTS as $filePathInfo) {
-			$tempFolder = $filePathInfo['path'].'_temp_/';
-			if (@is_dir($tempFolder))	{
-				return $tempFolder;
+				if ( @is_dir( $filePathInfo['path'].'_temp_/' ) )	{
+					$tempFolder = $filePathInfo['path'].'_temp_/';
+					break;
+				}
 			}
-		}
+			if ( !$tempFolder )	{
+					// we don't have a valid file mount
+					// use default upload folder
+				$tempFolder = t3lib_div::getFileAbsFileName('uploads/tx_directmail/');
+			}
+			
+			return $tempFolder;
 	}
 
 	/**
@@ -1587,25 +1594,21 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		global $FILEMOUNTS,$TYPO3_CONF_VARS,$BE_USER,$LANG;
 
 		$file = t3lib_div::_GP('file');
+		$fm = array();
 
+		$tempFolder = $this->userTempFolder();
+		$fm = array(
+			$GLOBALS['EXEC_TIME'] => array (
+				'path' => $tempFolder,
+				'name' => array_pop( explode( '/', trim( $tempFolder, '/' ) ) ). '/',
+			)
+		); 
+		
 		// Initializing:
 		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
-		$this->fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
+		$this->fileProcessor->init($fm, $TYPO3_CONF_VARS['BE']['fileExtensions']);
 		$this->fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
 		$this->fileProcessor->dontCheckForUnique = t3lib_div::_GP('overwriteExistingFiles') ? 1 : 0;
-
-		if (is_array($FILEMOUNTS) && !empty($FILEMOUNTS)) {
-			// we have a filemount
-			// do something here
-		} else {
-			// we don't have a valid file mount
-			// should be fixed
-
-			// this throws a error message because we have no rights to upload files
-			// to our extension's own upload folder
-			// further investigation needed
-			$file['upload']['1']['target'] = t3lib_div::getFileAbsFileName('uploads/tx_directmail/');
-		}
 
 		// Checking referer / executing:
 		$refInfo = parse_url(t3lib_div::getIndpEnv('HTTP_REFERER'));

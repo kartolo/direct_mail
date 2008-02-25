@@ -1,3 +1,6 @@
+2008-02-25 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug: non admin user cannot upload file to import.
+
 2008-02-18 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #7244: bug in the recipient list "from other recipient list"
 	* Fixed bug #7127: wrong SQL "sort by" at calculating statistics 
