@@ -161,6 +161,7 @@
 			<label index="mailgroup_import_header_upload"></label>
 			<label index="mailgroup_import_import"></label>
 			<label index="mailgroup_import_mapping_conf"></label>
+			<label index="mailgroup_import_mapping_charset"></label>
 			<label index="mailgroup_import_mapping_description"></label>
 			<label index="mailgroup_import_mapping_error"></label>
 			<label index="mailgroup_import_mapping_error_detail"></label>
@@ -493,6 +494,8 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="mailgroup_import_header_upload">Upload CSV</label>
 			<label index="mailgroup_import_import">Import</label>
 			<label index="mailgroup_import_mapping_conf">Field mapping</label>
+			<label index="mailgroup_import_mapping_charset">Settings</label>
+			<label index="mailgroup_import_mapping_charset_choose">Please select the character set of the import file:</label>
 			<label index="mailgroup_import_mapping_conf_add">Additional options</label>
 			<label index="mailgroup_import_mapping_all_html">All recipients receive HTML newsletter</label>
 			<label index="mailgroup_import_mapping_cats">Assign the following categories to all recipients:</label>
@@ -506,6 +509,7 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="mailgroup_import_mapping_number">#</label>
 			<label index="mailgroup_import_mapping_value">Value</label>
 			<label index="mailgroup_import_next">Next</label>
+			<label index="mailgroup_import_update">update</label>
 			<label index="mailgroup_import_or">OR</label>
 			<label index="mailgroup_import_overwrite">Overwrite existing file: </label>
 			<label index="mailgroup_import_paste_csv">Paste the CSV data:</label>
@@ -827,6 +831,8 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="mailgroup_import_header_upload">Hochladen CSV-Daten</label>
 			<label index="mailgroup_import_import">Importieren</label>
 			<label index="mailgroup_import_mapping_conf">Feldzuordnung</label>
+			<label index="mailgroup_import_mapping_charset">Einstellungen</label>
+			<label index="mailgroup_import_mapping_charset_choose">Wählen Sie den Zeichensatz der Import-Datei:</label>
 			<label index="mailgroup_import_mapping_conf_add">Zusatzoptionen</label>
 			<label index="mailgroup_import_mapping_all_html">Alle Empfängern bekommen HTML Newsletter</label>
 			<label index="mailgroup_import_mapping_cats">Weist folgende Kategorien an allen empfängern:</label>
@@ -840,6 +846,7 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="mailgroup_import_mapping_number">#</label>
 			<label index="mailgroup_import_mapping_value">Wert</label>
 			<label index="mailgroup_import_next">Weiter</label>
+			<label index="mailgroup_import_update">aktualisieren</label>
 			<label index="mailgroup_import_or">ODER</label>
 			<label index="mailgroup_import_overwrite">Bestehende Dateien überschreiben:</label>
 			<label index="mailgroup_import_paste_csv">Einfügen der CSV-Daten:</label>

@@ -847,6 +847,8 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			$stepCurrent = $step['back'];
 		} elseif ($this->indata['next']){
 			$stepCurrent = $step['next'];
+		} elseif ($this->indata['update']) {
+			$stepCurrent = 'mapping';
 		}
 
 		if(strlen($this->indata['csv']) > 0){
@@ -933,8 +935,25 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			break;
 
 			case 'mapping':
+					//show charset selector
+				$cs = array_unique( array_values( $LANG->csConvObj->synonyms ) );
+				$charSets = array();
+				foreach( $cs as $charset )	{
+					$charSets[] = array($charset,$charset);
+				}
+
+				if(!isset($this->indata['charset'])){
+					$this->indata['charset'] = 'iso-8859-1';
+				}
+				$out .= '<hr /><h3>'.$LANG->getLL('mailgroup_import_mapping_charset').'</h3>';
+				$tblLines = array();
+				$tblLines[] = array($LANG->getLL('mailgroup_import_mapping_charset_choose'),$this->makeDropdown('CSV_IMPORT[charset]',$charSets,$this->indata['charset']));
+				$out .= $this->formatTable($tblLines,array('nowrap','nowrap'),0,array(1,1),'border="0" cellpadding="2" cellspacing="0"',1);
+				$out .= '<input type="submit" name="CSV_IMPORT[update]" value="'.$LANG->getLL('mailgroup_import_update').'"/>';
+				unset($tblLines);
+				
 					//show mapping form
-				$out = '<hr /><h3>'.$LANG->getLL('mailgroup_import_mapping_conf').'</h3>';
+				$out .= '<hr /><h3>'.$LANG->getLL('mailgroup_import_mapping_conf').'</h3>';
 
 				if($this->indata['first_fieldname']){
 						//read csv
@@ -1054,6 +1073,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 							'CSV_IMPORT[update_unique]' => $this->indata['update_unique'],
 							'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
 							'CSV_IMPORT[all_html]' => $this->indata['all_html'],
+							'CSV_IMPORT[charset]' => $this->indata['charset'],
 						));
 				$hiddenMapped = array();
 				foreach($this->indata['map'] as $fieldNr => $fieldMapped){
@@ -1089,7 +1109,8 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 					$tblLines1 = array();
 					$tblLines[] = array($LANG->getLL('mailgroup_import_report_'.$act));
 					foreach($importData as $k => $v){
-						$tblLines1[]= array($k+1,$v['name'],$v['email']);
+						$mapKeys = array_keys($v);
+						$tblLines1[]= array($k+1,$v[$mapKeys[0]],$v['email']);
 					}
 					$tblLines[] = array($this->formatTable($tblLines1,array('nowrap','nowrap','nowrap'),0));
 					$out.= $this->formatTable($tblLines, array('nowrap'), 1, array(1), 'border="0" cellpadding="2" cellspacing="0"');
@@ -1111,6 +1132,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 							'CSV_IMPORT[update_unique]' => $this->indata['update_unique'],
 							'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
 							'CSV_IMPORT[all_html]' => $this->indata['all_html'],
+							'CSV_IMPORT[charset]' => $this->indata['charset'],
 						));
 				$hiddenMapped = array();
 				foreach($this->indata['map'] as $fieldNr => $fieldMapped){
@@ -1346,23 +1368,23 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		$tce->enableLogging=0;
 		$tce->start($data,array());
 		$tce->process_datamap();
-
+		
 		/**
 		 * Hook for doImport Mail
 		 * will be called every time a record is inserted
 		 */
 		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'])) {
-	   		$hookObjectsArr = array();
-	   		foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'] as $classRef) {
+			$hookObjectsArr = array();
+			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'] as $classRef) {
 				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
-	   			}
-	        }
-	        			
-	        foreach($hookObjectsArr as $hookObj)    {
-	           if (method_exists($hookObj, 'doImport')) {      				
-	           		$hookObj->doImport($this,$data,$c);	          	
-	           }
-	     }	
+			}
+		
+			foreach($hookObjectsArr as $hookObj)    {
+				if (method_exists($hookObj, 'doImport')) {	
+					$hookObj->doImport($this,$data,$c);	          	
+				}
+			}
+		}
 		
 		return $resultImport;
 	}
@@ -1415,6 +1437,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 	 * @return	array		file content in array
 	 */
 	function readCSV() {
+		ini_set('auto_detect_line_endings',TRUE);
 		$mydata = array();
 		$handle = fopen($this->indata['newFile'], "r");
 		$i=0;
@@ -1434,6 +1457,8 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		}
 		fclose ($handle);
 		reset ($mydata);
+		$mydata = $this->convCharset($mydata);
+		ini_set('auto_detect_line_endings',FALSE);
 		return $mydata;
 	}
 
@@ -1445,6 +1470,8 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 	 * @return	array		file content in array
 	 */
 	function readExampleCSV($records=3) {
+		ini_set('auto_detect_line_endings',TRUE);
+
 		$mydata = array();
 		$handle = fopen($this->indata['newFile'], "r");
 		$i=0;
@@ -1466,9 +1493,33 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		}
 		fclose ($handle);
 		reset ($mydata);
+		$mydata = $this->convCharset($mydata);
+		ini_set('auto_detect_line_endings',FALSE);
 		return $mydata;
 	}
 
+		/**
+	 * Convert charset if necessary
+	 * 
+	 * @param	array	$data contains values to convert
+	 * @return	array	array of charset-converted values
+	 * @see	t3lib_cs::convArray() 
+	 */
+	function convCharset($data) {
+		global $LANG;
+		
+		if ( $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] )	{
+			$dbCharset = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
+		} else {
+			$dbCharset = 'iso-8859-1';
+		}
+		if ( $dbCharset != $this->indata['charset'] )	{
+			$LANG->csConvObj->convArray( $data, $this->indata['charset'], $dbCharset );
+		}
+		return $data;
+	}
+	
+	
 	/**
 	 * formating the given array in to HTML table
 	 *
