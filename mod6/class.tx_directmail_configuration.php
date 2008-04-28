@@ -32,7 +32,7 @@ require_once (PATH_t3lib.'class.t3lib_tstemplate.php');
 require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directmail_static.php');
 
 /**
- * @author		Kasper Skårhøj <kasper@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasper@typo3.com>
  * @author  	Jan-Erik Revsbech <jer@moccompany.com>
  * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  * @author		Ivan-Dharma Kartolo <ivan.kartolo@dkd.de>
@@ -455,6 +455,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 			'use_rdct' => array('check', tx_directmail_static::fName('use_rdct'), $LANG->getLL('use_rdct.description').'<br />'.$LANG->getLL('use_rdct.details').'<br />'.$LANG->getLL('configure_options_links_rdct')),
 			'long_link_mode' => array('check', tx_directmail_static::fName('long_link_mode'), $LANG->getLL('long_link_mode.description')),
 			'enable_jump_url' => array('check', $LANG->getLL('configure_options_links_jumpurl'), $LANG->getLL('configure_options_links_jumpurl_description')),
+			'enable_mailto_jump_url' => array('check', $LANG->getLL('configure_options_mailto_jumpurl'), $LANG->getLL('configure_options_mailto_jumpurl_description')),
 			'authcode_fieldList' => array('short', tx_directmail_static::fName('authcode_fieldList'), $LANG->getLL('authcode_fieldList.description')),
 		);
 		$configArray[6] = array(

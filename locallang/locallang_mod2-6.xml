@@ -28,6 +28,8 @@
 			<label index="configure_options_links_jumpurl"></label>
 			<label index="configure_options_links_jumpurl_description"></label>
 			<label index="configure_options_links_rdct"></label>
+			<label index="configure_options_mailto_jumpurl"></label>
+			<label index="configure_options_mailto_jumpurl_description"></label>
 			<label index="configure_plainParams_description"></label>
 			<label index="configure_plainParams_details"></label>
 			<label index="configure_plain_and_html"></label>
@@ -361,6 +363,8 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="configure_options_links_jumpurl">Enable jump URL's:</label>
 			<label index="configure_options_links_jumpurl_description">Check this option to enable jump URL's and the collection of click statistics.</label>
 			<label index="configure_options_links_rdct">This configuration determines how QuickMails are handled and further sets the default value for Direct Mails.</label>
+			<label index="configure_options_mailto_jumpurl">Enable jump URL's for mailto links:</label>
+			<label index="configure_options_mailto_jumpurl_description">Check this option to enable jump URL's for mailto links.</label>
 			<label index="configure_plainParams_description">Enter the additional URL parameters used to fetch the plain text content from a TYPO3 page.</label>
 			<label index="configure_plainParams_details">The specified parameters will be added to the URL used to fetch the plain text content of the direct mail from a TYPO3 page. If in doubt, set it either to '&amp;type=99' or, when using TemplaVoila, to '&amp;print=1'.</label>
 			<label index="configure_plain_and_html">Plain text and HTML</label>
@@ -698,6 +702,8 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="configure_options_links_jumpurl">Aktiviere Jump URL's:</label>
 			<label index="configure_options_links_jumpurl_description">Kreuze diese Einstellung an, um die Jump URL's zu aktivieren und Statistiken von Klicks zu sammeln.</label>
 			<label index="configure_options_links_rdct">Diese Einstellung stellt fest, wie Quickmails behandelt und die Standardwerte der Direct Mails einsetze.</label>
+			<label index="configure_options_mailto_jumpurl">Aktivere Jump URL's für mailto-Links:</label>
+			<label index="configure_options_mailto_jumpurl_description">Kreuze diese Einstellung en, um die Jump URL's für mailto-Links zu aktivieren.</label>
 			<label index="configure_plainParams_description">Gibt die zusätzliche URL-Parameter, die während des Auslesen der Text-Inhalten einer TYPO3 Seite ein.</label>
 			<label index="configure_plainParams_details">Die eingegebene Parameter werden in der URL hinzugefügt, um HTML Inhalten einer TYPO3 Seite auszulesen. Im Zweifel, setzt entweder '&amp;type=99' oder '&amp;print=1' (nur TemplaVoila).</label>
 			<label index="configure_plain_and_html">Text und HTML</label>

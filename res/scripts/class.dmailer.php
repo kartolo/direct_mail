@@ -1106,7 +1106,13 @@ class dmailer extends t3lib_htmlmail {
 		if (!is_array($this->theParts['html']['hrefs'])) return;
 		foreach ($this->theParts['html']['hrefs'] as $key => $val) {
 				// Form elements cannot use jumpurl!
-			if ($this->jumperURL_prefix && $val['tag'] != 'form') {
+			if ($this->jumperURL_prefix && ($val['tag'] != 'form') && ( !strstr( $val['ref'], 'mailto:' ))) {
+				if ($this->jumperURL_useId) {
+					$substVal = $this->jumperURL_prefix.$key;
+				} else {
+					$substVal = $this->jumperURL_prefix.t3lib_div::rawUrlEncodeFP($val['absRef']);
+				}
+			} elseif ( strstr( $val['ref'], 'mailto:' ) && $this->jumperURL_useMailto) {
 				if ($this->jumperURL_useId) {
 					$substVal = $this->jumperURL_prefix.$key;
 				} else {

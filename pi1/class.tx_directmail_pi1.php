@@ -708,7 +708,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	function addLabelsMarkers($markerArray) {
 
 		$labels = t3lib_div::trimExplode(',', $this->labelsList);
-		while (list(, $labelName) = each($labels) ) {
+		foreach ( $labels as $labelName ) {
 			$markerArray['###'.strtoupper($labelName).'###'] = $this->pi_getLL($labelName);
 		}
 		return $markerArray;

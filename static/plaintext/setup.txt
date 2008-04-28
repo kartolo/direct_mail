@@ -65,7 +65,7 @@ plugin.tx_directmail_pi1 {
 
   bodytext.doubleLF = {$plugin.tx_directmail_pi1.doubleLF}
   bodytext.stdWrap.parseFunc.tags {
-    link =< lib.parseFunc_RTE.tags.link
+    link < styles.content.parseFunc.tags.link
     typolist = USER
     typolist.userFunc = tx_directmail_pi1->typolist
     typolist.siteUrl = {$plugin.tx_directmail_pi1.siteUrl} 
