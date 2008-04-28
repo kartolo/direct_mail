@@ -1101,6 +1101,32 @@ class dmailer extends t3lib_htmlmail {
 		}
 		return $mimeType;
 	}
+	
+	/**
+	 * Rewrite core function, since it has bug. See Bug Tracker 8265. It will be removed if it's fixed.
+	 * This function substitutes the hrefs in $this->theParts["html"]["content"]
+	 *
+	 * @return	void
+	 */
+	public function substHREFsInHTML() {
+		if (!is_array($this->theParts['html']['hrefs'])) return;
+		foreach ($this->theParts['html']['hrefs'] as $key => $val) {
+				// Form elements cannot use jumpurl!
+			if ($this->jumperURL_prefix && $val['tag'] != 'form') {
+				if ($this->jumperURL_useId) {
+					$substVal = $this->jumperURL_prefix.$key;
+				} else {
+					$substVal = $this->jumperURL_prefix.t3lib_div::rawUrlEncodeFP($val['absRef']);
+				}
+			} else {
+				$substVal = $val['absRef'];
+			}
+			$this->theParts['html']['content'] = str_replace(
+				$val['subst_str'],
+				$val['quotes'] . $substVal . $val['quotes'],
+				$this->theParts['html']['content']);
+		}
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.dmailer.php'])	{

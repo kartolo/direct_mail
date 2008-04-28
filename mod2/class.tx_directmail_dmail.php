@@ -28,7 +28,7 @@
  ***************************************************************/
 
 /**
- * @author		Kasper Skårhøj <kasper@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasper@typo3.com>
  * @author  	Jan-Erik Revsbech <jer@moccompany.com>
  * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
@@ -1260,7 +1260,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					}
 					break;
 				case 4:	//
-					$groups = array_unique(tx_directmail_static::getMailGroups($mailGroup['mail_groups'],array($mailGroup['uid'],$this->perms_clause)));
+					$groups = array_unique(tx_directmail_static::getMailGroups($mailGroup['mail_groups'],$mailGroup['uid'],$this->perms_clause));
 					reset($groups);
 					while(list(,$v)=each($groups))	{
 						$collect=$this->cmd_compileMailGroup($v);
