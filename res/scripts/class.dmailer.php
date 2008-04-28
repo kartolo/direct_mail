@@ -616,6 +616,8 @@ class dmailer extends t3lib_htmlmail {
 			if ($this->useSmtp) {
 				$headersSMTP = array();
 //				$headerlines = explode("\n",trim($this->headers));
+				$headersSMTP['To']      = $email;
+				$headersSMTP['Subject'] = $subject;
 				foreach($headers as $k => $hd) {
 					if (substr($hd[$i],0,9)==" boundary") {
 						$headersSMTP['Content-Type'] .= "\n " . $hd;
@@ -624,8 +626,6 @@ class dmailer extends t3lib_htmlmail {
 						$headersSMTP[$current[0]] = trim($current[1]);
 					}
 				}
-				$headersSMTP['To']      = $email;
-				$headersSMTP['Subject'] = $subject;
 	
 				// create a new mail object if not existing
 				if (!is_a($this->mailObject, 'Mail_smtp') || $this->confSMTP['persist'] == 1) {
@@ -906,6 +906,8 @@ class dmailer extends t3lib_htmlmail {
 		if ($this->useSmtp) {
 			$headers = array();
 			$headerlines = explode("\n",trim($this->headers));
+			$headers['To']      = $this->recipient;
+			$headers['Subject'] = $this->subject;
 			foreach($headerlines as $k => $hd) {
 				if (substr($hd[$i],0,9)==" boundary") {
 					$headers['Content-Type'] .= "\n " . $hd;
@@ -914,8 +916,6 @@ class dmailer extends t3lib_htmlmail {
 					$headers[$current[0]] = $current[1];
 				}
 			}
-			$headers['To']      = $this->recipient;
-			$headers['Subject'] = $this->subject;
 
 			// create a new mail object if not existing
 			if (!is_a($this->mailObject, 'Mail_smtp') || $this->confSMTP['persist'] == 1) {
