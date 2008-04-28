@@ -164,8 +164,7 @@ class dmailer extends t3lib_htmlmail {
 		$this->dmailer['sys_dmail_rec'] = $row;
 
 		$this->dmailer['boundaryParts_html'] = explode($this->dmailer['sectionBoundary'], '_END-->'.$this->dmailer['html_content']);
-		reset($this->dmailer['boundaryParts_html']);
-		while(list($bKey,$bContent)=each($this->dmailer['boundaryParts_html']))	{
+		foreach ($this->dmailer['boundaryParts_html'] as $bKey => $bContent) {
 			$this->dmailer['boundaryParts_html'][$bKey] = explode('-->',$bContent,2);
 				// Remove useless HTML comments
 			if (substr($this->dmailer['boundaryParts_html'][$bKey][0],1) == 'END') {
@@ -180,8 +179,7 @@ class dmailer extends t3lib_htmlmail {
 			}
 		}
 		$this->dmailer['boundaryParts_plain'] = explode($this->dmailer['sectionBoundary'], '_END-->'.$this->dmailer['plain_content']);
-		reset($this->dmailer['boundaryParts_plain']);
-		while(list($bKey,$bContent)=each($this->dmailer['boundaryParts_plain']))	{
+		foreach ($this->dmailer['boundaryParts_plain'] as $bKey => $bContent) {
 			$this->dmailer['boundaryParts_plain'][$bKey] = explode('-->',$bContent,2);
 		}
 
@@ -224,16 +222,14 @@ class dmailer extends t3lib_htmlmail {
 			$authCode = t3lib_div::stdAuthCode($recipRow, $this->authCode_fieldList);
 			$this->mediaList='';
 			$this->theParts['html']['content'] = '';
-			if ($this->flag_html && $recipRow['module_sys_dmail_html']) {
+			if ($this->flag_html && ($recipRow['module_sys_dmail_html'] || $tableNameChar == 'P')) {
 				$tempContent_HTML = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],$recipRow['sys_dmail_categories_list']);
 				if ($this->mailHasContent) {
-					reset($rowFieldsArray);
-					while(list(,$substField)=each($rowFieldsArray))	{
+					foreach ($rowFieldsArray as $substField) {
 						$subst = $LANG->csConvObj->conv($recipRow[$substField], $LANG->charSet, $this->charset);
 						$tempContent_HTML = str_replace('###USER_'.$substField.'###', $subst, $tempContent_HTML);
 					}
-					reset($uppercaseFieldsArray);
-					while(list(,$substField)=each($uppercaseFieldsArray))	{
+					foreach ($uppercaseFieldsArray as $substField) {
 						$subst = $LANG->csConvObj->conv($recipRow[$substField], $LANG->charSet, $this->charset);
 						$tempContent_HTML = str_replace('###USER_'.strtoupper($substField).'###', strtoupper($subst), $tempContent_HTML);
 					}
@@ -251,13 +247,11 @@ class dmailer extends t3lib_htmlmail {
 			if ($this->flag_plain) {
 				$tempContent_Plain = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'],$recipRow['sys_dmail_categories_list']);
 				if ($this->mailHasContent) {
-					reset($rowFieldsArray);
-					while(list(,$substField)=each($rowFieldsArray))	{
+					foreach ($rowFieldsArray as $substField) {
 						$subst = $LANG->csConvObj->conv($recipRow[$substField], $LANG->charSet, $this->charset);
 						$tempContent_Plain = str_replace('###USER_'.$substField.'###', $subst, $tempContent_Plain);
 					}
-					reset($uppercaseFieldsArray);
-					while(list(,$substField)=each($uppercaseFieldsArray))	{
+					foreach ($uppercaseFieldsArray as $substField) {
 						$subst = $LANG->csConvObj->conv($recipRow[$substField], $LANG->charSet, $this->charset);
 						$tempContent_Plain = str_replace('###USER_'.strtoupper($substField).'###', strtoupper($subst), $tempContent_Plain);
 					}
@@ -294,7 +288,7 @@ class dmailer extends t3lib_htmlmail {
 
 			$this->message = str_replace($this->dmailer['messageID'], $uniqMsgId, $this->message);	// Put in the unique message id in whole message body
 			if ($returnCode) {
-				$this->sendtheMail();
+				$this->sendTheMail();
 			}
 		}
 		return $returnCode;
@@ -311,10 +305,14 @@ class dmailer extends t3lib_htmlmail {
 
 		if ($this->theParts['html']['content'])		{
 			$this->theParts['html']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],-1));
-		} else $this->theParts['html']['content'] = '';
+		} else {
+			$this->theParts['html']['content'] = '';
+		}
 		if ($this->theParts['plain']['content'])		{
 			$this->theParts['plain']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'],-1));
-		} else $this->theParts['plain']['content'] = '';
+		} else {
+			$this->theParts['plain']['content'] = '';
+		}
 
 		$this->useDeferMode = trim($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) ? intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) : 0;
 		$this->returnPath = $this->dmailer['sys_dmail_rec']['return_path'];
@@ -327,7 +325,7 @@ class dmailer extends t3lib_htmlmail {
 		$this->setHeaders();
 		$this->setContent();
 
-		$this->sendtheMail();
+		$this->sendTheMail();
 		return true;
 	}
 
@@ -342,8 +340,7 @@ class dmailer extends t3lib_htmlmail {
 		$returnVal='';
 		$this->mailHasContent = FALSE;
 		$boundaryMax = count($cArray)-1;
-		reset($cArray);
-		while(list($bKey,$cP)=each($cArray))	{
+		foreach ($cArray as $bKey => $cP) {
 			$key=substr($cP[0],1);
 			$isSubscribed = FALSE;
 			if (!$key || intval($userCategories)==-1) {
@@ -464,8 +461,7 @@ class dmailer extends t3lib_htmlmail {
 		$c=0;
 		$returnVal=true;
 		if (is_array($query_info['id_lists']))	{
-			reset($query_info['id_lists']);
-			while(list($table,$listArr)=each($query_info['id_lists']))	{
+			foreach ($query_info['id_lists'] as $table => $listArr) {
 				if (is_array($listArr))	{
 					$ct=0;
 						// FInd tKey
@@ -481,8 +477,7 @@ class dmailer extends t3lib_htmlmail {
 					$sendIds = $this->dmailer_getSentMails($mid,$tKey);
 					if ($table=='PLAINLIST')	{
 						$sendIdsArr = explode(',',$sendIds);
-						reset($listArr);
-						while(list($kval,$recipRow)=each($listArr))	{
+						foreach ($listArr as $kval => $recipRow) {
 							$kval++;
 							if (!in_array($kval,$sendIdsArr))	{
 								if ($c >= $this->sendPerCycle)	{
@@ -616,7 +611,7 @@ class dmailer extends t3lib_htmlmail {
 
 		$email = $from_name.' <'.$this->from_email.'>';
 
-		if($this->notificationJob){
+		if ($this->notificationJob) {
 				// format headers for SMTP use
 			if ($this->useSmtp) {
 				$headersSMTP = array();
@@ -822,7 +817,7 @@ class dmailer extends t3lib_htmlmail {
 			// Mailer engine parameters
 		$this->sendPerCycle = $user_dmailer_sendPerCycle;
 		$this->user_dmailerLang = $user_dmailer_lang;
-		if(!$this->nonCron){
+		if (!$this->nonCron) {
 			$this->dmailer_log('w','starting directmail cronjob');
 		}
 		
@@ -1032,8 +1027,8 @@ class dmailer extends t3lib_htmlmail {
 	 *
 	 * @return	string		MIME type of the email
 	 */
-	function getHTMLContentType()	{
-		return (count($this->theParts["html"]["media"]) && $this->includeMedia) ? 'multipart/related;' : 'multipart/alternative;';
+	function getHTMLContentType() {
+		return (count($this->theParts['html']['media']) && $this->includeMedia) ? 'multipart/related;' : 'multipart/alternative;';
 	}
 
 	/**
@@ -1042,12 +1037,12 @@ class dmailer extends t3lib_htmlmail {
 	 * @param	string		$boundary: boundary of the parts
 	 * @return	void		...
 	 */
-	function constructHTML ($boundary)	{
-		if (count($this->theParts["html"]["media"]) && $this->includeMedia) {	// If media, then we know, the multipart/related content-type has been set before this function call...
-			$this->add_message("--".$boundary);
+	function constructHTML($boundary) {
+		if (count($this->theParts['html']['media']) && $this->includeMedia) {	// If media, then we know, the multipart/related content-type has been set before this function call...
+			$this->add_message('--'.$boundary);
 				// HTML has media
 			$newBoundary = $this->getBoundary();
-			$this->add_message("Content-Type: multipart/alternative;");
+			$this->add_message('Content-Type: multipart/alternative;');
 			$this->add_message(' boundary="'.$newBoundary.'"');
 			$this->add_message('Content-Transfer-Encoding: 7bit');
 			$this->add_message('');
@@ -1064,13 +1059,12 @@ class dmailer extends t3lib_htmlmail {
 	 * adding HTML media. encode the media using base64.
 	 *
 	 * @param	string		$boundary: boundary of the parts
-	 * @return	void		...
+	 * @return	void
 	 */
 	function constructHTML_media($boundary) {
 			// media is added
-		if (is_array($this->theParts["html"]["media"]) && $this->includeMedia)	{
-			reset($this->theParts["html"]["media"]);
-			while(list($key,$media)=each($this->theParts["html"]["media"]))	{
+		if (is_array($this->theParts['html']['media']) && $this->includeMedia) {
+			foreach ($this->theParts['html']['media'] as $key => $media) {
 				if (!$this->mediaList || t3lib_div::inList($this->mediaList,$key))	{
 					$this->add_message("--".$boundary);
 					$this->add_message("Content-Type: ".$media["ctype"]);

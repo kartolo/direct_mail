@@ -1,3 +1,6 @@
+2008-04-28 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed Bug #7243: comma separated list also received HTML Mails
+
 2008-04-27 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed Bug #8085: List type "Other Mail Groups" does not send any mail
 	* added workaround to bug in Core that links in HTML Mail don'T have any href value. This will be removed if core is fixed.
