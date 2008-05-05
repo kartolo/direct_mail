@@ -1102,7 +1102,7 @@ class dmailer extends t3lib_htmlmail {
 	 *
 	 * @return	void
 	 */
-	public function substHREFsInHTML() {
+	function substHREFsInHTML() {
 		if (!is_array($this->theParts['html']['hrefs'])) return;
 		foreach ($this->theParts['html']['hrefs'] as $key => $val) {
 				// Form elements cannot use jumpurl!
