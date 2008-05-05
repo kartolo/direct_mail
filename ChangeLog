@@ -1,5 +1,6 @@
 2008-05-05 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* remove keyword Public, since it's not supported in PHP 4.x
+	* importer is moved to a separated class
 
 2008-04-28 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed: Bug #7243: comma separated list also received HTML Mails
