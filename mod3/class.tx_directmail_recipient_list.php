@@ -92,8 +92,6 @@
  */
 
 require_once (PATH_t3lib.'class.t3lib_scbase.php');
-require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
-require_once (PATH_t3lib.'class.t3lib_extfilefunc.php');
 require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.mailselect.php');
 require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directmail_static.php');
 require_once (t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directmail_importer.php');

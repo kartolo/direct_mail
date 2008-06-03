@@ -28,7 +28,7 @@
  ***************************************************************/
 
 /**
- * @author		Kasper Skårhøj <kasper@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasper@typo3.com>
  * @author  	Jan-Erik Revsbech <jer@moccompany.com>
  * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
@@ -1031,6 +1031,22 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			}
 		}
 
+		/**
+		 * Hook for cmd_stats_postProcess
+		 * insert a link to open extended importer
+		 */
+		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'])) {
+			$hookObjectsArr = array();
+			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] as $classRef) {
+				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+			}
+			foreach($hookObjectsArr as $hookObj)    {
+				if (method_exists($hookObj, 'cmd_stats_postProcess')) {
+					$output .= $hookObj->cmd_stats_postProcess($row, $this);
+				}
+			}
+		}
+		
 		$this->noView=1;
 		$theOutput.= $this->doc->section($LANG->getLL('stats_direct_mail'),$output, 1, 1, 0, TRUE);
 		$link = '<a href="'.$thisurl.'">' . $LANG->getLL('stats_recalculate_stats') . '</a>';

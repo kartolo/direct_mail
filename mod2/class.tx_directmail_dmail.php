@@ -858,6 +858,23 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	function cmd_finalmail($row)	{
 		global $TCA, $LANG, $TYPO3_DB, $TBE_TEMPLATE;
 
+		/**
+		 * Hook for cmd_finalmail
+		 * insert a link to open extended importer
+		 */
+		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_finalmail'])) {
+			$hookObjectsArr = array();
+			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_finalmail'] as $classRef) {
+				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+			}
+			foreach($hookObjectsArr as $hookObj)    {
+				if (method_exists($hookObj, 'cmd_finalmail')) {
+					$hookContents = $hookObj->cmd_finalmail($this);
+					$hookSelectDisabled = $hookObj->selectDisabled;     	
+				}
+			}
+		}
+
 			// Mail groups
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'uid,pid,title',
@@ -872,7 +889,8 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			$opt[] = '<option value="'.$row['uid'].'">'.htmlspecialchars($row['title']).'</option>';
 		}
-		$select = '<select name="mailgroup_uid">'.implode(chr(10),$opt).'</select>';
+		// added disabled. see hook
+		$select = '<select name="mailgroup_uid" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
 
 			// Set up form:
 		$msg="";
@@ -880,6 +898,11 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$msg.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'" />';
 		$msg.= '<input type="hidden" name="CMD" value="send_mail_final" />';
 		$msg.= $LANG->getLL('schedule_mailgroup') . ' '.$select.'<br /><br />';
+		
+		// put content from hook
+		$msg .= $hookContents;
+		
+		
 		$msg.= $LANG->getLL('schedule_time') .
 			' <input type="text" id="send_mail_datetime_hr" name="send_mail_datetime_hr'.'" onChange="typo3FormFieldGet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);"'.$TBE_TEMPLATE->formWidth(20).'>'.
 			tx_directmail_calendarlib::getInputButton ('send_mail_datetime_hr').
@@ -1275,6 +1298,28 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					if (is_array($id_lists['PLAINLIST']))	{$id_lists['PLAINLIST'] = tx_directmail_static::cleanPlainList($id_lists['PLAINLIST']);}
 					break;
 				}
+				
+				//TODO: add hook
+				/**
+				 * Hook for cmd_compileMailGroup
+				 * manipulate the generated id_lists
+				 */
+				if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'])) {
+					$hookObjectsArr = array();
+					
+					foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] as $classRef) {
+						$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+					}
+					foreach($hookObjectsArr as $hookObj)    {
+						if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
+							$temp_lists = $hookObj->cmd_compileMailGroup_postProcess($id_lists, $this); 	
+						}
+					}
+					
+					unset ($id_lists);
+					$id_lists = $temp_lists;
+				}
+				
 			}
 		}
 		$outputArray = array(

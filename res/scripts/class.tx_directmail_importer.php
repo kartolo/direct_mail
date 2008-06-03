@@ -36,6 +36,9 @@
  * @version		$Id: class.tx_directmail_recipient_list.php 8398 2008-02-26 14:22:00Z ivankartolo $
  */
 
+require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
+require_once (PATH_t3lib.'class.t3lib_extfilefunc.php');
+
 /**
  * Recipient list module for tx_directmail extension
  *
@@ -212,6 +215,7 @@ class tx_directmail_importer {
 				}
 				//add 'no value'
 				array_unshift($mapFields, array('noMap',$LANG->getLL('mailgroup_import_mapping_mapTo')));
+				$mapFields[] = array('cats',$LANG->getLL('mailgroup_import_mapping_categories'));
 				reset($csv_firstRow);
 				reset($csvData);
 
@@ -240,7 +244,7 @@ class tx_directmail_importer {
 					//header
 				$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"'.(!$this->indata['all_html']?'':' checked="checked"').'/> ');
 				//get categories 
-				$temp = t3lib_BEfunc::getModTSconfig($this->id,'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
+				$temp = t3lib_BEfunc::getModTSconfig($this->parent->id,'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
 				if(trim($temp)){
 					$rowCat = $TYPO3_DB->exec_SELECTgetRows(
 						'*',
@@ -315,7 +319,6 @@ class tx_directmail_importer {
 					}
 				}
 				$out.=implode('',$hiddenMapped);
-
 			break;
 
 			case 'startImport':
@@ -466,6 +469,7 @@ class tx_directmail_importer {
 		}
 		$csv['clean'] = $filtered;
 		$csv['double'] = $double;
+		
 		return $csv;
 	}
 
@@ -495,7 +499,14 @@ class tx_directmail_importer {
 						$invalidEmail = t3lib_div::validEmail($fieldData)?0:1;
 						$tempData[$this->indata['map'][$kk]] = $fieldData;
 					} else {
-						$tempData[$this->indata['map'][$kk]] = $fieldData;
+						if ($this->indata['map'][$kk] !== 'cats'){
+							$tempData[$this->indata['map'][$kk]] = $fieldData;
+						} else {
+							$tempCats = explode(',',$fieldData);
+							foreach($tempCats as $catC => $tempCat) {
+								$tempData['module_sys_dmail_category'][$catC] = $tempCat;
+							}
+						}
 					}
 				}
 			}
@@ -540,7 +551,7 @@ class tx_directmail_importer {
 						if($this->indata['all_html']){
 							$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_html'] = $this->indata['all_html'];
 						}
-						if(is_array($this->indata['cat'])){
+						if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
 							foreach($this->indata['cat'] as $k => $v){
 								$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][$k] = $v;
 							}
@@ -561,7 +572,7 @@ class tx_directmail_importer {
 					if($this->indata['all_html']){
 						$data['tt_address']['NEW'.$c]['module_sys_dmail_html'] = $this->indata['all_html'];
 					}
-					if(is_array($this->indata['cat'])){
+					if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
 						foreach($this->indata['cat'] as $k => $v){
 							$data['tt_address']['NEW'.$c]['module_sys_dmail_category'][$k] = $v;
 						}
@@ -579,7 +590,7 @@ class tx_directmail_importer {
 				if($this->indata['all_html']){
 					$data['tt_address']['NEW'.$c]['module_sys_dmail_html'] = $this->indata['all_html'];
 				}
-				if(is_array($this->indata['cat'])){
+				if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
 					foreach($this->indata['cat'] as $k => $v){
 						$data['tt_address']['NEW'.$c]['module_sys_dmail_category'][$k] = $v;
 					}
