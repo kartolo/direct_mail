@@ -1,5 +1,6 @@
 2008-07-09 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* import setting can be configured by Page TSconfig (see manual)
+	* wrong SMTP header
 
 2008-06-07 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* hide modules, if user not in Live workspace (#8470)
