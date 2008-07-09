@@ -44,9 +44,15 @@ require_once (PATH_t3lib.'class.t3lib_extfilefunc.php');
  *
  */
 class tx_directmail_importer {
+	var $indata = array();
+	var $params = array();
 	
 	function init (&$pObj) {
 		$this->parent = &$pObj;
+		
+			//get some importer default from pageTS
+		$temp = t3lib_BEfunc::getModTSconfig(t3lib_div::_GP('id'),'mod.web_modules.dmail.importer');
+		$this->params = $temp['properties'];
 	}
 	
 	/**
@@ -58,6 +64,17 @@ class tx_directmail_importer {
 		global $LANG, $BACK_PATH, $TYPO3_DB;
 
 		$this->indata = t3lib_div::_GP('CSV_IMPORT');
+
+		if (empty($this->indata)) {
+			$this->indata = array(); 
+		}
+		
+		if (empty($this->params)) {
+			$this->params = array();
+		}
+		// merge it with inData, but inData has priority.
+		$this->indata = t3lib_div::array_merge($this->params,$this->indata);
+		
 		$currentFileInfo = t3lib_basicFileFunctions::getTotalFileInfo($this->indata['newFile']);
 		$currentFileName = $currentFileInfo['file'];
 		$curentFileSize = t3lib_basicFileFunctions::formatSize($currentFileInfo['size']);
@@ -143,18 +160,20 @@ class tx_directmail_importer {
 					array('name','name')
 				);
 
+				($this->params['inputDisable'] == 1) ? $disableInput = 'disabled="disabled"' : $disableInput = '';
+				
 					//show configuration
 				$out = '<hr /><h3>'.$LANG->getLL('mailgroup_import_header_conf').'</h3>';
 				$tblLines = array();
 				$tblLines[]=array($LANG->getLL('mailgroup_import_storage'),$this->makeDropdown('CSV_IMPORT[storage]',$optStorage,$this->indata['storage']));
-				$tblLines[]=array($LANG->getLL('mailgroup_import_remove_existing'),'<input type="checkbox" name="CSV_IMPORT[remove_existing]" value="1"'.(!$this->indata['remove_existing']?'':' checked="checked"').'/> ');
-				$tblLines[]=array($LANG->getLL('mailgroup_import_first_fieldnames'),'<input type="checkbox" name="CSV_IMPORT[first_fieldname]" value="1"'.(!$this->indata['first_fieldname']?'':' checked="checked"').'/> ');
-				$tblLines[]=array($LANG->getLL('mailgroup_import_separator'),$this->makeDropdown('CSV_IMPORT[delimiter]', $optDelimiter,$this->indata['delimiter']));
-				$tblLines[]=array($LANG->getLL('mailgroup_import_encapsulation'),$this->makeDropdown('CSV_IMPORT[encapsulation]', $optEncap , $this->indata['encapsulation']));
-				$tblLines[]=array($LANG->getLL('mailgroup_import_csv_validemail-description'),'<input type="checkbox" name="CSV_IMPORT[valid_email]" value="1"'.(!$this->indata['valid_email']?'':' checked="checked"').'/> ');
-				$tblLines[]=array($LANG->getLL('mailgroup_import_csv_dublette-description'),'<input type="checkbox" name="CSV_IMPORT[remove_dublette]" value="1"'.(!$this->indata['remove_dublette']?'':' checked="checked"').'/> ');
-				$tblLines[]=array($LANG->getLL('mailgroup_import_update_unique'),'<input type="checkbox" name="CSV_IMPORT[update_unique]" value="1"'.(!$this->indata['update_unique']?'':' checked="checked"').'/>');
-				$tblLines[]=array($LANG->getLL('mailgroup_import_record_unique'),$this->makeDropdown('CSV_IMPORT[record_unique]',$optUnique,$this->indata['record_unique']));
+				$tblLines[]=array($LANG->getLL('mailgroup_import_remove_existing'),'<input type="checkbox" name="CSV_IMPORT[remove_existing]" value="1"'.(!$this->indata['remove_existing']?'':' checked="checked"').' '.$disableInput.'/> ');
+				$tblLines[]=array($LANG->getLL('mailgroup_import_first_fieldnames'),'<input type="checkbox" name="CSV_IMPORT[first_fieldname]" value="1"'.(!$this->indata['first_fieldname']?'':' checked="checked"').' '.$disableInput.'/> ');
+				$tblLines[]=array($LANG->getLL('mailgroup_import_separator'),$this->makeDropdown('CSV_IMPORT[delimiter]', $optDelimiter,$this->indata['delimiter'], $disableInput));
+				$tblLines[]=array($LANG->getLL('mailgroup_import_encapsulation'),$this->makeDropdown('CSV_IMPORT[encapsulation]', $optEncap , $this->indata['encapsulation'], $disableInput));
+				$tblLines[]=array($LANG->getLL('mailgroup_import_csv_validemail-description'),'<input type="checkbox" name="CSV_IMPORT[valid_email]" value="1"'.(!$this->indata['valid_email']?'':' checked="checked"').' '.$disableInput.'/> ');
+				$tblLines[]=array($LANG->getLL('mailgroup_import_csv_dublette-description'),'<input type="checkbox" name="CSV_IMPORT[remove_dublette]" value="1"'.(!$this->indata['remove_dublette']?'':' checked="checked"').' '.$disableInput.'/> ');
+				$tblLines[]=array($LANG->getLL('mailgroup_import_update_unique'),'<input type="checkbox" name="CSV_IMPORT[update_unique]" value="1"'.(!$this->indata['update_unique']?'':' checked="checked"').' '.$disableInput.'/>');
+				$tblLines[]=array($LANG->getLL('mailgroup_import_record_unique'),$this->makeDropdown('CSV_IMPORT[record_unique]',$optUnique,$this->indata['record_unique'], $disableInput));
 
 				$out.= $this->formatTable($tblLines,array('width=300','nowrap'),0,array(0,1));
 				$out.= '<br /><br />';
@@ -335,23 +354,35 @@ class tx_directmail_importer {
 
 					//show not imported record and reasons,
 				$result = $this->doImport($csvData);
-				$out = $LANG->getLL('mailgroup_import_done');
+				$out = '<hr /><h3>'.$LANG->getLL('mailgroup_import_done').'</h3>';
 
-				foreach($result as $act => $importData){
+				$defaultOrder = array('new','update','invalid_email','double');
+				
+				if ( !empty($this->params['resultOrder']) ) {
+					$resultOrder = t3lib_div::trimExplode(',',$this->params['resultOrder']);	
+				} else {
+					$resultOrder = array();
+				}
+				
+				$diffOrder = array_diff($defaultOrder,$resultOrder);
+				$endOrder = array_merge($resultOrder,$diffOrder);
+
+				foreach ( $endOrder as $order ) {
 					$tblLines = array();
 					$tblLines1 = array();
-					$tblLines[] = array($LANG->getLL('mailgroup_import_report_'.$act));
-					foreach($importData as $k => $v){
-						$mapKeys = array_keys($v);
-						$tblLines1[]= array($k+1,$v[$mapKeys[0]],$v['email']);
+					$tblLines[] = array($LANG->getLL('mailgroup_import_report_'.$order));
+					if ( is_array($result[$order]) ) {
+						foreach($result[$order] as $k => $v){
+							$mapKeys = array_keys($v);
+							$tblLines1[]= array($k+1,$v[$mapKeys[0]],$v['email']);
+						}	
 					}
 					$tblLines[] = array($this->formatTable($tblLines1,array('nowrap','nowrap','nowrap'),0));
 					$out.= $this->formatTable($tblLines, array('nowrap'), 1, array(1), 'border="0" cellpadding="2" cellspacing="0"');
 				}
 
 				//back button
-				$out.= '<input type="submit" name="CSV_IMPORT[back]" value="'.$LANG->getLL('mailgroup_import_back').'" />'.
-						$this->makeHidden(array(
+				$out.= $this->makeHidden(array(
 							'CMD' => 'displayImport',
 							'importStep[back]' => 'import',
 							'CSV_IMPORT[newFile]' => $this->indata['newFile'],
@@ -638,7 +669,7 @@ class tx_directmail_importer {
 	 * @param	string		$selected: set selected flag
 	 * @return	string		HTML code of the dropdown
 	 */
-	function makeDropdown($name, $option, $selected){
+	function makeDropdown($name, $option, $selected, $disableInput=''){
 		global $LANG;
 
 		$opt = array();
@@ -648,7 +679,7 @@ class tx_directmail_importer {
 			}
 		}
 
-		$dropdown = '<select name="'.$name.'">'.implode('',$opt).'</select>';
+		$dropdown = '<select name="'.$name.'" '.$disableInput.'>'.implode('',$opt).'</select>';
 		return $dropdown;
 	}
 
