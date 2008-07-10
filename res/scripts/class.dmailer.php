@@ -780,7 +780,7 @@ class dmailer extends t3lib_htmlmail {
 				// create a new mail object to be used to sending the mass email and notification job
 				if (!is_a($this->mailObject, 'Mail_smtp') || $this->confSMTP['persist'] == 1) {
 					$this->mailObject = NULL;
-					$this->mailObject =& Mail::factory('smtp', $this->confSMTP['smtp']);
+					$this->mailObject =& Mail::factory('smtp', $this->confSMTP);
 				}
 			}
 
