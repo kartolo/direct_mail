@@ -1,6 +1,11 @@
+2008-07-13 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* added UserTS to open default tab
+	* manual updates
+	* set required PHP to 5.x
+
 2008-07-09 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* import setting can be configured by Page TSconfig (see manual)
-	* wrong SMTP header
+	* Fixed: bug #8679: wrong SMTP header
 
 2008-06-07 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* hide modules, if user not in Live workspace (#8470)

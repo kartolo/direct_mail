@@ -238,7 +238,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					#page-header {font-weight: bold;}
 					.box {margin: 0 0 1em 1em;}
 					div.toggleTitle:hover {background-color: #cfcbc7 !important;}
-					div.toggleTitle a {width: 100%; position: relative; top: -3px;}
+					div.toggleTitle a {width: 100%; position: relative; top: -3px; display:block;}
 					div.toggleTitle a img {position: relative; top:4px;}
 					.toggleTitle {font-weight:bold; border: 1px solid #898989; width: 15em; background-color: #e3dfdb;}
 					.toggleBox {border: 1px solid #aaaaaa; background-color: '.$this->doc->bgColor4.'; padding: 1em; width:50em;}
@@ -785,18 +785,25 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$i=1;
 				$countTabs = count($showTabs);
 				foreach($showTabs as $showTab){
+					$open = false;
+					if (!$GLOBALS['BE_USER']->userTS['tx_directmail.']['defaultTab']) {
+						$GLOBALS['BE_USER']->userTS['tx_directmail.']['defaultTab'] = 'dmail';
+					}
+					if ( $GLOBALS['BE_USER']->userTS['tx_directmail.']['defaultTab'] == $showTab){
+						$open = TRUE;
+					}
 					switch ($showTab) {
 						case 'int':
-							$theOutput.= $this->makeFormInternal('box-'.$i,$countTabs);
+							$theOutput.= $this->makeFormInternal('box-'.$i,$countTabs,$open);
 							break;
 						case 'ext':
-							$theOutput.= $this->makeFormExternal('box-'.$i,$countTabs);
+							$theOutput.= $this->makeFormExternal('box-'.$i,$countTabs,$open);
 							break;
 						case 'quick':
-							$theOutput.= $this->makeFormQuickMail('box-'.$i,$countTabs);
+							$theOutput.= $this->makeFormQuickMail('box-'.$i,$countTabs,$open);
 							break;
 						case 'dmail':
-							$theOutput.= $this->makeListDMail('box-'.$i,$countTabs);
+							$theOutput.= $this->makeListDMail('box-'.$i,$countTabs,$open);
 							break;
 						default:
 							break;
@@ -1476,16 +1483,16 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	 * @param	integer		$totalBox: total of all boxes
 	 * @return	string		HTML with list of internal pages
 	 */
-	function makeFormInternal($boxID,$totalBox){
+	function makeFormInternal($boxID,$totalBox,$open=FALSE){
 		global $BACK_PATH, $LANG;
 		$imgSrc = t3lib_iconWorks::skinImg(
 			$BACK_PATH,
-			'gfx/button_right.gif'
+			'gfx/button_'. ($open?'down':'right') .'.gif'
 		);
 
 		$output = '<div class="box"><div class="toggleTitle">';
 		$output.= '<a href="#" onclick="toggleDisplay(\''.$boxID.'\', event, '.$totalBox.')"><img id="'.$boxID.'_toggle" '.$imgSrc.' alt="" >'.$LANG->getLL('dmail_wiz1_internal_page').'</a>';
-		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:none">';
+		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:'. ($open?'block':'none') .'">';
 		$output.= $this->cmd_news();
 		$output.= '</div></div></div>';
 		return $output;
@@ -1498,16 +1505,16 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	 * @param	integer		$totalBox:total of the boxes
 	 * @return	string		HTML input form for inputing the external page information
 	 */
-	function makeFormExternal($boxID,$totalBox){
+	function makeFormExternal($boxID,$totalBox,$open=FALSE){
 		global $BACK_PATH, $LANG, $TBE_TEMPLATE;
 		$imgSrc = t3lib_iconWorks::skinImg(
 			$BACK_PATH,
-			'gfx/button_right.gif'
+			'gfx/button_'. ($open?'down':'right') .'.gif'
 		);
 
 		$output = '<div class="box"><div class="toggleTitle">';
 		$output.= '<a href="#" onclick="toggleDisplay(\''.$boxID.'\', event, '.$totalBox.')"><img id="'.$boxID.'_toggle" '.$imgSrc.' alt="" >'.$LANG->getLL('dmail_wiz1_external_page').'</a>';
-		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:none">';
+		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:'. ($open?'block':'none') .'">';
 					// Create
 		$out =  $LANG->getLL('dmail_HTML_url') . '<br />
 				<input type="text" value="http://" name="createMailFrom_HTMLUrl"'.$TBE_TEMPLATE->formWidth(40).' /><br />' .
@@ -1533,16 +1540,16 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	 * @param	integer		$totalBox: total of the boxes
 	 * @return	string		HTML input form for the quickmail
 	 */
-	function makeFormQuickMail($boxID,$totalBox){
+	function makeFormQuickMail($boxID,$totalBox,$open=FALSE){
 		global $BACK_PATH, $LANG;
 		$imgSrc = t3lib_iconWorks::skinImg(
 			$BACK_PATH,
-			'gfx/button_right.gif'
+			'gfx/button_'. ($open?'down':'right') .'.gif'
 		);
 
 		$output = '<div class="box"><div class="toggleTitle">';
 		$output.= '<a href="#" onclick="toggleDisplay(\''.$boxID.'\', event, '.$totalBox.')"><img id="'.$boxID.'_toggle" '.$imgSrc.' alt="" >'.$LANG->getLL('dmail_wiz1_quickmail').'</a>';
-		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:none">';
+		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:'. ($open?'block':'none') .'">';
 		$output.= '<h3>'.$LANG->getLL('dmail_wiz1_quickmail_header').'</h3>';
 		$output.= $this->cmd_quickmail();
 		$output.= '</div></div>';
@@ -1556,7 +1563,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	 * @param	integer		$totalBox: total of the boxes
 	 * @return	string		HTML lists of all existing dmail records
 	 */
-	function makeListDMail($boxID,$totalBox){
+	function makeListDMail($boxID,$totalBox,$open=FALSE){
 		global $BACK_PATH, $LANG, $TYPO3_DB, $TCA;
 
 		$res = $TYPO3_DB->exec_SELECTquery(
@@ -1592,12 +1599,12 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 		$imgSrc = t3lib_iconWorks::skinImg(
 			$BACK_PATH,
-			'gfx/button_right.gif'
+			'gfx/button_'. ($open?'down':'right') .'.gif'
 		);
 
 		$output = '<div id="header" class="box"><div class="toggleTitle">';
 		$output.= '<a href="#" onclick="toggleDisplay(\''.$boxID.'\', event, '.$totalBox.')"><img id="'.$boxID.'_toggle" '.$imgSrc.' alt="" >'.$LANG->getLL('dmail_wiz1_list_dmail').'</a>';
-		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:none">';
+		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:'. ($open?'block':'none') .'">';
 		$output.= '<h3>'.$LANG->getLL('dmail_wiz1_list_header').'</h3>';
 		$output.= tx_directmail_static::formatTable($tblLines,array(),1,array(1,1,1,0,0,1,0),'border="0" cellspacing="0" cellpadding="3"');
 		$output.= '</div></div>';

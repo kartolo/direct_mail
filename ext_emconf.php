@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'Advanced Direct Mail/Newsletter mailer system with sophisticated options for personalization of emails including response statistics.',
 	'category' => 'module',
 	'shy' => 0,
-	'version' => '2.5.1',
+	'version' => '2.5.4',
 	'dependencies' => 'cms,tt_address',
 	'conflicts' => 'sr_direct_mail_ext,it_dmail_fix,plugin_mgm',
 	'priority' => '',
@@ -36,7 +36,7 @@ $EM_CONF[$_EXTKEY] = array(
 		'depends' => array(
 			'cms' => '',
 			'tt_address' => '',
-			'php' => '4.1.0-',
+			'php' => '5.0.0-',
 			'typo3' => '4.0.0-',
 		),
 		'conflicts' => array(
