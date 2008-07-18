@@ -3,6 +3,7 @@
 	* Feature #8721: Plaintext is compatible to DAM
 	* Feature: Test Newsletter's subject will be prepended with additional subject.
 	* Fixed bug #9001: added missing form name. (added to all direct_mail forms) 
+	* Fixed bug #7384: don't render path, if there's no filelinks
 	
 2008-07-13 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* added UserTS to open default tab

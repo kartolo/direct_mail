@@ -338,10 +338,12 @@ class tx_directmail_pi1 extends tslib_pibase {
 		$files = explode(',',$str);
 		reset($files);
 		$lines=array();
-		if ($this->conf['uploads.']['header'])	{$lines[]=$this->getString($this->conf['uploads.']['header']);}
-		while(list($k,$file)=each($files))	{
-			$lines[]=$this->siteUrl.$upload_path.$file;
-		}
+		if (count($files) > 0 && strlen($files[0])) {
+			if ($this->conf['uploads.']['header'])	{$lines[]=$this->getString($this->conf['uploads.']['header']);}
+			while(list($k,$file)=each($files))	{
+				$lines[]=$this->siteUrl.$upload_path.$file;
+			}
+ 		}
 		return chr(10).implode(chr(10),$lines);
 	}
 
