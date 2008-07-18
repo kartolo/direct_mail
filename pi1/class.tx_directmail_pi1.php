@@ -255,8 +255,45 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @return	string		Content
 	 */
 	function getImages()	{
-		$images = $this->renderImages($this->cObj->data['image'],!$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'',$this->cObj->data['imagecaption']);
+		$images_arr=array();
+		$this->getImagesStandard($images_arr);
+		if(t3lib_extMgm::isLoaded('dam')){
+			$this->getImagesFromDam($images_arr);
+		}
+				
+		$images = $this->renderImages($images_arr,!$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'',$this->cObj->data['imagecaption']);
+
 		return $images;
+	}
+
+	/**
+	 * Get images from image field and store this images to $images_arr
+	 *
+	 * @return	string		Content
+	 */
+	function getImagesStandard(&$images_arr,$upload_path='uploads/pics/'){
+		$images = explode(',',$this->cObj->data['image']);
+		while(list($k,$file)=each($images))	{
+			if (strlen(trim($file))>0) {
+				$images_arr[]=$this->siteUrl.$upload_path.$file;
+			}
+		}
+	
+	}
+	
+	/**
+	 * Get images from DAM and store this images to $images_arr
+	 *
+	 * @return	string		Content
+	 */
+	function getImagesFromDam(&$images_arr){
+		$sql='SELECT tx_dam.* FROM tx_dam_mm_ref,tx_dam WHERE tx_dam_mm_ref.tablenames="tt_content" AND tx_dam_mm_ref.ident="tx_damttcontent_files" AND tx_dam_mm_ref.uid_foreign="'.$this->cObj->data['uid'].'" AND tx_dam_mm_ref.uid_local=tx_dam.uid AND tx_dam.deleted=0 ORDER BY sorting_foreign';
+		$res=mysql_query($sql);
+		if(mysql_num_rows($res)>0){
+			while($row=mysql_fetch_assoc($res)){
+				$images_arr[]=$this->siteUrl.$row['file_path'].$row['file_name'];
+			}
+		}
 	}
 
 	/**
@@ -532,16 +569,15 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @return	string		Content
 	 * @see getImages()
 	 */
-	function renderImages($str,$links,$caption,$upload_path='uploads/pics/')	{
-		$images = explode(',',$str);
+	function renderImages($images_arr,$links,$caption,$upload_path='uploads/pics/')	{
 		$linksArr = explode(',',$links);
-		reset($images);
+		reset($images_arr);
 		$lines=array();
 		$imageExists = FALSE;
 		
-		while(list($k,$file)=each($images))	{
+		while(list($k,$file)=each($images_arr))	{
 			if (strlen(trim($file))>0) {
-				$lines[]=$this->siteUrl.$upload_path.$file;
+				$lines[]=$file;
 				if ($links && count($linksArr)>1)	{
 					if (isset($linksArr[$k]))	{
 						$ll=$linksArr[$k];
