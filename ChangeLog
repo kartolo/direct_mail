@@ -1,3 +1,6 @@
+2008-07-18 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #8982: convert linebraks to unix.
+	
 2008-07-13 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* added UserTS to open default tab
 	* manual updates
