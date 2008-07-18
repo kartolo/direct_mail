@@ -465,6 +465,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 			'userTable' => array('short', $LANG->getLL('configure_user_table'), $LANG->getLL('configure_user_table_description')),
 			'test_tt_address_uids' => array('short', $LANG->getLL('configure_test_tt_address_uids'), $LANG->getLL('configure_test_tt_address_uids_description')),
 			'test_dmail_group_uids' => array('short', $LANG->getLL('configure_test_dmail_group_uids'), $LANG->getLL('configure_test_dmail_group_uids_description')),
+			'testmail' => array('short', $LANG->getLL('configure_testmail'), $LANG->getLL('configure_testmail_description'))
 		);
 
 			// Set default values

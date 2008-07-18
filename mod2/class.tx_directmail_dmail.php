@@ -915,7 +915,8 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			tx_directmail_calendarlib::getInputButton ('send_mail_datetime_hr').
 			'<input type="hidden" value="'.time().'" name="send_mail_datetime" /><br />';
 		$this->extJSCODE.='typo3FormFieldSet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);';
-		$msg.= '<br /><input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" onClick="typo3FormFieldGet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);" />';
+		$msg .= '<br/><input type="checkbox" name="testmail" value="1">'.$LANG->getLL('schedule_testmail');
+		$msg.= '<br /><br /><input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" onClick="typo3FormFieldGet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);" />';
 		$msg.=$this->JSbottom();
 
 		$theOutput.= $this->doc->section($LANG->getLL('schedule_select_mailgroup'),fw($msg), 1, 1, 0, TRUE);
@@ -944,6 +945,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 		$sentFlag=false;
 		if (t3lib_div::_GP('mailingMode_simple'))	{
+				// setting Testmail flag
+			$htmlmail->testmail = $this->params['testmail'];
+				
 				// Fixing addresses:
 			$addresses = t3lib_div::_GP('SET');
 			$addressList = $addresses['dmail_test_email'] ? $addresses['dmail_test_email'] : $this->MOD_SETTINGS['dmail_test_email'];
@@ -968,6 +972,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			}
 		} else {	// extended, personalized emails.
 			if ($this->CMD=='send_mail_test')	{
+					// setting Testmail flag
+				$htmlmail->testmail = $this->params['testmail'];
+				
 				if (t3lib_div::_GP('tt_address_uid'))	{
 					$res = $TYPO3_DB->exec_SELECTquery(
 						'tt_address.*',
@@ -1012,6 +1019,15 @@ class tx_directmail_dmail extends t3lib_SCbase {
 						'scheduled' => $distributionTime,
 						'query_info' => serialize($query_info)
 						);
+						
+					if (t3lib_div::_GP('testmail')) {
+						$dmail = t3lib_BEfunc::getRecord('sys_dmail',intval($this->sys_dmail_uid),'subject');
+						
+						$updateFields['subject'] = $this->params['testmail'].' '.$dmail['subject'];
+						
+						unset($dmail);
+					}
+						
 					$TYPO3_DB->exec_UPDATEquery(
 						'sys_dmail',
 						'uid='.intval($this->sys_dmail_uid),

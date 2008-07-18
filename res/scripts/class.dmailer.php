@@ -108,6 +108,7 @@ class dmailer extends t3lib_htmlmail {
 	var $flowedFormat = 0;
 	var $user_dmailerLang = 'en';
 	var $mailObject = NULL;
+	var $testmail = false;
 
 	/**
 	 * Preparing the Email. Headers are set in global variables
@@ -900,13 +901,18 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function sendTheMail () {
 //		$conf = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail'];
-
+		
+		$addSubject = '';
+		if ($this->testmail !== FALSE) {
+			$addSubject = $this->testmail.' ';
+		}
+		
 			// format headers for SMTP use
 		if ($this->useSmtp) {
 			$headers = array();
 			$headerlines = explode("\n",trim($this->headers));
 			$headers['To']      = $this->recipient;
-			$headers['Subject'] = $this->subject;
+			$headers['Subject'] = $addSubject.$this->subject;
 			foreach($headerlines as $k => $hd) {
 				if (substr($hd,0,9)==" boundary") {
 					$headers['Content-Type'] .= "\n " . $hd;

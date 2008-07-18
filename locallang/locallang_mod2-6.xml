@@ -384,6 +384,8 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="configure_update_configuration">Update configuration</label>
 			<label index="configure_user_table">Custom-defined table:</label>
 			<label index="configure_user_table_description">Enter the name of a custom-defined table, with compatible columns defined, which may also be used for direct mails distribution.</label>
+			<label index="configure_testmail">Subject for the testmail.</label>
+			<label index="configure_testmail_description">This will be prepended to the test newsletter subject</label>
 			<label index="convert_categories">Converting categories...</label>
 			<label index="convert_category">Category</label>
 			<label index="convert_completed">Conversion completed.</label>
@@ -585,6 +587,7 @@ By clicking on the "Import" button below, all data will be written in tt_address
 			<label index="schedule_select_mailgroup">Send mail - recipient list</label>
 			<label index="schedule_send_all">Send to all subscribers in recipient list</label>
 			<label index="schedule_time">Distribution time (hh:mm dd-mm-yyyy):</label>
+			<label index="schedule_testmail">Send this as test newsletter</label>
 			<label index="select_folder">Please select Direct Mail folder.</label>
 			<label index="send_recipients">Recipients:</label>
 			<label index="send_sending">Sending mail</label>
@@ -724,6 +727,8 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="configure_update_configuration">Aktualisiere Konfigurationen</label>
 			<label index="configure_user_table">Benutzerdefinierte Tabelle:</label>
 			<label index="configure_user_table_description">Gibt der benutzerdefinierte Tabellenname ein, die für das Versand der Direct Mails benutzt werden soll.</label>
+			<label index="configure_testmail">Betreff des Test-Newsletters.</label>
+			<label index="configure_testmail_description">Dies wird vor dem Betreff des Test-Newsletter angehängt.</label>
 			<label index="convert_categories">Konvertiere Kategorien...</label>
 			<label index="convert_category">Kategorie</label>
 			<label index="convert_completed">Konvertierung angeschlossen</label>
@@ -925,6 +930,7 @@ Wenn Sie auf "Importieren" klicken, werden die Daten in tt_address Tabelle impor
 			<label index="schedule_select_mailgroup">Auswahl der Versandgruppe</label>
 			<label index="schedule_send_all">An alle Empfänger der Versandgruppe versenden</label>
 			<label index="schedule_time">Zeitpunkt des Versands (SS:MM TT-MM-YY):</label>
+			<label index="schedule_testmail">Dies ist ein Test-Newsletter</label>
 			<label index="select_folder">Bitte einen Direct Mail Verzeichnis auswählen.</label>
 			<label index="send_recipients">Empfänger:</label>
 			<label index="send_sending">Mail verschicken</label>
