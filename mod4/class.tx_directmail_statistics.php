@@ -99,6 +99,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	var $allowedTables = array('tt_address','fe_users');
 	var $MCONF;
 	var $cshTable;
+	var $formname = 'dmailform';
 
 	/**
 	 * first initialization of global variables
@@ -171,7 +172,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('template');
 			$this->doc->backPath = $BACK_PATH;
-			$this->doc->form='<form action="" method="post" enctype="multipart/form-data">';
+			$this->doc->form='<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
 
 			// Add CSS
 			$this->doc->inDocStyles = '

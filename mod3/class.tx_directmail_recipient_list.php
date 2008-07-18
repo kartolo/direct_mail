@@ -128,6 +128,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 	var $queryGenerator;
 	var $MCONF;
 	var $cshTable;
+	var $formname = 'dmailform';
 
 	/**
 	 * first initialization of global variables
@@ -201,7 +202,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('template');
 			$this->doc->backPath = $BACK_PATH;
-			$this->doc->form='<form action="" method="post" enctype="multipart/form-data">';
+			$this->doc->form='<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
 
 			//CSS
 			//hide textarea in import
@@ -674,6 +675,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			$out .= $this->doc->spacer(20);
 		}
 
+		$this->queryGenerator->setFormName($this->formname);
 		$this->queryGenerator->noWrap='';
 		$this->queryGenerator->allowedTables = $this->allowedTables;
 		$tmpCode = $this->queryGenerator->makeSelectorTable($this->MOD_SETTINGS,'table,query');

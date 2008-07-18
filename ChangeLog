@@ -2,6 +2,7 @@
 	* Fixed bug #8982: convert linebraks to unix.
 	* Feature #8721: Plaintext is compatible to DAM
 	* Feature: Test Newsletter's subject will be prepended with additional subject.
+	* Fixed bug #9001: added missing form name. (added to all direct_mail forms) 
 	
 2008-07-13 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* added UserTS to open default tab

@@ -27,7 +27,7 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 /**
- * @author		Kasper Skårhøj <kasper@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasper@typo3.com>
  * @author  	Jan-Erik Revsbech <jer@moccompany.com>
  * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
@@ -81,6 +81,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 	var $allowedTables = array('tt_address','fe_users');
 	var $MCONF;
 	var $cshTable;
+	var $formname = 'dmailform';
 
 	/**
 	 * Initializing global variables
@@ -147,7 +148,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('template');
 			$this->doc->backPath = $BACK_PATH;
-			$this->doc->form='<form action="" method="post" enctype="multipart/form-data">';
+			$this->doc->form='<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
 
 			// JavaScript
 			$this->doc->JScode = '
