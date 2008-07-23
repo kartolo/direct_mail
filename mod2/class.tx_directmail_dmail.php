@@ -710,7 +710,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				//shows category if content-based cat
 				$theOutput.= $this->showSteps(3,$totalSteps);
 				$theOutput.= '<div id="box-1" class="toggleBox">';
-				$theOutput.= $this->makeCategoriesForm();
+				$theOutput.= $this->makeCategoriesForm($row);
 				$theOutput.= '</div></div>';
 
 				$theOutput = $this->doc->section($LANG->getLL('dmail_wiz3_cats'),$theOutput,1,1,0, TRUE);
@@ -1409,10 +1409,11 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 	/**
 	 * show the categories table for user to categorize the directmail content (TYPO3 content)
+	 * @param	array		$row: the dmail row.
 	 *
 	 * @return	string		HTML form showing the categories
 	 */
-	function makeCategoriesForm(){
+	function makeCategoriesForm($row){
 		global $BACK_PATH, $TYPO3_DB, $LANG;
 		$indata = t3lib_div::_GP('indata');
 		if (is_array($indata['categories']))	{
@@ -1433,6 +1434,10 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			$tce->stripslashes_values=0;
 			$tce->start($data,Array());
 			$tce->process_datamap();
+			
+			//remove cache
+			$tce->clear_cache('pages',t3lib_div::_GP('pages_uid'));
+			$out = $this->cmd_fetch($row);
 		}
         //[ToDo] Perhaps we should here check if TV is installed and fetch cotnent from that instead of the old Columns...
 		$res = $TYPO3_DB->exec_SELECTquery(
