@@ -553,14 +553,17 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			$tmp = explode('<body',$HTMLContent);
 			$bodyPart = explode('<',$tmp[1]);
 
-			foreach($bodyPart as $k => $str){
+			foreach($bodyPart as $k => $str){				
 				if(eregi('a.href',$str)){
 					if(strpos($str,'>') === strlen($str)-1){
 						$tagAttr = t3lib_div::get_tag_attributes($bodyPart[$k]);
-						$linkedWord[]=$LANG->getLL('stats_img_link').'<span title="'.$tagAttr['href'].'">'.t3lib_div::fixed_lgd_cs(substr($tagAttr['href'],7),40).'</span>';
+						$linkedWord[]=$LANG->getLL('stats_img_link').'<span title="'.$tagAttr['href'].'">'.t3lib_div::fixed_lgd_cs(substr($tagAttr['href'],7),40).'</span>';	
 					} else {
-						$wordPos = strpos($str,'>');
-						$linkedWord[] = substr($str,$wordPos+1);
+						$tagAttr = t3lib_div::get_tag_attributes($bodyPart[$k]);
+						if ( $tagAttr['href']{0} != '#') {
+							$wordPos = strpos($str,'>');
+							$linkedWord[] = substr($str,$wordPos+1);	
+						}
 					}
 				}
 			}
@@ -569,32 +572,12 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		} elseif ($row['sendOptions'] == 1){
 		//	TODO: only plaintext
 		}
-
+		
 		while(list($id,$c)=each($urlCounter['total']))	{
+			$id = abs($id);
 			$uParts = @parse_url($urlArr[intval($id)]);
 				// a link to this host?
-			if (is_array($uParts) && t3lib_div::getIndpEnv('TYPO3_HOST_ONLY') == $uParts['host'])	{
-				$m = array();
-					// we have an id?
-				if (preg_match('/(?:^|&)id=([0-9a-z_]+)/',$uParts['query'],$m))	{
-					if (t3lib_div::testInt($m[1]))	{
-						$uid = intval($m[1]);
-					} else {
-						$uid = $this->sys_page->getPageIdFromAlias($m[1]);
-					}
-					$temp_root_line = $this->sys_page->getRootLine($uid);
-					$temp_page = array_shift($temp_root_line);
-					$temp_root_line = array_reverse($temp_root_line);	// array_shift reverses the array (rootline has numeric index in the wrong order!)
-					$query = preg_replace('/(?:^|&)id=([0-9a-z_]+)/','',$uParts['query']);
-					$urlstr = t3lib_div::fixed_lgd_cs($temp_page['title'],40).t3lib_div::fixed_lgd_cs(($query?' / '.$query:''),20);
-				} else {
-					$urlstr = $uParts['path'].($uParts['query']?'?'.$uParts['query']:'');
-					$urlstr = t3lib_div::fixed_lgd_cs($urlstr,50);
-				}
-			} else {
-				$urlstr = $uParts['host'].$uParts['path'].($uParts['query']?'?'.$uParts['query']:'');
-				$urlstr = t3lib_div::fixed_lgd_cs($urlstr,50);
-			}
+			$urlstr = $this->getUrlStr($uParts);
 
 			$img = '<a href="'.htmlspecialchars($urlArr[$id]).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($urlArr[$id]).'" /></a>';
 
@@ -605,6 +588,17 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				$tblLines[]=array($linkedWord[$id].' ('.$urlstr.')',($html?$id:'-'),($html?'-':abs($id)),($html?$urlCounter['html'][$id]['counter']:$urlCounter['plain'][$id]['counter']),$urlCounter['html'][$id]['counter'],$urlCounter['plain'][$id]['counter'],$img);
 			}
 		}
+		
+		$clickedLink = array_keys($urlCounter['total']);
+		foreach ( $urlArr as $id => $link) {
+			if ( !in_array($id, $clickedLink) && ( in_array( $id, array_keys( $linkedWord ) ) )  ) {
+				$uParts = @parse_url($link);
+				// a link to this host?
+				$urlstr = $this->getUrlStr($uParts);
+				$tblLines[]=array($linkedWord[$id].' ('.$urlstr.')',($html?$id:'-'),($html?'-':abs($id)),($html?$urlCounter['html'][$id]['counter']:$urlCounter['plain'][$id]['counter']),$urlCounter['html'][$id]['counter'],$urlCounter['plain'][$id]['counter'],$img);
+			}
+		}
+		
 		if($urlCounter['total']){
 			$output.='<br /><strong>' . $LANG->getLL('stats_response_link') . '</strong>';
 		$output.=tx_directmail_static::formatTable($tblLines,array('nowrap','nowrap width="50"','nowrap width="50"','nowrap align="right"','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(1,0,0,0,0,0,1));
@@ -1057,6 +1051,39 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	}
 
 	/**
+	 * Enter description here...
+	 *
+	 * @param unknown_type $uParts
+	 * @return unknown
+	 */
+	function getUrlStr ($uParts) {
+		if (is_array($uParts) && t3lib_div::getIndpEnv('TYPO3_HOST_ONLY') == $uParts['host'])	{
+			$m = array();
+				// we have an id?
+			if (preg_match('/(?:^|&)id=([0-9a-z_]+)/',$uParts['query'],$m))	{
+				if (t3lib_div::testInt($m[1]))	{
+					$uid = intval($m[1]);
+				} else {
+					$uid = $this->sys_page->getPageIdFromAlias($m[1]);
+				}
+				$temp_root_line = $this->sys_page->getRootLine($uid);
+				$temp_page = array_shift($temp_root_line);
+				$temp_root_line = array_reverse($temp_root_line);	// array_shift reverses the array (rootline has numeric index in the wrong order!)
+				$query = preg_replace('/(?:^|&)id=([0-9a-z_]+)/','',$uParts['query']);
+				$urlstr = t3lib_div::fixed_lgd_cs($temp_page['title'],40).t3lib_div::fixed_lgd_cs(($query?' / '.$query:''),20);
+			} else {
+				$urlstr = $uParts['path'].($uParts['query']?'?'.$uParts['query']:'');
+				$urlstr = t3lib_div::fixed_lgd_cs($urlstr,50);
+			}
+		} else {
+			$urlstr = $uParts['host'].$uParts['path'].($uParts['query']?'?'.$uParts['query']:'');
+			$urlstr = t3lib_div::fixed_lgd_cs($urlstr,50);
+		}
+		
+		return $urlstr;
+	}
+	
+	/**
 	 * set disable=1 to all record in an array
 	 *
 	 * @param	array		$arr: DB records
@@ -1330,7 +1357,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		foreach( $id_lists['id_lists'] as $table => $idArray){
 			$totalRecip += count($idArray);
 		}
-		$sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*','sys_dmail_maillog','mid='.$row['uid'],'','rid ASC'));
+		$sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*','sys_dmail_maillog','mid='.$row['uid'].' AND response_type = 0','','rid ASC'));
 
 		$out = '<table border="0" cellpadding="1" cellspacing="1" width="460">';
 		$out .= '<tr bgColor="'.$this->doc->bgColor4.'"><td>'.$LANG->getLL('view_from').'</td><td>'.htmlspecialchars($row['from_name'].' <'.$row['from_email'].'>').'</td><td>'.$from_info.'</td></tr>';
@@ -1343,7 +1370,6 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 		return $out;
 	}
-
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/mod4/class.tx_directmail_statistics.php'])	{
