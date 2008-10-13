@@ -487,7 +487,9 @@ class tx_directmail_importer {
 					if($k != $kk){
 						if($csvData[$this->indata['record_unique']] == $cmpData[$this->indata['record_unique']]){
 							$double[]=$mappedCSV[$kk];
-							$filtered[] = $csvData;
+							if (!$found) {
+								$filtered[] = $csvData;
+							}
 							$remove[]=$kk;
 							$found=1;
 						}
