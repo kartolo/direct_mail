@@ -1,4 +1,10 @@
-208-07-23  Ivan Kartolo <ivan.kartolo@dkd.de>
+2008-10-09	Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #9406: Filter csv import for more than 2 doublette
+	* Feature: Direct Mail Engine can now be started from Gabriel.
+	* Fixed bug: Format of recipient address is changed to only email for windows platform, since PHP mail function in Windows can't handle "Name <email>"
+	* emconf updated: suggested extension Gabriel
+
+2008-07-23  Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #8987: assigning categories while creating a direct mail does not work correctly
 
 2008-07-18 Ivan Kartolo <ivan.kartolo@dkd.de>

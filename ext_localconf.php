@@ -70,4 +70,11 @@ if ($_EXTCONF['enablePlainTextNews']) {
 	$TYPO3_CONF_VARS['EXTCONF']['tt_news']['extraCodesHook'][] = 'EXT:'.$_EXTKEY.'/res/scripts/class.tx_directmail_ttnews_plaintext.php:&tx_directmail_ttnews_plaintext';
 }
 
+/**
+ * Registering class to gabriel
+ */
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['gabriel']['include'][$_EXTKEY] = array(
+	'class.tx_directmail_gabriel.php',
+);
+
 ?>

@@ -647,6 +647,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				'whichtables' => intval($whichTables),
 				'query' => $this->MOD_SETTINGS['queryConfig']
 			);
+debug($updateFields);
 			$res_update = $TYPO3_DB->exec_UPDATEquery(
 				'sys_dmail_group',
 				'uid='.intval($mailGroup['uid']),
