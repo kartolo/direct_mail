@@ -557,12 +557,16 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				if(eregi('a.href',$str)){
 					if(strpos($str,'>') === strlen($str)-1){
 						$tagAttr = t3lib_div::get_tag_attributes($bodyPart[$k]);
-						$linkedWord[]=$LANG->getLL('stats_img_link').'<span title="'.$tagAttr['href'].'">'.t3lib_div::fixed_lgd_cs(substr($tagAttr['href'],7),40).'</span>';	
+						if ( $tagAttr['href']{0} != '#') {
+							$linkedWord[]=$LANG->getLL('stats_img_link').'<span title="'.$tagAttr['href'].'">'.t3lib_div::fixed_lgd_cs(substr($tagAttr['href'],7),40).'</span>';
+							$tempHref[]=explode('jumpurl=',$tagAttr['href']);
+						}	
 					} else {
 						$tagAttr = t3lib_div::get_tag_attributes($bodyPart[$k]);
 						if ( $tagAttr['href']{0} != '#') {
 							$wordPos = strpos($str,'>');
-							$linkedWord[] = substr($str,$wordPos+1);	
+							$linkedWord[] = substr($str,$wordPos+1);
+							$tempHref[]=explode('jumpurl=',$tagAttr['href']);
 						}
 					}
 				}
@@ -575,17 +579,33 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		
 		while(list($id,$c)=each($urlCounter['total']))	{
 			$id = abs($id);
-			$uParts = @parse_url($urlArr[intval($id)]);
+			$uParts = @parse_url($urlArr[intval($tempHref[intval($id)][1])]);
 				// a link to this host?
 			$urlstr = $this->getUrlStr($uParts);
 
-			$img = '<a href="'.htmlspecialchars($urlArr[$id]).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($urlArr[$id]).'" /></a>';
+			$img = '<a href="'.htmlspecialchars($urlArr[intval($tempHref[intval($id)][1])]).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($urlArr[intval($tempHref[intval($id)][1])]).'" /></a>';
 
 			if (isset($urlCounter['html'][$id]['plainId']))	{
-				$tblLines[]=array($linkedWord[$id].' ('.$urlstr.')',$id,$urlCounter['html'][$id]['plainId'],$urlCounter['total'][$id]['counter'],$urlCounter['html'][$id]['counter'],$urlCounter['html'][$id]['plainCounter'],$img);
+				$tblLines[]=array(
+					$linkedWord[$id].' ('.$urlstr.')',
+					$id,
+					$urlCounter['html'][$id]['plainId'],
+					$urlCounter['total'][$id]['counter'],
+					$urlCounter['html'][$id]['counter'],
+					$urlCounter['html'][$id]['plainCounter'],
+					$img
+				);
 			} else	{
 				$html=(empty($urlCounter['html'][$id]['counter'])?0:1);
-				$tblLines[]=array($linkedWord[$id].' ('.$urlstr.')',($html?$id:'-'),($html?'-':abs($id)),($html?$urlCounter['html'][$id]['counter']:$urlCounter['plain'][$id]['counter']),$urlCounter['html'][$id]['counter'],$urlCounter['plain'][$id]['counter'],$img);
+				$tblLines[]=array(
+					$linkedWord[$id].' ('.$urlstr.')',
+					($html?$id:'-'),
+					($html?'-':abs($id)),
+					($html?$urlCounter['html'][$id]['counter']:$urlCounter['plain'][$id]['counter']),
+					$urlCounter['html'][$id]['counter'],
+					$urlCounter['plain'][$id]['counter'],
+					$img
+				);
 			}
 		}
 		

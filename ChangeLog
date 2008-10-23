@@ -1,3 +1,6 @@
+2008-10-23 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug: Statistic could show wrong linked text and links.
+
 2008-10-09	Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9406: Filter csv import for more than 2 doublette
 	* Feature: Direct Mail Engine can now be started from Gabriel.
