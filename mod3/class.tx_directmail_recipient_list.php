@@ -507,7 +507,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 					}
 					break;
 				case 4:	//
-					$groups = array_unique(tx_directmail_static::getMailGroups($mailGroup['mail_groups'],$mailGroup['uid'],$this->perms_clause));
+					$groups = array_unique(tx_directmail_static::getMailGroups($mailGroup['mail_groups'],array($mailGroup['uid']),$this->perms_clause));
 					reset($groups);
 					while(list(,$v)=each($groups))	{
 						$collect=$this->cmd_compileMailGroup($v);

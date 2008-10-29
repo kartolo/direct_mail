@@ -1,3 +1,6 @@
+2008-10-29 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #9580: wrong parameter type, if using nested "from other recipient lists"
+
 2008-10-23 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug: Statistic could show wrong linked text and links.
 
