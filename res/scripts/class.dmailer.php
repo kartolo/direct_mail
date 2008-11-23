@@ -1033,7 +1033,11 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	string		MIME type of the email
 	 */
 	function getHTMLContentType() {
-		return (count($this->theParts['html']['media']) && $this->includeMedia) ? 'multipart/related;' : 'multipart/alternative;';
+		if (t3lib_div::int_from_ver(TYPO3_version) < 4002002) {
+			return (count($this->theParts['html']['media']) && $this->includeMedia) ? 'multipart/related;' : 'multipart/alternative;';
+		} else {
+			return (count($this->theParts['html']['media']) && $this->includeMedia) ? 'multipart/related' : 'multipart/alternative';	
+		}
 	}
 
 	/**

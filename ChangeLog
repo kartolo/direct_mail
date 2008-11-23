@@ -1,3 +1,10 @@
+2008-11-23 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #9764: added missing field in cache_sys_dmail_stat
+	* Fixed bug #9767: check if PID given is numeric (Importer)
+	
+2008-11-20 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed: double semicolon in content type declaration if sending multiparts email
+	
 2008-10-29 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9580: wrong parameter type, if using nested "from other recipient lists"
 

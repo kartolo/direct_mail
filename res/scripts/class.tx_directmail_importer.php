@@ -264,7 +264,7 @@ class tx_directmail_importer {
 				$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"'.(!$this->indata['all_html']?'':' checked="checked"').'/> ');
 				//get categories 
 				$temp = t3lib_BEfunc::getModTSconfig($this->parent->id,'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
-				if(trim($temp)){
+				if(is_numeric($temp['value'])){
 					$rowCat = $TYPO3_DB->exec_SELECTgetRows(
 						'*',
 						'sys_dmail_category',

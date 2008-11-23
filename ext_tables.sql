@@ -41,6 +41,7 @@ CREATE TABLE cache_sys_dmail_stat (
   secondlink_time int(11) DEFAULT '0' NOT NULL,
   thirdlink tinyint(4) DEFAULT '0' NOT NULL,
   thirdlink_time int(11) DEFAULT '0' NOT NULL,
+  returned tinyint(4) DEFAULT '0' NOT NULL,
   KEY `mid` (mid)
 );
 
