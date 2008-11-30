@@ -1136,6 +1136,20 @@ class dmailer extends t3lib_htmlmail {
 				$this->theParts['html']['content']);
 		}
 	}
+	
+	/**
+	 * overwrite parent's setHeaders function to set a new messageid.
+	 */
+	function setHeaders() {
+			// Sets the message id
+		$host = t3lib_div::getHostname();
+		if (!$host || $host == '127.0.0.1' || $host == 'localhost' || $host == 'localhost.localdomain') {
+			$host = ($TYPO3_CONF_VARS['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $TYPO3_CONF_VARS['SYS']['sitename']) : 'localhost') . '.TYPO3';
+		}
+		$this->messageid = md5(microtime()) . '@' . $host;
+		parent::setHeaders();
+	}
+	
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.dmailer.php'])	{

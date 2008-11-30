@@ -1,3 +1,6 @@
+2008-11-30 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #9570: message ID will always be new generated, everytime setHeaders is called.
+	
 2008-11-23 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9764: added missing field in cache_sys_dmail_stat
 	* Fixed bug #9767: check if PID given is numeric (Importer)
