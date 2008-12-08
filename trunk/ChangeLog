@@ -1,0 +1,570 @@
+2008-11-30 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #9570: message ID will always be new generated, everytime setHeaders is called.
+	
+2008-11-23 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #9764: added missing field in cache_sys_dmail_stat
+	* Fixed bug #9767: check if PID given is numeric (Importer)
+	
+2008-11-20 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed: double semicolon in content type declaration if sending multiparts email
+	
+2008-10-29 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #9580: wrong parameter type, if using nested "from other recipient lists"
+
+2008-10-23 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug: Statistic could show wrong linked text and links.
+
+2008-10-09	Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #9406: Filter csv import for more than 2 doublette
+	* Feature: Direct Mail Engine can now be started from Gabriel.
+	* Fixed bug: Format of recipient address is changed to only email for windows platform, since PHP mail function in Windows can't handle "Name <email>"
+	* emconf updated: suggested extension Gabriel
+
+2008-07-23  Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #8987: assigning categories while creating a direct mail does not work correctly
+
+2008-07-18 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #8982: convert linebraks to unix.
+	* Feature #8721: Plaintext is compatible to DAM
+	* Feature: Test Newsletter's subject will be prepended with additional subject.
+	* Fixed bug #9001: added missing form name. (added to all direct_mail forms) 
+	* Fixed bug #7384: don't render path, if there's no filelinks
+	
+2008-07-13 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* added UserTS to open default tab
+	* manual updates
+	* set required PHP to 5.x
+
+2008-07-09 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* import setting can be configured by Page TSconfig (see manual)
+	* Fixed: bug #8679: wrong SMTP header
+
+2008-06-07 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* hide modules, if user not in Live workspace (#8470)
+
+2008-05-05 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* remove keyword Public, since it's not supported in PHP 4.x
+	* importer is moved to a separated class
+
+2008-04-28 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed: Bug #7243: comma separated list also received HTML Mails
+	* Fixed: marker in plain list not changed.
+	* Fixed: used styles.content.parseFunc instead of lib.parseFunc, since lib.parseFunc doesn't exist if css content styled is used.
+	* Added: mailto link can be configured to use jump url.
+
+2008-04-27 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed Bug #8085: List type "Other Mail Groups" does not send any mail
+	* added workaround to bug in Core that links in HTML Mail don'T have any href value. This will be removed if core is fixed.
+
+2008-02-26 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug: importer wrongly read CSV file, which has CR as newline
+	* Added: option to select import file charset
+	
+2008-02-25 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug: non admin user cannot upload file to import.
+
+2008-02-18 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #7244: bug in the recipient list "from other recipient list"
+	* Fixed bug #7127: wrong SQL "sort by" at calculating statistics 
+	* Fixed bug #7296: the listed SysFolder is filtered by the page access
+
+2008-02-07 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #7100: back button.
+
+2008-01-09 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* added the options not to encode the headers if sending with SMTP.
+	* manual updates
+
+2007-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #5111: List of categories PID is correctly quoted.
+	
+2007-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Added: Support sending direct mail with SMTP (needs PEAR:mail class). Manual updated. Thanks to Benjamin Mack.
+	* Fixed: in send Wizard: if only warning, next button will be enabled
+	* Fixed bug #6904, #6905: in recipient list import module: check if some array (categories array) are empty (during import process)
+
+2007-10-26 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Added: Hooks in the recipient lists (cmd_displayImport and doImport)
+
+2007-10-26 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Fixed: delete lock file if DB connect failed
+
+2007-10-16 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* added: Imported tt_address can be assigned to categories and have HTML-flag by default
+
+2007-10-11 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #6484: HTML parameter set in configuration is not applied
+	* Fixed bug #5812: remove white spaces in recipient's name
+
+2007-09-19 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #5413: problem by fetching plaintext
+
+2007-09-13 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fix bug #4661: convert the charset of the USER markers
+	* Fix bug #6297: trimming the "name" field before set it as recipient
+
+2007-08-05 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fix bug #6026: in plaintext base URL is not shown if there's no image
+	* Fix bug #6027: corrected JOIN statement in tx_directmail_static::getIdList
+	* added: back button in the send wizard ( request: #6294)
+
+2007-08-05 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* added: changing between modules doesn't need to choose SysFolder again
+
+2007-08-05 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* fixed: option for removing all recepients records before importing
+	* fixed: wrong field name in the mailer engine module
+	* added: added some authentification libraries in cron script, might be used by other extensions
+
+2007-07-23 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* upload to typo3xdev
+
+2007-06-17 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Version 2.5.1
+	* Fixed bug: Fatal error function getCsvValues in class.tx_directmail_dmail.php
+	* Static functions are put in a static class.
+
+2007-02-26 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Version 2.5.0
+	* Folder structure is changed
+	* New module structure
+	* Better GUI
+	* Improved version based on 2.2.0
+
+2006-11-22 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Added option to disable manual invocation of mailer engine
+
+2006-11-10 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Fix bug #4380: initialise $urlCounter correctly in mod_web_dmail:cmd_stats():
+
+2006-11-07 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Optional tab-style menu
+	* Added some german translations to CSH
+
+2006-10-31 Martin Kutschker <martin.t.kutschker@blackbox.net>
+	* Show a compact info of direct mail in all commands of mode "direct mail"
+
+2006-10-25 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Dropped PAGE object tx_directmail_pi1_test (typeNum 199), send correct Content-type with tx_directmail_pi1 (typeNum 99) instead
+
+2006-10-17 Martin Kutschker <martin.t.kutschker@blackbox.net>
+	* Added field renderedsize to TCA as type "none" (format "filesize")
+
+2006-10-12 Martin Kutschker <martin.t.kutschker@blackbox.net>
+	* Add an option to create direct mail and fetch URL in one step
+
+2006-10-11 Martin Kutschker <martin.t.kutschker@blackbox.net>
+	* parse_url(): suppress warnings and check results
+
+2006-10-09 Martin Kutschker <martin.t.kutschker@blackbox.net>
+	* Added fields scheduled, scheduled_begin, scheduled_end to TCA as type "none" (format "datetime")
+	* Implement issue #4214: change form encoding of module to multipart/form-data
+	* Fix bug #4297: broken SQL in getListOfRecipentCategories() when the table has no MM-table
+	* Add hooks to modify the module menu and the menu of the "direct mail" mode
+	* Add hook handle new commands of the "direct mail" mode
+
+2006-10-05 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Fixed path to jsfunc.evalfield.js in BE module
+
+2006-08-8 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Version 2.1.5
+	* Correction: display of some statistics was erroneous. Thanks to David Bocher.
+	* Two new constants in the Direct Mail Plain Text static template: doubleLF and removeSplitChar.
+	* Partial fix for bugtracker issue 3207: Recipient list from Website User Group and users with multiple user groups. Will work at least with MySQL.
+
+2006-07-14 Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Chapter "Personalizing direct mail content" extended in manual.sxw
+
+2006-06-21 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction: missing character set conversion of mail subject when mail character set is different from the backend charset
+	* Mail subject would be encoded multiple times. Thanks to David Bocher.
+
+2006-06-12 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Delete file pi1/locallang.php
+	* Add Spanish labels in pi1/locallang.xml
+	* Replace br tag by linefeed (instead of space) in plain text rendering plugin.
+
+2006-05-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Update version number to 2.1.3
+	* Fix issue 3444: missing value-check in tt_news plain-text rendering script.
+	* Fix issue 3317: too short require_once statements in mod/class.mod_web_dmail.php
+	* Fix issue 3489: setting tt_news to "strict" will cause an error in direct mail
+	* Update to the structure of the manual.
+	* Remove references to $HTTP_*_VARS in dmailerd.phpcron and returnmail.phpsh
+
+2006-05-15  Thorsten Kahler <thorsten.kahler@dkd.de>
+	* Fixed Bug in tx_directmail_ttnews_plaintext::extraCodesProcessor()
+
+2006-04-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction: warning message when fetched content contains no direct mail boundaries issued too often.
+	* Update to the manual.
+	* Synchronize ext_emconf.php.
+
+2006-04-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Version 2.1.2
+  	* Fix issue 3298: Fatal error: Call to a member function on a non-object in statistics function
+	* Fix issue 3301: tca.php has short php open tag.
+	* Remove most field exclusions in tca.php.
+	* Issue error messages when content cannot be fetched.
+	* Issue warning message when fetched content contains no direct mail boundaries.
+	* Include all content in messages when there are no boundaries in the content.
+
+2006-04-14 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Version 2.1.1
+	* Mime types may contain . and +
+	* Correct sql error when sending mails to a plain recipient list.
+
+2006-04-13 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Rewrite method getMimeType so that it uses the API form t3lib_div
+	* If the backend does not use the same charset as the page used for creating the direct mail, the from/to/organization names need to be converted since they are entered from the backend.
+
+2006-04-12 Jan-Erik Revsbech <jer@moccompany.com>
+	* Version 2.1.0
+	* Update dmailer.phpcrom and returnmail.phpsh changed require('XXX') to require_once(t3lib_extMgm::extPath('direct_mail')'mod/XXX').
+
+2006-04-12 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Fix getMimeType method until it is fixed in the core. See bugtracker issue 3172.
+	* Update change log in the manual.
+	* Fix to change to enableFields that caused problem in conversion function.
+	* Upload amended manual and ext_emconf.php
+
+2006-04-11 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Systematic review of enableFields and deleteClause in mod_web_dmail. Use BEfunc instead of pageSelect method.
+	* Recover extension constraints in ext_emconf.php.
+
+2006-04-07 Jan-Erik Revsbech <jer@moccompany.com>
+	* Fix Option includeMedia was not used when fetching direct mail. All mails were sent using absolute links.
+
+2006-04-07 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to plain text links statistics.
+
+2006-04-06 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add missing label localization in dmailer log.
+	* Statistics: group links, so that identical links of html and text mails are listed on the same line. Thanks to Martin Kutschker.
+	* Statistics: parse the links, so that for internal urls page title and path (tooltip) are shown. Thanks to Martin Kutschker.
+	* Allow tab as option for CSV-import field separator. See bugtracker issue 3139.
+
+2006-04-04 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* dmailer should not remove comments when inside script and style tags.
+
+2006-03-24 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Use $_SERVER['PHP_SELF'] when available in dmailerd.phpcron and returnmail.phpsh
+	* Fix bugtracker issue 2982: do not send emails without any content.
+	* Correction to two incorrect characters in locallang_csh_web_txdirectmailM1.xml
+	* Allow $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['addRecipFields'] to extend the list of fields that may be imported.
+
+2006-03-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* On behalf of Ralf Hettinger: three new functions importRecords_checkMail, importRecords_checkImportDublettes and importRecords_makeName for more filtering of the imported CSV values.
+
+2006-03-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Fix bugtracker issue 2924.
+	* Fix bugtracker issue 2925.
+	* Make direct_mail conflict with plugin_mgm.
+	* Remove reference to t3lib_extMgm::extPath('direct_mail') in ext_update.php. Fix issue 2920.
+	* Do not allow database update before the extension is installed (TCA not yet initialised). Fix issue 2920.
+	* Remove reference to t3lib_extMgm::extPath('direct_mail') in require_once in class.mod_wed_dmail.php.
+	* Fix issue 2895.
+
+2006-03-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Fix bugtracker issue 2821.
+	* Eliminate use of deprecated $TYPO3_DB->sql($db,$query) to ensure dbal compliance.
+
+2006-03-15 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Systematic review and adjustment of all SQL queries to ensure compatibility with dbal system extension.
+
+2006-03-10 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to typo error in locallang_mod_web_txdirectmailM1.xml
+
+2006-03-07 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Honor return path and defer mode settings in dmailer_sendSimple.
+	* Do not display the statistics option for direct mails that where sent to a list of addresses (they are not available).
+	* In the Direct Mails function, do not display direct mails that were already sent.
+	* In list of pages not yet direct mails, do not display pages that are hidden or with restricted-access (they cannot be fetched).
+	* Update to module context sensitive help and manual.
+	* Correction to XCLASS declaration in res/scripts/class.tx_directmail_ttnews_plaintext.php
+	* Update to ext_emconf.php
+
+2006-03-06 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Remove unknown field "description" from the list $this->fieldlist in class.mod_web_dmail.php
+	* Various changes to the user interface.
+	* Completed manual.
+	* Update module context sensitive help.
+
+2006-03-05 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Minor adjustments to tables csh files.
+	* Complete csh help in English and French for sys_dmail_category table.
+	* Update section of manual: Categorizing newsletter content.
+	* Rename and reorganize module locallang files in mod directory.
+	* Add module csh file locallang_csh_web_txdirectmailM1.xml
+	* Initialize module csh file and test configuration with a few labels.
+	* Add item 'dmail' on column 'module' of table 'pages' in ext_tables.php (pending removal from typo3/sysext/cms/ext_tables.php)
+	* Add methods find_MIDfromReturnPath and find_XTypo3MID in mod/class.readmail.php (pending removal from t3lib/class.t3lib_readmail.php)
+	* Update to manual and contextual help.
+	* Add simulated conversion of records, until conversion is explicitly confirmed.
+	* Stop reporting each converted record after the 50th converted record in a table.
+	* Stop reporting each not-converted record after the 50th not-converted record in a table.
+
+2006-03-04 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add copy of the static templates in the manual.
+	* Change English language labels of Direct Mail Group to Recipient list.
+	* Adjust a few more TCA labels.
+	* Update recipient list section of manual.
+	* Complete csh help in English and French for sys_dmail_group table.
+
+2006-03-03 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Update to the manual.
+
+2006-03-01 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add dependency on TYPO3 4.0.0 in ext_emconf.php.
+	* Update the Configuration section of the manual, including conversion.
+	* Change the module form from "mediumDoc" to "template".
+
+2006-02-28 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Update structure of manual.
+	* Delete locallang.php files.
+	* Clean up mailSelect class
+	* Make special query mail group basically work.
+
+2006-02-27 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correct return address from backend form to directMail defaultView; in some cases was creating a new record based on same page!
+	* Add flowedFormat option for plain text content (Page TSConfig in BE and TS setup of plain text rendering plugin).
+	* Eliminate references to $HTTP_POST_VARS in mod_web_dmail class.
+	* Disable categories assignment fields on backend forms by default. Need to be added through Page TsConfig.
+	* Update manual section: "Configuring the use of categories".
+	* Light cleanup on boundaries.
+	* Convert locallang files to xml format.
+
+2006-02-26 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add class.tx_directmail_ttnews_plaintext.php in res/scripts: hook on tt_news to render tt_news records in plain text.
+	* Add static template tt_news_plaintext: "Direct Mail News Plain Text" to configure rendering of News in plain text.
+	* Corrections and adjustments to plain text rendering plugin class.
+	* Further minor cosmetic changes in class mod_web_dmail.
+
+2006-02-24 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Move attach.gif and mail.gif from mod to res/gfx directory.
+	* Move icon_tx_directmail_category.gif from extension root to res/gfx directory.
+	* Import newmail.gif from t3lib/gfx into res/gfx
+	* Import dmail.gif, dmail_list.gif, modules_dmail.gif, modules_dmail__h.gif into res/gfx
+	* Use t3lib_iconWorks for all icons.
+	* Small cosmetic changes im class mod_web_dmail.
+
+2006-02-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Remove enablePlain and enableHTML configuration properties. Rely on sendOptions and submitted url's.
+	* Correct query of pages not yet direct mails in Direct mails function.
+	* Completed French translation.
+
+2006-02-22 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Update to csh files.
+	* Reverting change to jumpUrl after correction of bugtracker issue 2592 in TYPO3core.
+	* Update to manual (incomplete).
+	* Remove help function.
+	* Add priority as module configuration property.
+	* Correcting accidental removal of HTMLParams column in TCA.
+	* Localization of module completed.
+
+2006-02-21 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Path setting corrections in dmailerd.phpcron and returnmail.phpsh
+	* Correct jumpUrl hook so that it will work even if $TYPO3_CONF_VARS['SYS']['doNotCheckReferer'] is not set.
+	* Add includeMedia option on direct mails. If not set, images and other media are not included in the HTML content (cid:); instead only absolute href's are included in the html code.
+	* Add file locallang_csh_sysdmailcat.php and small updates to other csh files.
+
+2006-02-18 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add class.ext_update.php: access the Categories conversion function from the EM dropdown menu.
+	* Add explanation for non-converted records in the output of the conversion.
+	* Correction to TCA: add 'l10n_mode' => 'exclude' on tt_content column module_sys_dmail_category.
+
+2006-02-17 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Change mm relations renderMode to chekbox so that localization works.
+	* Enable table fe_groups in dmail groups of type "From pages".
+	* Add conversion of mm-relation to categories in sys_dmail_group (column select_categories).
+
+2006-02-16 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Delete file static/setup.txt
+	* Localize categories in forms presented by class.mod_web_dmail.php
+	* Establish mm relations only with parent category records
+	* Localize right-hand side of categories select on tt_content form.
+
+2006-02-16 Jan-Erik Revsbech <jer@moccompany.com>
+	* Add localization of categories.
+
+2006-02-15 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Restructure ext_tables.php and tca.php files
+
+2006-02-14 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Small correction to TCA (old_cat_number)
+	* Add scripts and gfx subdirectories in res directory.
+	* Move class.tx_directmail_container.php and class.tx_directmail_checkjumpurl.php to res/scripts directory
+	* Change tx_directmail_checkjumpurl hook configuration in ext_localconf
+	* Add boundaries subdirectory to static directory.
+	* Move current setup.text to static/boundaries directory
+	* Modify static/boundaries/setup.txt to refer to new location of class.tx_directmail_container.php
+	* Change configuration of "Direct Mail Content Boundaries" static template in ext_tables.php
+	* Add dmailerping.gif to res/gfx directory.
+	* Add plaint text plugin will localized labels in directory pi1.
+	* Add static template "Direct Mail Plain Text" in directory static/plaintext.
+	* Add configuration of "Direct Mail Plain Text" static template in ext_tables.php
+	* Modify boundaries static template to add support for plaintext plugin.
+
+2006-02-13 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to class.tx_directmail_checkjumpurl.php and class.dmailer.php: missing global
+	* Modifying grouping of module configuration options.
+	* Fix RDCT usability issue by adding selection list of domains.
+	* Add use_domain in sys_dmail table and module configuration options.
+	* Fix bugtracker issue 253.
+	* Make sure long_link_rdct_url is consistent with use_domain when the mail is compiled.
+	* Correct small glitches.
+
+2006-02-11 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Change version number to 2.0.0 so that we can refer to it easily in the manual.
+	* Change state to Stable.
+	* Add conflicts with sr_direct_mail_ext, it_dmail_fix
+	* Modify function makeCategories.
+	* Complete conversion function, including localization.
+
+2006-02-10 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to returnmail.phpsh
+	* Restructure class.readmail.php
+
+2006-02-09 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to foreign_table_where clauses in categories mm tables
+	* Add class class.tx_directmail_checkjumpurl.php in res directory to implement hook on tslib_fe/checkDataSubmisssion.
+	* Configure hook on tslib_fe/checkDataSubmisssion in ext_localconf.php (requires modified tslib_fe and index_ts from TYPO3core CVS).
+	* Fix bugtracker issue 670: add aC to the jumpUrl prefix and forward it to the jumped-to URL so that the account cannot be hijacked.
+	* Set $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['defaultRecipFields'] in ext_localconf.php.
+	* Correction: set some defaults in the Module configuration form.
+	* Localize labels in function cmd_displayUserInfo.
+	* Restrict displayed categories to those specified by Page TSConfig in cmd_displayPageInfo and cmd_displayUserInfo
+
+2006-02-09  Thorsten Kahler  <thorsten.kahler@dkd.de>
+	* fixed 2 small typos in mod_web_dmail::cmd_conf()
+
+2006-02-09 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add exclude=1 on all columns of sys_dmail table in TCA.
+	* Add column authcode_fieldList to table sys_dmail.
+	* Add authcode_fieldList to configuration parameters.
+	* Modify authCode computation in dmailer class (requires modified stdAuthCode in t3lib_div from TYPO3core CVS)
+	* Remove columns issent and rendersize from all sys_dmail types in TCA.
+	* Modify TCA definition of module_sys_dmail_category fields to use PAGE_TSCONFIG_IDLIST to restrict selectable categories
+	* Add module_sys_dmail_category to all types in tt_content TCA.
+
+2006-02-08 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction: no content selected when the Direct Mail was based on external URL.
+	* Correction: createMailFrom variable confusion in class.mod_web_dmail.php
+
+2006-02-07 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Delete clear.gif and remove references in class.mod_web_dmail.php
+	* Update to manual
+	* Add userTable field in Module configuration function
+
+2006-02-07  Thorsten Kahler  <thorsten.kahler@dkd.de>
+	* Wrap direct_mail boundaries in plaintextLib.inc using TS and the userFunc from container class
+
+2006-02-06 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Delete file TODO.txt in folder doc.
+	* Small update to the manual.
+	* Add localization labels for import CSV list.
+	* Add description to csv import (see bugtracker issue 2063).
+
+2006-02-05 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Updates to manual.
+	* Add enable_jump_url parameter in Page TSConfig module configuration settings.
+	* Move t3lib_TStemplate instantiation to module initialization.
+
+2006-02-03 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Debug dmailer boundaries.
+	* Debug retrieval of recipient categories.
+	* dmailer cron initialization was missing load of ext_tables.
+
+2006-02-02  Thorsten Kahler  <thorsten.kahler@dkd.de>
+	* Check page permissions before writing page TS configuration
+	* Don't override permissions of BE user in mod_web_dmail
+
+2006-02-03 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Initial draft of categories conversion.
+
+2006-02-02 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Small update to manual.
+	* Add getRecursiveSelect function in class mod_web_dmail.
+
+2006-02-02  Thorsten Kahler  <thorsten.kahler@dkd.de>
+	* Include TS setup (for dmailer boundaries) optionally
+
+2006-02-01  Thorsten Kahler  <thorsten.kahler@dkd.de>
+	* Corrected misspelled and not initialized variables
+
+2006-02-01 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Correction to emails sent by cron task to admin.
+	* Add file locking to dmailer cron script so that the dmailer cron never runs twice (bugtracker issue 2461).
+	* Correct query for the fe_users case in makeStaticListQuery.
+	* Comment out call to undefined getRecursiveSelect in funtion cmd_compileMailGroup
+	* Remove records without email address from distribution lists.
+
+2006-01-31 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add deleted column to sys_dmail table (bugtracker issue 2190).
+	* Remove message-id setting from dmailer class. Use updated version of core t3lib_htmlmail.
+	* Add email column to sys_dmail_maillog (bugtracker issue 2191).
+
+2006-01-30 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Adjust default value of proposed messageid.
+
+2006-01-29 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* ext_tables.php: add module_sys_dmail_category and module_sys_dmail_html to all types in fe_users TCA
+	* Add option to use sendmail deferred delivery mode.
+	* Remove from class.dmailer.php redundant functions now corrected in TYPO3 4.0 core.
+	* Try to auto-detect charset when page is external.
+	* Fix issue 611 (add real name in To: field of emails).
+
+2006-01-28 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Fix problem when sending the final mail to a simple list.
+	* Add dmail boundaries wrapper class and typoscript (on behalf of Thorsten Kahler).
+	* Use $TYPO3_DB->fullQuoteStr in makeStaticListQuery.
+
+2006-01-25 Jan-Erik Revsbech <jer@moccmpany.com>
+	* fixed som e serious bugs concerning the migration from categories is TSconfig to the db table sys_dmail_categories. Now single content elements can be modified so its only displayed if the user is subscribing to the specifed category. Requires a pending patch in tslib/class.tslib_content.php
+	* fixed problem with editing subscription profile for tt_address and fe_users records.
+
+2006-01-25 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add field use_rdct to table sys_dmail.
+	* Localize some elements of module configuration.
+
+2006-01-24 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Delete contents of directories mod2 and mod3.
+	* Set PHP_version to 4.1.0- in ext_emconf.php.
+	* Add partial draft of manual.
+	* Remove function sendTheMail from class.dmailer.php.
+	* Remove funcions getURL, getExtendedURL, ux_translate_uri, substHTTPurlsInPlainText, substHREFsInHTML, substMediaNamesInHTML, constructHTML from class.dmailer.php.
+	* Extension now dependent on TYPO3 4.0 (t3lib_htmlmail).
+	* Delete file dmailerd.phpsh, update manual accordingly.
+	* Correct linebreaks in dmailerd.phpcron.
+	* Fix reference to mysql_fetch_assoc in class.web_mod_dmail.php
+	* Revert incorrect change to ext_tables.sql (mid must have backticks on KEY statements).
+	* Correction to web_mod_dmail JS: replace document.location with window.location.href
+
+2006-01-23 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+	* Add charset column to sys_dmail table
+	* Change default encoding to quoted-printable in TCA
+	* Add configuration variables (ext_conf_template.txt and ext_localconf.php)
+	* Remove lock to Global (ext_emconf.php)
+	* Update to returnmail.phpsh (from sr_direct_mail_ext)
+	* Add mod3 directory
+	* Add returnmail.phpsh and class.readmail.php to mod3 directory.
+	* Update locallang.php file in mod directory (from sr_direct_mail_ext).
+	* Update to dmailer.phpcron and class.dmailer.php in mod directory (from sr_direct_mail_ext)
+	* Add mod2 directory.
+	* Add dmailer.phpsh and class.dmailer.php to mod2 directory.
+	* Add files locallang_mod.php and clear.gif in directory mod.
+	* Update index.php and conf.php in directory mod.
+	* Multiple changes to class.mod_web_dmail.php (from sr_direct_mail_ext).
+	* Merge mod2 and mod3 directories into mod directory
+	* Get direct mail character set from TS template when based on internal page.
+
+2005-07-7   Jan-Erik Revsbech <jer@moccompany.com>
+	* Fixed problem with not setting encoding Bug #1264
+	* Removed all trailing whitespaces from mod/class.mod_wed_dmail.php
+
+2005-05-18  Thorsten Kahler  <thorsten.kahler@dkd.de>
+
+	* Added a ChangeLog file too keep track of changes
+	* Added CVS Revision Tags
+	* Added PHPDoc Tags "package" and "subpackage"
+

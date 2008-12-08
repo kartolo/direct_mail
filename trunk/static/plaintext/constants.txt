@@ -1,0 +1,21 @@
+##
+## @package TYPO3
+## @subpackage tx_directmail
+## @version $Id:constants.txt 6012 2007-07-23 12:54:25 +0000 (Mo, 23 Jul 2007) ivankartolo $
+##
+
+plugin.tx_directmail_pi1 {
+  
+    # cat=plugin.tx_directmail_pi1//; type=string; label= Site url: Enter the url of the site here.
+  siteUrl = http://www.example.test/
+  
+    # cat=plugin.tx_directmail_pi1/enable/; type=boolean; label= Use flowed format: The same option should be set on the direct mail.
+  flowedFormat = 0
+  
+      # cat=plugin.tx_directmail_pi1/enable/; type=boolean; label= Double line feeds: Line feeds found in bodytext will be doubled in the plain text version.
+  doubleLF = 0
+  
+      # cat=plugin.tx_directmail_pi1//; type=string; label= Split char to remove from graphical headers: Headers built as GIFBUILDER objects may contain split characters. If specified here, they will be removed from headers of type 5 in the plain text version.
+  removeSplitChar =
+  
+}

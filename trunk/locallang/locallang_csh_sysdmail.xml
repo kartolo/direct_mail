@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+    <meta type="array">
+        <description>Context Sensitive Help for sys_dmail table</description>
+        <type>CSH</type>
+        <csh_table>sys_dmail</csh_table>
+        <fileId>EXT:direct_mail/locallang_csh_sysdmail.xml</fileId>
+        <labelContext type="array">
+            <label index=".description"></label>
+            <label index=".details"></label>
+            <label index="_.seeAlso"></label>
+            <label index="type.description"></label>
+            <label index="type.details"></label>
+            <label index="from_email.description"></label>
+            <label index="from_email.details"></label>
+            <label index="from_name.description"></label>
+            <label index="from_name.details"></label>
+            <label index="replyto_email.description"></label>
+            <label index="replyto_email.details"></label>
+            <label index="replyto_name.description"></label>
+            <label index="replyto_name.details"></label>
+            <label index="return_path.description"></label>
+            <label index="return_path.details"></label>
+            <label index="organisation.description"></label>
+            <label index="organisation.details"></label>
+            <label index="priority.description"></label>
+            <label index="priority.details"></label>
+            <label index="sendOptions.description"></label>
+            <label index="sendOptions.details"></label>
+            <label index="includeMedia.description"></label>
+            <label index="includeMedia.details"></label>
+            <label index="flowedFormat.description"></label>
+            <label index="flowedFormat.details"></label>
+            <label index="HTMLParams.description"></label>
+            <label index="HTMLParams.details"></label>
+            <label index="plainParams.description"></label>
+            <label index="plainParams.details"></label>
+            <label index="use_domain.description"></label>
+            <label index="use_domain.details"></label>
+            <label index="use_rdct.description"></label>
+            <label index="use_rdct.details"></label>
+            <label index="long_link_mode.description"></label>
+            <label index="authcode_fieldList.description"></label>
+        </labelContext>
+    </meta>
+    <data type="array">
+        <languageKey index="default" type="array">
+            <label index=".description">A direct mail is a highly customized and personalized newsletter sent to subscribers either as HTML or Plain text, with or without attachments.</label>
+            <label index=".details">Direct mail records are produced by the Direct Mail module.
+
+A direct mail record contains information about a newsletter such as subject, sender, priority, attachments and whether HTML or Plain text content is allowed. Furthermore, it also holds the compiled mail content which is sent to the subscribers.</label>
+            <label index="_.seeAlso">sys_dmail_group, sys_dmail_category</label>
+            <label index="type.description">Type of source of the Direct mail</label>
+            <label index="type.details">The Direct mail may be compiled from a page extracted from the page tree of the TYPO3 site: 'TYPO3 Page', or from a page from another site: 'External URL'.</label>
+            <label index="from_email.description">Enter the sender email address. (Required)</label>
+            <label index="from_email.details">This email address will appear as the originating address or sender address in the direct mails received by the recipients.</label>
+            <label index="from_name.description">Enter the sender name. (Required)</label>
+            <label index="from_name.details">This name will appear as the name of the author or sender in the direct mails received by the recipients.</label>
+            <label index="replyto_email.description">Enter the email address to which replys are sent. (Optional)</label>
+            <label index="replyto_email.details">If no reply address is specified, the sender email address will be used.</label>
+            <label index="replyto_name.description">Enter the name of the 'Reply To' email address. (Optional)</label>
+            <label index="replyto_name.details">If no reply name is specified, the sender name will be used.</label>
+            <label index="return_path.description">Enter the return path email address here.</label>
+            <label index="return_path.details">This is the address to which non-deliverable mails will be returned to.
+If you put in the marker ###XID### it'll be substituted with the unique id of the mail recipient.
+Note that if PHP is executing in safe mode, the Direct mail module may not be able to set the return path to a value different than the value defined at the server level.</label>
+            <label index="organisation.description">Enter the name of the sending organization.</label>
+            <label index="organisation.details">The name of the organization will appear in the headers of the mails sent to subscribers.</label>
+            <label index="priority.description">Enter the email delivery priority.</label>
+            <label index="priority.details">The delivery priority will be set in the headers of the mails sent to subscribers.</label>
+            <label index="sendOptions.description">Select the format of mail content.</label>
+            <label index="sendOptions.details">If in doubt, set it to both Plain text and HTML. The messages will then be sent with both formats included, and the recipients are normally able to select their preferred format.</label>
+            <label index="includeMedia.description">Set this option if you want to incorporate images and other media inside the HTML mail content.</label>
+            <label index="includeMedia.details">If the option is set, images and other media are encoded and incorporated into the messages. Sent messages will be heavier to transport.
+If the option is not set, images and media are included in HTML content by absolute reference (href) to their location on the site where they reside.</label>
+            <label index="flowedFormat.description">Set this option if you want to use normally flowing text inside the plain text mail content.</label>
+            <label index="flowedFormat.details">If the option is set, plain text mail content will be broken in fixed length lines, as is standard for plain text email content, but so-called flowed format will be used. This will allow client agents that support this format to display the text as normally flowing text. The option is ignored if 'quoted-printable' is used.</label>
+            <label index="HTMLParams.description">If the Direct mail is of type 'TYPO3 Page', enter the additional URL parameters used to fetch the HTML content.
+
+If the Direct Mail is of type 'External URL',enter the complete URL used to fetch the HTML content.</label>
+            <label index="HTMLParams.details">When the Direct mail is of type 'TYPO3 Page', the specified parameters will be added to the URL used to fetch the HTML content of the direct mail. If in doubt, leave it blank.
+
+When the Direct Mail is of type 'External URL', this field should contain the complete URL used to fetch the HTML content.</label>
+            <label index="plainParams.description">If the Direct mail is of type 'TYPO3 Page', enter the additional URL parameters used to fetch the plain text content of the direct mail.
+
+If the Direct Mail is of type 'External URL',enter the complete URL used to fetch the plain text content.</label>
+            <label index="plainParams.details">When the Direct mail is of type 'TYPO3 Page', the specified parameters will be added to the URL used to fetch the plain text content of the direct mail. If in doubt, set it either to '&amp;type=99' or, when using TemplaVoila, to '&amp;print=1'.
+
+When the Direct Mail is of type 'External URL', this field should contain the complete URL used to fetch the plain text content.</label>
+            <label index="use_domain.description">Optionnally, select a domain that should be used for fetching content from internal TYPO3 pages.</label>
+            <label index="use_domain.details">If a domain is selected, it will also be used in all internal links contained in mail content. If no domain is selected, the domain in use in the backend when the direct mail is compiled will be used to fetch content.</label>
+            <label index="use_rdct.description">Redirect long links found in plain text content.</label>
+            <label index="use_rdct.details">If set, links longer than 76 characters found in plain text content will be redirected: long URL's will be substituted with ?RDCT=[md5hash] parameters.</label>
+            <label index="long_link_mode.description">If set and if use_rdct is set, all links in plain text content will be redirected, not only links longer than 76 characters.</label>
+            <label index="authcode_fieldList.description">List of fields used in the computation of the authentication code included in unsubscribe links and jump URL's in direct mails.</label>
+        </languageKey>
+        <languageKey index="fr" type="array">
+            <label index=".description">Un bulletin est un bulletin de nouvelles personnalisé envoyé à des abonnés en format HTML ou texte simple, avec ou sans pièces jointes.</label>
+            <label index=".details">Les enregistrements de type Bulletin sont produits par le module d'Envoi ciblé.
+
+Un enregistrement de type Bulletin contient l'information relative à un bulletin tel que le sujet, l'expéditeur, la priorité, les pièces jointes, ainsi que ses caractéristiques techniques. Cet enregistrement contient de plus le message compilé envoyé aux abonnés.</label>
+            <label index="type.description">Type de source du bulletin</label>
+            <label index="type.details">Le bulletin peut être contruit à partie d'une page tirée de l'arborescence des pages du site TYPO3: 'Page TYPO3', ou d'une page tirée d'un autre site: 'URL externe'.</label>
+            <label index="from_email.description">L'adresse de l'expéditeur du message. (Requis)</label>
+            <label index="from_email.details">Cette adresse apparaîtra comme adresse d'origine ou adresse de l'expéditeur des bulletins reçus par les destinataires.</label>
+            <label index="from_name.description">Le nom de l'expéditeur du message. (Requis)</label>
+            <label index="from_name.details">Ce nom apparaîtra comme le nom de l'auteur ou de l'expéditeur des bulletins reçus par les destinataires.</label>
+            <label index="replyto_email.description">L'adresse électronique de réponse. (Optionnel)</label>
+            <label index="replyto_email.details">Si aucune adresse de réponse n'est spécifiée, l'adresse de l'expéditeur sera utilisée.</label>
+            <label index="replyto_name.description">Le nom de l'adresse de réponse. (Optionnel)</label>
+            <label index="replyto_name.details">Si aucun nom n'est spécifié pour l'adresse de réponse, le nom de l'expéditeur sera utilisé.</label>
+            <label index="return_path.description">Adresse de retour.</label>
+            <label index="return_path.details">Il s'agit the l'adresse à laquelle seront retournés les messages qui ne peuvent pas être livrés.
+Si vous utilisez le marqueur ###XID###, il sera substitué par l'identification unique du destinataire du message.
+Notez que si PHP est exécuté en mode sécuritaire (safe mode), le module d'Envoi ciblé pourrait ne pas être en mesure d'établir une adresse de retour différente de l'adresse de retour établie au niveau du serveur.</label>
+            <label index="organisation.description">Nom de l'organisation émettrice.</label>
+            <label index="organisation.details">Le nom de l'organisation apparaîtra dans les entêtes des messages envoyés aux abonnés.</label>
+            <label index="priority.description">La priorité de livraison des mesages envoyés.</label>
+            <label index="priority.details">La priorité de livraison sera spécifiée dans les entêtes des messages de courrier électronique envoyés aux abonnés.</label>
+            <label index="sendOptions.description">Le format du contenu des messages envoyés.</label>
+            <label index="sendOptions.details">Dans le doute, spécifiez les deux formats: Texte simple et HTML. Les messages envoyés inclueront alors les deux formats et les destinataires seront normalement en mesure de choisir le format qu'ils préfèrent.</label>
+            <label index="includeMedia.description">Spécifiez cette option si vous désirez que les images et autres média soient incorporés dans le contenu HTML des messages envoyés.</label>
+            <label index="includeMedia.details">Si l'option est spécifiée, images et autres média sont encodés et incorporés aux messages. Les messages envoyés peuvent être plus lourds à transporter.
+Si l'option n'est pas spécifiée, images et autres média sont inclus dans le contenu HTML par référence (href) absolue à leur localisation sur le site où ils résident.</label>
+            <label index="flowedFormat.description">Spécifiez cette option si vous désirez que le format sans retour à la ligne soit utilisé dans le contenu texte simple des messages envoyés.</label>
+            <label index="flowedFormat.details">Si l'option est spécifiée, le contenu texte simple des messages sera coupé en lignes de longueur fixe, selon les normes habituellement applicables à ce type de contenu, mais le format sans retour à la ligne sera utilisé. Ceci permettra aux agents clients qui supportent ce format de présenter le texte sans retours à la ligne artificiels. L'option est ignorée si l'encodage 'quoted-printable' est utilisé.</label>
+            <label index="HTMLParams.description">Si le bulletin est de type 'Page TYPO3', paramètres additionnels de l'URL d'acquisition du contenu HTML.
+
+Si le bulletin est de type 'URL externe', URL complète d'acquisition du contenu HTML.</label>
+            <label index="HTMLParams.details">Lorsque le bulletin est de type 'Page TYPO3', les paramètres spécifiés seront ajoutés à l'adresse URL utilisée pour acquérir le contenu HTML du bulletin. Dans le doute, laisser cette variable vide.
+
+Lorsque le bulletin est de type 'URL externe', ce champ doit contenir l'URL complète utilisée pour acquérir le contenu HTML du bulletin.</label>
+            <label index="plainParams.description">Si le bulletin est de type 'Page TYPO3', paramètres additionnels de l'URL d'acquisition du contenu de format texte simple.
+
+Si le bulletin est de type 'URL externe', URL complète d'acquisition du contenu de format texte simple.</label>
+            <label index="plainParams.details">Lorsque le bulletin est de type 'Page TYPO3', les paramètres spécifiés seront ajoutés à l'adresse URL utilisée pour acquérir le contenu de format texte simple du bulletin. Dans le doute, spécifiez soit '&amp;type=99' ou, si TemplaVoila est utilisé, '&amp;print=1'.
+
+Lorsque le bulletin est de type 'URL externe', ce champ doit contenir l'URL complète utilisée pour acquérir le contenu de format texte simple du bulletin.</label>
+            <label index="use_domain.description">Au besoin, sélectionnez un domaine qui doit être utilisé pour l'acquisition de contenu à partir de pages TYPO3.</label>
+            <label index="use_domain.details">Lorsqu'un domaine est spécifié sur un bulletin, il est utilisé pour l'acquisition de contenu interne ainsi que dans tous les liens internes contenu dans le bulletin. Lorsqu'aucun domaine n'est spécifié, le domaine en usage à l'arrière-plan de TYPO3 au moment où le bulletin est assemblé est utilisé pour l'acquisition de contenu à partir de pages TYPO3.</label>
+            <label index="use_rdct.description">Rediriger les liens longs repérés dans le contenu de format texte simple.</label>
+            <label index="use_rdct.details">Si cette option est activée, les liens de plus de 76 characters de lonueur repérés dans le contenu de format texte simple seront redirigés: les URL's longues seront substituées par des paramètres de la forme ?RDCT=[md5hash].</label>
+            <label index="long_link_mode.description">Si cette option est activée et si l'option use_rdct est également activée, tous les liens repérés dans le contenu de format texte simple seront redirigés, et non pas seulement les liens de plus de 76 caractères de longueur.</label>
+            <label index="authcode_fieldList.description">Liste des champs utilisés dans le calcul du code d'authentification inclus dans les liens de désabonnement et dans les URL's de saut dans les bulletins.</label>
+        </languageKey>
+    </data>
+    <orig_hash type="array">
+        <languageKey index="default" type="array">
+            <label index=".description" type="integer">50310468</label>
+            <label index=".details" type="integer">60317902</label>
+            <label index="_.seeAlso" type="integer">90938716</label>
+            <label index="type.description" type="integer">173672710</label>
+            <label index="type.details" type="integer">156152584</label>
+            <label index="from_email.description" type="integer">71497398</label>
+            <label index="from_email.details" type="integer">229168303</label>
+            <label index="from_name.description" type="integer">259700781</label>
+            <label index="from_name.details" type="integer">173633594</label>
+            <label index="replyto_email.description" type="integer">52596839</label>
+            <label index="replyto_email.details" type="integer">36360927</label>
+            <label index="replyto_name.description" type="integer">91722633</label>
+            <label index="replyto_name.details" type="integer">150914341</label>
+            <label index="return_path.description" type="integer">81172406</label>
+            <label index="return_path.details" type="integer">91747787</label>
+            <label index="organisation.description" type="integer">251014267</label>
+            <label index="organisation.details" type="integer">149964364</label>
+            <label index="priority.description" type="integer">177641947</label>
+            <label index="priority.details" type="integer">160952408</label>
+            <label index="sendOptions.description" type="integer">17337488</label>
+            <label index="sendOptions.details" type="integer">93861390</label>
+            <label index="includeMedia.description" type="integer">248137081</label>
+            <label index="includeMedia.details" type="integer">30669110</label>
+            <label index="flowedFormat.description" type="integer">38151717</label>
+            <label index="flowedFormat.details" type="integer">98196670</label>
+            <label index="HTMLParams.description" type="integer">5702875</label>
+            <label index="HTMLParams.details" type="integer">234868513</label>
+            <label index="plainParams.description" type="integer">248696417</label>
+            <label index="plainParams.details" type="integer">41622256</label>
+            <label index="use_domain.description" type="integer">197290286</label>
+            <label index="use_domain.details" type="integer">245833215</label>
+            <label index="use_rdct.description" type="integer">149503662</label>
+            <label index="use_rdct.details" type="integer">151316251</label>
+            <label index="long_link_mode.description" type="integer">168865880</label>
+            <label index="authcode_fieldList.description" type="integer">206170111</label>
+        </languageKey>
+        <languageKey index="fr" type="array">
+            <label index=".description" type="integer">50310468</label>
+            <label index=".details" type="integer">60317902</label>
+            <label index="type.description" type="integer">173672710</label>
+            <label index="type.details" type="integer">156152584</label>
+            <label index="from_email.description" type="integer">71497398</label>
+            <label index="from_email.details" type="integer">229168303</label>
+            <label index="from_name.description" type="integer">259700781</label>
+            <label index="from_name.details" type="integer">173633594</label>
+            <label index="replyto_email.description" type="integer">52596839</label>
+            <label index="replyto_email.details" type="integer">36360927</label>
+            <label index="replyto_name.description" type="integer">91722633</label>
+            <label index="replyto_name.details" type="integer">150914341</label>
+            <label index="return_path.description" type="integer">81172406</label>
+            <label index="return_path.details" type="integer">91747787</label>
+            <label index="organisation.description" type="integer">251014267</label>
+            <label index="organisation.details" type="integer">149964364</label>
+            <label index="priority.description" type="integer">177641947</label>
+            <label index="priority.details" type="integer">160952408</label>
+            <label index="sendOptions.description" type="integer">17337488</label>
+            <label index="sendOptions.details" type="integer">93861390</label>
+            <label index="includeMedia.description" type="integer">248137081</label>
+            <label index="includeMedia.details" type="integer">30669110</label>
+            <label index="flowedFormat.description" type="integer">38151717</label>
+            <label index="flowedFormat.details" type="integer">98196670</label>
+            <label index="HTMLParams.description" type="integer">5702875</label>
+            <label index="HTMLParams.details" type="integer">234868513</label>
+            <label index="plainParams.description" type="integer">248696417</label>
+            <label index="plainParams.details" type="integer">41622256</label>
+            <label index="use_domain.description" type="integer">197290286</label>
+            <label index="use_domain.details" type="integer">245833215</label>
+            <label index="use_rdct.description" type="integer">149503662</label>
+            <label index="use_rdct.details" type="integer">151316251</label>
+            <label index="long_link_mode.description" type="integer">168865880</label>
+            <label index="authcode_fieldList.description" type="integer">206170111</label>
+        </languageKey>
+    </orig_hash>
+    <orig_text type="array">
+        <languageKey index="default" type="array">
+        </languageKey>
+        <languageKey index="fr" type="array">
+        </languageKey>
+    </orig_text>
+</T3locallang>
