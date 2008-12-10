@@ -1,3 +1,6 @@
+2008-12-10 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #9912: boundary for the attached media depends on the message ID
+	
 2008-11-30 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9570: message ID will always be new generated, everytime setHeaders is called.
 	
