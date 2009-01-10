@@ -151,7 +151,8 @@ class tx_directmail_ttnews_plaintext {
 	 * @return	string		Content
 	 */
 	function getImages($row)	{
-		$images = $this->renderPlainText->renderImages($row['image'],'',$row['imagecaption']);
+		$images_arr = explode(',',$row['image']);
+		$images = $this->renderPlainText->renderImages($images_arr,'',$row['imagecaption']);
 		return $images;
 	}
 

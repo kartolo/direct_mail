@@ -1,3 +1,6 @@
+2009-01-10 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug: Plaintext rendering of tt_news passes the images not in an array. (Thanks to Andrea Herzog for pointing me this one)
+	
 2008-12-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9912: boundary for the attached media depends on the message ID
 	
