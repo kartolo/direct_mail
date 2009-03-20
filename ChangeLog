@@ -1,3 +1,6 @@
+2009-03-20 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* changed: Attachment up to 10000 KB
+	
 2009-01-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug: Plaintext rendering of tt_news passes the images not in an array. (Thanks to Andrea Herzog for pointing me this one)
 	
