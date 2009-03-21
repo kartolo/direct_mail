@@ -1,3 +1,7 @@
+2009-03-21 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Preview icon (HTML and plaintext) will use correct domain
+	* Fetching will use the correct domain in the multidomain environment.
+	
 2009-03-20 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* changed: Attachment up to 10000 KB
 	
