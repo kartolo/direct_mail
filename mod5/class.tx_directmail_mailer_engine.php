@@ -228,6 +228,9 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 	function moduleContent() {
 		global $TYPO3_CONF_VARS, $LANG;
 
+		if (t3lib_div::_GP('cmd') == 'delete') {
+			$this->deleteDMail(t3lib_div::_GP('uid'));
+		}
 		if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail')	{	// Direct mail module
 			$theOutput.= $this->cmd_cronMonitor();
 			$theOutput.= $this->cmd_mailerengine();
@@ -241,6 +244,27 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 		$this->content .= $theOutput;
 	}
 
+	/**
+	 * delete existing dmail record
+	 * 
+	 * @param int $uid: record uid to be deleted
+	 * @return void
+	 */
+	function deleteDMail($uid) {
+		global $TCA, $TYPO3_DB;
+		
+		$table = 'sys_dmail';
+		if ($TCA[$table]['ctrl']['delete']) {
+			$TYPO3_DB->exec_UPDATEquery(
+				$table,
+				'uid = '.$uid,
+				array($TCA[$table]['ctrl']['delete'] => 1)
+			);
+		}
+		
+		return;
+	}
+	
 	/**
 	 * Monitor the cronjob.
 	 *
@@ -357,6 +381,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('dmail_mailerengine_delivery_begun') . '&nbsp;&nbsp;').'</b></td>
 						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('dmail_mailerengine_delivery_ended') . '&nbsp;&nbsp;').'</b></td>
 						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw("&nbsp;" . $LANG->getLL('dmail_mailerengine_number_sent') . '&nbsp;').'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw("&nbsp;" . $LANG->getLL('dmail_mailerengine_delete') . '&nbsp;').'</b></td>
 					</tr>';
 
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -374,6 +399,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 						<td>'.fw(($row['scheduled_begin']?t3lib_BEfunc::datetime($row['scheduled_begin']):'').'&nbsp;&nbsp;').'</td>
 						<td>'.fw(($row['scheduled_end']?t3lib_BEfunc::datetime($row['scheduled_end']):'').'&nbsp;&nbsp;').'</td>
 						<td align=right>'.fw($count?$count:'&nbsp;').'</td>
+						<td align=center>'.$this->deleteLink($row['uid']).'</td>
 					</tr>';
 		}
 
@@ -390,6 +416,22 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 		return $theOutput;
 	}
 
+	/**
+	 * create delete link with trash icon
+	 * 
+	 * @param	int		$uid: uid of the record
+	 * @return	string	link with the trash icon
+	 */
+	function deleteLink($uid) {
+		global $BACK_PATH;
+		
+		$icon = '<img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/delete_record.gif').' />';
+		$dmail = t3lib_BEfunc::getRecord('sys_dmail', $uid); 
+		if (!$dmail['scheduled_begin']) {
+			return '<a href="index.php?id='.$this->id.'&cmd=delete&uid='.$uid.'">'.$icon.'</a>';
+		}
+	}
+	
 	/**
 	 * wrapping a string with a link
 	 *

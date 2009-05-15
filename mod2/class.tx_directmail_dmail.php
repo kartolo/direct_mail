@@ -846,28 +846,13 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	function JSbottom($formname='forms[0]')	{
 		if ($this->extJSCODE)	{
 			$out.='
-			<script language="javascript" type="text/javascript" src="/' . substr(PATH_t3lib,strlen(PATH_site)) . 'jsfunc.evalfield.js"></script>
 			<script language="javascript" type="text/javascript">
-				var evalFunc = new evalFunc;
-				function typo3FormFieldSet(theField, evallist, is_in, checkbox, checkboxValue)	{ //
-					var theFObj = new evalFunc_dummy (evallist,is_in, checkbox, checkboxValue);
-					var theValue = document.'.$formname.'[theField].value;
-					if (checkbox && theValue==checkboxValue)	{
-						document.'.$formname.'[theField+"_hr"].value=\'\';
-						if (document.'.$formname.'[theField+"_cb"])	document.'.$formname.'[theField+"_cb"].checked = \'\';
-					} else {
-						document.'.$formname.'[theField+"_hr"].value = evalFunc.outputObjValue(theFObj, theValue);
-						if (document.'.$formname.'[theField+"_cb"])	document.'.$formname.'[theField+"_cb"].checked = \'on\';
-					}
-				}
-				function typo3FormFieldGet(theField, evallist, is_in, checkbox, checkboxValue, checkbox_off) { //
-					var theFObj = new evalFunc_dummy (evallist,is_in, checkbox, checkboxValue);
-					if (checkbox_off)	{
-						document.'.$formname.'[theField].value=checkboxValue;
-					}else{
-						document.'.$formname.'[theField].value = evalFunc.evalObjValue(theFObj, document.'.$formname.'[theField+"_hr"].value);
-					}
-					typo3FormFieldSet(theField, evallist, is_in, checkbox, checkboxValue);
+				function typo3FormFieldGet() {
+					var sendDateTime = document.forms[0]["send_mail_datetime_hr"].value.split(" ");
+					var sendHour = sendDateTime[0].split(":");
+					var sendDate = sendDateTime[1].split("-");
+
+					document.forms[0]["send_mail_datetime"].value = new Date(sendDate[2],(sendDate[1]-1),sendDate[0],sendHour[0],sendHour[1],00).getTime()/1000;
 				}
 			</script>
 			<script language="javascript" type="text/javascript">'.$this->extJSCODE.'</script>';
@@ -940,22 +925,24 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		
 		
 		$msg.= $LANG->getLL('schedule_time') .
-			' <input type="text" id="send_mail_datetime_hr" name="send_mail_datetime_hr'.'" onChange="typo3FormFieldGet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);"'.$TBE_TEMPLATE->formWidth(20).'>'.
+			' <input type="text" id="send_mail_datetime_hr" name="send_mail_datetime_hr'.'" onChange="typo3FormFieldGet();"'.$TBE_TEMPLATE->formWidth(20).'>'.
 			tx_directmail_calendarlib::getInputButton ('send_mail_datetime_hr').
 			'<input type="hidden" value="'.time().'" name="send_mail_datetime" /><br />';
 		
-		//$this->extJSCODE.='typo3FormFieldSet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);';
-		$this->extJSCODe .= '
+		$this->extJSCODE .= '
+		
+		document.forms[0]["send_mail_datetime_hr"].value = showLocalDate(document.forms[0]["send_mail_datetime"].value);
+		
 		function showLocalDate(timestamp)
 		{
 		  var dt = new Date(timestamp * 1000);
-		  return dt.getHours() ":" dt.getMinutes() " " dt.getDate() "-" dt.getMonth() "-" dt.getFullYear();
+		  return dt.getHours()+":"+dt.getMinutes()+" "+dt.getDate()+"-"+(dt.getMonth()+1)+"-"+dt.getFullYear();
 		}
 		
 		';
 		
 		$msg .= '<br/><input type="checkbox" name="testmail" value="1">'.$LANG->getLL('schedule_testmail');
-		$msg.= '<br /><br /><input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" onClick="typo3FormFieldGet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);" />';
+		$msg.= '<br /><br /><input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" onClick="typo3FormFieldGet();" />';
 		$msg.=$this->JSbottom();
 
 		$theOutput.= $this->doc->section($LANG->getLL('schedule_select_mailgroup'),fw($msg), 1, 1, 0, TRUE);

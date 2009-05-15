@@ -1,5 +1,7 @@
 2009-05-15 Ivan Kartolo <ivan.kartolo@dkd.de>
-	* Show amount of the recipient in the list view (Recipient list module) and the last step of the sending wizard (module direct mail). 
+	* Show amount of the recipient in the list view (Recipient list module) and the last step of the sending wizard (module direct mail).
+	* Added delete link in the mailer engine to remove unsent direct mail
+	* Changed Javascript handling the calender and reformating the calender format. 
 
 2009-03-21 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Preview icon (HTML and plaintext) will use correct domain

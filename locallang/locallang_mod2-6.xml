@@ -93,6 +93,7 @@
 			<label index="dmail_mailerengine_scheduled"></label>
 			<label index="dmail_mailerengine_status"></label>
 			<label index="dmail_mailerengine_subject"></label>
+			<label index="dmail_mailerengine_delete"></label>
 			<label index="dmail_makeQuery"></label>
 			<label index="dmail_menuItems_testmail"></label>
 			<label index="dmail_menu_conf"></label>
@@ -432,6 +433,7 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="dmail_mailerengine_scheduled">Scheduled</label>
 			<label index="dmail_mailerengine_status">Mail Engine Status</label>
 			<label index="dmail_mailerengine_subject">Subject</label>
+			<label index="dmail_mailerengine_delete">delete</label>
 			<label index="dmail_makeQuery">Make query</label>
 			<label index="dmail_menuItems_testmail">Send a testmail</label>
 			<label index="dmail_menu_conf">Module configuration</label>
@@ -776,6 +778,7 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="dmail_mailerengine_scheduled">Planzeit</label>
 			<label index="dmail_mailerengine_status">Status</label>
 			<label index="dmail_mailerengine_subject">Betreff</label>
+			<label index="dmail_mailerengine_delete">Entfernen</label>
 			<label index="dmail_makeQuery">Generiere Abfrage</label>
 			<label index="dmail_menuItems_testmail">Eine Testmail versenden</label>
 			<label index="dmail_menu_conf">Modulkonfiguration</label>
