@@ -913,7 +913,17 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$opt = array();
 		$opt[] = '<option></option>';
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-			$opt[] = '<option value="'.$row['uid'].'">'.htmlspecialchars($row['title']).'</option>';
+
+			$result = $this->cmd_compileMailGroup(intval($row['uid']));
+			$count=0;
+			$idLists = $result['queryInfo']['id_lists'];
+			if (is_array($idLists['tt_address']))	$count+=count($idLists['tt_address']);
+			if (is_array($idLists['fe_users']))	$count+=count($idLists['fe_users']);
+			if (is_array($idLists['PLAINLIST']))	$count+=count($idLists['PLAINLIST']);
+			if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
+			
+			
+			$opt[] = '<option value="'.$row['uid'].'">'.htmlspecialchars($row['title'].' (#'.$count.')').'</option>';
 		}
 		// added disabled. see hook
 		$select = '<select name="mailgroup_uid" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
@@ -933,7 +943,17 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			' <input type="text" id="send_mail_datetime_hr" name="send_mail_datetime_hr'.'" onChange="typo3FormFieldGet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);"'.$TBE_TEMPLATE->formWidth(20).'>'.
 			tx_directmail_calendarlib::getInputButton ('send_mail_datetime_hr').
 			'<input type="hidden" value="'.time().'" name="send_mail_datetime" /><br />';
-		$this->extJSCODE.='typo3FormFieldSet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);';
+		
+		//$this->extJSCODE.='typo3FormFieldSet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);';
+		$this->extJSCODe .= '
+		function showLocalDate(timestamp)
+		{
+		  var dt = new Date(timestamp * 1000);
+		  return dt.getHours() ":" dt.getMinutes() " " dt.getDate() "-" dt.getMonth() "-" dt.getFullYear();
+		}
+		
+		';
+		
 		$msg .= '<br/><input type="checkbox" name="testmail" value="1">'.$LANG->getLL('schedule_testmail');
 		$msg.= '<br /><br /><input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" onClick="typo3FormFieldGet(\'send_mail_datetime\', \'datetime\', \'\', 0,0);" />';
 		$msg.=$this->JSbottom();

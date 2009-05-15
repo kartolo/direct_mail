@@ -234,6 +234,7 @@
 			<label index="recip_create_mailgroup_msg"></label>
 			<label index="recip_import_mailgroup_msg"></label>
 			<label index="recip_select_mailgroup"></label>
+			<label index="recip_group_amount"></label>
 			<label index="records_converted_too_many"></label>
 			<label index="records_not_converted_explain1"></label>
 			<label index="records_not_converted_explain2"></label>
@@ -578,6 +579,7 @@ By clicking on the "Import" button below, all data will be written in tt_address
 			<label index="recip_create_mailgroup_msg">Create a new recipient list?</label>
 			<label index="recip_import_mailgroup_msg">Click here to import CSV</label>
 			<label index="recip_select_mailgroup">Select a recipient list</label>
+			<label index="recip_group_amount">Amount:</label>
 			<label index="records_converted_too_many">There were too many records converted (more than 50) to report each individually.</label>
 			<label index="records_not_converted_explain1">You may need to configure variable</label>
 			<label index="records_not_converted_explain2">in Page TSConfig on the pages containing the records that could not be converted.</label>
@@ -921,6 +923,7 @@ Wenn Sie auf "Importieren" klicken, werden die Daten in tt_address Tabelle impor
 			<label index="recip_create_mailgroup_msg">Neue Versandgruppe erstellen?</label>
 			<label index="recip_import_mailgroup_msg">Klicken Sie hier, um eine CSV-Datei einzulesen.</label>
 			<label index="recip_select_mailgroup">Auswahl der Versandgruppe</label>
+			<label index="recip_group_amount">Summe:</label>
 			<label index="records_converted_too_many">Es gibt zu viele Datensätze (mehr als 50), die konvertiert sind, um einzelne anzuzeigen.</label>
 			<label index="records_not_converted_explain1">Sie sollen Variablen in Page TSConfig der Seite konfigurieren,</label>
 			<label index="records_not_converted_explain2">die die nicht konvertierten Datensätze beinhaltet</label>

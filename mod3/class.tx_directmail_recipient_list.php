@@ -368,15 +368,26 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 						<td class="'.$this->doc->bgColor5.'"><b>'.fw($LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','title'))).'</b></td>
 						<td class="'.$this->doc->bgColor5.'"><b>'.fw($LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','type'))).'</b></td>
 						<td class="'.$this->doc->bgColor5.'"><b>'.fw($LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','description'))).'</b></td>
+						<td class="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('recip_group_amount')).'</b></td>
 					</tr>';
 		$TDparams=' valign="top"';
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+			
+			$result = $this->cmd_compileMailGroup(intval($row['uid']));
+			$count=0;
+			$idLists = $result['queryInfo']['id_lists'];
+			if (is_array($idLists['tt_address']))	$count+=count($idLists['tt_address']);
+			if (is_array($idLists['fe_users']))	$count+=count($idLists['fe_users']);
+			if (is_array($idLists['PLAINLIST']))	$count+=count($idLists['PLAINLIST']);
+			if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
+			
 			$out.='<tr>
 						<td'.$TDparams.' nowrap>'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
 						<td'.$TDparams.'>'.$this->editLink('sys_dmail_group',$row['uid']).'</td>
 						<td'.$TDparams.' nowrap>'.$this->linkRecip_record(fw('<strong>'.t3lib_div::fixed_lgd($row['title'],30).'</strong>&nbsp;&nbsp;'),$row['uid']).'</td>
 						<td'.$TDparams.' nowrap>'.fw(htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail_group','type',$row['type'])).'&nbsp;&nbsp;').'</td>
 						<td'.$TDparams.'>'.fw(htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail_group','description',$row['description'])).'&nbsp;&nbsp;').'</td>
+						<td'.$TDparams.'>'.$count.'</td>
 					</tr>';
 		}
 
