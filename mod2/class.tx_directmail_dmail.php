@@ -1649,7 +1649,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		while($row = $TYPO3_DB->sql_fetch_assoc($res)){
 			$tblLines[] = array(
 				t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, ' style="vertical-align: top;"'),
-				$this->linkDMail_record(t3lib_div::fixed_lgd($row['subject'],30),$row['uid']),
+				$this->linkDMail_record($row['subject'],$row['uid']),
 				t3lib_BEfunc::date($row['tstamp']),
 				($row['issent'] ? $LANG->getLL('dmail_yes') : $LANG->getLL('dmail_no')),
 				($row['renderedsize'] ? t3lib_div::formatSize($row['renderedsize']) : ''),
