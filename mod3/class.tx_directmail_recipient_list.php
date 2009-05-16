@@ -747,7 +747,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				$indata['html']= 0;
 			}
 		}
-debug($indata);
+
 		switch($table)	{
 		case 'tt_address':
 		case 'fe_users':
