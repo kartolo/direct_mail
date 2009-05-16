@@ -3,6 +3,7 @@
 	* Documentation is updated
 	* Show preview icon based on format of mail content (see configuration)
 	* show the subject in the full length (step 1)
+	* Fixed bug: #2392 (forge) html-flag is not saved, when it changed in recipient list-module.
 
 2009-05-15 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Show amount of the recipient in the list view (Recipient list module) and the last step of the sending wizard (module direct mail).

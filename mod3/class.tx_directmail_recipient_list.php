@@ -658,7 +658,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				'whichtables' => intval($whichTables),
 				'query' => $this->MOD_SETTINGS['queryConfig']
 			);
-debug($updateFields);
+
 			$res_update = $TYPO3_DB->exec_UPDATEquery(
 				'sys_dmail_group',
 				'uid='.intval($mailGroup['uid']),
@@ -740,7 +740,14 @@ debug($updateFields);
 		$table=t3lib_div::_GP('table');
 		t3lib_div::loadTCA($table);
 		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
-
+		
+		if(t3lib_div::_GP('submit')){
+			$indata = t3lib_div::_GP('indata');
+			if(!$indata){
+				$indata['html']= 0;
+			}
+		}
+debug($indata);
 		switch($table)	{
 		case 'tt_address':
 		case 'fe_users':
@@ -824,7 +831,7 @@ debug($updateFields);
 			$out_check.=$LANG->getLL('subscriber_profile_htmlemail') . '<br />';
 			$out.=fw($out_check);
 
-			$out.='<input type="hidden" name="table" value="'.$table.'" /><input type="hidden" name="uid" value="'.$uid.'" /><input type="hidden" name="CMD" value="'.$this->CMD.'" /><br /><input type="submit" value="' . htmlspecialchars($LANG->getLL('subscriber_profile_update')) . '" />';
+			$out.='<input type="hidden" name="table" value="'.$table.'" /><input type="hidden" name="uid" value="'.$uid.'" /><input type="hidden" name="CMD" value="'.$this->CMD.'" /><br /><input type="submit" name="submit" value="' . htmlspecialchars($LANG->getLL('subscriber_profile_update')) . '" />';
 			$theOutput.= $this->doc->spacer(20);
 			$theOutput.= $this->doc->section($LANG->getLL('subscriber_profile'), $LANG->getLL('subscriber_profile_instructions') . '<br /><br />'.$out);
 		}
