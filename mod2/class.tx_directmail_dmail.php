@@ -948,7 +948,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			if (dt.getMinutes() < 9) {
 				minute = "0"+dt.getMinutes();
 			} else {
-				minute = dt.getMinutes;
+				minute = dt.getMinutes();
 			}
 			return hour+":"+minute+" "+dt.getDate()+"-"+(dt.getMonth()+1)+"-"+dt.getFullYear();
 		}
