@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+    <meta type="array">
+        <description>Context Sensitive Help for Direct Mail Categories</description>
+        <type>CSH</type>
+        <csh_table>sys_dmail_category</csh_table>
+        <fileId>EXT:direct_mail/locallang_csh_sysdmailcat.xml</fileId>
+        <labelContext type="array">
+            <label index=".description"></label>
+            <label index=".details"></label>
+            <label index="_.seeAlso"></label>
+	    <label index="category.description"></label>
+            <label index="category.details"></label>
+	    <label index="sys_language_uid.description"></label>
+            <label index="sys_language_uid.details"></label>
+        </labelContext>
+    </meta>
+    <data type="array">
+        <languageKey index="default" type="array">
+            <label index=".description">Direct mail category</label>
+            <label index=".details">Direct mail categories are used to classify content elements by subject so that direct mails may be personalized.
+
+Direct mail categories may be assigned to content elements in pages that are used to build direct mails.
+
+Subscribers may also subscribe to direct mail categories of interest to them.
+
+When sending direct mails, the Direct mail module uses this information to personalize the email message sent to each subscriber.</label>
+            <label index="_.seeAlso">sys_dmail, sys_dmail_group</label>
+	    <label index="category.description">Direct mail categories are used to classify content elements.</label>
+            <label index="category.details">A category corresponds to a subject or topic. It is not recommended to use categories to distinguish between contents in various languages, or to distinguish between contents targeted at different audiences. Use the Language field of content elements or Website User Group records for such purposes.</label>
+	    <label index="sys_language_uid.description">Select the language of the category.</label>
+            <label index="sys_language_uid.details">This allows you to translate the title of the category in the selected language. This will enable frontend plugins to present the title of the category in the language of the frontend page.
+The available system languages are created by the administrator.</label>
+        </languageKey>
+        <languageKey index="fr" type="array">
+            <label index=".description">Rubrique de contenu</label>
+            <label index=".details">Les rubriques de contenu sont utilisées pour classifier les éléments de contenu par sujet de manière à ce que les bulletins puissent être personnalisés.
+
+Des rubriques de contenu peuvent être attribuées aux éléments de contenu des pages utilisées pour construire les bulletins.
+
+Les abonnés peuvent aussi s'abonner à des rubriques de contenu selon leurs domaines d'intérêt.
+
+Lors d'un envoi, le module d'Envoi ciblé utilise ces informations pour personnaliser le message électronique envoyé à chaque abonné.</label>
+	    <label index="category.description">Entrez le titre ou le libellé de la rubrique de contenu.</label>
+            <label index="category.details">Les rubriques de contenu sont utilisées pour classifier les éléments de contenu. Une rubrique correspond à un sujet ou à un thème. Il n'est pas recommandé d'utiliser les rubriques pour distinguer les contenus en différentes langues, ni pour distinguer les contenus destinés à différentes audiences. Utilisez plutôt à ces fins le champ Langue des éléments de contenu ou les enregistrements Groupe d'utilisateurs de site.</label>
+	    <label index="sys_language_uid.description">Choisissez la langue du titre ou libellé de la rubrique de contenu.</label>
+            <label index="sys_language_uid.details">Ce champ permet la traduction du titre ou libellé de la rubrique dans la langue choisie. Ceci permettra aux greffons d'avant-plan de présenter le titre de la rubrique dans la langue de la page présentée en avant-plan.
+Les langues sont rendues disponibles par l'administrateur du système de gestion de contenu.</label>
+        </languageKey>
+    </data>
+    <orig_hash type="array">
+        <languageKey index="default" type="array">
+            <label index=".description" type="integer">76723653</label>
+            <label index=".details" type="integer">174399142</label>
+            <label index="_.seeAlso" type="integer">5801918</label>
+        </languageKey>
+        <languageKey index="fr" type="array">
+            <label index=".description" type="integer">76723653</label>
+            <label index=".details" type="integer">174399142</label>
+        </languageKey>
+    </orig_hash>
+    <orig_text type="array">
+        <languageKey index="default" type="array">
+        </languageKey>
+        <languageKey index="fr" type="array">
+        </languageKey>
+    </orig_text>
+</T3locallang>

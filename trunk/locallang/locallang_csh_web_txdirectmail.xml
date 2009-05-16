@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<description>CSH for Direct Mail Module</description>
+		<type>CSH</type>
+		<fileId>EXT:direct_mail/mod/locallang_csh_web_txdirectmailM1</fileId>
+		<csh_table>_MOD_web_txdirectmailM1</csh_table>
+		<keep_original_text>1</keep_original_text>
+		<labelContext type="array">
+		</labelContext>
+	</meta>
+    <data type="array">
+        <languageKey index="default" type="array">
+	    <label index=".alttitle">Web > Direct Mail module</label>
+            <label index=".description">Select the function of the Direct Mail module that you want to use.</label>
+            <label index=".details">The functions of the Direct Mail module are the following, but their availability may be restricted depending on user access rights:
+
+1. Newsletters: this function lets you create a new newsletter or select an existing one; you may also select an existing newsletter in the page tree of the Direct Mail folder; selecting an existing newsletter leads you to a screen that lets you view or edit the newsletter, assign categories to the content elements of the page, view the list of direct mails already based on this newsletter page, or create a new one based on it.
+
+2. Direct Mails: this function lets you create a new direct mail based on a newsletter that has not yet been used to create one, or based on an external URL, or select an existing direct mail; selecting an existing direct mail leads you to a screen that lets you view the current information on the direct mail, edit the properties of the direct mail, and select from a menu of options the action you want to take on the selected direct mail.
+
+3. Recipient Lists: this function lets you create a new recipient list, import Addresses records from csv data to create a new recipient list, link to the diting form of an existing recipient list, or select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.
+
+4. Mailer Engine Status: this function lets you review the current status of the direct mails that have been scheduled for mass sending, and invoke manually the mailer engine, if it is not configured to be automatically invoked; selecting one of the listed direct mails leads you to the Direct Mails function where you may select to review the statistics of the selected direct mail.
+
+5. QuickMail: this function lets you enter a short message and send it immediately to a recipient list. No newsletter, nor any direct mail is involved in this function.
+
+6. Categories Conversion: this function is a migration tool that lets you convert your database to the new Direct Mail Categories introduced in version 2.0 of Direct Mail. Please refer to the manual for more information.
+
+7. Module Configuration: this function is an administration tool used to configure a Direct Mail folder. Please refer to the manual for more information.</label>
+            <label index="_.seeAlso">sys_dmail, sys_dmail_group, sys_dmail_category</label>
+	    <label index="folders.alttitle">Available Direct Mail folders</label>
+	    <label index="folders.description">Select the Direct Mail folder you wish to work with.</label>
+            <label index="folders.details">Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</label>
+	    <label index="select_newsletter.alttitle">Select a newsletter</label>
+	    <label index="select_newsletter.description">Click on one of these already created newsletters.</label>
+            <label index="select_newsletter.details">You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</label>
+	    <label index="create_newsletter.alttitle">Create a newsletter</label>	    
+	    <label index="create_newsletter.description">Click on this link if you want to create a new newsletter.</label>
+            <label index="create_newsletter.details">A newsletter is basically a regular Typo3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
+
+You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
+
+###USER_uid### (the unique id of the recipient)
+###USER_name### (full name)
+###USER_firstname### (first name calculated)
+###USER_NAME### and ###USER_FIRSTNAME### will insert uppercase versions of the equivalents
+###USER_title###
+###USER_email###
+###USER_phone###
+###USER_www###
+###USER_address###
+###USER_company###
+###USER_city###
+###USER_zip###
+###USER_country###
+###USER_fax###
+###SYS_TABLE_NAME###
+###SYS_MAIL_ID###
+###SYS_AUTHCODE###</label>
+	    <label index="assign_categories.alttitle">Assign categories to content elements</label>
+	    <label index="assign_categories.description">Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</label>
+            <label index="assign_categories.details">Check a checkbox in order to assign a category to a content element.
+
+If you do not assign any category to an element, the element will appear in all mails.</label>
+            <label index="assign_categories.seeAlso">sys_dmail_category</label>
+	    <label index="assign_categories.alttitle">Select a direct mail</label>
+	    <label index="select_directmail.description">The following direct mails have not yet been sent. Click on the one you want to work on.</label>
+	    <label index="select_directmail.seeAlso">sys_dmail</label>
+	    <label index="create_directmail_from_nl.alttitle">Create a new direct mail from newsletter</label>
+	    <label index="create_directmail_from_nl.description">No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</label>
+	    <label index="create_directmail_from_nl.seeAlso">sys_dmail</label>
+	    <label index="create_directmail_from_url.alttitle">Create a new direct mail from an external URL</label>
+	    <label index="create_directmail_from_url.description">Use this form to create a new direct mail based on content grabbed from an external URL.</label>
+	    <label index="create_directmail_from_url.seeAlso">sys_dmail</label>
+	    <label index="directmail_actions.alttitle">Direct Mails options menu</label>
+	    <label index="directmail_actions.description">Select the action you want to perform on this direct mail.</label>
+            <label index="directmail_actions.details">Possible actions are the following, but their availability vary depending on the current state of the direct mail:
+	    
+1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
+
+2. Send a testmail: this option lets you send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application.
+
+3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
+
+4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.</label>
+            <label index="directmail_actions.seeAlso">sys_dmail</label>
+	    <label index="mailgroup_import.alttitle">Import CSV into 'Address' table</label>
+	    <label index="mailgroup_import.description">This option lets you import a csv, or comma-separated, list of address records and create a recipient list containing the imported records.</label>
+            <label index="mailgroup_import.details">The records to import are entered one per line. Each record to import is a comma-separated list of field values. You may also specify the use of a semicolon(;) or of a colon (:) as separator instead of the comma.
+
+On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be "name, email".
+
+Each field name listed on the first line is analyzed as follows:
+
+1.the field name may one of the field names from the following list: uid, name, title, email, phone, www, address, company, city, zip, country, fax, module_sys_dmail_html, module_sys_dmail_category;
+
+2.the field name may be omitted in which case the corresponding values will be skipped or omitted;
+
+3.the field name may start with "user_", assuming that table tt_address was extended with the specified field name;
+
+4.in addition, fields may be suffixed with "[code]"; in this case, when the value in the imported record is not null, "[+value]" adds that number to the field value and "[=value]" overrides any existing value in the field.
+
+Example of csv field specification:
+;user_date;name;email;zip;phone;user_age[=20]
+185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x
+186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;
+187;12-02-01;Anette Bentholm;madsenbentholm@mail.net4you.dk;;98373677;x</label>
+        </languageKey>
+        <languageKey index="de" type="array">
+	    <label index=".alttitle">Web &gt; Direct-Mail-Modul </label>
+            <label index=".description">Wählen Sie eine Funktion des Direct-Mail-Moduls.</label>
+            <label index=".details">The functions of the Direct Mail module are the following, but their availability may be restricted depending on user access rights:
+
+1. Newsletter: this function lets you create a new newsletter or select an existing one; you may also select an existing newsletter in the page tree of the Direct Mail folder; selecting an existing newsletter leads you to a screen that lets you view or edit the newsletter, assign categories to the content elements of the page, view the list of direct mails already based on this newsletter page, or create a new one based on it.
+
+2. Versand: this function lets you create a new direct mail based on a newsletter that has not yet been used to create one, or based on an external URL, or select an existing direct mail; selecting an existing direct mail leads you to a screen that lets you view the current information on the direct mail, edit the properties of the direct mail, and select from a menu of options the action you want to take on the selected direct mail.
+
+3. Empfängerliste: this function lets you create a new recipient list, import Addresses records from csv data to create a new recipient list, link to the diting form of an existing recipient list, or select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.
+
+4. Versand-Status: this function lets you review the current status of the direct mails that have been scheduled for mass sending, and invoke manually the mailer engine, if it is not configured to be automatically invoked; selecting one of the listed direct mails leads you to the Direct Mails function where you may select to review the statistics of the selected direct mail.
+
+5. QuickMail: this function lets you enter a short message and send it immediately to a recipient list. No newsletter, nor any direct mail is involved in this function.
+
+6. Konvertierung von Kategorien: this function is a migration tool that lets you convert your database to the new Direct Mail Categories introduced in version 2.0 of Direct Mail. Please refer to the manual for more information.
+
+7. Modulkonfiguration: this function is an administration tool used to configure a Direct Mail folder. Please refer to the manual for more information.</label>
+            <label index="_.seeAlso">sys_dmail, sys_dmail_group, sys_dmail_category</label>
+	    <label index="folders.alttitle">Verfügbare Direct-Mail-Ordner</label>
+	    <label index="folders.description">Select the Direct Mail folder you wish to work with.</label>
+	    <label index="folders.description">Wählen Sie den Direct-Mail-Ordner, mit dem Sie arbeiten wollen.</label>
+            <label index="folders.details">Jeder Direct-Mail-Ordner enthält eine eigene Newsletter-Konfiguration. Für unterschiedliche Zwecke oder Empfänger können Sie so unterschiedlich gestaltete Newsletter versenden.</label>
+	    <label index="select_newsletter.alttitle">Wählen Sie eine Newsletter-Seite.</label>
+	    <label index="select_newsletter.description">Klicken Sie einen der bereits angelegten Newsletter.</label>
+            <label index="select_newsletter.details">Sie können einen der aufgelisteten Newsletter anklicken, um Informationen über ihn zu erhalten, ihn zu bearbeiten und einen Versand daraus zu erstellen.</label>
+	    <label index="create_newsletter.alttitle">Newsletter anlegen</label>	    
+	    <label index="create_newsletter.description">Klicken Sie hier, um eine neue Newsletter-Seite anzulegen.</label>
+            <label index="create_newsletter.details">A newsletter is basically a regular Typo3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
+
+You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
+
+###USER_uid### (the unique id of the recipient)
+###USER_name### (full name)
+###USER_firstname### (first name calculated)
+###USER_NAME### and ###USER_FIRSTNAME### will insert uppercase versions of the equivalents
+###USER_title###
+###USER_email###
+###USER_phone###
+###USER_www###
+###USER_address###
+###USER_company###
+###USER_city###
+###USER_zip###
+###USER_country###
+###USER_fax###
+###SYS_TABLE_NAME###
+###SYS_MAIL_ID###
+###SYS_AUTHCODE###</label>
+	    <label index="assign_categories.alttitle">Assign categories to content elements</label>
+	    <label index="assign_categories.description">Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</label>
+            <label index="assign_categories.details">Check a checkbox in order to assign a category to a content element.
+
+If you do not assign any category to an element, the element will appear in all mails.</label>
+            <label index="assign_categories.seeAlso">sys_dmail_category</label>
+	    <label index="assign_categories.alttitle">Select a direct mail</label>
+	    <label index="select_directmail.description">The following direct mails have not yet been sent. Click on the one you want to work on.</label>
+	    <label index="select_directmail.seeAlso">sys_dmail</label>
+	    <label index="create_directmail_from_nl.alttitle">Create a new direct mail from newsletter</label>
+	    <label index="create_directmail_from_nl.description">No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</label>
+	    <label index="create_directmail_from_nl.seeAlso">sys_dmail</label>
+	    <label index="create_directmail_from_url.alttitle">Create a new direct mail from an external URL</label>
+	    <label index="create_directmail_from_url.description">Use this form to create a new direct mail based on content grabbed from an external URL.</label>
+	    <label index="create_directmail_from_url.seeAlso">sys_dmail</label>
+	    <label index="directmail_actions.alttitle">Direct Mails options menu</label>
+	    <label index="directmail_actions.description">Select the action you want to perform on this direct mail.</label>
+            <label index="directmail_actions.details">Possible actions are the following, but their availability vary depending on the current state of the direct mail:
+	    
+1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
+
+2. Send a testmail: this option lets you send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application.
+
+3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
+
+4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.</label>
+            <label index="directmail_actions.seeAlso">sys_dmail</label>
+	    <label index="mailgroup_import.alttitle">Import CSV into 'Address' table</label>
+	    <label index="mailgroup_import.description">This option lets you import a csv, or comma-separated, list of address records and create a recipient list containing the imported records.</label>
+            <label index="mailgroup_import.details">The records to import are entered one per line. Each record to import is a comma-separated list of field values. You may also specify the use of a semicolon(;) or of a colon (:) as separator instead of the comma.
+
+On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be "name, email".
+
+Each field name listed on the first line is analyzed as follows:
+
+1.the field name may one of the field names from the following list: uid, name, title, email, phone, www, address, company, city, zip, country, fax, module_sys_dmail_html, module_sys_dmail_category;
+
+2.the field name may be omitted in which case the corresponding values will be skipped or omitted;
+
+3.the field name may start with "user_", assuming that table tt_address was extended with the specified field name;
+
+4.in addition, fields may be suffixed with "[code]"; in this case, when the value in the imported record is not null, "[+value]" adds that number to the field value and "[=value]" overrides any existing value in the field.
+
+Example of csv field specification:
+;user_date;name;email;zip;phone;user_age[=20]
+185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x
+186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;
+187;12-02-01;Anette Bentholm;madsenbentholm@mail.net4you.dk;;98373677;x</label>
+        </languageKey>
+        <languageKey index="fr" type="array">
+	    <label index=".alttitle">Web > Module Envoi ciblé</label>
+            <label index=".description">Sélectionnez la fonction du module d'Envoi ciblé que vous voulez utiliser.</label>
+            <label index=".details">Les fonctions du module d'Envoi ciblé sont les suivantes, mais leur disponibilité peut être restreinte selon les droits d'accès de l'utilisateur:
+
+1. Pages: cette fonction vous permet de créer une page de nouvelles ou d'en sélectionner une déjà existante; vous pouvez aussi sélectionner une page existante dans l'arborescence des pages du dossier d'Envoi ciblé; sélectionner une page existante mène à une fenêtre qui vous permet de visionner ou d'éditer la page de nouvelles, d'assigner des rubriques aux éléments de contenu de la page, de voir la liste des bulletins construits à partir de cette page, ou d'en créer un nouveau à partir de celle-ci.
+
+2. Bulletins: cette fonction vous permet de créer un nouveau bulletin soit à partir d'une page qui n'a pas encore été utilisée pour en construire un, soit à partir d'une URL externe, ou de sélectionner un bulletin existant; sélectionner un bulletin existant mène à une fenêtre qui vous permet de visionner les propriétés courantes du bulletin, de les éditer, et de sélectionner dans un menu d'options l'action que vous voulez prendre sur ce bulletin.
+
+3. Listes de distribution: cette fonction vous permet de créer une liste de distribution, d'importer des enregistrements Adresses à partir de données csv afin de créer une liste de distribution, de naviguer vers le formulaire d'édition d'une liste de distribution existante, ou de sélectionner une liste de distribution existante; sélectionner une liste de distribution existante mène à une fenêtre qui vous présente le nombre de destinataires de chaque type dans la liste, avec option d'en afficher la liste ou de la télécharger dans un fichier csv.
+
+4. État des envois massifs: cette fonction vous présente l'état courant de chacun des bulletins dont l'envoi massif a été programmé, et vous permet de déclencher le processus d'envoi, dans le cas où le déclenchement automatique de celui-ci n'est pas configuré; sélectionner un des bulletins de la liste mène à la fonction Bulletins qui vous permet de sélectionner l'option d'affichage des statistiques de l'envoi massif du bulletin sélectionné.
+
+5. Courrier rapide: cette fonction vous permet d'entrer un court message et de l'envoyer immédiatement à une liste de distribution. Aucune page, ni aucun bulletin n'est utilisé par cette fonction.
+
+6. Conversion des rubriques: cette fonction est un outil de migration qui vous permet de convertir votre base de données vers les nouvelles rubriques introduites dans Envoi ciblé version 2.0. Pour plus d'information, veuillez consulter le manuel.
+
+7. Configuration du module: cette fonction est un outil d'administration utilisé pour configurer un dossier d'Envoi ciblé. Pour plus d'information, veuillez consulter le manuel.</label>
+	    <label index="folders.alttitle">Dossiers d'Envoi ciblé disponibles</label>
+	    <label index="folders.description">Sélectionnez le dossier d'Envoi ciblé sur lequel vous désirez travailler.</label>
+            <label index="folders.details">Chaque dossier d'Envoi ciblé constitue une aire de travail spécifiquement configurée pour ce module.</label>
+	    <label index="select_newsletter.alttitle">Choisissez une page existante</label>
+	    <label index="select_newsletter.description">Cliquez sur une de ces pages déjà existantes.</label>
+            <label index="select_newsletter.details">Vous pouvez cliquer sur une des pages de cette liste pour voir l'information à propos de cette page, classifier ses éléments de contenu, ou encore l'utiliser pour créer un bulletin.</label>
+	    <label index="create_newsletter.alttitle">Créer une nouvelle page de nouvelles</label>	    
+	    <label index="create_newsletter.description">Cliquez sur ce lien si vous voulez créer une nouvelle page de nouvelles.</label>
+            <label index="create_newsletter.details">Une page de nouvelles est essentiellement un page TYPO3 ordinaire déposée dans le dossier d'Envoi ciblé. Si vous cliquez sur ce lien, on vous présentera un formulaire combiné de création de page et de création d'un premier élément de contenu. Après avoir créé la page, vous pourrez y ajouter d'autres éléments de contenu.
+
+Vous pouvez personnaliser les bulletins qui seront envoyés à chaque destinataire en insérant les marqueurs suivants dans les éléments de contenu de la page de nouvelles. Les marqueurs seront remplacés par les valeurs correspondantes trouvées dans l'enregistrement du destinataire, lorsque disponibles:
+
+###USER_uid### (l'identifiant unique du destinataire)
+###USER_name### (le nom au complet)
+###USER_firstname### (le prénom, calculé)
+###USER_NAME### et ###USER_FIRSTNAME### (la version en majuscule des mêmes éléments)
+###USER_title###
+###USER_email###
+###USER_phone###
+###USER_www###
+###USER_address###
+###USER_company###
+###USER_city###
+###USER_zip###
+###USER_country###
+###USER_fax###
+###SYS_TABLE_NAME###
+###SYS_MAIL_ID###
+###SYS_AUTHCODE###</label>
+	    <label index="assign_categories.alttitle">Assigner des rubriques aux éléments de contenu</label>
+	    <label index="assign_categories.description">Assigner des rubriques à un élément de contenu signifie que cet élément sera inclus dans un bulletin personnalisé seulement si le destinataire est abonné à au moins une de ces rubriques.</label>
+            <label index="assign_categories.details">Cochez dans la case vis-à-vis la rubrique pour l'assigner à l'élément de contenu. Après avoir coché ou décoché toutes les cases désirées, appuyez sur le bouton "Mettre à jour les rubriques des éléments de contenu".
+
+Si aucune rubrique n'est assignée à un élément de contenu, l'élément sera inclus dans le bulletin personnalisé de tous les destinataires.</label>
+	    <label index="select_directmail.alttitle">Choisissez un bulletin</label>
+	    <label index="select_directmail.description">Les bulletins présentés dans cette liste n'ont pas encore été envoyés. Cliquez sur celui sur lequel vous voulez prendre action.</label>
+	    <label index="create_directmail_from_nl.alttitle">Créer un nouveau bulletin basé sur une page</label>
+	    <label index="create_directmail_from_nl.description">Aucun bulletin n'a été créé à partir du contenu des pages suivantes. Cliquez sur celle à partir de laquelle vous voulez créer un nouveau bulletin.</label>
+	    <label index="create_directmail_from_url.alttitle">Créer un bulletin basé sur une URL externe</label>
+	    <label index="create_directmail_from_url.description">Utilisez ce formulaire pour créer un bulletin à partir du contenu d'adresses URL externes.</label>
+	    <label index="directmail_actions.alttitle">Menu d'options des bulletins</label>
+	    <label index="directmail_actions.description">Sélectionnez l'action que vous voulez prendre sur ce bulletin.</label>
+	    <label index="directmail_actions.details">Les actions possibles sont les suivantes, mais leur disponibilité varie selon l'état courant du bulletin:
+	    
+1. Préparer le bulletin pour l'envoi massif: cette option permet de procéder à l'acquisition des contenus du bulletin; ces contenus seront compilés dans un format spécial en vue de l'éventuel envoi du bulletin; cette opération doit être effectuée avant toute autre; il est recommandé de passer en revue les propriétés du bulletin présentées dans la fenêtre et, au besoin, de les mettre à jour, avant de procéder à l'acquisition des contenus;
+
+2. Envoyer un message d'essai: cette option permet d'envoyer des messages d'essai afin de s'assurer que les messages qui seront envoyés aux destinataires apparaîtront tels que souhaités lorsque reçus dans une application cliente de courrier électronique;
+
+3. Déclencher l'envoi massif: cette option permet de programmer l'envoi du bulletin à une liste de distribution;
+
+4. Afficher les statistiques de l'envoi massif: cette option permet d'afficher les statistiques d'envoi et de réponse du bulletin, et de prendre action sur les messages retournés. Cette option n'est disponible que lorsque l'envoi massif à été programmé.
+	    </label>
+        </languageKey>
+    </data>
+    <orig_hash type="array">
+        <languageKey index="default" type="array">
+        </languageKey>
+        <languageKey index="fr" type="array">
+        </languageKey>
+    </orig_hash>
+    <orig_text type="array">
+        <languageKey index="default" type="array">
+        </languageKey>
+        <languageKey index="fr" type="array">
+        </languageKey>
+    </orig_text>
+</T3locallang>
