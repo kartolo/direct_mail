@@ -935,8 +935,22 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		
 		function showLocalDate(timestamp)
 		{
-		  var dt = new Date(timestamp * 1000);
-		  return dt.getHours()+":"+dt.getMinutes()+" "+dt.getDate()+"-"+(dt.getMonth()+1)+"-"+dt.getFullYear();
+			var dt = new Date(timestamp * 1000);
+			var hour;
+			var minute;
+			
+			if (dt.getHours() < 9) {
+				hour = "0"+dt.getHours();
+			} else {
+				hour = dt.getHours();
+			}
+			
+			if (dt.getMinutes() < 9) {
+				minute = "0"+dt.getMinutes();
+			} else {
+				minute = dt.getMinutes;
+			}
+			return hour+":"+minute+" "+dt.getDate()+"-"+(dt.getMonth()+1)+"-"+dt.getFullYear();
 		}
 		
 		';
@@ -1690,7 +1704,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	 */
 	function cmd_news () {
 		global $LANG, $TYPO3_DB, $BACK_PATH;
-
+		
 			// Here the list of subpages, news, is rendered
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'uid,doktype,title,abstract',
@@ -1708,14 +1722,31 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		} else {
 			$outLines = array();
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+				
+				$iconPreviewHTML = '<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($row['uid'],$BACK_PATH,t3lib_BEfunc::BEgetRootLine($row['uid']),'','',$this->implodedParams['HTMLParams']).'"><img src="../res/gfx/preview_html.gif" width="16" height="16" alt="" style="vertical-align:top;" title="'.$LANG->getLL('nl_viewPage_HTML').'"/></a>';
+				$iconPreviewText = '<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($row['uid'],$BACK_PATH,t3lib_BEfunc::BEgetRootLine($row['uid']),'','',$this->implodedParams['plainParams']).'"><img src="../res/gfx/preview_txt.gif" width="16" height="16" alt="" style="vertical-align:top;" title="'.$LANG->getLL('nl_viewPage_TXT').'"/></a>';
+				
+				//switch
+				switch ($this->params['sendOptions']) {
+					case 1:
+						$iconPreview = $iconPreviewText;
+						break;
+					case 2:
+						$iconPreview = $iconPreviewHTML;
+						break;
+					case 3:
+					default:
+						$iconPreview = $iconPreviewHTML.'&nbsp;&nbsp;'.$iconPreviewText;
+					break;
+				}
+				
 				$outLines[] = array(
 					'<a href="index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&fetchAtOnce=1&CMD=info">'.t3lib_iconWorks::getIconImage('pages', $row, $BACK_PATH, ' title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').$row['title'].'</a>',
 					'<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$row['uid'].']=edit&edit_content=1',$BACK_PATH,"",1).'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" style="vertical-align:top;" title="'.$LANG->getLL("nl_editPage").'" /></a>',
-					'<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($row['uid'],$BACK_PATH,t3lib_BEfunc::BEgetRootLine($row['uid']),'','',$this->implodedParams['HTMLParams']).'"><img src="../res/gfx/preview_html.gif" width="16" height="16" alt="" style="vertical-align:top;" title="'.$LANG->getLL('nl_viewPage_HTML').'"/></a>',
-					'<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($row['uid'],$BACK_PATH,t3lib_BEfunc::BEgetRootLine($row['uid']),'','',$this->implodedParams['plainParams']).'"><img src="../res/gfx/preview_txt.gif" width="16" height="16" alt="" style="vertical-align:top;" title="'.$LANG->getLL('nl_viewPage_TXT').'"/></a>',
+					$iconPreview
 					);
 			}
-			$out = tx_directmail_static::formatTable($outLines, array(), 0, array(1,1,1,1));
+			$out = tx_directmail_static::formatTable($outLines, array(), 0, array(1,1,1));
 			$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_crFromNL').t3lib_BEfunc::cshItem($this->cshTable,'select_newsletter',$BACK_PATH), $out, 1, 1, 0, TRUE);
 		}
 			// Create a new page

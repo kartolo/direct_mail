@@ -1,3 +1,8 @@
+2009-05-16 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Added CLI-script to automatically invoking the mass sending
+	* Documentation is updated
+	* Show preview icon based on format of mail content (see configuration)
+
 2009-05-15 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Show amount of the recipient in the list view (Recipient list module) and the last step of the sending wizard (module direct mail).
 	* Added delete link in the mailer engine to remove unsent direct mail

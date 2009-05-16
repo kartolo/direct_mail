@@ -77,4 +77,8 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['gabriel']['include'][$_EXTKEY] = array(
 	'class.tx_directmail_gabriel.php',
 );
 
+/**
+ * added CLI
+ */
+$TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['cliKeys']['direct_mail'] = array('EXT:direct_mail/cli/cli_direct_mail.php','_CLI_direct_mail');
 ?>
