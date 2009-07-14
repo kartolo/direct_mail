@@ -1,3 +1,9 @@
+2009-07-15 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Feature: crop mail subject after 100 chars in Mailing Engine.
+	* Feature: Delete icon for existing direct mail.
+	* Feature: Edit icon opens editing form in new window
+	* Feature: added direct_mail_123 in the conflict lists
+
 2009-07-14 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Cleaning #3598(forge): code cleaning (thanks to Benjamin Mack)
 	* Fixed bug #3599(forge): code cleaning. Added hook to manipulate personalized marker (thanks to Benjamin Mack)
