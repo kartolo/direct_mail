@@ -1,3 +1,6 @@
+2009-07-14 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Cleaning #3598(forge): code cleaning (thanks to Benjamin Mack)
+
 2009-05-16 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Added CLI-script to automatically invoking the mass sending
 	* Documentation is updated
