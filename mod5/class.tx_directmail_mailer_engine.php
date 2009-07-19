@@ -376,12 +376,12 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 		$out='';
 		$out.='<tr>
 						<td bgColor="'.$this->doc->bgColor5.'">'.'&nbsp;'.'</td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_subject' . '&nbsp;&nbsp;').'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_scheduled' . '&nbsp;&nbsp;').'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_delivery_begun' . '&nbsp;&nbsp;').'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_delivery_ended' . '&nbsp;&nbsp;').'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_subject') . '&nbsp;&nbsp;'.'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_scheduled') . '&nbsp;&nbsp;'.'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_delivery_begun') . '&nbsp;&nbsp;'.'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_delivery_ended') . '&nbsp;&nbsp;'.'</b></td>
 						<td bgColor="'.$this->doc->bgColor5.'"><b>'."&nbsp;" . $LANG->getLL('dmail_mailerengine_number_sent') . '&nbsp;'.'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'."&nbsp;" . $LANG->getLL('dmail_mailerengine_delete' . '&nbsp;').'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'."&nbsp;" . $LANG->getLL('dmail_mailerengine_delete') . '&nbsp;'.'</b></td>
 					</tr>';
 
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
