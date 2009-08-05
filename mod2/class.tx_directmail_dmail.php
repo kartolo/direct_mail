@@ -1276,7 +1276,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$id_lists=array();
 		if ($group_uid)	{
 			$mailGroup=t3lib_BEfunc::getRecord('sys_dmail_group',$group_uid);
-			if (is_array($mailGroup) && $mailGroup['pid']==$this->id)	{
+			if (is_array($mailGroup))	{
 				switch($mailGroup['type'])	{
 				case 0:	// From pages
 					$thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;		// use current page if no else

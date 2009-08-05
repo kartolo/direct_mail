@@ -214,9 +214,9 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	integer		which kind of email is sent, 1 = HTML, 2 = plain, 3 = both
 	 */
 	function replaceMailMarkers($content, $recipRow, $markers) {
-		$rowFieldsArray = explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']);
+		$rowFieldsArray = t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']);
 		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
-			$rowFieldsArray = array_merge($rowFieldsArray, explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
+			$rowFieldsArray = array_merge($rowFieldsArray, t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
 		}
 
 		foreach ($rowFieldsArray as $substField) {
