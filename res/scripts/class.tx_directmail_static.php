@@ -235,6 +235,12 @@ class tx_directmail_static {
 	function getIdList($table,$pidList,$group_uid,$cat) {
 		global $TCA, $TYPO3_DB;
 
+		$addWhere = ''; 
+		
+		if ($table == 'fe_users') {
+			$addWhere = ' AND fe_users.module_sys_dmail_newsletter = 1';
+		}
+		
 		if ($table == 'fe_groups') {
 			$switchTable = 'fe_users';
 		} else {
@@ -274,7 +280,8 @@ class tx_directmail_static {
 					$switchTable.'.pid IN('.$pidList.')'.
 						$emailIsNotNull.
 						t3lib_BEfunc::BEenableFields($switchTable).
-						t3lib_BEfunc::deleteClause($switchTable)
+						t3lib_BEfunc::deleteClause($switchTable).
+						$addWhere
 					);
 			}
 		} else {
@@ -305,7 +312,8 @@ class tx_directmail_static {
 						$emailIsNotNull.
 						t3lib_BEfunc::BEenableFields($switchTable).
 						t3lib_BEfunc::deleteClause($switchTable).
-						t3lib_BEfunc::deleteClause('sys_dmail_group')
+						t3lib_BEfunc::deleteClause('sys_dmail_group').
+						$addWhere
 					);
 			}
 		}

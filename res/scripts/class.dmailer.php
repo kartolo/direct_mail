@@ -445,7 +445,7 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function dmailer_masssend($query_info, $table, $mid) {
 		$enableFields['tt_address'] = 'tt_address.deleted=0 AND tt_address.hidden=0';
-		$enableFields['fe_users']   = 'fe_users.deleted=0 AND fe_users.disable=0';
+		$enableFields['fe_users']   = 'fe_users.deleted=0 AND fe_users.disable=0 AND module_sys_dmail_newsletter=1';
 		$tKey  = substr($table, 0, 1);
 		$begin = intval($this->dmailer_howManySendMails($mid, $tKey));
 		if ($query_info[$table]) {

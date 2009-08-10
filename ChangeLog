@@ -1,3 +1,7 @@
+2009-08-10 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* New Feature #3896(forge): added new field (module_sys_dmail_newsletter) in fe_user table to en-/disable newsletter without deleting the user (thanks to Sonja Scholz <ss@cabag.ch> for implementing this)
+	* New feature #3896(forge): recipient list is also updated to only show fe_user which has module_sys_dmail_newsletter flag
+	
 2009-08-5 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug: PID of the recipient list should not be check when fetching the recipient.
 	* Fixed bug: using trimExplode on exploding the list of fields (while replacing the marker in newsletter)
@@ -36,7 +40,7 @@
 	
 2009-01-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug: Plaintext rendering of tt_news passes the images not in an array. (Thanks to Andrea Herzog for pointing me this one)
-	
+
 2008-12-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9912: boundary for the attached media depends on the message ID
 	
