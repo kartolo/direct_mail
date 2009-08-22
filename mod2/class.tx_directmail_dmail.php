@@ -432,7 +432,6 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			} else {
 				$dmail['sys_dmail']['NEW']['subject'] = $createMailFrom_URL;
 				$dmail['sys_dmail']['NEW']['type'] = 1;
-
 				$dmail['sys_dmail']['NEW']['plainParams'] = t3lib_div::_GP('createMailFrom_plainUrl');
 				$urlParts = @parse_url($dmail['sys_dmail']['NEW']['plainParams']);
 				if (!$dmail['sys_dmail']['NEW']['plainParams'] || $urlParts===FALSE || !$urlParts['host']) {
@@ -1897,7 +1896,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		}
 		if ($this->url_html) {
 			$success = $htmlmail->addHTML($this->url_html);    // Username and password is added in htmlmail object
-			if (!$row['charset']) {		// If no charset was set, we have an external page.
+			if ($row['type'] == 1) {		// If type = 1, we have an external page.
 					// Try to auto-detect the charset of the message
 				$matches = array();
 				$res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', $htmlmail->theParts['html_content'], $matches);
