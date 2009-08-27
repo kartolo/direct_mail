@@ -1,3 +1,6 @@
+2009-08-27 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #4365(forge): Filter the sysfolder, which the user has as import destination (thanks to Robert Heel)
+
 2009-08-22 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed Bug #4304(forge): wrong charset detection if selecting external page as source
 

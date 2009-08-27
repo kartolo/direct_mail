@@ -61,7 +61,7 @@ class tx_directmail_importer {
 	 * @return	string		HTML form
 	 */
 	function cmd_displayImport()	{
-		global $LANG, $BACK_PATH, $TYPO3_DB;
+		global $BE_USER,$LANG, $BACK_PATH, $TYPO3_DB;
 
 		$this->indata = t3lib_div::_GP('CSV_IMPORT');
 
@@ -133,7 +133,7 @@ class tx_directmail_importer {
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'uid,title',
 					'pages',
-					'doktype = 254'.t3lib_BEfunc::deleteClause('pages').t3lib_BEfunc::BEenableFields('pages'),
+					'doktype = 254 AND '.$BE_USER->getPagePermsClause(3).t3lib_BEfunc::deleteClause('pages').t3lib_BEfunc::BEenableFields('pages'),
 					'',
 					'uid'
 				);
