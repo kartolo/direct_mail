@@ -290,7 +290,11 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				$this->setURLs($row);
 
 					// COMMAND:
+					//TODO: add cmd_displayUserInfo s. recip-list
 				switch($this->CMD) {
+					case 'displayUserInfo':
+						$theOutput.= $this->cmd_displayUserInfo();
+					break;
 					case 'stats':
 						$theOutput .= $this->cmd_stats($row);
 					break;
@@ -307,7 +311,117 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		}
 		return $theOutput;
 	}
+	
+	/**
+	 * shows user's info and categories
+	 *
+	 * @return	string		HTML showing user's info and the categories
+	 */
+	function cmd_displayUserInfo()	{
+		global $TCA, $LANG, $TYPO3_DB, $BACK_PATH;
+		$uid = intval(t3lib_div::_GP('uid'));
+		$indata = t3lib_div::_GP('indata');
+		$table=t3lib_div::_GP('table');
+		t3lib_div::loadTCA($table);
+		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
+		
+		if(t3lib_div::_GP('submit')){
+			$indata = t3lib_div::_GP('indata');
+			if(!$indata){
+				$indata['html']= 0;
+			}
+		}
 
+		switch($table)	{
+		case 'tt_address':
+		case 'fe_users':
+			if (is_array($indata))	{
+				$data=array();
+				if (is_array($indata['categories']))	{
+					reset($indata['categories']);
+					while(list($recUid,$recValues)=each($indata['categories']))	{
+						reset($recValues);
+						$enabled = array();
+						while(list($k,$b)=each($recValues))	{
+							if ($b)	{
+								$enabled[] = $k;
+							}
+						}
+						$data[$table][$uid]['module_sys_dmail_category'] = implode(',',$enabled);
+					}
+				}
+				$data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
+				$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+				$tce->stripslashes_values=0;
+				$tce->start($data,Array());
+				$tce->process_datamap();
+			}
+			break;
+		}
+
+		switch($table)	{
+		case 'tt_address':
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'tt_address.*',
+				'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
+				'tt_address.uid='.intval($uid).
+					' AND '.$this->perms_clause.
+					t3lib_BEfunc::deleteClause('pages').
+					t3lib_BEfunc::BEenableFields('tt_address').
+					t3lib_BEfunc::deleteClause('tt_address')
+				);
+			$row = $TYPO3_DB->sql_fetch_assoc($res);
+			break;
+		case 'fe_users':
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'fe_users.*',
+				'fe_users LEFT JOIN pages ON pages.uid=fe_users.pid',
+				'fe_users.uid='.intval($uid).
+					' AND '.$this->perms_clause.
+					t3lib_BEfunc::deleteClause('pages').
+					t3lib_BEfunc::BEenableFields('fe_users').
+					t3lib_BEfunc::deleteClause('fe_users')
+				);
+			$row = $TYPO3_DB->sql_fetch_assoc($res);
+			break;
+		}
+		if (is_array($row))	{
+			$row_categories = '';
+			$resCat = $TYPO3_DB->exec_SELECTquery(
+				'uid_foreign',
+				$mm_table,
+				'uid_local='.$row['uid']
+				);
+			while($rowCat=$TYPO3_DB->sql_fetch_assoc($resCat)) {
+				$row_categories .= $rowCat['uid_foreign'].',';
+			}
+			$row_categories = t3lib_div::rm_endComma($row_categories);
+
+			$Eparams='&edit['.$table.']['.$row['uid'].']=edit';
+			$out='';
+			$out.= t3lib_iconWorks::getIconImage($table, $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').$row['name'].htmlspecialchars(' <'.$row['email'].'>');
+			$out.='&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH,'').'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />' . fw('<b>' . $LANG->getLL('dmail_edit') . '</b>').'</a>';
+			$theOutput.= $this->doc->section($LANG->getLL('subscriber_info'),$out);
+
+			$out='';
+			$out_check='';
+
+			$this->categories = tx_directmail_static::makeCategories($table, $row, $this->sys_language_uid);
+			reset($this->categories);
+			while(list($pKey,$pVal)=each($this->categories))	{
+				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0" /><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey)?' checked="checked"':'').' /> '.htmlspecialchars($pVal).'<br />';
+			}
+			$out_check.='<br /><br /><input type="checkbox" name="indata[html]" value="1"'.($row['module_sys_dmail_html']?' checked="checked"':'').' /> ';
+			$out_check.=$LANG->getLL('subscriber_profile_htmlemail') . '<br />';
+			$out.=fw($out_check);
+
+			$out.='<input type="hidden" name="table" value="'.$table.'" /><input type="hidden" name="uid" value="'.$uid.'" /><input type="hidden" name="CMD" value="'.$this->CMD.'" /><br /><input type="submit" name="submit" value="' . htmlspecialchars($LANG->getLL('subscriber_profile_update')) . '" />';
+			$theOutput.= $this->doc->spacer(20);
+			$theOutput.= $this->doc->section($LANG->getLL('subscriber_profile'), $LANG->getLL('subscriber_profile_instructions') . '<br /><br />'.$out);
+		}
+		return $theOutput;
+	}
+	
 	/**
 	 * shows the info of a page
 	 *

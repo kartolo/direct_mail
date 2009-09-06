@@ -1,3 +1,8 @@
+2009-09-07 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* fixed bug #11809 (bugs): category labels need to be passed through htmlspecialchars.
+	* fixed bug #3201 (forge): user edit link in statistic module is not functioning. 
+	* updated documentation
+	
 2009-08-27 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #4365(forge): Filter the sysfolder, which the user has as import destination (thanks to Robert Heel)
 

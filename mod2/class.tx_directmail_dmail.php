@@ -1529,7 +1529,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$this->categories = tx_directmail_static::makeCategories('tt_content', $row, $this->sys_language_uid);
 				reset($this->categories);
 				while(list($pKey,$pVal)=each($this->categories))	{
-					$out_check.='<input type="hidden" name="indata[categories]['.$row["uid"].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey) ?' checked':'').'> '.$pVal.'<br />';
+					$out_check.='<input type="hidden" name="indata[categories]['.$row["uid"].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey) ?' checked':'').'> '.htmlspecialchars($pVal).'<br />';
 				}
 				$out.=fw($out_check).'</td></tr>';
 			}

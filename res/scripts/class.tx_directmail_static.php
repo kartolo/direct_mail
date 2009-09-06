@@ -573,7 +573,7 @@ class tx_directmail_static {
 					);
 				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
 					if($localizedRowCat = tx_directmail_static::getRecordOverlay('sys_dmail_category',$rowCat,$sys_language_uid,'')) {
-						$categories[$localizedRowCat['uid']] = $localizedRowCat['category'];
+						$categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
 					}
 				}
 			}
