@@ -234,7 +234,7 @@ class dmailer extends t3lib_htmlmail {
 			// Hook allows to manipulate the markers to add salutation etc.
 		if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'])) {
 			$mailMarkersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'];
-			if (is_array($cHashParamsHook)) {
+			if (is_array($mailMarkersHook)) {
 				$hookParameters = array(
 					'row'     => &$row,
 					'markers' => &$markers,

@@ -63,6 +63,11 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['smtp'] = array(
 
 
 /**
+ * Use HTTP to fetch contents
+ */
+$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseHttpToFetch'] = $_EXTCONF['UseHttpToFetch'];
+
+/**
  * Enable the use of News plain text rendering hook:
  */
 if ($_EXTCONF['enablePlainTextNews']) {
