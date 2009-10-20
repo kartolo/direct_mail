@@ -82,6 +82,14 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['gabriel']['include'][$_EXTKEY] = array(
 	'class.tx_directmail_gabriel.php',
 );
 
+/** * Registering class to scheduler
+*/
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_directmail_scheduler'] = array(
+	'extension' => $_EXTKEY,
+	'title' => 'DirectMail task',
+	'description' => 'This task invokes dmailer in order to process queued messages.',
+);
+
 /**
  * added CLI
  */

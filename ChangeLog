@@ -1,3 +1,9 @@
+2009-10-20 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* feature #4791 (f): added support for the coming scheduler in TYPO3 4.3 
+
+2009-10-18 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* fixed bug #5004 (forge): only listed sysfolder.
+
 2009-09-17 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* fixed typo in marker substitution hook
 	* fixed bug #4222 (forge): added configuration always to fetch through http, although BE is on SSL (thanks to Ingo Schmitt)
