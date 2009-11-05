@@ -789,7 +789,7 @@ class dmailer extends t3lib_htmlmail {
 		$this->useDeferMode = trim($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) ? intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) : 0;
 		$this->notificationJob = intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['notificationJob']);
 		if(!is_object($LANG) ) {
-			require (PATH_typo3.'sysext/lang/lang.php');
+			require_once (PATH_typo3.'sysext/lang/lang.php');
 			$LANG = t3lib_div::makeInstance('language');
 			$L = $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cron_language'] ? $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cron_language'] : $this->user_dmailerLang;
 			$LANG->init(trim($L));
@@ -936,18 +936,13 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function sendTheMail() {
 //		$conf = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail'];
-		
-		$addSubject = '';
-		if ($this->testmail !== FALSE) {
-			$addSubject = $this->testmail.' ';
-		}
-		
+				
 			// format headers for SMTP use
 		if ($this->useSmtp) {
 			$headers = array();
 			$headerlines = explode("\n",trim($this->headers));
 			$headers['To']      = $this->recipient;
-			$headers['Subject'] = $addSubject.$this->subject;
+			$headers['Subject'] = $this->subject;
 			foreach($headerlines as $k => $hd) {
 				if (substr($hd,0,9)==" boundary") {
 					$headers['Content-Type'] .= "\n " . $hd;
@@ -1183,6 +1178,12 @@ class dmailer extends t3lib_htmlmail {
 			$host = ($TYPO3_CONF_VARS['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $TYPO3_CONF_VARS['SYS']['sitename']) : 'localhost') . '.TYPO3';
 		}
 		$this->messageid = md5(microtime()) . '@' . $host;
+		
+		//adding testmail-subject if it is set
+		if ($this->testmail !== FALSE) {
+			$this->subject = (string)$this->testmail.' '.$this->subject;
+		}
+		
 		parent::setHeaders();
 		$this->messageid = $oldMsgID;
 	}

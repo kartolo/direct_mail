@@ -1197,6 +1197,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] as $classRef) {
 				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
 			}
+			
+			$this->output = $output;	// assigned $output to class property to make it acesssible inside hook
+			$output = '';			// and clear the former $output to collect hoot return code there			
+			
 			foreach($hookObjectsArr as $hookObj)    {
 				if (method_exists($hookObj, 'cmd_stats_postProcess')) {
 					$output .= $hookObj->cmd_stats_postProcess($row, $this);

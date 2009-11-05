@@ -1,3 +1,9 @@
+2009-11-05 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* bug #4682(f): documentation is updated
+	* bug #4520(f): cmd_stats_postProcess hook expects the hook implementation to return the output. It won't be just adding hook's output to current output.
+	* bug #5245(f): Language class should only be included once (in dmailer class)
+	* bug #4767(f): additional test subject works only on smtp sending. Additional test subject is added in setHeader function.  
+	  
 2009-10-20 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* feature #4791 (f): added support for the coming scheduler in TYPO3 4.3 
 
