@@ -1,3 +1,6 @@
+2009-11-10 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* bug #5140(f): new layout of statistic module 
+
 2009-11-05 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #4682(f): documentation is updated
 	* bug #4520(f): cmd_stats_postProcess hook expects the hook implementation to return the output. It won't be just adding hook's output to current output.

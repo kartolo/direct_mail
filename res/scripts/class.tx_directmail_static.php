@@ -671,7 +671,7 @@ class tx_directmail_static {
 				if ($first) $v='<B>'.$v.'</B>';
 				$rowA[]='<td'.($cellParams[$k]?" ".$cellParams[$k]:"").'>'.$v.'</td>';
 			}
-			$lines[]='<tr class="'.($first?'bgColor5':'bgColor4').'">'.implode('',$rowA).'</tr>';
+			$lines[]='<tr class="'.($first?'bgColor2':'bgColor4').'">'.implode('',$rowA).'</tr>';
 			$first=0;
 		}
 		$table = '<table '.$tableParams.'>'.implode('',$lines).'</table>';
