@@ -73,6 +73,14 @@ require_once(PATH_t3lib.'class.t3lib_beuserauth.php');
 if (!defined ('TYPO3_db'))  die ('The configuration file was not included.');
 if (isset($_POST['GLOBALS']) || isset($_GET['GLOBALS']))      die('You cannot set the GLOBALS-array from outside this script.');
 
+// *********************
+// Autoloader
+// *********************
+if (t3lib_div::int_from_ver(TYPO3_version) >= 4003000) {
+        require_once(PATH_t3lib . 'class.t3lib_autoloader.php');
+        t3lib_autoloader::registerAutoloader();
+}
+
 	// Check if cronjob is already running:
 if (@file_exists (PATH_site.'typo3temp/tx_directmail_cron.lock')) {
 		// If the lock is not older than 1 day, skip index creation:
