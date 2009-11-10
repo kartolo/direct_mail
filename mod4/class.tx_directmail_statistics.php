@@ -50,7 +50,7 @@
  *  243:     function moduleContent()
  *  263:     function mailModule_main()
  *  309:     function cmd_displayPageInfo()
- *  389:     function linkDMail_record($str,$uid)
+ *  389:     function linkDMail_record($str,$uid,$aTitle)
  *  399:     function cmd_stats($row)
  * 1043:     function disableRecipients($arr,$table)
  * 1069:     function makeStatTempTableContent($mrow)
@@ -485,7 +485,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 				$out.='<tr class="bgColor4">
 					<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
-					<td>'.$this->linkDMail_record(fw(t3lib_div::fixed_lgd($row['subject'],30).'  '),$row['uid']).'</td>
+					<td>'.$this->linkDMail_record(fw(t3lib_div::fixed_lgd($row['subject'],30).'  '),$row['uid'],$row['subject']).'&nbsp;&nbsp;</td>
 					<td>'.fw(t3lib_BEfunc::datetime($row["scheduled"])).'</td>
 					<td>'.fw($row["scheduled_begin"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'&nbsp;').'</td>
 					<td>'.fw($row["scheduled_end"]?t3lib_BEfunc::datetime($row["scheduled_end"]):'&nbsp;').'</td>
@@ -507,10 +507,11 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	 *
 	 * @param	string		$str: string to be wrapped with a link
 	 * @param	integer		$uid: record uid to be link
+	 * @param	string		$aTitle: title param of the link tag
 	 * @return	string		wrapped string as a link
 	 */
-	function linkDMail_record($str,$uid)	{
-		return '<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&SET[dmail_mode]=direct&CMD=stats">'.$str.'</a>';
+	function linkDMail_record($str,$uid,$aTitle='')	{
+		return '<a title="'.$aTitle.'" href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&SET[dmail_mode]=direct&CMD=stats">'.$str.'</a>';
 	}
 
 	/**
