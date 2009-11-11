@@ -1,3 +1,6 @@
+2009-11-11 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Release 2.6.4
+
 2009-11-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #5140(f): new layout of statistic module
 	* bug #5186(f): register autoload for TYPO3 4.3
