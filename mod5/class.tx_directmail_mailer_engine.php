@@ -375,13 +375,13 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			);
 		$out='';
 		$out.='<tr>
-						<td bgColor="'.$this->doc->bgColor5.'">'.fw('&nbsp;').'</td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('dmail_mailerengine_subject') . '&nbsp;&nbsp;').'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('dmail_mailerengine_scheduled') . '&nbsp;&nbsp;').'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('dmail_mailerengine_delivery_begun') . '&nbsp;&nbsp;').'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('dmail_mailerengine_delivery_ended') . '&nbsp;&nbsp;').'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw("&nbsp;" . $LANG->getLL('dmail_mailerengine_number_sent') . '&nbsp;').'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.fw("&nbsp;" . $LANG->getLL('dmail_mailerengine_delete') . '&nbsp;').'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'">'.'&nbsp;'.'</td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_subject') . '&nbsp;&nbsp;'.'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_scheduled') . '&nbsp;&nbsp;'.'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_delivery_begun') . '&nbsp;&nbsp;'.'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_delivery_ended') . '&nbsp;&nbsp;'.'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'."&nbsp;" . $LANG->getLL('dmail_mailerengine_number_sent') . '&nbsp;'.'</b></td>
+						<td bgColor="'.$this->doc->bgColor5.'"><b>'."&nbsp;" . $LANG->getLL('dmail_mailerengine_delete') . '&nbsp;'.'</b></td>
 					</tr>';
 
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -394,10 +394,10 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			list($count) = $TYPO3_DB->sql_fetch_row($countres);
 			$out.='<tr>
 						<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
-						<td>'.$this->linkDMail_record(fw(t3lib_div::fixed_lgd($row['subject'],30).'&nbsp;&nbsp;'),$row['uid']).'</td>
-						<td>'.fw(t3lib_BEfunc::datetime($row['scheduled']).'&nbsp;&nbsp;').'</td>
-						<td>'.fw(($row['scheduled_begin']?t3lib_BEfunc::datetime($row['scheduled_begin']):'').'&nbsp;&nbsp;').'</td>
-						<td>'.fw(($row['scheduled_end']?t3lib_BEfunc::datetime($row['scheduled_end']):'').'&nbsp;&nbsp;').'</td>
+						<td>'.$this->linkDMail_record(t3lib_div::fixed_lgd($row['subject'],100).'&nbsp;&nbsp;',$row['uid']).'</td>
+						<td>'.t3lib_BEfunc::datetime($row['scheduled']).'&nbsp;&nbsp;'.'</td>
+						<td>'.($row['scheduled_begin']?t3lib_BEfunc::datetime($row['scheduled_begin']):'').'&nbsp;&nbsp;'.'</td>
+						<td>'.($row['scheduled_end']?t3lib_BEfunc::datetime($row['scheduled_end']):'').'&nbsp;&nbsp;'.'</td>
 						<td align=right>'.fw($count?$count:'&nbsp;').'</td>
 						<td align=center>'.$this->deleteLink($row['uid']).'</td>
 					</tr>';

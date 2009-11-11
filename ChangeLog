@@ -1,3 +1,59 @@
+2009-11-11 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Release 2.6.4
+
+2009-11-10 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* bug #5140(f): new layout of statistic module
+	* bug #5186(f): register autoload for TYPO3 4.3
+	* bug #5304(f): added title param to link of the newsletter in statistic module 
+
+2009-11-05 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* bug #4682(f): documentation is updated
+	* bug #4520(f): cmd_stats_postProcess hook expects the hook implementation to return the output. It won't be just adding hook's output to current output.
+	* bug #5245(f): Language class should only be included once (in dmailer class)
+	* bug #4767(f): additional test subject works only on smtp sending. Additional test subject is added in setHeader function.  
+	  
+2009-10-20 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* feature #4791 (f): added support for the coming scheduler in TYPO3 4.3 
+
+2009-10-18 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* fixed bug #5004 (forge): only listed sysfolder.
+
+2009-09-17 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* fixed typo in marker substitution hook
+	* fixed bug #4222 (forge): added configuration always to fetch through http, although BE is on SSL (thanks to Ingo Schmitt)
+
+2009-09-07 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* fixed bug #11809 (bugs): category labels need to be passed through htmlspecialchars.
+	* fixed bug #3201 (forge): user edit link in statistic module is not functioning. 
+	* updated documentation
+	
+2009-08-27 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug #4365(forge): Filter the sysfolder, which the user has as import destination (thanks to Robert Heel)
+
+2009-08-22 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed Bug #4304(forge): wrong charset detection if selecting external page as source
+
+2009-08-10 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* New Feature #3896(forge): added new field (module_sys_dmail_newsletter) in fe_user table to en-/disable newsletter without deleting the user (thanks to Sonja Scholz <ss@cabag.ch> for implementing this)
+	* New feature #3896(forge): recipient list is also updated to only show fe_user which has module_sys_dmail_newsletter flag
+	
+2009-08-5 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug: PID of the recipient list should not be check when fetching the recipient.
+	* Fixed bug: using trimExplode on exploding the list of fields (while replacing the marker in newsletter)
+	
+2009-07-19 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Fixed bug: label in mailer engine.
+
+2009-07-15 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Feature: crop mail subject after 100 chars in Mailing Engine.
+	* Feature: Delete icon for existing direct mail.
+	* Feature: Edit icon opens editing form in new window
+	* Feature: added direct_mail_123 in the conflict lists
+
+2009-07-14 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Cleaning #3598(forge): code cleaning (thanks to Benjamin Mack)
+	* Fixed bug #3599(forge): code cleaning. Added hook to manipulate personalized marker (thanks to Benjamin Mack)
+
 2009-05-16 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Added CLI-script to automatically invoking the mass sending
 	* Documentation is updated
@@ -19,7 +75,7 @@
 	
 2009-01-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug: Plaintext rendering of tt_news passes the images not in an array. (Thanks to Andrea Herzog for pointing me this one)
-	
+
 2008-12-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9912: boundary for the attached media depends on the message ID
 	

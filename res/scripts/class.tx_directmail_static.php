@@ -235,6 +235,12 @@ class tx_directmail_static {
 	function getIdList($table,$pidList,$group_uid,$cat) {
 		global $TCA, $TYPO3_DB;
 
+		$addWhere = ''; 
+		
+		if ($table == 'fe_users') {
+			$addWhere = ' AND fe_users.module_sys_dmail_newsletter = 1';
+		}
+		
 		if ($table == 'fe_groups') {
 			$switchTable = 'fe_users';
 		} else {
@@ -274,7 +280,8 @@ class tx_directmail_static {
 					$switchTable.'.pid IN('.$pidList.')'.
 						$emailIsNotNull.
 						t3lib_BEfunc::BEenableFields($switchTable).
-						t3lib_BEfunc::deleteClause($switchTable)
+						t3lib_BEfunc::deleteClause($switchTable).
+						$addWhere
 					);
 			}
 		} else {
@@ -305,7 +312,8 @@ class tx_directmail_static {
 						$emailIsNotNull.
 						t3lib_BEfunc::BEenableFields($switchTable).
 						t3lib_BEfunc::deleteClause($switchTable).
-						t3lib_BEfunc::deleteClause('sys_dmail_group')
+						t3lib_BEfunc::deleteClause('sys_dmail_group').
+						$addWhere
 					);
 			}
 		}
@@ -565,7 +573,7 @@ class tx_directmail_static {
 					);
 				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
 					if($localizedRowCat = tx_directmail_static::getRecordOverlay('sys_dmail_category',$rowCat,$sys_language_uid,'')) {
-						$categories[$localizedRowCat['uid']] = $localizedRowCat['category'];
+						$categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
 					}
 				}
 			}
@@ -663,7 +671,7 @@ class tx_directmail_static {
 				if ($first) $v='<B>'.$v.'</B>';
 				$rowA[]='<td'.($cellParams[$k]?" ".$cellParams[$k]:"").'>'.$v.'</td>';
 			}
-			$lines[]='<tr class="'.($first?'bgColor5':'bgColor4').'">'.implode('',$rowA).'</tr>';
+			$lines[]='<tr class="'.($first?'bgColor2':'bgColor4').'">'.implode('',$rowA).'</tr>';
 			$first=0;
 		}
 		$table = '<table '.$tableParams.'>'.implode('',$lines).'</table>';
@@ -736,7 +744,9 @@ class tx_directmail_static {
 				$port = $url_parts['port'];
 			}
 		}
-
+		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1){
+			$scheme = 'http';
+		}
 		return ($domainName ? (($scheme?$scheme:'http') . '://' . $domainName . ($port?':'.$port:'') . '/') : substr(t3lib_div::getIndpEnv('TYPO3_REQUEST_DIR'),0,-(strlen(t3lib_div::resolveBackPath(TYPO3_mainDir.TYPO3_MOD_PATH))))).'index.php';
 	}
 

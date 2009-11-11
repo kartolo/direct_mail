@@ -225,6 +225,7 @@ CREATE TABLE sys_dmail_ttcontent_category_mm (
 # you should upgrade the tables to content these fields.
 
 CREATE TABLE fe_users (
+  module_sys_dmail_newsletter tinyint(3) unsigned DEFAULT '0' NOT NULL,
   module_sys_dmail_category int(10) unsigned DEFAULT '0' NOT NULL,
   module_sys_dmail_html tinyint(3) unsigned DEFAULT '0' NOT NULL
 );

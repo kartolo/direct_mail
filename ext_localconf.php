@@ -63,6 +63,11 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['smtp'] = array(
 
 
 /**
+ * Use HTTP to fetch contents
+ */
+$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseHttpToFetch'] = $_EXTCONF['UseHttpToFetch'];
+
+/**
  * Enable the use of News plain text rendering hook:
  */
 if ($_EXTCONF['enablePlainTextNews']) {
@@ -75,6 +80,14 @@ if ($_EXTCONF['enablePlainTextNews']) {
  */
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['gabriel']['include'][$_EXTKEY] = array(
 	'class.tx_directmail_gabriel.php',
+);
+
+/** * Registering class to scheduler
+*/
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_directmail_scheduler'] = array(
+	'extension' => $_EXTKEY,
+	'title' => 'DirectMail task',
+	'description' => 'This task invokes dmailer in order to process queued messages.',
 );
 
 /**
