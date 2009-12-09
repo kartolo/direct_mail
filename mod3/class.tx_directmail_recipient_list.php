@@ -384,9 +384,9 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			$out.='<tr>
 						<td'.$TDparams.' nowrap>'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
 						<td'.$TDparams.'>'.$this->editLink('sys_dmail_group',$row['uid']).'</td>
-						<td'.$TDparams.' nowrap>'.$this->linkRecip_record(fw('<strong>'.t3lib_div::fixed_lgd($row['title'],30).'</strong>&nbsp;&nbsp;'),$row['uid']).'</td>
+						<td'.$TDparams.' nowrap>'.$this->linkRecip_record(fw('<strong>'.htmlspecialchars(t3lib_div::fixed_lgd($row['title'],30)).'</strong>&nbsp;&nbsp;'),$row['uid']).'</td>
 						<td'.$TDparams.' nowrap>'.fw(htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail_group','type',$row['type'])).'&nbsp;&nbsp;').'</td>
-						<td'.$TDparams.'>'.fw(htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail_group','description',$row['description'])).'&nbsp;&nbsp;').'</td>
+						<td'.$TDparams.'>'.fw(t3lib_BEfunc::getProcessedValue('sys_dmail_group','description',htmlspecialchars($row['description'])).'&nbsp;&nbsp;').'</td>
 						<td'.$TDparams.'>'.$count.'</td>
 					</tr>';
 		}
@@ -558,7 +558,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
 
 		$group = t3lib_BEfunc::getRecord('sys_dmail_group',t3lib_div::_GP('group_uid'));
-		$out=t3lib_iconWorks::getIconImage('sys_dmail_group',$group,$BACK_PATH,'style="vertical-align: top;"').$group['title'];
+		$out=t3lib_iconWorks::getIconImage('sys_dmail_group',$group,$BACK_PATH,'style="vertical-align: top;"').htmlspecialchars($group['title']);
 
 		$lCmd=t3lib_div::_GP('lCmd');
 
@@ -815,7 +815,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 
 			$Eparams='&edit['.$table.']['.$row['uid'].']=edit';
 			$out='';
-			$out.= t3lib_iconWorks::getIconImage($table, $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').$row['name'].htmlspecialchars(' <'.$row['email'].'>');
+			$out.= t3lib_iconWorks::getIconImage($table, $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').htmlspecialchars($row['name']).htmlspecialchars(' <'.$row['email'].'>');
 			$out.='&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH,'').'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />' . fw('<b>' . $LANG->getLL('dmail_edit') . '</b>').'</a>';
 			$theOutput.= $this->doc->section($LANG->getLL('subscriber_info'),$out);
 
@@ -825,7 +825,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			$this->categories = tx_directmail_static::makeCategories($table, $row, $this->sys_language_uid);
 			reset($this->categories);
 			while(list($pKey,$pVal)=each($this->categories))	{
-				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0" /><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey)?' checked="checked"':'').' /> '.$pVal.'<br />';
+				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0" /><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey)?' checked="checked"':'').' /> '.htmlspecialchars($pVal).'<br />';
 			}
 			$out_check.='<br /><br /><input type="checkbox" name="indata[html]" value="1"'.($row['module_sys_dmail_html']?' checked="checked"':'').' /> ';
 			$out_check.=$LANG->getLL('subscriber_profile_htmlemail') . '<br />';

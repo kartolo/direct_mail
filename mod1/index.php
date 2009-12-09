@@ -140,7 +140,7 @@ class tx_directmail_navframe{
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'*',
 			'pages',
-			'doktype != 255 AND module in (\'dmail\')'. t3lib_BEfunc::deleteClause('pages')
+			'doktype = 254 AND module in (\'dmail\')'. t3lib_BEfunc::deleteClause('pages')
 		);
 		$out = '';
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res)){

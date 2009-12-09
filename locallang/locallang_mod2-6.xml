@@ -973,7 +973,7 @@ Wenn Sie auf "Importieren" klicken, werden die Daten in tt_address Tabelle impor
 			<label index="stats_emails_returned_unknown_recipient_list">E-Mail-Adressen der zurückgekommen E-Mails (Empfänger unbekannt):</label>
 			<label index="stats_error_in_header">Fehler im Mail-Header:</label>
 			<label index="stats_general_information">Allgemeine Informationen:</label>
-			<label index="stats_img_link">Bildslink:</label>
+			<label index="stats_img_link">Bildlink: </label>
 			<label index="stats_links_clicked_per_respondent">Angeklickte Links per Empfänger:</label>
 			<label index="stats_list_returned">Liste der zurückgekommenen Empfänger</label>
 			<label index="stats_list_returned_bad_header">Liste der zurückgekommenen E-Mails (Fehler in Kopfzeile)</label>

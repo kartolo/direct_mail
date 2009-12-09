@@ -92,6 +92,13 @@ $TCA['tt_address']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_cate
 
 	// fe_users modified
 $tempCols = Array(
+	'module_sys_dmail_newsletter' => Array(
+		'label'=>'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.newsletter',
+		'exclude' => '1',
+		'config'=>Array(
+			'type'=>'check'
+			)
+		),
 	'module_sys_dmail_category' => Array(
 		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.category',
 		'exclude' => '1',
@@ -122,8 +129,8 @@ $tempCols = Array(
 
 t3lib_div::loadTCA('fe_users');
 t3lib_extMgm::addTCAcolumns('fe_users',$tempCols);
-$TCA['fe_users']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_category,module_sys_dmail_html';
-t3lib_extMgm::addToAllTCATypes('fe_users','--div--;Direct mail,module_sys_dmail_category;;;;1-1-1,module_sys_dmail_html');
+$TCA['fe_users']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_newsletter,module_sys_dmail_category,module_sys_dmail_html';
+t3lib_extMgm::addToAllTCATypes('fe_users','--div--;Direct mail,module_sys_dmail_newsletter;;;;1-1-1,module_sys_dmail_category,module_sys_dmail_html');
 
 // ******************************************************************
 // sys_dmail

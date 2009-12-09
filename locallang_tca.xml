@@ -83,6 +83,7 @@
     <data type="array">
         <languageKey index="default" type="array">
 	    <label index="pages.module.I.5">Direct Mail</label>
+		 	<label index="module_sys_dmail_group.newsletter">Activate Newsletter</label>
             <label index="module_sys_dmail_group.category">Subscribe to categories</label>
             <label index="module_sys_dmail_group.htmlemail">Recieve e-mails as HTML?</label>
             <label index="sys_dmail_category">Direct Mail Category</label>
@@ -198,6 +199,7 @@
             <label index="sys_dmail_group.select_categories.I.9">Kat 9</label>
         </languageKey>
         <languageKey index="de" type="array">
+			<label index="module_sys_dmail_group.newsletter">Newsletter aktivieren</label>
             <label index="module_sys_dmail_group.category">Kategorien abonnieren</label>
             <label index="module_sys_dmail_group.htmlemail">E-Mails im HTML-Format empfangen?</label>
             <label index="sys_dmail_category">Direct-Mail-Kategorie</label>

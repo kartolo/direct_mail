@@ -20,7 +20,7 @@ class direct_mail_cli extends t3lib_cli {
         $this->cli_help['synopsis'] = '###OPTIONS###';
         $this->cli_help['description'] = 'Class with basic functionality for CLI scripts';
         $this->cli_help['examples'] = '/.../cli_dispatch.phpsh EXTKEY TASK';
-        $this->cli_help['author'] = 'Julian Kleinhans, (c) 2008';
+        $this->cli_help['author'] = 'Ivan Kartolo, (c) 2008';
     }
 
     /**
