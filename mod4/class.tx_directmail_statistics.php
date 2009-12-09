@@ -403,7 +403,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 			$Eparams='&edit['.$table.']['.$row['uid'].']=edit';
 			$out='';
-			$out.= t3lib_iconWorks::getIconImage($table, $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').$row['name'].htmlspecialchars(' <'.$row['email'].'>');
+			$out.= t3lib_iconWorks::getIconImage($table, $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').htmlspecialchars($row['name'].' <'.$row['email'].'>');
 			$out.='&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH,'').'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />' . fw('<b>' . $LANG->getLL('dmail_edit') . '</b>').'</a>';
 			$theOutput.= $this->doc->section($LANG->getLL('subscriber_info'),$out);
 
@@ -511,7 +511,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	 * @return	string		wrapped string as a link
 	 */
 	function linkDMail_record($str,$uid,$aTitle='')	{
-		return '<a title="'.$aTitle.'" href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&SET[dmail_mode]=direct&CMD=stats">'.$str.'</a>';
+		return '<a title="'.htmlspecialchars($aTitle).'" href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&SET[dmail_mode]=direct&CMD=stats">'.htmlspecialchars($str).'</a>';
 	}
 
 	/**
@@ -1519,8 +1519,8 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		$sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*','sys_dmail_maillog','mid='.$row['uid'].' AND response_type = 0','','rid ASC'));
 
 		$out = '<table cellpadding="3" cellspacing="0" class="stats-table">';
-		$out .= '<tr class="bgColor2"><td colspan="3">' . t3lib_iconWorks::getIconImage('sys_dmail', $row, $BACK_PATH, 'style="vertical-align: top;"') . $row['subject'] . '</td></tr>';
-		$out .= '<tr class="bgColor4"><td>'.$LANG->getLL('view_from').'</td><td>'.htmlspecialchars($row['from_name'].' <'.$row['from_email'].'>').'</td><td>'.$from_info.'</td></tr>';
+		$out .= '<tr class="bgColor2"><td colspan="3">' . t3lib_iconWorks::getIconImage('sys_dmail', $row, $BACK_PATH, 'style="vertical-align: top;"') . htmlspecialchars($row['subject']) . '</td></tr>';
+		$out .= '<tr class="bgColor4"><td>'.$LANG->getLL('view_from').'</td><td>'.htmlspecialchars($row['from_name'].' <'.htmlspecialchars($row['from_email']).'>').'</td><td>'.$from_info.'</td></tr>';
 		$out .= '<tr class="bgColor4"><td>'.$LANG->getLL('view_dmail').'</td><td>'.t3lib_BEfunc::getProcessedValue('sys_dmail','type',$row['type']).': '.$dmailData.'</td><td>'.$dmail_info.'</td></tr>';
 		$out .= '<tr class="bgColor4"><td>'.$LANG->getLL('view_mail').'</td><td>'.t3lib_BEfunc::getProcessedValue('sys_dmail','sendOptions',$row['sendOptions']).($row['attachment']?'; ':'').t3lib_BEfunc::getProcessedValue('sys_dmail','attachment',$row['attachment']).'</td><td>'.$mail_info.'</td></tr>';
 		$out .= '<tr class="bgColor4"><td>'.$LANG->getLL('view_delivery_begin_end').'</td><td>'.$delBegin.' / '.$delEnd.'</td><td>&nbsp;</td></tr>';

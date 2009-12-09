@@ -259,7 +259,14 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function dmailer_sendAdvanced($recipRow, $tableNameChar) {
 		$returnCode = 0;
-
+		
+		//check recipRow for HTML
+		foreach($recipRow as $k => $v) {
+			$tempRow[$k] = htmlspecialchars($v);
+		}
+		unset($recipRow);
+		$recipRow = $tempRow;
+		
 		if ($recipRow['email'])	{
 			$midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
 			$uniqMsgId = md5(microtime()) . '_' . $midRidId;

@@ -1033,7 +1033,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 						$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address',$recipRow['uid']);
 						$htmlmail->dmailer_sendAdvanced($recipRow,'t');
 						$sentFlag=true;
-						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_name'), $recipRow['name'].htmlspecialchars(' <'.$recipRow['email'].'>'))), 1, 1, 0, TRUE);
+						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_name'), htmlspecialchars($recipRow['name']).htmlspecialchars(' <'.$recipRow['email'].'>'))), 1, 1, 0, TRUE);
 						$this->noView=1;
 					}
 				} elseif (t3lib_div::_GP('sys_dmail_group_uid'))	{
@@ -1252,8 +1252,8 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$lines[]='<tr bgcolor="'.$this->doc->bgColor4.'">
 				'.$tableIcon.'
 				'.$editLink.'
-				<td nowrap> '.$row['email'].' </td>
-				<td nowrap> '.$row['name'].' </td>
+				<td nowrap> '.htmlspecialchars($row['email']).' </td>
+				<td nowrap> '.htmlspecialchars($row['name']).' </td>
 				</tr>';
 			}
 		}
@@ -1748,7 +1748,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$createDmailLink = 'index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&fetchAtOnce=1&CMD=info'; 
 				
 				$outLines[] = array(
-					'<a href="'.$createDmailLink.'">'.t3lib_iconWorks::getIconImage('pages', $row, $BACK_PATH, ' title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').$row['title'].'</a>',
+					'<a href="'.$createDmailLink.'">'.t3lib_iconWorks::getIconImage('pages', $row, $BACK_PATH, ' title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').htmlspecialchars($row['title']).'</a>',
 					'<a href="'.$createDmailLink.'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/newmail', 'width="16" height="18"').' alt="'.$LANG->getLL("dmail_createMail").'" style="vertical-align:top;" title="'.$LANG->getLL("nl_create").'" /></a>',
 					'<a href="/typo3/'.t3lib_extMgm::extRelPath('cms').'layout/db_layout.php?id='.$row['uid'].'" target="_blank"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" style="vertical-align:top;" title="'.$LANG->getLL("nl_editPage").'" /></a>',
 					$iconPreview
@@ -1771,7 +1771,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	 * @return	string		the link
 	 */
 	function linkDMail_record($str,$uid)	{
-		return '<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&CMD=info">'.$str.'</a>';
+		return '<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&CMD=info">'.htmlspecialchars($str).'</a>';
 	}
 
 	/**
@@ -1981,13 +1981,13 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		global $LANG, $BE_USER, $BACK_PATH;
 
 			// Render record:
-		$dmailTitle=t3lib_iconWorks::getIconImage('sys_dmail',$row,$BACK_PATH,'style="vertical-align: top;"').$row['subject'];
+		$dmailTitle=t3lib_iconWorks::getIconImage('sys_dmail',$row,$BACK_PATH,'style="vertical-align: top;"').htmlspecialchars($row['subject']);
 		$out='';
 		$Eparams='&edit[sys_dmail]['.$row['uid'].']=edit';
-		$out .= '<tr><td colspan=3 bgColor="' . $this->doc->bgColor5 . '" valign=top>'.tx_directmail_static::fName('subject').' <b>'.t3lib_div::fixed_lgd($row['subject'],60).'  </b>'.'</td></tr>';
+		$out .= '<tr><td colspan=3 bgColor="' . $this->doc->bgColor5 . '" valign=top>'.tx_directmail_static::fName('subject').' <b>'.t3lib_div::fixed_lgd(htmlspecialchars($row['subject']),60).'  </b>'.'</td></tr>';
 		$nameArr = explode(',','from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,attachment,type,page,sendOptions,includeMedia,flowedFormat,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
 		while(list(,$name)=each($nameArr))	{
-			$out.='<tr><td bgColor="'.$this->doc->bgColor4.'">'.tx_directmail_static::fName($name).'</td><td bgColor="'.$this->doc->bgColor4.'">'.str_replace('Yes', $LANG->getLL('yes'),t3lib_BEfunc::getProcessedValue('sys_dmail',$name,$row[$name])).'</td></tr>';
+			$out.='<tr><td bgColor="'.$this->doc->bgColor4.'">'.tx_directmail_static::fName($name).'</td><td bgColor="'.$this->doc->bgColor4.'">'.str_replace('Yes', $LANG->getLL('yes'),htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail',$name,$row[$name]))).'</td></tr>';
 		}
 		$out='<table border="0" cellpadding="1" cellspacing="1" width="460" bgcolor="'.$this->doc->bgColor5.'">'.$out.'</table>';
 		if (!$row['issent'])	{

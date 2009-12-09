@@ -526,7 +526,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 					switch($config[0])	{
 						case 'string':
 						case 'short':
-							$formEl = '<input type="text" name="'.$dataPrefix.'['.$fname.']" value="'.$params[$fname].'"'.$GLOBALS['TBE_TEMPLATE']->formWidth($config[0]=='short'?24:48).' />';
+							$formEl = '<input type="text" name="'.$dataPrefix.'['.$fname.']" value="'.htmlspecialchars($params[$fname]).'"'.$GLOBALS['TBE_TEMPLATE']->formWidth($config[0]=='short'?24:48).' />';
 						break;
 						case 'check':
 							$formEl = '<input type="hidden" name="'.$dataPrefix.'['.$fname.']" value="0" /><input type="checkbox" name="'.$dataPrefix.'['.$fname.']" value="1"'.($params[$fname]?' checked="checked"':'').' />';

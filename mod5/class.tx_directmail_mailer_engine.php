@@ -394,7 +394,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			list($count) = $TYPO3_DB->sql_fetch_row($countres);
 			$out.='<tr>
 						<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
-						<td>'.$this->linkDMail_record(t3lib_div::fixed_lgd($row['subject'],100).'&nbsp;&nbsp;',$row['uid']).'</td>
+						<td>'.$this->linkDMail_record(htmlspecialchars(t3lib_div::fixed_lgd($row['subject'],100)).'&nbsp;&nbsp;',$row['uid']).'</td>
 						<td>'.t3lib_BEfunc::datetime($row['scheduled']).'&nbsp;&nbsp;'.'</td>
 						<td>'.($row['scheduled_begin']?t3lib_BEfunc::datetime($row['scheduled_begin']):'').'&nbsp;&nbsp;'.'</td>
 						<td>'.($row['scheduled_end']?t3lib_BEfunc::datetime($row['scheduled_end']):'').'&nbsp;&nbsp;'.'</td>

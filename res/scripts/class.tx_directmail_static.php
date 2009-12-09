@@ -814,8 +814,8 @@ class tx_directmail_static {
 				$lines[]='<tr bgcolor="'.$bgColor.'">
 				'.$tableIcon.'
 				'.$editLink.'
-				<td nowrap> '.$row['email'].' </td>
-				<td nowrap> '.$row['name'].' </td>
+				<td nowrap> '.htmlspecialchars($row['email']).' </td>
+				<td nowrap> '.htmlspecialchars($row['name']).' </td>
 				</tr>';
 			}
 		}
