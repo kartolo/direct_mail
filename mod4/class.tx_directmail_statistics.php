@@ -615,15 +615,18 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			}
 		}
 
+		$urlCounter['total'] = array(); 
 		// Traverse html urls:
 		$urlCounter['html'] = array();
-		foreach ($htmlUrlsTable as $id => $c) {
-			$urlCounter['html'][$id]['counter'] = $urlCounter['total'][$id]['counter'] = $c['counter'];
+		if(count($htmlUrlsTable) > 0) {  
+			foreach ($htmlUrlsTable as $id => $c) {
+				$urlCounter['html'][$id]['counter'] = $urlCounter['total'][$id]['counter'] = $c['counter'];
+			}
 		}
 
 		// Traverse plain urls:
 		$urlCounter['plain'] = array();
-		foreach ($plainUrlstable_mapped as $id => $c) {
+		foreach ($plainUrlsTable_mapped as $id => $c) {
 			// Look up plain url in html urls
 			$htmlLinkFound = FALSE;
 			foreach ($urlCounter['html'] as $htmlId => $htmlLink) {
