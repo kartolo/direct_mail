@@ -1747,10 +1747,12 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				
 				$createDmailLink = 'index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&fetchAtOnce=1&CMD=info'; 
 				
+				$path_typo3 = substr(PATH_typo3, strlen(PATH_site));
+
 				$outLines[] = array(
 					'<a href="'.$createDmailLink.'">'.t3lib_iconWorks::getIconImage('pages', $row, $BACK_PATH, ' title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['uid'],$this->perms_clause,20)).'" style="vertical-align: top;"').htmlspecialchars($row['title']).'</a>',
 					'<a href="'.$createDmailLink.'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/newmail', 'width="16" height="18"').' alt="'.$LANG->getLL("dmail_createMail").'" style="vertical-align:top;" title="'.$LANG->getLL("nl_create").'" /></a>',
-					'<a href="'.PATH_typo3.t3lib_extMgm::extRelPath('cms').'layout/db_layout.php?id='.$row['uid'].'" target="_blank"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" style="vertical-align:top;" title="'.$LANG->getLL("nl_editPage").'" /></a>',
+					'<a href="/'.$path_typo3.t3lib_extMgm::extRelPath('cms').'layout/db_layout.php?id='.$row['uid'].'" target="_blank"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" style="vertical-align:top;" title="'.$LANG->getLL("nl_editPage").'" /></a>',
 					$iconPreview
 					);
 			}
