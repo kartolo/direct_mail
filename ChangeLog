@@ -1,7 +1,8 @@
 2009-12-13 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #5342(f): fixed uninitialized array
 	* bug #5477(f): quoted admin email
-	* bug #5698(f): fixed link to edit page 
+	* bug #5698(f): fixed link to edit page
+	* bug #5687(f): copied substituteMarkerArray from t3lib_parsehtml for T3 < 4.2.x 
 
 2009-12-01 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Release 2.6.5

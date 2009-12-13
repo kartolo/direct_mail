@@ -245,8 +245,13 @@ class dmailer extends t3lib_htmlmail {
 				}
 			}
 		}
-
-		return t3lib_parseHTML::substituteMarkerArray($content, $markers);
+		
+		if (t3lib_div::compat_version('4.2.0')) {
+			//function exists in 4.2.x
+			return t3lib_parsehtml::substituteMarkerArray($content, $markers);
+		} else {
+			return tx_directmail_static::substituteMarkerArray($content, $markers);
+		}
 	}
 
 
