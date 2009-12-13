@@ -663,10 +663,10 @@ class dmailer extends t3lib_htmlmail {
 
 		$from_name = ($this->from_name) ? $LANG->csConvObj->conv($this->from_name, $this->charset, $LANG->charSet) : '';
 
-		$headers[] = 'From: '.$from_name.' <'.$this->from_email.'>';
+		$headers[] = 'From: "'.$from_name.'" <'.$this->from_email.'>';
 		$headers[] = 'Reply-To: '.$this->replyto_email;
 
-		$email = $from_name.' <'.$this->from_email.'>';
+		$email = '"'.$from_name.'" <'.$this->from_email.'>';
 
 		if ($this->notificationJob) {
 				// format headers for SMTP use
