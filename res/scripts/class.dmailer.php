@@ -236,7 +236,7 @@ class dmailer extends t3lib_htmlmail {
 			$mailMarkersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'];
 			if (is_array($mailMarkersHook)) {
 				$hookParameters = array(
-					'row'     => &$row,
+					'row'     => &$recipRow,
 					'markers' => &$markers,
 				);
 				$hookReference = &$this;
