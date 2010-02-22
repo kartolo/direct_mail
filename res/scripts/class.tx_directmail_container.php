@@ -68,7 +68,7 @@ class tx_directmail_container	{
 	 * @param	array		$conf: pointer to the conf array (TS)
 	 * @return	string		content of the email with dmail boundaries
 	 */
-	function insert_dMailer_boundaries ($content,&$conf) {
+	function insert_dMailer_boundaries ($content,$conf) {
 		global $TSFE, $TYPO3_DB;
 
 		if (isset( $conf['useParentCObj']) && $conf['useParentCObj']) {

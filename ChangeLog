@@ -1,5 +1,6 @@
 2010-02-22 Ivan kartolo <ivan.kartolo@dkd.de>
 	* bug #5772(f): removed getListOfBackendModules, since it will be deprecated soon, and direct mail doesn't need it anyway
+	* bug: fixed pointer (issue with php 5.3)
 	 
 2010-01-13 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #5733(f): recipRow as hook parameter
