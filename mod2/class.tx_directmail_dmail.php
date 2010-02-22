@@ -112,7 +112,6 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	var $TSconfPrefix = 'mod.web_modules.dmail.';
 	var $fieldList='uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
 	// Internal
-	var $modList='';
 	var $params=array();
 	var $perms_clause='';
 	var $pageinfo='';
@@ -152,7 +151,6 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 		parent::init();
 
-		$this->modList = t3lib_BEfunc::getListOfBackendModules(array('dmail'),$this->perms_clause,$BACK_PATH);
 		$temp = t3lib_BEfunc::getModTSconfig($this->id,'mod.web_modules.dmail');
 		$this->params = $temp['properties'];
 		$this->implodedParams = t3lib_BEfunc::implodeTSParams($this->params);

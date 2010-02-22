@@ -83,7 +83,6 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	var $TSconfPrefix = 'mod.web_modules.dmail.';
 	var $fieldList='uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
 	// Internal
-	var $modList='';
 	var $params=array();
 	var $perms_clause='';
 	var $pageinfo='';
@@ -113,7 +112,6 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 		parent::init();
 
-		$this->modList = t3lib_BEfunc::getListOfBackendModules(array('dmail'),$this->perms_clause,$BACK_PATH);
 		$this->MOD_MENU['dmail_mode'] = t3lib_BEfunc::unsetMenuItems($this->params,$this->MOD_MENU['dmail_mode'],'menu.dmail_mode');
 
 			// initialize the page selector

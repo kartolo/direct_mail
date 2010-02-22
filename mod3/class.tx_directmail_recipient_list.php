@@ -105,7 +105,6 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 	var $TSconfPrefix = 'mod.web_modules.dmail.';
 	var $fieldList='uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
 	// Internal
-	var $modList='';
 	var $params=array();
 	var $perms_clause='';
 	var $pageinfo='';
@@ -145,7 +144,6 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 
 		parent::init();
 
-		$this->modList = t3lib_BEfunc::getListOfBackendModules(array('dmail'),$this->perms_clause,$BACK_PATH);
 		$temp = t3lib_BEfunc::getModTSconfig($this->id,'mod.web_modules.dmail');
 		$this->params = $temp['properties'];
 		$this->implodedParams = t3lib_BEfunc::implodeTSParams($this->params);
@@ -286,25 +284,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 	function moduleContent() {
 		global $TYPO3_CONF_VARS, $LANG;
 
-		if (t3lib_div::inList($TYPO3_CONF_VARS['FE']['content_doktypes'],$this->pageinfo['doktype']))	{		// Regular page, show menu to create a direct mail from this page.
-			if ($this->pageinfo['group_id']>0 || $this->pageinfo['hidden'])	{
-				$theOutput.= $this->doc->section($LANG->getLL('dmail_newsletters'),'<span class="typo3-red">'.$LANG->getLL('dmail_noCreateAccess').'</span>',0,1);
-			} else {
-				if (is_array($this->modList['rows']))	{
-					$isNewsletterPage=0;
-					reset($this->modList['rows']);
-					while(list(,$rData)=each($this->modList['rows']))	{
-						if ($rData['uid']==$this->pageinfo['pid'])	{
-							$isNewsletterPage=1;
-						}
-					}
-				}
-				if ($isNewsletterPage)	{
-					header('Location: index.php?id='.$this->pageinfo['pid'].'&CMD=displayPageInfo&pages_uid='.$this->pageinfo['uid'].'&SET[dmail_mode]=news');
-					exit;
-				}
-			}
-		} elseif ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail')	{	// Direct mail module
+		if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail')	{	// Direct mail module
 			$theOutput.= $this->mailModule_main();
 		} elseif ($this->id!=0) {
 			$theOutput.= $this->doc->section($LANG->getLL('dmail_newsletters'),'<span class="typo3-red">'.$GLOBALS['LANG']->getLL('dmail_noRegular').'</span>',0,1);

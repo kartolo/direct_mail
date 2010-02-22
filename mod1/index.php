@@ -153,7 +153,6 @@ class tx_directmail_navframe{
 		}
 
 		$out = '<table cellspacing="0" cellpadding="0" border="0" width="100%">'.$out.'</table>';
-		//$modlist
 		$this->content.= $this->doc->section($LANG->getLL('dmail_folders').t3lib_BEfunc::cshItem($this->cshTable,'folders',$BACK_PATH), $out, 1, 1, 0 , TRUE);
 		$this->content.= $this->doc->spacer(10);
 
