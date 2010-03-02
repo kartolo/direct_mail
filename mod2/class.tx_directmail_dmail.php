@@ -542,7 +542,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 				$row = t3lib_BEfunc::getRecord('sys_dmail',intval($this->sys_dmail_uid));
 				//link in the mail
-				$message = '<!--DMAILER_SECTION_BOUNDARY_--> '.$indata['message'].' <!--DMAILER_SECTION_BOUNDARY_END-->';
+				$message = '<!--DMAILER_SECTION_BOUNDARY_-->'.$indata['message'].'<!--DMAILER_SECTION_BOUNDARY_END-->';
 				if (trim($this->params['use_rdct'])) {
 					$message = t3lib_div::substUrlsInPlainText($message,$this->params['long_link_mode']?'all':'76',tx_directmail_static::getUrlBase($this->params['use_domain']));
 				}
