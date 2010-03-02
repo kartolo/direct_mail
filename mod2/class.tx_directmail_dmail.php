@@ -261,11 +261,11 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					.toggleBox {border: 1px solid #aaaaaa; background-color: '.$this->doc->bgColor4.'; padding: 1em; width:50em;}
 					.toggleBox h3 {background-color: '.$this->doc->bgColor4.';}
 					tr.bgColor4{background-color: '.$this->doc->bgColor4.';}
-					div.step_box {margin-left: 5em;}
-					div.step_box span {font-size: 22pt; font-weight: bold; font-family: verdana; color: white;}
+					div.step_box {margin-left: 5em; width:250px; float: left; line-height: 22pt;}
+					div.step_box span {font-size: 22pt; font-weight: bold; font-family: verdana; color: white; vertical-align:bottom;}
 					div.step_box span.black {color: black}
-					input.next {position: absolute; top: 55px; left: 350px;}
-					input.back {position: absolute; top: 55px; left: 300px;}
+					input.next {margin-top: 5px;}
+					input.back {margin: 5px 5px 0px 0px;}
 					input.disabled {background: #ccc;}
 					}
 					';
@@ -607,7 +607,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			$class = ($i==$step)?'black':'white';
 			$out.='<span class="'.$class.'">&nbsp;'.$i.'&nbsp;</span>';
 		}
-		return $out.'</div><br />';
+		return $out.'</div>';
 	}
 
 	/**
@@ -711,6 +711,10 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				}
 
 				$theOutput .= $this->showSteps(2,$totalSteps);
+				$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
+				$theOutput.= '<input type="submit" value="'.$LANG->getLL('dmail_wiz_next').'" '.($fetchError?'disabled class="next disabled"':' class="next"').'>';
+				$theOutput .='<br /><br />';
+				
 				$theOutput .= $fetchMsg ? $fetchMsg : $LANG->getLL('dmail_wiz2_fetch_success');
 
 				$theOutput.= '<br /><div id="box-1" class="toggleBox">';
@@ -721,13 +725,15 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$theOutput.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
 				$theOutput.= !empty($row['page'])?'<input type="hidden" name="pages_uid" value="'.$row['page'].'">':'';
 				$theOutput.= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
-				$theOutput.= '<input type="submit" value="'.$LANG->getLL('dmail_wiz_next').'" '.($fetchError?'disabled class="next disabled"':' class="next"').'>';
-				$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
 				break;
 
 			case 'cats':
 				//shows category if content-based cat
 				$theOutput.= $this->showSteps(3,$totalSteps);
+				$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
+				$theOutput.= '<input class="next" type="submit" value="'.$LANG->getLL('dmail_wiz_next').'">';
+				$theOutput .='<br /><br />';
+				
 				$theOutput.= '<div id="box-1" class="toggleBox">';
 				$theOutput.= $this->makeCategoriesForm($row);
 				$theOutput.= '</div></div>';
@@ -738,14 +744,16 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$theOutput.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
 				$theOutput.= '<input type="hidden" name="pages_uid" value="'.t3lib_div::_GP('pages_uid').'">';
 				$theOutput.= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
-				$theOutput.= '<input class="next" type="submit" value="'.$LANG->getLL('dmail_wiz_next').'">';
-				$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
 				break;
 
 			case 'send_test':
 			case 'send_mail_test':
 				//send test mail
 				$theOutput.= $this->showSteps((4-(5-$totalSteps)),$totalSteps);
+				$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
+				$theOutput.= '<input class="next" type="submit" value="'.$LANG->getLL('dmail_wiz_next').'">';
+				$theOutput .='<br /><br />';
+				
 				if($this->CMD == 'send_mail_test'){
 					$theOutput.=$this->cmd_send_mail($row);
 				}
@@ -759,14 +767,16 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$theOutput.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
 				$theOutput.= '<input type="hidden" name="pages_uid" value="'.t3lib_div::_GP('pages_uid').'">';
 				$theOutput.= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
-				$theOutput.= '<input class="next" type="submit" value="'.$LANG->getLL('dmail_wiz_next').'">';
-				$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
 				break;
 
 			case 'send_mail_final':
 			case 'send_mass':
 
 				$theOutput.= $this->showSteps((5-(5-$totalSteps)),$totalSteps);
+				if($this->CMD =='send_mass'){
+					$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back"><br /><br />';
+				}
+				
 				if($this->CMD=='send_mail_final'){
 					$mailgroup_uid = t3lib_div::_GP('mailgroup_uid');
 					if(!empty($mailgroup_uid)){
@@ -788,9 +798,6 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$theOutput.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
 				$theOutput.= '<input type="hidden" name="pages_uid" value="'.t3lib_div::_GP('pages_uid').'">';
 				$theOutput.= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
-				if($this->CMD =='send_mass'){
-					$theOutput.= '<input type="submit" class="back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
-				}
 				
 				break;
 
@@ -801,7 +808,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					$showTabs = t3lib_div::removeArrayEntryByValue($showTabs, $hideTabs);
 				}
 				$theOutput.= $this->showSteps(1,$totalSteps);
-				$theOutput.= '<p>'.$LANG->getLL('dmail_wiz1_select_nl_source').'</p><br />';
+				$theOutput.= '<p style="clear: both">'.$LANG->getLL('dmail_wiz1_select_nl_source').'</p><br />';
 				$i=1;
 				$countTabs = count($showTabs);
 				foreach($showTabs as $showTab){
