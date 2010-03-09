@@ -1877,12 +1877,17 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 			// Compile the mail
 		$htmlmail = t3lib_div::makeInstance('dmailer');
-		if($this->params['enable_jump_url']) {
-			$htmlmail->jumperURL_prefix = $this->urlbase.'?id='.$row['page'].'&rid=###SYS_TABLE_NAME###_###USER_uid###&mid=###SYS_MAIL_ID###&aC=###SYS_AUTHCODE###&jumpurl=';
-			$htmlmail->jumperURL_useId=1;
+		if ($this->params['enable_jump_url']) {
+			$htmlmail->jumperURL_prefix = $this->urlbase
+				. '?id='  . $row['page']
+				. '&rid=###SYS_TABLE_NAME###_###USER_uid###'
+				. '&mid=###SYS_MAIL_ID###'
+				. '&aC=###SYS_AUTHCODE###'
+				. '&jumpurl=';
+			$htmlmail->jumperURL_useId = 1;
 		}
-		if($this->params['enable_mailto_jump_url']) {
-			$htmlmail->jumperURL_useMailto=1;
+		if ($this->params['enable_mailto_jump_url']) {
+			$htmlmail->jumperURL_useMailto = 1;
 		}
 
 		$htmlmail->start();

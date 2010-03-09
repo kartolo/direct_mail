@@ -50,50 +50,60 @@
 
 /**
  * JumpUrl processing hook on class.tslib_fe.php
- *
  */
-class tx_directmail_checkjumpurl	{
+class tx_directmail_checkjumpurl {
 
 	/**
 	 * Get the url to jump to as set by Direct Mail
 	 *
 	 * @param	object		&$feObj: reference to invoking instance
-	 * @return	void		...
+	 * @return	void
 	 */
-	function checkDataSubmission (&$feObj)	{
-		global $TCA, $TYPO3_DB, $TYPO3_CONF_VARS;
+	function checkDataSubmission (&$feObj) {
+		global $TYPO3_CONF_VARS;
 
-		$JUMPURL_VARS = t3lib_div::_GET();
+		$jumpUrlVariables = t3lib_div::_GET();
 
-		$mid = $JUMPURL_VARS['mid'];
-		$rid = $JUMPURL_VARS['rid'];
-		$aC = $JUMPURL_VARS['aC'];
+		$mid = $jumpUrlVariables['mid'];
+		$rid = $jumpUrlVariables['rid'];
+		$aC  = $jumpUrlVariables['aC'];
 
 		$jumpurl = $feObj->jumpurl;
+		$responseType = 0;
+		if ($mid && is_array($GLOBALS['TCA']['sys_dmail'])) {
+				// overwrite the jumpUrl with the one from the &jumpurl= get parameter
+			$jumpurl = $jumpUrlVariables['jumpurl'];
 
-		if ($mid && is_array($TCA['sys_dmail']))	{
-			$temp_recip=explode('_',$rid);
-			$url_id=0;
-			if (t3lib_div::testInt($jumpurl))	{
-				$temp_res = $TYPO3_DB->exec_SELECTquery(
-					'mailContent',
+				// this will split up the "rid=f_13667", where the first part
+				// is the DB table name and the second part the UID of the record in the DB table
+			list($recipientTable, $recipientUid) = explode('_', $rid);
+
+			$url_id = 0;
+			if (t3lib_div::testInt($jumpurl)) {
+				
+					// fetch the direct mail record where the mailing was sent (for this message)
+				$resMailing = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+					'mailContent, page',
 					'sys_dmail',
-					'uid='.intval($mid)
-					);
-				if ($row = $TYPO3_DB->sql_fetch_assoc($temp_res))	{
+					'uid = ' . intval($mid)
+				);
+
+				if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resMailing)) {
 					$temp_unpackedMail = unserialize($row['mailContent']);
+						// internal page that was the template for the direct mailing
+					$internalPage = $row['page'];
 					$url_id = $jumpurl;
-					if ($jumpurl>=0)	{
-						$responseType=1;	// Link (number)
+					if ($jumpurl >= 0) {
+							// Link (number)
+						$responseType = 1;
 						$jumpurl = $temp_unpackedMail['html']['hrefs'][$url_id]['absRef'];
 					} else {
-						$responseType=2;	// Link (number, plaintext)
+							// Link (number, plaintext)
+						$responseType = 2;
 						$jumpurl = $temp_unpackedMail['plain']['link_ids'][abs($url_id)];
 					}
-
 					$jumpurl = t3lib_div::htmlspecialchars_decode($jumpurl);
-
-					switch($temp_recip[0])	{
+					switch ($recipientTable) {
 						case 't':
 							$theTable = 'tt_address';
 						break;
@@ -101,58 +111,75 @@ class tx_directmail_checkjumpurl	{
 							$theTable = 'fe_users';
 						break;
 						default:
-							$theTable='';
+							$theTable = '';
 						break;
 					}
-					if ($theTable)	{
-						$recipRow = $feObj->sys_page->getRawRecord($theTable,$temp_recip[1]);
-						if (is_array($recipRow))	{
-							$authCode = t3lib_div::stdAuthCode($recipRow,($row['authcode_fieldList'])?$row['authcode_fieldList']:'uid');
+
+					if ($theTable) {
+						$recipRow = $feObj->sys_page->getRawRecord($theTable, $recipientUid);
+						if (is_array($recipRow)) {
+							$authCode = t3lib_div::stdAuthCode($recipRow, ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid'));
 							$rowFieldsArray = explode(',', $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['defaultRecipFields']);
-							if ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields'])	{
-								$rowFieldsArray = array_merge($rowFieldsArray, explode(',',$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields']));
+							if ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields']) {
+								$rowFieldsArray = array_merge($rowFieldsArray, explode(',', $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields']));
 							}
+
 							reset($rowFieldsArray);
-							while(list(,$substField)=each($rowFieldsArray))	{
+							foreach ($rowFieldsArray as $substField) {
 								$jumpurl = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $jumpurl);
 							}
-							$jumpurl = str_replace('###SYS_TABLE_NAME###', $theTable, $jumpurl);	// Put in the tablename of the userinformation
-							$jumpurl = str_replace('###SYS_MAIL_ID###', $mid, $jumpurl);	// Put in the uid of the mail-record
-							$jumpurl = str_replace('###SYS_AUTHCODE###', ($aC)?$aC:$authCode, $jumpurl);	// If authCode is provided, keep it.
+								// Put in the tablename of the userinformation
+							$jumpurl = str_replace('###SYS_TABLE_NAME###', $theTable, $jumpurl);
+								// Put in the uid of the mail-record
+							$jumpurl = str_replace('###SYS_MAIL_ID###', $mid, $jumpurl);
+								// If authCode is provided, keep it.
+							$jumpurl = str_replace('###SYS_AUTHCODE###', ($aC ? $aC : $authCode), $jumpurl);
+
+								// Auto Login an FE User, only possible if we're allowed to set the $_POST variables and
+								// in the authcode_fieldlist the field "password" is computed in as well
+								// TODO: add a switch in Direct Mail configuration to decide if this option should be enabled by default
+							if ($theTable == 'fe_users' && $aC != '' && $aC == $authCode && t3lib_div::inList($row['authcode_fieldList'], 'password')) {
+								$_POST['user'] = $recipRow['username'];
+								$_POST['pass'] = $recipRow['password'];
+								$_POST['pid']  = $recipRow['pid'];
+								$_POST['logintype'] = 'login';
+								$GLOBALS['TSFE']->initFEuser();
+							}
 						}
 					}
 				}
-
-				$TYPO3_DB->sql_free_result($temp_res);
-
-				if (!$jumpurl)	die('Error: No further link. Please report error to the mail sender.');
+				$GLOBALS['TYPO3_DB']->sql_free_result($resMailing);
+				if (!$jumpurl) {
+					die('Error: No further link. Please report error to the mail sender.');
+				}
 			} else {
-				$responseType=-1;	// received (url, dmailerping)
+					// jumpUrl is not an integer -- then this is a URL, that means that the "dmailerping"
+					// functionality was used to count the number of "opened mails"
+					// received (url, dmailerping)
+				$responseType = -1;
 			}
-			if ($responseType!=0)	{
-				$insertFields = array(
-					'mid' => intval($mid),
-					'rtbl' => $temp_recip[0],
-					'rid' => intval($temp_recip[1]),
-					'tstamp' => time(),
-					'url' => $jumpurl,
-					'response_type' => intval($responseType),
-					'url_id' => intval($url_id)
-				);
 
-				$res = $TYPO3_DB->exec_INSERTquery(
-					'sys_dmail_maillog',
-					$insertFields
-					);
+			if ($responseType != 0) {
+				$insertFields = array(
+					'mid'           => intval($mid),	// the message ID
+					'rtbl'          => $recipientTable,	// the receiver table
+					'rid'           => intval($recipientRow),
+					'tstamp'        => time(),
+					'url'           => $jumpurl,
+					'response_type' => intval($responseType),
+					'url_id'        => intval($url_id)
+				);
+				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail_maillog', $insertFields);
 			}
 		}
 
+		// finally set the jumpURL to the TSFE object
 		$feObj->jumpurl = $jumpurl;
 	}
 
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_checkjumpurl.php'])	{
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_checkjumpurl.php']) {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_checkjumpurl.php']);
 }
 

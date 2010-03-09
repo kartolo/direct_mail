@@ -1,3 +1,6 @@
+2010-03-09 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* feature #3600: code cleanup. Thanks to Benni Mack
+
 2010-03-02 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #13349(b): fix the next and back button positioning in IE7
 	* bug #6515(f): fix typo
