@@ -292,7 +292,6 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				$this->setURLs($row);
 
 					// COMMAND:
-					//TODO: add cmd_displayUserInfo s. recip-list
 				switch($this->CMD) {
 					case 'displayUserInfo':
 						$theOutput.= $this->cmd_displayUserInfo();
@@ -856,8 +855,8 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			}
 
 			if (t3lib_div::_GP('returnList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4);}
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 			}
 			if (t3lib_div::_GP('returnDisable'))	{
 				if (is_array($idLists['tt_address']))	{
@@ -914,10 +913,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 			if (t3lib_div::_GP('unknownList'))	{
 				if (is_array($idLists['tt_address'])) {
-					$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4);
+					$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);
 				}
 				if (is_array($idLists['fe_users'])) {
-					$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4);
+					$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);
 				}
 			}
 			if (t3lib_div::_GP('unknownDisable'))	{
@@ -974,8 +973,8 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			}
 
 			if (t3lib_div::_GP('fullList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4);}
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 			}
 			if (t3lib_div::_GP('fullDisable'))	{
 				if (is_array($idLists['tt_address']))	{
@@ -1031,8 +1030,8 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			}
 
 			if (t3lib_div::_GP('badHostList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4);}
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 			}
 			if (t3lib_div::_GP('badHostDisable'))	{
 				if (is_array($idLists['tt_address']))	{
@@ -1088,8 +1087,8 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			}
 
 			if (t3lib_div::_GP('badHeaderList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4);}
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 			}
 
 			if (t3lib_div::_GP('badHeaderDisable'))	{
@@ -1147,8 +1146,8 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			}
 
 			if (t3lib_div::_GP('reasonUnknownList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4);}
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 			}
 			if (t3lib_div::_GP('reasonUnknownDisable'))	{
 				if (is_array($idLists['tt_address']))	{

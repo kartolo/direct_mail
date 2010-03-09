@@ -1,5 +1,6 @@
 2010-03-09 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* feature #3600: code cleanup. Thanks to Benni Mack
+	* bug #5303: fix bug edit link in statistic
 
 2010-03-02 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #13349(b): fix the next and back button positioning in IE7

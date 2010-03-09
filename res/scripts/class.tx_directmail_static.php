@@ -792,7 +792,7 @@ class tx_directmail_static {
 	 * @param	boolean		$editLinkFlag: if set, edit link is showed
 	 * @return	string		list of record in HTML format
 	 */
-	function getRecordList($listArr,$table,$pageId,$bgColor,$dim=0,$editLinkFlag=1)	{
+	function getRecordList($listArr,$table,$pageId,$bgColor,$dim=0,$editLinkFlag=1,$sys_dmail_uid)	{
 		global $LANG, $BACK_PATH;
 
 		$count=0;
@@ -807,7 +807,7 @@ class tx_directmail_static {
 				if ($row['uid']) {
 					$tableIcon = '<td>'.t3lib_iconWorks::getIconImage($table,array(),$BACK_PATH,'title="'.($row['uid']?'uid: '.$row['uid']:'').'"',$dim).'</td>';
 					if ($editLinkFlag) {
-						$editLink = '<td><a href="index.php?id='.$pageId.'&CMD=displayUserInfo&table='.$table.'&uid='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="' . $LANG->getLL('dmail_edit') . '" width="12" height="12" style="margin:0px 5px; vertical-align:top;" title="' . $LANG->getLL('dmail_edit') . '" /></a></td>';
+						$editLink = '<td><a href="index.php?id='.$pageId.'&CMD=displayUserInfo&sys_dmail_uid='.$sys_dmail_uid.'&table='.$table.'&uid='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="' . $LANG->getLL('dmail_edit') . '" width="12" height="12" style="margin:0px 5px; vertical-align:top;" title="' . $LANG->getLL('dmail_edit') . '" /></a></td>';
 					}
 				}
 
