@@ -1,5 +1,10 @@
 2010-03-10 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Release 2.6.6
+
+2010-03-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #13648(b): empty bullet list in plaintext 
+	* bug #13280(b): SysFolder list in the importer module respects the user permission
+	* bug #6546(f):	fixed_lgd will be deprecated soon, changed it with fixed_lgd_cs
 
 2010-03-09 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* feature #3600: code cleanup. Thanks to Benni Mack

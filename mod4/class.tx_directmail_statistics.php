@@ -482,7 +482,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 				$out.='<tr class="bgColor4">
 					<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
-					<td>'.$this->linkDMail_record(fw(t3lib_div::fixed_lgd($row['subject'],30).'  '),$row['uid'],$row['subject']).'&nbsp;&nbsp;</td>
+					<td>'.$this->linkDMail_record(fw(t3lib_div::fixed_lgd_cs($row['subject'],30).'  '),$row['uid'],$row['subject']).'&nbsp;&nbsp;</td>
 					<td>'.fw(t3lib_BEfunc::datetime($row["scheduled"])).'</td>
 					<td>'.fw($row["scheduled_begin"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'&nbsp;').'</td>
 					<td>'.fw($row["scheduled_end"]?t3lib_BEfunc::datetime($row["scheduled_end"]):'&nbsp;').'</td>
