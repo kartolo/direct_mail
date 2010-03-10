@@ -275,7 +275,7 @@ class tx_directmail_importer {
 					if(!empty($rowCat)){
 						$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats'), '');
 						foreach ($rowCat as $k => $v){
-							$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.$v['category'], '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
+							$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
 						}	
 					}
 				}
