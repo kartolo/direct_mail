@@ -3,7 +3,7 @@
  *
  * @package TYPO3
  * @subpackage tx_directmail
- * @version $Id: tca.php 18119 2009-03-20 13:23:32Z ivankartolo $
+ * @version $Id$
  */
 
 if (!defined ('TYPO3_MODE'))     die ('Access denied.');

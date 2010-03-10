@@ -3,7 +3,7 @@
  *
  * @package TYPO3
  * @subpackage tx_directmail
- * @version $Id: ext_tables.php 23228 2009-08-10 15:54:35Z ivankartolo $
+ * @version $Id$
  */
 
 if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
