@@ -779,6 +779,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				
 				if($this->CMD=='send_mail_final'){
 					$mailgroup_uid = t3lib_div::_GP('mailgroup_uid');
+					$theOutput .= '<div style="clear:both"></div>';
 					if(!empty($mailgroup_uid)){
 						$theOutput.= $this->cmd_send_mail($row);
 						$theOutput = $this->doc->section($LANG->getLL('dmail_wiz5_sendmass'),$theOutput,1,1,0, TRUE);
