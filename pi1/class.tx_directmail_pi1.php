@@ -452,6 +452,9 @@ class tx_directmail_pi1 extends tslib_pibase {
 		$lines=array();
 		$c=0;
 		while(list(,$substrs)=each($cParts))	{
+			if (!strlen($substrs)) {
+				continue;
+			}
 			$c++;
 			$bullet = $tConf['bullet'] ? $this->getString($tConf['bullet']) : ' - ';
 			$bLen=strlen($bullet);

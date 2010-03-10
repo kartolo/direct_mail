@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!-- ====================================================================== 
+     2006-08-14 10:05                                                        
+
+     copies the EXT:tc_beuser files without .cvs folders to a TYPO3 test 
+     installation 
+                   
+     ingo.renner@dkd.de                                                                
+     ====================================================================== -->
+<project name="direct_mail" default="all" basedir=".">
+    <description>
+    	copy direct_mail to local test installation
+    </description>
+	
+	<target name="all" depends="clean, deploy" description="deploy TYPO3"/>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+	
+    <target name="init">
+    	
+    	<!-- set parameter -->
+    	<property name="dir.target" value="/var/www/directmail/htdocs/typo3conf/ext/direct_mail" />
+    	<property name="dir.target.conf" value="/var/www/directmail/htdocs/typo3conf"/>
+		<property name="dir.src" value="/Users/ivan/dkd/WSGalileo/direct_mail" />
+    	    	
+    </target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: prepare                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="prepare" depends="init">        
+    	<mkdir dir="${dir.target}" />    	
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: clean                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="clean" depends="init" description="cleans build/">
+		<delete dir="${dir.target}" />		
+		<delete>
+			<fileset dir="${dir.target.conf}">
+			    <include name="temp_CACHED_*"/>
+			</fileset>
+		</delete>
+	</target>
+	
+	<!-- ================================= 
+          target: deploy              
+         ================================= -->
+    <target name="deploy" depends="prepare" description="deploy build">
+
+        <copy todir="${dir.target}">
+            <fileset dir="${dir.src}">
+            	<exclude name=".project" />
+            	<exclude name="build.xml" />
+				<exclude name=".buildpath" />
+				<exclude name=".settings" />
+            </fileset>
+        </copy>
+    	
+    </target>
+
+</project>
+

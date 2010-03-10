@@ -316,6 +316,8 @@ class dmailer extends t3lib_htmlmail {
 				// Set content
 			$this->Xid = $midRidId . '-' . md5($midRidId);
 			$this->returnPath = str_replace('###XID###', $midRidId, $this->dmailer['sys_dmail_rec']['return_path']);
+			//TODO: returnpath
+			//$this->returnPath = $this->from_name.' <'.$this->dmailer['sys_dmail_rec']['return_path'].'>';
 
 			$this->part = 0;
 
