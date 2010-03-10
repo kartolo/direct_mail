@@ -139,7 +139,9 @@ class tx_directmail_importer {
 				);
 				$optStorage = array();
 				while($row = $TYPO3_DB->sql_fetch_assoc($res)){
-					$optStorage[] = array($row['uid'],$row['title'].' [uid:'.$row['uid'].']');
+					if(t3lib_BEfunc::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){
+						$optStorage[] = array($row['uid'],$row['title'].' [uid:'.$row['uid'].']');
+					}
 				}
 
 				$optDelimiter=array(
