@@ -364,7 +364,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			$out.='<tr>
 						<td'.$TDparams.' nowrap>'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
 						<td'.$TDparams.'>'.$this->editLink('sys_dmail_group',$row['uid']).'</td>
-						<td'.$TDparams.' nowrap>'.$this->linkRecip_record(fw('<strong>'.htmlspecialchars(t3lib_div::fixed_lgd($row['title'],30)).'</strong>&nbsp;&nbsp;'),$row['uid']).'</td>
+						<td'.$TDparams.' nowrap>'.$this->linkRecip_record(fw('<strong>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'],30)).'</strong>&nbsp;&nbsp;'),$row['uid']).'</td>
 						<td'.$TDparams.' nowrap>'.fw(htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail_group','type',$row['type'])).'&nbsp;&nbsp;').'</td>
 						<td'.$TDparams.'>'.fw(t3lib_BEfunc::getProcessedValue('sys_dmail_group','description',htmlspecialchars($row['description'])).'&nbsp;&nbsp;').'</td>
 						<td'.$TDparams.'>'.$count.'</td>
