@@ -1,0 +1,43 @@
+##
+## @package TYPO3
+## @subpackage tx_directmail
+## @version $Id: setup.txt 6012 2007-07-23 12:54:25Z ivankartolo $
+##
+
+plugin.tx_directmail_pi1 {
+  shortcut.0.conf.tt_news =< plugin.tt_news
+  shortcut.0.conf.tt_news.code = PLAINTEXT
+  shortcut.0.conf.tt_news.defaultCode = PLAINTEXT
+  shortcut.0.conf.tt_news.displayCurrentRecord = 1
+  shortcut.0.conf.tt_news.plainTextConf < plugin.tx_directmail_pi1
+  shortcut.0.tables = tt_content,tt_news
+  
+  tt_news_author.defaultType = 3
+  tt_news_author.date = D-m-Y
+  tt_news_author.prefix = |###TT_NEWS_AUTHOR_PREFIX### |
+  tt_news_author.datePrefix = |###TT_NEWS_AUTHOR_DATE_PREFIX### |
+  tt_news_author.emailPrefix = | ###TT_NEWS_AUTHOR_EMAIL_PREFIX### |
+  tt_news_author.1.preLineLen = 76
+  tt_news_author.1.postLineLen = 76
+  tt_news_author.1.preBlanks=1
+  tt_news_author.1.stdWrap.case = upper
+
+  tt_news_author.2 < .tt_news_author.1
+  tt_news_author.2.preLineChar=*
+  tt_news_author.2.postLineChar=*
+
+  tt_news_author.3.preBlanks=1
+  tt_news_author.3.stdWrap.case = upper
+  
+  tt_news_author.4 < .tt_news_author.1
+  tt_news_author.4.preLineChar = =
+  tt_news_author.4.postLineChar = =
+  tt_news_author.4.preLineBlanks= 1
+  tt_news_author.4.postLineBlanks= 1
+  
+  tt_news_short < .bodytext
+  tt_news_short.header = |###TT_NEWS_SHORT_HEADER### |
+  
+  tt_news_bodytext < .bodytext
+  tt_news_bodytext.header = |###TT_NEWS_BODYTEXT_HEADER### |
+}

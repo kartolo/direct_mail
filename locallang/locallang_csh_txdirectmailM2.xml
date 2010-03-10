@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<description>CSH for Direct Mail Module</description>
+		<type>CSH</type>
+		<fileId>EXT:direct_mail/locallang/locallang_csh_txdirectmailM2</fileId>
+		<csh_table>_MOD_txdirectmailM1_txdirectmailM2</csh_table>
+		<keep_original_text>1</keep_original_text>
+		<labelContext type="array">
+		</labelContext>
+	</meta>
+    <data type="array">
+        <languageKey index="default" type="array">
+	    <label index=".alttitle">Direct Mail > Direct Mail module</label>
+            <label index=".description">Select the function of the Direct Mail module that you want to use.</label>
+            <label index=".details">The functions of the Direct Mail module are the following, but their availability may be restricted depending on user access rights:
+
+1. Newsletters: this function lets you create a new newsletter or select an existing one; you may also select an existing newsletter in the page tree of the Direct Mail folder; selecting an existing newsletter leads you to a screen that lets you view or edit the newsletter, assign categories to the content elements of the page, view the list of direct mails already based on this newsletter page, or create a new one based on it.
+
+2. Direct Mails: this function lets you create a new direct mail based on a newsletter that has not yet been used to create one, or based on an external URL, or select an existing direct mail; selecting an existing direct mail leads you to a screen that lets you view the current information on the direct mail, edit the properties of the direct mail, and select from a menu of options the action you want to take on the selected direct mail.
+
+3. Recipient Lists: this function lets you create a new recipient list, import Addresses records from csv data to create a new recipient list, link to the diting form of an existing recipient list, or select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.
+
+4. Mailer Engine Status: this function lets you review the current status of the direct mails that have been scheduled for mass sending, and invoke manually the mailer engine, if it is not configured to be automatically invoked; selecting one of the listed direct mails leads you to the Direct Mails function where you may select to review the statistics of the selected direct mail.
+
+5. QuickMail: this function lets you enter a short message and send it immediately to a recipient list. No newsletter, nor any direct mail is involved in this function.
+
+6. Categories Conversion: this function is a migration tool that lets you convert your database to the new Direct Mail Categories introduced in version 2.0 of Direct Mail. Please refer to the manual for more information.
+
+7. Module Configuration: this function is an administration tool used to configure a Direct Mail folder. Please refer to the manual for more information.</label>
+            <label index="_.seeAlso">sys_dmail, sys_dmail_group, sys_dmail_category</label>
+	    <label index="folders.alttitle">Available Direct Mail folders</label>
+	    <label index="folders.description">Select the Direct Mail folder you wish to work with.</label>
+            <label index="folders.details">Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</label>
+	    <label index="select_newsletter.alttitle">Select a newsletter</label>
+	    <label index="select_newsletter.description">Click on one of these already created newsletters.</label>
+            <label index="select_newsletter.details">You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</label>
+	    <label index="create_newsletter.alttitle">Create a newsletter</label>	    
+	    <label index="create_newsletter.description">Click on this link if you want to create a new newsletter.</label>
+            <label index="create_newsletter.details">A newsletter is basically a regular Typo3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
+
+You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
+
+###USER_uid### (the unique id of the recipient)
+###USER_name### (full name)
+###USER_firstname### (first name calculated)
+###USER_NAME### and ###USER_FIRSTNAME### will insert uppercase versions of the equivalents
+###USER_title###
+###USER_email###
+###USER_phone###
+###USER_www###
+###USER_address###
+###USER_company###
+###USER_city###
+###USER_zip###
+###USER_country###
+###USER_fax###
+###SYS_TABLE_NAME###
+###SYS_MAIL_ID###
+###SYS_AUTHCODE###</label>
+	    <label index="assign_categories.alttitle">Assign categories to content elements</label>
+	    <label index="assign_categories.description">Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</label>
+            <label index="assign_categories.details">Check a checkbox in order to assign a category to a content element.
+
+If you do not assign any category to an element, the element will appear in all mails.</label>
+            <label index="assign_categories.seeAlso">sys_dmail_category</label>
+	    <label index="assign_categories.alttitle">Select a direct mail</label>
+	    <label index="select_directmail.description">The following direct mails have not yet been sent. Click on the one you want to work on.</label>
+	    <label index="select_directmail.seeAlso">sys_dmail</label>
+	    <label index="create_directmail_from_nl.alttitle">Create a new direct mail from newsletter</label>
+	    <label index="create_directmail_from_nl.description">No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</label>
+	    <label index="create_directmail_from_nl.seeAlso">sys_dmail</label>
+	    <label index="create_directmail_from_url.alttitle">Create a new direct mail from an external URL</label>
+	    <label index="create_directmail_from_url.description">Use this form to create a new direct mail based on content grabbed from an external URL.</label>
+	    <label index="create_directmail_from_url.seeAlso">sys_dmail</label>
+	    <label index="directmail_actions.alttitle">Direct Mails options menu</label>
+	    <label index="directmail_actions.description">Select the action you want to perform on this direct mail.</label>
+            <label index="directmail_actions.details">Possible actions are the following, but their availability vary depending on the current state of the direct mail:
+	    
+1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
+
+2. Send a testmail: this option lets you send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application.
+
+3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
+
+4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.</label>
+            <label index="directmail_actions.seeAlso">sys_dmail</label>
+        </languageKey>
+        <languageKey index="de" type="array">
+	    <label index=".alttitle">Web &gt; Direct-Mail-Modul </label>
+            <label index=".description">Wählen Sie eine Funktion des Direct-Mail-Moduls.</label>
+            <label index=".details">The functions of the Direct Mail module are the following, but their availability may be restricted depending on user access rights:
+
+1. Newsletter: this function lets you create a new newsletter or select an existing one; you may also select an existing newsletter in the page tree of the Direct Mail folder; selecting an existing newsletter leads you to a screen that lets you view or edit the newsletter, assign categories to the content elements of the page, view the list of direct mails already based on this newsletter page, or create a new one based on it.
+
+2. Versand: this function lets you create a new direct mail based on a newsletter that has not yet been used to create one, or based on an external URL, or select an existing direct mail; selecting an existing direct mail leads you to a screen that lets you view the current information on the direct mail, edit the properties of the direct mail, and select from a menu of options the action you want to take on the selected direct mail.
+
+3. Empfängerliste: this function lets you create a new recipient list, import Addresses records from csv data to create a new recipient list, link to the diting form of an existing recipient list, or select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.
+
+4. Versand-Status: this function lets you review the current status of the direct mails that have been scheduled for mass sending, and invoke manually the mailer engine, if it is not configured to be automatically invoked; selecting one of the listed direct mails leads you to the Direct Mails function where you may select to review the statistics of the selected direct mail.
+
+5. QuickMail: this function lets you enter a short message and send it immediately to a recipient list. No newsletter, nor any direct mail is involved in this function.
+
+6. Konvertierung von Kategorien: this function is a migration tool that lets you convert your database to the new Direct Mail Categories introduced in version 2.0 of Direct Mail. Please refer to the manual for more information.
+
+7. Modulkonfiguration: this function is an administration tool used to configure a Direct Mail folder. Please refer to the manual for more information.</label>
+            <label index="_.seeAlso">sys_dmail, sys_dmail_group, sys_dmail_category</label>
+		    <label index="folders.alttitle">Verfügbare Direct-Mail-Ordner</label>
+		    <label index="folders.description">Select the Direct Mail folder you wish to work with.</label>
+	    	<label index="folders.description">Wählen Sie den Direct-Mail-Ordner, mit dem Sie arbeiten wollen.</label>
+            <label index="folders.details">Jeder Direct-Mail-Ordner enthält eine eigene Newsletter-Konfiguration. Für unterschiedliche Zwecke oder Empfänger können Sie so unterschiedlich gestaltete Newsletter versenden.</label>
+		    <label index="select_newsletter.alttitle">Wählen Sie eine Newsletter-Seite.</label>
+		    <label index="select_newsletter.description">Klicken Sie einen der bereits angelegten Newsletter.</label>
+            <label index="select_newsletter.details">Sie können einen der aufgelisteten Newsletter anklicken, um Informationen über ihn zu erhalten, ihn zu bearbeiten und einen Versand daraus zu erstellen.</label>
+		    <label index="create_newsletter.alttitle">Newsletter anlegen</label>	    
+	    	<label index="create_newsletter.description">Klicken Sie hier, um eine neue Newsletter-Seite anzulegen.</label>
+            <label index="create_newsletter.details">A newsletter is basically a regular Typo3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
+
+You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
+
+###USER_uid### (the unique id of the recipient)
+###USER_name### (full name)
+###USER_firstname### (first name calculated)
+###USER_NAME### and ###USER_FIRSTNAME### will insert uppercase versions of the equivalents
+###USER_title###
+###USER_email###
+###USER_phone###
+###USER_www###
+###USER_address###
+###USER_company###
+###USER_city###
+###USER_zip###
+###USER_country###
+###USER_fax###
+###SYS_TABLE_NAME###
+###SYS_MAIL_ID###
+###SYS_AUTHCODE###</label>
+		    <label index="assign_categories.alttitle">Assign categories to content elements</label>
+		    <label index="assign_categories.description">Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</label>
+            <label index="assign_categories.details">Check a checkbox in order to assign a category to a content element.
+
+If you do not assign any category to an element, the element will appear in all mails.</label>
+            <label index="assign_categories.seeAlso">sys_dmail_category</label>
+		    <label index="assign_categories.alttitle">Select a direct mail</label>
+		    <label index="select_directmail.description">The following direct mails have not yet been sent. Click on the one you want to work on.</label>
+		    <label index="select_directmail.seeAlso">sys_dmail</label>
+		    <label index="create_directmail_from_nl.alttitle">Create a new direct mail from newsletter</label>
+		    <label index="create_directmail_from_nl.description">No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</label>
+		    <label index="create_directmail_from_nl.seeAlso">sys_dmail</label>
+		    <label index="create_directmail_from_url.alttitle">Create a new direct mail from an external URL</label>
+		    <label index="create_directmail_from_url.description">Use this form to create a new direct mail based on content grabbed from an external URL.</label>
+		    <label index="create_directmail_from_url.seeAlso">sys_dmail</label>
+		    <label index="directmail_actions.alttitle">Direct Mails options menu</label>
+		    <label index="directmail_actions.description">Select the action you want to perform on this direct mail.</label>
+            <label index="directmail_actions.details">Possible actions are the following, but their availability vary depending on the current state of the direct mail:
+	    
+1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
+
+2. Send a testmail: this option lets you send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application.
+
+3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
+
+4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.</label>
+            <label index="directmail_actions.seeAlso">sys_dmail</label>
+        </languageKey>
+    </data>
+</T3locallang>

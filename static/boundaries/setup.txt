@@ -1,0 +1,23 @@
+##
+##
+## @package TYPO3
+## @subpackage tx_directmail
+## @version $Id: setup.txt 6012 2007-07-23 12:54:25Z ivankartolo $
+##
+
+ 	// Configuring the insertion of dmailer boundaries
+includeLibs.tx_directmail_container = EXT:direct_mail/res/scripts/class.tx_directmail_container.php
+
+	// In html content
+tt_content.stdWrap.postUserFunc = tx_directmail_container->insert_dMailer_boundaries
+
+	// In old plaintext content static tenmplate
+lib.alt_plaintext.renderObj.userProc < tt_content.stdWrap.postUserFunc
+lib.alt_plaintext.renderObj.userProc.useParentCObj = 1
+
+	// In new direct mail plain text plugin
+plugin.tx_directmail_pi1.userProc < tt_content.stdWrap.postUserFunc
+plugin.tx_directmail_pi1.userProc.useParentCObj = 1
+
+	// Enable the insertion of content boundaries
+config.insertDmailerBoundaries = 1
