@@ -866,11 +866,13 @@ class tx_directmail_importer {
 	function writeTempFile(){
 		global $FILEMOUNTS,$TYPO3_CONF_VARS,$BE_USER,$LANG;
 
+		$user_perms = ($BE_USER->user['admin'])?1:$BE_USER->user['fileoper_perms'];
+		
 		unset($this->fileProcessor);
 		// Initializing:
 		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
 		$this->fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
-		$this->fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
+		$this->fileProcessor->init_actionPerms($user_perms);
 		$this->fileProcessor->dontCheckForUnique = 1;
 
 		if (is_array($FILEMOUNTS) && !empty($FILEMOUNTS)) {
@@ -931,10 +933,12 @@ class tx_directmail_importer {
 			)
 		); 
 		
+		$user_perms = ($BE_USER->user['admin'])?1:$BE_USER->user['fileoper_perms'];
+		
 		// Initializing:
 		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
 		$this->fileProcessor->init($fm, $TYPO3_CONF_VARS['BE']['fileExtensions']);
-		$this->fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
+		$this->fileProcessor->init_actionPerms($user_perms);
 		$this->fileProcessor->dontCheckForUnique = t3lib_div::_GP('overwriteExistingFiles') ? 1 : 0;
 
 		// Checking referer / executing:

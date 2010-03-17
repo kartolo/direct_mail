@@ -1,5 +1,8 @@
+2010-03-17 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* bug #6882(f): Importer: upload csv failed because the permission is wrong calculated
+	
 2010-03-12 Ivan Kartolo <ivan.kartolo@dkd.de>
-	* bug: configuration module won't show up for new user.
+	* bug #6842(f): configuration module won't show up for new user.
 
 2010-03-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Release 2.6.6
