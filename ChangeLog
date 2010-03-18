@@ -1,3 +1,6 @@
+2010-03-18 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Manual is optimized
+
 2010-03-17 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #6882(f): Importer: upload csv failed because the permission is wrong calculated
 	
