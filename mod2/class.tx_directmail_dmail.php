@@ -779,6 +779,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				
 				if($this->CMD=='send_mail_final'){
 					$mailgroup_uid = t3lib_div::_GP('mailgroup_uid');
+					$theOutput .= '<div style="clear:both"></div>';
 					if(!empty($mailgroup_uid)){
 						$theOutput.= $this->cmd_send_mail($row);
 						$theOutput = $this->doc->section($LANG->getLL('dmail_wiz5_sendmass'),$theOutput,1,1,0, TRUE);
@@ -1520,7 +1521,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				}
 				$out.='<tr>';
 				$out.='<td valign="top" width="75%">'.fw(t3lib_iconWorks::getIconImage("tt_content", $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getProcessedValue('tt_content','CType',$row['CType'])).'" style="vertical-align: top;"').
-					$row['header'].'<br />'.t3lib_div::fixed_lgd(strip_tags($row['bodytext']),200).'<br />').'</td>';
+					$row['header'].'<br />'.t3lib_div::fixed_lgd_cs(strip_tags($row['bodytext']),200).'<br />').'</td>';
 
 				$out.='<td>  </td><td nowrap valign="top">';
 				$out_check='';
@@ -1996,7 +1997,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$dmailTitle=t3lib_iconWorks::getIconImage('sys_dmail',$row,$BACK_PATH,'style="vertical-align: top;"').htmlspecialchars($row['subject']);
 		$out='';
 		$Eparams='&edit[sys_dmail]['.$row['uid'].']=edit';
-		$out .= '<tr><td colspan=3 bgColor="' . $this->doc->bgColor5 . '" valign=top>'.tx_directmail_static::fName('subject').' <b>'.t3lib_div::fixed_lgd(htmlspecialchars($row['subject']),60).'  </b>'.'</td></tr>';
+		$out .= '<tr><td colspan=3 bgColor="' . $this->doc->bgColor5 . '" valign=top>'.tx_directmail_static::fName('subject').' <b>'.t3lib_div::fixed_lgd_cs(htmlspecialchars($row['subject']),60).'  </b>'.'</td></tr>';
 		$nameArr = explode(',','from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,attachment,type,page,sendOptions,includeMedia,flowedFormat,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
 		while(list(,$name)=each($nameArr))	{
 			$out.='<tr><td bgColor="'.$this->doc->bgColor4.'">'.tx_directmail_static::fName($name).'</td><td bgColor="'.$this->doc->bgColor4.'">'.str_replace('Yes', $LANG->getLL('yes'),htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail',$name,$row[$name]))).'</td></tr>';
