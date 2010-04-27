@@ -1000,7 +1000,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				// Fixing addresses:
 			$addresses = t3lib_div::_GP('SET');
 			$addressList = $addresses['dmail_test_email'] ? $addresses['dmail_test_email'] : $this->MOD_SETTINGS['dmail_test_email'];
-			$addresses = split(chr(10).'|,|;',$addressList);
+			$addresses = preg_split('|['.chr(10).',;]|',$addressList);
 			reset($addresses);
 			while(list($key,$val)=each($addresses))	{
 				$addresses[$key]=trim($val);
@@ -1327,7 +1327,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					if ($mailGroup['csv']==1)	{
 						$recipients = tx_directmail_static::rearrangeCsvValues(tx_directmail_static::getCsvValues($mailGroup['list']), $this->fieldList);
 					} else {
-						$recipients = tx_directmail_static::rearrangePlainMails(array_unique(split('[[:space:],;]+',$mailGroup['list'])));
+						$recipients = tx_directmail_static::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|',$mailGroup['list'])));
 					}
 					$id_lists['PLAINLIST'] = tx_directmail_static::cleanPlainList($recipients);
 					break;

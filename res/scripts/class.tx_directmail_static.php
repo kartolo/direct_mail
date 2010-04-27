@@ -472,7 +472,7 @@ class tx_directmail_static {
 			$fieldName=1;
 			$fieldOrder=array();
 			while(list(,$v)=each($first))	{
-				list($fName,$fConf) = split('\[|\]',$v);
+				list($fName,$fConf) = preg_split('|[\[\]]|',$v);
 				$fName =trim($fName);
 				$fConf =trim($fConf);
 				$fieldOrder[]=array($fName,$fConf);

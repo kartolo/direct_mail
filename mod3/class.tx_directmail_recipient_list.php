@@ -470,7 +470,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 					if ($mailGroup['csv']==1)	{
 						$recipients = tx_directmail_static::rearrangeCsvValues(tx_directmail_static::getCsvValues($mailGroup['list']),$this->fieldList);
 					} else {
-						$recipients = tx_directmail_static::rearrangePlainMails(array_unique(split('[[:space:],;]+',$mailGroup['list'])));
+						$recipients = tx_directmail_static::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|',$mailGroup['list'])));
 					}
 					$id_lists['PLAINLIST'] = tx_directmail_static::cleanPlainList($recipients);
 					break;
