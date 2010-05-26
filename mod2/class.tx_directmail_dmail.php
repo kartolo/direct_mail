@@ -1836,7 +1836,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$this->tmpl->start($rootline);
 		$charSet = $this->tmpl->setup['config.']['metaCharset']?$this->tmpl->setup['config.']['metaCharset']:($TYPO3_CONF_VARS['BE']['forceCharset']?$TYPO3_CONF_VARS['BE']['forceCharset']:'iso-8859-1');
 
-		return $charSet;
+		return strtolower($charSet);
 	}
 
 	/**
