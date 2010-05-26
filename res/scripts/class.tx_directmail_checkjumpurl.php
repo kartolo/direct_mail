@@ -163,7 +163,7 @@ class tx_directmail_checkjumpurl {
 				$insertFields = array(
 					'mid'           => intval($mid),	// the message ID
 					'rtbl'          => $recipientTable,	// the receiver table
-					'rid'           => intval($recipientRow),
+					'rid'           => intval($recipientUid),
 					'tstamp'        => time(),
 					'url'           => $jumpurl,
 					'response_type' => intval($responseType),

@@ -1,3 +1,7 @@
+2010-05-26 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Manual is reverted
+	* Bug #7704: rid is not updated.
+
 2010-04-27 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #6795: change deprecated split-function in PHP 5.3
 
