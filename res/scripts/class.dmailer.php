@@ -99,6 +99,7 @@ require_once(PATH_t3lib.'class.t3lib_befunc.php');
  */
 class dmailer extends t3lib_htmlmail {
 	var $sendPerCycle =50;
+	var $dontEncodeHeader = 1;
 	var $logArray =array();
 	var $massend_id_lists = array();
 	var $mailHasContent;
@@ -118,9 +119,6 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function dmailer_prepare($row)	{
 		global $LANG;
-
-			// We need to take care of header encoding ourselves, otherwise the subject may get encoded multiple times.
-		$this->dontEncodeHeader = 1;
 
 		$sys_dmail_uid = $row['uid'];
 		if ($row['flowedFormat']) {
@@ -870,6 +868,8 @@ class dmailer extends t3lib_htmlmail {
 			$this->dmailer_log('w','starting directmail cronjob');
 		}
 		
+		$this->dontEncodeHeader = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['encodeHeader'];  
+
 		// Ivan Kartolo
 		// set conf for SMTP
 		$this->confSMTP = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['smtp'];
