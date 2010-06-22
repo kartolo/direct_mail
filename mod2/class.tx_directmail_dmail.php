@@ -968,7 +968,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$msg.= '<br /><br /><input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" onClick="typo3FormFieldGet();" />';
 		$msg.=$this->JSbottom();
 
-		$theOutput.= $this->doc->section($LANG->getLL('schedule_select_mailgroup'),fw($msg), 1, 1, 0, TRUE);
+		$theOutput.= $this->doc->section($LANG->getLL('schedule_select_mailgroup'),$msg, 1, 1, 0, TRUE);
 		$theOutput.= $this->doc->spacer(20);
 
 		$this->noView=1;
@@ -1016,7 +1016,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					// Sending the same mail to lots of recipients
 				$htmlmail->dmailer_sendSimple($addressList);
 				$sentFlag=true;
-				$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw($LANG->getLL('send_was_sent'). '<br /><br />' . $LANG->getLL('send_recipients') . '<br />'.$addressList), 1, 1, 0, TRUE);
+				$theOutput.= $this->doc->section($LANG->getLL('send_sending'),$LANG->getLL('send_was_sent'). '<br /><br />' . $LANG->getLL('send_recipients') . '<br />'.$addressList, 1, 1, 0, TRUE);
 				$this->noView=1;
 			}
 		} else {	// extended, personalized emails.
@@ -1039,7 +1039,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 						$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address',$recipRow['uid']);
 						$htmlmail->dmailer_sendAdvanced($recipRow,'t');
 						$sentFlag=true;
-						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_name'), htmlspecialchars($recipRow['name']).htmlspecialchars(' <'.$recipRow['email'].'>'))), 1, 1, 0, TRUE);
+						$theOutput.= $this->doc->section($LANG->getLL('send_sending'),sprintf($LANG->getLL('send_was_sent_to_name'), htmlspecialchars($recipRow['name']).htmlspecialchars(' <'.$recipRow['email'].'>')), 1, 1, 0, TRUE);
 						$this->noView=1;
 					}
 				} elseif (t3lib_div::_GP('sys_dmail_group_uid'))	{
@@ -1051,7 +1051,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					$sendFlag+=$this->sendTestMailToTable($idLists,'fe_users',$htmlmail);
 					$sendFlag+=$this->sendTestMailToTable($idLists,'PLAINLIST',$htmlmail);
 					$sendFlag+=$this->sendTestMailToTable($idLists,$this->userTable,$htmlmail);
-					$theOutput.= $this->doc->section($LANG->getLL('send_sending'),fw(sprintf($LANG->getLL('send_was_sent_to_number'), $sendFlag)), 1, 1, 0, TRUE);
+					$theOutput.= $this->doc->section($LANG->getLL('send_sending'),sprintf($LANG->getLL('send_was_sent_to_number'), $sendFlag), 1, 1, 0, TRUE);
 					$this->noView=1;
 				}
 			} else {
@@ -1084,7 +1084,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 						);
 
 					$sentFlag=true;
-					$theOutput.= $this->doc->section($LANG->getLL('send_was_scheduled'),fw($LANG->getLL('send_was_scheduled_for') . ' '.t3lib_BEfunc::datetime($distributionTime)), 1, 1, 0, TRUE);
+					$theOutput.= $this->doc->section($LANG->getLL('send_was_scheduled'),$LANG->getLL('send_was_scheduled_for') . ' '.t3lib_BEfunc::datetime($distributionTime), 1, 1, 0, TRUE);
 					$this->noView=1;
 				}
 			}
@@ -1161,7 +1161,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 						t3lib_iconWorks::getIconImage('tt_address', $row, $BACK_PATH, ' alt="'.htmlspecialchars($LANG->getLL('dmail_send')).'" title="'.htmlspecialchars($LANG->getLL('dmail_menuItems_testmail')).'" "width="18" height="16" style="margin: 0px 5px; vertical-align: top;"').
 						htmlspecialchars($row['name'].' <'.$row['email'].'>'.($row['module_sys_dmail_html']?' html':'')).'</a><br />';
 			}
-			$theOutput.= $this->doc->section($LANG->getLL('testmail_individual'),fw($msg), 1, 1, 0, TRUE);
+			$theOutput.= $this->doc->section($LANG->getLL('testmail_individual'),$msg, 1, 1, 0, TRUE);
 			$theOutput.= $this->doc->spacer(20);
 		}
 
@@ -1187,7 +1187,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				</tr>
 				</table>';
 			}
-			$theOutput.= $this->doc->section($LANG->getLL('testmail_mailgroup'),fw($msg), 1, 1, 0, TRUE);
+			$theOutput.= $this->doc->section($LANG->getLL('testmail_mailgroup'),$msg, 1, 1, 0, TRUE);
 			$theOutput.= $this->doc->spacer(20);
 		}
 
@@ -1200,7 +1200,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$msg.= '<input type="hidden" name="CMD" value="send_mail_test" />';
 		$msg.= '<input type="Submit" name="mailingMode_simple" value="' . $LANG->getLL('dmail_send') . '" />';
 
-		$theOutput.= $this->doc->section($LANG->getLL('testmail_simple'),fw($msg), 1, 1, 0, TRUE);
+		$theOutput.= $this->doc->section($LANG->getLL('testmail_simple'),$msg, 1, 1, 0, TRUE);
 
 		$this->noView=1;
 		return $theOutput;
@@ -1516,12 +1516,12 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 				$out.='<tr><td colspan="3" style="height: 15px;"></td></tr>';
 				if ($colPosVal!=$row['colPos'])	{
-					$out.='<tr><td colspan="3" bgcolor="'.$this->doc->bgColor5.'">'.fw($LANG->getLL('nl_l_column').': <strong>'.t3lib_BEfunc::getProcessedValue('tt_content','colPos',$row['colPos']).'</strong>').'</td></tr>';
+					$out.='<tr><td colspan="3" bgcolor="'.$this->doc->bgColor5.'">'.$LANG->getLL('nl_l_column').': <strong>'.t3lib_BEfunc::getProcessedValue('tt_content','colPos',$row['colPos']).'</strong></td></tr>';
 					$colPosVal=$row["colPos"];
 				}
 				$out.='<tr>';
-				$out.='<td valign="top" width="75%">'.fw(t3lib_iconWorks::getIconImage("tt_content", $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getProcessedValue('tt_content','CType',$row['CType'])).'" style="vertical-align: top;"').
-					$row['header'].'<br />'.t3lib_div::fixed_lgd_cs(strip_tags($row['bodytext']),200).'<br />').'</td>';
+				$out.='<td valign="top" width="75%">'.t3lib_iconWorks::getIconImage("tt_content", $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getProcessedValue('tt_content','CType',$row['CType'])).'" style="vertical-align: top;"').
+					$row['header'].'<br />'.t3lib_div::fixed_lgd_cs(strip_tags($row['bodytext']),200).'<br /></td>';
 
 				$out.='<td>  </td><td nowrap valign="top">';
 				$out_check='';
@@ -1537,7 +1537,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				while(list($pKey,$pVal)=each($this->categories))	{
 					$out_check.='<input type="hidden" name="indata[categories]['.$row["uid"].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey) ?' checked':'').'> '.htmlspecialchars($pVal).'<br />';
 				}
-				$out.=fw($out_check).'</td></tr>';
+				$out.=$out_check.'</td></tr>';
 			}
 			$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
 			$out.='<input type="hidden" name="pages_uid" value="'.$this->pages_uid.'"><input type="hidden" name="CMD" value="'.$this->CMD.'"><br /><input type="submit" name="update_cats" value="'.$LANG->getLL('nl_l_update').'">';

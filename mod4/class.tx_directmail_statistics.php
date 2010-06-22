@@ -401,7 +401,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			$Eparams='&edit['.$table.']['.$row['uid'].']=edit';
 			$out='';
 			$out.= t3lib_iconWorks::getIconImage($table, $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').htmlspecialchars($row['name'].' <'.$row['email'].'>');
-			$out.='&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH,'').'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />' . fw('<b>' . $LANG->getLL('dmail_edit') . '</b>').'</a>';
+			$out.='&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH,'').'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" /><b>' . $LANG->getLL('dmail_edit') . '</b></a>';
 			$theOutput.= $this->doc->section($LANG->getLL('subscriber_info'),$out);
 
 			$out='';
@@ -414,7 +414,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			}
 			$out_check.='<br /><br /><input type="checkbox" name="indata[html]" value="1"'.($row['module_sys_dmail_html']?' checked="checked"':'').' /> ';
 			$out_check.=$LANG->getLL('subscriber_profile_htmlemail') . '<br />';
-			$out.=fw($out_check);
+			$out.=$out_check;
 
 			$out.='<input type="hidden" name="table" value="'.$table.'" /><input type="hidden" name="uid" value="'.$uid.'" /><input type="hidden" name="CMD" value="'.$this->CMD.'" /><br /><input type="submit" name="submit" value="' . htmlspecialchars($LANG->getLL('subscriber_profile_update')) . '" />';
 			$theOutput.= $this->doc->spacer(20);
@@ -453,13 +453,13 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		if ($TYPO3_DB->sql_num_rows($res))	{
 			$out.='<table cellspacing="0" cellpadding="3" class="stats-table">';
 				$out.='<tr class="bgColor2">
-					<td>'.fw('&nbsp;').'</td>
-					<td><b>'.fw($LANG->getLL('stats_overview_subject')).'</b></td>
-					<td><b>'.fw($LANG->getLL('stats_overview_scheduled')).'</b></td>
-					<td><b>'.fw($LANG->getLL('stats_overview_delivery_begun')).'</b></td>
-					<td><b>'.fw($LANG->getLL('stats_overview_delivery_ended')).'</b></td>
-					<td nowrap="nowrap"><b>'.fw($LANG->getLL('stats_overview_total_sent')).'</b></td>
-					<td><b>'.fw($LANG->getLL('stats_overview_status')).'</b></td>
+					<td>&nbsp;</td>
+					<td><b>'.$LANG->getLL('stats_overview_subject').'</b></td>
+					<td><b>'.$LANG->getLL('stats_overview_scheduled').'</b></td>
+					<td><b>'.$LANG->getLL('stats_overview_delivery_begun').'</b></td>
+					<td><b>'.$LANG->getLL('stats_overview_delivery_ended').'</b></td>
+					<td nowrap="nowrap"><b>'.$LANG->getLL('stats_overview_total_sent').'</b></td>
+					<td><b>'.$LANG->getLL('stats_overview_status').'</b></td>
 				</tr>';
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 
@@ -473,20 +473,20 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				$sent='';
 				if(!empty($row['scheduled_begin'])){
 					if(!empty($row['scheduled_end']))
-						$sent = fw($LANG->getLL('stats_overview_sent'));
+						$sent = $LANG->getLL('stats_overview_sent');
 					else
-						$sent = fw($LANG->getLL('stats_overview_sending'));
+						$sent = $LANG->getLL('stats_overview_sending');
 				} else {
-					$sent = fw($LANG->getLL('stats_overview_queuing'));
+					$sent = $LANG->getLL('stats_overview_queuing');
 				}
 
 				$out.='<tr class="bgColor4">
 					<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
-					<td>'.$this->linkDMail_record(fw(t3lib_div::fixed_lgd_cs($row['subject'],30).'  '),$row['uid'],$row['subject']).'&nbsp;&nbsp;</td>
-					<td>'.fw(t3lib_BEfunc::datetime($row["scheduled"])).'</td>
-					<td>'.fw($row["scheduled_begin"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'&nbsp;').'</td>
-					<td>'.fw($row["scheduled_end"]?t3lib_BEfunc::datetime($row["scheduled_end"]):'&nbsp;').'</td>
-					<td>'.fw($count?$count:'&nbsp;').'</td>
+					<td>'.$this->linkDMail_record(t3lib_div::fixed_lgd_cs($row['subject'],30).'  ',$row['uid'],$row['subject']).'&nbsp;&nbsp;</td>
+					<td>'.t3lib_BEfunc::datetime($row["scheduled"]).'</td>
+					<td>'.($row["scheduled_begin"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'&nbsp;').'</td>
+					<td>'.($row["scheduled_end"]?t3lib_BEfunc::datetime($row["scheduled_end"]):'&nbsp;').'</td>
+					<td>'.($count?$count:'&nbsp;').'</td>
 					<td>'.$sent.'</td>
 				</tr>';
 			}
@@ -1507,8 +1507,8 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			tx_directmail_static::fName('charset').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','charset',$row['charset']);
 		$mail_info = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif','width="12" height="12"').' title="'.$mail_info.'">';
 
-		$delBegin = fw($row["scheduled_begin"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'-');
-		$delEnd = fw($row["scheduled_end"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'-');
+		$delBegin = ($row["scheduled_begin"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'-');
+		$delEnd = ($row["scheduled_end"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'-');
 
 		//count total recipient from the query_info
 		$totalRecip = 0;

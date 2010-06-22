@@ -404,7 +404,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 						<td>'.t3lib_BEfunc::datetime($row['scheduled']).'&nbsp;&nbsp;'.'</td>
 						<td>'.($row['scheduled_begin']?t3lib_BEfunc::datetime($row['scheduled_begin']):'').'&nbsp;&nbsp;'.'</td>
 						<td>'.($row['scheduled_end']?t3lib_BEfunc::datetime($row['scheduled_end']):'').'&nbsp;&nbsp;'.'</td>
-						<td align=right>'.fw($count?$count:'&nbsp;').'</td>
+						<td align=right>'.($count?$count:'&nbsp;').'</td>
 						<td align=center>'.$this->deleteLink($row['uid']).'</td>
 					</tr>';
 		}
