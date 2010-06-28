@@ -71,6 +71,7 @@ class tx_directmail_navframe{
 		$this->doc = t3lib_div::makeInstance('template');
 		$this->doc->backPath = $BACK_PATH;
 
+		$this->doc->bodyTagAdditions = 'style="height:auto;"';
 
 		$this->currentSubScript = t3lib_div::_GP('currentSubScript');
 

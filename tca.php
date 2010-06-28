@@ -349,7 +349,7 @@ $TCA['sys_dmail_category'] = Array (
 				'size' => '30',
 			)
 		),
-		'old_cat_number ' => Array (
+		'old_cat_number' => Array (
 			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_category.old_cat_number',
 			'l10n_mode' => 'exclude',
 			'config' => Array (

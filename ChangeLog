@@ -1,3 +1,8 @@
+2010-06-28 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Importer: allow empty field
+	* tablename typo in TCA
+	* Styling: dmail SysFolder column
+
 2010-06-23 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Remove fw(). It's deprecated
 

@@ -727,7 +727,7 @@ class tx_directmail_importer {
 		$encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
 		while (($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== FALSE) {
 			//remove empty line in csv
-			if((count($data) >= 1) && (strlen(trim($data[0])) != 0)) {
+			if((count($data) >= 1)) {
 				$mydata[] = $data;
 			}
 		}
@@ -761,7 +761,7 @@ class tx_directmail_importer {
 		$encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
 		while ((($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== FALSE)) {
 			//remove empty line in csv
-			if((count($data) >= 1) && (strlen(trim($data[0])) != 0)) {
+			if((count($data) >= 1) ) {
 				$mydata[] = $data;
 				$i++;
 				if($i>=$records)break;
