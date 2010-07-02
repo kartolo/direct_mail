@@ -466,7 +466,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				$countRes = $TYPO3_DB->exec_SELECTquery(
 					'count(*)',
 					'sys_dmail_maillog',
-					'mid = '.$row['uid'].' AND response_type=0'
+					'mid = '.$row['uid'].
+						' AND response_type=0'.
+						' AND html_sent>0'
 				);
 				list($count) = $TYPO3_DB->sql_fetch_row($countRes);
 
@@ -535,8 +537,11 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		$table = $this->getQueryRows($queryArray, 'response_type');
 
 			// Plaintext/HTML
-		$queryArray = array('html_sent,count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=0', 'html_sent');
-		$table2 = $this->getQueryRows($queryArray, 'html_sent');
+		$res = $TYPO3_DB->exec_SELECTquery('html_sent,count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=0','html_sent');
+		while($row2=$TYPO3_DB->sql_fetch_assoc($res)){
+			// 0:No mail; 1:HTML; 2:TEXT; 3:HTML+TEXT
+			$text_html[$row2['html_sent']]=$row2['counter'];
+		}
 
 			// Unique responses, html
 		$res = $TYPO3_DB->exec_SELECTquery('count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=1', 'rid,rtbl', 'counter');
@@ -553,9 +558,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		$tblLines = array();
 		$tblLines[]=array('',$LANG->getLL('stats_total'),$LANG->getLL('stats_HTML'),$LANG->getLL('stats_plaintext'));
 
-		$sent_total = intval($table['0']['counter']);
-		$sent_html = intval($table2['3']['counter']+$table2['1']['counter']);
-		$sent_plain = intval($table2['2']['counter']);
+		$sent_total = intval($text_html['1']+$text_html['2']+$text_html['3']);
+		$sent_html = intval($text_html['1']+$text_html['3']);
+		$sent_plain = intval($text_html['2']);
+
 		$tblLines[]=array($LANG->getLL('stats_mails_sent'),$sent_total,$sent_html,$sent_plain);
 		$tblLines[]=array($LANG->getLL('stats_mails_returned'),$this->showWithPercent($table['-127']['counter'],$sent_total));
 		$tblLines[]=array($LANG->getLL('stats_HTML_mails_viewed'),'',$this->showWithPercent($unique_ping_responses,$sent_html));
@@ -675,13 +681,17 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			}
 
 				// get body
-			$tmp = explode('<body', $HTMLContent);
+			if (strstr($HTMLContent,'<BODY')) {
+				$tmp = explode('<BODY', $HTMLContent);
+			} else {
+				$tmp = explode('<body', $HTMLContent);
+			}
 			$bodyPart = explode('<', $tmp[1]);
 
 				// load all <a href="*" parts into $tempHref array, in a 2-dimensional array
 				// where the lower level of the array contains two values, the URL and the unique ID (see $urlArr)
 			foreach ($bodyPart as $k => $str) {
-				if (eregi('a.href', $str)) {
+				if (preg_match('/a.href/', $str)) {
 					$tagAttr = t3lib_div::get_tag_attributes($bodyPart[$k]);
 					if (strpos($str, '>') === strlen($str) - 1) {
 						if ($tagAttr['href']{0} != '#') {

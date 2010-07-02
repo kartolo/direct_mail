@@ -395,7 +395,8 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 				'count(*)',
 				'sys_dmail_maillog',
 				'mid='.intval($row['uid']).
-					' AND response_type=0'
+					' AND response_type=0'.
+					' AND html_sent>0'
 				);
 			list($count) = $TYPO3_DB->sql_fetch_row($countres);
 			$out.='<tr>
