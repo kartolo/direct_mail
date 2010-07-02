@@ -83,7 +83,7 @@ class tx_directmail_checkjumpurl {
 				
 					// fetch the direct mail record where the mailing was sent (for this message)
 				$resMailing = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-					'mailContent, page',
+					'mailContent, page, authcode_fieldList',
 					'sys_dmail',
 					'uid = ' . intval($mid)
 				);

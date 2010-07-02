@@ -1,5 +1,6 @@
 2010-07-02 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #6744: wrong statistics counter
+	* Bug #7425: added authcode_fieldList in list of fields
 
 2010-06-28 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Importer: allow empty field
