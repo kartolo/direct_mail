@@ -844,7 +844,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			//Find all returned mail
 		if (t3lib_div::_GP('returnList')||t3lib_div::_GP('returnDisable')||t3lib_div::_GP('returnCSV'))		{
 			$res = $TYPO3_DB->exec_SELECTquery(
-				'rid,rtbl',
+				'rid,rtbl,email',
 				'sys_dmail_maillog',
 				'mid='.intval($row['uid']).
 					' AND response_type=-127'
@@ -858,6 +858,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
 					break;
+					case 'P':
+						$idLists['PLAINLIST'][] = $rrow['email'];
+					break;
 					default:
 						$idLists[$rrow['rtbl']][]=$rrow['rid'];
 					break;
@@ -867,6 +870,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			if (t3lib_div::_GP('returnList'))	{
 				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['PLAINLIST'])) {
+					$output .= '<br />' . $LANG->getLL('stats_plainlist');
+					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+				}
 			}
 			if (t3lib_div::_GP('returnDisable'))	{
 				if (is_array($idLists['tt_address']))	{
@@ -892,6 +899,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 						$emails[]=$v['email'];
 					}
 				}
+				if (is_array($idLists['PLAINLIST'])) {
+					$emails = array_merge($emails, $idLists['PLAINLIST']);
+				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_list') .  '<br />';
 				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
@@ -900,7 +910,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			//Find Unknown Recipient
 		if (t3lib_div::_GP('unknownList')||t3lib_div::_GP('unknownDisable')||t3lib_div::_GP('unknownCSV'))		{
 			$res = $TYPO3_DB->exec_SELECTquery(
-				'rid,rtbl',
+				'rid,rtbl,email',
 				'sys_dmail_maillog',
 				'mid='.intval($row['uid']).
 					' AND response_type=-127'.
@@ -915,6 +925,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
 					break;
+					case 'P':
+						$idLists['PLAINLIST'][] = $rrow['email'];
+					break;
 					default:
 						$idLists[$rrow['rtbl']][]=$rrow['rid'];
 					break;
@@ -927,6 +940,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				}
 				if (is_array($idLists['fe_users'])) {
 					$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);
+				}
+				if (is_array($idLists['PLAINLIST'])) {
+					$output .= '<br />' . $LANG->getLL('stats_plainlist');
+					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
 			if (t3lib_div::_GP('unknownDisable'))	{
@@ -953,6 +970,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 						$emails[]=$v['email'];
 					}
 				}
+				if (is_array($idLists['PLAINLIST'])) {
+					$emails = array_merge($emails, $idLists['PLAINLIST']);
+				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_unknown_recipient_list') .  '<br />';
 				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
@@ -961,7 +981,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			//Mailbox Full
 		if (t3lib_div::_GP('fullList')||t3lib_div::_GP('fullDisable')||t3lib_div::_GP('fullCSV'))		{
 			$res = $TYPO3_DB->exec_SELECTquery(
-				'rid,rtbl',
+				'rid,rtbl,email',
 				'sys_dmail_maillog',
 				'mid='.intval($row['uid']).
 					' AND response_type=-127'.
@@ -976,6 +996,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
 					break;
+					case 'P':	
+						$idLists['PLAINLIST'][] = $rrow['email'];
+					break;
 					default:
 						$idLists[$rrow['rtbl']][]=$rrow['rid'];
 					break;
@@ -985,6 +1008,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			if (t3lib_div::_GP('fullList'))	{
 				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['PLAINLIST'])) {
+					$output .= '<br />' . $LANG->getLL('stats_plainlist');
+					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+				}
 			}
 			if (t3lib_div::_GP('fullDisable'))	{
 				if (is_array($idLists['tt_address']))	{
@@ -1010,6 +1037,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 						$emails[]=$v['email'];
 					}
 				}
+				if (is_array($idLists['PLAINLIST'])) {
+					$emails = array_merge($emails, $idLists['PLAINLIST']);
+				}	
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_mailbox_full_list') .  '<br />';
 				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
@@ -1018,7 +1048,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			//find Bad Host
 		if (t3lib_div::_GP('badHostList')||t3lib_div::_GP('badHostDisable')||t3lib_div::_GP('badHostCSV'))		{
 			$res = $TYPO3_DB->exec_SELECTquery(
-				'rid,rtbl',
+				'rid,rtbl,email',
 				'sys_dmail_maillog',
 				'mid='.intval($row['uid']).
 					' AND response_type=-127'.
@@ -1033,6 +1063,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
 					break;
+					case 'P':
+						$idLists['PLAINLIST'][] = $rrow['email'];
+					break;
 					default:
 						$idLists[$rrow['rtbl']][]=$rrow['rid'];
 					break;
@@ -1042,6 +1075,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			if (t3lib_div::_GP('badHostList'))	{
 				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['PLAINLIST'])) {
+					$output .= '<br />' . $LANG->getLL('stats_plainlist');
+					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+				}
 			}
 			if (t3lib_div::_GP('badHostDisable'))	{
 				if (is_array($idLists['tt_address']))	{
@@ -1067,6 +1104,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 						$emails[]=$v['email'];
 					}
 				}
+				if (is_array($idLists['PLAINLIST'])) {
+					$emails = array_merge($emails, $idLists['PLAINLIST']);
+				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_bad_host_list') .  '<br />';
 				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
@@ -1075,7 +1115,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			//find Bad Header
 		if (t3lib_div::_GP('badHeaderList')||t3lib_div::_GP('badHeaderDisable')||t3lib_div::_GP('badHeaderCSV'))		{
 			$res = $TYPO3_DB->exec_SELECTquery(
-				'rid,rtbl',
+				'rid,rtbl,email',
 				'sys_dmail_maillog',
 				'mid='.intval($row['uid']).
 					' AND response_type=-127'.
@@ -1090,6 +1130,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
 					break;
+					case 'P':
+						$idLists['PLAINLIST'][] = $rrow['email'];
+					break;
 					default:
 						$idLists[$rrow['rtbl']][]=$rrow['rid'];
 					break;
@@ -1099,6 +1142,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			if (t3lib_div::_GP('badHeaderList'))	{
 				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['PLAINLIST'])) {
+					$output .= '<br />' . $LANG->getLL('stats_plainlist');
+					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+				}
 			}
 
 			if (t3lib_div::_GP('badHeaderDisable'))	{
@@ -1125,6 +1172,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 						$emails[]=$v['email'];
 					}
 				}
+				if (is_array($idLists['PLAINLIST'])) {
+					$emails = array_merge($emails, $idLists['PLAINLIST']);
+				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_bad_header_list') .  '<br />';
 				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
@@ -1134,7 +1184,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			//TODO: list all reason
 		if (t3lib_div::_GP('reasonUnknownList')||t3lib_div::_GP('reasonUnknownDisable')||t3lib_div::_GP('reasonUnknownCSV'))		{
 			$res = $TYPO3_DB->exec_SELECTquery(
-				'rid,rtbl',
+				'rid,rtbl,email',
 				'sys_dmail_maillog',
 				'mid='.intval($row['uid']).
 					' AND response_type=-127'.
@@ -1149,6 +1199,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
 					break;
+					case 'P':
+						$idLists['PLAINLIST'][] = $rrow['email'];
+					break;
 					default:
 						$idLists[$rrow['rtbl']][]=$rrow['rid'];
 					break;
@@ -1158,6 +1211,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			if (t3lib_div::_GP('reasonUnknownList'))	{
 				if (is_array($idLists['tt_address']))	{$output.='<br />' . $LANG->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $LANG->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['PLAINLIST'])) {
+					$output .= '<br />' . $LANG->getLL('stats_plainlist');
+					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+				}
 			}
 			if (t3lib_div::_GP('reasonUnknownDisable'))	{
 				if (is_array($idLists['tt_address']))	{
@@ -1182,6 +1239,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
+				}
+				if (is_array($idLists['PLAINLIST'])) {
+					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_reason_unknown_list') .  '<br />';
 				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
