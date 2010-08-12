@@ -59,6 +59,7 @@ class direct_mail_cli extends t3lib_cli {
 	 *
 	 */
     function massSend(){
+    	global $TYPO3_CONF_VARS;
     	
         	// Check if cronjob is already running:
 		if (@file_exists (PATH_site.'typo3temp/tx_directmail_cron.lock')) {

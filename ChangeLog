@@ -1,6 +1,7 @@
 2010-08-12 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #9252: deprecated ereg function (thanks to Gregor Hermens)
 	* show invalid email from plainlist (thanks to Xavier Perseguers)  
+	* Bug #8051: Added TYPO3_CONF_VARS in CLI
 	
 2010-07-02 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #6744: wrong statistics counter
