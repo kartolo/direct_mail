@@ -630,7 +630,7 @@ class dmailer extends t3lib_htmlmail {
 
 			// Firstname must be more that 1 character
 		$recipRow['firstname'] = trim(strtok(trim($recipRow['name']), ' '));
-		if (strlen($recipRow['firstname']) < 2 || ereg('[^[:alnum:]]$', $recipRow['firstname'])) {
+		if (strlen($recipRow['firstname']) < 2 || preg_match('|[^[:alnum:]]$|', $recipRow['firstname'])) {
 			$recipRow['firstname'] = $recipRow['name'];
 		}
 		if (!trim($recipRow['firstname'])) {

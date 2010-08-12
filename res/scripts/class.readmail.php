@@ -118,7 +118,7 @@ class readmail extends t3lib_readmail {
 	 * @return	string		only the content part
 	 */
 	function getMessage($mailParts) {
-		if ( ereg('Content-Type: message/delivery-status', substr($mailParts['CONTENT'],0,5000)) ) {		//Don't break it, we're only looking for a reason
+		if ( preg_match('/^Content-Type: message\/delivery-status/', substr($mailParts['CONTENT'],0,5000)) ) {		//Don't break it, we're only looking for a reason
 			$c = $mailParts['CONTENT'];
 		} elseif ($mailParts['content-type']) {
 			$CType = $this->getCType($mailParts['content-type']);
