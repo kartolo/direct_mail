@@ -344,11 +344,11 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			);
 		$out = '';
 		$out.='<tr>
-						<td class="'.$this->doc->bgColor5.'" colspan=2>'.fw('&nbsp;').'</td>
-						<td class="'.$this->doc->bgColor5.'"><b>'.fw($LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','title'))).'</b></td>
-						<td class="'.$this->doc->bgColor5.'"><b>'.fw($LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','type'))).'</b></td>
-						<td class="'.$this->doc->bgColor5.'"><b>'.fw($LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','description'))).'</b></td>
-						<td class="'.$this->doc->bgColor5.'"><b>'.fw($LANG->getLL('recip_group_amount')).'</b></td>
+						<td class="'.$this->doc->bgColor5.'" colspan=2>&nbsp;</td>
+						<td class="'.$this->doc->bgColor5.'"><b>'.$LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','title')).'</b></td>
+						<td class="'.$this->doc->bgColor5.'"><b>'.$LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','type')).'</b></td>
+						<td class="'.$this->doc->bgColor5.'"><b>'.$LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','description')).'</b></td>
+						<td class="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('recip_group_amount').'</b></td>
 					</tr>';
 		$TDparams=' valign="top"';
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -364,9 +364,9 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			$out.='<tr>
 						<td'.$TDparams.' nowrap>'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
 						<td'.$TDparams.'>'.$this->editLink('sys_dmail_group',$row['uid']).'</td>
-						<td'.$TDparams.' nowrap>'.$this->linkRecip_record(fw('<strong>'.htmlspecialchars(t3lib_div::fixed_lgd($row['title'],30)).'</strong>&nbsp;&nbsp;'),$row['uid']).'</td>
-						<td'.$TDparams.' nowrap>'.fw(htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail_group','type',$row['type'])).'&nbsp;&nbsp;').'</td>
-						<td'.$TDparams.'>'.fw(t3lib_BEfunc::getProcessedValue('sys_dmail_group','description',htmlspecialchars($row['description'])).'&nbsp;&nbsp;').'</td>
+						<td'.$TDparams.' nowrap>'.$this->linkRecip_record('<strong>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'],30)).'</strong>&nbsp;&nbsp;',$row['uid']).'</td>
+						<td'.$TDparams.' nowrap>'.htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail_group','type',$row['type'])).'&nbsp;&nbsp;</td>
+						<td'.$TDparams.'>'.t3lib_BEfunc::getProcessedValue('sys_dmail_group','description',htmlspecialchars($row['description'])).'&nbsp;&nbsp;</td>
 						<td'.$TDparams.'>'.$count.'</td>
 					</tr>';
 		}
@@ -470,7 +470,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 					if ($mailGroup['csv']==1)	{
 						$recipients = tx_directmail_static::rearrangeCsvValues(tx_directmail_static::getCsvValues($mailGroup['list']),$this->fieldList);
 					} else {
-						$recipients = tx_directmail_static::rearrangePlainMails(array_unique(split('[[:space:],;]+',$mailGroup['list'])));
+						$recipients = tx_directmail_static::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|',$mailGroup['list'])));
 					}
 					$id_lists['PLAINLIST'] = tx_directmail_static::cleanPlainList($recipients);
 					break;
@@ -796,7 +796,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			$Eparams='&edit['.$table.']['.$row['uid'].']=edit';
 			$out='';
 			$out.= t3lib_iconWorks::getIconImage($table, $row, $BACK_PATH, 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').htmlspecialchars($row['name']).htmlspecialchars(' <'.$row['email'].'>');
-			$out.='&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH,'').'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" />' . fw('<b>' . $LANG->getLL('dmail_edit') . '</b>').'</a>';
+			$out.='&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$BACK_PATH,'').'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$LANG->getLL("dmail_edit").'" /><b>' . $LANG->getLL('dmail_edit') . '</b></a>';
 			$theOutput.= $this->doc->section($LANG->getLL('subscriber_info'),$out);
 
 			$out='';
@@ -809,7 +809,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			}
 			$out_check.='<br /><br /><input type="checkbox" name="indata[html]" value="1"'.($row['module_sys_dmail_html']?' checked="checked"':'').' /> ';
 			$out_check.=$LANG->getLL('subscriber_profile_htmlemail') . '<br />';
-			$out.=fw($out_check);
+			$out.=$out_check;
 
 			$out.='<input type="hidden" name="table" value="'.$table.'" /><input type="hidden" name="uid" value="'.$uid.'" /><input type="hidden" name="CMD" value="'.$this->CMD.'" /><br /><input type="submit" name="submit" value="' . htmlspecialchars($LANG->getLL('subscriber_profile_update')) . '" />';
 			$theOutput.= $this->doc->spacer(20);

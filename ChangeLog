@@ -1,5 +1,58 @@
+2010-09-01 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* release 2.6.8
+
+2010-09-01 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* added custom folder icon for direct mail sysfolder
+	* added icon sprites for pages icon
+
+2010-08-12 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #9252: deprecated ereg function (thanks to Gregor Hermens)
+	* show invalid email from plainlist (thanks to Xavier Perseguers)  
+	* Bug #8051: Added TYPO3_CONF_VARS in CLI
+	
+2010-07-02 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #6744: wrong statistics counter
+	* Bug #7425: added authcode_fieldList in list of fields
+
+2010-06-28 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Importer: allow empty field
+	* tablename typo in TCA
+	* Styling: dmail SysFolder column
+
+2010-06-23 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Remove fw(). It's deprecated
+
+2010-06-09 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #6467: Encoding of the Header (thanks to internezzo ag)
+
+2010-05-26 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Manual is reverted
+	* Bug #7704: rid is not updated.
+	* Bug #7619: deprecated ereg_replace is replaced with str_replace
+	* Bug #7472: convert charset of the mail to lowercase 
+
+2010-04-27 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #6795: change deprecated split-function in PHP 5.3
+
+2010-03-18 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Release 2.6.7
+	
+2010-03-18 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Manual is optimized
+
+2010-03-17 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* bug #6882(f): Importer: upload csv failed because the permission is wrong calculated
+	
+2010-03-12 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* bug #6842(f): configuration module won't show up for new user.
+
+2010-03-10 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Release 2.6.6
+
 2010-03-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #13648(b): empty bullet list in plaintext 
+	* bug #13280(b): SysFolder list in the importer module respects the user permission
+	* bug #6546(f):	fixed_lgd will be deprecated soon, changed it with fixed_lgd_cs
 
 2010-03-09 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* feature #3600: code cleanup. Thanks to Benni Mack

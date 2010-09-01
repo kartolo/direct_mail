@@ -472,7 +472,7 @@ class tx_directmail_static {
 			$fieldName=1;
 			$fieldOrder=array();
 			while(list(,$v)=each($first))	{
-				list($fName,$fConf) = split('\[|\]',$v);
+				list($fName,$fConf) = preg_split('|[\[\]]|',$v);
 				$fName =trim($fName);
 				$fConf =trim($fConf);
 				$fieldOrder[]=array($fName,$fConf);
@@ -566,7 +566,7 @@ class tx_directmail_static {
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'*',
 					'sys_dmail_category',
-					'sys_dmail_category.pid IN (' .ereg_replace(",","','",$TYPO3_DB->fullQuoteStr($pidList, 'sys_dmail_category')). ')'.
+					'sys_dmail_category.pid IN (' .str_replace(",","','",$TYPO3_DB->fullQuoteStr($pidList, 'sys_dmail_category')). ')'.
 						' AND l18n_parent=0'.
 						t3lib_BEfunc::BEenableFields('sys_dmail_category').
 						t3lib_BEfunc::deleteClause('sys_dmail_category')

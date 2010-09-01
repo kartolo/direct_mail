@@ -22,6 +22,9 @@ useDeferMode = 0
   # cat=basic/enable; type=boolean; label=Enable plain text rendering of News: If set, a script will be enabled to render News (tt_news records) in plain text content of email messages.
 enablePlainTextNews = 1
 
+  # cat=basic/enable; type=boolean; label=Encode header: If you enable this checkbox it will encode the header (in order to fix some charset problem in subject, senders and recepient name)
+encodeHeader = 1 
+
   # cat=basic/enable; type=boolean; label=Enable Sending through SMTP: Send all emails not through sendmail but through an external SMTP account (requires PEAR::Mail to be installed on the system)
 SmtpEnabled = 0
 

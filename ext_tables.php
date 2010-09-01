@@ -227,6 +227,8 @@ if (TYPO3_MODE=='BE')   {
 	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM6', 'bottom', $extPath.'mod6/');
 	
 	//t3lib_extMgm::addModule('web','txdirectmailM2','',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
+	
+	$ICON_TYPES['dmail'] = array('icon' => t3lib_extMgm::extRelPath($_EXTKEY).'res/gfx/ext_icon_dmail_folder.gif');
 }
 
 ?>

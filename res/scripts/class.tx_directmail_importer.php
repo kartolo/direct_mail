@@ -139,7 +139,9 @@ class tx_directmail_importer {
 				);
 				$optStorage = array();
 				while($row = $TYPO3_DB->sql_fetch_assoc($res)){
-					$optStorage[] = array($row['uid'],$row['title'].' [uid:'.$row['uid'].']');
+					if(t3lib_BEfunc::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){
+						$optStorage[] = array($row['uid'],$row['title'].' [uid:'.$row['uid'].']');
+					}
 				}
 
 				$optDelimiter=array(
@@ -273,7 +275,7 @@ class tx_directmail_importer {
 					if(!empty($rowCat)){
 						$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats'), '');
 						foreach ($rowCat as $k => $v){
-							$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.$v['category'], '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
+							$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
 						}	
 					}
 				}
@@ -725,7 +727,7 @@ class tx_directmail_importer {
 		$encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
 		while (($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== FALSE) {
 			//remove empty line in csv
-			if((count($data) >= 1) && (strlen(trim($data[0])) != 0)) {
+			if((count($data) >= 1)) {
 				$mydata[] = $data;
 			}
 		}
@@ -759,7 +761,7 @@ class tx_directmail_importer {
 		$encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
 		while ((($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== FALSE)) {
 			//remove empty line in csv
-			if((count($data) >= 1) && (strlen(trim($data[0])) != 0)) {
+			if((count($data) >= 1) ) {
 				$mydata[] = $data;
 				$i++;
 				if($i>=$records)break;
@@ -864,11 +866,13 @@ class tx_directmail_importer {
 	function writeTempFile(){
 		global $FILEMOUNTS,$TYPO3_CONF_VARS,$BE_USER,$LANG;
 
+		$user_perms = ($BE_USER->user['admin'])?1:$BE_USER->user['fileoper_perms'];
+		
 		unset($this->fileProcessor);
 		// Initializing:
 		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
 		$this->fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
-		$this->fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
+		$this->fileProcessor->init_actionPerms($user_perms);
 		$this->fileProcessor->dontCheckForUnique = 1;
 
 		if (is_array($FILEMOUNTS) && !empty($FILEMOUNTS)) {
@@ -929,10 +933,12 @@ class tx_directmail_importer {
 			)
 		); 
 		
+		$user_perms = ($BE_USER->user['admin'])?1:$BE_USER->user['fileoper_perms'];
+		
 		// Initializing:
 		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
 		$this->fileProcessor->init($fm, $TYPO3_CONF_VARS['BE']['fileExtensions']);
-		$this->fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
+		$this->fileProcessor->init_actionPerms($user_perms);
 		$this->fileProcessor->dontCheckForUnique = t3lib_div::_GP('overwriteExistingFiles') ? 1 : 0;
 
 		// Checking referer / executing:
