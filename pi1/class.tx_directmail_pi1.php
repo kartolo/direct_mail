@@ -213,7 +213,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function getMenuSitemap()	{
 		$str = $this->cObj->cObjGetSingle($this->conf['menu'],$this->conf['menu.']);
-		$str = $this->breakBulletlist(trim(strip_tags(eregi_replace('<br[ /]*>',chr(10),$this->parseBody($str)))));
+		$str = $this->breakBulletlist(trim(strip_tags(preg_replace('/<br\s*\/?>/i',chr(10),$this->parseBody($str)))));
 		return $str;
 	}
 
@@ -235,7 +235,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @return	string		Plain content.
 	 */
 	function getHTML($str=array())	{
-		return $this->breakContent(strip_tags(eregi_replace('<br[ /]*>',chr(10),$this->parseBody(is_string($str)?$str:$this->cObj->data['bodytext']))));
+		return $this->breakContent(strip_tags(preg_replace('/<br\s*\/?>/i',chr(10),$this->parseBody(is_string($str)?$str:$this->cObj->data['bodytext']))));
 	}
 
 	/**
@@ -306,10 +306,10 @@ class tx_directmail_pi1 extends tslib_pibase {
 	function parseBody($str,$altConf='bodytext')	{
 
 		if ($this->conf[$altConf.'.']['doubleLF']) {
-			$str = eregi_replace(chr(10), chr(10).chr(10), $str);
+			$str = preg_replace("/\n/", "\n\n", $str);
 		}
 			// Regular parsing:
-		$str = eregi_replace('<br[ /]*>', chr(10), $str);
+		$str = preg_replace('/<br\s*\/?>/i', chr(10), $str);
 		$str = $this->cObj->stdWrap($str,$this->conf[$altConf.'.']['stdWrap.']);
 
 			// Then all a-tags:
