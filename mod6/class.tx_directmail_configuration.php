@@ -328,10 +328,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 	function mailModule_main()	{
 		global $LANG, $TYPO3_DB, $TYPO3_CONF_VARS;
 
-		//$theOutput.=$this->doc->divider(5);
-		$mode = $this->MOD_SETTINGS['dmail_mode'];
-
-		$theOutput.= $this->cmd_default($mode);
+		$theOutput .= $this->cmd_conf();
 		return $theOutput;
 	}
 
@@ -514,35 +511,6 @@ class tx_directmail_configuration extends t3lib_SCbase {
 				header('Location: '.t3lib_div::locationHeaderUrl(t3lib_div::getIndpEnv('REQUEST_URI')));
 			}
 		}
-	}
-
-	/**
-	 * choose the function, which is chosen in dropdown menu
-	 *
-	 * @param	string		$mode: function
-	 * @return	string		HTML of the content
-	 */
-	function cmd_default($mode)	{
-		global $TCA,$LANG,$TYPO3_CONF_VARS;
-		switch($mode)	{
-			case 'conf':
-				$theOutput.= $this->cmd_conf();
-				break;
-			case 'convert':
-				$theOutput .= $this->cmd_convertCategories();
-				break;
-			default:
-					// Hook for handling of custom modes:
-				if (is_array($TYPO3_CONF_VARS['EXT']['directmail']['handlemode-'.$mode])) {
-					foreach($TYPO3_CONF_VARS['EXT']['directmail']['handlemode-'.$mode] as $_funcRef) {
-						$_params = array();
-						$theOutput .= t3lib_div::callUserFunction($_funcRef,$_params,$this);
-					}
-				}
-				break;
-		}
-
-		return $theOutput;
 	}
 }
 

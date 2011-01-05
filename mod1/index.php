@@ -71,6 +71,7 @@ class tx_directmail_navframe{
 		$this->doc = t3lib_div::makeInstance('template');
 		$this->doc->backPath = $BACK_PATH;
 
+		$this->doc->bodyTagAdditions = 'style="height:auto;"';
 
 		$this->currentSubScript = t3lib_div::_GP('currentSubScript');
 
@@ -147,7 +148,8 @@ class tx_directmail_navframe{
 			if(t3lib_BEfunc::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){				
 				$out .= '<tr onmouseover="this.style.backgroundColor=\''.t3lib_div::modifyHTMLColorAll($this->doc->bgColor,-5).'\'" onmouseout="this.style.backgroundColor=\'\'">'.
 					'<td id="dmail_'.$row['uid'].'" ><a href="#" onclick="top.fsMod.recentIds[\'txdirectmailM1\']='.$row['uid'].';jumpTo(\'id='.$row['uid'].'\',this,\'dmail_'.$row['uid'].'\');">&nbsp;&nbsp;'.
-					t3lib_iconWorks::getIconImage('pages',$row,$BACK_PATH,'title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath($row['uid'], ' 1=1',20)).'" align="top"').
+					//t3lib_iconWorks::getIconImage('pages',$row,$BACK_PATH,'title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath($row['uid'], ' 1=1',20)).'" align="top"').
+					t3lib_iconWorks::getSpriteIconForRecord('pages',$row,array('title' => htmlspecialchars(t3lib_BEfunc::getRecordPath($row['uid'], ' 1=1',20)), 'align'=>'top')).
 					htmlspecialchars($row['title']).'</a></td></tr>';
 			}
 		}

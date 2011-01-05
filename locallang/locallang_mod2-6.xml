@@ -570,6 +570,7 @@ By clicking on the "Import" button below, all data will be written in tt_address
 			<label index="stats_disable_returned_mailbox_full">Disable returned recipients with mailbox full</label>
 			<label index="stats_disable_returned_reason_unknown">Disable returned recipients for unknown reason</label>
 			<label index="stats_disable_returned_unknown_recipient">Disable returned recipients with unknown recipient</label>
+			<label index="stats_plainlist">List of recipients:</label>
 			<label index="stats_emails">List of recipients from tt_address table:</label>
 			<label index="stats_emails_disabled">adresses disabled</label>
 			<label index="stats_emails_returned_bad_header_list">Email adresses of returned mails with error in header:</label>

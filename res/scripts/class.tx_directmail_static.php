@@ -376,10 +376,56 @@ class tx_directmail_static {
 				);
 		}
 
+		
 		$outArr=array();
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			$outArr[]=$row['uid'];
 		}
+
+		if ($table == 'fe_groups') {
+
+			$TYPO3_DB->sql_free_result($res);
+
+			// get the uid of the current fe_group
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'DISTINCT '.$table.'.uid',
+				$table.', sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
+				'sys_dmail_group.uid='.intval($uid).
+					' AND fe_groups.uid=sys_dmail_group_mm.uid_foreign'.
+					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
+					t3lib_BEfunc::BEenableFields($table).
+					t3lib_BEfunc::deleteClause($table)
+				);
+			list($groupId) = $TYPO3_DB->sql_fetch_row($res);
+			$TYPO3_DB->sql_free_result($res);
+
+			// recursively get all subgroups of this fe_group
+			$subgroups = tx_directmail_static::getFEgroupSubgroups($groupId);
+
+			$usergroupInList = null;
+			foreach ($subgroups as $subgroup) {
+				$usergroupInList .= (($usergroupInList == null) ? null : ' OR').' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\','.intval($subgroup).',\') )';
+			}
+			$usergroupInList = '('.$usergroupInList.')';
+
+			// fetch all fe_users from these subgroups
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'DISTINCT '.$switchTable.'.uid',
+				$switchTable.','.$table.'',
+				$usergroupInList.
+					$emailIsNotNull.
+					t3lib_BEfunc::BEenableFields($switchTable).
+					t3lib_BEfunc::deleteClause($switchTable).
+					t3lib_BEfunc::BEenableFields($table).
+					t3lib_BEfunc::deleteClause($table)
+				);
+
+			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+				$outArr[]=$row['uid'];
+			}
+
+		}
+		
 		return $outArr;
 	}
 
@@ -472,7 +518,7 @@ class tx_directmail_static {
 			$fieldName=1;
 			$fieldOrder=array();
 			while(list(,$v)=each($first))	{
-				list($fName,$fConf) = split('\[|\]',$v);
+				list($fName,$fConf) = preg_split('|[\[\]]|',$v);
 				$fName =trim($fName);
 				$fConf =trim($fConf);
 				$fieldOrder[]=array($fName,$fConf);
@@ -566,7 +612,7 @@ class tx_directmail_static {
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'*',
 					'sys_dmail_category',
-					'sys_dmail_category.pid IN (' .ereg_replace(",","','",$TYPO3_DB->fullQuoteStr($pidList, 'sys_dmail_category')). ')'.
+					'sys_dmail_category.pid IN (' .str_replace(",","','",$TYPO3_DB->fullQuoteStr($pidList, 'sys_dmail_category')). ')'.
 						' AND l18n_parent=0'.
 						t3lib_BEfunc::BEenableFields('sys_dmail_category').
 						t3lib_BEfunc::deleteClause('sys_dmail_category')
@@ -864,6 +910,38 @@ class tx_directmail_static {
 		}
 		return $content;
 	}
+	
+	/**
+	 * get all subsgroups recursively.
+	 * @param int $groupId: parent fe usergroup
+	 */
+	function getFEgroupSubgroups($groupId) {
+		global $TYPO3_DB;
+
+		// get all subgroups of this fe_group - fe_groups having this id in their subgroup field
+		$query = $TYPO3_DB->SELECTquery(
+			'DISTINCT fe_groups.uid',
+			'fe_groups, sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
+			'INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\','.intval($groupId).',\' )'.
+				t3lib_BEfunc::BEenableFields('fe_groups').
+				t3lib_BEfunc::deleteClause('fe_groups')
+		);
+		$res = $GLOBALS['TYPO3_DB']->sql_query($query);
+
+		$groupArr = array();
+
+		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+			$groupArr[] = $row['uid'];
+
+			// add all subgroups recursively too
+			$groupArr = array_merge($groupArr, tx_directmail_static::getFEgroupSubgroups($row['uid']));
+		}
+
+		$TYPO3_DB->sql_free_result($res);
+
+		return $groupArr;
+	}
+	
 	
 }
 

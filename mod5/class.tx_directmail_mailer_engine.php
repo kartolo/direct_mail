@@ -148,6 +148,14 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->form='<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
 
+			//add css
+			$this->doc->inDocStyles = '
+					.mailerengine { border: 1px solid #c0c0c0; border-collapse: collapse; }
+					.mailerengine td { border: 1px solid #c0c0c0; }
+					.mailerengine a { text-decoration: underline; }
+			
+			';
+			
 			// JavaScript
 			$this->doc->JScode = '
 				<script language="javascript" type="text/javascript">
@@ -372,14 +380,14 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			'scheduled DESC'
 			);
 		$out='';
-		$out.='<tr>
-						<td bgColor="'.$this->doc->bgColor5.'">'.'&nbsp;'.'</td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_subject') . '&nbsp;&nbsp;'.'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_scheduled') . '&nbsp;&nbsp;'.'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_delivery_begun') . '&nbsp;&nbsp;'.'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('dmail_mailerengine_delivery_ended') . '&nbsp;&nbsp;'.'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'."&nbsp;" . $LANG->getLL('dmail_mailerengine_number_sent') . '&nbsp;'.'</b></td>
-						<td bgColor="'.$this->doc->bgColor5.'"><b>'."&nbsp;" . $LANG->getLL('dmail_mailerengine_delete') . '&nbsp;'.'</b></td>
+		$out.='<tr class="bgColor2">
+						<td>'.'&nbsp;'.'</td>
+						<td><b>'.$LANG->getLL('dmail_mailerengine_subject') . '&nbsp;&nbsp;'.'</b></td>
+						<td><b>'.$LANG->getLL('dmail_mailerengine_scheduled') . '&nbsp;&nbsp;'.'</b></td>
+						<td><b>'.$LANG->getLL('dmail_mailerengine_delivery_begun') . '&nbsp;&nbsp;'.'</b></td>
+						<td><b>'.$LANG->getLL('dmail_mailerengine_delivery_ended') . '&nbsp;&nbsp;'.'</b></td>
+						<td><b>'."&nbsp;" . $LANG->getLL('dmail_mailerengine_number_sent') . '&nbsp;'.'</b></td>
+						<td><b>'."&nbsp;" . $LANG->getLL('dmail_mailerengine_delete') . '&nbsp;'.'</b></td>
 					</tr>';
 
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
@@ -387,21 +395,22 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 				'count(*)',
 				'sys_dmail_maillog',
 				'mid='.intval($row['uid']).
-					' AND response_type=0'
+					' AND response_type=0'.
+					' AND html_sent>0'
 				);
 			list($count) = $TYPO3_DB->sql_fetch_row($countres);
 			$out.='<tr>
 						<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
-						<td>'.$this->linkDMail_record(htmlspecialchars(t3lib_div::fixed_lgd($row['subject'],100)).'&nbsp;&nbsp;',$row['uid']).'</td>
+						<td>'.$this->linkDMail_record(htmlspecialchars(t3lib_div::fixed_lgd_cs($row['subject'],100)).'&nbsp;&nbsp;',$row['uid']).'</td>
 						<td>'.t3lib_BEfunc::datetime($row['scheduled']).'&nbsp;&nbsp;'.'</td>
 						<td>'.($row['scheduled_begin']?t3lib_BEfunc::datetime($row['scheduled_begin']):'').'&nbsp;&nbsp;'.'</td>
 						<td>'.($row['scheduled_end']?t3lib_BEfunc::datetime($row['scheduled_end']):'').'&nbsp;&nbsp;'.'</td>
-						<td align=right>'.fw($count?$count:'&nbsp;').'</td>
+						<td align=right>'.($count?$count:'&nbsp;').'</td>
 						<td align=center>'.$this->deleteLink($row['uid']).'</td>
 					</tr>';
 		}
 
-		$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
+		$out='<table class="mailerengine" cellpadding="3" cellspacing="0">'.$out.'</table>';
 		$out.='<br />'. $LANG->getLL('dmail_mailerengine_current_time') . ' '.t3lib_BEfunc::datetime(time()).'<br />';
 		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_status',$BACK_PATH).$LANG->getLL('dmail_mailerengine_status'),$out,1,1, 0, TRUE);
 
