@@ -51,7 +51,7 @@ class tx_directmail_importer {
 		$this->parent = &$pObj;
 		
 			//get some importer default from pageTS
-		$temp = t3lib_BEfunc::getModTSconfig(t3lib_div::_GP('id'),'mod.web_modules.dmail.importer');
+		$temp = t3lib_BEfunc::getModTSconfig(intval(t3lib_div::_GP('id')),'mod.web_modules.dmail.importer');
 		$this->params = $temp['properties'];
 	}
 	
@@ -698,11 +698,11 @@ class tx_directmail_importer {
 		if(is_array($name)){
 			$hiddenFields = array();
 			foreach($name as $n=>$v){
-				$hiddenFields[] = '<input type="hidden" name="'.$n.'" value="'.$v.'" />';
+				$hiddenFields[] = '<input type="hidden" name="'.htmlspecialchars($n).'" value="'.htmlspecialchars($v).'" />';
 			}
 			return implode('',$hiddenFields);
 		} else {
-			return '<input type="hidden" name="'.$name.'" value="'.$value.'" />';
+			return '<input type="hidden" name="'.htmlspecialchars($name).'" value="'.htmlspecialchars($value).'" />';
 		}
 	}
 

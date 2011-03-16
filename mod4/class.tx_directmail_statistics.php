@@ -160,8 +160,8 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		global $BE_USER,$LANG,$BACK_PATH,$TCA,$TYPO3_CONF_VARS;
 
 		$this->CMD = t3lib_div::_GP('CMD');
-		$this->pages_uid=t3lib_div::_GP('pages_uid');
-		$this->sys_dmail_uid=t3lib_div::_GP('sys_dmail_uid');
+		$this->pages_uid = intval(t3lib_div::_GP('pages_uid'));
+		$this->sys_dmail_uid = intval(t3lib_div::_GP('sys_dmail_uid'));
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
 		$access = is_array($this->pageinfo) ? 1 : 0;
 

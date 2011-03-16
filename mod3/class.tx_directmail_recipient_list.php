@@ -190,8 +190,8 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		global $BE_USER,$LANG,$BACK_PATH,$TCA,$TYPO3_CONF_VARS;
 
 		$this->CMD = t3lib_div::_GP('CMD');
-		$this->pages_uid=t3lib_div::_GP('pages_uid');
-		$this->sys_dmail_uid=t3lib_div::_GP('sys_dmail_uid');
+		$this->pages_uid = intval(t3lib_div::_GP('pages_uid'));
+		$this->sys_dmail_uid = intval(t3lib_div::_GP('sys_dmail_uid'));
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
 		$access = is_array($this->pageinfo) ? 1 : 0;
 
@@ -537,7 +537,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		if (is_array($idLists['PLAINLIST']))	$count+=count($idLists['PLAINLIST']);
 		if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
 
-		$group = t3lib_BEfunc::getRecord('sys_dmail_group',t3lib_div::_GP('group_uid'));
+		$group = t3lib_BEfunc::getRecord('sys_dmail_group',intval(t3lib_div::_GP('group_uid')));
 		$out=t3lib_iconWorks::getIconImage('sys_dmail_group',$group,$BACK_PATH,'style="vertical-align: top;"').htmlspecialchars($group['title']);
 
 		$lCmd=t3lib_div::_GP('lCmd');
@@ -570,8 +570,8 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			break;
 		default:
 			if (t3lib_div::_GP('csv'))	{
-				$csvValue=t3lib_div::_GP('csv');
-				if ($csvValue=='PLAINLIST')	{
+				$csvValue = t3lib_div::_GP('csv');
+				if ($csvValue == 'PLAINLIST')	{
 					$this->downloadCSV($idLists['PLAINLIST']);
 				} elseif (t3lib_div::inList('tt_address,fe_users,'.$this->userTable, $csvValue)) {
 					$this->downloadCSV(tx_directmail_static::fetchRecordsListValues($idLists[$csvValue],$csvValue,(($csvValue == 'fe_users') ? str_replace('phone','telephone',$this->fieldList) : $this->fieldList).',tstamp'));
