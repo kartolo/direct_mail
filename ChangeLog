@@ -1,3 +1,10 @@
+2011-03-25  Benjamin Mack  <benni@typo3.org>
+	* Added new feature: Create Direct Mail "drafts" that can be used as templates for new Direct Mails
+	* Added new feature: Create a scheduler task to create new Direct Mails out of Direct Mail Drafts
+	* Made all modules templateable
+	* Updated look+feel of all modules to fit 4.4 styles
+	* Made use of message boxes of TYPO3 to display error messages or warning messages the right way
+	
 2011-03-16 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* release 2.6.10 (typo3-sa-2011-002)
 	

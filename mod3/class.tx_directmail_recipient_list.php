@@ -200,7 +200,8 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('template');
 			$this->doc->backPath = $BACK_PATH;
-			$this->doc->form='<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
+			$this->doc->setModuleTemplate('EXT:direct_mail/mod3/mod_template.html');
+			$this->doc->form='<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
 			//CSS
 			//hide textarea in import
@@ -226,32 +227,54 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				</script>
 			';
 
+			$markers = array(
+				'FLASHMESSAGES' => '',
+				'CONTENT' => '',
+			);
+
+			$docHeaderButtons = array(
+				'PAGEPATH' => $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
+				'SHORTCUT' => '',
+				'CSH' => t3lib_BEfunc::cshItem($this->cshTable, '', $BACK_PATH)
+			);
+				// shortcut icon
+			if ($BE_USER->mayMakeShortcut()) {
+				$docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
+			}
+
+
 			$module = $this->pageinfo['module'];
-			if (!$module)	{
-				$pidrec=t3lib_BEfunc::getRecord('pages',intval($this->pageinfo['pid']));
-				$module=$pidrec['module'];
+			if (!$module) {
+				$pidrec = t3lib_BEfunc::getRecord('pages', intval($this->pageinfo['pid']));
+				$module = $pidrec['module'];
 			}
-			
-			$headerSection = $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'],50);
-			
+
+				// Render content:
 			if ($module == 'dmail') {
-
-					// Render content:
-				$this->content.=$this->doc->startPage($LANG->getLL('mailgroup_header'));
-				$this->content.=$this->doc->section('',$headerSection,1,0,0,TRUE);
-				$this->content.=$this->doc->section($LANG->getLL('mailgroup_header').t3lib_BEfunc::cshItem($this->cshTable,'',$BACK_PATH), '', 1, 1, 0 , TRUE);
-				$this->moduleContent();
+						// Direct mail module
+				if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail') {
+					$markers['CONTENT'] = '<h2>' . $GLOBALS['LANG']->getLL('mailgroup_header') . '</h2>'
+					. $this->moduleContent();
+				} elseif ($this->id != 0) {
+					$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
+						$GLOBALS['LANG']->getLL('dmail_noRegular'),
+						$GLOBALS['LANG']->getLL('dmail_newsletters'),
+						t3lib_FlashMessage::WARNING
+					);
+					$markers['FLASHMESSAGES'] = $flashMessage->render();
+				}
 			} else {
-				$this->content.=$this->doc->startPage($LANG->getLL(''));
-				$this->content.=$this->doc->section('',$headerSection,1,0,0,TRUE);
-				$this->content.=$this->doc->section($LANG->getLL('header_recip'), $LANG->getLL('select_folder'), 1, 1, 0 , TRUE);
+				$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
+					$GLOBALS['LANG']->getLL('select_folder'),
+					$GLOBALS['LANG']->getLL('header_recip'),
+					t3lib_FlashMessage::WARNING
+				);
+				$markers['FLASHMESSAGES'] = $flashMessage->render();
 			}
 
-			// ShortCut
-			if ($BE_USER->mayMakeShortcut())	{
-				$this->content.=$this->doc->spacer(20).$this->doc->section('',$this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']));
-			}
-			$this->content.=$this->doc->spacer(10);
+			$this->content = $this->doc->startPage($LANG->getLL('mailgroup_header'));
+			$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
+
 
 		} else {
 			// If no access or if ID == zero
@@ -261,8 +284,6 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 
 			$this->content.=$this->doc->startPage($LANG->getLL('title'));
 			$this->content.=$this->doc->header($LANG->getLL('title'));
-			$this->content.=$this->doc->spacer(5);
-			$this->content.=$this->doc->spacer(10);
 		}
 	}
 
@@ -281,47 +302,27 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 	 *
 	 * @return	string		The compiled content of the module.
 	 */
-	function moduleContent() {
-		global $TYPO3_CONF_VARS, $LANG;
-
-		if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail')	{	// Direct mail module
-			$theOutput.= $this->mailModule_main();
-		} elseif ($this->id!=0) {
-			$theOutput.= $this->doc->section($LANG->getLL('dmail_newsletters'),'<span class="typo3-red">'.$GLOBALS['LANG']->getLL('dmail_noRegular').'</span>',0,1);
-		}
-
-		if ($this->id!=0) {
-			$theOutput.=$this->doc->spacer(10);
-		}
-		$this->content .= $theOutput;
-	}
-
-	/**
-	 * Function mailModule main()
-	 *
-	 * @return	string		HTML content
-	 */
-	function mailModule_main()	{
+	protected function moduleContent() {
 		global $LANG, $TYPO3_DB, $TYPO3_CONF_VARS;
 
-				// COMMAND:
-			switch($this->CMD) {
-				case 'displayUserInfo':
-					$theOutput.= $this->cmd_displayUserInfo();
+			// COMMAND:
+		switch ($this->CMD) {
+			case 'displayUserInfo':
+				$theOutput.= $this->cmd_displayUserInfo();
+			break;
+			case 'displayMailGroup':
+				$result = $this->cmd_compileMailGroup(intval(t3lib_div::_GP('group_uid')));
+				$theOutput.= $this->cmd_displayMailGroup($result);
+			break;
+			case 'displayImport':
+				$importer = t3lib_div::makeInstance('tx_directmail_importer');
+				$importer->init($this);
+				$theOutput.= $importer->cmd_displayImport();
 				break;
-				case 'displayMailGroup':
-					$result = $this->cmd_compileMailGroup(intval(t3lib_div::_GP('group_uid')));
-					$theOutput.= $this->cmd_displayMailGroup($result);
+			default:
+				$theOutput.= $this->showExistingRecipientLists();
 				break;
-				case 'displayImport':
-					$importer = t3lib_div::makeInstance('tx_directmail_importer');
-					$importer->init($this);
-					$theOutput.= $importer->cmd_displayImport();
-					break;
-				default:
-					$theOutput.= $this->cmd_recip();
-					break;
-			}
+		}
 
 		return $theOutput;
 	}
@@ -331,30 +332,30 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 	 *
 	 * @return	string		List of existing recipient list, link to create a new list and link to import
 	 */
-	function cmd_recip() {
+	public function showExistingRecipientLists() {
 		global $LANG, $TYPO3_DB, $BACK_PATH, $TCA;
 
-		$res = $TYPO3_DB->exec_SELECTquery(
+
+		$out = '<tr>
+					<td class="t3-row-header" colspan="2">&nbsp;</td>
+					<td class="t3-row-header">' . $LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group', 'title')) . '</td>
+					<td class="t3-row-header">' . $LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group', 'type')) . '</td>
+					<td class="t3-row-header">' . $LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group', 'description')) . '</td>
+					<td class="t3-row-header">' . $LANG->getLL('recip_group_amount') . '</td>
+				</tr>';
+
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'uid,pid,title,description,type',
 			'sys_dmail_group',
-			'pid='.intval($this->id).
+			'pid = ' . intval($this->id).
 				t3lib_BEfunc::deleteClause('sys_dmail_group'),
 			'',
-			$TYPO3_DB->stripOrderBy($TCA['sys_dmail_group']['ctrl']['default_sortby'])
-			);
-		$out = '';
-		$out.='<tr>
-						<td class="'.$this->doc->bgColor5.'" colspan=2>&nbsp;</td>
-						<td class="'.$this->doc->bgColor5.'"><b>'.$LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','title')).'</b></td>
-						<td class="'.$this->doc->bgColor5.'"><b>'.$LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','type')).'</b></td>
-						<td class="'.$this->doc->bgColor5.'"><b>'.$LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail_group','description')).'</b></td>
-						<td class="'.$this->doc->bgColor5.'"><b>'.$LANG->getLL('recip_group_amount').'</b></td>
-					</tr>';
-		$TDparams=' valign="top"';
-		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-			
+			$GLOBALS['TYPO3_DB']->stripOrderBy($TCA['sys_dmail_group']['ctrl']['default_sortby'])
+		);
+
+		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			$result = $this->cmd_compileMailGroup(intval($row['uid']));
-			$count=0;
+			$count = 0;
 			$idLists = $result['queryInfo']['id_lists'];
 			if (is_array($idLists['tt_address']))	$count+=count($idLists['tt_address']);
 			if (is_array($idLists['fe_users']))	$count+=count($idLists['fe_users']);
@@ -362,25 +363,25 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
 			
 			$out.='<tr>
-						<td'.$TDparams.' nowrap>'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
-						<td'.$TDparams.'>'.$this->editLink('sys_dmail_group',$row['uid']).'</td>
-						<td'.$TDparams.' nowrap>'.$this->linkRecip_record('<strong>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'],30)).'</strong>&nbsp;&nbsp;',$row['uid']).'</td>
-						<td'.$TDparams.' nowrap>'.htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail_group','type',$row['type'])).'&nbsp;&nbsp;</td>
-						<td'.$TDparams.'>'.t3lib_BEfunc::getProcessedValue('sys_dmail_group','description',htmlspecialchars($row['description'])).'&nbsp;&nbsp;</td>
-						<td'.$TDparams.'>'.$count.'</td>
-					</tr>';
+					<td nowrap="nowrap">'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').'</td>
+					<td>'.$this->editLink('sys_dmail_group',$row['uid']).'</td>
+					<td nowrap="nowrap">'.$this->linkRecip_record('<strong>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'],30)).'</strong>&nbsp;&nbsp;',$row['uid']).'</td>
+					<td nowrap="nowrap">'.htmlspecialchars(t3lib_BEfunc::getProcessedValue('sys_dmail_group','type',$row['type'])).'&nbsp;&nbsp;</td>
+					<td>'.t3lib_BEfunc::getProcessedValue('sys_dmail_group','description',htmlspecialchars($row['description'])).'&nbsp;&nbsp;</td>
+					<td>'.$count.'</td>
+				</tr>';
 		}
 
-		$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
+		$out='<table class="typo3-dblist" border="0" cellpadding="0" cellspacing="0">' . $out . '</table>';
 		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'select_mailgroup',$BACK_PATH).$LANG->getLL('recip_select_mailgroup'),$out,1,1, 0, TRUE);
 
 			// New:
-		$out='<a href="#" onClick="'.t3lib_BEfunc::editOnClick('&edit[sys_dmail_group]['.$this->id.']=new',$BACK_PATH,'').'">'.t3lib_iconWorks::getIconImage('sys_dmail_group',array(),$BACK_PATH,'align="top"'). $LANG->getLL('recip_create_mailgroup_msg') . '</a>';
+		$out='<a href="#" class="t3-link" onClick="'.t3lib_BEfunc::editOnClick('&edit[sys_dmail_group]['.$this->id.']=new',$BACK_PATH,'').'">'.t3lib_iconWorks::getIconImage('sys_dmail_group',array(),$BACK_PATH,'align="top"'). $LANG->getLL('recip_create_mailgroup_msg') . '</a>';
 		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_mailgroup',$BACK_PATH).$LANG->getLL('recip_create_mailgroup'),$out, 1, 1, 0, TRUE);
+		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'create_mailgroup',$BACK_PATH).$LANG->getLL('recip_create_mailgroup'),$out, 1, 0, FALSE, TRUE, FALSE, TRUE);
 
 			// Import
-		$out='<a href="index.php?id='.$this->id.'&CMD=displayImport">' . $LANG->getLL('recip_import_mailgroup_msg') . '</a>';
+		$out='<a class="t3-link" href="index.php?id='.$this->id.'&CMD=displayImport">' . $LANG->getLL('recip_import_mailgroup_msg') . '</a>';
 		$theOutput.= $this->doc->spacer(20);
 		$theOutput.= $this->doc->section($LANG->getLL('mailgroup_import'),$out, 1, 1, 0, TRUE);
 		return $theOutput;
@@ -429,10 +430,9 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				case 0:	// From pages
 					$thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;		// use current page if no else
 					$pages = t3lib_div::intExplode(',',$thePages);	// Explode the pages
-					reset($pages);
 					$pageIdArray=array();
-					while(list(,$pageUid)=each($pages))	{
-						if ($pageUid>0)	{
+					foreach ($pages as $pageUid) {
+						if ($pageUid>0) {
 							$pageinfo = t3lib_BEfunc::readPageAccess($pageUid,$this->perms_clause);
 							if (is_array($pageinfo))	{
 								$info['fromPages'][]=$pageinfo;
@@ -499,26 +499,33 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 					break;
 				case 4:	//
 					$groups = array_unique(tx_directmail_static::getMailGroups($mailGroup['mail_groups'],array($mailGroup['uid']),$this->perms_clause));
-					reset($groups);
-					while(list(,$v)=each($groups))	{
-						$collect=$this->cmd_compileMailGroup($v);
+					foreach ($groups as $group) {
+						$collect = $this->cmd_compileMailGroup($group);
 						if (is_array($collect['queryInfo']['id_lists'])) {
 							$id_lists = array_merge_recursive($id_lists,$collect['queryInfo']['id_lists']);
 						}
 					}
-					// Make unique entries
-					if (is_array($id_lists['tt_address']))	$id_lists['tt_address'] = array_unique($id_lists['tt_address']);
-					if (is_array($id_lists['fe_users']))	$id_lists['fe_users'] = array_unique($id_lists['fe_users']);
-					if (is_array($id_lists[$this->userTable]) && $this->userTable)	$id_lists[$this->userTable] = array_unique($id_lists[$this->userTable]);
-					if (is_array($id_lists['PLAINLIST']))	{$id_lists['PLAINLIST'] = tx_directmail_static::cleanPlainList($id_lists['PLAINLIST']);}
+
+						// Make unique entries
+					if (is_array($id_lists['tt_address'])) {
+						$id_lists['tt_address'] = array_unique($id_lists['tt_address']);
+					}
+					if (is_array($id_lists['fe_users'])) {
+						$id_lists['fe_users'] = array_unique($id_lists['fe_users']);
+					}
+					if (is_array($id_lists[$this->userTable]) && $this->userTable) {
+						$id_lists[$this->userTable] = array_unique($id_lists[$this->userTable]);
+					}
+					if (is_array($id_lists['PLAINLIST'])) {
+						$id_lists['PLAINLIST'] = tx_directmail_static::cleanPlainList($id_lists['PLAINLIST']);
+					}
 					break;
 				}
 			}
 		}
-		$outputArray = array(
+		return array(
 			'queryInfo' => array('id_lists' => $id_lists)
-			);
-		return $outputArray;
+		);
 	}
 
 	/**
@@ -530,64 +537,91 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 	function cmd_displayMailGroup($result)	{
 		global $LANG, $BACK_PATH;
 
-		$count=0;
+		$totalRecipients = 0;
 		$idLists = $result['queryInfo']['id_lists'];
-		if (is_array($idLists['tt_address']))	$count+=count($idLists['tt_address']);
-		if (is_array($idLists['fe_users']))	$count+=count($idLists['fe_users']);
-		if (is_array($idLists['PLAINLIST']))	$count+=count($idLists['PLAINLIST']);
-		if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
+		if (is_array($idLists['tt_address'])) {
+			$totalRecipients += count($idLists['tt_address']);
+		}
+		if (is_array($idLists['fe_users'])) {
+			$totalRecipients += count($idLists['fe_users']);
+		}
+		if (is_array($idLists['PLAINLIST'])) {
+			$totalRecipients += count($idLists['PLAINLIST']);
+		}
+		if (is_array($idLists[$this->userTable])) {
+			$totalRecipients += count($idLists[$this->userTable]);
+		}
 
 		$group = t3lib_BEfunc::getRecord('sys_dmail_group',intval(t3lib_div::_GP('group_uid')));
-		$out=t3lib_iconWorks::getIconImage('sys_dmail_group',$group,$BACK_PATH,'style="vertical-align: top;"').htmlspecialchars($group['title']);
+		$out = t3lib_iconWorks::getIconImage('sys_dmail_group',$group,$BACK_PATH,'style="vertical-align: top;"') . htmlspecialchars($group['title']);
 
-		$lCmd=t3lib_div::_GP('lCmd');
+		$lCmd = t3lib_div::_GP('lCmd');
 
-		$mainC = $LANG->getLL('mailgroup_recip_number') . ' <strong>'.$count.'</strong>';
+		$mainC = $LANG->getLL('mailgroup_recip_number') . ' <strong>'.$totalRecipients.'</strong>';
 		if (!$lCmd)	{
-			$mainC.= '<br /><br /><a href="'.t3lib_div::linkThisScript(array('lCmd'=>'listall')).'">' . $LANG->getLL('mailgroup_list_all') . '</a>';
+			$mainC.= '<br /><br /><strong><a class="t3-link" href="'.t3lib_div::linkThisScript(array('lCmd'=>'listall')).'">' . $LANG->getLL('mailgroup_list_all') . '</a></strong>';
 		}
 
 		$theOutput.= $this->doc->section($LANG->getLL('mailgroup_recip_from').' '.$out,$mainC, 1, 1, 0, TRUE);
 		$theOutput.= $this->doc->spacer(20);
 
-		switch($lCmd)	{
-		case 'listall':
-			if (is_array($idLists['tt_address'])) {
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_address'),tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4));
-				$theOutput.= $this->doc->spacer(20);
+			// do the CSV export
+		$csvValue = t3lib_div::_GP('csv');
+		if ($csvValue) {
+			if ($csvValue == 'PLAINLIST') {
+				$this->downloadCSV($idLists['PLAINLIST']);
+			} elseif (t3lib_div::inList('tt_address,fe_users,' . $this->userTable, $csvValue)) {
+				$this->downloadCSV(tx_directmail_static::fetchRecordsListValues($idLists[$csvValue], $csvValue, (($csvValue == 'fe_users') ? str_replace('phone','telephone', $this->fieldList) : $this->fieldList) . ',tstamp'));
 			}
-			if (is_array($idLists['fe_users'])) {
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_fe_users'),tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4));
-			$theOutput.= $this->doc->spacer(20);
-			}
-			if (is_array($idLists['PLAINLIST'])) {
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_plain_list'),tx_directmail_static::getRecordList($idLists['PLAINLIST'],'default',$this->id,$this->doc->bgColor4,1));
-				$theOutput.= $this->doc->spacer(20);
-			}
-			if (is_array($idLists[$this->userTable])) {
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_custom') . ' ' . $this->userTable,tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists[$this->userTable],$this->userTable),$this->userTable,$this->id,$this->doc->bgColor4));
-			}
-			break;
-		default:
-			if (t3lib_div::_GP('csv'))	{
-				$csvValue = t3lib_div::_GP('csv');
-				if ($csvValue == 'PLAINLIST')	{
-					$this->downloadCSV($idLists['PLAINLIST']);
-				} elseif (t3lib_div::inList('tt_address,fe_users,'.$this->userTable, $csvValue)) {
-					$this->downloadCSV(tx_directmail_static::fetchRecordsListValues($idLists[$csvValue],$csvValue,(($csvValue == 'fe_users') ? str_replace('phone','telephone',$this->fieldList) : $this->fieldList).',tstamp'));
+		}
+
+		switch($lCmd) {
+			case 'listall':
+				if (is_array($idLists['tt_address'])) {
+					$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_address'),tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4));
+					$theOutput.= $this->doc->spacer(20);
 				}
-			} else {
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_address'),$LANG->getLL('mailgroup_recip_number') . ' ' . (is_array($idLists['tt_address'])?count($idLists['tt_address']).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>'tt_address')).'">' . $LANG->getLL('mailgroup_download') . '</a>':0));
-				$theOutput.= $this->doc->spacer(20);
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_fe_users'),$LANG->getLL('mailgroup_recip_number') . ' ' .(is_array($idLists['fe_users'])?count($idLists['fe_users']).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>'fe_users')).'">' . $LANG->getLL('mailgroup_download') . '</a>':0));
-				$theOutput.= $this->doc->spacer(20);
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_plain_list'),$LANG->getLL('mailgroup_recip_number') . ' ' .(is_array($idLists['PLAINLIST'])?count($idLists['PLAINLIST']).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>'PLAINLIST')).'">' . $LANG->getLL('mailgroup_download') . '</a>':0));
-				$theOutput.= $this->doc->spacer(20);
-				$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_custom'),$LANG->getLL('mailgroup_recip_number') . ' ' .(is_array($idLists[$this->userTable])?count($idLists[$this->userTable]).'<br /><a href="'.t3lib_div::linkThisScript(array('csv'=>$this->userTable)).'">' . $LANG->getLL('mailgroup_download') . '</a>':0));
-			}
-			if ($group['type'] == 3) {
-				$theOutput .= $this->cmd_specialQuery($group);
-			}
+				if (is_array($idLists['fe_users'])) {
+					$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_fe_users'),tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4));
+					$theOutput.= $this->doc->spacer(20);
+				}
+				if (is_array($idLists['PLAINLIST'])) {
+					$theOutput.= $this->doc->section($LANG->getLL('mailgroup_plain_list'),tx_directmail_static::getRecordList($idLists['PLAINLIST'],'default',$this->id,$this->doc->bgColor4,1));
+					$theOutput.= $this->doc->spacer(20);
+				}
+				if (is_array($idLists[$this->userTable])) {
+					$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_custom') . ' ' . $this->userTable,tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists[$this->userTable],$this->userTable),$this->userTable,$this->id,$this->doc->bgColor4));
+				}
+			break;
+			default:
+			
+				if (is_array($idLists['tt_address']) && count($idLists['tt_address'])) {
+					$recipContent = $LANG->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) . '<br /><a href="' . t3lib_div::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $LANG->getLL('mailgroup_download') . '</a>';
+					$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_address'), $recipContent);
+					$theOutput.= $this->doc->spacer(20);
+				}
+			
+				if (is_array($idLists['fe_users']) && count($idLists['fe_users'])) {
+					$recipContent = $LANG->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) . '<br /><a href="' . t3lib_div::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $LANG->getLL('mailgroup_download') . '</a>';
+					$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_fe_users'), $recipContent);
+					$theOutput.= $this->doc->spacer(20);
+				}
+			
+				if (is_array($idLists['PLAINLIST']) && count($idLists['PLAINLIST'])) {
+					$recipContent = $LANG->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) . '<br /><a href="' . t3lib_div::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $LANG->getLL('mailgroup_download') . '</a>';
+					$theOutput.= $this->doc->section($LANG->getLL('mailgroup_plain_list'), $recipContent);
+					$theOutput.= $this->doc->spacer(20);
+				}
+
+				if (is_array($idLists[$this->userTable]) && count($idLists[$this->userTable])) {
+					$recipContent = $LANG->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) . '<br /><a href="' . t3lib_div::linkThisScript(array('csv' => $this->userTable)) . '" class="t3-link">' . $LANG->getLL('mailgroup_download') . '</a>';
+					$theOutput.= $this->doc->section($LANG->getLL('mailgroup_table_custom'), $recipContent);
+					$theOutput.= $this->doc->spacer(20);
+				}
+
+				if ($group['type'] == 3) {
+					$theOutput .= $this->cmd_specialQuery($group);
+				}
 			break;
 		}
 		return $theOutput;

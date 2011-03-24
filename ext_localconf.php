@@ -86,9 +86,17 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['gabriel']['include'][$_EXTKEY] = array(
 */
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_directmail_scheduler'] = array(
 	'extension' => $_EXTKEY,
-	'title' => 'DirectMail task',
+	'title' => 'Direct Mail: Mailing Queue',
 	'description' => 'This task invokes dmailer in order to process queued messages.',
 );
+
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_directmail_Scheduler_MailFromDraft'] = array(
+	'extension'			=> $_EXTKEY,
+	'title'				=> 'Direct Mail: Create Mail from Draft',
+	'description' 		=> 'This task allows you to select a DirectMail draft that gets copied and then sent to the. This allows automatic (periodic) sending of the same TYPO3 page.',
+	'additionalFields'	=> 'EXT:direct_mail/Classes/Scheduler/MailFromDraft_AdditionalFields.php:tx_directmail_Scheduler_MailFromDraft_AdditionalFields'
+);
+
 
 /**
  * added CLI

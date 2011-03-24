@@ -10,6 +10,7 @@
   background: Window;
   color: WindowText;
   font-family: tahoma,verdana,sans-serif;
+  z-index: 100;
 }
 
 .calendar table {
@@ -39,8 +40,7 @@
 .calendar thead .title { /* This holds the current "month, year" */
   font-weight: bold;
   padding: 1px;
-  border: 1px solid #000;
-  background: ActiveCaption;
+  background: ButtonFace;
   color: CaptionText;
   text-align: center;
 }

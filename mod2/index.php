@@ -41,8 +41,7 @@ $LANG->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
 $LANG->includeLLFile('EXT:direct_mail/locallang/locallang_csh_sysdmail.xml');
 $BE_USER->modAccess($MCONF,1);    // This checks permissions and exits if the users has no permission for entry.
 
-// Make instance:
-require_once(t3lib_extMgm::extPath('direct_mail').'mod2/class.tx_directmail_dmail.php');
+	// Make instance:
 $SOBE = t3lib_div::makeInstance('tx_directmail_dmail');
 $SOBE->init();
 

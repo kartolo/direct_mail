@@ -170,6 +170,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('template');
 			$this->doc->backPath = $BACK_PATH;
+			$this->doc->setModuleTemplate('EXT:direct_mail/mod4/mod_template.html');
 			$this->doc->form='<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
 
 			// Add CSS
@@ -204,33 +205,51 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				</script>
 			';
 
+
+
+			$markers = array(
+				'FLASHMESSAGES' => '',
+				'CONTENT' => '',
+			);
+
+			$docHeaderButtons = array(
+				'PAGEPATH' => $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
+				'SHORTCUT' => '',
+				'CSH' => t3lib_BEfunc::cshItem($this->cshTable, '', $BACK_PATH)
+			);
+				// shortcut icon
+			if ($BE_USER->mayMakeShortcut()) {
+				$docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
+			}
+
 			$module = $this->pageinfo['module'];
 			if (!$module)	{
 				$pidrec=t3lib_BEfunc::getRecord('pages',intval($this->pageinfo['pid']));
 				$module=$pidrec['module'];
 			}
 			
-			$headerSection = $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'],50);
-			
 			if ($module == 'dmail') {
+					// Direct mail module
 					// Render content:
-
-				$this->content.=$this->doc->startPage($LANG->getLL('stats_overview_header'));
-				$this->content.=$this->doc->section('',$headerSection,1,0,0,TRUE);
-				$this->content.=$this->doc->section($LANG->getLL('stats_overview_header').t3lib_BEfunc::cshItem($this->cshTable,'',$BACK_PATH), '', 1, 1, 0 , TRUE);
-				$this->moduleContent();
+				if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail') {
+					$markers['CONTENT'] = '<h2>' . $GLOBALS['LANG']->getLL('stats_overview_header') . '</h2>'
+					. $this->moduleContent();
+				} elseif ($this->id != 0) {
+					$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
+						$GLOBALS['LANG']->getLL('dmail_noRegular'),
+						$GLOBALS['LANG']->getLL('dmail_newsletters'),
+						t3lib_FlashMessage::WARNING
+					);
+					$markers['FLASHMESSAGES'] = $flashMessage->render();
+				}
 			} else {
 				$this->content.=$this->doc->startPage($LANG->getLL('stats_overview_header'));
 				$this->content.=$this->doc->section('',$headerSection,1,0,0,TRUE);
 				$this->content.=$this->doc->section($LANG->getLL('header_stat'), $LANG->getLL('select_folder'), 1, 1, 0 , TRUE);
 			}
 
-			// ShortCut
-			if ($BE_USER->mayMakeShortcut())	{
-				$this->content.=$this->doc->spacer(20).$this->doc->section('',$this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']));
-			}
-			$this->content.=$this->doc->spacer(10);
-
+			$this->content = $this->doc->startPage($LANG->getLL('stats_overview_header'));
+			$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
 		} else {
 			// If no access or if ID == zero
 
@@ -247,32 +266,12 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	/**
 	 * compiled content of the module
 	 *
-	 * @return	string		The compiled content of the module.
-	 */
-	function moduleContent() {
-		global $TYPO3_CONF_VARS, $LANG;
-
-		if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail')	{	// Direct mail module
-			$theOutput.= $this->mailModule_main();
-		} elseif ($this->id!=0) {
-			$theOutput.= $this->doc->section($LANG->getLL('dmail_newsletters'),'<span class="typo3-red">'.$GLOBALS['LANG']->getLL('dmail_noRegular').'</span>',0,1);
-		}
-
-		if ($this->id!=0) {
-			$theOutput.=$this->doc->spacer(10);
-		}
-		$this->content .= $theOutput;
-	}
-
-	/**
-	 * Function mailModule main()
-	 *
 	 * @return	string		the compiled content of the module
 	 */
-	function mailModule_main()	{
+	public function moduleContent() {
 		global $LANG, $TYPO3_DB, $TYPO3_CONF_VARS;
 
-		if (!$this->sys_dmail_uid)	{
+		if (!$this->sys_dmail_uid) {
 			$theOutput.= $this->cmd_displayPageInfo();
 		} else {
 				// Here the single dmail record is shown.

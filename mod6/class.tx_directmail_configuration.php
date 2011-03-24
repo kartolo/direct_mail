@@ -165,23 +165,13 @@ class tx_directmail_configuration extends t3lib_SCbase {
 			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('template');
 			$this->doc->backPath = $BACK_PATH;
+			$this->doc->setModuleTemplate('EXT:direct_mail/mod3/mod_template.html');
 			$this->doc->form='<form action="" method="post" name="'.$this->name.'" enctype="multipart/form-data">';
+			$this->doc->getPageRenderer()->addCssFile('../Resources/Public/StyleSheets/modules.css', 'stylesheet', 'all', '', FALSE, FALSE);
 
 			// Add CSS
 			$this->doc->inDocStyles = '
-					a.bubble {position:relative; z-index:24; color:#000; text-decoration:none}
-					a.bubble:hover {z-index:25; background-color: #e6e8ea;}
-					a.bubble span.help {display: none;}
-					a.bubble:hover span.help {display:block; position:absolute; top:2em; left:2em; width:25em; border:1px solid #0cf; background-color:#cff; padding: 2px;}
-					a {text-decoration: none;}
-					#page-header {font-weight: bold;}
-					.box {margin: 0 0 1em 1em;}
-					div.toggleTitle:hover {background-color: #cfcbc7 !important;}
-					div.toggleTitle a {width: 100%; position: relative; top: -3px;}
-					div.toggleTitle a img {position: relative; top:4px;}
-					.toggleTitle {font-weight:bold; border: 1px solid #898989; width: 70%; background-color: #e3dfdb;}
-					.toggleBox {border: 1px solid #aaaaaa; background-color: '.$this->doc->bgColor4.'; padding: 1em;}
-					.toggleBox h3 {background-color: '.$this->doc->bgColor4.';}
+					.toggleTitle { width: 70%; }
 					';
 
 			// JavaScript
@@ -253,11 +243,21 @@ class tx_directmail_configuration extends t3lib_SCbase {
 				</script>
 			';
 
-			$headerSection = $this->doc->getHeader('pages',$this->pageinfo,$this->pageinfo['_thePath'],0).'<br />'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'],50);
 
-			$this->content.=$this->doc->startPage($LANG->getLL('title'));
-			$this->content.=$this->doc->header($LANG->getLL('title'));
-			$this->content.=$this->doc->spacer(5);
+			$markers = array(
+				'FLASHMESSAGES' => '',
+				'CONTENT' => '',
+			);
+
+			$docHeaderButtons = array(
+				'PAGEPATH' => $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
+				'SHORTCUT' => '',
+				'CSH' => t3lib_BEfunc::cshItem($this->cshTable, '', $BACK_PATH)
+			);
+				// shortcut icon
+			if ($BE_USER->mayMakeShortcut()) {
+				$docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
+			}
 
 			$module = $this->pageinfo['module'];
 			if (!$module)	{
@@ -265,17 +265,30 @@ class tx_directmail_configuration extends t3lib_SCbase {
 				$module=$pidrec['module'];
 			}
 			if ($module == 'dmail') {
-					// Render content:
-				$this->moduleContent();
+						// Direct mail module
+				if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail') {
+					$markers['CONTENT'] = '<h2>' . $GLOBALS['LANG']->getLL('header_conf') . '</h2>'
+					. $this->moduleContent();
+				} elseif ($this->id != 0) {
+					$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
+						$GLOBALS['LANG']->getLL('dmail_noRegular'),
+						$GLOBALS['LANG']->getLL('dmail_newsletters'),
+						t3lib_FlashMessage::WARNING
+					);
+					$markers['FLASHMESSAGES'] = $flashMessage->render();
+				}
 			} else {
-				$this->content.=$this->doc->section($LANG->getLL('header_conf'), $LANG->getLL('select_folder'), 1, 1, 0 , TRUE);
+				$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
+					$GLOBALS['LANG']->getLL('select_folder'),
+					$GLOBALS['LANG']->getLL('header_conf'),
+					t3lib_FlashMessage::WARNING
+				);
+				$markers['FLASHMESSAGES'] = $flashMessage->render();
 			}
 
-			// ShortCut
-			if ($BE_USER->mayMakeShortcut())	{
-				$this->content.=$this->doc->spacer(20).$this->doc->section('',$this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']));
-			}
-			$this->content.=$this->doc->spacer(10);
+
+			$this->content = $this->doc->startPage($LANG->getLL('title'));
+			$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
 
 		} else {
 			// If no access or if ID == zero
@@ -302,42 +315,11 @@ class tx_directmail_configuration extends t3lib_SCbase {
 
 	/**
 	 * Shows the content of configuration module
+	 * compiling the configuration form and fill it with default values
 	 *
 	 * @return	string		The compiled content of the module.
 	 */
-	function moduleContent() {
-		global $TYPO3_CONF_VARS, $LANG;
-
-		if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail')	{	// Direct mail module
-			$theOutput.= $this->mailModule_main();
-		} elseif ($this->id!=0) {
-			$theOutput.= $this->doc->section($LANG->getLL('dmail_newsletters'),'<span class="typo3-red">'.$GLOBALS['LANG']->getLL('dmail_noRegular').'</span>',0,1);
-		}
-
-		if ($this->id!=0) {
-			$theOutput.=$this->doc->spacer(10);
-		}
-		$this->content .= $theOutput;
-	}
-
-	/**
-	 * shows the form
-	 *
-	 * @return	string		the compiled content
-	 */
-	function mailModule_main()	{
-		global $LANG, $TYPO3_DB, $TYPO3_CONF_VARS;
-
-		$theOutput .= $this->cmd_conf();
-		return $theOutput;
-	}
-
-	/**
-	 * compiling the configuration form and fill it with default values
-	 *
-	 * @return	string		the compiled configuration form
-	 */
-	function cmd_conf() {
+	protected function moduleContent() {
 		global $TYPO3_DB, $LANG, $BACK_PATH;
 
 		$configArray[1] = array(
@@ -394,10 +376,14 @@ class tx_directmail_configuration extends t3lib_SCbase {
 
 			// Set domain selection list
 		$rootline = $this->sys_page->getRootLine($this->id);
+		foreach($rootline as $rk => $rArr) {
+			$rootlineID[] = $rArr['uid'];
+		}
+		
 		$res_domain = $TYPO3_DB->exec_SELECTquery(
 			'uid,domainName',
 			'sys_domain',
-			'sys_domain.pid='.intval($rootline[0]['uid']).
+			'sys_domain.pid in ('.implode(',', $rootlineID).')'.
 				t3lib_BEfunc::deleteClause('sys_domain')
 			);
 		while ($row_domain = $TYPO3_DB->sql_fetch_assoc($res_domain)) {
@@ -411,8 +397,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 		}
 
 		$form .= '<input type="submit" name="submit" value="Update configuration" />';
-		$theOutput.= $this->doc->section($LANG->getLL('configure_direct_mail_module'),str_replace('Update configuration', $LANG->getLL('configure_update_configuration'), $form),1,1,0, TRUE);
-		return $theOutput;
+		return str_replace('Update configuration', $LANG->getLL('configure_update_configuration'), $form);
 	}
 
 	/**
@@ -477,14 +462,14 @@ class tx_directmail_configuration extends t3lib_SCbase {
 								<div class="toggleTitle">
 									<a href="#" onclick="toggleDisplay(\''.$fname.'\', event, '.$this->configArray_length.')">
 										<img id="'.$fname.'_toggle" '.$imgSrc.' alt="" >
-										<strong>'.strtoupper(htmlspecialchars($config)).'</strong>
+										<strong>'.htmlspecialchars($config).'</strong>
 									</a>
 								</div>
 								<div id="'.$fname.'" class="toggleBox" style="display:none">';
 						$boxFlag = 1;
 					} else {
 						$lines[$fname]='<hr />';
-						if ($config)	$lines[$fname].='<strong>'.strtoupper(htmlspecialchars($config)).'</strong><br />';
+						if ($config)	$lines[$fname].='<strong>'.htmlspecialchars($config).'</strong><br />';
 						if ($config)	$lines[$fname].='<br />';
 					}
 				}

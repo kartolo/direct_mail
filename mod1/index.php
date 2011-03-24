@@ -70,15 +70,17 @@ class tx_directmail_navframe{
 
 		$this->doc = t3lib_div::makeInstance('template');
 		$this->doc->backPath = $BACK_PATH;
-
-		$this->doc->bodyTagAdditions = 'style="height:auto;"';
+		$this->doc->setModuleTemplate('EXT:direct_mail/mod1/mod_template.html');
+		$this->doc->showFlashMessages = FALSE;
 
 		$this->currentSubScript = t3lib_div::_GP('currentSubScript');
 
 			// Setting highlight mode:
 		$this->doHighlight = !$BE_USER->getTSConfigVal('options.pageTree.disableTitleHighlight');
-
-		$this->doc->JScode='';
+		$this->doc->inDocStyles = '
+		#typo3-docheader-row2 { line-height: 14px !important; }
+		#typo3-docheader-row2 span { font-weight: bold; margin-top: -3px; color: #000; margin-top: 0; padding-left: 20px; }
+';
 
 			// Setting JavaScript for menu.
 		$this->doc->JScode=$this->doc->wrapScriptTags(
@@ -135,8 +137,6 @@ class tx_directmail_navframe{
 	function main()	{
 		global $LANG,$BACK_PATH, $TYPO3_DB;
 
-		$this->content = '';
-		$this->content.= $this->doc->startPage('Navigation');
 
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'*',
@@ -148,27 +148,37 @@ class tx_directmail_navframe{
 			if(t3lib_BEfunc::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){				
 				$out .= '<tr onmouseover="this.style.backgroundColor=\''.t3lib_div::modifyHTMLColorAll($this->doc->bgColor,-5).'\'" onmouseout="this.style.backgroundColor=\'\'">'.
 					'<td id="dmail_'.$row['uid'].'" ><a href="#" onclick="top.fsMod.recentIds[\'txdirectmailM1\']='.$row['uid'].';jumpTo(\'id='.$row['uid'].'\',this,\'dmail_'.$row['uid'].'\');">&nbsp;&nbsp;'.
-					t3lib_iconWorks::getIconImage('pages',$row,$BACK_PATH,'title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath($row['uid'], ' 1=1',20)).'" align="top"').
+					//t3lib_iconWorks::getIconImage('pages',$row,$BACK_PATH,'title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath($row['uid'], ' 1=1',20)).'" align="top"').
+					t3lib_iconWorks::getSpriteIconForRecord('pages',$row,array('title' => htmlspecialchars(t3lib_BEfunc::getRecordPath($row['uid'], ' 1=1',20)), 'align'=>'top')).
 					htmlspecialchars($row['title']).'</a></td></tr>';
 			}
 		}
 
-		$out = '<table cellspacing="0" cellpadding="0" border="0" width="100%">'.$out.'</table>';
-		$this->content.= $this->doc->section($LANG->getLL('dmail_folders').t3lib_BEfunc::cshItem($this->cshTable,'folders',$BACK_PATH), $out, 1, 1, 0 , TRUE);
-		$this->content.= $this->doc->spacer(10);
-
-		$this->content.= '
-			<p class="c-refresh">
-				<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => uniqid('directmail_navframe')))).'">'.
-				'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/refresh_n.gif','width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.refresh',1).'" alt="" />'.
-				$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.refresh',1).'</a>
-			</p>
-			<br />';
+		$content = '<table cellspacing="0" cellpadding="0" border="0" width="100%">'.$out.'</table>';
 
 			// Adding highlight - JavaScript
-		if ($this->doHighlight)	$this->content .=$this->doc->wrapScriptTags('
+		if ($this->doHighlight)	$content .=$this->doc->wrapScriptTags('
 			hilight_row("",top.fsMod.navFrameHighlightedID["web"]);
 		');
+
+
+		$docHeaderButtons = array(
+			'CSH' => t3lib_BEfunc::cshItem($this->cshTable,'folders',$BACK_PATH, TRUE),
+			'REFRESH' => '<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => uniqid('directmail_navframe')))).'">'.
+				'<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/refresh_n.gif','width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.refresh',1).'" alt="" /></a>'
+		);
+
+
+		$markers = array(
+			'HEADLINE' => $LANG->getLL('dmail_folders'),
+			'CONTENT' => $content
+		);
+			// Build the <body> for the module
+		$this->content = $this->doc->startPage('TYPO3 Direct Mail Navigation');
+		$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, $subparts);
+
+
+
 	}
 
 	/**
@@ -178,6 +188,7 @@ class tx_directmail_navframe{
 	 */
 	function printContent()	{
 		$this->content.= $this->doc->endPage();
+		$this->content = $this->doc->insertStylesAndJS($this->content);
 		echo $this->content;
 	}
 }

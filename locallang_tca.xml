@@ -82,13 +82,18 @@
     </meta>
     <data type="array">
         <languageKey index="default" type="array">
-	    <label index="pages.module.I.5">Direct Mail</label>
-		 	<label index="module_sys_dmail_group.newsletter">Activate Newsletter</label>
+	    	<label index="pages.module.I.5">Direct Mail</label>
+			<label index="module_sys_dmail_group.newsletter">Activate Newsletter</label>
             <label index="module_sys_dmail_group.category">Subscribe to categories</label>
             <label index="module_sys_dmail_group.htmlemail">Recieve e-mails as HTML?</label>
             <label index="sys_dmail_category">Direct Mail Category</label>
             <label index="sys_dmail_category.category">Category:</label>
             <label index="sys_dmail_category.old_cat_number">Old category number:</label>
+			<label index="sys_dmail.tab1">Composition</label>
+			<label index="sys_dmail.tab2">Mail headers</label>
+			<label index="sys_dmail.tab3">Send options</label>
+			
+			
             <label index="sys_dmail">Direct mails</label>
             <label index="sys_dmail.subject">Subject:</label>
             <label index="sys_dmail.page">Mail page:</label>

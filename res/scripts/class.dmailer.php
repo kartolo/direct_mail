@@ -601,7 +601,7 @@ class dmailer extends t3lib_htmlmail {
 			'parsetime' => $parsetime,
 			'html_sent' => intval($rC)
 		);
-                $ok = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail_maillog', 'uid=' . $logUid, $updateFields);
+			$ok = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail_maillog', 'uid=' . $logUid, $updateFields);
                 if(!$ok) {
 					$this->dmailer_log('a','error: cannot write to DB');
 					die("Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=".$mid.").");
@@ -813,9 +813,10 @@ class dmailer extends t3lib_htmlmail {
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'*',
 			'sys_dmail',
-			'scheduled!=0'.
-				' AND scheduled<'.time().
-				' AND scheduled_end=0'.
+			'scheduled!=0' . 
+				' AND scheduled < ' . time() .
+				' AND scheduled_end = 0' .
+				' AND type NOT IN (2,3)' . 
 				t3lib_BEfunc::deleteClause('sys_dmail'),
 			'',
 			'scheduled'
@@ -846,8 +847,11 @@ class dmailer extends t3lib_htmlmail {
 			$this->logArray[]=$LANG->getLL('dmailer_nothing_to_do');
 		}
 
-		$parsetime=t3lib_div::milliseconds()-$pt;
-		$this->logArray[]=$LANG->getLL('dmailer_ending'). ' ' . $parsetime . ' ms';
+		//closing DB connection
+		$GLOBALS['TYPO3_DB']->sql_free_result($res);
+		
+		$parsetime = t3lib_div::milliseconds()-$pt;
+		$this->logArray[] = $LANG->getLL('dmailer_ending'). ' ' . $parsetime . ' ms';
 	}
 
 	/**

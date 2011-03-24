@@ -714,13 +714,16 @@ class tx_directmail_static {
 			for($k=0;$k<$cols;$k++)	{
 				$v=$r[$k];
 				$v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : "&nbsp;";
-				if ($first) $v='<B>'.$v.'</B>';
-				$rowA[]='<td'.($cellParams[$k]?" ".$cellParams[$k]:"").'>'.$v.'</td>';
+				if ($first) {
+					$rowA[]='<td class="t3-row-header">'.$v.'</td>';
+				} else {
+					$rowA[]='<td'.($cellParams[$k]?" ".$cellParams[$k]:"").'>'.$v.'</td>';
+				}
 			}
 			$lines[]='<tr class="'.($first?'bgColor2':'bgColor4').'">'.implode('',$rowA).'</tr>';
 			$first=0;
 		}
-		$table = '<table '.$tableParams.'>'.implode('',$lines).'</table>';
+		$table = '<table class="typo3-dblist" '.$tableParams.'>'.implode('',$lines).'</table>';
 		return $table;
 	}
 
@@ -838,26 +841,25 @@ class tx_directmail_static {
 	 * @param	boolean		$editLinkFlag: if set, edit link is showed
 	 * @return	string		list of record in HTML format
 	 */
-	function getRecordList($listArr,$table,$pageId,$bgColor,$dim=0,$editLinkFlag=1,$sys_dmail_uid)	{
+	function getRecordList($listArr,$table,$pageId,$bgColor,$dim=0,$editLinkFlag=1,$sys_dmail_uid = 0)	{
 		global $LANG, $BACK_PATH;
 
 		$count=0;
 		$lines=array();
 		$out='';
-		if (is_array($listArr))	{
-			$count=count($listArr);
-			reset($listArr);
-			while(list(,$row)=each($listArr)) {
+		if (is_array($listArr)) {
+			$count = count($listArr);
+			foreach ($listArr as $row) {
 				$tableIcon = '';
 				$editLink = '';
 				if ($row['uid']) {
 					$tableIcon = '<td>'.t3lib_iconWorks::getIconImage($table,array(),$BACK_PATH,'title="'.($row['uid']?'uid: '.$row['uid']:'').'"',$dim).'</td>';
 					if ($editLinkFlag) {
-						$editLink = '<td><a href="index.php?id='.$pageId.'&CMD=displayUserInfo&sys_dmail_uid='.$sys_dmail_uid.'&table='.$table.'&uid='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="' . $LANG->getLL('dmail_edit') . '" width="12" height="12" style="margin:0px 5px; vertical-align:top;" title="' . $LANG->getLL('dmail_edit') . '" /></a></td>';
+						$editLink = '<td><a class="t3-link" href="index.php?id='.$pageId.'&CMD=displayUserInfo&sys_dmail_uid='.$sys_dmail_uid.'&table='.$table.'&uid='.$row['uid'].'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="' . $LANG->getLL('dmail_edit') . '" width="12" height="12" style="margin:0px 5px; vertical-align:top;" title="' . $LANG->getLL('dmail_edit') . '" /></a></td>';
 					}
 				}
 
-				$lines[]='<tr bgcolor="'.$bgColor.'">
+				$lines[]='<tr>
 				'.$tableIcon.'
 				'.$editLink.'
 				<td nowrap> '.htmlspecialchars($row['email']).' </td>
@@ -872,6 +874,36 @@ class tx_directmail_static {
 		return $out;
 	}
 	
+	/**
+	 * get all subsgroups recursively.
+	 * @param int $groupId: parent fe usergroup
+	 */
+	function getFEgroupSubgroups($groupId) {
+		global $TYPO3_DB;
+
+		// get all subgroups of this fe_group - fe_groups having this id in their subgroup field
+		$query = $TYPO3_DB->SELECTquery(
+			'DISTINCT fe_groups.uid',
+			'fe_groups, sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
+			'INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\','.intval($groupId).',\' )'.
+				t3lib_BEfunc::BEenableFields('fe_groups').
+				t3lib_BEfunc::deleteClause('fe_groups')
+		);
+		$res = $GLOBALS['TYPO3_DB']->sql_query($query);
+
+		$groupArr = array();
+
+		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+			$groupArr[] = $row['uid'];
+
+			// add all subgroups recursively too
+			$groupArr = array_merge($groupArr, tx_directmail_static::getFEgroupSubgroups($row['uid']));
+		}
+
+		$TYPO3_DB->sql_free_result($res);
+
+		return $groupArr;
+	}
 
 	/**
 	 * Copied ftom t3lib_parsehtml, since 4.1 doesn't have it.
@@ -911,37 +943,384 @@ class tx_directmail_static {
 		return $content;
 	}
 	
+	
+	
 	/**
-	 * get all subsgroups recursively.
-	 * @param int $groupId: parent fe usergroup
+	 * Creates a directmail entry in th DB.
+	 * Used only for internal pages
+	 *
+	 * @return	string		Error or warning message produced during the process
 	 */
-	function getFEgroupSubgroups($groupId) {
-		global $TYPO3_DB;
+	public static function createDirectMailRecordFromPage($pageUid, $parameters) {
 
-		// get all subgroups of this fe_group - fe_groups having this id in their subgroup field
-		$query = $TYPO3_DB->SELECTquery(
-			'DISTINCT fe_groups.uid',
-			'fe_groups, sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
-			'INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\','.intval($groupId).',\' )'.
-				t3lib_BEfunc::BEenableFields('fe_groups').
-				t3lib_BEfunc::deleteClause('fe_groups')
+		$newRecord = array(
+			'type'					=> 0,
+			'pid'					=> $parameters['pid'],
+			'from_email'			=> $parameters['from_email'],
+			'from_name'				=> $parameters['from_name'],
+			'replyto_email'			=> $parameters['replyto_email'],
+			'replyto_name'			=> $parameters['replyto_name'],
+			'return_path'			=> $parameters['return_path'],
+			'priority'				=> $parameters['priority'],
+			'use_domain'			=> $parameters['use_domain'],
+			'use_rdct'				=> $parameters['use_rdct'],
+			'long_link_mode'		=> $parameters['long_link_mode'],
+			'organisation'			=> $parameters['organisation'],
+			'authcode_fieldList'	=> $parameters['authcode_fieldList'],
+			'sendOptions'			=> $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
+			'long_link_rdct_url'	=> self::getUrlBase($parameters['use_domain'])
 		);
-		$res = $GLOBALS['TYPO3_DB']->sql_query($query);
 
-		$groupArr = array();
 
-		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-			$groupArr[] = $row['uid'];
-
-			// add all subgroups recursively too
-			$groupArr = array_merge($groupArr, tx_directmail_static::getFEgroupSubgroups($row['uid']));
+			// If params set, set default values:
+		$paramsToOverride = array('sendOptions', 'includeMedia', 'flowedFormat', 'HTMLParams', 'plainParams');
+		foreach ($paramsToOverride as $param) {
+			if (isset($parameters[$param])) {
+				$newRecord[$param] = $parameters[$param];
+			}
+		}
+		if (isset($parameters['direct_mail_encoding'])) {
+			$newRecord['encoding'] = $parameters['direct_mail_encoding'];
 		}
 
-		$TYPO3_DB->sql_free_result($res);
+		$pageRecord = t3lib_BEfunc::getRecord('pages', $pageUid);
+		if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'], $pageRecord['doktype'])) {
+			$newRecord['subject'] = $pageRecord['title'];
+			$newRecord['page']    = $pageRecord['uid'];
+			$newRecord['charset'] = self::getCharacterSetOfPage($pageRecord['uid']);
+		}
 
-		return $groupArr;
+			// save to database
+		if ($newRecord['page'] && $newRecord['sendOptions']) {
+
+			$tcemainData = array(
+				'sys_dmail' => array(
+					'NEW' => $newRecord
+				)
+			);
+			$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+			$tce->stripslashes_values = 0;
+			$tce->start($tcemainData, array());
+			$tce->process_datamap();
+			$result = $tce->substNEWwithIDs['NEW'];
+		} else if (!$newRecord['sendOptions']) {
+			$result = FALSE;
+		}
+		return $result;
+	}
+
+
+
+	/**
+	 * Creates a directmail entry in th DB.
+	 * Used only for external pages
+	 *
+	 * @return	string		Error or warning message produced during the process
+	 */
+	public static function createDirectMailRecordFromExternalURL($subject, $externalUrlHtml, $externalUrlPlain, $parameters) {
+
+		$newRecord = array(
+			'type' 					=> 1,
+			'pid'					=> $parameters['pid'],
+			'subject' 				=> $subject,
+			'from_email'			=> $parameters['from_email'],
+			'from_name'				=> $parameters['from_name'],
+			'replyto_email'			=> $parameters['replyto_email'],
+			'replyto_name'			=> $parameters['replyto_name'],
+			'return_path'			=> $parameters['return_path'],
+			'priority'				=> $parameters['priority'],
+			'use_domain'			=> $parameters['use_domain'],
+			'use_rdct'				=> $parameters['use_rdct'],
+			'long_link_mode'		=> $parameters['long_link_mode'],
+			'organisation'			=> $parameters['organisation'],
+			'authcode_fieldList'	=> $parameters['authcode_fieldList'],
+			'sendOptions'			=> $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
+			'long_link_rdct_url'	=> self::getUrlBase($parameters['use_domain'])
+		);
+
+
+			// If params set, set default values:
+		$paramsToOverride = array('sendOptions', 'includeMedia', 'flowedFormat', 'HTMLParams', 'plainParams');
+		foreach ($paramsToOverride as $param) {
+			if (isset($parameters[$param])) {
+				$newRecord[$param] = $parameters[$param];
+			}
+		}
+		if (isset($parameters['direct_mail_encoding'])) {
+			$newRecord['encoding'] = $parameters['direct_mail_encoding'];
+		}
+
+		$urlParts = @parse_url($externalUrlPlain);
+			// No plain text url
+		if (!$externalUrlPlain || $urlParts === FALSE || !$urlParts['host']) {
+			$newRecord['plainParams'] = '';
+			$newRecord['sendOptions']&=254;
+		} else {
+			$newRecord['plainParams'] = $externalUrlPlain;
+		}
+
+			// No html url
+		$urlParts = @parse_url($externalUrlHtml);
+		if (!$externalUrlHtml || $urlParts === FALSE || !$urlParts['host']) {
+			$newRecord['sendOptions']&=253;
+		} else {
+			$newRecord['HTMLParams'] = $externalUrlHtml;
+		}
+
+			// save to database
+		if ($newRecord['pid'] && $newRecord['sendOptions']) {
+			$tcemainData = array(
+				'sys_dmail' => array(
+					'NEW' => $newRecord
+				)
+			);
+			$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+			$tce->stripslashes_values = 0;
+			$tce->start($tcemainData, array());
+			$tce->process_datamap();
+			$result = $tce->substNEWwithIDs['NEW'];
+		} else if (!$newRecord['sendOptions']) {
+			$result = FALSE;
+		}
+		return $result;
 	}
 	
+	
+ 	/**
+	 * fetch content of a page (only internal and external page)
+	 *
+	 * @param	array		directmail DB record
+	 * @param	array 		any default parameters (usually the ones from pageTSconfig)
+	 * @return	string		error or warning message during fetching the content
+	 */
+	public static function fetchUrlContentsForDirectMailRecord($row, $params) {
+		global $LANG;
+
+		$theOutput = '';
+		$errorMsg = array();
+		$warningMsg = array();
+		$mailContent ='';
+		$success = FALSE;
+		$urls = tx_directmail_static::getFullUrlsForDirectMailRecord($row);
+		$plainTextUrl = $urls['plainTextUrl'];
+		$htmlUrl = $urls['htmlUrl'];
+		$urlBase = $urls['baseUrl'];
+
+			// Make sure long_link_rdct_url is consistent with use_domain.
+		$row['long_link_rdct_url'] = $urlBase;
+
+			// Compile the mail
+		$htmlmail = t3lib_div::makeInstance('dmailer');
+		if ($params['enable_jump_url']) {
+			$htmlmail->jumperURL_prefix = $urlBase
+				. '?id='  . $row['page']
+				. '&rid=###SYS_TABLE_NAME###_###USER_uid###'
+				. '&mid=###SYS_MAIL_ID###'
+				. '&aC=###SYS_AUTHCODE###'
+				. '&jumpurl=';
+			$htmlmail->jumperURL_useId = 1;
+		}
+		if ($params['enable_mailto_jump_url']) {
+			$htmlmail->jumperURL_useMailto = 1;
+		}
+
+		$htmlmail->start();
+		$htmlmail->charset = $row['charset'];
+		$htmlmail->useBase64();
+		$htmlmail->http_username = $params['http_username'];
+		$htmlmail->http_password = $params['http_password'];
+		$htmlmail->includeMedia = $row['includeMedia'];
+
+		if ($plainTextUrl) {
+			$mailContent = t3lib_div::getURL(self::addUserPass($plainTextUrl, $params));
+			$htmlmail->addPlain($mailContent);
+			if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
+				$errorMsg[] = $LANG->getLL('dmail_no_plain_content');
+			} elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']),'<!--DMAILER_SECTION_BOUNDARY')) {
+				$warningMsg[] = $LANG->getLL('dmail_no_plain_boundaries');
+			}
+		}
+
+			// fetch the HTML url
+		if ($htmlUrl) {
+				// Username and password is added in htmlmail object
+			$success = $htmlmail->addHTML($htmlUrl);
+				// If type = 1, we have an external page.
+			if ($row['type'] == 1) {
+					// Try to auto-detect the charset of the message
+				$matches = array();
+				$res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', $htmlmail->theParts['html_content'], $matches);
+				if ($res == 1) {
+					$htmlmail->charset = $matches[1];
+				} elseif (isset($this->params['direct_mail_charset'])) {
+					$htmlmail->charset = $LANG->csConvObj->parse_charset($this->params['direct_mail_charset']);
+				} else {
+					$htmlmail->charset = 'iso-8859-1';
+				}
+					// Reset content-type headers with new charset
+				$htmlmail->useBase64();
+			}
+			if ($htmlmail->extractFramesInfo()) {
+				$errorMsg[] = $LANG->getLL('dmail_frames_not allowed');
+			} elseif (!$success || !$htmlmail->theParts['html']['content']) {
+				$errorMsg[] = $LANG->getLL('dmail_no_html_content');
+			} elseif (!strstr(base64_decode($htmlmail->theParts['html']['content']), '<!--DMAILER_SECTION_BOUNDARY')) {
+				$warningMsg[] = $LANG->getLL('dmail_no_html_boundaries');
+			}
+		}
+
+			// fetch attachments
+		if ($row['attachment']) {
+			$attachments = t3lib_div::trimExplode(',', $row['attachment'], TRUE);
+			if (count($attachments)) {
+				t3lib_div::loadTCA('sys_dmail');
+				$uploadPath = $GLOBALS['TCA']['sys_dmail']['columns']['attachment']['config']['uploadfolder'];
+				foreach ($attachments as $theName) {
+					$theFile = PATH_site . $uploadPath . '/' . $theName;
+					if (@is_file($theFile)) {
+						$htmlmail->addAttachment($theFile, $theName);
+					}
+				}
+			}
+		}
+
+		if (!count($errorMsg)) {
+				// Update the record:
+			$htmlmail->theParts['messageid'] = $htmlmail->messageid;
+			$mailContent = serialize($htmlmail->theParts);
+			$updateData = array(
+				'issent'             => 0,
+				'charset'            => $htmlmail->charset,
+				'mailContent'        => $mailContent,
+				'renderedSize'       => strlen($mailContent),
+				'long_link_rdct_url' => $urlBase
+			);
+			$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+				'sys_dmail',
+				'uid=' . intval($row['uid']),
+				$updateData
+			);
+
+			if (count($warningMsg)) {
+				$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
+					implode('<br />', $warningMsg),
+					$GLOBALS['LANG']->getLL('dmail_warning'),
+					t3lib_FlashMessage::WARNING
+				);
+				$theOutput .= $flashMessage->render();
+			}
+		} else {
+			$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
+				implode('<br />', $errorMsg),
+				$GLOBALS['LANG']->getLL('dmail_error'),
+				t3lib_FlashMessage::ERROR
+			);
+			$theOutput .= $flashMessage->render();
+		}
+
+		return $theOutput;
+	}
+
+
+	/**
+	 * add username and password for a password secured page
+	 * username and password are configured in the configuration module
+	 *
+	 * @param	string		$url: the URL
+	 * @return	string		the new URL with username and password
+	 */
+	protected static function addUserPass($url, $params) {
+		$user = $params['http_username'];
+		$pass = $params['http_password'];
+
+		if ($user && $pass && substr($url, 0, 7) == 'http://') {
+			$url = 'http://' . $user . ':' . $pass . '@' . substr($url, 7);
+		}
+		return $url;
+	}
+	
+	/**
+	 * Set up URL variables for this $row.
+	 *
+	 * @param	array		$row: directmail DB record
+	 * @return	void		set the global variable url_plain and url_html
+	 */
+	public static function getFullUrlsForDirectMailRecord($row) {
+		$result = array(
+				// Finding the domain to use
+			'baseUrl' => self::getUrlBase($row['use_domain']),
+			'htmlUrl' => '',
+			'plainTextUrl' => ''
+		);
+
+			// Finding the url to fetch content from
+		switch ((string) $row['type']) {
+			case 1:
+				$result['htmlUrl'] = $row['HTMLParams'];
+				$result['plainTextUrl'] = $row['plainParams'];
+			break;
+			default:
+				$result['htmlUrl'] = $result['baseUrl'] . '?id=' . $row['page'] . $row['HTMLParams'];
+				$result['plainTextUrl'] = $result['baseUrl'] . '?id=' . $row['page'] . $row['plainParams'];
+			break;
+		}
+
+			// plain
+		if ($result['plainTextUrl']) {
+			if (!($row['sendOptions']&1)) {
+				$result['plainTextUrl'] = '';
+			} else {
+				$urlParts = @parse_url($result['plainTextUrl']);
+				if (!$urlParts['scheme']) {
+					$result['plainTextUrl'] = 'http://' . $result['plainTextUrl'];
+				}
+			}
+		}
+			// html
+		if ($result['htmlUrl']) {
+			if (!($row['sendOptions']&2)) {
+				$result['htmlUrl'] = '';
+			} else {
+				$urlParts = @parse_url($result['htmlUrl']);
+				if (!$urlParts['scheme']) {
+					$result['htmlUrl'] = 'http://' . $result['htmlUrl'];
+				}
+			}
+		}
+		return $result;
+	}
+
+
+
+	/**
+	 * get the charset of a page
+	 *
+	 * @param	integer		$pageId: ID of a page
+	 * @return	string		the charset of a page
+	 */
+	public static function getCharacterSetOfPage($pageId) {
+
+			// initialize the TS template
+		$GLOBALS['TT'] = new t3lib_timeTrack;
+		$tmpl = t3lib_div::makeInstance('t3lib_TStemplate');
+		$tmpl->init();
+
+			// initialize the page selector
+		$sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
+		$sys_page->init(TRUE);
+
+		$rootline = $sys_page->getRootLine($pageId);
+		$tmpl->forceTemplateParsing = 1;
+		$tmpl->start($rootline);
+		$characterSet = 'iso-8859-1';
+		if ($tmpl->setup['config.']['metaCharset']) {
+			$characterSet = $tmpl->setup['config.']['metaCharset'];
+		} else if ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) {
+			$characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
+		}
+
+		return strtolower($characterSet);
+	}
 	
 }
 
