@@ -1,3 +1,6 @@
+2011-03-24 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #13124: depreciation log messages with typo 4.5
+
 2011-03-25  Benjamin Mack  <benni@typo3.org>
 	* Added new feature: Create Direct Mail "drafts" that can be used as templates for new Direct Mails
 	* Added new feature: Create a scheduler task to create new Direct Mails out of Direct Mail Drafts

@@ -1530,7 +1530,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				}
 				$GLOBALS['TYPO3_DB']->sql_free_result($resCat);
 				
-				$row_categories = t3lib_div::rm_endComma($row_categories);
+				$row_categories = rtrim($row_categories,',');
 
 				$out.='<tr><td colspan="3" style="height: 15px;"></td></tr>';
 				if ($colPosVal!=$row['colPos'])	{
