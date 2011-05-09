@@ -844,18 +844,19 @@ class tx_directmail_importer {
 		global $FILEMOUNTS;
 
 		foreach($FILEMOUNTS as $filePathInfo) {
-				if ( @is_dir( $filePathInfo['path'].'_temp_/' ) )	{
-					$tempFolder = $filePathInfo['path'].'_temp_/';
-					break;
-				}
+			if ( @is_dir( $filePathInfo['path'].'_temp_/' ) )	{
+				$tempFolder = $filePathInfo['path'].'_temp_/';
+				break;
 			}
-			if ( !$tempFolder )	{
-					// we don't have a valid file mount
-					// use default upload folder
-				$tempFolder = t3lib_div::getFileAbsFileName('uploads/tx_directmail/');
-			}
-			
-			return $tempFolder;
+		}
+		
+		if ( !$tempFolder )	{
+				// we don't have a valid file mount
+				// use default upload folder
+			$tempFolder = t3lib_div::getFileAbsFileName('uploads/tx_directmail/');
+		}
+		
+		return $tempFolder;
 	}
 
 	/**
@@ -866,9 +867,17 @@ class tx_directmail_importer {
 	function writeTempFile(){
 		global $FILEMOUNTS,$TYPO3_CONF_VARS,$BE_USER,$LANG;
 
-		$user_perms = ($BE_USER->user['admin'])?1:$BE_USER->user['fileoper_perms'];
+		$user_perms = $GLOVALS['BE_USER']->getFileoperationPermissions();
 		
 		unset($this->fileProcessor);
+		
+		//add uploads/tx_directmail to user filemounts
+		$FILEMOUNTS['tx_directmail'] = array(
+			'name' => 'direct_mail',
+			'path' => t3lib_div::getFileAbsFileName('uploads/tx_directmail/'),
+			'type'
+		);
+		
 		// Initializing:
 		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
 		$this->fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
