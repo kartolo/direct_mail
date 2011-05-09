@@ -1509,7 +1509,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			'tt_content',
 			'pid='.intval($this->pages_uid).
 				t3lib_BEfunc::deleteClause('tt_content').
-				' AND NOT hidden',
+				t3lib_BEfunc::BEenableFields('tt_content'),
 			'',
 			'colPos,sorting'
 			);

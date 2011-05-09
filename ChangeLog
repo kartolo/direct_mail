@@ -1,6 +1,7 @@
 2011-05-09 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #7152: Fix importer for non admin user
 	* Updated documentation
+	* Bug #26392: SQL compatibility
 
 2011-03-24 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #13124: depreciation log messages with typo 4.5
