@@ -921,6 +921,9 @@ class dmailer extends t3lib_htmlmail {
 			}
 			fclose($fp);
 		}
+		
+		// Fixing log filepermissions
+		t3lib_div::fixPermissions($logfilePath);
 	}
 
 	/**

@@ -73,6 +73,8 @@ class direct_mail_cli extends t3lib_cli {
 
 		$lockfile = PATH_site.'typo3temp/tx_directmail_cron.lock';
 		touch ($lockfile);
+		// Fixing filepermissions
+		t3lib_div::fixPermissions($lockfile);
 
 		require_once(PATH_t3lib.'class.t3lib_cs.php');
 		require_once(PATH_t3lib.'class.t3lib_htmlmail.php');

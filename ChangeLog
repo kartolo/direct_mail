@@ -1,3 +1,6 @@
+2011-05-10 Jacob Rasmussen <jacob@lightbulb.dk>
+	* Bug #9787: Wrong permissions for tx_directmail_dmailer_log.txt
+
 2011-05-09 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #7152: Fix importer for non admin user
 	* Updated documentation
