@@ -696,7 +696,13 @@ class tx_directmail_statistics extends t3lib_SCbase {
 						if ($tagAttr['href']{0} != '#') {
 							list($url, $jumpurlId) = explode('jumpurl=', $tagAttr['href']);
 							$url = $HTMLlinks[$jumpurlId]['url'];
-							$label = $LANG->getLL('stats_img_link') . '<span title="'.$url.'">' . t3lib_div::fixed_lgd_cs(substr($url, 7), 40) . '</span>';
+							
+							// Use the link title if it exists - otherwise use the URL
+							if (strlen($tagAttr['title'])) {
+								$label = $LANG->getLL('stats_img_link') . '<span title="'.$tagAttr['title'].'">' . t3lib_div::fixed_lgd_cs(substr($url, 7), 40) . '</span>';	
+							} else {
+								$label = $LANG->getLL('stats_img_link') . '<span title="'.$url.'">' . t3lib_div::fixed_lgd_cs(substr($url, 7), 40) . '</span>';
+							}
 							$HTMLlinks[$jumpurlId]['label'] = $label;
 						}
 					} else {
