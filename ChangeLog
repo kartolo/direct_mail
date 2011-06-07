@@ -1,3 +1,6 @@
+2011-07-7 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #26791: sending external URL was faild. bug in fetching process
+
 2011-05-10 Jacob Rasmussen <jacob@lightbulb.dk>
 	* Bug #9787: Wrong permissions for tx_directmail_dmailer_log.txt
 
