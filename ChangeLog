@@ -1,4 +1,7 @@
-2011-07-7 Ivan Kartolo <ivan.kartolo@dkd.de>
+2011-06-13 Jacob Rasmussen <jacob@lightbulb.dk>
+	* Bug #13086: Tables needs to use the sorting field
+
+2011-06-07 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #26791: sending external URL was faild. bug in fetching process
 	* Feature #26729: use img title as title in statistic, if there's any
 

@@ -512,7 +512,7 @@ $TCA['sys_dmail_group'] = array(
 			'config' => array(
 				'type' => 'select',
 				'foreign_table' => 'sys_dmail_category',
-				'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.uid',
+				'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.sorting',
 				'itemsProcFunc' => 'tx_directmail_select_categories->get_localized_categories',
 				'itemsProcFunc_config' => array(
 					'table' => 'sys_dmail_category',
