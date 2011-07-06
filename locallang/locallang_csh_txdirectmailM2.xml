@@ -37,7 +37,7 @@
             <label index="select_newsletter.details">You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</label>
 	    <label index="create_newsletter.alttitle">Create a newsletter</label>	    
 	    <label index="create_newsletter.description">Click on this link if you want to create a new newsletter.</label>
-            <label index="create_newsletter.details">A newsletter is basically a regular Typo3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
+            <label index="create_newsletter.details">A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
 
 You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
 
@@ -114,7 +114,7 @@ If you do not assign any category to an element, the element will appear in all 
             <label index="select_newsletter.details">Sie können einen der aufgelisteten Newsletter anklicken, um Informationen über ihn zu erhalten, ihn zu bearbeiten und einen Versand daraus zu erstellen.</label>
 		    <label index="create_newsletter.alttitle">Newsletter anlegen</label>	    
 	    	<label index="create_newsletter.description">Klicken Sie hier, um eine neue Newsletter-Seite anzulegen.</label>
-            <label index="create_newsletter.details">A newsletter is basically a regular Typo3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
+            <label index="create_newsletter.details">A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
 
 You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
 

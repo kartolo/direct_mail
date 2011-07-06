@@ -731,12 +731,12 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				}
 				
 				if($this->CMD=='send_mail_final'){
-					$mailgroup_uid = intval(t3lib_div::_GP('mailgroup_uid'));
-					if(!empty($mailgroup_uid)){
+					$selectedMailGroups = t3lib_div::_GP('mailgroup_uid');
+					if(is_array($selectedMailGroups)){
 						$markers['FLASHMESSAGES'] = $this->cmd_send_mail($row);
 						break;
 					} else {
-						$theOutput .= 'no recipient';
+						$theOutput .= 'no recipients';
 					}
 				}
 				//send mass, show calendar
@@ -862,10 +862,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			$TYPO3_DB->stripOrderBy($TCA['sys_dmail_group']['ctrl']['default_sortby'])
 			);
 		$opt = array();
-		$opt[] = '<option></option>';
 		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 
-			$result = $this->cmd_compileMailGroup(intval($row['uid']));
+			$result = $this->cmd_compileMailGroup(array($row['uid']));
 			$count=0;
 			$idLists = $result['queryInfo']['id_lists'];
 			if (is_array($idLists['tt_address']))	$count+=count($idLists['tt_address']);
@@ -879,7 +878,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 		
 		// added disabled. see hook
-		$select = '<select name="mailgroup_uid" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
+		$select = '<select multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
 
 			// Set up form:
 		$msg="";
@@ -1024,7 +1023,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				}
 				$GLOBALS['TYPO3_DB']->sql_free_result($res);
 				
-			} elseif (t3lib_div::_GP('sys_dmail_group_uid')) {
+			} elseif (is_array(t3lib_div::_GP('sys_dmail_group_uid'))) {
 				// personalized to group
 				$result = $this->cmd_compileMailGroup(t3lib_div::_GP('sys_dmail_group_uid'));
 
@@ -1045,11 +1044,10 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				// step 5, sending personalized emails to the mailqueue
 
 				// prepare the email for sending with the mailqueue
-			$recipientGroupUid = t3lib_div::_GP('mailgroup_uid');
-			$recipientGroupUid = intval($recipientGroupUid);
-			if (t3lib_div::_GP('mailingMode_mailGroup') && $this->sys_dmail_uid && $recipientGroupUid) {
+			$recipientGroups = t3lib_div::_GP('mailgroup_uid');
+			if (t3lib_div::_GP('mailingMode_mailGroup') && $this->sys_dmail_uid && is_array($recipientGroups)) {
 					// Update the record:
-				$result = $this->cmd_compileMailGroup($recipientGroupUid);
+				$result = $this->cmd_compileMailGroup($recipientGroups);
 				$queryInfo = $result['queryInfo'];
 
 				$distributionTime = intval(t3lib_div::_GP('send_mail_datetime'));
@@ -1182,9 +1180,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				);
 			$msg = $LANG->getLL('testmail_mailgroup_msg') . '<br /><br />';
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-				$msg.='<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&sys_dmail_group_uid='.$row['uid'].'">'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').htmlspecialchars($row['title']).'</a><br />';
+				$msg.='<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&sys_dmail_group_uid[]='.$row['uid'].'">'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $BACK_PATH, 'width="18" height="16" style="vertical-align: top;"').htmlspecialchars($row['title']).'</a><br />';
 					// Members:
-				$result = $this->cmd_compileMailGroup(intval($row['uid']));
+				$result = $this->cmd_compileMailGroup(array($row['uid']));
 				$msg.='<table border="0">
 				<tr>
 					<td style="width: 50px;"></td>
@@ -1292,13 +1290,72 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	}
 
 	/**
-	 * get the recipient IDs given only the group ID
+	 * Get the recipient IDs given a list of group IDs
 	 *
-	 * @param	integer		$group_uid: recipient group ID
+	 * @param		array		$group_uid: list of selected group IDs
 	 * @return	array		list of the recipient ID
 	 */
-	function cmd_compileMailGroup($group_uid) {
+	protected function cmd_compileMailGroup(array $groups) {
+		// If supplied with an empty array, quit instantly as there is nothing to do
+		if (!count($groups)){
+			return;
+		}
+		
+		// Looping through the selected array, in order to fetch recipient details
+		$id_lists = array();
+		foreach ($groups AS $group) {
+			// Testing to see if group ID is a valid integer, if not - skip to next group ID
+			if (!t3lib_div::intval_positive($group)) {
+				continue;
+			}
+			
+			$recipientList = $this->getSingleMailGroup($group);
+			if (!is_array($recipientList)) {
+				continue;
+			}
+			
+			$id_lists = array_merge_recursive($id_lists, $recipientList);
+		}
+		// Make unique entries
+		if (is_array($id_lists['tt_address']))	$id_lists['tt_address'] = array_unique($id_lists['tt_address']);
+		if (is_array($id_lists['fe_users']))	$id_lists['fe_users'] = array_unique($id_lists['fe_users']);
+		if (is_array($id_lists[$this->userTable]) && $this->userTable)	$id_lists[$this->userTable] = array_unique($id_lists[$this->userTable]);
+		if (is_array($id_lists['PLAINLIST']))	{$id_lists['PLAINLIST'] = tx_directmail_static::cleanPlainList($id_lists['PLAINLIST']);}
+		
+		/**
+		 * Hook for cmd_compileMailGroup
+		 * manipulate the generated id_lists
+		 */
+		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'])) {
+			$hookObjectsArr = array();
+			
+			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] as $classRef) {
+				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+			}
+			foreach($hookObjectsArr as $hookObj)    {
+				if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
+					$temp_lists = $hookObj->cmd_compileMailGroup_postProcess($id_lists, $this); 	
+				}
+			}
+			
+			unset ($id_lists);
+			$id_lists = $temp_lists;
+		}
 
+		return array(
+			'queryInfo' => array('id_lists' => $id_lists)
+		);
+	}
+
+	/**
+	 * Fetches recipient IDs from a given group ID
+	 * 
+	 * Most of the functionality from cmd_compileMailGroup in order to use multiple recipient lists when sending
+	 * 
+	 * @param integer		$group_uid: recipient group ID
+	 * @return array		list of recipient IDs
+	 */
+	protected function getSingleMailGroup($group_uid) {
 		$id_lists=array();
 		if ($group_uid)	{
 			$mailGroup=t3lib_BEfunc::getRecord('sys_dmail_group',$group_uid);
@@ -1307,10 +1364,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				case 0:	// From pages
 					$thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;		// use current page if no else
 					$pages = t3lib_div::intExplode(',',$thePages);	// Explode the pages
-					reset($pages);
 					$pageIdArray=array();
-					while(list(,$pageUid)=each($pages))	{
-						if ($pageUid>0)	{
+					foreach ($pages AS $pageUid) {
+						if ($pageUid > 0)	{
 							$pageinfo = t3lib_BEfunc::readPageAccess($pageUid,$this->perms_clause);
 							if (is_array($pageinfo))	{
 								$info['fromPages'][]=$pageinfo;
@@ -1377,46 +1433,17 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					break;
 				case 4:	//
 					$groups = array_unique(tx_directmail_static::getMailGroups($mailGroup['mail_groups'],array($mailGroup['uid']),$this->perms_clause));
-					reset($groups);
-					while(list(,$v)=each($groups))	{
-						$collect=$this->cmd_compileMailGroup($v);
-						if (is_array($collect['queryInfo']['id_lists'])) {
-							$id_lists = array_merge_recursive($id_lists,$collect['queryInfo']['id_lists']);
+					foreach($groups AS $v) {
+						$collect=$this->getSingleMailGroup($v);
+						if (is_array($collect)) {
+							$id_lists = array_merge_recursive($id_lists,$collect);
 						}
 					}
-					// Make unique entries
-					if (is_array($id_lists['tt_address']))	$id_lists['tt_address'] = array_unique($id_lists['tt_address']);
-					if (is_array($id_lists['fe_users']))	$id_lists['fe_users'] = array_unique($id_lists['fe_users']);
-					if (is_array($id_lists[$this->userTable]) && $this->userTable)	$id_lists[$this->userTable] = array_unique($id_lists[$this->userTable]);
-					if (is_array($id_lists['PLAINLIST']))	{$id_lists['PLAINLIST'] = tx_directmail_static::cleanPlainList($id_lists['PLAINLIST']);}
 					break;
 				}
-				
-				/**
-				 * Hook for cmd_compileMailGroup
-				 * manipulate the generated id_lists
-				 */
-				if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'])) {
-					$hookObjectsArr = array();
-					
-					foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] as $classRef) {
-						$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
-					}
-					foreach($hookObjectsArr as $hookObj)    {
-						if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
-							$temp_lists = $hookObj->cmd_compileMailGroup_postProcess($id_lists, $this); 	
-						}
-					}
-					
-					unset ($id_lists);
-					$id_lists = $temp_lists;
-				}
-				
 			}
 		}
-		return array(
-			'queryInfo' => array('id_lists' => $id_lists)
-		);
+		return $id_lists;
 	}
 
 	/**

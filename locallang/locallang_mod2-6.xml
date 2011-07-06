@@ -836,7 +836,7 @@ Wenn Sie auf "Importieren" klicken, werden die Daten in tt_address Tabelle impor
 			<label index="nl_cat">Ausschluss von Seiteninhalten anhand von Kategorien</label>
 			<label index="nl_cat_msg1">Es wurden keine Seiteninhalte auf der Seite gefunden.</label>
 			<label index="nl_create">Newsletter erstellen</label>
-			<label index="nl_create_msg1">Klicken Sie hier, um eine neue Typo3-Seite, die Sie später als Newsletter verschicken können, anzulegen.</label>
+			<label index="nl_create_msg1">Klicken Sie hier, um eine neue TYPO3-Seite, die Sie später als Newsletter verschicken können, anzulegen.</label>
 			<label index="nl_editPage">Seite ändern</label>
 			<label index="nl_l_ALL">ALLE</label>
 			<label index="nl_l_ONLY">NUR</label>
