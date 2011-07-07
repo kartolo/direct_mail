@@ -1,4 +1,9 @@
-2011-07-09 Ivan Kartolo <ivan.kartolo@dkd.de>
+2011-07-07 Jacob Rasmussen <jacob@lightbulb.dk>
+	* Bug #27736: SQL-Error "WHERE () AND" in tx_directmail_static
+	* Task #26696: Remove tx_directmail_cron.lock
+	* Bug #26698: Optimization of logging
+
+2011-07-06 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Feature #25466: Added feature to send newsletter to multiple lists.
 
 2011-06-13 Jacob Rasmussen <jacob@lightbulb.dk>

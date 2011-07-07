@@ -100,7 +100,6 @@ require_once(PATH_t3lib.'class.t3lib_befunc.php');
 class dmailer extends t3lib_htmlmail {
 	var $sendPerCycle =50;
 	var $dontEncodeHeader = 1;
-	var $logArray =array();
 	var $massend_id_lists = array();
 	var $mailHasContent;
 	var $flag_html = 0;
@@ -486,7 +485,7 @@ class dmailer extends t3lib_htmlmail {
 					}
 				}
 			}
-			$this->logArray[] = 'Sending ' . $cc . ' mails to table ' . $table;
+			if (TYPO3_DLOG) t3lib_div::devLog('Sending ' . $cc . ' mails to table ' . $table, 'direct_mail');
 			if ($numRows < $this->sendPerCycle)	return true;
 		}
 		return false;
@@ -566,7 +565,7 @@ class dmailer extends t3lib_htmlmail {
 							}
 						}
 					}
-					$this->logArray[] = $LANG->getLL('dmailer_sending').' '.$ct.' '.$LANG->getLL('dmailer_sending_to_table').' '.$table.'.';
+					if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_sending').' '.$ct.' '.$LANG->getLL('dmailer_sending_to_table').' '.$table, 'direct_mail');
 				}
 			}
 		}
@@ -603,14 +602,13 @@ class dmailer extends t3lib_htmlmail {
 		);
 			$ok = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail_maillog', 'uid=' . $logUid, $updateFields);
                 if(!$ok) {
-					$this->dmailer_log('a','error: cannot write to DB');
-					die("Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=".$mid.").");
+                	if (TYPO3_DLOG) t3lib_div::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')', 'direct_mail', 3);
+									die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')');
                 }
-            }
-            else {
-                // stop the script if dummy log can't be made
-                $this->dmailer_log('a','error: cannot write to DB');
-                die("Unable to add Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=".$mid.").");
+            } else {
+              // stop the script if dummy log can't be made
+              if (TYPO3_DLOG) t3lib_div::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')', 'direct_mail', 3);
+							die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')');
             }
         }
     }
@@ -664,7 +662,7 @@ class dmailer extends t3lib_htmlmail {
 				$message=$LANG->getLL('dmailer_job_end') . ': ' .date("d-m-y h:i:s");
 			break;
 		}
-		$this->logArray[]=$subject.": ".$message;
+		if (TYPO3_DLOG) t3lib_div::devLog($subject . ': '.$message, 'direct_mail');
 
 		$from_name = ($this->from_name) ? $LANG->csConvObj->conv($this->from_name, $this->charset, $LANG->charSet) : '';
 
@@ -814,14 +812,14 @@ class dmailer extends t3lib_htmlmail {
 			'*',
 			'sys_dmail',
 			'scheduled!=0' . 
-				' AND scheduled < ' . time() .
-				' AND scheduled_end = 0' .
-				' AND type NOT IN (2,3)' . 
-				t3lib_BEfunc::deleteClause('sys_dmail'),
+			' AND scheduled < ' . time() .
+			' AND scheduled_end = 0' .
+			' AND type NOT IN (2,3)' . 
+			t3lib_BEfunc::deleteClause('sys_dmail'),
 			'',
 			'scheduled'
-			);
-		$this->logArray[]=$LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y');
+		);
+		if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y'), 'direct_mail');
 
 		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				// format headers for SMTP use
@@ -833,7 +831,7 @@ class dmailer extends t3lib_htmlmail {
 				}
 			}
 
-			$this->logArray[]=$LANG->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid']. ", '" . $row['subject'] . "' " . $LANG->getLL('dmailer_processed');
+			if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid']. ', \'' . $row['subject'] . '\'' . $LANG->getLL('dmailer_processed'), 'direct_mail');
 			$this->dmailer_prepare($row);
 			$query_info=unserialize($row['query_info']);
 			if (!$row['scheduled_begin'])   {
@@ -844,14 +842,14 @@ class dmailer extends t3lib_htmlmail {
 				$this->dmailer_setBeginEnd($row['uid'],'end');
 			}
 		} else {
-			$this->logArray[]=$LANG->getLL('dmailer_nothing_to_do');
+			if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_nothing_to_do'), 'direct_mail');
 		}
 
 		//closing DB connection
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 		
 		$parsetime = t3lib_div::milliseconds()-$pt;
-		$this->logArray[] = $LANG->getLL('dmailer_ending'). ' ' . $parsetime . ' ms';
+		if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_ending'). ' ' . $parsetime . ' ms', 'direct_mail');
 	}
 
 	/**
@@ -869,6 +867,7 @@ class dmailer extends t3lib_htmlmail {
 		$this->sendPerCycle = $user_dmailer_sendPerCycle;
 		$this->user_dmailerLang = $user_dmailer_lang;
 		if (!$this->nonCron) {
+			if (TYPO3_DLOG) t3lib_div::devLog('Starting directmail cronjob', 'direct_mail');
 			$this->dmailer_log('w','starting directmail cronjob');
 		}
 		
@@ -882,48 +881,6 @@ class dmailer extends t3lib_htmlmail {
 			//if using SMTP, don't encode the headers
 			$this->dontEncodeHeader = TRUE;
 		}
-	}
-
-	/**
-	 * write to log file and send a notification email to admin if no records in sys_dmail_maillog table can be made
-	 *
-	 * @param	string		$writeMode: mode to open a file
-	 * @param	string		$logMsg: log message
-	 * @return	void		...
-	 */
-	function dmailer_log($writeMode,$logMsg){
-		global $TYPO3_CONF_VARS;
-
-		$content = time().' => '.$logMsg.chr(10);
-		$logfilePath = 'typo3temp/tx_directmail_dmailer_log.txt';
-		$email = $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['adminEmail'];
-		$subject = 'Direct Mail cronjob from '.$TYPO3_CONF_VARS['SYS']['sitename'];
-
-		$headers[]='From: '.$email;
-		$headers[]='Reply-To: '.$email;
-
-		$message = 'Cannot write to logfile '.$logfilePath.chr(10).
-				'Please check diskspace.'.chr(10).
-				'Log message: '.chr(10).date('d-m-Y H:i:s').' => '.$logMsg.chr(10).
-				'Remove '.PATH_site.'typo3temp/tx_directmail_cron.lock '.'to continue sending';
-
-		if(!$fp = fopen(PATH_site.$logfilePath,$writeMode)){
-			//cannot create or open file, email admin
-			t3lib_div::plainMailEncoded($email, $subject, $message, implode(chr(10),$headers));
-			//die
-			die('logfile cannot be opened. Quiting directmail sending!');
-		} else {
-			if(fwrite($fp,$content) === false){
-				//cannot write log file, email admin
-				t3lib_div::plainMailEncoded($email, $subject, $message, implode(chr(10),$headers));
-				//die
-				die('logfile cannot be written. Quiting directmail sending!');
-			}
-			fclose($fp);
-		}
-		
-		// Fixing log filepermissions
-		t3lib_div::fixPermissions($logfilePath);
 	}
 
 	/**

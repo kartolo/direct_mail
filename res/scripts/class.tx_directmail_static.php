@@ -401,27 +401,28 @@ class tx_directmail_static {
 
 			// recursively get all subgroups of this fe_group
 			$subgroups = tx_directmail_static::getFEgroupSubgroups($groupId);
-
-			$usergroupInList = null;
-			foreach ($subgroups as $subgroup) {
-				$usergroupInList .= (($usergroupInList == null) ? null : ' OR').' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\','.intval($subgroup).',\') )';
-			}
-			$usergroupInList = '('.$usergroupInList.')';
-
-			// fetch all fe_users from these subgroups
-			$res = $TYPO3_DB->exec_SELECTquery(
-				'DISTINCT '.$switchTable.'.uid',
-				$switchTable.','.$table.'',
-				$usergroupInList.
-					$emailIsNotNull.
-					t3lib_BEfunc::BEenableFields($switchTable).
-					t3lib_BEfunc::deleteClause($switchTable).
-					t3lib_BEfunc::BEenableFields($table).
-					t3lib_BEfunc::deleteClause($table)
-				);
-
-			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-				$outArr[]=$row['uid'];
+			if (is_array($subgroups)) {
+				$usergroupInList = null;
+				foreach ($subgroups as $subgroup) {
+					$usergroupInList .= (($usergroupInList == null) ? null : ' OR').' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\','.intval($subgroup).',\') )';
+				}
+				$usergroupInList = '('.$usergroupInList.')';
+	
+				// fetch all fe_users from these subgroups
+				$res = $TYPO3_DB->exec_SELECTquery(
+					'DISTINCT '.$switchTable.'.uid',
+					$switchTable.','.$table.'',
+					$usergroupInList.
+						$emailIsNotNull.
+						t3lib_BEfunc::BEenableFields($switchTable).
+						t3lib_BEfunc::deleteClause($switchTable).
+						t3lib_BEfunc::BEenableFields($table).
+						t3lib_BEfunc::deleteClause($table)
+					);
+	
+				while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+					$outArr[]=$row['uid'];
+				}				
 			}
 
 		}
