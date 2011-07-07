@@ -1,3 +1,6 @@
+2011-07-07 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #27736: fixed MM-query getting fe_groups recursively. Check empty array.
+	
 2011-07-07 Jacob Rasmussen <jacob@lightbulb.dk>
 	* Bug #27736: SQL-Error "WHERE () AND" in tx_directmail_static
 	* Task #26696: Remove tx_directmail_cron.lock

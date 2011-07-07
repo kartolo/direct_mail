@@ -377,9 +377,9 @@ class tx_directmail_static {
 		}
 
 		
-		$outArr=array();
+		$outArr = array();
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-			$outArr[]=$row['uid'];
+			$outArr[] = $row['uid'];
 		}
 
 		if ($table == 'fe_groups') {
@@ -401,7 +401,8 @@ class tx_directmail_static {
 
 			// recursively get all subgroups of this fe_group
 			$subgroups = tx_directmail_static::getFEgroupSubgroups($groupId);
-			if (is_array($subgroups)) {
+
+			if (!empty($subgroups)) {
 				$usergroupInList = null;
 				foreach ($subgroups as $subgroup) {
 					$usergroupInList .= (($usergroupInList == null) ? null : ' OR').' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\','.intval($subgroup).',\') )';
@@ -418,11 +419,11 @@ class tx_directmail_static {
 						t3lib_BEfunc::deleteClause($switchTable).
 						t3lib_BEfunc::BEenableFields($table).
 						t3lib_BEfunc::deleteClause($table)
-					);
+				);
 	
 				while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 					$outArr[]=$row['uid'];
-				}				
+				}
 			}
 
 		}
@@ -883,14 +884,15 @@ class tx_directmail_static {
 		global $TYPO3_DB;
 
 		// get all subgroups of this fe_group - fe_groups having this id in their subgroup field
-		$query = $TYPO3_DB->SELECTquery(
-			'DISTINCT fe_groups.uid',
-			'fe_groups, sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
-			'INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\','.intval($groupId).',\' )'.
+		$res= $GLOBALS["TYPO3_DB"]->exec_SELECT_mm_query(
+			"DISTINCT fe_groups.uid",
+			"fe_groups",
+			"sys_dmail_group_mm",
+			"sys_dmail_group",
+			' AND INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\','.intval($groupId).',\' )'.
 				t3lib_BEfunc::BEenableFields('fe_groups').
 				t3lib_BEfunc::deleteClause('fe_groups')
 		);
-		$res = $GLOBALS['TYPO3_DB']->sql_query($query);
 
 		$groupArr = array();
 
