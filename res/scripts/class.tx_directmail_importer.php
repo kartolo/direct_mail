@@ -274,6 +274,9 @@ class tx_directmail_importer {
 					);
 					if(!empty($rowCat)){
 						$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats'), '');
+						if($this->indata['update_unique']) {
+							$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats_add'), '<input type="checkbox" name="CSV_IMPORT[add_cat]" value="1"'.($this->indata['add_cat']?' checked="checked"':'').'/> ');
+						}
 						foreach ($rowCat as $k => $v){
 							$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
 						}	
@@ -328,6 +331,7 @@ class tx_directmail_importer {
 							'CSV_IMPORT[update_unique]' => $this->indata['update_unique'],
 							'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
 							'CSV_IMPORT[all_html]' => $this->indata['all_html'],
+							'CSV_IMPORT[add_cat]' => $this->indata['add_cat'],
 							'CSV_IMPORT[charset]' => $this->indata['charset'],
 						));
 				$hiddenMapped = array();
@@ -587,9 +591,24 @@ class tx_directmail_importer {
 							$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_html'] = $this->indata['all_html'];
 						}
 						if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
-							foreach($this->indata['cat'] as $k => $v){
-								$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][$k] = $v;
+							if($this->indata['add_cat']){
+								// Load already assigned categories
+								$res = $TYPO3_DB->exec_SELECTquery(
+									'uid_local,uid_foreign',
+									'sys_dmail_ttaddress_category_mm',
+									'uid_local='.$userID[$foundUser[0]],
+									'',
+									'sorting'
+								);
+								while ($row = $TYPO3_DB->sql_fetch_row($res)){
+									$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][] = $row[1];
+								}
 							}
+							// Add categories
+							foreach($this->indata['cat'] as $k => $v){
+								$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][] = $v;
+							}
+							debug($data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'],'cat');
 						}
 						$resultImport['update'][]=$dataArray;
 					} else {
@@ -867,7 +886,7 @@ class tx_directmail_importer {
 	function writeTempFile(){
 		global $FILEMOUNTS,$TYPO3_CONF_VARS,$BE_USER,$LANG;
 
-		$user_perms = $GLOVALS['BE_USER']->getFileoperationPermissions();
+		$user_perms = $GLOBALS['BE_USER']->getFileoperationPermissions();
 		
 		unset($this->fileProcessor);
 		

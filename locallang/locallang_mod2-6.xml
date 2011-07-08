@@ -159,6 +159,7 @@
 			<label index="mailgroup_import_mapping_number"></label>
 			<label index="mailgroup_import_mapping_value"></label>
 			<label index="mailgroup_import_mapping_categories"></label>
+			<label index="mailgroup_import_mapping_cats_add"></label>
 			<label index="mailgroup_import_next"></label>
 			<label index="mailgroup_import_or"></label>
 			<label index="mailgroup_import_overwrite"></label>
@@ -479,6 +480,7 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="mailgroup_import_mapping_number">#</label>
 			<label index="mailgroup_import_mapping_value">Value</label>
 			<label index="mailgroup_import_mapping_categories">Categories</label>
+			<label index="mailgroup_import_mapping_cats_add">Add categories</label>
 			<label index="mailgroup_import_next">Next</label>
 			<label index="mailgroup_import_update">update</label>
 			<label index="mailgroup_import_or">OR</label>
@@ -804,6 +806,7 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="mailgroup_import_mapping_number">#</label>
 			<label index="mailgroup_import_mapping_value">Wert</label>
 			<label index="mailgroup_import_mapping_categories">Kategorien</label>
+			<label index="mailgroup_import_mapping_cats_add">Kategorien hinzufügen</label>
 			<label index="mailgroup_import_next">Weiter</label>
 			<label index="mailgroup_import_update">aktualisieren</label>
 			<label index="mailgroup_import_or">ODER</label>
