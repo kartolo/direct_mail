@@ -186,7 +186,7 @@ class dmailer extends t3lib_htmlmail {
 
 		$this->flag_html    = ($this->theParts['html']['content']  ? 1 : 0);
 		$this->flag_plain   = ($this->theParts['plain']['content'] ? 1 : 0);
-		$this->includeMedia = ($this->flag_html && $row['includeMedia']);
+		$this->includeMedia = $row['includeMedia'];
 	}
 
 	/**
@@ -868,7 +868,6 @@ class dmailer extends t3lib_htmlmail {
 		$this->user_dmailerLang = $user_dmailer_lang;
 		if (!$this->nonCron) {
 			if (TYPO3_DLOG) t3lib_div::devLog('Starting directmail cronjob', 'direct_mail');
-			$this->dmailer_log('w','starting directmail cronjob');
 		}
 		
 		$this->dontEncodeHeader = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['encodeHeader'];  

@@ -434,40 +434,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					$message = wordwrap($message,76,"\n");
 				}
 				//fetch functions
-					// Compile the mail
-				$htmlmail = t3lib_div::makeInstance('dmailer');
-				$htmlmail->nonCron = 1;
-				$htmlmail->start();
-				$htmlmail->charset = $row['charset'];
-				$htmlmail->useBase64();
-				$htmlmail->addPlain($message);
-				if (!$message || !$htmlmail->theParts['plain']['content']) {
-					$errorMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_plain_content') . '</strong>';
-				} elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']),'<!--DMAILER_SECTION_BOUNDARY')) {
-					$warningMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_plain_boundaries') . '</strong>';
-				}
-
-				if (!$errorMsg) {
-						// Update the record:
-					$htmlmail->theParts['messageid'] = $htmlmail->messageid;
-					$mailContent = serialize($htmlmail->theParts);
-					$updateFields = array(
-						'issent' => 0,
-						'charset' => $htmlmail->charset,
-						'mailContent' => $mailContent,
-						'renderedSize' => strlen($mailContent),
-						'long_link_rdct_url' => $this->urlbase
-						);
-					$TYPO3_DB->exec_UPDATEquery(
-						'sys_dmail',
-						'uid='.intval($this->sys_dmail_uid),
-						$updateFields
-						);
-
-					if ($warningMsg)	{
-						$theOutput .= $this->doc->section($LANG->getLL('dmail_warning'), $warningMsg.'<br /><br />');
-					}
-				}
+				$theOutput .= $this->compileQuickMail($row, $message);
 				/* end fetch function*/
 			} else {
 				if (!$dmail['sys_dmail']['NEW']['sendOptions']) {
@@ -478,6 +445,69 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		return $theOutput;
 	}
 
+	/**
+	 * 
+	 * Enter description here ...
+	 * @param unknown_type $row
+	 * @param unknown_type $message
+	 */
+	function compileQuickMail($row, $message, $encodePlain=true) {
+		// Compile the mail
+		$htmlmail = t3lib_div::makeInstance('dmailer');
+		$htmlmail->nonCron = 1;
+		$htmlmail->start();
+		$htmlmail->charset = $row['charset'];
+		$htmlmail->useBase64();
+		if ($encodePlain) {
+			$htmlmail->addPlain($message);
+		} else {
+			$htmlmail->setPlain($message);
+		}
+		
+		if (!$message || !$htmlmail->theParts['plain']['content']) {
+			$errorMsg .= '<br /><strong>' . $GLOBALS['LANG']->getLL('dmail_no_plain_content') . '</strong>';
+		} elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']),'<!--DMAILER_SECTION_BOUNDARY')) {
+			$warningMsg .= '<br /><strong>' . $GLOBALS['LANG']->getLL('dmail_no_plain_boundaries') . '</strong>';
+		}
+		
+		// fetch attachments
+		if ($row['attachment']) {
+			$attachments = t3lib_div::trimExplode(',', $row['attachment'], TRUE);
+			if (count($attachments)) {
+				t3lib_div::loadTCA('sys_dmail');
+				$uploadPath = $GLOBALS['TCA']['sys_dmail']['columns']['attachment']['config']['uploadfolder'];
+				foreach ($attachments as $theName) {
+					$theFile = PATH_site . $uploadPath . '/' . $theName;
+					if (@is_file($theFile)) {
+						$htmlmail->addAttachment($theFile, $theName);
+					}
+				}
+			}
+		}
+
+		if (!$errorMsg) {
+			// Update the record:
+			$htmlmail->theParts['messageid'] = $htmlmail->messageid;
+			$mailContent = serialize($htmlmail->theParts);
+			$updateFields = array(
+								'issent' => 0,
+								'charset' => $htmlmail->charset,
+								'mailContent' => $mailContent,
+								'renderedSize' => strlen($mailContent),
+								'long_link_rdct_url' => $this->urlbase
+			);
+			$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+								'sys_dmail',
+								'uid='.intval($this->sys_dmail_uid),
+			$updateFields
+			);
+		
+			if ($warningMsg)	{
+				$theOutput .= $this->doc->section($GLOBALS['LANG']->getLL('dmail_warning'), $warningMsg.'<br /><br />');
+			}
+		}
+	}
+	
 	/**
 	 * showing steps number on top of every page
 	 *
@@ -641,6 +671,11 @@ class tx_directmail_dmail extends t3lib_SCbase {
 							// it's a quickmail
 						$fetchError = FALSE;
 						$theOutput .= '<input type="hidden" name="CMD" value="send_test">';
+						
+						//add attachment here, since attachment added in 2nd step
+						$unserializedMailContent = unserialize($row['mailContent']);
+						$theOutput .= $this->compileQuickMail($row, $unserializedMailContent['plain']['content'],false);
+						
 					} else {
 
 						if ($shouldFetchData) {
