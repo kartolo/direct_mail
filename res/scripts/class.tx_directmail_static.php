@@ -1325,6 +1325,24 @@ class tx_directmail_static {
 		return strtolower($characterSet);
 	}
 	
+	/**
+	 * Wrapper for the old t3lib_div::intInRange. 
+	 * Forces the integer $theInt into the boundaries of $min and $max. If the $theInt is 'FALSE' then the $zeroValue is applied.
+	 *
+	 * @param integer $theInt Input value
+	 * @param integer $min Lower limit
+	 * @param integer $max Higher limit
+	 * @param integer $zeroValue Default value if input is FALSE.
+	 * @return integer The input value forced into the boundaries of $min and $max
+	 */
+	public static function intInRangeWrapper($theInt, $min, $max = 2000000000, $zeroValue = 0) {
+		if (t3lib_div::compat_version('4.6')) {
+			return t3lib_utility_Math::forceIntegerInRange($theInt, $min, $max, $zeroValue);
+		} else {
+			return t3lib_div::intInRange($theInt, $min, $max, $zeroValue);
+		}
+	}
+	
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_static.php'])	{

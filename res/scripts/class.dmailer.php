@@ -151,7 +151,7 @@ class dmailer extends t3lib_htmlmail {
 		$this->replyto_email = ($row['replyto_email'] ? $row['replyto_email'] : '');
 		$this->replyto_name  = ($row['replyto_name']  ? $LANG->csConvObj->conv($row['replyto_name'], $LANG->charSet, $this->charset) : '');
 		$this->organisation  = ($row['organisation']  ? $LANG->csConvObj->conv($row['organisation'], $LANG->charSet, $this->charset) : '');
-		$this->priority      = t3lib_div::intInRange($row['priority'], 1, 5);
+		$this->priority      = tx_directmail_static::intInRangeWrapper($row['priority'], 1, 5);
 		$this->mailer        = 'TYPO3 Direct Mail module';
 		$this->authCode_fieldList = ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid');
 

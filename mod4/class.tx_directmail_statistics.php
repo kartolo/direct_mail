@@ -1448,15 +1448,15 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			$recRec['links_last'] = intval(@max($recRec['links']));
 			$recRec['links'] = count($recRec['links']);
 
-			$recRec['response_first'] = t3lib_div::intInRange(intval(@min($recRec['response']))-$recRec['tstamp'],0);
-			$recRec['response_last'] = t3lib_div::intInRange(intval(@max($recRec['response']))-$recRec['tstamp'],0);
+			$recRec['response_first'] = tx_directmail_static::intInRangeWrapper(intval(@min($recRec['response']))-$recRec['tstamp'],0);
+			$recRec['response_last'] = tx_directmail_static::intInRangeWrapper(intval(@max($recRec['response']))-$recRec['tstamp'],0);
 			$recRec['response'] = count($recRec['response']);
 
-			$recRec['time_firstping'] = t3lib_div::intInRange($recRec['pings_first']-$recRec['tstamp'],0);
-			$recRec['time_lastping'] = t3lib_div::intInRange($recRec['pings_last']-$recRec['tstamp'],0);
+			$recRec['time_firstping'] = tx_directmail_static::intInRangeWrapper($recRec['pings_first']-$recRec['tstamp'],0);
+			$recRec['time_lastping'] = tx_directmail_static::intInRangeWrapper($recRec['pings_last']-$recRec['tstamp'],0);
 
-			$recRec['time_first_link'] = t3lib_div::intInRange($recRec['links_first']-$recRec['tstamp'],0);
-			$recRec['time_last_link'] = t3lib_div::intInRange($recRec['links_last']-$recRec['tstamp'],0);
+			$recRec['time_first_link'] = tx_directmail_static::intInRangeWrapper($recRec['links_first']-$recRec['tstamp'],0);
+			$recRec['time_last_link'] = tx_directmail_static::intInRangeWrapper($recRec['links_last']-$recRec['tstamp'],0);
 
 			$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery(
 				'cache_sys_dmail_stat',

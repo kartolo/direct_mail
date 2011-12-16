@@ -26,7 +26,7 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 /**
- * @author		Kasper Skårhøj <kasperYYYY>@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasperYYYY>@typo3.com>
  * @author		Thorsten Kahler <thorsten.kahler@dkd.de>
  *
  * @package 	TYPO3
@@ -141,7 +141,12 @@ class tx_directmail_container	{
 	function breakLines( $content, $conf )	{
 		$linebreak = $GLOBALS['TSFE']->cObj->stdWrap( ( $conf['linebreak'] ? $conf['linebreak'] : chr(32).chr(10) ), $conf['linebreak.'] );
 		$charWidth = $GLOBALS['TSFE']->cObj->stdWrap( ( $conf['charWidth'] ? intval( $conf['charWidth'] ) : 76 ), $conf['charWidth.'] );
-		return t3lib_div::breakTextForEmail( $content, $linebreak, $charWidth );
+		
+		if (t3lib_div::compat_version('4.6')) {
+			return t3lib_utility_Mail::breakLinesForEmail($content, $linebreak, $charWidth);
+		} else {
+			return t3lib_div::breakTextForEmail( $content, $linebreak, $charWidth );
+		}
 	}
 }
 

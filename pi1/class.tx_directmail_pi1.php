@@ -193,7 +193,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @return	void		...
 	 */
 	function init($conf) {
-		$this->tslib_pibase();
+		tslib_pibase::__construct();
 
 		$this->conf = $conf;
 		$this->pi_loadLL();
@@ -357,8 +357,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	function renderHeader($str,$type=0)	{
 		if ($str)	{
 			$hConf = $this->conf['header.'];
-			$defaultType = t3lib_div::intInRange($hConf['defaultType'],1,5);
-			$type=t3lib_div::intInRange($type,0,6);
+			$defaultType = tx_directmail_static::intInRangeWrapper($hConf['defaultType'],1,5);
+			$type = tx_directmail_static::intInRangeWrapper($type,0,6);
 			if (!$type)	$type=$defaultType;
 			if ($type!=6)	{	// not hidden
 				$tConf = $hConf[$type.'.'];
@@ -369,14 +369,14 @@ class tx_directmail_pi1 extends tslib_pibase {
 
 				$lines=array();
 
-				$blanks = t3lib_div::intInRange($tConf['preBlanks'],0,1000);
+				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preBlanks'],0,1000);
 				if ($blanks)	{
 					$lines[]=str_pad('', $blanks-1, chr(10));
 				}
 
 				$lines=$this->pad($lines,$tConf['preLineChar'],$tConf['preLineLen']);
 
-				$blanks = t3lib_div::intInRange($tConf['preLineBlanks'],0,1000);
+				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preLineBlanks'],0,1000);
 				if ($blanks)	{$lines[]=str_pad('', $blanks-1, chr(10));}
 
 				if ($this->cObj->data['date'])		{$lines[] = $this->getString($hConf['datePrefix']).date($hConf['date']?$hConf['date']:'d-m-Y',$this->cObj->data['date']);}
@@ -388,12 +388,12 @@ class tx_directmail_pi1 extends tslib_pibase {
 				$lines[]=$this->cObj->stdWrap($prefix.$str,$tConf['stdWrap.']);
 				if ($this->cObj->data['header_link'])		{$lines[] = $this->getString($hConf['linkPrefix']).$this->getLink($this->cObj->data['header_link']);}
 
-				$blanks = t3lib_div::intInRange($tConf['postLineBlanks'],0,1000);
+				$blanks = tx_directmail_static::intInRangeWrapper($tConf['postLineBlanks'],0,1000);
 				if ($blanks)	{$lines[]=str_pad('', $blanks-1, chr(10));}
 
 				$lines=$this->pad($lines,$tConf['postLineChar'],$tConf['postLineLen']);
 
-				$blanks = t3lib_div::intInRange($tConf['postBlanks'],0,1000);
+				$blanks = tx_directmail_static::intInRangeWrapper($tConf['postBlanks'],0,1000);
 				if ($blanks)	{$lines[]=str_pad('', $blanks-1, chr(10));}
 				return implode(chr(10),$lines);
 			}
@@ -410,7 +410,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @see renderHeader()
 	 */
 	function pad($lines,$preLineChar,$len)	{
-		$strPad = t3lib_div::intInRange($len,0,1000);
+		$strPad = tx_directmail_static::intInRangeWrapper($len,0,1000);
 		$strPadChar = $preLineChar?$preLineChar:'-';
 		if ($strPad)	{
 			$lines[]=str_pad('', $strPad, $strPadChar);
@@ -443,7 +443,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function breakBulletlist($str)	{
 		$type = $this->cObj->data['layout'];
-		$type=t3lib_div::intInRange($type,0,3);
+		$type=tx_directmail_static::intInRangeWrapper($type,0,3);
 
 		$tConf = $this->conf['bulletlist.'][$type.'.'];
 
@@ -463,7 +463,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 
 			$lines[]=$bullet.$this->breakLines($substrs,chr(10).$secondRow,$this->charWidth-$bLen);
 
-			$blanks = t3lib_div::intInRange($tConf['blanks'],0,1000);
+			$blanks = tx_directmail_static::intInRangeWrapper($tConf['blanks'],0,1000);
 			if ($blanks)	{$lines[]=str_pad('', $blanks-1, chr(10));}
 		}
 		return implode(chr(10),$lines);
@@ -639,7 +639,13 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @see t3lib_div::breakLinesForEmail()
 	 */
 	function breakLines($str,$implChar="\n",$charWidth=0)	{
-		return t3lib_div::breakLinesForEmail($str,$this->linebreak,$charWidth?$charWidth:$this->charWidth);
+		$cW = $charWidth ? $charWidth : $this->charWidth;
+		
+		if (t3lib_div::compat_version('4.6')) {
+			return t3lib_utility_Mail::breakLinesForEmail($str, $this->linebreak, $cW);
+		} else {
+			return t3lib_div::breakLinesForEmail($str, $this->linebreak, $cW);
+		}
 	}
 
 	/**
