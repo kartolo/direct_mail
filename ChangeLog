@@ -1,3 +1,6 @@
+2011-12-16 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #32410: deprecated function in 4.6
+
 2011-07-08 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Feature #11010: add categories during import, instead overwriting existing one.
 	* Feature #6820: added attachment to quickmail

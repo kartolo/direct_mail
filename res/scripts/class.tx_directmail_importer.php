@@ -77,7 +77,7 @@ class tx_directmail_importer {
 		
 		$currentFileInfo = t3lib_basicFileFunctions::getTotalFileInfo($this->indata['newFile']);
 		$currentFileName = $currentFileInfo['file'];
-		$curentFileSize = t3lib_basicFileFunctions::formatSize($currentFileInfo['size']);
+		$curentFileSize = t3lib_div::formatSize($currentFileInfo['size']);
 		$currentFileMessage = $currentFileName.' ('.$curentFileSize.')';
 
 		if(empty($this->indata['csv']) && !empty($_FILES['upload_1']['name'])){
