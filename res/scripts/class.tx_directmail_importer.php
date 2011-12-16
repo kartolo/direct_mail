@@ -115,7 +115,7 @@ class tx_directmail_importer {
 			$map = $this->indata['map'];
 			$error = array();
 			//check noMap
-			$newMap = t3lib_div::removeArrayEntryByValue(t3lib_div::uniqueArray($map),'noMap');
+			$newMap = t3lib_div::removeArrayEntryByValue(array_unique($map),'noMap');
 			if (empty($newMap)){
 				$error[]='noMap';
 			} elseif(!t3lib_div::inArray($map,'email')){
