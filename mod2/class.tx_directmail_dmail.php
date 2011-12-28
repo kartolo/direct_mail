@@ -1856,9 +1856,6 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		}
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 		
-			// Create a new page
-		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section($LANG->getLL('nl_create').t3lib_BEfunc::cshItem($this->cshTable,'create_newsletter',$BACK_PATH),'<a href="#" class="t3-link"  onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->id.']=new&edit[tt_content][prev]=new',$BACK_PATH,'').'"><b>'.$LANG->getLL('nl_create_msg1').'</b></a>', 1, 1, 0, TRUE);
 		return $theOutput;
 	}
 

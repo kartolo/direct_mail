@@ -368,7 +368,7 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="dmail_HTML_url">URL of HTML content:</label>
 			<label index="dmail_cancel">Cancel</label>
 			<label index="dmail_createMail">Create mail</label>
-			<label index="dmail_dovsk_crFromNL">Create a new Direct Mail from newsletter</label>
+			<label index="dmail_dovsk_crFromNL">Create a new Direct Mail from a page</label>
 			<label index="dmail_dovsk_crFromUrl">Create a new Direct Mail from external URL</label>
 			<label index="dmail_edit">Edit</label>
 			<label index="dmail_error">An error was encountered.</label>
@@ -694,7 +694,7 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="dmail_HTML_url">HTML URL:</label>
 			<label index="dmail_cancel">Abbrechen</label>
 			<label index="dmail_createMail">E-Mail erstellen</label>
-			<label index="dmail_dovsk_crFromNL">Neuen Versand anhand eines Newsletters erstellen</label>
+			<label index="dmail_dovsk_crFromNL">Neuen Versand anhand einer Seite erstellen</label>
 			<label index="dmail_dovsk_crFromUrl">Neuen Versand anhand einer externen URL erstellen</label>
 			<label index="dmail_edit">Ändern</label>
 			<label index="dmail_error">FEHLER</label>
