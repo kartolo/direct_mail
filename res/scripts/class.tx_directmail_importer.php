@@ -803,11 +803,17 @@ class tx_directmail_importer {
 	function convCharset($data) {
 		global $LANG;
 		
-		if ( $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] )	{
+		if (t3lib_div::compat_version('4.5')) {
+			// set to uft-8 if TYPO3 > 4.5, since it's default
+			$dbCharset = 'utf-8';			
+		} elseif (!t3lib_div::compat_version('4.5') && isset($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])) {
+			// if TYPO3 < 4.5 and forceCharset is set and use this
 			$dbCharset = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
 		} else {
+			//if not, assumes it's an ISO DB
 			$dbCharset = 'iso-8859-1';
 		}
+		
 		if ( $dbCharset != $this->indata['charset'] )	{
 			$LANG->csConvObj->convArray( $data, $this->indata['charset'], $dbCharset );
 		}
