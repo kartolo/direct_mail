@@ -358,8 +358,8 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="configure_quickmail_encoding_description">Select the content transfer encoding to use when sending quick mails.</label>
 			<label index="configure_test_dmail_group_uids">List of UID numbers of test recipient lists:</label>
 			<label index="configure_test_dmail_group_uids_description">Alternatively to sending test-mails to individuals, you can choose to send to a whole list. This is the list of recipient lists UID numbers available for this action.</label>
-			<label index="configure_test_tt_address_uids">List of UID numbers of test recipients:</label>
-			<label index="configure_test_tt_address_uids_description">Before sending mails, you should test the mail content by sending test mails to one or more test recipients. The available recipients for testing are determined by this list of UID numbers. So first, find out the UID numbers of the recipients you wish to use for testing, then enter them here in a comma-separated list.</label>
+			<label index="configure_test_tt_address_uids">List of UID numbers of test recipients (tt_address):</label>
+			<label index="configure_test_tt_address_uids_description">Before sending mails, you should test the mail content by sending test mails to one or more test recipients. The available recipients for testing are determined by this list of UID numbers. So first, find out the UID numbers (tt_address) of the recipients you wish to use for testing, then enter them here in a comma-separated list.</label>
 			<label index="configure_update_configuration">Update configuration</label>
 			<label index="configure_user_table">Custom-defined table:</label>
 			<label index="configure_user_table_description">Enter the name of a custom-defined table, with compatible columns defined, which may also be used for direct mails distribution.</label>
@@ -684,8 +684,8 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="configure_quickmail_encoding_description">Select the content transfer encoding to use when sending quick mails.</label>
 			<label index="configure_test_dmail_group_uids">Liste der UID Nummern von Testempfängern:</label>
 			<label index="configure_test_dmail_group_uids_description">Alternativ können Sie Test-E-Mails an einer Liste verschicken. Es ist die UID-Nummer der Liste, die für das Testversand verfügbar soll.</label>
-			<label index="configure_test_tt_address_uids">Liste der UID von Testempfängern:</label>
-			<label index="configure_test_tt_address_uids_description">Vor dem Versand sollten Sie die E-Mail überprüfen, in dem Sie die E-Mail an ein oder mehrere Empfängern verschicken. Die verfügbaren Empfänger sind in eine Liste von UID bestimmt. Finde die UID Nummer der Empfängern, die als Testempfängern fungieren und gibt in einer komma getrennte Liste ein.</label>
+			<label index="configure_test_tt_address_uids">Liste der UID (tt_address) von Testempfängern:</label>
+			<label index="configure_test_tt_address_uids_description">Vor dem Versand sollten Sie die E-Mail überprüfen, in dem Sie die E-Mail an ein oder mehrere Empfängern verschicken. Die verfügbaren Empfänger sind in eine Liste von UID bestimmt. Finde die UID Nummer der Empfängern (tt_address), die als Testempfängern fungieren und gibt in einer komma getrennte Liste ein.</label>
 			<label index="configure_update_configuration">Aktualisiere Konfigurationen</label>
 			<label index="configure_user_table">Benutzerdefinierte Tabelle:</label>
 			<label index="configure_user_table_description">Gibt der benutzerdefinierte Tabellenname ein, die für das Versand der Direct Mails benutzt werden soll.</label>
