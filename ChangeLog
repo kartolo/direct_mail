@@ -1,3 +1,6 @@
+2011-12-30 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #29503: improved statistic label
+	
 2011-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #26699: removing alternative link to create new page
 	* Bug #28921: check TYPO3 Version and set charset for the importer

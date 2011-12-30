@@ -941,7 +941,7 @@ Wenn Sie auf "Importieren" klicken, werden die Daten in tt_address Tabelle impor
 			<label index="stats_total">Insgesamt:</label>
 			<label index="stats_total_mails_returned">Insgesamt zurückgekommen:</label>
 			<label index="stats_total_responses">Reaktionen insgesamt (Anzahl Klicks):</label>
-			<label index="stats_unique_responses">Angeklickte Links:</label>
+			<label index="stats_unique_responses">Anzahl der klickenden Empfänger:</label>
 			<label index="stats_website_users">Liste der fe_users Empfängern:</label>
 			<label index="stats_website_users_disabled">Website-Benutzer deaktiviert</label>
 			<label index="subscriber_info">Abonnentsinfo</label>
