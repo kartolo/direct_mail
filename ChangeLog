@@ -1,6 +1,7 @@
 2011-12-30 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #29503: improved statistic label
 	* Bug #31752: check SYS_TABLE_NAME in jumpurl
+	* layout CSV importer is improved 
 	
 2011-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #26699: removing alternative link to create new page
