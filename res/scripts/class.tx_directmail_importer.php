@@ -380,11 +380,11 @@ class tx_directmail_importer {
 					if ( is_array($result[$order]) ) {
 						foreach($result[$order] as $k => $v){
 							$mapKeys = array_keys($v);
-							$tblLines1[]= array($k+1,$v[$mapKeys[0]],$v['email']);
+							$tblLines[]= array($k+1, $v[$mapKeys[0]], $v['email']);
 						}	
 					}
-					$tblLines[] = array($this->formatTable($tblLines1,array('nowrap','nowrap','nowrap'),0));
-					$out.= $this->formatTable($tblLines, array('nowrap'), 1, array(1));
+//					$tblLines[] = array($this->formatTable($tblLines1,array('nowrap','nowrap','nowrap'),0));
+					$out.= $this->formatTable($tblLines, array('nowrap', 'first' => 'colspan="3"'), 1, array(1));
 				}
 
 				//back button
@@ -624,16 +624,7 @@ class tx_directmail_importer {
 					}
 				} else {
 					//write new user
-					$data['tt_address']['NEW'.$c] = $dataArray;
-					$data['tt_address']['NEW'.$c]['pid'] = $this->indata['storage'];
-					if($this->indata['all_html']){
-						$data['tt_address']['NEW'.$c]['module_sys_dmail_html'] = $this->indata['all_html'];
-					}
-					if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
-						foreach($this->indata['cat'] as $k => $v){
-							$data['tt_address']['NEW'.$c]['module_sys_dmail_category'][$k] = $v;
-						}
-					}
+					$this->addDataArray($data, 'NEW'.$c, $dataArray);
 					$resultImport['new'][] = $dataArray;
 					$c++;		//counter
 				}
@@ -642,16 +633,7 @@ class tx_directmail_importer {
 			//no update, import all
 			$c=1;
 			foreach($mappedCSV as $k => $dataArray){
-				$data['tt_address']['NEW'.$c] = $dataArray;
-				$data['tt_address']['NEW'.$c]['pid'] = $this->indata['storage'];
-				if($this->indata['all_html']){
-					$data['tt_address']['NEW'.$c]['module_sys_dmail_html'] = $this->indata['all_html'];
-				}
-				if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
-					foreach($this->indata['cat'] as $k => $v){
-						$data['tt_address']['NEW'.$c]['module_sys_dmail_category'][$k] = $v;
-					}
-				}
+				$this->addDataArray($data, 'NEW'.$c, $dataArray);
 				$resultImport['new'][] = $dataArray;
 				$c++;
 			}
@@ -685,6 +667,25 @@ class tx_directmail_importer {
 		}
 		
 		return $resultImport;
+	}
+	
+	/**
+	 * Prepare insert array for the TCE
+	 * @param array $data: array for the TCE
+	 * @param string $id
+	 * @param unknown_type $dataArray
+	 */
+	function addDataArray(&$data, $id, $dataArray) {
+		$data['tt_address'][$id] = $dataArray;
+		$data['tt_address'][$id]['pid'] = $this->indata['storage'];
+		if($this->indata['all_html']){
+			$data['tt_address'][$id]['module_sys_dmail_html'] = $this->indata['all_html'];
+		}
+		if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
+			foreach($this->indata['cat'] as $k => $v){
+				$data['tt_address'][$id]['module_sys_dmail_category'][$k] = $v;
+			}
+		}
 	}
 
 	/**
@@ -837,21 +838,29 @@ class tx_directmail_importer {
 	 * @return	string		HTML the table
 	 */
 	function formatTable($tableLines, $cellParams, $header, $cellcmd = array(), $tableParams='border="0" cellpadding="0" cellspacing="0" class="typo3-dblist"', $switchBG = 0)	{
-		reset($tableLines);
-		$cols = count(current($tableLines));
-
-		reset($tableLines);
 		$lines = array();
 		$first = $header?1:0;
 		$c = 0;
 
+		reset($tableLines);
 		foreach($tableLines as $r) {
-			$rowA=array();
-			for($k=0;$k<$cols;$k++)	{
+			$rowA = array();
+			for($k = 0; $k < count($r); $k++)	{
 				$v = $r[$k];
 				$v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : "&nbsp;";
-				if ($first) $v='<B>'.$v.'</B>';
-				$rowA[]='<td'.($cellParams[$k]?" ".$cellParams[$k]:"").'>'.$v.'</td>';
+				if ($first) {
+					$v = '<B>'.$v.'</B>';
+				}
+				
+				$cellParam = array();
+				if ($cellParams[$k]) {
+					$cellParam[] = $cellParams[$k];
+				}
+				
+				if ($first && isset($cellParams['first'])) {
+					$cellParam[] = $cellParams['first'];
+				}
+				$rowA[] = '<td '.implode(' ',$cellParam).'>'.$v.'</td>';
 			}
 
 			$lines[] = '<tr class="'.($first?'t3-row-header':'db_list_normal').'">'.implode('',$rowA).'</tr>';
