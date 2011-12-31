@@ -424,7 +424,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 
 		$id_lists=array();
 		if ($group_uid)	{
-			$mailGroup=t3lib_BEfunc::getRecord('sys_dmail_group',$group_uid);
+			$mailGroup = t3lib_BEfunc::getRecord('sys_dmail_group',$group_uid);
 			if (is_array($mailGroup) && $mailGroup['pid']==$this->id)	{
 				switch($mailGroup['type'])	{
 				case 0:	// From pages
@@ -523,6 +523,28 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				}
 			}
 		}
+		
+		/**
+		* Hook for cmd_compileMailGroup
+		* manipulate the generated id_lists
+		*/
+		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'])) {
+			$hookObjectsArr = array();
+				
+			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'] as $classRef) {
+				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+			}
+			foreach($hookObjectsArr as $hookObj)    {
+				if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
+					$temp_lists = $hookObj->cmd_compileMailGroup_postProcess($id_lists, $this, $mailGroup);
+				}
+			}
+				
+			unset ($id_lists);
+			$id_lists = $temp_lists;
+		}
+		
+		
 		return array(
 			'queryInfo' => array('id_lists' => $id_lists)
 		);

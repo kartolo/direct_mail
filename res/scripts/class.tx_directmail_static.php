@@ -61,7 +61,6 @@
  * 1071:     function cmd_displayMailGroup_test($result)
  * 1091:     function fetchRecordsListValues($listArr,$table,$fields='uid,name,email')
  * 1120:     function getRecordList($listArr,$table,$dim=0,$editLinkFlag=1)
- * 1162:     function cmd_compileMailGroup($group_uid)
  * 1271:     function getRecursiveSelect($id,$perms_clause)
  * 1288:     function cleanPlainList($plainlist)
  * 1304:     function update_specialQuery($mailGroup)

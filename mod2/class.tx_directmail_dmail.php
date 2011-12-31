@@ -1340,7 +1340,12 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$id_lists = array();
 		foreach ($groups AS $group) {
 			// Testing to see if group ID is a valid integer, if not - skip to next group ID
-			if (!t3lib_div::intval_positive($group)) {
+			if (t3lib_div::compat_version('4.6')) {
+				$group = t3lib_utility_Math::convertToPositiveInteger($group);
+			} else {
+				$group = t3lib_div::intval_positive($group);
+			}
+			if (!$group) {
 				continue;
 			}
 			
@@ -1369,7 +1374,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			}
 			foreach($hookObjectsArr as $hookObj)    {
 				if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
-					$temp_lists = $hookObj->cmd_compileMailGroup_postProcess($id_lists, $this); 	
+					$temp_lists = $hookObj->cmd_compileMailGroup_postProcess($id_lists, $this, $mailGroup); 	
 				}
 			}
 			
