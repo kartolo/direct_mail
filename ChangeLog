@@ -1,6 +1,7 @@
 2011-12-31 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #10809: added hook in cmd_compileMailGroup (mod2 und mod3)
 	* Bug #11851: added sorting of the dmail sysfolder
+	* Bug #32882: restore the cron logging for checking 
 
 2011-12-30 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #29503: improved statistic label
