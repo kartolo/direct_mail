@@ -955,37 +955,38 @@ class dmailer extends t3lib_htmlmail {
 			}
 				// Setting defer mode
 			$deferMode = $this->useDeferMode ? (($returnPath ? ' ': '') . '-O DeliveryMode=defer') : '';
-
+			$message = preg_replace('/^\.$/m', '. ', $this->message);
+			
 			if ($this->useSmtp)	{
-				$res = $this->mailObject->send($this->recipient, $headers, $this->message);
+				$this->mailObject->send($this->recipient, $headers, $message);
 			} 
 			elseif(!ini_get('safe_mode') && $this->forceReturnPath) {
 				//If safe mode is on, the fifth parameter to mail is not allowed, so the fix wont work on unix with safe_mode=On
 				mail($this->recipient,
 					  $this->subject,
-					  $this->message,
+					  $message,
 					  $this->headers,
 					  $returnPath.$deferMode);
 			} else {
 				mail($this->recipient,
 					  $this->subject,
-					  $this->message,
+					  $message,
 					  $this->headers);
 			}
 				// Sending copy:
 			if ($this->recipient_copy)	{
 				if ($this->useSmtp)	{
-					$res = $this->mailObject->send($this->recipient_copy, $headers, $this->message);
+					$this->mailObject->send($this->recipient, $headers, $message);
 				} elseif (!ini_get('safe_mode') && $this->forceReturnPath) {
 					mail($this->recipient_copy,
 								$this->subject,
-								$this->message,
+								$message,
 								$this->headers,
 								$returnPath.$deferMode);
 				} else {
 					mail($this->recipient_copy,
 								$this->subject,
-								$this->message,
+								$message,
 								$this->headers	);
 				}
 			}
