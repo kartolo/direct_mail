@@ -147,11 +147,17 @@ class dmailer extends t3lib_htmlmail {
 		$this->subject = $LANG->csConvObj->conv($this->subject, $LANG->charSet, $this->charset);
 		$this->subject = t3lib_div::encodeHeader($this->subject, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
 
-		$this->from_email    = $row['from_email'];
-		$this->from_name     = ($row['from_name']     ? $LANG->csConvObj->conv($row['from_name'], $LANG->charSet, $this->charset) : '');
+		$this->from_email = $row['from_email'];
+		$this->from_name = ($row['from_name']     ? $LANG->csConvObj->conv($row['from_name'], $LANG->charSet, $this->charset) : '');
+		$this->from_name = t3lib_div::encodeHeader($this->from_name, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		
 		$this->replyto_email = ($row['replyto_email'] ? $row['replyto_email'] : '');
 		$this->replyto_name  = ($row['replyto_name']  ? $LANG->csConvObj->conv($row['replyto_name'], $LANG->charSet, $this->charset) : '');
+		$this->replyto_name = t3lib_div::encodeHeader($this->replyto_name, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		
 		$this->organisation  = ($row['organisation']  ? $LANG->csConvObj->conv($row['organisation'], $LANG->charSet, $this->charset) : '');
+		$this->organisation = t3lib_div::encodeHeader($this->organisation, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		
 		$this->priority      = tx_directmail_static::intInRangeWrapper($row['priority'], 1, 5);
 		$this->mailer        = 'TYPO3 Direct Mail module';
 		$this->authCode_fieldList = ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid');
@@ -955,6 +961,9 @@ class dmailer extends t3lib_htmlmail {
 			}
 				// Setting defer mode
 			$deferMode = $this->useDeferMode ? (($returnPath ? ' ': '') . '-O DeliveryMode=defer') : '';
+			/**
+			 * TODO: will be obsolete, once swiftmailer is used
+			 */
 			$message = preg_replace('/^\.$/m', '. ', $this->message);
 			
 			if ($this->useSmtp)	{

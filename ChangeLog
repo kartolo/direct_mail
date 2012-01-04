@@ -1,5 +1,6 @@
 2012-01-04 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #26166: fixed single dot in mail body, since it means end of mail for mail server
+	* Bug #29911, #9271: properly encoded header.
 	
 2011-12-31 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #10809: added hook in cmd_compileMailGroup (mod2 und mod3)
