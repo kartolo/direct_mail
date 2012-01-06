@@ -81,7 +81,6 @@ class tx_directmail_importer {
 			$this->params = array();
 		}
 		// merge it with inData, but inData has priority.
-		debug(array("params" => $this->params, 'indata' => $this->indata));
 		$this->indata = t3lib_div::array_merge($this->params,$this->indata);
 		
 		$currentFileInfo = t3lib_basicFileFunctions::getTotalFileInfo($this->indata['newFile']);
