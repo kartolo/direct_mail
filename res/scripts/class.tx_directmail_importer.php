@@ -63,7 +63,15 @@ class tx_directmail_importer {
 	function cmd_displayImport()	{
 		global $BE_USER,$LANG, $BACK_PATH, $TYPO3_DB;
 
-		$this->indata = t3lib_div::_GP('CSV_IMPORT');
+		$defaultConf = array(
+			'remove_existing' => 0,
+			'first_fieldname' => 0,
+			'valid_email' => 0,
+			'remove_dublette' => 0,
+			'update_unique' => 0
+		);
+		
+		$this->indata = t3lib_div::array_merge($defaultConf, t3lib_div::_GP('CSV_IMPORT'));
 
 		if (empty($this->indata)) {
 			$this->indata = array(); 
@@ -73,6 +81,7 @@ class tx_directmail_importer {
 			$this->params = array();
 		}
 		// merge it with inData, but inData has priority.
+		debug(array("params" => $this->params, 'indata' => $this->indata));
 		$this->indata = t3lib_div::array_merge($this->params,$this->indata);
 		
 		$currentFileInfo = t3lib_basicFileFunctions::getTotalFileInfo($this->indata['newFile']);

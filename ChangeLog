@@ -1,3 +1,6 @@
+2012-01-06 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #10530: fixed loosing checkbox value in importer config.
+
 2012-01-04 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #26166: fixed single dot in mail body, since it means end of mail for mail server
 	* Bug #29911, #9271: properly encoded header.
