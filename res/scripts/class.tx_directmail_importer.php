@@ -71,7 +71,9 @@ class tx_directmail_importer {
 			'update_unique' => 0
 		);
 		
-		$this->indata = t3lib_div::array_merge($defaultConf, t3lib_div::_GP('CSV_IMPORT'));
+		$inputConfig = (t3lib_div::_GP('CSV_IMPORT')) ? t3lib_div::_GP('CSV_IMPORT'):array();
+		
+		$this->indata = t3lib_div::array_merge($defaultConf, $inputConfig);
 
 		if (empty($this->indata)) {
 			$this->indata = array(); 
