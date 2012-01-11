@@ -63,6 +63,8 @@ class tx_directmail_importer {
 	function cmd_displayImport()	{
 		global $BE_USER,$LANG, $BACK_PATH, $TYPO3_DB;
 
+		$step = t3lib_div::_GP('importStep');
+		
 		$defaultConf = array(
 			'remove_existing' => 0,
 			'first_fieldname' => 0,
@@ -71,9 +73,14 @@ class tx_directmail_importer {
 			'update_unique' => 0
 		);
 		
-		$inputConfig = (t3lib_div::_GP('CSV_IMPORT')) ? t3lib_div::_GP('CSV_IMPORT'):array();
-		
-		$this->indata = t3lib_div::array_merge($defaultConf, $inputConfig);
+		if (t3lib_div::_GP('CSV_IMPORT')) {
+			$importerConfig = t3lib_div::_GP('CSV_IMPORT');
+			if ($step['next'] == 'mapping') {
+				$this->indata = t3lib_div::array_merge($defaultConf, $importerConfig);
+			} else {
+				$this->indata = $importerConfig;
+			}
+		}
 
 		if (empty($this->indata)) {
 			$this->indata = array(); 
@@ -84,7 +91,7 @@ class tx_directmail_importer {
 		}
 		// merge it with inData, but inData has priority.
 		$this->indata = t3lib_div::array_merge($this->params,$this->indata);
-		
+
 		$currentFileInfo = t3lib_basicFileFunctions::getTotalFileInfo($this->indata['newFile']);
 		$currentFileName = $currentFileInfo['file'];
 		$curentFileSize = t3lib_div::formatSize($currentFileInfo['size']);
@@ -101,8 +108,7 @@ class tx_directmail_importer {
 		} else if(!empty($this->indata['newFile'])){
 			$this->indata['newFile'] = $this->indata['newFile'];
 		}
-		$step = t3lib_div::_GP('importStep');
-
+		
 		if($this->indata['back']){
 			$stepCurrent = $step['back'];
 		} elseif ($this->indata['next']){
