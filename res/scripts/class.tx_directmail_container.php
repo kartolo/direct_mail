@@ -148,6 +148,28 @@ class tx_directmail_container	{
 			return t3lib_div::breakTextForEmail( $content, $linebreak, $charWidth );
 		}
 	}
+	
+	/**
+	 * inserting boundaries for each sitemap point.
+	 * @param string $content: the content string
+	 * @param array $conf: the TS conf
+	 * @return string $content: the string wrapped with boundaries
+	 */
+	public function insertSitemapBoundaries($content, $conf) {
+		$uid = $this->cObj->data['uid'];
+		$content = '';
+	
+		$categories = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_dmail_ttcontent_category_mm', 'uid_local=' . (int)$uid, '', 'sorting');
+		if (count($categories) > 0) {
+			$categoryList = array();
+			foreach($categories as $category) {
+				$categoryList[] = $category['uid_foreign'];
+			}
+			$content = '<!--DMAILER_SECTION_BOUNDARY_' . implode(',', $categoryList) . '-->|<!--DMAILER_SECTION_BOUNDARY_END-->';
+		}
+	
+		return $content;
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_container.php'])	{
