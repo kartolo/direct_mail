@@ -672,11 +672,13 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			$HTMLContent = base64_decode($temp_unpackedMail['html']['content']);
 
 			$HTMLLinks = array();
-			foreach ($temp_unpackedMail['html']['hrefs'] as $jumpurlId => $data) {
-				$HTMLlinks[$jumpurlId] = array(
-					'url'   => $data['ref'],
-					'label' => ''
-				);
+			if(is_array($temp_unpackedMail['html']['hrefs'])) {
+				foreach ($temp_unpackedMail['html']['hrefs'] as $jumpurlId => $data) {
+					$HTMLlinks[$jumpurlId] = array(
+						'url'   => $data['ref'],
+						'label' => ''
+					);
+				}
 			}
 
 				// get body
@@ -1275,7 +1277,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		
 		$this->noView = 1;
 		// put all the stats tables in a section
-		$theOutput .= '<h2>' . $this->doc->section($LANG->getLL('stats_direct_mail'), $output, 1, 1, 0, TRUE);
+		$theOutput .= $this->doc->section($LANG->getLL('stats_direct_mail'), $output, 1, 1, 0, TRUE);
 		$theOutput .= $this->doc->spacer(20);
 
 		$link = '<p><a style="text-decoration: underline;" href="'.$thisurl.'">' . $LANG->getLL('stats_recalculate_stats') . '</a></p>';
