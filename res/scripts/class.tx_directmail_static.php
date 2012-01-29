@@ -61,7 +61,6 @@
  * 1071:     function cmd_displayMailGroup_test($result)
  * 1091:     function fetchRecordsListValues($listArr,$table,$fields='uid,name,email')
  * 1120:     function getRecordList($listArr,$table,$dim=0,$editLinkFlag=1)
- * 1162:     function cmd_compileMailGroup($group_uid)
  * 1271:     function getRecursiveSelect($id,$perms_clause)
  * 1288:     function cleanPlainList($plainlist)
  * 1304:     function update_specialQuery($mailGroup)
@@ -377,9 +376,9 @@ class tx_directmail_static {
 		}
 
 		
-		$outArr=array();
+		$outArr = array();
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-			$outArr[]=$row['uid'];
+			$outArr[] = $row['uid'];
 		}
 
 		if ($table == 'fe_groups') {
@@ -401,7 +400,8 @@ class tx_directmail_static {
 
 			// recursively get all subgroups of this fe_group
 			$subgroups = tx_directmail_static::getFEgroupSubgroups($groupId);
-			if (is_array($subgroups)) {
+
+			if (!empty($subgroups)) {
 				$usergroupInList = null;
 				foreach ($subgroups as $subgroup) {
 					$usergroupInList .= (($usergroupInList == null) ? null : ' OR').' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\','.intval($subgroup).',\') )';
@@ -418,11 +418,11 @@ class tx_directmail_static {
 						t3lib_BEfunc::deleteClause($switchTable).
 						t3lib_BEfunc::BEenableFields($table).
 						t3lib_BEfunc::deleteClause($table)
-					);
+				);
 	
 				while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 					$outArr[]=$row['uid'];
-				}				
+				}
 			}
 
 		}
@@ -883,14 +883,15 @@ class tx_directmail_static {
 		global $TYPO3_DB;
 
 		// get all subgroups of this fe_group - fe_groups having this id in their subgroup field
-		$query = $TYPO3_DB->SELECTquery(
-			'DISTINCT fe_groups.uid',
-			'fe_groups, sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
-			'INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\','.intval($groupId).',\' )'.
+		$res= $GLOBALS["TYPO3_DB"]->exec_SELECT_mm_query(
+			"DISTINCT fe_groups.uid",
+			"fe_groups",
+			"sys_dmail_group_mm",
+			"sys_dmail_group",
+			' AND INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\','.intval($groupId).',\' )'.
 				t3lib_BEfunc::BEenableFields('fe_groups').
 				t3lib_BEfunc::deleteClause('fe_groups')
 		);
-		$res = $GLOBALS['TYPO3_DB']->sql_query($query);
 
 		$groupArr = array();
 
@@ -1321,6 +1322,24 @@ class tx_directmail_static {
 		}
 
 		return strtolower($characterSet);
+	}
+	
+	/**
+	 * Wrapper for the old t3lib_div::intInRange. 
+	 * Forces the integer $theInt into the boundaries of $min and $max. If the $theInt is 'FALSE' then the $zeroValue is applied.
+	 *
+	 * @param integer $theInt Input value
+	 * @param integer $min Lower limit
+	 * @param integer $max Higher limit
+	 * @param integer $zeroValue Default value if input is FALSE.
+	 * @return integer The input value forced into the boundaries of $min and $max
+	 */
+	public static function intInRangeWrapper($theInt, $min, $max = 2000000000, $zeroValue = 0) {
+		if (t3lib_div::compat_version('4.6')) {
+			return t3lib_utility_Math::forceIntegerInRange($theInt, $min, $max, $zeroValue);
+		} else {
+			return t3lib_div::intInRange($theInt, $min, $max, $zeroValue);
+		}
 	}
 	
 }

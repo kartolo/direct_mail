@@ -167,8 +167,8 @@ class tx_directmail_ttnews_plaintext {
 		if ($row['author']) {
 			$hConf = $this->renderPlainText->conf['tt_news_author.'];
 			$str = $this->renderPlainText->getString($hConf['prefix']).$row['author'].$this->renderPlainText->getString($hConf['emailPrefix']).'<'.$row['author_email'].'>';
-			$defaultType = t3lib_div::intInRange($hConf['defaultType'],1,5);
-			$type = t3lib_div::intInRange($type,0,6);
+			$defaultType = tx_directmail_static::intInRangeWrapper($hConf['defaultType'],1,5);
+			$type = tx_directmail_static::intInRangeWrapper($type,0,6);
 			if (!$type) {
 				$type=$defaultType;
 			}
@@ -177,14 +177,14 @@ class tx_directmail_ttnews_plaintext {
 
 				$lines=array();
 
-				$blanks = t3lib_div::intInRange($tConf['preBlanks'],0,1000);
+				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preBlanks'],0,1000);
 				if ($blanks) {
 					$lines[]=str_pad('', $blanks-1, chr(10));
 				}
 
 				$lines = $this->renderPlainText->pad($lines,$tConf['preLineChar'],$tConf['preLineLen']);
 
-				$blanks = t3lib_div::intInRange($tConf['preLineBlanks'],0,1000);
+				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preLineBlanks'],0,1000);
 				if ($blanks) {
 					$lines[]=str_pad('', $blanks-1, chr(10));
 				}
@@ -199,14 +199,14 @@ class tx_directmail_ttnews_plaintext {
 
 				$lines[]=$this->cObj->stdWrap($str,$tConf['stdWrap.']);
 
-				$blanks = t3lib_div::intInRange($tConf['postLineBlanks'],0,1000);
+				$blanks = tx_directmail_static::intInRangeWrapper($tConf['postLineBlanks'],0,1000);
 				if ($blanks) {
 					$lines[]=str_pad('', $blanks-1, chr(10));
 				}
 
 				$lines = $this->renderPlainText->pad($lines,$tConf['postLineChar'],$tConf['postLineLen']);
 
-				$blanks = t3lib_div::intInRange($tConf['postBlanks'],0,1000);
+				$blanks = tx_directmail_static::intInRangeWrapper($tConf['postBlanks'],0,1000);
 				if ($blanks) {
 					$lines[]=str_pad('', $blanks-1, chr(10));
 				}

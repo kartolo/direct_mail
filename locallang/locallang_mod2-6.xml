@@ -159,6 +159,7 @@
 			<label index="mailgroup_import_mapping_number"></label>
 			<label index="mailgroup_import_mapping_value"></label>
 			<label index="mailgroup_import_mapping_categories"></label>
+			<label index="mailgroup_import_mapping_cats_add"></label>
 			<label index="mailgroup_import_next"></label>
 			<label index="mailgroup_import_or"></label>
 			<label index="mailgroup_import_overwrite"></label>
@@ -357,8 +358,8 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="configure_quickmail_encoding_description">Select the content transfer encoding to use when sending quick mails.</label>
 			<label index="configure_test_dmail_group_uids">List of UID numbers of test recipient lists:</label>
 			<label index="configure_test_dmail_group_uids_description">Alternatively to sending test-mails to individuals, you can choose to send to a whole list. This is the list of recipient lists UID numbers available for this action.</label>
-			<label index="configure_test_tt_address_uids">List of UID numbers of test recipients:</label>
-			<label index="configure_test_tt_address_uids_description">Before sending mails, you should test the mail content by sending test mails to one or more test recipients. The available recipients for testing are determined by this list of UID numbers. So first, find out the UID numbers of the recipients you wish to use for testing, then enter them here in a comma-separated list.</label>
+			<label index="configure_test_tt_address_uids">List of UID numbers of test recipients (tt_address):</label>
+			<label index="configure_test_tt_address_uids_description">Before sending mails, you should test the mail content by sending test mails to one or more test recipients. The available recipients for testing are determined by this list of UID numbers. So first, find out the UID numbers (tt_address) of the recipients you wish to use for testing, then enter them here in a comma-separated list.</label>
 			<label index="configure_update_configuration">Update configuration</label>
 			<label index="configure_user_table">Custom-defined table:</label>
 			<label index="configure_user_table_description">Enter the name of a custom-defined table, with compatible columns defined, which may also be used for direct mails distribution.</label>
@@ -367,7 +368,7 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="dmail_HTML_url">URL of HTML content:</label>
 			<label index="dmail_cancel">Cancel</label>
 			<label index="dmail_createMail">Create mail</label>
-			<label index="dmail_dovsk_crFromNL">Create a new Direct Mail from newsletter</label>
+			<label index="dmail_dovsk_crFromNL">Create a new Direct Mail from a page</label>
 			<label index="dmail_dovsk_crFromUrl">Create a new Direct Mail from external URL</label>
 			<label index="dmail_edit">Edit</label>
 			<label index="dmail_error">An error was encountered.</label>
@@ -479,6 +480,7 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="mailgroup_import_mapping_number">#</label>
 			<label index="mailgroup_import_mapping_value">Value</label>
 			<label index="mailgroup_import_mapping_categories">Categories</label>
+			<label index="mailgroup_import_mapping_cats_add">Add categories</label>
 			<label index="mailgroup_import_next">Next</label>
 			<label index="mailgroup_import_update">update</label>
 			<label index="mailgroup_import_or">OR</label>
@@ -682,8 +684,8 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="configure_quickmail_encoding_description">Select the content transfer encoding to use when sending quick mails.</label>
 			<label index="configure_test_dmail_group_uids">Liste der UID Nummern von Testempfängern:</label>
 			<label index="configure_test_dmail_group_uids_description">Alternativ können Sie Test-E-Mails an einer Liste verschicken. Es ist die UID-Nummer der Liste, die für das Testversand verfügbar soll.</label>
-			<label index="configure_test_tt_address_uids">Liste der UID von Testempfängern:</label>
-			<label index="configure_test_tt_address_uids_description">Vor dem Versand sollten Sie die E-Mail überprüfen, in dem Sie die E-Mail an ein oder mehrere Empfängern verschicken. Die verfügbaren Empfänger sind in eine Liste von UID bestimmt. Finde die UID Nummer der Empfängern, die als Testempfängern fungieren und gibt in einer komma getrennte Liste ein.</label>
+			<label index="configure_test_tt_address_uids">Liste der UID (tt_address) von Testempfängern:</label>
+			<label index="configure_test_tt_address_uids_description">Vor dem Versand sollten Sie die E-Mail überprüfen, in dem Sie die E-Mail an ein oder mehrere Empfängern verschicken. Die verfügbaren Empfänger sind in eine Liste von UID bestimmt. Finde die UID Nummer der Empfängern (tt_address), die als Testempfängern fungieren und gibt in einer komma getrennte Liste ein.</label>
 			<label index="configure_update_configuration">Aktualisiere Konfigurationen</label>
 			<label index="configure_user_table">Benutzerdefinierte Tabelle:</label>
 			<label index="configure_user_table_description">Gibt der benutzerdefinierte Tabellenname ein, die für das Versand der Direct Mails benutzt werden soll.</label>
@@ -692,7 +694,7 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="dmail_HTML_url">HTML URL:</label>
 			<label index="dmail_cancel">Abbrechen</label>
 			<label index="dmail_createMail">E-Mail erstellen</label>
-			<label index="dmail_dovsk_crFromNL">Neuen Versand anhand eines Newsletters erstellen</label>
+			<label index="dmail_dovsk_crFromNL">Neuen Versand anhand einer Seite erstellen</label>
 			<label index="dmail_dovsk_crFromUrl">Neuen Versand anhand einer externen URL erstellen</label>
 			<label index="dmail_edit">Ändern</label>
 			<label index="dmail_error">FEHLER</label>
@@ -804,6 +806,7 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="mailgroup_import_mapping_number">#</label>
 			<label index="mailgroup_import_mapping_value">Wert</label>
 			<label index="mailgroup_import_mapping_categories">Kategorien</label>
+			<label index="mailgroup_import_mapping_cats_add">Kategorien hinzufügen</label>
 			<label index="mailgroup_import_next">Weiter</label>
 			<label index="mailgroup_import_update">aktualisieren</label>
 			<label index="mailgroup_import_or">ODER</label>
@@ -938,7 +941,7 @@ Wenn Sie auf "Importieren" klicken, werden die Daten in tt_address Tabelle impor
 			<label index="stats_total">Insgesamt:</label>
 			<label index="stats_total_mails_returned">Insgesamt zurückgekommen:</label>
 			<label index="stats_total_responses">Reaktionen insgesamt (Anzahl Klicks):</label>
-			<label index="stats_unique_responses">Angeklickte Links:</label>
+			<label index="stats_unique_responses">Anzahl der klickenden Empfänger:</label>
 			<label index="stats_website_users">Liste der fe_users Empfängern:</label>
 			<label index="stats_website_users_disabled">Website-Benutzer deaktiviert</label>
 			<label index="subscriber_info">Abonnentsinfo</label>

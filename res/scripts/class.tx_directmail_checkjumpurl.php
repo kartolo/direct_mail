@@ -27,7 +27,7 @@
  ***************************************************************/
 
 /**
- * @author		Kasper Skårhøj <kasperYYYY>@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasperYYYY>@typo3.com>
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
  * @package 	TYPO3
@@ -129,7 +129,7 @@ class tx_directmail_checkjumpurl {
 								$jumpurl = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $jumpurl);
 							}
 								// Put in the tablename of the userinformation
-							$jumpurl = str_replace('###SYS_TABLE_NAME###', $theTable, $jumpurl);
+							$jumpurl = str_replace('###SYS_TABLE_NAME###', substr($theTable, 0, 1), $jumpurl);
 								// Put in the uid of the mail-record
 							$jumpurl = str_replace('###SYS_MAIL_ID###', $mid, $jumpurl);
 								// If authCode is provided, keep it.

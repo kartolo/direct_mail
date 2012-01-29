@@ -100,6 +100,7 @@ require_once(PATH_t3lib.'class.t3lib_befunc.php');
 class dmailer extends t3lib_htmlmail {
 	var $sendPerCycle =50;
 	var $dontEncodeHeader = 1;
+	var $logArray = array();
 	var $massend_id_lists = array();
 	var $mailHasContent;
 	var $flag_html = 0;
@@ -146,12 +147,18 @@ class dmailer extends t3lib_htmlmail {
 		$this->subject = $LANG->csConvObj->conv($this->subject, $LANG->charSet, $this->charset);
 		$this->subject = t3lib_div::encodeHeader($this->subject, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
 
-		$this->from_email    = $row['from_email'];
-		$this->from_name     = ($row['from_name']     ? $LANG->csConvObj->conv($row['from_name'], $LANG->charSet, $this->charset) : '');
+		$this->from_email = $row['from_email'];
+		$this->from_name = ($row['from_name']     ? $LANG->csConvObj->conv($row['from_name'], $LANG->charSet, $this->charset) : '');
+		$this->from_name = t3lib_div::encodeHeader($this->from_name, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		
 		$this->replyto_email = ($row['replyto_email'] ? $row['replyto_email'] : '');
 		$this->replyto_name  = ($row['replyto_name']  ? $LANG->csConvObj->conv($row['replyto_name'], $LANG->charSet, $this->charset) : '');
+		$this->replyto_name = t3lib_div::encodeHeader($this->replyto_name, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		
 		$this->organisation  = ($row['organisation']  ? $LANG->csConvObj->conv($row['organisation'], $LANG->charSet, $this->charset) : '');
-		$this->priority      = t3lib_div::intInRange($row['priority'], 1, 5);
+		$this->organisation = t3lib_div::encodeHeader($this->organisation, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		
+		$this->priority      = tx_directmail_static::intInRangeWrapper($row['priority'], 1, 5);
 		$this->mailer        = 'TYPO3 Direct Mail module';
 		$this->authCode_fieldList = ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid');
 
@@ -186,7 +193,7 @@ class dmailer extends t3lib_htmlmail {
 
 		$this->flag_html    = ($this->theParts['html']['content']  ? 1 : 0);
 		$this->flag_plain   = ($this->theParts['plain']['content'] ? 1 : 0);
-		$this->includeMedia = ($this->flag_html && $row['includeMedia']);
+		$this->includeMedia = $row['includeMedia'];
 	}
 
 	/**
@@ -486,6 +493,7 @@ class dmailer extends t3lib_htmlmail {
 				}
 			}
 			if (TYPO3_DLOG) t3lib_div::devLog('Sending ' . $cc . ' mails to table ' . $table, 'direct_mail');
+			$this->logArray[] = 'Sending ' . $cc . ' mails to table ' . $table;
 			if ($numRows < $this->sendPerCycle)	return true;
 		}
 		return false;
@@ -566,6 +574,7 @@ class dmailer extends t3lib_htmlmail {
 						}
 					}
 					if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_sending').' '.$ct.' '.$LANG->getLL('dmailer_sending_to_table').' '.$table, 'direct_mail');
+					$this->logArray[] = $LANG->getLL('dmailer_sending').' '.$ct.' '.$LANG->getLL('dmailer_sending_to_table').' '.$table;
 				}
 			}
 		}
@@ -663,6 +672,7 @@ class dmailer extends t3lib_htmlmail {
 			break;
 		}
 		if (TYPO3_DLOG) t3lib_div::devLog($subject . ': '.$message, 'direct_mail');
+		$this->logArray[] = $subject . ': '.$message;
 
 		$from_name = ($this->from_name) ? $LANG->csConvObj->conv($this->from_name, $this->charset, $LANG->charSet) : '';
 
@@ -820,6 +830,7 @@ class dmailer extends t3lib_htmlmail {
 			'scheduled'
 		);
 		if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y'), 'direct_mail');
+		$this->logArray[] = $LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y');
 
 		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				// format headers for SMTP use
@@ -832,6 +843,7 @@ class dmailer extends t3lib_htmlmail {
 			}
 
 			if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid']. ', \'' . $row['subject'] . '\'' . $LANG->getLL('dmailer_processed'), 'direct_mail');
+			$this->logArray[] = $LANG->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid']. ', \'' . $row['subject'] . '\'' . $LANG->getLL('dmailer_processed');
 			$this->dmailer_prepare($row);
 			$query_info=unserialize($row['query_info']);
 			if (!$row['scheduled_begin'])   {
@@ -843,6 +855,7 @@ class dmailer extends t3lib_htmlmail {
 			}
 		} else {
 			if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_nothing_to_do'), 'direct_mail');
+			$this->logArray[] = $LANG->getLL('dmailer_nothing_to_do');
 		}
 
 		//closing DB connection
@@ -850,6 +863,7 @@ class dmailer extends t3lib_htmlmail {
 		
 		$parsetime = t3lib_div::milliseconds()-$pt;
 		if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_ending'). ' ' . $parsetime . ' ms', 'direct_mail');
+		$this->logArray[] = $LANG->getLL('dmailer_ending'). ' ' . $parsetime . ' ms';
 	}
 
 	/**
@@ -868,6 +882,7 @@ class dmailer extends t3lib_htmlmail {
 		$this->user_dmailerLang = $user_dmailer_lang;
 		if (!$this->nonCron) {
 			if (TYPO3_DLOG) t3lib_div::devLog('Starting directmail cronjob', 'direct_mail');
+			//write this temp file for checking the engine in the status module
 			$this->dmailer_log('w','starting directmail cronjob');
 		}
 		
@@ -946,37 +961,41 @@ class dmailer extends t3lib_htmlmail {
 			}
 				// Setting defer mode
 			$deferMode = $this->useDeferMode ? (($returnPath ? ' ': '') . '-O DeliveryMode=defer') : '';
-
+			/**
+			 * TODO: will be obsolete, once swiftmailer is used
+			 */
+			$message = preg_replace('/^\.$/m', '. ', $this->message);
+			
 			if ($this->useSmtp)	{
-				$res = $this->mailObject->send($this->recipient, $headers, $this->message);
+				$this->mailObject->send($this->recipient, $headers, $message);
 			} 
 			elseif(!ini_get('safe_mode') && $this->forceReturnPath) {
 				//If safe mode is on, the fifth parameter to mail is not allowed, so the fix wont work on unix with safe_mode=On
 				mail($this->recipient,
 					  $this->subject,
-					  $this->message,
+					  $message,
 					  $this->headers,
 					  $returnPath.$deferMode);
 			} else {
 				mail($this->recipient,
 					  $this->subject,
-					  $this->message,
+					  $message,
 					  $this->headers);
 			}
 				// Sending copy:
 			if ($this->recipient_copy)	{
 				if ($this->useSmtp)	{
-					$res = $this->mailObject->send($this->recipient_copy, $headers, $this->message);
+					$this->mailObject->send($this->recipient, $headers, $message);
 				} elseif (!ini_get('safe_mode') && $this->forceReturnPath) {
 					mail($this->recipient_copy,
 								$this->subject,
-								$this->message,
+								$message,
 								$this->headers,
 								$returnPath.$deferMode);
 				} else {
 					mail($this->recipient_copy,
 								$this->subject,
-								$this->message,
+								$message,
 								$this->headers	);
 				}
 			}
@@ -1164,6 +1183,26 @@ class dmailer extends t3lib_htmlmail {
 		
 		parent::setHeaders();
 		$this->messageid = $oldMsgID;
+	}
+	
+	/**
+	* write to log file and send a notification email to admin if no records in sys_dmail_maillog table can be made
+	*
+	* @param	string		$writeMode: mode to open a file
+	* @param	string		$logMsg: log message
+	* @return	void		...
+	*/
+	function dmailer_log($writeMode,$logMsg){
+		global $TYPO3_CONF_VARS;
+	
+		$content = time().' => '.$logMsg.chr(10);
+		$logfilePath = 'typo3temp/tx_directmail_dmailer_log.txt';
+
+		$fp = fopen(PATH_site.$logfilePath,$writeMode);
+		if ($fp) {
+			fwrite($fp,$content);
+			fclose($fp);
+		}			
 	}
 	
 }

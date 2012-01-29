@@ -37,7 +37,7 @@ $LANG->includeLLFile('EXT:direct_mail/locallang/locallang_csh_sysdmail.xml');
 /**
  * Class to producing navigation frame of the tx_directmail extension
  *
- * @author		Kasper Skårhøj <kasper@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasper@typo3.com>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
  *
  * @package 	TYPO3
@@ -141,7 +141,9 @@ class tx_directmail_navframe{
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'*',
 			'pages',
-			'doktype = 254 AND module in (\'dmail\')'. t3lib_BEfunc::deleteClause('pages')
+			'doktype = 254 AND module in (\'dmail\')'. t3lib_BEfunc::deleteClause('pages'),
+			'',
+			'sorting'
 		);
 		$out = '';
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res)){
