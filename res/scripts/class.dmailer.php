@@ -1104,8 +1104,15 @@ class dmailer extends t3lib_htmlmail {
 				if (!$this->mediaList || t3lib_div::inList($this->mediaList,$key))	{
 					$this->add_message("--".$boundary);
 					$this->add_message("Content-Type: ".$media["ctype"]);
+					if ($media['filename']) { 
+						$this->add_message(' name="' . $media['filename'] . '"');
+					}
 					$this->add_message("Content-ID: <part".$key.".".$this->messageid.">");
 					$this->add_message("Content-Transfer-Encoding: base64");
+					if ($media['filename']) { 
+						$this->add_message('Content-Disposition: inline;');
+						$this->add_message(' filename="' . $media['filename'] . '"');
+					}
 					$this->add_message('');
 					$this->add_message($this->makeBase64($media["content"]));
 				}
@@ -1205,6 +1212,66 @@ class dmailer extends t3lib_htmlmail {
 		}			
 	}
 	
+	/**
+	 * reads the URL or file and determines the Content-type by either guessing or opening a connection to the host
+	 *
+	 * @param	string		$url: the URL to get information of
+	 * @return	mixed		either false or the array with information
+	 */
+	public function getExtendedURL($url) {
+		$res = array();
+		$res['content'] = $this->getURL($url);
+		if (!$res['content']) {
+			return FALSE;
+		}
+		$pathInfo = parse_url($url);
+		$fileInfo = $this->split_fileref($pathInfo['path']);
+		switch ($fileInfo['fileext']) {
+			case 'gif':
+			case 'png':
+				$res['content_type'] = 'image/' . $fileInfo['fileext'];
+				break;
+			case 'jpg':
+			case 'jpeg':
+				$res['content_type'] = 'image/jpeg';
+				break;
+			case 'html':
+			case 'htm':
+				$res['content_type'] = 'text/html';
+				break;
+			case 'css':
+				$res['content_type'] = 'text/css';
+				break;
+			case 'swf':
+				$res['content_type'] = 'application/x-shockwave-flash';
+				break;
+			default:
+				$res['content_type'] = $this->getMimeType($url);
+		}
+		$res['filename'] = $fileInfo['file'];
+		return $res;
+	}
+
+	/**
+	 * Fetches the mediafiles which are found by extractMediaLinks()
+	 *
+	 * @return	void
+	 */
+	public function fetchHTMLMedia() {
+		if (!is_array($this->theParts['html']['media']) || !count($this->theParts['html']['media'])) {
+			return;
+		}
+		foreach ($this->theParts['html']['media'] as $key => $media) {
+				// fetching the content and the mime-type
+			$picdata = $this->getExtendedURL($this->theParts['html']['media'][$key]['absRef']);
+			if (is_array($picdata)) {
+				$this->theParts['html']['media'][$key]['content'] = $picdata['content'];
+				$this->theParts['html']['media'][$key]['ctype'] = $picdata['content_type'];
+				$this->theParts['html']['media'][$key]['filename'] = $picdata['filename'];
+			}
+		}
+	}
+
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.dmailer.php'])	{
