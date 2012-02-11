@@ -79,7 +79,12 @@ class tx_directmail_checkjumpurl {
 			list($recipientTable, $recipientUid) = explode('_', $rid);
 
 			$url_id = 0;
-			if (t3lib_div::testInt($jumpurl)) {
+			if (t3lib_div::compat_version('4.6')) {
+				$isInt = t3lib_utility_Math::canBeInterpretedAsInteger($jumpurl);
+			} else {
+				$isInt = t3lib_div::testInt($jumpurl);
+			}
+			if ($isInt) {
 				
 					// fetch the direct mail record where the mailing was sent (for this message)
 				$resMailing = $GLOBALS['TYPO3_DB']->exec_SELECTquery(

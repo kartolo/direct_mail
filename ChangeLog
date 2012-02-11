@@ -1,3 +1,6 @@
+2012-02-11 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #33803: fixed deprecated testInt (4.6.0)
+
 2012-01-18 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Feature #13964: added TS for wrapping the sitemap content with the right boundaries.
 

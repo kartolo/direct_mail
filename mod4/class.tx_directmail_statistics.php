@@ -1297,7 +1297,13 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			$m = array();
 			// do we have an id?
 			if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $uParts['query'], $m)) {
-				if (t3lib_div::testInt($m[1])) {
+				if (t3lib_div::compat_version('4.6')) {
+					$isInt = t3lib_utility_Math::canBeInterpretedAsInteger($m[1]);
+				} else {
+					$isInt = t3lib_div::testInt($m[1]);
+				}
+				
+				if ($isInt) {
 					$uid = intval($m[1]);
 				} else {
 					$uid = $this->sys_page->getPageIdFromAlias($m[1]);
