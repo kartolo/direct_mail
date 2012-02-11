@@ -352,7 +352,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 	 */
 	function cmd_mailerengine() {
 		global $LANG, $TYPO3_DB, $BACK_PATH;
-
+		
 			// enable manual invocation of mailer engine; enabled by default
 		$enableTrigger = ! (isset($this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger'] ) && $this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger'] );
 		if ($enableTrigger && t3lib_div::_GP('invokeMailerEngine')) {
@@ -362,6 +362,14 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 				t3lib_FlashMessage::INFO
 			);
 			$invokeMessage = $flashMessage->render();
+		}
+		
+		// Invoke engine
+		if ($enableTrigger) {
+			$out = '<p>' . $LANG->getLL('dmail_mailerengine_manual_explain') . '<br /><br />&nbsp;&nbsp;<a class="t3-link" href="index.php?id='.$this->id.'&invokeMailerEngine=1"><strong>' . $LANG->getLL('dmail_mailerengine_invoke_now') . '</strong></a></p>';
+			$theOutput .= $this->doc->spacer(20);
+			$theOutput .= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_invoke',$BACK_PATH).$LANG->getLL('dmail_mailerengine_manual_invoke'), $out, 1, 1, 0, TRUE);
+			$theOutput .= $this->doc->spacer(20);
 		}
 
 		// Display mailer engine status
@@ -374,6 +382,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			'',
 			'scheduled DESC'
 		);
+		
 		$out = '<tr>
 				<td class="t3-row-header">'.'&nbsp;'.'</td>
 				<td class="t3-row-header"><b>'.$LANG->getLL('dmail_mailerengine_subject') . '&nbsp;&nbsp;'.'</b></td>
@@ -405,14 +414,8 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 		}
 
 		$out = $invokeMessage . '<table class="typo3-dblist" cellpadding="1" cellspacing="0">'.$out.'</table>';
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_status',$BACK_PATH).$LANG->getLL('dmail_mailerengine_status'),$out,1,1, 0, TRUE);
-
-			// Invoke engine
-		if ($enableTrigger) {
-			$out = '<p>' . $LANG->getLL('dmail_mailerengine_manual_explain') . '<br /><br />&nbsp;&nbsp;<a class="t3-link" href="index.php?id='.$this->id.'&invokeMailerEngine=1"><strong>' . $LANG->getLL('dmail_mailerengine_invoke_now') . '</strong></a></p>';
-			$theOutput.= $this->doc->spacer(20);
-			$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_invoke',$BACK_PATH).$LANG->getLL('dmail_mailerengine_manual_invoke'), $out, 1, 1, 0, TRUE);
-		}
+		$theOutput .= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_status',$BACK_PATH).$LANG->getLL('dmail_mailerengine_status'),$out,1,1, 0, TRUE);
+		
 		return $theOutput;
 	}
 
