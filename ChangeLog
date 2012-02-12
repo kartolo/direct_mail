@@ -1,3 +1,6 @@
+2012-02-12 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #33574: show error message on saving.
+
 2012-02-11 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #33803: fixed deprecated testInt (4.6.0)
 	* Bug #33727: added attachment filename in the header

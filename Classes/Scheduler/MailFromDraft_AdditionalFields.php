@@ -78,7 +78,7 @@ class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_sched
 		
 		if (count($drafts) === 0) {
 				// TODO: localization
-			$parentObject->addMessage('No drafts found. Please add one first through the direct mail process', t3lib_FlashMessage::ERROR);
+			$fieldHtml .= '<option>' . 'No drafts found. Please add one first through the direct mail process'. '</option>';
 		} else {
 			foreach ($drafts as $draft) {
 				$selected = ($taskInfo['selecteddraft'] ? ' selected="selected"' : '');
@@ -118,6 +118,10 @@ class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_sched
 				$parentObject->addMessage('No draft record selected', t3lib_FlashMessage::ERROR);
 				$result = FALSE;
 			}
+		} else {
+			// TODO: localization
+			$parentObject->addMessage('No drafts found. Please add one first through the direct mail process', t3lib_FlashMessage::ERROR);
+			$result = FALSE;
 		}
 
 		return $result;
