@@ -22,7 +22,7 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 
-
+// TODO: remove htmlmail
 require_once(t3lib_extMgm::extPath('gabriel', 'class.tx_gabriel_event.php'));
 require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
 require_once(PATH_t3lib.'class.t3lib_cs.php');
@@ -39,12 +39,12 @@ class tx_directmail_gabriel extends tx_gabriel_event {
 	/**
 	 * Function executed from gabriel.
 	 * Send the newsletter
-	 * 
+	 *
 	 * @return	void
 	 */
 	function execute() {
 		global $BE_USER;
-		
+
 		// Check if cronjob is already running:
 		if (@file_exists (PATH_site.'typo3temp/tx_directmail_cron.lock')) {
 				// If the lock is not older than 1 day, skip index creation:
@@ -72,11 +72,11 @@ class tx_directmail_gabriel extends tx_gabriel_event {
 
 		$lockfile = PATH_site.'typo3temp/tx_directmail_cron.lock';
 		touch ($lockfile);
-		
+
 		$htmlmail = t3lib_div::makeInstance('dmailer');
 		$htmlmail->start();
 		$htmlmail->runcron();
-		
+
 		unlink ($lockfile);
 	} // end of 'function execute() {..}'
 
@@ -84,13 +84,13 @@ class tx_directmail_gabriel extends tx_gabriel_event {
 
 	/**
 	 * PHP4 wrapper function for the class constructor
-	 * 
+	 *
 	 * @return 	void
 	 */
 	function tx_directmail_gabriel() {
 		$this->__construct();
-	} // end of 'function tx_gabriel_testevent() {..}'	
-	
+	} // end of 'function tx_gabriel_testevent() {..}'
+
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/class.tx_directmail_gabriel.php'])	{

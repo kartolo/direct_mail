@@ -234,18 +234,18 @@ class tx_directmail_static {
 	function getIdList($table,$pidList,$group_uid,$cat) {
 		global $TCA, $TYPO3_DB;
 
-		$addWhere = ''; 
-		
+		$addWhere = '';
+
 		if ($table == 'fe_users') {
 			$addWhere = ' AND fe_users.module_sys_dmail_newsletter = 1';
 		}
-		
+
 		if ($table == 'fe_groups') {
 			$switchTable = 'fe_users';
 		} else {
 			$switchTable = $table;
 		}
-			 // Direct Mail needs an email address!
+			// Direct Mail needs an email address!
 		$emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $TYPO3_DB->fullQuoteStr('', $switchTable);
 
 			// fe user group uid should be in list of fe users list of user groups
@@ -375,7 +375,7 @@ class tx_directmail_static {
 				);
 		}
 
-		
+
 		$outArr = array();
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 			$outArr[] = $row['uid'];
@@ -407,7 +407,7 @@ class tx_directmail_static {
 					$usergroupInList .= (($usergroupInList == null) ? null : ' OR').' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\','.intval($subgroup).',\') )';
 				}
 				$usergroupInList = '('.$usergroupInList.')';
-	
+
 				// fetch all fe_users from these subgroups
 				$res = $TYPO3_DB->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
@@ -419,14 +419,14 @@ class tx_directmail_static {
 						t3lib_BEfunc::BEenableFields($table).
 						t3lib_BEfunc::deleteClause($table)
 				);
-	
+
 				while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
 					$outArr[]=$row['uid'];
 				}
 			}
 
 		}
-		
+
 		return $outArr;
 	}
 
@@ -599,12 +599,12 @@ class tx_directmail_static {
 		global $TYPO3_DB;
 
 		$categories = array();
-		
+
 		$mm_field = 'module_sys_dmail_category';
 		if ($table == 'sys_dmail_group') {
 			$mm_field = 'select_categories';
 		}
-		
+
 		$pidList = '';
 		$pageTSconfig = t3lib_BEfunc::getTCEFORM_TSconfig($table, $row);
 		if (is_array($pageTSconfig[$mm_field])) {
@@ -810,7 +810,7 @@ class tx_directmail_static {
 		global $LANG;
 		return stripslashes($LANG->sL(t3lib_BEfunc::getItemLabel('sys_dmail',$name)));
 	}
-	
+
 	/**
 	 * parsing csv-formated text to an array
 	 *
@@ -829,8 +829,8 @@ class tx_directmail_static {
 		}
 		return $lines;
 	}
-	
-	
+
+
 	/**
 	 * show DB record in HTML table format
 	 *
@@ -874,7 +874,7 @@ class tx_directmail_static {
 		}
 		return $out;
 	}
-	
+
 	/**
 	 * get all subsgroups recursively.
 	 * @param int $groupId: parent fe usergroup
@@ -909,7 +909,7 @@ class tx_directmail_static {
 
 	/**
 	 * Copied ftom t3lib_parsehtml, since 4.1 doesn't have it.
-	 * 
+	 *
 	 * Traverses the input $markContentArray array and for each key the marker by the same name (possibly wrapped and in upper case) will be substituted with the keys value in the array.
 	 * This is very useful if you have a data-record to substitute in some content. In particular when you use the $wrap and $uppercase values to pre-process the markers. Eg. a key name like "myfield" could effectively be represented by the marker "###MYFIELD###" if the wrap value was "###|###" and the $uppercase boolean true.
 	 *
@@ -921,7 +921,7 @@ class tx_directmail_static {
 	 * @return	string		The processed output stream
 	 * @see substituteMarker(), substituteMarkerInObject(), TEMPLATE()
 	 */
-	 function substituteMarkerArray($content, $markContentArray, $wrap='', $uppercase=0, $deleteUnused=0) {
+	function substituteMarkerArray($content, $markContentArray, $wrap='', $uppercase=0, $deleteUnused=0) {
 		if (is_array($markContentArray)) {
 			$wrapArr = t3lib_div::trimExplode('|', $wrap);
 			foreach ($markContentArray as $marker => $markContent) {
@@ -944,9 +944,9 @@ class tx_directmail_static {
 		}
 		return $content;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Creates a directmail entry in th DB.
 	 * Used only for internal pages
@@ -1086,9 +1086,9 @@ class tx_directmail_static {
 		}
 		return $result;
 	}
-	
-	
- 	/**
+
+
+	/**
 	 * fetch content of a page (only internal and external page)
 	 *
 	 * @param	array		directmail DB record
@@ -1097,7 +1097,7 @@ class tx_directmail_static {
 	 */
 	public static function fetchUrlContentsForDirectMailRecord($row, $params) {
 		global $LANG;
-
+// TODO: remove htmlmail
 		$theOutput = '';
 		$errorMsg = array();
 		$warningMsg = array();
@@ -1240,7 +1240,7 @@ class tx_directmail_static {
 		}
 		return $url;
 	}
-	
+
 	/**
 	 * Set up URL variables for this $row.
 	 *
@@ -1323,9 +1323,9 @@ class tx_directmail_static {
 
 		return strtolower($characterSet);
 	}
-	
+
 	/**
-	 * Wrapper for the old t3lib_div::intInRange. 
+	 * Wrapper for the old t3lib_div::intInRange.
 	 * Forces the integer $theInt into the boundaries of $min and $max. If the $theInt is 'FALSE' then the $zeroValue is applied.
 	 *
 	 * @param integer $theInt Input value
@@ -1341,7 +1341,7 @@ class tx_directmail_static {
 			return t3lib_div::intInRange($theInt, $min, $max, $zeroValue);
 		}
 	}
-	
+
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_static.php'])	{
