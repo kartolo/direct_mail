@@ -177,7 +177,7 @@ class tx_directmail_navframe{
 		);
 			// Build the <body> for the module
 		$this->content = $this->doc->startPage('TYPO3 Direct Mail Navigation');
-		$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, $subparts);
+		$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers);
 
 
 
