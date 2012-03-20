@@ -123,6 +123,11 @@ require_once(PATH_t3lib.'class.t3lib_cs.php');
 require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
 require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.dmailer.php');
 
+
+// log this call as deprecated
+t3lib_div::deprecationLog("dmailerd.phpcron will be removed in the next direct_mail feature release (version 2.8 or 3.0). Please use the scheduler ");
+
+
 $htmlmail = t3lib_div::makeInstance('dmailer');
 $htmlmail->start();
 $htmlmail->runcron();

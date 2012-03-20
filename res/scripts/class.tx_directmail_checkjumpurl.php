@@ -27,7 +27,7 @@
  ***************************************************************/
 
 /**
- * @author		Kasper Skårhøj <kasperYYYY>@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasperYYYY>@typo3.com>
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
  * @package 	TYPO3
@@ -79,7 +79,12 @@ class tx_directmail_checkjumpurl {
 			list($recipientTable, $recipientUid) = explode('_', $rid);
 
 			$url_id = 0;
-			if (t3lib_div::testInt($jumpurl)) {
+			if (t3lib_div::compat_version('4.6')) {
+				$isInt = t3lib_utility_Math::canBeInterpretedAsInteger($jumpurl);
+			} else {
+				$isInt = t3lib_div::testInt($jumpurl);
+			}
+			if ($isInt) {
 				
 					// fetch the direct mail record where the mailing was sent (for this message)
 				$resMailing = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -129,7 +134,7 @@ class tx_directmail_checkjumpurl {
 								$jumpurl = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $jumpurl);
 							}
 								// Put in the tablename of the userinformation
-							$jumpurl = str_replace('###SYS_TABLE_NAME###', $theTable, $jumpurl);
+							$jumpurl = str_replace('###SYS_TABLE_NAME###', substr($theTable, 0, 1), $jumpurl);
 								// Put in the uid of the mail-record
 							$jumpurl = str_replace('###SYS_MAIL_ID###', $mid, $jumpurl);
 								// If authCode is provided, keep it.

@@ -63,7 +63,24 @@ class tx_directmail_importer {
 	function cmd_displayImport()	{
 		global $BE_USER,$LANG, $BACK_PATH, $TYPO3_DB;
 
-		$this->indata = t3lib_div::_GP('CSV_IMPORT');
+		$step = t3lib_div::_GP('importStep');
+		
+		$defaultConf = array(
+			'remove_existing' => 0,
+			'first_fieldname' => 0,
+			'valid_email' => 0,
+			'remove_dublette' => 0,
+			'update_unique' => 0
+		);
+		
+		if (t3lib_div::_GP('CSV_IMPORT')) {
+			$importerConfig = t3lib_div::_GP('CSV_IMPORT');
+			if ($step['next'] == 'mapping') {
+				$this->indata = t3lib_div::array_merge($defaultConf, $importerConfig);
+			} else {
+				$this->indata = $importerConfig;
+			}
+		}
 
 		if (empty($this->indata)) {
 			$this->indata = array(); 
@@ -74,10 +91,10 @@ class tx_directmail_importer {
 		}
 		// merge it with inData, but inData has priority.
 		$this->indata = t3lib_div::array_merge($this->params,$this->indata);
-		
+
 		$currentFileInfo = t3lib_basicFileFunctions::getTotalFileInfo($this->indata['newFile']);
 		$currentFileName = $currentFileInfo['file'];
-		$curentFileSize = t3lib_basicFileFunctions::formatSize($currentFileInfo['size']);
+		$curentFileSize = t3lib_div::formatSize($currentFileInfo['size']);
 		$currentFileMessage = $currentFileName.' ('.$curentFileSize.')';
 
 		if(empty($this->indata['csv']) && !empty($_FILES['upload_1']['name'])){
@@ -91,8 +108,7 @@ class tx_directmail_importer {
 		} else if(!empty($this->indata['newFile'])){
 			$this->indata['newFile'] = $this->indata['newFile'];
 		}
-		$step = t3lib_div::_GP('importStep');
-
+		
 		if($this->indata['back']){
 			$stepCurrent = $step['back'];
 		} elseif ($this->indata['next']){
@@ -115,7 +131,7 @@ class tx_directmail_importer {
 			$map = $this->indata['map'];
 			$error = array();
 			//check noMap
-			$newMap = t3lib_div::removeArrayEntryByValue(t3lib_div::uniqueArray($map),'noMap');
+			$newMap = t3lib_div::removeArrayEntryByValue(array_unique($map),'noMap');
 			if (empty($newMap)){
 				$error[]='noMap';
 			} elseif(!t3lib_div::inArray($map,'email')){
@@ -202,7 +218,7 @@ class tx_directmail_importer {
 				$out .= '<hr /><h3>'.$LANG->getLL('mailgroup_import_mapping_charset').'</h3>';
 				$tblLines = array();
 				$tblLines[] = array($LANG->getLL('mailgroup_import_mapping_charset_choose'),$this->makeDropdown('CSV_IMPORT[charset]',$charSets,$this->indata['charset']));
-				$out .= $this->formatTable($tblLines,array('nowrap','nowrap'),0,array(1,1),'border="0" cellpadding="2" cellspacing="0"',1);
+				$out .= $this->formatTable($tblLines,array('nowrap','nowrap'),0,array(1,1),'border="0" cellpadding="0" cellspacing="0" class="typo3-dblist"',1);
 				$out .= '<input type="submit" name="CSV_IMPORT[update]" value="'.$LANG->getLL('mailgroup_import_update').'"/>';
 				unset($tblLines);
 				
@@ -248,7 +264,7 @@ class tx_directmail_importer {
 					for($j=0;$j<(count($csvData));$j++){
 						$exampleLines[] = array($csvData[$j][$i]);
 					}
-					$tblLines[] = array($i+1,$csv_firstRow[$i],$this->makeDropdown('CSV_IMPORT[map]['.($i).']', $mapFields, $this->indata['map'][$i]), $this->formatTable($exampleLines,array('nowrap'),0,array(0),'border="0" cellpadding="2" cellspacing="0" style="width:100%"',1));
+					$tblLines[] = array($i+1,$csv_firstRow[$i],$this->makeDropdown('CSV_IMPORT[map]['.($i).']', $mapFields, $this->indata['map'][$i]), $this->formatTable($exampleLines,array('nowrap'),0,array(0),'border="0" cellpadding="0" cellspacing="0" class="typo3-dblist" style="width:100%; border:0px; margin:0px;"',1));
 				}
 
 				if($error){
@@ -274,17 +290,20 @@ class tx_directmail_importer {
 					);
 					if(!empty($rowCat)){
 						$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats'), '');
+						if($this->indata['update_unique']) {
+							$tblLinesAdd[] = array($LANG->getLL('mailgroup_import_mapping_cats_add'), '<input type="checkbox" name="CSV_IMPORT[add_cat]" value="1"'.($this->indata['add_cat']?' checked="checked"':'').'/> ');
+						}
 						foreach ($rowCat as $k => $v){
 							$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
 						}	
 					}
 				}
 				
-				$out.= $this->formatTable($tblLines,array('nowrap','nowrap','nowrap','nowrap'),1,array(0,0,1,1),'border="0" cellpadding="2" cellspacing="0"',1);
+				$out.= $this->formatTable($tblLines,array('nowrap','nowrap','nowrap','nowrap'),1,array(0,0,1,1),'border="0" cellpadding="0" cellspacing="0" class="typo3-dblist"',1);
 				$out.= '<br /><br />';
 				//additional options
 				$out.= '<hr /><h3>'.$LANG->getLL('mailgroup_import_mapping_conf_add').'</h3>';
-				$out.= $this->formatTable($tblLinesAdd,array('nowrap','nowrap'),0,array(1,1),'border="0" cellpadding="2" cellspacing="0"',1);
+				$out.= $this->formatTable($tblLinesAdd,array('nowrap','nowrap'),0,array(1,1),'border="0" cellpadding="0" cellspacing="0" class="typo3-dblist"',1);
 				$out.= '<br /><br />';
 				$out.= '<input type="submit" name="CSV_IMPORT[back]" value="'.$LANG->getLL('mailgroup_import_back').'"/>
 						<input type="submit" name="CSV_IMPORT[next]" value="' . $LANG->getLL('mailgroup_import_next') . '"/>'.
@@ -328,6 +347,7 @@ class tx_directmail_importer {
 							'CSV_IMPORT[update_unique]' => $this->indata['update_unique'],
 							'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
 							'CSV_IMPORT[all_html]' => $this->indata['all_html'],
+							'CSV_IMPORT[add_cat]' => $this->indata['add_cat'],
 							'CSV_IMPORT[charset]' => $this->indata['charset'],
 						));
 				$hiddenMapped = array();
@@ -376,11 +396,11 @@ class tx_directmail_importer {
 					if ( is_array($result[$order]) ) {
 						foreach($result[$order] as $k => $v){
 							$mapKeys = array_keys($v);
-							$tblLines1[]= array($k+1,$v[$mapKeys[0]],$v['email']);
+							$tblLines[]= array($k+1, $v[$mapKeys[0]], $v['email']);
 						}	
 					}
-					$tblLines[] = array($this->formatTable($tblLines1,array('nowrap','nowrap','nowrap'),0));
-					$out.= $this->formatTable($tblLines, array('nowrap'), 1, array(1), 'border="0" cellpadding="2" cellspacing="0"');
+//					$tblLines[] = array($this->formatTable($tblLines1,array('nowrap','nowrap','nowrap'),0));
+					$out.= $this->formatTable($tblLines, array('nowrap', 'first' => 'colspan="3"'), 1, array(1));
 				}
 
 				//back button
@@ -418,24 +438,28 @@ class tx_directmail_importer {
 					//show upload file form
 				$out = '<hr /><h3>'.$LANG->getLL('mailgroup_import_header_upload').'</h3>';
 				$tempDir = $this->userTempFolder();
-				$tblLines = array();
-				$tblLines[]=array($LANG->getLL('mailgroup_import_upload_file'),'<input type="file" name="upload_1" size="30" />');
-				$tblLines[]=array('','<input type="checkbox" name="overwriteExistingFiles" value="1"'.' '.($_POST['importNow'] ? 'disabled' : '').'/>&nbsp;'.$LANG->getLL('mailgroup_import_overwrite'));
+				
+				$tblLines[] = $LANG->getLL('mailgroup_import_upload_file').'<input type="file" name="upload_1" size="30" />';
+				$tblLines[] = '<input type="checkbox" name="overwriteExistingFiles" value="1"'.' '.($_POST['importNow'] ? 'disabled' : '').'/>&nbsp;'.$LANG->getLL('mailgroup_import_overwrite');
 				if(($this->indata['mode'] == 'file') && !(((strpos($currentFileInfo['file'],'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt'))){
-					$tblLines[]=array($LANG->getLL('mailgroup_import_current_file'),'<b>'.$currentFileMessage.'</b>');
+					$tblLines[] = $LANG->getLL('mailgroup_import_current_file').'<b>'.$currentFileMessage.'</b>';
 				}
-				$out .= $this->formatTable($tblLines, array('nowrap','nowrap'), 0, array(1,1));
+				
 				if(((strpos($currentFileInfo['file'],'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt')){
 					$handleCSV = fopen($this->indata['newFile'],'r');
 					$this->indata['csv'] = fread($handleCSV, filesize($this->indata['newFile']));
 					fclose($handleCSV);
 				}
-				$tblLines = array();
-				$tblLines[]=array('<b>'.$LANG->getLL('mailgroup_import_or').'</b>');
-				$tblLines[]=array($LANG->getLL('mailgroup_import_paste_csv'));
-				$tblLines[]=array('<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"'.$this->parent->doc->formWidthText(48,'','off').'>'.t3lib_div::formatForTextarea($this->indata['csv']).'</textarea>');
-				$tblLines[]=array('<input type="submit" name="CSV_IMPORT[next]" value="' . $LANG->getLL('mailgroup_import_next') . '" />');
-				$out.= $this->formatTable($tblLines, array('nowrap'), 0, array(1));
+				
+				$tblLines[] = '';
+				$tblLines[] = '<b>'.$LANG->getLL('mailgroup_import_or').'</b>';
+				$tblLines[] = '';
+				$tblLines[] = $LANG->getLL('mailgroup_import_paste_csv');
+				$tblLines[] = '<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"'.$this->parent->doc->formWidthText(48,'','off').'>'.t3lib_div::formatForTextarea($this->indata['csv']).'</textarea>';
+				$tblLines[] = '<input type="submit" name="CSV_IMPORT[next]" value="' . $LANG->getLL('mailgroup_import_next') . '" />';
+				
+				$out.= implode('<br />', $tblLines);
+				
 				$out.= '<input type="hidden" name="CMD" value="displayImport" />
 						<input type="hidden" name="importStep[next]" value="conf" />
 						<input type="hidden" name="file[upload][1][target]" value="'.htmlspecialchars($tempDir).'" '.($_POST['importNow'] ? 'disabled' : '').'/>
@@ -580,15 +604,29 @@ class tx_directmail_importer {
 				$foundUser = array();
 				$foundUser = array_keys($user, $dataArray[$this->indata['record_unique']]);
 				if(is_array($foundUser) && !empty($foundUser)){
-					if(count($foundUser)==1){
+					if(count($foundUser) == 1){
 						$data['tt_address'][$userID[$foundUser[0]]]= $dataArray;
 						$data['tt_address'][$userID[$foundUser[0]]]['pid'] = $this->indata['storage'];
 						if($this->indata['all_html']){
 							$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_html'] = $this->indata['all_html'];
 						}
 						if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
+							if($this->indata['add_cat']){
+								// Load already assigned categories
+								$res = $TYPO3_DB->exec_SELECTquery(
+									'uid_local,uid_foreign',
+									'sys_dmail_ttaddress_category_mm',
+									'uid_local='.$userID[$foundUser[0]],
+									'',
+									'sorting'
+								);
+								while ($row = $TYPO3_DB->sql_fetch_row($res)){
+									$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][] = $row[1];
+								}
+							}
+							// Add categories
 							foreach($this->indata['cat'] as $k => $v){
-								$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][$k] = $v;
+								$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][] = $v;
 							}
 						}
 						$resultImport['update'][]=$dataArray;
@@ -602,17 +640,8 @@ class tx_directmail_importer {
 					}
 				} else {
 					//write new user
-					$data['tt_address']['NEW'.$c] = $dataArray;
-					$data['tt_address']['NEW'.$c]['pid'] = $this->indata['storage'];
-					if($this->indata['all_html']){
-						$data['tt_address']['NEW'.$c]['module_sys_dmail_html'] = $this->indata['all_html'];
-					}
-					if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
-						foreach($this->indata['cat'] as $k => $v){
-							$data['tt_address']['NEW'.$c]['module_sys_dmail_category'][$k] = $v;
-						}
-					}
-					$resultImport['new'][]=$dataArray;
+					$this->addDataArray($data, 'NEW'.$c, $dataArray);
+					$resultImport['new'][] = $dataArray;
 					$c++;		//counter
 				}
 			}
@@ -620,17 +649,8 @@ class tx_directmail_importer {
 			//no update, import all
 			$c=1;
 			foreach($mappedCSV as $k => $dataArray){
-				$data['tt_address']['NEW'.$c] = $dataArray;
-				$data['tt_address']['NEW'.$c]['pid'] = $this->indata['storage'];
-				if($this->indata['all_html']){
-					$data['tt_address']['NEW'.$c]['module_sys_dmail_html'] = $this->indata['all_html'];
-				}
-				if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
-					foreach($this->indata['cat'] as $k => $v){
-						$data['tt_address']['NEW'.$c]['module_sys_dmail_category'][$k] = $v;
-					}
-				}
-				$resultImport['new'][]=$dataArray;
+				$this->addDataArray($data, 'NEW'.$c, $dataArray);
+				$resultImport['new'][] = $dataArray;
 				$c++;
 			}
 		}
@@ -663,6 +683,25 @@ class tx_directmail_importer {
 		}
 		
 		return $resultImport;
+	}
+	
+	/**
+	 * Prepare insert array for the TCE
+	 * @param array $data: array for the TCE
+	 * @param string $id
+	 * @param unknown_type $dataArray
+	 */
+	function addDataArray(&$data, $id, $dataArray) {
+		$data['tt_address'][$id] = $dataArray;
+		$data['tt_address'][$id]['pid'] = $this->indata['storage'];
+		if($this->indata['all_html']){
+			$data['tt_address'][$id]['module_sys_dmail_html'] = $this->indata['all_html'];
+		}
+		if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
+			foreach($this->indata['cat'] as $k => $v){
+				$data['tt_address'][$id]['module_sys_dmail_category'][$k] = $v;
+			}
+		}
 	}
 
 	/**
@@ -764,7 +803,8 @@ class tx_directmail_importer {
 			if((count($data) >= 1) ) {
 				$mydata[] = $data;
 				$i++;
-				if($i>=$records)break;
+				if($i>=$records)
+					break;
 			}
 		}
 		fclose ($handle);
@@ -784,11 +824,17 @@ class tx_directmail_importer {
 	function convCharset($data) {
 		global $LANG;
 		
-		if ( $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] )	{
+		if (t3lib_div::compat_version('4.5')) {
+			// set to uft-8 if TYPO3 > 4.5, since it's default
+			$dbCharset = 'utf-8';			
+		} elseif (!t3lib_div::compat_version('4.5') && isset($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])) {
+			// if TYPO3 < 4.5 and forceCharset is set and use this
 			$dbCharset = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
 		} else {
+			//if not, assumes it's an ISO DB
 			$dbCharset = 'iso-8859-1';
 		}
+		
 		if ( $dbCharset != $this->indata['charset'] )	{
 			$LANG->csConvObj->convArray( $data, $this->indata['charset'], $dbCharset );
 		}
@@ -807,28 +853,34 @@ class tx_directmail_importer {
 	 * @param	boolean		$switchBG: if set, background of each row will be alternating. Default is not alternating
 	 * @return	string		HTML the table
 	 */
-	function formatTable($tableLines,$cellParams,$header,$cellcmd=array(),$tableParams='border="0" cellpadding="2" cellspacing="3"',$switchBG=0)	{
-		reset($tableLines);
-		$cols = count(current($tableLines));
+	function formatTable($tableLines, $cellParams, $header, $cellcmd = array(), $tableParams='border="0" cellpadding="0" cellspacing="0" class="typo3-dblist"', $switchBG = 0)	{
+		$lines = array();
+		$first = $header?1:0;
+		$c = 0;
 
 		reset($tableLines);
-		$lines=array();
-		$first=$header?1:0;
-		$c=0;
-		while(list(,$r)=each($tableLines))	{
-			$rowA=array();
-			for($k=0;$k<$cols;$k++)	{
-				$v=$r[$k];
+		foreach($tableLines as $r) {
+			$rowA = array();
+			for($k = 0; $k < count($r); $k++)	{
+				$v = $r[$k];
 				$v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : "&nbsp;";
-				if ($first) $v='<B>'.$v.'</B>';
-				$rowA[]='<td'.($cellParams[$k]?" ".$cellParams[$k]:"").'>'.$v.'</td>';
+				if ($first) {
+					$v = '<B>'.$v.'</B>';
+				}
+				
+				$cellParam = array();
+				if ($cellParams[$k]) {
+					$cellParam[] = $cellParams[$k];
+				}
+				
+				if ($first && isset($cellParams['first'])) {
+					$cellParam[] = $cellParams['first'];
+				}
+				$rowA[] = '<td '.implode(' ',$cellParam).'>'.$v.'</td>';
 			}
-			if($switchBG){
-				$lines[]='<tr '.(($c%2)?'bgcolor="#FFEFBF"':'bgcolor="#FFE79F"').'>'.implode('',$rowA).'</tr>';
-			} else {
-				$lines[]='<tr class="'.($first?'bgColor5':'bgColor4').'">'.implode('',$rowA).'</tr>';
-			}
-			$first=0;
+
+			$lines[] = '<tr class="'.($first?'t3-row-header':'db_list_normal').'">'.implode('',$rowA).'</tr>';
+			$first = 0;
 			$c++;
 		}
 		$table = '<table '.$tableParams.'>'.implode('',$lines).'</table>';
@@ -867,7 +919,7 @@ class tx_directmail_importer {
 	function writeTempFile(){
 		global $FILEMOUNTS,$TYPO3_CONF_VARS,$BE_USER,$LANG;
 
-		$user_perms = $GLOVALS['BE_USER']->getFileoperationPermissions();
+		$user_perms = $GLOBALS['BE_USER']->getFileoperationPermissions();
 		
 		unset($this->fileProcessor);
 		

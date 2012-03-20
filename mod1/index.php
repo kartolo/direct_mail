@@ -37,7 +37,7 @@ $LANG->includeLLFile('EXT:direct_mail/locallang/locallang_csh_sysdmail.xml');
 /**
  * Class to producing navigation frame of the tx_directmail extension
  *
- * @author		Kasper Skårhøj <kasper@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasper@typo3.com>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
  *
  * @package 	TYPO3
@@ -141,11 +141,13 @@ class tx_directmail_navframe{
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'*',
 			'pages',
-			'doktype = 254 AND module in (\'dmail\')'. t3lib_BEfunc::deleteClause('pages')
+			'doktype = 254 AND module in (\'dmail\')'. t3lib_BEfunc::deleteClause('pages'),
+			'',
+			'sorting'
 		);
 		$out = '';
 		while ($row = $TYPO3_DB->sql_fetch_assoc($res)){
-			if(t3lib_BEfunc::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){				
+			if(t3lib_BEfunc::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){
 				$out .= '<tr onmouseover="this.style.backgroundColor=\''.t3lib_div::modifyHTMLColorAll($this->doc->bgColor,-5).'\'" onmouseout="this.style.backgroundColor=\'\'">'.
 					'<td id="dmail_'.$row['uid'].'" ><a href="#" onclick="top.fsMod.recentIds[\'txdirectmailM1\']='.$row['uid'].';jumpTo(\'id='.$row['uid'].'\',this,\'dmail_'.$row['uid'].'\');">&nbsp;&nbsp;'.
 					//t3lib_iconWorks::getIconImage('pages',$row,$BACK_PATH,'title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath($row['uid'], ' 1=1',20)).'" align="top"').
@@ -175,7 +177,7 @@ class tx_directmail_navframe{
 		);
 			// Build the <body> for the module
 		$this->content = $this->doc->startPage('TYPO3 Direct Mail Navigation');
-		$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, $subparts);
+		$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers);
 
 
 

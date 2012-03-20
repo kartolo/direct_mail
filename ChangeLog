@@ -1,3 +1,54 @@
+2012-02-21 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #33571: fixed Edit-Page link
+
+2012-02-12 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #33574: show error message on saving.
+
+2012-02-11 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #33803: fixed deprecated testInt (4.6.0)
+	* Bug #33727: added attachment filename in the header
+	* Improvement #33623: reposition the manually invoke link.
+
+2012-01-18 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Feature #13964: added TS for wrapping the sitemap content with the right boundaries.
+
+2012-01-11 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #33046: fix fatal error in the CSV importer
+
+2012-01-06 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #10530: fixed loosing checkbox value in importer config.
+
+2012-01-04 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #26166: fixed single dot in mail body, since it means end of mail for mail server
+	* Bug #29911, #9271: properly encoded header.
+	
+2011-12-31 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #10809: added hook in cmd_compileMailGroup (mod2 und mod3)
+	* Bug #11851: added sorting of the dmail sysfolder
+	* Bug #32882: restore the cron logging for checking
+	* Bug #9459: remove the edit page icon, if TV is loaded, since direct_mail not really working with TV  
+
+2011-12-30 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #29503: improved statistic label
+	* Bug #31752: check SYS_TABLE_NAME in jumpurl
+	* layout CSV importer is improved
+	* Bug #11171: importer code cleanup
+	
+2011-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #26699: removing alternative link to create new page
+	* Bug #28921: check TYPO3 Version and set charset for the importer
+	* added deprecation log in dmailerd.phpcron
+
+2011-12-16 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #32410, #32588, #32264: deprecated function in 4.6
+
+2011-07-08 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Feature #11010: add categories during import, instead overwriting existing one.
+	* Feature #6820: added attachment to quickmail
+	
+2011-07-07 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* Bug #27736: fixed MM-query getting fe_groups recursively. Check empty array.
+	
 2011-07-07 Jacob Rasmussen <jacob@lightbulb.dk>
 	* Bug #27736: SQL-Error "WHERE () AND" in tx_directmail_static
 	* Task #26696: Remove tx_directmail_cron.lock

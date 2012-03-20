@@ -672,11 +672,13 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			$HTMLContent = base64_decode($temp_unpackedMail['html']['content']);
 
 			$HTMLLinks = array();
-			foreach ($temp_unpackedMail['html']['hrefs'] as $jumpurlId => $data) {
-				$HTMLlinks[$jumpurlId] = array(
-					'url'   => $data['ref'],
-					'label' => ''
-				);
+			if(is_array($temp_unpackedMail['html']['hrefs'])) {
+				foreach ($temp_unpackedMail['html']['hrefs'] as $jumpurlId => $data) {
+					$HTMLlinks[$jumpurlId] = array(
+						'url'   => $data['ref'],
+						'label' => ''
+					);
+				}
 			}
 
 				// get body
@@ -1275,7 +1277,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		
 		$this->noView = 1;
 		// put all the stats tables in a section
-		$theOutput .= '<h2>' . $this->doc->section($LANG->getLL('stats_direct_mail'), $output, 1, 1, 0, TRUE);
+		$theOutput .= $this->doc->section($LANG->getLL('stats_direct_mail'), $output, 1, 1, 0, TRUE);
 		$theOutput .= $this->doc->spacer(20);
 
 		$link = '<p><a style="text-decoration: underline;" href="'.$thisurl.'">' . $LANG->getLL('stats_recalculate_stats') . '</a></p>';
@@ -1295,7 +1297,13 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			$m = array();
 			// do we have an id?
 			if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $uParts['query'], $m)) {
-				if (t3lib_div::testInt($m[1])) {
+				if (t3lib_div::compat_version('4.6')) {
+					$isInt = t3lib_utility_Math::canBeInterpretedAsInteger($m[1]);
+				} else {
+					$isInt = t3lib_div::testInt($m[1]);
+				}
+				
+				if ($isInt) {
 					$uid = intval($m[1]);
 				} else {
 					$uid = $this->sys_page->getPageIdFromAlias($m[1]);
@@ -1448,15 +1456,15 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			$recRec['links_last'] = intval(@max($recRec['links']));
 			$recRec['links'] = count($recRec['links']);
 
-			$recRec['response_first'] = t3lib_div::intInRange(intval(@min($recRec['response']))-$recRec['tstamp'],0);
-			$recRec['response_last'] = t3lib_div::intInRange(intval(@max($recRec['response']))-$recRec['tstamp'],0);
+			$recRec['response_first'] = tx_directmail_static::intInRangeWrapper(intval(@min($recRec['response']))-$recRec['tstamp'],0);
+			$recRec['response_last'] = tx_directmail_static::intInRangeWrapper(intval(@max($recRec['response']))-$recRec['tstamp'],0);
 			$recRec['response'] = count($recRec['response']);
 
-			$recRec['time_firstping'] = t3lib_div::intInRange($recRec['pings_first']-$recRec['tstamp'],0);
-			$recRec['time_lastping'] = t3lib_div::intInRange($recRec['pings_last']-$recRec['tstamp'],0);
+			$recRec['time_firstping'] = tx_directmail_static::intInRangeWrapper($recRec['pings_first']-$recRec['tstamp'],0);
+			$recRec['time_lastping'] = tx_directmail_static::intInRangeWrapper($recRec['pings_last']-$recRec['tstamp'],0);
 
-			$recRec['time_first_link'] = t3lib_div::intInRange($recRec['links_first']-$recRec['tstamp'],0);
-			$recRec['time_last_link'] = t3lib_div::intInRange($recRec['links_last']-$recRec['tstamp'],0);
+			$recRec['time_first_link'] = tx_directmail_static::intInRangeWrapper($recRec['links_first']-$recRec['tstamp'],0);
+			$recRec['time_last_link'] = tx_directmail_static::intInRangeWrapper($recRec['links_last']-$recRec['tstamp'],0);
 
 			$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery(
 				'cache_sys_dmail_stat',

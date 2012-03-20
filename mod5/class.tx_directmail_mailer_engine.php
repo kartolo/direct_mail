@@ -148,7 +148,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->setModuleTemplate('EXT:direct_mail/mod3/mod_template.html');
 			$this->doc->form='<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
-			
+
 			// JavaScript
 			$this->doc->JScode = '
 				<script language="javascript" type="text/javascript">
@@ -246,7 +246,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 
 	/**
 	 * delete existing dmail record
-	 * 
+	 *
 	 * @param int $uid: record uid to be deleted
 	 * @return void
 	 */
@@ -261,7 +261,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			);
 		}
 	}
-	
+
 	/**
 	 * Monitor the cronjob.
 	 *
@@ -272,7 +272,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 		$content = '';
 		$mailerStatus = 0;
 		$lastExecutionTime = 0;
-		
+
 
 			// seconds
 		$cronInterval = $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cronInt'] * 60;
@@ -364,6 +364,14 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			$invokeMessage = $flashMessage->render();
 		}
 
+		// Invoke engine
+		if ($enableTrigger) {
+			$out = '<p>' . $LANG->getLL('dmail_mailerengine_manual_explain') . '<br /><br />&nbsp;&nbsp;<a class="t3-link" href="index.php?id='.$this->id.'&invokeMailerEngine=1"><strong>' . $LANG->getLL('dmail_mailerengine_invoke_now') . '</strong></a></p>';
+			$theOutput .= $this->doc->spacer(20);
+			$theOutput .= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_invoke',$BACK_PATH).$LANG->getLL('dmail_mailerengine_manual_invoke'), $out, 1, 1, 0, TRUE);
+			$theOutput .= $this->doc->spacer(20);
+		}
+
 		// Display mailer engine status
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'uid,pid,subject,scheduled,scheduled_begin,scheduled_end',
@@ -374,6 +382,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 			'',
 			'scheduled DESC'
 		);
+
 		$out = '<tr>
 				<td class="t3-row-header">'.'&nbsp;'.'</td>
 				<td class="t3-row-header"><b>'.$LANG->getLL('dmail_mailerengine_subject') . '&nbsp;&nbsp;'.'</b></td>
@@ -405,33 +414,27 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 		}
 
 		$out = $invokeMessage . '<table class="typo3-dblist" cellpadding="1" cellspacing="0">'.$out.'</table>';
-		$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_status',$BACK_PATH).$LANG->getLL('dmail_mailerengine_status'),$out,1,1, 0, TRUE);
+		$theOutput .= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_status',$BACK_PATH).$LANG->getLL('dmail_mailerengine_status'),$out,1,1, 0, TRUE);
 
-			// Invoke engine
-		if ($enableTrigger) {
-			$out = '<p>' . $LANG->getLL('dmail_mailerengine_manual_explain') . '<br /><br />&nbsp;&nbsp;<a class="t3-link" href="index.php?id='.$this->id.'&invokeMailerEngine=1"><strong>' . $LANG->getLL('dmail_mailerengine_invoke_now') . '</strong></a></p>';
-			$theOutput.= $this->doc->spacer(20);
-			$theOutput.= $this->doc->section(t3lib_BEfunc::cshItem($this->cshTable,'mailerengine_invoke',$BACK_PATH).$LANG->getLL('dmail_mailerengine_manual_invoke'), $out, 1, 1, 0, TRUE);
-		}
 		return $theOutput;
 	}
 
 	/**
 	 * create delete link with trash icon
-	 * 
+	 *
 	 * @param	int		$uid: uid of the record
 	 * @return	string	link with the trash icon
 	 */
 	function deleteLink($uid) {
 		global $BACK_PATH;
-		
+
 		$icon = '<img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/delete_record.gif').' />';
-		$dmail = t3lib_BEfunc::getRecord('sys_dmail', $uid); 
+		$dmail = t3lib_BEfunc::getRecord('sys_dmail', $uid);
 		if (!$dmail['scheduled_begin']) {
 			return '<a href="index.php?id='.$this->id.'&cmd=delete&uid='.$uid.'">'.$icon.'</a>';
 		}
 	}
-	
+
 	/**
 	 * wrapping a string with a link
 	 *
@@ -453,6 +456,7 @@ class tx_directmail_mailer_engine extends t3lib_SCbase {
 	 * @see		dmailer::runcron
 	 */
 	function invokeMEngine()	{
+		// TODO: remove htmlmail
 		$htmlmail = t3lib_div::makeInstance('dmailer');
 		$htmlmail->nonCron = 1;
 		$htmlmail->start();

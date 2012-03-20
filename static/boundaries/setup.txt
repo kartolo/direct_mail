@@ -21,3 +21,12 @@ plugin.tx_directmail_pi1.userProc.useParentCObj = 1
 
 	// Enable the insertion of content boundaries
 config.insertDmailerBoundaries = 1
+
+
+	//boundaries for the sitemap
+tt_content.menu.20.3.renderObj {
+	outerWrap.cObject = USER
+	outerWrap.cObject {
+		userFunc = tx_directmail_container->insertSitemapBoundaries
+	}
+}

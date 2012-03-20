@@ -133,8 +133,8 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	var $MCONF;
 	var $cshTable;
 	var $formname = 'dmailform';
-	
-	
+
+
 	protected $currentStep = 1;
 
 	/**
@@ -159,7 +159,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			t3lib_div::loadTCA($this->userTable);
 			$this->allowedTables[] = $this->userTable;
 		}
-		
+
 		// check if the right domain shoud be set
 		if (!$this->params['use_domain']) {
 			$rootLine = t3lib_BEfunc::BEgetRootLine($this->id);
@@ -176,7 +176,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				}
 			}
 		}
-		
+
 		$this->MOD_MENU['dmail_mode'] = t3lib_BEfunc::unsetMenuItems($this->params,$this->MOD_MENU['dmail_mode'],'menu.dmail_mode');
 
 			// initialize the query generator
@@ -229,7 +229,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$this->sys_dmail_uid = intval(t3lib_div::_GP('sys_dmail_uid'));
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
 		$this->params['pid'] = intval($this->id);
-		
+
 		$access = is_array($this->pageinfo) ? 1 : 0;
 
 		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
@@ -434,40 +434,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					$message = wordwrap($message,76,"\n");
 				}
 				//fetch functions
-					// Compile the mail
-				$htmlmail = t3lib_div::makeInstance('dmailer');
-				$htmlmail->nonCron = 1;
-				$htmlmail->start();
-				$htmlmail->charset = $row['charset'];
-				$htmlmail->useBase64();
-				$htmlmail->addPlain($message);
-				if (!$message || !$htmlmail->theParts['plain']['content']) {
-					$errorMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_plain_content') . '</strong>';
-				} elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']),'<!--DMAILER_SECTION_BOUNDARY')) {
-					$warningMsg .= '<br /><strong>' . $LANG->getLL('dmail_no_plain_boundaries') . '</strong>';
-				}
-
-				if (!$errorMsg) {
-						// Update the record:
-					$htmlmail->theParts['messageid'] = $htmlmail->messageid;
-					$mailContent = serialize($htmlmail->theParts);
-					$updateFields = array(
-						'issent' => 0,
-						'charset' => $htmlmail->charset,
-						'mailContent' => $mailContent,
-						'renderedSize' => strlen($mailContent),
-						'long_link_rdct_url' => $this->urlbase
-						);
-					$TYPO3_DB->exec_UPDATEquery(
-						'sys_dmail',
-						'uid='.intval($this->sys_dmail_uid),
-						$updateFields
-						);
-
-					if ($warningMsg)	{
-						$theOutput .= $this->doc->section($LANG->getLL('dmail_warning'), $warningMsg.'<br /><br />');
-					}
-				}
+				$theOutput .= $this->compileQuickMail($row, $message);
 				/* end fetch function*/
 			} else {
 				if (!$dmail['sys_dmail']['NEW']['sendOptions']) {
@@ -476,6 +443,70 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			}
 
 		return $theOutput;
+	}
+
+	/**
+	 *
+	 * Enter description here ...
+	 * @param unknown_type $row
+	 * @param unknown_type $message
+	 * @TODO: remove htmlmail, compiling mail
+	 */
+	function compileQuickMail($row, $message, $encodePlain=true) {
+		// Compile the mail
+		$htmlmail = t3lib_div::makeInstance('dmailer');
+		$htmlmail->nonCron = 1;
+		$htmlmail->start();
+		$htmlmail->charset = $row['charset'];
+		$htmlmail->useBase64();
+		if ($encodePlain) {
+			$htmlmail->addPlain($message);
+		} else {
+			$htmlmail->setPlain($message);
+		}
+
+		if (!$message || !$htmlmail->theParts['plain']['content']) {
+			$errorMsg .= '<br /><strong>' . $GLOBALS['LANG']->getLL('dmail_no_plain_content') . '</strong>';
+		} elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']),'<!--DMAILER_SECTION_BOUNDARY')) {
+			$warningMsg .= '<br /><strong>' . $GLOBALS['LANG']->getLL('dmail_no_plain_boundaries') . '</strong>';
+		}
+
+		// fetch attachments
+		if ($row['attachment']) {
+			$attachments = t3lib_div::trimExplode(',', $row['attachment'], TRUE);
+			if (count($attachments)) {
+				t3lib_div::loadTCA('sys_dmail');
+				$uploadPath = $GLOBALS['TCA']['sys_dmail']['columns']['attachment']['config']['uploadfolder'];
+				foreach ($attachments as $theName) {
+					$theFile = PATH_site . $uploadPath . '/' . $theName;
+					if (@is_file($theFile)) {
+						$htmlmail->addAttachment($theFile, $theName);
+					}
+				}
+			}
+		}
+
+		if (!$errorMsg) {
+			// Update the record:
+			$htmlmail->theParts['messageid'] = $htmlmail->messageid;
+			$mailContent = serialize($htmlmail->theParts);
+			$updateFields = array(
+								'issent' => 0,
+								'charset' => $htmlmail->charset,
+								'mailContent' => $mailContent,
+								'renderedSize' => strlen($mailContent),
+								'long_link_rdct_url' => $this->urlbase
+			);
+			$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+								'sys_dmail',
+								'uid='.intval($this->sys_dmail_uid),
+			$updateFields
+			);
+
+			if ($warningMsg)	{
+				$theOutput .= $this->doc->section($GLOBALS['LANG']->getLL('dmail_warning'), $warningMsg.'<br /><br />');
+			}
+		}
 	}
 
 	/**
@@ -512,15 +543,15 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		if ($this->CMD == 'delete') {
 			$this->deleteDMail(intval(t3lib_div::_GP('uid')));
 		}
-		
-		
+
+
 		if (intval($this->sys_dmail_uid)) {
 			$row = t3lib_BEfunc::getRecord('sys_dmail', intval($this->sys_dmail_uid));
 			$isExternalDirectMailRecord = (is_array($row) && $row['type'] == 1);
 		}
 
 		$hideCategoryStep = FALSE;
-		if (($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] && 
+		if (($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] &&
 			$GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] == 'cat') || $isExternalDirectMailRecord) {
 			$hideCategoryStep = TRUE;
 		}
@@ -528,7 +559,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		if (t3lib_div::_GP('update_cats')) {
 			$this->CMD = 'cats';
 		}
-		
+
 		if (t3lib_div::_GP('mailingMode_simple')) {
 			$this->CMD = 'send_mail_test';
 		}
@@ -540,27 +571,27 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				case 'info':
 					$this->CMD = '';
 				break;
-					
+
 				case 'cats':
 					$this->CMD = 'info';
 				break;
-					
+
 				case 'send_test':
 				case 'send_mail_test':
 					if (($this->CMD == 'send_mass') && $hideCategoryStep) {
-						$this->CMD = 'info';	
+						$this->CMD = 'info';
 					} else {
 						$this->CMD = 'cats';
 					}
 				break;
-					
+
 				case 'send_mail_final':
 				case 'send_mass':
 					$this->CMD = 'send_test';
 				break;
 			}
 		}
-		
+
 		if ($hideCategoryStep) {
 			$totalSteps = 4;
 			if ($this->CMD == 'info') {
@@ -584,9 +615,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 				// Create DirectMail and fetch the data
 				$shouldFetchData = t3lib_div::_GP('fetchAtOnce');
-				
+
 				$quickmail = t3lib_div::_GP('quickmail');
-				
+
 				$createMailFromInternalPage = intval(t3lib_div::_GP('createMailFrom_UID'));
 				$createMailFromExternalUrl = t3lib_div::_GP('createMailFrom_URL');
 
@@ -641,6 +672,11 @@ class tx_directmail_dmail extends t3lib_SCbase {
 							// it's a quickmail
 						$fetchError = FALSE;
 						$theOutput .= '<input type="hidden" name="CMD" value="send_test">';
+
+						//add attachment here, since attachment added in 2nd step
+						$unserializedMailContent = unserialize($row['mailContent']);
+						$theOutput .= $this->compileQuickMail($row, $unserializedMailContent['plain']['content'],false);
+
 					} else {
 
 						if ($shouldFetchData) {
@@ -658,7 +694,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 				$navigationButtons = '<input type="submit" class="t3-btn-back" value="' . $LANG->getLL('dmail_wiz_back') . '" name="back">';
 				$navigationButtons.= '<input type="submit" value="'.$LANG->getLL('dmail_wiz_next').'" ' . ($fetchError ? 'disabled="disabled" class="next t3-btn-disabled"' : ' class="t3-btn-next"').'>';
-				
+
 				if ($fetchMessage) {
 					$markers['FLASHMESSAGES'] = $fetchMessage;
 				} elseif (!$fetchError && $shouldFetchData) {
@@ -669,7 +705,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					);
 					$markers['FLASHMESSAGES'] = $flashMessage->render();
 				}
-				
+
 				if (is_array($row)) {
 					$theOutput.= '<div id="box-1" class="toggleBox">';
 					$theOutput.= $this->renderRecordDetailsTable($row);
@@ -688,7 +724,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 				$navigationButtons = '<input type="submit" class="t3-btn-back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
 				$navigationButtons.= '<input type="submit" class="t3-btn-next" value="'.$LANG->getLL('dmail_wiz_next').'">';
-				
+
 				$theOutput.= '<div id="box-1" class="toggleBox">';
 				$theOutput.= $this->makeCategoriesForm($row);
 				$theOutput.= '</div></div>';
@@ -725,11 +761,11 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			case 'send_mail_final':
 			case 'send_mass':
 				$this->currentStep = (5 - (5 - $totalSteps));
-				
+
 				if ($this->CMD == 'send_mass') {
 					$navigationButtons = '<input type="submit" class="t3-btn-back" value="'.$LANG->getLL('dmail_wiz_back').'" name="back">';
 				}
-				
+
 				if($this->CMD=='send_mail_final'){
 					$selectedMailGroups = t3lib_div::_GP('mailgroup_uid');
 					if(is_array($selectedMailGroups)){
@@ -750,14 +786,14 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$theOutput.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
 				$theOutput.= '<input type="hidden" name="pages_uid" value="'.$this->pages_uid.'">';
 				$theOutput.= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
-				
+
 			break;
 
 			default:
 					//choose source newsletter
 				$this->currentStep = 1;
 				$markers['TITLE'] = $LANG->getLL('dmail_wiz1_new_newsletter') . ' - ' . $LANG->getLL('dmail_wiz1_select_nl_source');
-				
+
 				$showTabs = array('int','ext','quick','dmail');
 				$hideTabs = t3lib_div::trimExplode(',',$GLOBALS['BE_USER']->userTS['tx_directmail.']['hideTabs']);
 				foreach ($hideTabs as $hideTab) {
@@ -767,7 +803,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				if (!$GLOBALS['BE_USER']->userTS['tx_directmail.']['defaultTab']) {
 					$GLOBALS['BE_USER']->userTS['tx_directmail.']['defaultTab'] = 'dmail';
 				}
-				
+
 				$i = 1;
 				$countTabs = count($showTabs);
 				foreach ($showTabs as $showTab) {
@@ -847,7 +883,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			foreach($hookObjectsArr as $hookObj)    {
 				if (method_exists($hookObj, 'cmd_finalmail')) {
 					$hookContents = $hookObj->cmd_finalmail($this);
-					$hookSelectDisabled = $hookObj->selectDisabled;     	
+					$hookSelectDisabled = $hookObj->selectDisabled;
 				}
 			}
 		}
@@ -871,12 +907,12 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			if (is_array($idLists['fe_users']))	$count+=count($idLists['fe_users']);
 			if (is_array($idLists['PLAINLIST']))	$count+=count($idLists['PLAINLIST']);
 			if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
-			
-			
+
+
 			$opt[] = '<option value="'.$row['uid'].'">'.htmlspecialchars($row['title'].' (#'.$count.')').'</option>';
 		}
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
-		
+
 		// added disabled. see hook
 		$select = '<select multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
 
@@ -886,32 +922,32 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$msg.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'" />';
 		$msg.= '<input type="hidden" name="CMD" value="send_mail_final" />';
 		$msg.= $LANG->getLL('schedule_mailgroup') . '<br />'.$select.'<br /><br />';
-		
+
 		// put content from hook
 		$msg .= $hookContents;
-		
-		
+
+
 		$msg.= $LANG->getLL('schedule_time') .
 			'<br /><input type="text" id="send_mail_datetime_hr" name="send_mail_datetime_hr'.'" onChange="typo3FormFieldGet();"'.$TBE_TEMPLATE->formWidth(20).'>'.
 			tx_directmail_calendarlib::getInputButton ('send_mail_datetime_hr').
 			'<input type="hidden" value="'.time().'" name="send_mail_datetime" /><br />';
-		
+
 		$this->extJSCODE .= '
-		
+
 		document.forms[0]["send_mail_datetime_hr"].value = showLocalDate(document.forms[0]["send_mail_datetime"].value);
-		
+
 		function showLocalDate(timestamp)
 		{
 			var dt = new Date(timestamp * 1000);
 			var hour;
 			var minute;
-			
+
 			if (dt.getHours() < 9) {
 				hour = "0"+dt.getHours();
 			} else {
 				hour = dt.getHours();
 			}
-			
+
 			if (dt.getMinutes() < 9) {
 				minute = "0"+dt.getMinutes();
 			} else {
@@ -919,9 +955,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			}
 			return hour+":"+minute+" "+dt.getDate()+"-"+(dt.getMonth()+1)+"-"+dt.getFullYear();
 		}
-		
+
 		';
-		
+
 		$msg.= '<br/><label for="tx-directmail-sendtestmail-check"><input type="checkbox" name="testmail" id="tx-directmail-sendtestmail-check" value="1" />&nbsp;' . $LANG->getLL('schedule_testmail') . '</label>';
 		$msg.= '<br/><label for="tx-directmail-savedraft-check"><input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;' . $LANG->getLL('schedule_draft') . '</label>';
 		$msg.= '<br /><br /><input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" onClick="typo3FormFieldGet();" />';
@@ -941,6 +977,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	 *
 	 * @param	array		$row: directmal DB record
 	 * @return	string		Messages if the mail is sent or planned to sent
+	 * @todo	remove htmlmail. sending test mail
 	 */
 	function cmd_send_mail($row) {
 		global $LANG;
@@ -960,12 +997,12 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 				// setting Testmail flag
 			$htmlmail->testmail = $this->params['testmail'];
-				
+
 				// Fixing addresses:
 			$addresses = t3lib_div::_GP('SET');
 			$addressList = $addresses['dmail_test_email'] ? $addresses['dmail_test_email'] : $this->MOD_SETTINGS['dmail_test_email'];
 			$addresses = preg_split('|['.chr(10).',;]|',$addressList);
-			
+
 			foreach ($addresses as $key => $val) {
 				$addresses[$key] = trim($val);
 				if (!t3lib_div::validEmail($addresses[$key]))	{
@@ -980,7 +1017,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					// Sending the same mail to lots of recipients
 				$htmlmail->dmailer_sendSimple($addressList);
 				$sentFlag = TRUE;
-				
+
 				$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
 					$LANG->getLL('send_was_sent').
 						'<br /><br />'.
@@ -988,8 +1025,8 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					$LANG->getLL('send_sending'), //header
 					t3lib_FlashMessage::OK //severity
 				);
-				
-				
+
+
 				$this->noView = 1;
 			}
 		} elseif ($this->CMD == 'send_mail_test') {
@@ -997,7 +1034,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 				// setting Testmail flag
 			$htmlmail->testmail = $this->params['testmail'];
-			
+
 			if (t3lib_div::_GP('tt_address_uid'))	{
 				//personalized to tt_address
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -1022,7 +1059,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					);
 				}
 				$GLOBALS['TYPO3_DB']->sql_free_result($res);
-				
+
 			} elseif (is_array(t3lib_div::_GP('sys_dmail_group_uid'))) {
 				// personalized to group
 				$result = $this->cmd_compileMailGroup(t3lib_div::_GP('sys_dmail_group_uid'));
@@ -1059,11 +1096,11 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					'scheduled'  => $distributionTime,
 					'query_info' => serialize($queryInfo)
 				);
-					
+
 				if (t3lib_div::_GP('testmail')) {
 					$updateFields['subject'] = $this->params['testmail'] . ' ' . $row['subject'];
 				}
-				
+
 					// create a draft version of the record
 				if (t3lib_div::_GP('savedraft')) {
 					if ($row['type'] == 0) {
@@ -1090,7 +1127,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 						$LANG->getLL('dmail_wiz5_sendmass'),
 						t3lib_FlashMessage::OK
 					);
-				
+
 			}
 		}
 
@@ -1113,6 +1150,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	 * @param	string		$table: table name
 	 * @param	object		$htmlmail: object of the dmailer script
 	 * @return	integer		total of sent mail
+	 * @todo: remove htmlmail. sending mails to table
 	 */
 	protected function sendTestMailToTable($idLists, $table, $htmlmail) {
 		$sentFlag = 0;
@@ -1156,14 +1194,14 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					t3lib_BEfunc::deleteClause('tt_address')
 				);
 			$msg = $LANG->getLL('testmail_individual_msg') . '<br /><br />';
-			
+
 			$ids = array();
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				$ids[] = $row['uid'];
 			}
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 			$msg .= $this->getRecordList(tx_directmail_static::fetchRecordsListValues($ids,'tt_address'),'tt_address', 0, 1, 1);
-			
+
 			$theOutput.= $this->doc->section($LANG->getLL('testmail_individual'),$msg, 1, 1, 0, TRUE);
 			$theOutput.= $this->doc->spacer(20);
 		}
@@ -1191,7 +1229,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				</table>';
 			}
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
-			
+
 			$theOutput.= $this->doc->section($LANG->getLL('testmail_mailgroup'),$msg, 1, 1, 0, TRUE);
 			$theOutput.= $this->doc->spacer(20);
 		}
@@ -1266,7 +1304,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 								'<img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="' . $LANG->getLL('dmail_edit') . '" width="12" height="12" style="margin:0px 5px; vertical-align:top;" title="' . $LANG->getLL('dmail_edit') . '" />' .
 								'</a></td>';
 					}
-					
+
 					if ($testMailLink) {
 						$testLink = '<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&tt_address_uid='.$row['uid'].'">'.htmlspecialchars($row['email']).'</a>';
 					} else {
@@ -1300,20 +1338,25 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		if (!count($groups)){
 			return;
 		}
-		
+
 		// Looping through the selected array, in order to fetch recipient details
 		$id_lists = array();
 		foreach ($groups AS $group) {
 			// Testing to see if group ID is a valid integer, if not - skip to next group ID
-			if (!t3lib_div::intval_positive($group)) {
+			if (t3lib_div::compat_version('4.6')) {
+				$group = t3lib_utility_Math::convertToPositiveInteger($group);
+			} else {
+				$group = t3lib_div::intval_positive($group);
+			}
+			if (!$group) {
 				continue;
 			}
-			
+
 			$recipientList = $this->getSingleMailGroup($group);
 			if (!is_array($recipientList)) {
 				continue;
 			}
-			
+
 			$id_lists = array_merge_recursive($id_lists, $recipientList);
 		}
 		// Make unique entries
@@ -1321,23 +1364,23 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		if (is_array($id_lists['fe_users']))	$id_lists['fe_users'] = array_unique($id_lists['fe_users']);
 		if (is_array($id_lists[$this->userTable]) && $this->userTable)	$id_lists[$this->userTable] = array_unique($id_lists[$this->userTable]);
 		if (is_array($id_lists['PLAINLIST']))	{$id_lists['PLAINLIST'] = tx_directmail_static::cleanPlainList($id_lists['PLAINLIST']);}
-		
+
 		/**
 		 * Hook for cmd_compileMailGroup
 		 * manipulate the generated id_lists
 		 */
 		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'])) {
 			$hookObjectsArr = array();
-			
+
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] as $classRef) {
 				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
 			}
 			foreach($hookObjectsArr as $hookObj)    {
 				if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
-					$temp_lists = $hookObj->cmd_compileMailGroup_postProcess($id_lists, $this); 	
+					$temp_lists = $hookObj->cmd_compileMailGroup_postProcess($id_lists, $this, $mailGroup);
 				}
 			}
-			
+
 			unset ($id_lists);
 			$id_lists = $temp_lists;
 		}
@@ -1349,9 +1392,9 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 	/**
 	 * Fetches recipient IDs from a given group ID
-	 * 
+	 *
 	 * Most of the functionality from cmd_compileMailGroup in order to use multiple recipient lists when sending
-	 * 
+	 *
 	 * @param integer		$group_uid: recipient group ID
 	 * @return array		list of recipient IDs
 	 */
@@ -1525,12 +1568,12 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			$tce->stripslashes_values=0;
 			$tce->start($data, array());
 			$tce->process_datamap();
-			
+
 			//remove cache
 			$tce->clear_cache('pages',$this->pages_uid);
 			$out = tx_directmail_static::fetchUrlContentsForDirectMailRecord($row, $this->params);
 		}
-        //[ToDo] Perhaps we should here check if TV is installed and fetch cotnent from that instead of the old Columns...
+				//[ToDo] Perhaps we should here check if TV is installed and fetch cotnent from that instead of the old Columns...
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'colPos, CType, uid, pid, header, bodytext, module_sys_dmail_category',
 			'tt_content',
@@ -1556,7 +1599,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 					$row_categories .= $rowCat['uid_foreign'].',';
 				}
 				$GLOBALS['TYPO3_DB']->sql_free_result($resCat);
-				
+
 				$row_categories = rtrim($row_categories,',');
 
 				$out.='<tr><td colspan="3" style="height: 15px;"></td></tr>';
@@ -1585,7 +1628,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$out.=$out_check.'</td></tr>';
 			}
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
-			
+
 			$out='<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
 			$out.='<input type="hidden" name="pages_uid" value="'.$this->pages_uid.'"><input type="hidden" name="CMD" value="'.$this->CMD.'"><br /><input type="submit" name="update_cats" value="'.$LANG->getLL('nl_l_update').'">';
 			$theOutput.= $this->doc->section($LANG->getLL('nl_cat').t3lib_BEfunc::cshItem($this->cshTable,'assign_categories',$BACK_PATH), $out, 1, 1, 0, TRUE);
@@ -1741,7 +1784,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 		$theOutput='';
 		$indata = t3lib_div::_GP('quickmail');
-		
+
 		$senderName = ($indata['senderName']?$indata['senderName']:$BE_USER->user['realName']);
 		$senderMail = ($indata['senderEmail']?$indata['senderEmail']:$BE_USER->user['email']);
 			// Set up form:
@@ -1751,7 +1794,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$theOutput.= $LANG->getLL('dmail_subject') . '<br /><input type="text" name="quickmail[subject]" value="'.htmlspecialchars($indata['subject']).'"'.$this->doc->formWidth().' /><br />';
 		$theOutput.= $LANG->getLL('quickmail_message') . '<br /><textarea rows="20" name="quickmail[message]"'.$this->doc->formWidthText().'>'.t3lib_div::formatForTextarea($indata['message']).'</textarea><br />';
 		$theOutput.= $LANG->getLL('quickmail_break_lines') . ' <input type="checkbox" name="quickmail[breakLines]" value="1"'.($indata['breakLines']?' checked="checked"':'').' /><br /><br />';
-		$theOutput.= '<input type="Submit" name="quickmail[send]" value="' . $LANG->getLL('dmail_wiz_next') . '" />';		
+		$theOutput.= '<input type="Submit" name="quickmail[send]" value="' . $LANG->getLL('dmail_wiz_next') . '" />';
 
 		return $theOutput;
 	}
@@ -1763,7 +1806,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	 */
 	function cmd_news () {
 		global $LANG, $TYPO3_DB, $BACK_PATH;
-		
+
 			// Here the list of subpages, news, is rendered
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'uid,doktype,title,abstract',
@@ -1781,10 +1824,10 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		} else {
 			$outLines = array();
 			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
-				
+
 				$iconPreviewHTML = '<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($row['uid'],$BACK_PATH,t3lib_BEfunc::BEgetRootLine($row['uid']),'','',$this->implodedParams['HTMLParams']).'"><img src="../res/gfx/preview_html.gif" width="16" height="16" alt="" style="vertical-align:top;" title="'.$LANG->getLL('nl_viewPage_HTML').'"/></a>';
 				$iconPreviewText = '<a href="#" onClick="'.t3lib_BEfunc::viewOnClick($row['uid'],$BACK_PATH,t3lib_BEfunc::BEgetRootLine($row['uid']),'','',$this->implodedParams['plainParams']).'"><img src="../res/gfx/preview_txt.gif" width="16" height="16" alt="" style="vertical-align:top;" title="'.$LANG->getLL('nl_viewPage_TXT').'"/></a>';
-				
+
 				//switch
 				switch ($this->params['sendOptions']) {
 					case 1:
@@ -1798,8 +1841,8 @@ class tx_directmail_dmail extends t3lib_SCbase {
 						$iconPreview = $iconPreviewHTML.'&nbsp;&nbsp;'.$iconPreviewText;
 					break;
 				}
-				
-				$createDmailLink = 'index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&fetchAtOnce=1&CMD=info'; 
+
+				$createDmailLink = 'index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&fetchAtOnce=1&CMD=info';
 
 				if (t3lib_div::compat_version('4.4')) {
 					//new
@@ -1812,7 +1855,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$outLines[] = array(
 					'<a href="'.$createDmailLink.'">'.$pageIcon.'</a>',
 					'<a href="'.$createDmailLink.'"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/newmail', 'width="16" height="18"').' alt="'.$LANG->getLL("dmail_createMail").'" style="vertical-align:top;" title="'.$LANG->getLL("nl_create").'" /></a>',
-					'<a href="'.$BACK_PATH.t3lib_extMgm::extRelPath('cms').'layout/db_layout.php?id='.$row['uid'].'" target="_blank"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" style="vertical-align:top;" title="'.$LANG->getLL("nl_editPage").'" /></a>',
+					'<a onclick="'.htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[pages]['.$row['uid'].']=edit',$this->doc->backPath)).'" href="#"><img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$LANG->getLL("dmail_edit").'" style="vertical-align:top;" title="'.$LANG->getLL("nl_editPage").'" /></a>',
 					$iconPreview
 					);
 			}
@@ -1820,10 +1863,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			$theOutput.= $this->doc->section($LANG->getLL('dmail_dovsk_crFromNL').t3lib_BEfunc::cshItem($this->cshTable,'select_newsletter',$BACK_PATH), $out, 1, 1, 0, TRUE);
 		}
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
-		
-			// Create a new page
-		$theOutput.= $this->doc->spacer(20);
-		$theOutput.= $this->doc->section($LANG->getLL('nl_create').t3lib_BEfunc::cshItem($this->cshTable,'create_newsletter',$BACK_PATH),'<a href="#" class="t3-link"  onClick="'.t3lib_BEfunc::editOnClick('&edit[pages]['.$this->id.']=new&edit[tt_content][prev]=new',$BACK_PATH,'').'"><b>'.$LANG->getLL('nl_create_msg1').'</b></a>', 1, 1, 0, TRUE);
+
 		return $theOutput;
 	}
 
@@ -1840,7 +1880,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 
 	/**
-	 * shows the infos of a directmail 
+	 * shows the infos of a directmail
 	 * record in a table
 	 *
 	 * @param	array	$row: DirectMail DB record
@@ -1882,26 +1922,26 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$sectionTitle = t3lib_iconWorks::getIconImage('sys_dmail', $row, $BACK_PATH, 'style="vertical-align: top;"') . '&nbsp;' . htmlspecialchars($row['subject']);
 		return $this->doc->section($sectionTitle, $content, 1, 1, 0, TRUE);
 	}
-	
+
 	/**
 	 * create delete link with trash icon
-	 * 
+	 *
 	 * @param	int		$uid: uid of the record
 	 * @return	string	link with the trash icon
 	 */
 	function deleteLink($uid) {
 		global $BACK_PATH;
-		
+
 		$icon = '<img'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/delete_record.gif').' />';
-		$dmail = t3lib_BEfunc::getRecord('sys_dmail', $uid); 
+		$dmail = t3lib_BEfunc::getRecord('sys_dmail', $uid);
 		if (!$dmail['scheduled_begin']) {
 			return '<a href="index.php?id='.$this->id.'&CMD=delete&uid='.$uid.'">'.$icon.'</a>';
 		}
 	}
-	
+
 	/**
 	 * delete existing dmail record
-	 * 
+	 *
 	 * @param int $uid: record uid to be deleted
 	 * @return void
 	 */
@@ -1914,7 +1954,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				array($GLOBALS['TCA'][$table]['ctrl']['delete'] => 1)
 			);
 		}
-		
+
 		return;
 	}
 }
