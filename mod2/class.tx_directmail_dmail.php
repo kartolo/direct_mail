@@ -100,7 +100,6 @@ require_once (PATH_t3lib.'class.t3lib_tstemplate.php');
 require_once(PATH_t3lib.'class.t3lib_timetrack.php');
 require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.mailselect.php');
 require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.dmailer.php');
-require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/calendar/class.tx_directmail_calendarlib.php');
 require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directmail_static.php');
 
 /**
@@ -110,11 +109,11 @@ require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directma
 class tx_directmail_dmail extends t3lib_SCbase {
 	var $extKey = 'direct_mail';
 	var $TSconfPrefix = 'mod.web_modules.dmail.';
-	var $fieldList='uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
+	var $fieldList = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
 	// Internal
-	var $params=array();
-	var $perms_clause='';
-	var $pageinfo='';
+	var $params = array();
+	var $perms_clause = '';
+	var $pageinfo = '';
 	var $sys_dmail_uid;
 	var $CMD;
 	var $pages_uid;
@@ -124,7 +123,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	var $back;
 	var $noView;
 	var $mode;
-	var $implodedParams=array();
+	var $implodedParams = array();
 	var $userTable;		// If set a valid user table is around
 	var $sys_language_uid = 0;
 	var $error='';
@@ -240,12 +239,28 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			$this->doc->setModuleTemplate('EXT:direct_mail/mod2/mod_template.html');
 			$this->doc->form = '<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
 
+			$pageRenderer = $this->doc->getPageRenderer();
 				// Add CSS
-			$this->doc->getPageRenderer()->addCssFile('../Resources/Public/StyleSheets/modules.css', 'stylesheet', 'all', '', FALSE, FALSE);
+			$pageRenderer->addCssFile('../Resources/Public/StyleSheets/modules.css', 'stylesheet', 'all', '', FALSE, FALSE);
 
 			// JavaScript
 			if (t3lib_div::inList('send_mail_final,send_mass',$this->CMD)) {
-				$this->doc->JScode .= tx_directmail_calendarlib::includeLib($this->params['calConf.']);
+				// Load necessary extJS lib
+				/** @var $pageRenderer t3lib_PageRenderer */
+				$pageRenderer = $this->doc->getPageRenderer();
+				$pageRenderer->loadExtJS();
+				$pageRenderer->addJsFile($this->doc->backPath . '../t3lib/js/extjs/tceforms.js');
+				if (t3lib_div::compat_version('4.6')) {
+					$pageRenderer->addJsFile($this->doc->backPath .'../t3lib/js/extjs/ux/Ext.ux.DateTimePicker.js');
+				}
+
+				// Define settings for Date Picker
+				$typo3Settings = array(
+					'datePickerUSmode' => $GLOBALS['TYPO3_CONF_VARS']['SYS']['USdateFormat'] ? 1 : 0,
+					'dateFormat'       => array('j-n-Y', 'G:i j-n-Y'),
+					'dateFormatUS'     => array('n-j-Y', 'G:i n-j-Y'),
+				);
+				$pageRenderer->addInlineSettingArray('', $typo3Settings);
 			}
 
 			$this->doc->JScode .= '
@@ -840,29 +855,6 @@ class tx_directmail_dmail extends t3lib_SCbase {
 	}
 
 	/**
-	 * print out Javascript for field evaluation
-	 *
-	 * @param	string		$formname: name of the form
-	 * @return	string		HTML with JS script
-	 */
-	function JSbottom($formname='forms[0]')	{
-		if ($this->extJSCODE)	{
-			$out.='
-			<script language="javascript" type="text/javascript">
-				function typo3FormFieldGet() {
-					var sendDateTime = document.forms[0]["send_mail_datetime_hr"].value.split(" ");
-					var sendHour = sendDateTime[0].split(":");
-					var sendDate = sendDateTime[1].split("-");
-
-					document.forms[0]["send_mail_datetime"].value = new Date(sendDate[2],(sendDate[1]-1),sendDate[0],sendHour[0],sendHour[1],00).getTime()/1000;
-				}
-			</script>
-			<script language="javascript" type="text/javascript">'.$this->extJSCODE.'</script>';
-			return $out;
-		}
-	}
-
-	/**
 	 * shows the final steps of the process. Show recipient list and calendar library
 	 *
 	 * @param	array		$row: directmail record
@@ -928,40 +920,19 @@ class tx_directmail_dmail extends t3lib_SCbase {
 
 
 		$msg.= $LANG->getLL('schedule_time') .
-			'<br /><input type="text" id="send_mail_datetime_hr" name="send_mail_datetime_hr'.'" onChange="typo3FormFieldGet();"'.$TBE_TEMPLATE->formWidth(20).'>'.
-			tx_directmail_calendarlib::getInputButton ('send_mail_datetime_hr').
-			'<input type="hidden" value="'.time().'" name="send_mail_datetime" /><br />';
-
-		$this->extJSCODE .= '
-
-		document.forms[0]["send_mail_datetime_hr"].value = showLocalDate(document.forms[0]["send_mail_datetime"].value);
-
-		function showLocalDate(timestamp)
-		{
-			var dt = new Date(timestamp * 1000);
-			var hour;
-			var minute;
-
-			if (dt.getHours() < 9) {
-				hour = "0"+dt.getHours();
-			} else {
-				hour = dt.getHours();
-			}
-
-			if (dt.getMinutes() < 9) {
-				minute = "0"+dt.getMinutes();
-			} else {
-				minute = dt.getMinutes();
-			}
-			return hour+":"+minute+" "+dt.getDate()+"-"+(dt.getMonth()+1)+"-"+dt.getFullYear();
-		}
-
-		';
+			'<br /><input type="text" id="tceforms-datetimefield-startdate" name="send_mail_datetime'.'" '.$TBE_TEMPLATE->formWidth(20).' value="'.strftime('%H:%M %d-%m-%Y',time()).'">'.
+			t3lib_iconWorks::getSpriteIcon(
+				'actions-edit-pick-date',
+				array(
+					'style' => 'cursor:pointer;',
+					'id' => 'picker-tceforms-datetimefield-startdate'
+				)
+			).
+			'<br />';
 
 		$msg.= '<br/><label for="tx-directmail-sendtestmail-check"><input type="checkbox" name="testmail" id="tx-directmail-sendtestmail-check" value="1" />&nbsp;' . $LANG->getLL('schedule_testmail') . '</label>';
 		$msg.= '<br/><label for="tx-directmail-savedraft-check"><input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;' . $LANG->getLL('schedule_draft') . '</label>';
-		$msg.= '<br /><br /><input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" onClick="typo3FormFieldGet();" />';
-		$msg.= $this->JSbottom();
+		$msg.= '<br /><br /><input type="Submit" name="mailingMode_mailGroup" value="' . $LANG->getLL('schedule_send_all') . '" />';
 
 		$theOutput.= $this->doc->section($LANG->getLL('schedule_select_mailgroup'),$msg, 1, 1, 0, TRUE);
 		$theOutput.= $this->doc->spacer(20);
@@ -1087,7 +1058,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$result = $this->cmd_compileMailGroup($recipientGroups);
 				$queryInfo = $result['queryInfo'];
 
-				$distributionTime = intval(t3lib_div::_GP('send_mail_datetime'));
+				$distributionTime = intval(strtotime(t3lib_div::_GP('send_mail_datetime')));
 				if ($distributionTime < time()) {
 					$distributionTime = time();
 				}
