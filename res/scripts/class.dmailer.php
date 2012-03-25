@@ -87,7 +87,7 @@
  * If there are mails, 100 is sent at a time per job.
  */
 // TODO: remove htmlmail
-require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
+//require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
 require_once(PATH_t3lib.'class.t3lib_befunc.php');
 
 // include Pear::Mail if exists
@@ -97,7 +97,7 @@ require_once(PATH_t3lib.'class.t3lib_befunc.php');
  * Class, doing the sending of Direct-mails, eg. through a cron-job
  *
  */
-class dmailer extends t3lib_htmlmail {
+class dmailer {
 	var $sendPerCycle =50;
 	var $dontEncodeHeader = 1;
 	var $logArray = array();
@@ -875,7 +875,23 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function start($user_dmailer_sendPerCycle=50,$user_dmailer_lang='en') {
 
-		parent::start();
+		// Sets the message id
+		$host = t3lib_div::getHostname();
+		if (!$host || $host == '127.0.0.1' || $host == 'localhost' || $host == 'localhost.localdomain') {
+			$host = ($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']) : 'localhost') . '.TYPO3';
+		}
+
+		$idLeft = time() . '.' . uniqid();
+		$idRight = !empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'swift.generated';
+		$this->messageid = $idLeft . '@' . $idRight;
+
+		// Default line break for Unix systems.
+		$this->linebreak = LF;
+		// Line break for Windows. This is needed because PHP on Windows systems
+		// send mails via SMTP instead of using sendmail, and thus the linebreak needs to be \r\n.
+		if (TYPO3_OS == 'WIN') {
+			$this->linebreak = CRLF;
+		}
 
 			// Mailer engine parameters
 		$this->sendPerCycle = $user_dmailer_sendPerCycle;
@@ -895,30 +911,6 @@ class dmailer extends t3lib_htmlmail {
 		if($this->useSmtp){
 			//if using SMTP, don't encode the headers
 			$this->dontEncodeHeader = TRUE;
-		}
-	}
-
-	/**
-	 * call parent's useBase64 function and set an additional email header.
-	 *
-	 * @return	void		...
-	 */
-	function useBase64() {
-		parent::useBase64();
-		if ($this->flowedFormat) {
-			$this->plain_text_header = 'Content-Type: text/plain; charset='.$this->charset.'; format=flowed'.$this->linebreak.'Content-Transfer-Encoding: base64';
-		}
-	}
-
-	/**
-	 * call parent's use8it function and set an additional email header
-	 *
-	 * @return	void		...
-	 */
-	function use8Bit() {
-		parent::use8Bit();
-		if ($this->flowedFormat) {
-			$this->plain_text_header = 'Content-Type: text/plain; charset='.$this->charset.'; format=flowed'.$this->linebreak.'Content-Transfer-Encoding: 8bit';
 		}
 	}
 
@@ -1045,13 +1037,27 @@ class dmailer extends t3lib_htmlmail {
 		if ($this->extractFramesInfo())	{
 			return "Document was a frameset. Stopped";
 		}
-		$this->extractMediaLinks();
 		$this->extractHyperLinks();
-		$this->fetchHTMLMedia();
-		$this->substMediaNamesInHTML(!$this->includeMedia);	// 0 = relative
 		$this->substHREFsInHTML();
 		$this->setHTML($this->encodeMsg($this->theParts["html"]["content"]));
 		return true;
+	}
+
+	/**
+	* Fetches the HTML-content from either url og local serverfile
+	*
+	* @param	string		$url: url of the html to fetch
+	* @return	boolean		whether the data was fetched or not
+	*/
+	public function fetchHTML($url) {
+		// Fetches the content of the page
+		$this->theParts['html']['content'] = t3lib_div::getURL($url);
+		if ($this->theParts['html']['content']) {
+			$this->theParts['html']['path'] = $url;
+			return TRUE;
+		} else {
+			return FALSE;
+		}
 	}
 
 	/**
@@ -1253,25 +1259,286 @@ class dmailer extends t3lib_htmlmail {
 	}
 
 	/**
-	 * Fetches the mediafiles which are found by extractMediaLinks()
+	* Adds plain-text, replaces the HTTP urls in the plain text and then encodes it
+	*
+	* @param	string		$content that will be added
+	* @return	void
+	*/
+	public function addPlain($content) {
+		$content = $this->substHTTPurlsInPlainText($content);
+		$this->setPlain($this->encodeMsg($content));
+	}
+
+	/**
+	*  This substitutes the http:// urls in plain text with links
+	*
+	* @param	string		$content: the content to use to substitute
+	* @return	string		the changed content
+	*/
+	public function substHTTPurlsInPlainText($content) {
+		if (!$this->jumperURL_prefix) {
+			return $content;
+		}
+
+		$textpieces = explode("http://", $content);
+		$pieces = count($textpieces);
+		$textstr = $textpieces[0];
+		for ($i = 1; $i < $pieces; $i++) {
+			$len = strcspn($textpieces[$i], chr(32) . TAB . CRLF);
+			if (trim(substr($textstr, -1)) == '' && $len) {
+				$lastChar = substr($textpieces[$i], $len - 1, 1);
+				if (!preg_match('/[A-Za-z0-9\/#]/', $lastChar)) {
+					$len--;
+				}
+
+				$parts = array();
+				$parts[0] = "http://" . substr($textpieces[$i], 0, $len);
+				$parts[1] = substr($textpieces[$i], $len);
+
+				if ($this->jumperURL_useId) {
+					$this->theParts['plain']['link_ids'][$i] = $parts[0];
+					$parts[0] = $this->jumperURL_prefix . '-' . $i;
+				} else {
+					$parts[0] = $this->jumperURL_prefix . t3lib_div::rawUrlEncodeFP($parts[0]);
+				}
+				$textstr .= $parts[0] . $parts[1];
+			} else {
+				$textstr .= 'http://' . $textpieces[$i];
+			}
+		}
+		return $textstr;
+	}
+
+	/**
+	* wrapper function. always quoted_printable
+	*
+	* @param	string		$content the content that will be encoded
+	* @return	string		the encoded content
+	*/
+	public function encodeMsg($content) {
+		return t3lib_div::quoted_printable($content);
+	}
+
+	/**
+	* Returns base64-encoded content, which is broken every 76 character
+	*
+	* @param	string		$inputstr: the string to encode
+	* @return	string		the encoded string
+	*/
+	public function makeBase64($inputstr) {
+		return chunk_split(base64_encode($inputstr));
+	}
+
+	/**
+	* Sets the plain-text part. No processing done.
+	*
+	* @param	string		$content: the plain content
+	* @return	void
+	*/
+	public function setPlain($content) {
+		$this->theParts['plain']['content'] = $content;
+	}
+
+	/**
+	* Sets the HTML-part. No processing done.
+	*
+	* @param	string		$content: the HTML content
+	* @return	void
+	*/
+	public function setHtml($content) {
+		$this->theParts['html']['content'] = $content;
+	}
+
+	/**
+	 * extracts all hyper-links from $this->theParts["html"]["content"]
 	 *
 	 * @return	void
 	 */
-	public function fetchHTMLMedia() {
-		if (!is_array($this->theParts['html']['media']) || !count($this->theParts['html']['media'])) {
-			return;
+	public function extractHyperLinks() {
+		$html_code = $this->theParts['html']['content'];
+		$attribRegex = $this->tag_regex(array('a', 'form', 'area'));
+		$codepieces = preg_split($attribRegex, $html_code); // Splits the document by the beginning of the above tags
+		$len = strlen($codepieces[0]);
+		$pieces = count($codepieces);
+		for ($i = 1; $i < $pieces; $i++) {
+			$tag = strtolower(strtok(substr($html_code, $len + 1, 10), " "));
+			$len += strlen($tag) + strlen($codepieces[$i]) + 2;
+
+			$dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
+			// Fetches the attributes for the tag
+			$attributes = $this->get_tag_attributes($reg[0]);
+			$hrefData = array();
+			$hrefData['ref'] = ($attributes['href'] ? $attributes['href'] : $hrefData['ref'] = $attributes['action']);
+			if ($hrefData['ref']) {
+				// Finds out if the value had quotes around it
+				$hrefData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $hrefData["ref"]) - 1, 1) == '"') ? '"' : '';
+				// subst_str is the string to look for, when substituting lateron
+				$hrefData['subst_str'] = $hrefData['quotes'] . $hrefData['ref'] . $hrefData['quotes'];
+				if ($hrefData['ref'] && substr(trim($hrefData['ref']), 0, 1) != "#" && !strstr($this->href_fullpath_list, "|" . $hrefData['subst_str'] . "|")) {
+					$this->href_fullpath_list .= "|" . $hrefData['subst_str'] . "|";
+					$hrefData['absRef'] = $this->absRef($hrefData['ref']);
+					$hrefData['tag'] = $tag;
+					$this->theParts['html']['hrefs'][] = $hrefData;
+				}
+			}
 		}
-		foreach ($this->theParts['html']['media'] as $key => $media) {
-				// fetching the content and the mime-type
-			$picdata = $this->getExtendedURL($this->theParts['html']['media'][$key]['absRef']);
-			if (is_array($picdata)) {
-				$this->theParts['html']['media'][$key]['content'] = $picdata['content'];
-				$this->theParts['html']['media'][$key]['ctype'] = $picdata['content_type'];
-				$this->theParts['html']['media'][$key]['filename'] = $picdata['filename'];
+		// Extracts TYPO3 specific links made by the openPic() JS function
+		$codepieces = explode("onClick=\"openPic('", $html_code);
+		$pieces = count($codepieces);
+		for ($i = 1; $i < $pieces; $i++) {
+			$showpic_linkArr = explode("'", $codepieces[$i]);
+			$hrefData['ref'] = $showpic_linkArr[0];
+			if ($hrefData['ref']) {
+				$hrefData['quotes'] = "'";
+				// subst_str is the string to look for, when substituting lateron
+				$hrefData['subst_str'] = $hrefData['quotes'] . $hrefData['ref'] . $hrefData['quotes'];
+				if ($hrefData['ref'] && !strstr($this->href_fullpath_list, "|" . $hrefData['subst_str'] . "|")) {
+					$this->href_fullpath_list .= "|" . $hrefData['subst_str'] . "|";
+					$hrefData['absRef'] = $this->absRef($hrefData['ref']);
+					$this->theParts['html']['hrefs'][] = $hrefData;
+				}
 			}
 		}
 	}
 
+
+	/**
+	 * extracts all media-links from $this->theParts["html"]["content"]
+	 *
+	 * @return	array	two-dimensional array with information about each frame
+	 */
+	public function extractFramesInfo() {
+		$htmlCode = $this->theParts['html']['content'];
+		$info = array();
+		if (strpos(' ' . $htmlCode, '<frame ')) {
+			$attribRegex = $this->tag_regex('frame');
+			// Splits the document by the beginning of the above tags
+			$codepieces = preg_split($attribRegex, $htmlCode, 1000000);
+			$pieces = count($codepieces);
+			for ($i = 1; $i < $pieces; $i++) {
+				$dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
+				// Fetches the attributes for the tag
+				$attributes = $this->get_tag_attributes($reg[0]);
+				$frame = array();
+				$frame['src'] = $attributes['src'];
+				$frame['name'] = $attributes['name'];
+				$frame['absRef'] = $this->absRef($frame['src']);
+				$info[] = $frame;
+			}
+			return $info;
+		}
+	}
+
+	/**
+	* Creates a regular expression out of a list of tags
+	*
+	* @param	mixed		$tagArray: the list of tags (either as array or string if it is one tag)
+	* @return	string		the regular expression
+	*/
+	public function tag_regex($tags) {
+		$tags = (!is_array($tags) ? array($tags) : $tags);
+		$regexp = '/';
+		$c = count($tags);
+		foreach ($tags as $tag) {
+			$c--;
+			$regexp .= '<' . $tag . '[[:space:]]' . (($c) ? '|' : '');
+		}
+		return $regexp . '/i';
+	}
+
+	/**
+	* This function analyzes a HTML tag
+	* If an attribute is empty (like OPTION) the value of that key is just empty. Check it with is_set();
+	*
+	* @param	string		$tag: is either like this "<TAG OPTION ATTRIB=VALUE>" or
+	*				 this " OPTION ATTRIB=VALUE>" which means you can omit the tag-name
+	* @return	array		array with attributes as keys in lower-case
+	*/
+	public function get_tag_attributes($tag) {
+		$attributes = array();
+		$tag = ltrim(preg_replace('/^<[^ ]*/', '', trim($tag)));
+		$tagLen = strlen($tag);
+		$safetyCounter = 100;
+		// Find attribute
+		while ($tag) {
+			$value = '';
+			$reg = preg_split('/[[:space:]=>]/', $tag, 2);
+			$attrib = $reg[0];
+
+			$tag = ltrim(substr($tag, strlen($attrib), $tagLen));
+			if (substr($tag, 0, 1) == '=') {
+				$tag = ltrim(substr($tag, 1, $tagLen));
+				if (substr($tag, 0, 1) == '"') {
+					// Quotes around the value
+					$reg = explode('"', substr($tag, 1, $tagLen), 2);
+					$tag = ltrim($reg[1]);
+					$value = $reg[0];
+				} else {
+					// No quotes around value
+					preg_match('/^([^[:space:]>]*)(.*)/', $tag, $reg);
+					$value = trim($reg[1]);
+					$tag = ltrim($reg[2]);
+					if (substr($tag, 0, 1) == '>') {
+						$tag = '';
+					}
+				}
+			}
+			$attributes[strtolower($attrib)] = $value;
+			$safetyCounter--;
+			if ($safetyCounter < 0) {
+				break;
+			}
+		}
+		return $attributes;
+	}
+
+	/**
+	* Returns the absolute address of a link. This is based on
+	* $this->theParts["html"]["path"] being the root-address
+	*
+	* @param	string		$ref: address to use
+	* @return	string		the absolute address
+	*/
+	public function absRef($ref) {
+		$ref = trim($ref);
+		$info = parse_url($ref);
+		if ($info['scheme']) {
+			return $ref;
+		} elseif (preg_match('/^\//', $ref)) {
+			$addr = parse_url($this->theParts['html']['path']);
+			return $addr['scheme'] . '://' . $addr['host'] . ($addr['port'] ? ':' . $addr['port'] : '') . $ref;
+		} else {
+			// If the reference is relative, the path is added, in order for us to fetch the content
+			return $this->theParts['html']['path'] . $ref;
+		}
+	}
+
+	/**
+	* reads a url or file
+	*
+	* @param	string		$url: the URL to fetch
+	* @return	string		the content of the URL
+	*/
+	public function getURL($url) {
+		$url = $this->addUserPass($url);
+		return t3lib_div::getURL($url);
+	}
+
+	/**
+	* Adds HTTP user and password (from $this->http_username) to a URL
+	*
+	* @param	string		$url: the URL
+	* @return	string		the URL with the added values
+	*/
+	public function addUserPass($url) {
+		$user = $this->http_username;
+		$pass = $this->http_password;
+		$matches = array();
+		if ($user && $pass && preg_match('/^(https?:\/\/)/', $url, $matches)) {
+			return $matches[1] . $user . ':' . $pass . '@' . substr($url, strlen($matches[1]));
+		}
+		return $url;
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.dmailer.php'])	{

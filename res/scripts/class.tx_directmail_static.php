@@ -1097,7 +1097,7 @@ class tx_directmail_static {
 	 */
 	public static function fetchUrlContentsForDirectMailRecord($row, $params) {
 		global $LANG;
-// TODO: remove htmlmail
+
 		$theOutput = '';
 		$errorMsg = array();
 		$warningMsg = array();
@@ -1128,8 +1128,6 @@ class tx_directmail_static {
 
 		$htmlmail->start();
 		$htmlmail->charset = $row['charset'];
-		//TODO: set base64 header. don't need this
-		$htmlmail->useBase64();
 		$htmlmail->http_username = $params['http_username'];
 		$htmlmail->http_password = $params['http_password'];
 		$htmlmail->includeMedia = $row['includeMedia'];
@@ -1139,7 +1137,7 @@ class tx_directmail_static {
 			$htmlmail->addPlain($mailContent);
 			if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
 				$errorMsg[] = $LANG->getLL('dmail_no_plain_content');
-			} elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']),'<!--DMAILER_SECTION_BOUNDARY')) {
+			} elseif (!strstr($htmlmail->theParts['plain']['content'],'<!--DMAILER_SECTION_BOUNDARY')) {
 				$warningMsg[] = $LANG->getLL('dmail_no_plain_boundaries');
 			}
 		}
@@ -1147,7 +1145,7 @@ class tx_directmail_static {
 			// fetch the HTML url
 		if ($htmlUrl) {
 				// Username and password is added in htmlmail object
-			$success = $htmlmail->addHTML($htmlUrl);
+			$success = $htmlmail->addHTML(self::addUserPass($htmlUrl, $params));
 				// If type = 1, we have an external page.
 			if ($row['type'] == 1) {
 					// Try to auto-detect the charset of the message
@@ -1167,23 +1165,8 @@ class tx_directmail_static {
 				$errorMsg[] = $LANG->getLL('dmail_frames_not allowed');
 			} elseif (!$success || !$htmlmail->theParts['html']['content']) {
 				$errorMsg[] = $LANG->getLL('dmail_no_html_content');
-			} elseif (!strstr(base64_decode($htmlmail->theParts['html']['content']), '<!--DMAILER_SECTION_BOUNDARY')) {
+			} elseif (!strstr($htmlmail->theParts['html']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
 				$warningMsg[] = $LANG->getLL('dmail_no_html_boundaries');
-			}
-		}
-
-			// fetch attachments
-		if ($row['attachment']) {
-			$attachments = t3lib_div::trimExplode(',', $row['attachment'], TRUE);
-			if (count($attachments)) {
-				t3lib_div::loadTCA('sys_dmail');
-				$uploadPath = $GLOBALS['TCA']['sys_dmail']['columns']['attachment']['config']['uploadfolder'];
-				foreach ($attachments as $theName) {
-					$theFile = PATH_site . $uploadPath . '/' . $theName;
-					if (@is_file($theFile)) {
-						$htmlmail->addAttachment($theFile, $theName);
-					}
-				}
 			}
 		}
 
