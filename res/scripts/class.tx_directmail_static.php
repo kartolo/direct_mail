@@ -1128,6 +1128,7 @@ class tx_directmail_static {
 
 		$htmlmail->start();
 		$htmlmail->charset = $row['charset'];
+		//TODO: set base64 header. don't need this
 		$htmlmail->useBase64();
 		$htmlmail->http_username = $params['http_username'];
 		$htmlmail->http_password = $params['http_password'];
@@ -1189,7 +1190,7 @@ class tx_directmail_static {
 		if (!count($errorMsg)) {
 				// Update the record:
 			$htmlmail->theParts['messageid'] = $htmlmail->messageid;
-			$mailContent = serialize($htmlmail->theParts);
+			$mailContent = base64_encode(serialize($htmlmail->theParts));
 			$updateData = array(
 				'issent'             => 0,
 				'charset'            => $htmlmail->charset,

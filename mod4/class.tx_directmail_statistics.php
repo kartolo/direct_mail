@@ -227,7 +227,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				$pidrec=t3lib_BEfunc::getRecord('pages',intval($this->pageinfo['pid']));
 				$module=$pidrec['module'];
 			}
-			
+
 			if ($module == 'dmail') {
 					// Direct mail module
 					// Render content:
@@ -311,7 +311,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		}
 		return $theOutput;
 	}
-	
+
 	/**
 	 * shows user's info and categories
 	 *
@@ -324,7 +324,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		$table=t3lib_div::_GP('table');
 		t3lib_div::loadTCA($table);
 		$mm_table = $TCA[$table]['columns']['module_sys_dmail_category']['config']['MM'];
-		
+
 		if(t3lib_div::_GP('submit')){
 			$indata = t3lib_div::_GP('indata');
 			if(!$indata){
@@ -421,7 +421,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		}
 		return $theOutput;
 	}
-	
+
 	/**
 	 * shows the info of a page
 	 *
@@ -589,7 +589,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 
 		// Find urls:
-		$temp_unpackedMail = unserialize($row['mailContent']);
+		$temp_unpackedMail = unserialize(base64_decode($row['mailContent']));
 		// this array will include a unique list of all URLs that are used in the mailing
 		$urlArr = array();
 
@@ -617,10 +617,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			}
 		}
 
-		$urlCounter['total'] = array(); 
+		$urlCounter['total'] = array();
 		// Traverse html urls:
 		$urlCounter['html'] = array();
-		if(count($htmlUrlsTable) > 0) {  
+		if(count($htmlUrlsTable) > 0) {
 			foreach ($htmlUrlsTable as $id => $c) {
 				$urlCounter['html'][$id]['counter'] = $urlCounter['total'][$id]['counter'] = $c['counter'];
 			}
@@ -698,10 +698,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 						if ($tagAttr['href']{0} != '#') {
 							list($url, $jumpurlId) = explode('jumpurl=', $tagAttr['href']);
 							$url = $HTMLlinks[$jumpurlId]['url'];
-							
+
 							// Use the link title if it exists - otherwise use the URL
 							if (strlen($tagAttr['title'])) {
-								$label = $LANG->getLL('stats_img_link') . '<span title="'.$tagAttr['title'].'">' . t3lib_div::fixed_lgd_cs(substr($url, 7), 40) . '</span>';	
+								$label = $LANG->getLL('stats_img_link') . '<span title="'.$tagAttr['title'].'">' . t3lib_div::fixed_lgd_cs(substr($url, 7), 40) . '</span>';
 							} else {
 								$label = $LANG->getLL('stats_img_link') . '<span title="'.$url.'">' . t3lib_div::fixed_lgd_cs(substr($url, 7), 40) . '</span>';
 							}
@@ -1003,7 +1003,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
 					break;
-					case 'P':	
+					case 'P':
 						$idLists['PLAINLIST'][] = $rrow['email'];
 					break;
 					default:
@@ -1046,7 +1046,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				}
 				if (is_array($idLists['PLAINLIST'])) {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
-				}	
+				}
 				$output.='<br />' . $LANG->getLL('stats_emails_returned_mailbox_full_list') .  '<br />';
 				$output.='<textarea'.$TBE_TEMPLATE->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
@@ -1264,17 +1264,17 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] as $classRef) {
 				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
 			}
-			
+
 			$this->output = $output;	// assigned $output to class property to make it acesssible inside hook
-			$output = '';			// and clear the former $output to collect hoot return code there			
-			
+			$output = '';			// and clear the former $output to collect hoot return code there
+
 			foreach($hookObjectsArr as $hookObj)    {
 				if (method_exists($hookObj, 'cmd_stats_postProcess')) {
 					$output .= $hookObj->cmd_stats_postProcess($row, $this);
 				}
 			}
 		}
-		
+
 		$this->noView = 1;
 		// put all the stats tables in a section
 		$theOutput .= $this->doc->section($LANG->getLL('stats_direct_mail'), $output, 1, 1, 0, TRUE);
@@ -1302,7 +1302,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				} else {
 					$isInt = t3lib_div::testInt($m[1]);
 				}
-				
+
 				if ($isInt) {
 					$uid = intval($m[1]);
 				} else {
@@ -1324,7 +1324,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		}
 		return $urlstr;
 	}
-	
+
 	/**
 	 * set disable=1 to all record in an array
 	 *

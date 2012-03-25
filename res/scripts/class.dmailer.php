@@ -140,7 +140,7 @@ class dmailer extends t3lib_htmlmail {
 				break;
 		}
 
-		$this->theParts  = unserialize($row['mailContent']);
+		$this->theParts  = unserialize(base64_decode($row['mailContent']));
 		$this->messageid = $this->theParts['messageid'];
 
 		$this->subject = $row['subject'];

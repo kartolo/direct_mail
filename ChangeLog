@@ -1,3 +1,7 @@
+2012-03-25 Ivan Kartolo <ivan@kartolo.de>
+	* CGL identation
+	* Bug #27863: base64 encoded mail content in the DB
+
 2012-03-21 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* removing old calendar lib. now using extJS Datepicker
 

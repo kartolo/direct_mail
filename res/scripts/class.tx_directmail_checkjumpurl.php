@@ -85,7 +85,7 @@ class tx_directmail_checkjumpurl {
 				$isInt = t3lib_div::testInt($jumpurl);
 			}
 			if ($isInt) {
-				
+
 					// fetch the direct mail record where the mailing was sent (for this message)
 				$resMailing = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'mailContent, page, authcode_fieldList',
@@ -94,7 +94,7 @@ class tx_directmail_checkjumpurl {
 				);
 
 				if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resMailing)) {
-					$temp_unpackedMail = unserialize($row['mailContent']);
+					$temp_unpackedMail = unserialize(base64_decode($row['mailContent']));
 						// internal page that was the template for the direct mailing
 					$internalPage = $row['page'];
 					$url_id = $jumpurl;
