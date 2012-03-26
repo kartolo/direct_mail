@@ -37,7 +37,7 @@ $EM_CONF[$_EXTKEY] = array(
 			'cms' => '',
 			'tt_address' => '',
 			'php' => '5.0.0-0.0.0',
-			'typo3' => '4.3.0-0.0.0',
+			'typo3' => '4.5.0-0.0.0',
 		),
 		'conflicts' => array(
 			'sr_direct_mail_ext' => '',

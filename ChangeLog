@@ -1,3 +1,7 @@
+2012-03-26 Ivan Kartolo <ivan@kartolo.de>
+	* added Updater script to convert mail_content to base64_encoded
+	* min TYPO3 to 4.5
+
 2012-03-25 Ivan Kartolo <ivan@kartolo.de>
 	* CGL identation
 	* Bug #27863: base64 encoded mail content in the DB
