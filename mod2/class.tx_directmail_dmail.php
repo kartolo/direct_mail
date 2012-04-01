@@ -476,12 +476,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$htmlmail->nonCron = 1;
 		$htmlmail->start();
 		$htmlmail->charset = $row['charset'];
-		$htmlmail->useBase64();
-		if ($encodePlain) {
-			$htmlmail->addPlain($message);
-		} else {
-			$htmlmail->setPlain($message);
-		}
+		$htmlmail->addPlain($message);
 
 		if (!$message || !$htmlmail->theParts['plain']['content']) {
 			$errorMsg .= '<br /><strong>' . $GLOBALS['LANG']->getLL('dmail_no_plain_content') . '</strong>';
@@ -489,20 +484,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			$warningMsg .= '<br /><strong>' . $GLOBALS['LANG']->getLL('dmail_no_plain_boundaries') . '</strong>';
 		}
 
-		// fetch attachments
-		if ($row['attachment']) {
-			$attachments = t3lib_div::trimExplode(',', $row['attachment'], TRUE);
-			if (count($attachments)) {
-				t3lib_div::loadTCA('sys_dmail');
-				$uploadPath = $GLOBALS['TCA']['sys_dmail']['columns']['attachment']['config']['uploadfolder'];
-				foreach ($attachments as $theName) {
-					$theFile = PATH_site . $uploadPath . '/' . $theName;
-					if (@is_file($theFile)) {
-						$htmlmail->addAttachment($theFile, $theName);
-					}
-				}
-			}
-		}
+		//add attachment is removed. since it will be add during sending
 
 		if (!$errorMsg) {
 			// Update the record:

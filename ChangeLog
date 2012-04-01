@@ -1,3 +1,6 @@
+2012-03-30 Ivan Kartolo <ivan@kartolo.de>
+	* quickmail fetching
+
 2012-03-26 Ivan Kartolo <ivan@kartolo.de>
 	* added Updater script to convert mail_content to base64_encoded
 	* min TYPO3 to 4.5

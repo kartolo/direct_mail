@@ -56,7 +56,6 @@
  *  772:     function JSbottom($formname='forms[0]')
  *  810:     function cmd_finalmail($row)
  *  858:     function cmd_send_mail($row)
- *  969:     function sendTestMailToTable($idLists,$table,$htmlmail)
  *  997:     function cmd_testmail($row)
  * 1071:     function cmd_displayMailGroup_test($result)
  * 1091:     function fetchRecordsListValues($listArr,$table,$fields='uid,name,email')
@@ -1158,8 +1157,7 @@ class tx_directmail_static {
 				} else {
 					$htmlmail->charset = 'iso-8859-1';
 				}
-					// Reset content-type headers with new charset
-				$htmlmail->useBase64();
+
 			}
 			if ($htmlmail->extractFramesInfo()) {
 				$errorMsg[] = $LANG->getLL('dmail_frames_not allowed');
