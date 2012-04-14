@@ -2,6 +2,7 @@
 	* swiftmailer: sending testmail per SM
 	* code clean up, remove deprecated TYPO3 API
 	* removing defer option
+	* additional organization and TYPO3MID header
 
 2012-03-30 Ivan Kartolo <ivan@kartolo.de>
 	* quickmail fetching

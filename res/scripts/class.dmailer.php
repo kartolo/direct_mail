@@ -155,10 +155,15 @@ class dmailer {
 	var $from_name = '';
 
 	/**
-	 * @var string organisation of the mail.
-	 * Todo: how to set this in swiftmailer?
+	 * @var string organisation of the mail
 	 */
 	var $organisation = '';
+
+	/**
+	 * special header to identify returned mail
+	 * @var string
+	 */
+	var $TYPO3MID;
 
 	var $replyto_email = '';
 	var $replyto_name = '';
@@ -358,6 +363,8 @@ class dmailer {
 					$returnCode|=2;
 				}
 			}
+
+			$this->TYPO3MID = $midRidId . '-' . md5($midRidId);
 
 			// recipient swiftmailer style
 			$recipient = array(
@@ -924,6 +931,15 @@ class dmailer {
 		$mailer->setSubject($this->subject);
 		$mailer->setReplyTo(array($this->replyto_email => $this->replyto_name));
 		$mailer->setPriority($this->priority);
+
+		//setting additional header
+		// organization and TYPO3MID
+		$header = $mailer->getHeaders();
+		$header->addTextHeader('X-TYPO3MID', $this->TYPO3MID);
+
+		if ($this->organisation) {
+			$header->addTextHeader('Organization', $this->organisation);
+		}
 
 		if (t3lib_div::validEmail($this->dmailer['sys_dmail_rec']['return_path'])) {
 			$mailer->setReturnPath($this->dmailer['sys_dmail_rec']['return_path']);
