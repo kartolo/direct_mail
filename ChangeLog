@@ -1,5 +1,7 @@
 2012-04-14 Ivan Kartolo <ivan@kartolo.de>
 	* swiftmailer: sending testmail per SM
+	* code clean up, remove deprecated TYPO3 API
+	* removing defer option
 
 2012-03-30 Ivan Kartolo <ivan@kartolo.de>
 	* quickmail fetching

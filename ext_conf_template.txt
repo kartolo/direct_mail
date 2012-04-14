@@ -16,9 +16,6 @@ cronInt = 5
 	# cat=basic/enable; type=boolean; label=Enable notification email : Allow direct mail to send notification about start and end of a mailing job.
 notificationJob = 1
 
-	# cat=basic/enable; type=boolean; label=Enable sendmail defer mode : Use sendmail defer mode when running dmailer cron task.
-useDeferMode = 0
-
 	# cat=basic/enable; type=boolean; label=Enable plain text rendering of News: If set, a script will be enabled to render News (tt_news records) in plain text content of email messages.
 enablePlainTextNews = 1
 

@@ -847,7 +847,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			while($rowCat=$TYPO3_DB->sql_fetch_assoc($resCat)) {
 				$row_categories .= $rowCat['uid_foreign'].',';
 			}
-			$row_categories = t3lib_div::rm_endComma($row_categories);
+			$row_categories = rtrim($row_categories, ",");
 
 			$Eparams='&edit['.$table.']['.$row['uid'].']=edit';
 			$out='';

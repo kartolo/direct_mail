@@ -110,20 +110,18 @@ class tx_directmail_static {
 	 * @param	string		$fields: field to be selected
 	 * @return	array		recipients' data
 	 */
-	function fetchRecordsListValues($listArr,$table,$fields='uid,name,email') {
-		global $TYPO3_DB;
-
+	static function fetchRecordsListValues($listArr,$table,$fields='uid,name,email') {
 		$count = 0;
 		$outListArr = array();
 		if (is_array($listArr) && count($listArr))	{
 			$idlist = implode(',',$listArr);
-			$res = $TYPO3_DB->exec_SELECTquery(
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				$fields,
 				$table,
 				'uid IN ('.$idlist.')'.
 					t3lib_BEfunc::deleteClause($table)
 				);
-			while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				$outListArr[$row['uid']] = $row;
 			}
 		}
@@ -134,11 +132,12 @@ class tx_directmail_static {
 	 * get the ID of page in a tree
 	 *
 	 * @param	integer		$id: page ID
-	 * @param	string		$perms: select query clause
+	 * @param	string		$perms_clause: select query clause
 	 * @return	array		the page ID, recursively
 	 */
-	function getRecursiveSelect($id,$perms_clause)  {
+	static function getRecursiveSelect($id, $perms_clause)  {
 			// Finding tree and offer setting of values recursively.
+		/** @var $tree t3lib_pageTree */
 		$tree = t3lib_div::makeInstance('t3lib_pageTree');
 		$tree->init('AND '.$perms_clause);
 		$tree->makeHTML=0;
@@ -154,7 +153,7 @@ class tx_directmail_static {
 	 * @param	array		$plainlist: email of the recipient
 	 * @return	array		cleaned array
 	 */
-	function cleanPlainList($plainlist)	{
+	static function cleanPlainList($plainlist)	{
 		reset($plainlist);
 		$emails=array();
 		while(list($k,$v)=each($plainlist))	{
@@ -166,13 +165,12 @@ class tx_directmail_static {
 
 	/**
 	 * update the mailgroup DB record
+	 * Todo: where does it used?? recip list?
 	 *
 	 * @param	array		$mailGroup: mailgroup DB record
 	 * @return	array		mailgroup DB record after updated
 	 */
 	function update_specialQuery($mailGroup) {
-		global $LANG, $TYPO3_DB;
-
 		$set = t3lib_div::_GP('SET');
 		$queryTable = $set['queryTable'];
 		$queryConfig = t3lib_div::_GP('dmail_queryConfig');
@@ -209,7 +207,7 @@ class tx_directmail_static {
 				'whichtables' => intval($whichTables),
 				'query' => $this->MOD_SETTINGS['queryConfig']
 			);
-			$res_update = $TYPO3_DB->exec_UPDATEquery(
+			$res_update = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
 				'sys_dmail_group',
 				'uid='.intval($mailGroup['uid']),
 				$updateFields
@@ -230,8 +228,8 @@ class tx_directmail_static {
 	 * @param	integer		$cat: The number of relations from sys_dmail_group to sysmail_categories
 	 * @return	array		The resulting array of uid's
 	 */
-	function getIdList($table,$pidList,$group_uid,$cat) {
-		global $TCA, $TYPO3_DB;
+	static function getIdList($table,$pidList,$group_uid,$cat) {
+		global $TCA;
 
 		$addWhere = '';
 
@@ -245,7 +243,7 @@ class tx_directmail_static {
 			$switchTable = $table;
 		}
 			// Direct Mail needs an email address!
-		$emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $TYPO3_DB->fullQuoteStr('', $switchTable);
+		$emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('', $switchTable);
 
 			// fe user group uid should be in list of fe users list of user groups
 		$field = $switchTable.'.usergroup';
@@ -260,7 +258,7 @@ class tx_directmail_static {
 		$cat = intval($cat);
 		if($cat < 1) {
 			if ($table == 'fe_groups') {
-				$res = $TYPO3_DB->exec_SELECTquery(
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
 					$switchTable.','.$table,
 					'fe_groups.pid IN('.$pidList.')'.
@@ -272,7 +270,7 @@ class tx_directmail_static {
 						t3lib_BEfunc::deleteClause($table)
 					);
 			} else {
-				$res = $TYPO3_DB->exec_SELECTquery(
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
 					$switchTable,
 					$switchTable.'.pid IN('.$pidList.')'.
@@ -284,7 +282,7 @@ class tx_directmail_static {
 			}
 		} else {
 			if ($table == 'fe_groups') {
-				$res = $TYPO3_DB->exec_SELECTquery(
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
 					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, fe_groups, '.$mm_table.' as mm_1 LEFT JOIN '.$switchTable.' ON '.$switchTable.'.uid = mm_1.uid_local',
 					'fe_groups.pid IN ('.$pidList.')'.
@@ -300,7 +298,7 @@ class tx_directmail_static {
 						t3lib_BEfunc::deleteClause('sys_dmail_group')
 					);
 			} else {
-				$res = $TYPO3_DB->exec_SELECTquery(
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
 					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, '.$mm_table.' as mm_1 LEFT JOIN '.$table.' ON '.$table.'.uid = mm_1.uid_local',
 					$switchTable.'.pid IN('.$pidList.')'.
@@ -316,7 +314,7 @@ class tx_directmail_static {
 			}
 		}
 		$outArr = array();
-		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 			$outArr[] = $row['uid'];
 		}
 		return $outArr;
@@ -330,14 +328,12 @@ class tx_directmail_static {
 	 * @return	array		The resulting array of uid's
 	 */
 	function getStaticIdList($table,$uid) {
-		global $TYPO3_DB;
-
 		if ($table == 'fe_groups') {
 			$switchTable = 'fe_users';
 		} else {
 			$switchTable = $table;
 		}
-		$emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $TYPO3_DB->fullQuoteStr('', $switchTable);
+		$emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('', $switchTable);
 			// fe user group uid should be in list of fe users list of user groups
 		$field = $switchTable.'.usergroup';
 		$command = $table.'.uid';
@@ -346,12 +342,12 @@ class tx_directmail_static {
 		$usergroupInList = ' AND INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )';
 
 		if ($table == 'fe_groups') {
-			$res = $TYPO3_DB->exec_SELECTquery(
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'DISTINCT '.$switchTable.'.uid',
 				$switchTable.','.$table.',sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
 				'sys_dmail_group.uid='.intval($uid).
 					' AND fe_groups.uid=sys_dmail_group_mm.uid_foreign'.
-					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
+					' AND sys_dmail_group_mm.tablenames='.$GLOBALS['TYPO3_DB']->fullQuoteStr($table, $table).
 					$usergroupInList.
 					$emailIsNotNull.
 					t3lib_BEfunc::BEenableFields($switchTable).
@@ -361,12 +357,12 @@ class tx_directmail_static {
 					t3lib_BEfunc::deleteClause('sys_dmail_group')
 				);
 		} else {
-			$res = $TYPO3_DB->exec_SELECTquery(
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'DISTINCT '.$switchTable.'.uid',
 				'sys_dmail_group,'.$switchTable.' LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_foreign='.$switchTable.'.uid',
 				'sys_dmail_group.uid = '.intval($uid).
 					' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid'.
-					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($switchTable, $switchTable).
+					' AND sys_dmail_group_mm.tablenames='.$GLOBALS['TYPO3_DB']->fullQuoteStr($switchTable, $switchTable).
 					$emailIsNotNull.
 					t3lib_BEfunc::BEenableFields($switchTable).
 					t3lib_BEfunc::deleteClause($switchTable).
@@ -376,26 +372,26 @@ class tx_directmail_static {
 
 
 		$outArr = array();
-		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 			$outArr[] = $row['uid'];
 		}
 
 		if ($table == 'fe_groups') {
 
-			$TYPO3_DB->sql_free_result($res);
+			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 			// get the uid of the current fe_group
-			$res = $TYPO3_DB->exec_SELECTquery(
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'DISTINCT '.$table.'.uid',
 				$table.', sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
 				'sys_dmail_group.uid='.intval($uid).
 					' AND fe_groups.uid=sys_dmail_group_mm.uid_foreign'.
-					' AND sys_dmail_group_mm.tablenames='.$TYPO3_DB->fullQuoteStr($table, $table).
+					' AND sys_dmail_group_mm.tablenames='.$GLOBALS['TYPO3_DB']->fullQuoteStr($table, $table).
 					t3lib_BEfunc::BEenableFields($table).
 					t3lib_BEfunc::deleteClause($table)
 				);
-			list($groupId) = $TYPO3_DB->sql_fetch_row($res);
-			$TYPO3_DB->sql_free_result($res);
+			list($groupId) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 			// recursively get all subgroups of this fe_group
 			$subgroups = tx_directmail_static::getFEgroupSubgroups($groupId);
@@ -408,7 +404,7 @@ class tx_directmail_static {
 				$usergroupInList = '('.$usergroupInList.')';
 
 				// fetch all fe_users from these subgroups
-				$res = $TYPO3_DB->exec_SELECTquery(
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'DISTINCT '.$switchTable.'.uid',
 					$switchTable.','.$table.'',
 					$usergroupInList.
@@ -419,7 +415,7 @@ class tx_directmail_static {
 						t3lib_BEfunc::deleteClause($table)
 				);
 
-				while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+				while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 					$outArr[]=$row['uid'];
 				}
 			}
@@ -438,20 +434,18 @@ class tx_directmail_static {
 	 * @return	string		The resulting query.
 	 */
 	function getSpecialQueryIdList(&$queryGenerator,$table,$group) {
-		global $TYPO3_DB;
-
 		$outArr = array();
 		if ($group['query']) {
 			$queryGenerator->init('dmail_queryConfig', $table, 'uid');
 			$queryGenerator->queryConfig = unserialize($group['query']);
 			$whereClause = $queryGenerator->getQuery($queryGenerator->queryConfig).t3lib_BEfunc::deleteClause($table);
-			$res = $TYPO3_DB->exec_SELECTquery(
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				$table.'.uid',
 				$table,
 				$whereClause
 				);
 
-			while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				$outArr[] = $row['uid'];
 			}
 		}
@@ -467,12 +461,10 @@ class tx_directmail_static {
 	 * @return	array		the new Group IDs
 	 */
 	function getMailGroups($list,$parsedGroups, $perms_clause)	{
-		global $TYPO3_DB;
-
 		$groupIdList = t3lib_div::intExplode(',',$list);
 		$groups = array();
 
-		$res = $TYPO3_DB->exec_SELECTquery(
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'sys_dmail_group.*',
 			'sys_dmail_group LEFT JOIN pages ON pages.uid=sys_dmail_group.pid',
 			'sys_dmail_group.uid IN ('.implode(',',$groupIdList).')'.
@@ -481,7 +473,7 @@ class tx_directmail_static {
 				t3lib_BEfunc::deleteClause('sys_dmail_group')
 			);
 
-		while($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 			if ($row['type']==4)	{	// Other mail group...
 				if (!in_array($row['uid'],$parsedGroups))	{
 					$parsedGroups[]=$row['uid'];
@@ -595,8 +587,6 @@ class tx_directmail_static {
 	 * @return	void		No return value, updates $this->categories
 	 */
 	function makeCategories($table,$row, $sys_language_uid) {
-		global $TYPO3_DB;
-
 		$categories = array();
 
 		$mm_field = 'module_sys_dmail_category';
@@ -609,15 +599,15 @@ class tx_directmail_static {
 		if (is_array($pageTSconfig[$mm_field])) {
 			$pidList = $pageTSconfig[$mm_field]['PAGE_TSCONFIG_IDLIST'];
 			if ($pidList) {
-				$res = $TYPO3_DB->exec_SELECTquery(
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'*',
 					'sys_dmail_category',
-					'sys_dmail_category.pid IN (' .str_replace(",","','",$TYPO3_DB->fullQuoteStr($pidList, 'sys_dmail_category')). ')'.
+					'sys_dmail_category.pid IN (' .str_replace(",","','",$GLOBALS['TYPO3_DB']->fullQuoteStr($pidList, 'sys_dmail_category')). ')'.
 						' AND l18n_parent=0'.
 						t3lib_BEfunc::BEenableFields('sys_dmail_category').
 						t3lib_BEfunc::deleteClause('sys_dmail_category')
 					);
-				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
+				while($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 					if($localizedRowCat = tx_directmail_static::getRecordOverlay('sys_dmail_category',$rowCat,$sys_language_uid,'')) {
 						$categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
 					}
@@ -638,7 +628,7 @@ class tx_directmail_static {
 	 * @return	mixed		Returns the input record, possibly overlaid with a translation. But if $OLmode is "hideNonTranslated" then it will return false if no translation is found.
 	 */
 	function getRecordOverlay($table,$row,$sys_language_content,$OLmode='')	{
-		global $TCA, $TYPO3_DB;
+		global $TCA;
 		if ($row['uid']>0 && $row['pid']>0)	{
 			if ($TCA[$table] && $TCA[$table]['ctrl']['languageField'] && $TCA[$table]['ctrl']['transOrigPointerField'])	{
 				if (!$TCA[$table]['ctrl']['transOrigPointerTable'])	{
@@ -647,7 +637,7 @@ class tx_directmail_static {
 							// Must be default language or [All], otherwise no overlaying:
 						if ($row[$TCA[$table]['ctrl']['languageField']]<=0)	{
 								// Select overlay record:
-							$res = $TYPO3_DB->exec_SELECTquery(
+							$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 								'*',
 								$table,
 								'pid='.intval($row['pid']).
@@ -659,7 +649,7 @@ class tx_directmail_static {
 								'',
 								'1'
 								);
-							$olrow = $TYPO3_DB->sql_fetch_assoc($res);
+							$olrow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 							//$this->versionOL($table,$olrow);
 
 								// Merge record content by traversing all fields:
@@ -728,65 +718,23 @@ class tx_directmail_static {
 	}
 
 	/**
-	 * Set up URL variables for this $row.
-	 *
-	 * @param	array		$row: directmail DB record
-	 * @return	void		set the global variable url_plain and url_html
-	 */
-	function setURLs($row)	{
-			// Finding the domain to use
-		$this->urlbase = $this->getUrlBase($row['use_domain']);
-
-			// Finding the url to fetch content from
-		switch((string)$row['type'])	{
-			case 1:
-				$this->url_html = $row['HTMLParams'];
-				$this->url_plain = $row['plainParams'];
-				break;
-			default:
-				$this->url_html = $this->urlbase.'?id='.$row['page'].$row['HTMLParams'];
-				$this->url_plain = $this->urlbase.'?id='.$row['page'].$row['plainParams'];
-				break;
-		}
-
-		if (!($row['sendOptions']&1) || !$this->url_plain)	{	// plain
-			$this->url_plain='';
-		} else {
-			$urlParts = @parse_url($this->url_plain);
-			if (!$urlParts['scheme'])	{
-				$this->url_plain='http://'.$this->url_plain;
-			}
-		}
-		if (!($row['sendOptions']&2) || !$this->url_html)	{	// html
-			$this->url_html='';
-		} else {
-			$urlParts = @parse_url($this->url_html);
-			if (!$urlParts['scheme'])	{
-				$this->url_html='http://'.$this->url_html;
-			}
-		}
-	}
-
-	/**
 	 * get the base URL
 	 *
 	 * @param	integer		$domainUid: ID of a domain
 	 * @return	string		urlbase
 	 */
 	function getUrlBase($domainUid) {
-		global $TYPO3_DB;
-
 		$domainName = '';
 		$scheme = '';
 		$port = '';
 		if ($domainUid) {
-			$res_domain = $TYPO3_DB->exec_SELECTquery(
+			$res_domain = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'domainName',
 				'sys_domain',
 				'uid='.intval($domainUid).
 					t3lib_BEfunc::deleteClause('sys_domain')
 				);
-			if ($row_domain = $TYPO3_DB->sql_fetch_assoc($res_domain)) {
+			if ($row_domain = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_domain)) {
 				$domainName = $row_domain['domainName'];
 				$url_parts = @parse_url(t3lib_div::getIndpEnv('TYPO3_REQUEST_DIR'));
 				$scheme = $url_parts['scheme'];
@@ -879,8 +827,6 @@ class tx_directmail_static {
 	 * @param int $groupId: parent fe usergroup
 	 */
 	function getFEgroupSubgroups($groupId) {
-		global $TYPO3_DB;
-
 		// get all subgroups of this fe_group - fe_groups having this id in their subgroup field
 		$res= $GLOBALS["TYPO3_DB"]->exec_SELECT_mm_query(
 			"DISTINCT fe_groups.uid",
@@ -894,14 +840,14 @@ class tx_directmail_static {
 
 		$groupArr = array();
 
-		while ($row = $TYPO3_DB->sql_fetch_assoc($res))	{
+		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 			$groupArr[] = $row['uid'];
 
 			// add all subgroups recursively too
 			$groupArr = array_merge($groupArr, tx_directmail_static::getFEgroupSubgroups($row['uid']));
 		}
 
-		$TYPO3_DB->sql_free_result($res);
+		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		return $groupArr;
 	}
@@ -920,7 +866,7 @@ class tx_directmail_static {
 	 * @return	string		The processed output stream
 	 * @see substituteMarker(), substituteMarkerInObject(), TEMPLATE()
 	 */
-	function substituteMarkerArray($content, $markContentArray, $wrap='', $uppercase=0, $deleteUnused=0) {
+	static function substituteMarkerArray($content, $markContentArray, $wrap='', $uppercase=0, $deleteUnused=0) {
 		if (is_array($markContentArray)) {
 			$wrapArr = t3lib_div::trimExplode('|', $wrap);
 			foreach ($markContentArray as $marker => $markContent) {
@@ -1075,6 +1021,8 @@ class tx_directmail_static {
 					'NEW' => $newRecord
 				)
 			);
+
+			/** @var $tce t3lib_TCEmain */
 			$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 			$tce->stripslashes_values = 0;
 			$tce->start($tcemainData, array());
@@ -1090,18 +1038,17 @@ class tx_directmail_static {
 	/**
 	 * fetch content of a page (only internal and external page)
 	 *
-	 * @param	array		directmail DB record
-	 * @param	array 		any default parameters (usually the ones from pageTSconfig)
+	 * @param	array		$row: directmail DB record
+	 * @param	array 		$params: any default parameters (usually the ones from pageTSconfig)
 	 * @return	string		error or warning message during fetching the content
 	 */
 	public static function fetchUrlContentsForDirectMailRecord($row, $params) {
+		/** @var $LANG language */
 		global $LANG;
 
 		$theOutput = '';
 		$errorMsg = array();
 		$warningMsg = array();
-		$mailContent ='';
-		$success = FALSE;
 		$urls = tx_directmail_static::getFullUrlsForDirectMailRecord($row);
 		$plainTextUrl = $urls['plainTextUrl'];
 		$htmlUrl = $urls['htmlUrl'];
@@ -1111,6 +1058,7 @@ class tx_directmail_static {
 		$row['long_link_rdct_url'] = $urlBase;
 
 			// Compile the mail
+		/** @var $htmlmail dmailer */
 		$htmlmail = t3lib_div::makeInstance('dmailer');
 		if ($params['enable_jump_url']) {
 			$htmlmail->jumperURL_prefix = $urlBase
@@ -1186,6 +1134,7 @@ class tx_directmail_static {
 			);
 
 			if (count($warningMsg)) {
+				/** @var $flashMessage t3lib_FlashMessage */
 				$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
 					implode('<br />', $warningMsg),
 					$GLOBALS['LANG']->getLL('dmail_warning'),
@@ -1227,7 +1176,7 @@ class tx_directmail_static {
 	 * Set up URL variables for this $row.
 	 *
 	 * @param	array		$row: directmail DB record
-	 * @return	void		set the global variable url_plain and url_html
+	 * @return	array		$result: url_plain and url_html in an array
 	 */
 	public static function getFullUrlsForDirectMailRecord($row) {
 		$result = array(
@@ -1286,10 +1235,12 @@ class tx_directmail_static {
 
 			// initialize the TS template
 		$GLOBALS['TT'] = new t3lib_timeTrack;
+		/** @var $tmpl t3lib_TStemplate */
 		$tmpl = t3lib_div::makeInstance('t3lib_TStemplate');
 		$tmpl->init();
 
 			// initialize the page selector
+		/** @var $sys_page t3lib_pageSelect */
 		$sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
 		$sys_page->init(TRUE);
 

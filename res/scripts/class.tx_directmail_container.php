@@ -107,7 +107,7 @@ class tx_directmail_container	{
 						while( $row = $TYPO3_DB->sql_fetch_assoc($res) )	{
 							$categoryList .= $row['uid'] . ',';
 						}
-						$categoryList = t3lib_div::rm_endComma($categoryList);
+						$categoryList = rtrim($categoryList, ",");
 					}
 				}
 					// wrap boundaries around content
