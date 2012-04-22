@@ -40,21 +40,20 @@ class ext_update  {
 	 * @return	string		HTML
 	 */
 	function main()	{
-		global $LANG, $BE_USER;
 
-		$LANG->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
+		$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
 		require_once('mod6/class.tx_directmail_configuration.php');
 
 		$content = $this->displayWarning();
-		if (!t3lib_div::GPvar('do_update'))	{
+		if (!t3lib_div::_GP('do_update')) {
 			$onClick = "document.location='".t3lib_div::linkThisScript(array('do_update'=>1))."'; return false;";
-			$content .= htmlspecialchars($LANG->getLL('update_convert_now')).'
+			$content .= htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_now')).'
 				<br /><br />
-				<form action=""><input type="submit" value="'.htmlspecialchars($LANG->getLL('update_convert_do_it_now')).'" onclick="'.htmlspecialchars($onClick).'"></form>
+				<form action=""><input type="submit" value="'.htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_do_it_now')).'" onclick="'.htmlspecialchars($onClick).'"></form>
 			';
 		} else {
 			$updated = $this->convertTable();
-			$content .= sprintf($LANG->getLL('update_convert_result'), $updated);
+			$content .= sprintf($GLOBALS['LANG']->getLL('update_convert_result'), $updated);
 		}
 
 		return $content;
@@ -101,7 +100,6 @@ class ext_update  {
 	 * @return	boolean		true if user have access, otherwise false
 	 */
 	function access() {
-		global $TYPO3_DB;
 			// We cannot update before the extension is installed: required tables are not yet in TCA
 		if (t3lib_extMgm::isLoaded('direct_mail')) {
 			return TRUE;

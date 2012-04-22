@@ -33,24 +33,11 @@
  * @version		$Id: class.tx_directmail_select_categories.php 6012 2007-07-23 12:54:25Z ivankartolo $
  */
 
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   56: class tx_directmail_select_categories
- *   67:     function get_localized_categories($params)
- *
- * TOTAL FUNCTIONS: 1
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
-
 require_once (PATH_t3lib.'class.t3lib_page.php');
 require_once (t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directmail_static.php');
 
 /**
- * Localize categories in backend forms
+ * Localize categories for backend forms
  *
  */
 class tx_directmail_select_categories {
@@ -65,7 +52,7 @@ class tx_directmail_select_categories {
 	 * @return	void		...
 	 */
 	function get_localized_categories($params)	{
-		global $TCA, $TYPO3_DB, $LANG;
+		global $LANG;
 
 /*
 		$params['items'] = &$items;
@@ -81,40 +68,31 @@ class tx_directmail_select_categories {
 
 			// initialize backend user language
 		if ($LANG->lang && t3lib_extMgm::isLoaded('static_info_tables')) {
-			$res = $TYPO3_DB->exec_SELECTquery(
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				//'sys_language.uid,static_languages.lg_collate_locale',
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-				'static_languages.lg_typo3='.$TYPO3_DB->fullQuoteStr($LANG->lang,'static_languages').
+				'static_languages.lg_typo3='.$GLOBALS['TYPO3_DB']->fullQuoteStr($LANG->lang,'static_languages').
 					t3lib_pageSelect::enableFields('sys_language').
 					t3lib_pageSelect::enableFields('static_languages')
 				);
-			while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
+			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 				$this->sys_language_uid = $row['uid'];
 				$this->collate_locale = $row['lg_collate_locale'];
 			}
 		}
 		reset($params['items']);
 		while(list($k,$item) = each($params['items'])) {
-				$res = $TYPO3_DB->exec_SELECTquery(
-					'*',
-					$table,
-					'uid='.intval($item[1])
-					);
-				while($rowCat = $TYPO3_DB->sql_fetch_assoc($res)) {
-					if($localizedRowCat = tx_directmail_static::getRecordOverlay($table,$rowCat,$this->sys_language_uid,'')) {
-						$params['items'][$k][0] = $localizedRowCat['category'];
-					}
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				'*',
+				$table,
+				'uid='.intval($item[1])
+				);
+			while($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+				if($localizedRowCat = tx_directmail_static::getRecordOverlay($table,$rowCat,$this->sys_language_uid,'')) {
+					$params['items'][$k][0] = $localizedRowCat['category'];
 				}
-				/*
-				$compare = create_function('$a,$b', 'return strcoll($a[0],$b[0]);');
-				$currentLocale = setlocale(LC_COLLATE, '');
-				$collateLocale = $this->collate_locale;
-				if( $collateLocale != 'C') { $collateLocale .= '.' . strtoupper($LANG->charSet);}
-				setlocale(LC_COLLATE, $collateLocale);
-				uasort($params['items'], $compare);
-				setlocale(LC_COLLATE, $currentLocale);
-				*/
+			}
 		}
 
 	}

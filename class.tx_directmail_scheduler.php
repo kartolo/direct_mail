@@ -36,9 +36,10 @@ class tx_directmail_scheduler extends tx_scheduler_Task {
 	 * Function executed from scheduler.
 	 * Send the newsletter
 	 * 
-	 * @return	void
+	 * @return	bool
 	 */
 	function execute() {
+		/** @var $htmlmail dmailer */
 		$htmlmail = t3lib_div::makeInstance('dmailer');
 		$htmlmail->start();
 		$htmlmail->runcron();

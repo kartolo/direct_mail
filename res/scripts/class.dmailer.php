@@ -951,6 +951,7 @@ class dmailer {
 		// TODO: setContent should set the images (includeMedia) or add attachment
 		$this->setContent($mailer);
 
+		//TODO: do we really need the return value?
 		$sent = $mailer->send();
 		$failed = $mailer->getFailedRecipients();
 

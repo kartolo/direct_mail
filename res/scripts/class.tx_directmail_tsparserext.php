@@ -38,29 +38,29 @@ class tx_directmail_tsparserext {
 
 
 	/**
-	 * [Describe function...]
+	 * displaying a message to click the update in the extension config
 	 *
-	 * @return	[type]		...
+	 * @return string	$out: the html message
 	 */
-	function displayMessage(&$params, &$tsObj) {
+	function displayMessage() {
 
 		$out = '';
 
-		$link = 'mod.php?&amp;id=0&amp;M=tools_em&amp;CMD[showExt]=direct_mail&amp;SET[singleDetails]=updateModule';
+		$link = "mod.php?&amp;id=0&amp;M=tools_em&amp;CMD[showExt]=direct_mail&amp;SET[singleDetails]=updateModule";
 
 
-		$out .= '
-		<div style="position:absolute;top:10px;right:10px; width:300px;">
-			<div class="typo3-message message-information">
-					<div class="message-header">' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/locallang/locallang_mod2-6.xml:update_optionHeader') . '</div>
-					<div class="message-body">
-						' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/locallang/locallang_mod2-6.xml:update_optionMsg') . '<br />
-						<a style="text-decoration:underline;" href="' . $link . '">
-						' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/locallang/locallang_mod2-6.xml:update_optionLink') . '</a>
+		$out .= "
+		<div style=\"position:absolute;top:10px;right:10px; width:300px;\">
+			<div class=\"typo3-message message-information\">
+					<div class=\"message-header\">" . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/locallang/locallang_mod2-6.xml:update_optionHeader') . "</div>
+					<div class=\"message-body\">
+						" . $GLOBALS['LANG']->sL("LLL:EXT:direct_mail/locallang/locallang_mod2-6.xml:update_optionMsg") . "<br />
+						<a style=\"text-decoration:underline;\" href=\"" . $link . "\">
+						" . $GLOBALS['LANG']->sL("LLL:EXT:direct_mail/locallang/locallang_mod2-6.xml:update_optionLink") . "</a>
 					</div>
 				</div>
 			</div>
-			';
+			";
 
 		return $out;
 	}

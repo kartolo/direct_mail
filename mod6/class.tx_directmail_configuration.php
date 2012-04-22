@@ -44,51 +44,21 @@ require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directma
  */
 
 /**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   77: class tx_directmail_configuration extends t3lib_SCbase
- *  103:     function init()
- *  154:     function main()
- *  320:     function printContent()
- *  330:     function moduleContent()
- *  368:     function mailModule_main()
- *  384:     function menuConfig()
- *  420:     function cmd_conf()
- *  504:     function makeConfigForm($configArray,$defaults,$dataPrefix)
- *  582:     function cmd_convertCategories()
- *  622:     function convertCategoriesInRecords($table,$convert_confirm=0)
- *  740:     function makeCategories($table,$row)
- *  781:     function getRecordOverlay($table,$row,$sys_language_content,$OLmode='')
- *  841:     function updatePageTS()
- *  859:     function cmd_default($mode)
- *  888:     function fName($name)
- *  898:     function createNewCategories()
- *
- * TOTAL FUNCTIONS: 16
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
-
-/**
  * Module Configuration for tx_directmail extension
  *
  */
 class tx_directmail_configuration extends t3lib_SCbase {
-	var $extKey = 'direct_mail';
 	var $TSconfPrefix = 'mod.web_modules.dmail.';
-	var $fieldList='uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
 	// Internal
-	var $params=array();
-	var $perms_clause='';
-	var $pageinfo='';
+	var $params = array();
+	var $perms_clause = '';
+	var $pageinfo = '';
 	var $sys_dmail_uid;
 	var $CMD;
 	var $pages_uid;
 	var $categories;
 	var $id;
-	var $implodedParams=array();
+	var $implodedParams = array();
 	var $userTable;		// If set a valid user table is around
 	var $sys_language_uid = 0;
 	var $allowedTables = array('tt_address','fe_users');
@@ -97,13 +67,22 @@ class tx_directmail_configuration extends t3lib_SCbase {
 	var $formname = 'dmailform';
 
 	/**
+	 * length of the config array
+	 * @var array
+	 */
+	var $configArray_length;
+
+	/**
+	 * @var t3lib_pageSelect
+	 */
+	var $sys_page;
+
+	/**
 	 * standard initialization
 	 *
 	 * @return	void		No return value. Initializing global variables
 	 */
 	function init()	{
-		global $LANG,$BACK_PATH,$TCA,$TYPO3_CONF_VARS,$TYPO3_DB;
-
 		$this->MCONF = $GLOBALS['MCONF'];
 
 		parent::init();
@@ -111,7 +90,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 		$temp = t3lib_BEfunc::getModTSconfig($this->id,'mod.web_modules.dmail');
 		$this->params = $temp['properties'];
 		$this->implodedParams = t3lib_BEfunc::implodeTSParams($this->params);
-		if ($this->params['userTable'] && is_array($TCA[$this->params['userTable']]))	{
+		if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']]))	{
 			$this->userTable = $this->params['userTable'];
 			t3lib_div::loadTCA($this->userTable);
 			$this->allowedTables[] = $this->userTable;
@@ -123,23 +102,23 @@ class tx_directmail_configuration extends t3lib_SCbase {
 		$this->sys_page->init(true);
 
 			// initialize backend user language
-		if ($LANG->lang && t3lib_extMgm::isLoaded('static_info_tables')) {
-			$res = $TYPO3_DB->exec_SELECTquery(
+		if ($GLOBALS['LANG']->lang && t3lib_extMgm::isLoaded('static_info_tables')) {
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-				'static_languages.lg_typo3='.$TYPO3_DB->fullQuoteStr($LANG->lang,'static_languages').
+				'static_languages.lg_typo3='.$GLOBALS['TYPO3_DB']->fullQuoteStr($GLOBALS['LANG']->lang,'static_languages').
 					t3lib_BEfunc::BEenableFields('sys_language').
 					t3lib_BEfunc::deleteClause('sys_language').
 					t3lib_BEfunc::deleteClause('static_languages')
 				);
-			while($row = $TYPO3_DB->sql_fetch_assoc($res)) {
+			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 				$this->sys_language_uid = $row['uid'];
 			}
 		}
 			// load contextual help
 		$this->cshTable = '_MOD_'.$this->MCONF['name'];
-		if ($BE_USER->uc['edit_showFieldHelp']){
-			$LANG->loadSingleTableDescription($this->cshTable);
+		if ($GLOBALS["BE_USER"]->uc['edit_showFieldHelp']){
+			$GLOBALS['LANG']->loadSingleTableDescription($this->cshTable);
 		}
 
 		t3lib_div::loadTCA('sys_dmail');
@@ -152,21 +131,19 @@ class tx_directmail_configuration extends t3lib_SCbase {
 	 * @return	void		No return value. update $this->content
 	 */
 	function main()	{
-		global $BE_USER,$LANG,$BACK_PATH,$TCA,$TYPO3_CONF_VARS;
-
 		$this->CMD = t3lib_div::_GP('CMD');
 		$this->pages_uid = intval(t3lib_div::_GP('pages_uid'));
 		$this->sys_dmail_uid = intval(t3lib_div::_GP('sys_dmail_uid'));
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
 		$access = is_array($this->pageinfo) ? 1 : 0;
 
-		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
+		if (($this->id && $access) || ($GLOBALS["BE_USER"]->user['admin'] && !$this->id))	{
 
 			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('template');
-			$this->doc->backPath = $BACK_PATH;
+			$this->doc->backPath = $GLOBALS["BACK_PATH"];
 			$this->doc->setModuleTemplate('EXT:direct_mail/mod3/mod_template.html');
-			$this->doc->form='<form action="" method="post" name="'.$this->name.'" enctype="multipart/form-data">';
+			$this->doc->form = '<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
 			$this->doc->getPageRenderer()->addCssFile('../Resources/Public/StyleSheets/modules.css', 'stylesheet', 'all', '', FALSE, FALSE);
 
 			// Add CSS
@@ -201,7 +178,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 								if (body.style.display == "block"){
 									body.style.display = "none";
 									if (image) {
-										image.src = "'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/button_right.gif', '', 1).'";
+										image.src = "'.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"], 'gfx/button_right.gif', '', 1).'";
 									}
 								}
 							}
@@ -215,12 +192,12 @@ class tx_directmail_configuration extends t3lib_SCbase {
 						if (body.style.display == "none") {
 							body.style.display = "block";
 							if (image) {
-								image.src = "'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/button_down.gif', '', 1).'";
+								image.src = "'.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"], 'gfx/button_down.gif', '', 1).'";
 							}
 						} else {
 							body.style.display = "none";
 							if (image) {
-								image.src = "'.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/button_right.gif', '', 1).'";
+								image.src = "'.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"], 'gfx/button_right.gif', '', 1).'";
 							}
 						}
 						if (e) {
@@ -236,7 +213,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 				</script>
 			';
 
-			$this->doc->postCode='
+			$this->doc->postCode = '
 				<script language="javascript" type="text/javascript">
 					script_ended = 1;
 					if (top.fsMod) top.fsMod.recentIds[\'web\'] = '.intval($this->id).';
@@ -250,26 +227,27 @@ class tx_directmail_configuration extends t3lib_SCbase {
 			);
 
 			$docHeaderButtons = array(
-				'PAGEPATH' => $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
+				'PAGEPATH' => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
 				'SHORTCUT' => '',
-				'CSH' => t3lib_BEfunc::cshItem($this->cshTable, '', $BACK_PATH)
+				'CSH' => t3lib_BEfunc::cshItem($this->cshTable, '', $GLOBALS["BACK_PATH"])
 			);
 				// shortcut icon
-			if ($BE_USER->mayMakeShortcut()) {
+			if ($GLOBALS["BE_USER"]->mayMakeShortcut()) {
 				$docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
 			}
 
 			$module = $this->pageinfo['module'];
-			if (!$module)	{
+			if (!$module) {
 				$pidrec=t3lib_BEfunc::getRecord('pages',intval($this->pageinfo['pid']));
 				$module=$pidrec['module'];
 			}
 			if ($module == 'dmail') {
 						// Direct mail module
-				if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail') {
+				if (($this->pageinfo['doktype'] == 254) && ($this->pageinfo['module'] == 'dmail')) {
 					$markers['CONTENT'] = '<h2>' . $GLOBALS['LANG']->getLL('header_conf') . '</h2>'
 					. $this->moduleContent();
 				} elseif ($this->id != 0) {
+					/** @var $flashMessage t3lib_FlashMessage */
 					$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
 						$GLOBALS['LANG']->getLL('dmail_noRegular'),
 						$GLOBALS['LANG']->getLL('dmail_newsletters'),
@@ -287,19 +265,19 @@ class tx_directmail_configuration extends t3lib_SCbase {
 			}
 
 
-			$this->content = $this->doc->startPage($LANG->getLL('title'));
+			$this->content = $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
 			$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
 
 		} else {
 			// If no access or if ID == zero
 
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
-			$this->doc->backPath = $BACK_PATH;
+			$this->doc->backPath = $GLOBALS["BACK_PATH"];
 
-			$this->content.=$this->doc->startPage($LANG->getLL('title'));
-			$this->content.=$this->doc->header($LANG->getLL('title'));
-			$this->content.=$this->doc->spacer(5);
-			$this->content.=$this->doc->spacer(10);
+			$this->content .= $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
+			$this->content .= $this->doc->header($GLOBALS['LANG']->getLL('title'));
+			$this->content .= $this->doc->spacer(5);
+			$this->content .= $this->doc->spacer(10);
 		}
 	}
 
@@ -309,7 +287,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 	 * @return	void		no return value
 	 */
 	function printContent()	{
-		$this->content.=$this->doc->endPage();
+		$this->content .= $this->doc->endPage();
 		echo $this->content;
 	}
 
@@ -320,75 +298,81 @@ class tx_directmail_configuration extends t3lib_SCbase {
 	 * @return	string		The compiled content of the module.
 	 */
 	protected function moduleContent() {
-		global $TYPO3_DB, $LANG, $BACK_PATH;
-
 		$configArray[1] = array(
-			'box-1' => $LANG->getLL('configure_default_headers'),
-			'from_email' => array('string', tx_directmail_static::fName('from_email'), $LANG->getLL('from_email.description').'<br />'.$LANG->getLL('from_email.details')),
-			'from_name' => array('string', tx_directmail_static::fName('from_name'), $LANG->getLL('from_name.description').'<br />'.$LANG->getLL('from_name.details')),
-			'replyto_email' => array('string', tx_directmail_static::fName('replyto_email'), $LANG->getLL('replyto_email.description').'<br />'.$LANG->getLL('replyto_email.details')),
-			'replyto_name' => array('string', tx_directmail_static::fName('replyto_name'), $LANG->getLL('replyto_name.description').'<br />'.$LANG->getLL('replyto_name.details')),
-			'return_path' => array('string', tx_directmail_static::fName('return_path'), $LANG->getLL('return_path.description').'<br />'.$LANG->getLL('return_path.details')),
-			'organisation' => array('string', tx_directmail_static::fName('organisation'), $LANG->getLL('organisation.description').'<br />'.$LANG->getLL('organisation.details')),
-			'priority' => array('select', tx_directmail_static::fName('priority'), $LANG->getLL('priority.description').'<br />'.$LANG->getLL('priority.details'), array(3 => $LANG->getLL('configure_priority_normal'), 1 => $LANG->getLL('configure_priority_high'), 5 => $LANG->getLL('configure_priority_low'))),
+			'box-1' => $GLOBALS['LANG']->getLL('configure_default_headers'),
+			'from_email' => array('string', tx_directmail_static::fName('from_email'), $GLOBALS['LANG']->getLL('from_email.description').'<br />'.$GLOBALS['LANG']->getLL('from_email.details')),
+			'from_name' => array('string', tx_directmail_static::fName('from_name'), $GLOBALS['LANG']->getLL('from_name.description').'<br />'.$GLOBALS['LANG']->getLL('from_name.details')),
+			'replyto_email' => array('string', tx_directmail_static::fName('replyto_email'), $GLOBALS['LANG']->getLL('replyto_email.description').'<br />'.$GLOBALS['LANG']->getLL('replyto_email.details')),
+			'replyto_name' => array('string', tx_directmail_static::fName('replyto_name'), $GLOBALS['LANG']->getLL('replyto_name.description').'<br />'.$GLOBALS['LANG']->getLL('replyto_name.details')),
+			'return_path' => array('string', tx_directmail_static::fName('return_path'), $GLOBALS['LANG']->getLL('return_path.description').'<br />'.$GLOBALS['LANG']->getLL('return_path.details')),
+			'organisation' => array('string', tx_directmail_static::fName('organisation'), $GLOBALS['LANG']->getLL('organisation.description').'<br />'.$GLOBALS['LANG']->getLL('organisation.details')),
+			'priority' => array('select', tx_directmail_static::fName('priority'), $GLOBALS['LANG']->getLL('priority.description').'<br />'.$GLOBALS['LANG']->getLL('priority.details'), array(3 => $GLOBALS['LANG']->getLL('configure_priority_normal'), 1 => $GLOBALS['LANG']->getLL('configure_priority_high'), 5 => $GLOBALS['LANG']->getLL('configure_priority_low'))),
 		);
 		$configArray[2] = array(
-			'box-2' => $LANG->getLL('configure_default_content'),
-			'sendOptions' => array('select', tx_directmail_static::fName('sendOptions'), $LANG->getLL('sendOptions.description').'<br />'.$LANG->getLL('sendOptions.details'), array(3 => $LANG->getLL('configure_plain_and_html') ,1 => $LANG->getLL('configure_plain_only') ,2 => $LANG->getLL('configure_html_only'))),
-			'includeMedia' => array('check', tx_directmail_static::fName('includeMedia'), $LANG->getLL('includeMedia.description').'<br />'.$LANG->getLL('includeMedia.details')),
-			'flowedFormat' => array('check', tx_directmail_static::fName('flowedFormat'), $LANG->getLL('flowedFormat.description').'<br />'.$LANG->getLL('flowedFormat.details')),
+			'box-2' => $GLOBALS['LANG']->getLL('configure_default_content'),
+			'sendOptions' => array('select', tx_directmail_static::fName('sendOptions'), $GLOBALS['LANG']->getLL('sendOptions.description').'<br />'.$GLOBALS['LANG']->getLL('sendOptions.details'), array(3 => $GLOBALS['LANG']->getLL('configure_plain_and_html') ,1 => $GLOBALS['LANG']->getLL('configure_plain_only') ,2 => $GLOBALS['LANG']->getLL('configure_html_only'))),
+			'includeMedia' => array('check', tx_directmail_static::fName('includeMedia'), $GLOBALS['LANG']->getLL('includeMedia.description').'<br />'.$GLOBALS['LANG']->getLL('includeMedia.details')),
+			'flowedFormat' => array('check', tx_directmail_static::fName('flowedFormat'), $GLOBALS['LANG']->getLL('flowedFormat.description').'<br />'.$GLOBALS['LANG']->getLL('flowedFormat.details')),
 		);
 		$configArray[3] = array(
-			'box-3' => $LANG->getLL('configure_default_fetching'),
-			'HTMLParams' => array('short', tx_directmail_static::fName('HTMLParams'), $LANG->getLL('configure_HTMLParams_description').'<br />'.$LANG->getLL('configure_HTMLParams_details')),
-			'plainParams' => array('short', tx_directmail_static::fName('plainParams'), $LANG->getLL('configure_plainParams_description').'<br />'.$LANG->getLL('configure_plainParams_details')),
-			'use_domain' => array('select', tx_directmail_static::fName('use_domain'), $LANG->getLL('use_domain.description').'<br />'.$LANG->getLL('use_domain.details'), array(0 => '')),
+			'box-3' => $GLOBALS['LANG']->getLL('configure_default_fetching'),
+			'HTMLParams' => array('short', tx_directmail_static::fName('HTMLParams'), $GLOBALS['LANG']->getLL('configure_HTMLParams_description').'<br />'.$GLOBALS['LANG']->getLL('configure_HTMLParams_details')),
+			'plainParams' => array('short', tx_directmail_static::fName('plainParams'), $GLOBALS['LANG']->getLL('configure_plainParams_description').'<br />'.$GLOBALS['LANG']->getLL('configure_plainParams_details')),
+			'use_domain' => array('select', tx_directmail_static::fName('use_domain'), $GLOBALS['LANG']->getLL('use_domain.description').'<br />'.$GLOBALS['LANG']->getLL('use_domain.details'), array(0 => '')),
 		);
 		$configArray[4] = array(
-			'box-4' => $LANG->getLL('configure_options_encoding'),
-			'quick_mail_encoding' => array('select', $LANG->getLL('configure_quickmail_encoding'), $LANG->getLL('configure_quickmail_encoding_description'), array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
-			'direct_mail_encoding' => array('select', $LANG->getLL('configure_directmail_encoding'), $LANG->getLL('configure_directmail_encoding_description'), array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
-			'quick_mail_charset' => array('short', $LANG->getLL('configure_quickmail_charset'), $LANG->getLL('configure_quickmail_charset_description')),
-			'direct_mail_charset' => array('short', $LANG->getLL('configure_directmail_charset'), $LANG->getLL('configure_directmail_charset_description')),
+			'box-4' => $GLOBALS['LANG']->getLL('configure_options_encoding'),
+			'quick_mail_encoding' => array('select', $GLOBALS['LANG']->getLL('configure_quickmail_encoding'), $GLOBALS['LANG']->getLL('configure_quickmail_encoding_description'), array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
+			'direct_mail_encoding' => array('select', $GLOBALS['LANG']->getLL('configure_directmail_encoding'), $GLOBALS['LANG']->getLL('configure_directmail_encoding_description'), array('quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit')),
+			'quick_mail_charset' => array('short', $GLOBALS['LANG']->getLL('configure_quickmail_charset'), $GLOBALS['LANG']->getLL('configure_quickmail_charset_description')),
+			'direct_mail_charset' => array('short', $GLOBALS['LANG']->getLL('configure_directmail_charset'), $GLOBALS['LANG']->getLL('configure_directmail_charset_description')),
 		);
 		$configArray[5] = array(
-			'box-5' => $LANG->getLL('configure_options_links'),
-			'use_rdct' => array('check', tx_directmail_static::fName('use_rdct'), $LANG->getLL('use_rdct.description').'<br />'.$LANG->getLL('use_rdct.details').'<br />'.$LANG->getLL('configure_options_links_rdct')),
-			'long_link_mode' => array('check', tx_directmail_static::fName('long_link_mode'), $LANG->getLL('long_link_mode.description')),
-			'enable_jump_url' => array('check', $LANG->getLL('configure_options_links_jumpurl'), $LANG->getLL('configure_options_links_jumpurl_description')),
-			'enable_mailto_jump_url' => array('check', $LANG->getLL('configure_options_mailto_jumpurl'), $LANG->getLL('configure_options_mailto_jumpurl_description')),
-			'authcode_fieldList' => array('short', tx_directmail_static::fName('authcode_fieldList'), $LANG->getLL('authcode_fieldList.description')),
+			'box-5' => $GLOBALS['LANG']->getLL('configure_options_links'),
+			'use_rdct' => array('check', tx_directmail_static::fName('use_rdct'), $GLOBALS['LANG']->getLL('use_rdct.description').'<br />'.$GLOBALS['LANG']->getLL('use_rdct.details').'<br />'.$GLOBALS['LANG']->getLL('configure_options_links_rdct')),
+			'long_link_mode' => array('check', tx_directmail_static::fName('long_link_mode'), $GLOBALS['LANG']->getLL('long_link_mode.description')),
+			'enable_jump_url' => array('check', $GLOBALS['LANG']->getLL('configure_options_links_jumpurl'), $GLOBALS['LANG']->getLL('configure_options_links_jumpurl_description')),
+			'enable_mailto_jump_url' => array('check', $GLOBALS['LANG']->getLL('configure_options_mailto_jumpurl'), $GLOBALS['LANG']->getLL('configure_options_mailto_jumpurl_description')),
+			'authcode_fieldList' => array('short', tx_directmail_static::fName('authcode_fieldList'), $GLOBALS['LANG']->getLL('authcode_fieldList.description')),
 		);
 		$configArray[6] = array(
-			'box-6' => $LANG->getLL('configure_options_additional'),
-			'http_username' => array('short', $LANG->getLL('configure_http_username'), $LANG->getLL('configure_http_username_description').'<br />'.$LANG->getLL('configure_http_username_details')),
-			'http_password' => array('short', $LANG->getLL('configure_http_password'), $LANG->getLL('configure_http_password_description')),
-			'userTable' => array('short', $LANG->getLL('configure_user_table'), $LANG->getLL('configure_user_table_description')),
-			'test_tt_address_uids' => array('short', $LANG->getLL('configure_test_tt_address_uids'), $LANG->getLL('configure_test_tt_address_uids_description')),
-			'test_dmail_group_uids' => array('short', $LANG->getLL('configure_test_dmail_group_uids'), $LANG->getLL('configure_test_dmail_group_uids_description')),
-			'testmail' => array('short', $LANG->getLL('configure_testmail'), $LANG->getLL('configure_testmail_description'))
+			'box-6' => $GLOBALS['LANG']->getLL('configure_options_additional'),
+			'http_username' => array('short', $GLOBALS['LANG']->getLL('configure_http_username'), $GLOBALS['LANG']->getLL('configure_http_username_description').'<br />'.$GLOBALS['LANG']->getLL('configure_http_username_details')),
+			'http_password' => array('short', $GLOBALS['LANG']->getLL('configure_http_password'), $GLOBALS['LANG']->getLL('configure_http_password_description')),
+			'userTable' => array('short', $GLOBALS['LANG']->getLL('configure_user_table'), $GLOBALS['LANG']->getLL('configure_user_table_description')),
+			'test_tt_address_uids' => array('short', $GLOBALS['LANG']->getLL('configure_test_tt_address_uids'), $GLOBALS['LANG']->getLL('configure_test_tt_address_uids_description')),
+			'test_dmail_group_uids' => array('short', $GLOBALS['LANG']->getLL('configure_test_dmail_group_uids'), $GLOBALS['LANG']->getLL('configure_test_dmail_group_uids_description')),
+			'testmail' => array('short', $GLOBALS['LANG']->getLL('configure_testmail'), $GLOBALS['LANG']->getLL('configure_testmail_description'))
 		);
 
 			// Set default values
-		if (!isset($this->implodedParams['plainParams'])) $this->implodedParams['plainParams'] = '&type=99';
-		if (!isset($this->implodedParams['quick_mail_charset'])) $this->implodedParams['quick_mail_charset'] = 'iso-8859-1';
-		if (!isset($this->implodedParams['direct_mail_charset'])) $this->implodedParams['direct_mail_charset'] = 'iso-8859-1';
+		if (!isset($this->implodedParams['plainParams'])) {
+			$this->implodedParams['plainParams'] = '&type=99';
+		}
+		if (!isset($this->implodedParams['quick_mail_charset'])) {
+			$this->implodedParams['quick_mail_charset'] = 'iso-8859-1';
+		}
+		if (!isset($this->implodedParams['direct_mail_charset'])) {
+			$this->implodedParams['direct_mail_charset'] = 'iso-8859-1';
+		}
 
 			// Set domain selection list
 		$rootline = $this->sys_page->getRootLine($this->id);
-		foreach($rootline as $rk => $rArr) {
+		$rootlineID = array();
+		foreach($rootline as $rArr) {
 			$rootlineID[] = $rArr['uid'];
 		}
 		
-		$res_domain = $TYPO3_DB->exec_SELECTquery(
+		$res_domain = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'uid,domainName',
 			'sys_domain',
 			'sys_domain.pid in ('.implode(',', $rootlineID).')'.
 				t3lib_BEfunc::deleteClause('sys_domain')
-			);
-		while ($row_domain = $TYPO3_DB->sql_fetch_assoc($res_domain)) {
+		);
+		while ($row_domain = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_domain)) {
 			$configArray[3]['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];
 		}
+		$GLOBALS["TYPO3_DB"]->sql_free_result($res_domain);
 
 		$this->configArray_length = count($configArray);
 		$form ='';
@@ -397,35 +381,34 @@ class tx_directmail_configuration extends t3lib_SCbase {
 		}
 
 		$form .= '<input type="submit" name="submit" value="Update configuration" />';
-		return str_replace('Update configuration', $LANG->getLL('configure_update_configuration'), $form);
+		return str_replace('Update configuration', $GLOBALS['LANG']->getLL('configure_update_configuration'), $form);
 	}
 
 	/**
 	 * Compiling the form from an array and put in to boxes
 	 *
 	 * @param	array		$configArray: the input array parameter
-	 * @param	array		$defaults: default values array
+	 * @param	array		$params: default values array
 	 * @param	string		$dataPrefix: prefix of the input field's name
 	 * @return	string		the compiled input form
 	 */
-	function makeConfigForm($configArray,$defaults,$dataPrefix)	{
-		global $BACK_PATH;
+	function makeConfigForm($configArray,$params,$dataPrefix)	{
+		$boxFlag = 0;
 
-		$params = $defaults;
 		$wrapHelp1 = '&nbsp;<a href="#" class="bubble"><img'.
-				t3lib_iconWorks::skinImg(
-					$BACK_PATH,
-					'gfx/helpbubble.gif'
-				).' alt="" /> <span class="help" id="sender_email_help">';
+			t3lib_iconWorks::skinImg(
+				$GLOBALS["BACK_PATH"],
+				'gfx/helpbubble.gif'
+			).' alt="" /> <span class="help" id="sender_email_help">';
 		$wrapHelp2 = '</span></a>';
 
+		$lines = array();
 		if (is_array($configArray))	{
-			reset($configArray);
-			$lines=array();
-			while(list($fname,$config)=each($configArray))	{
+			foreach($configArray as $fname => $config) {
 				if (is_array($config))	{
-					$lines[$fname]='<strong>'.htmlspecialchars($config[1]).'</strong>';
-					$lines[$fname].=$wrapHelp1.$config[2].$wrapHelp2.'<br />';
+					$lines[$fname] = '<strong>'.htmlspecialchars($config[1]).'</strong>';
+					$lines[$fname] .= $wrapHelp1.$config[2].$wrapHelp2.'<br />';
+					$formEl = "";
 					switch($config[0])	{
 						case 'string':
 						case 'short':
@@ -438,9 +421,8 @@ class tx_directmail_configuration extends t3lib_SCbase {
 							$formEl = '';
 						break;
 						case 'select':
-							reset($config[3]);
-							$opt=array();
-							while(list($k,$v)=each($config[3]))	{
+							$opt = array();
+							foreach($config[3] as $k => $v) {
 								$opt[]='<option value="'.htmlspecialchars($k).'"'.($params[$fname]==$k?' selected="selected"':'').'>'.htmlspecialchars($v).'</option>';
 							}
 							$formEl = '<select name="'.$dataPrefix.'['.$fname.']">'.implode('',$opt).'</select>';
@@ -449,14 +431,13 @@ class tx_directmail_configuration extends t3lib_SCbase {
 							debug($config);
 						break;
 					}
-					$lines[$fname].=$formEl;
-					$lines[$fname].='<br />';
+					$lines[$fname] .= $formEl;
+					$lines[$fname] .= '<br />';
 				} else {
 					if (!strpos($fname ,'box')){
 						$imgSrc = t3lib_iconWorks::skinImg(
-							$BACK_PATH,
+							$GLOBALS["BACK_PATH"],
 							'gfx/button_right.gif'
-
 						);
 						$lines[$fname] ='<div id="header" class="box">
 								<div class="toggleTitle">
@@ -468,16 +449,21 @@ class tx_directmail_configuration extends t3lib_SCbase {
 								<div id="'.$fname.'" class="toggleBox" style="display:none">';
 						$boxFlag = 1;
 					} else {
-						$lines[$fname]='<hr />';
-						if ($config)	$lines[$fname].='<strong>'.htmlspecialchars($config).'</strong><br />';
-						if ($config)	$lines[$fname].='<br />';
+						$lines[$fname] = '<hr />';
+						if ($config) {
+							$lines[$fname] .= '<strong>'.htmlspecialchars($config).'</strong><br />';
+						}
+						if ($config) {
+							$lines[$fname] .= '<br />';
+						}
 					}
 				}
 			}
 		}
 		$out = implode('',$lines);
-		if($boxFlag)
-			$out .='</div></div>';
+		if($boxFlag) {
+			$out .= '</div></div>';
+		}
 		return $out;
 	}
 
@@ -487,11 +473,9 @@ class tx_directmail_configuration extends t3lib_SCbase {
 	 * @return	void		no return value: sent header to the same page
 	 */
 	function updatePageTS()	{
-		global $BE_USER;
-
-		if ($BE_USER->doesUserHaveAccess(t3lib_BEfunc::getRecord( 'pages', $this->id), 2)) {
+		if ($GLOBALS["BE_USER"]->doesUserHaveAccess(t3lib_BEfunc::getRecord( 'pages', $this->id), 2)) {
 			$pageTS = t3lib_div::_GP('pageTS');
-			if (is_array($pageTS))	{
+			if (is_array($pageTS)) {
 				t3lib_BEfunc::updatePagesTSconfig($this->id,$pageTS,$this->TSconfPrefix);
 				header('Location: '.t3lib_div::locationHeaderUrl(t3lib_div::getIndpEnv('REQUEST_URI')));
 			}
