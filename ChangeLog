@@ -1,3 +1,6 @@
+2012-04-29 Ivan Kartolo <ivan@kartolo.de>
+	* remove SMTP config option
+
 2012-04-14 Ivan Kartolo <ivan@kartolo.de>
 	* swiftmailer: sending testmail per SM
 	* code clean up, remove deprecated TYPO3 API
