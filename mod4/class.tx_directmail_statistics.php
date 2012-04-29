@@ -319,8 +319,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				$data=array();
 				if (is_array($indata['categories']))	{
 					reset($indata['categories']);
-					while(list($recUid,$recValues)=each($indata['categories']))	{
-						reset($recValues);
+					foreach($indata["categories"] as $recValues) {
 						$enabled = array();
 						while(list($k,$b)=each($recValues))	{
 							if ($b)	{
@@ -460,7 +459,6 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				);
 				list($count) = $GLOBALS["TYPO3_DB"]->sql_fetch_row($countRes);
 
-				$sent='';
 				if(!empty($row['scheduled_begin'])){
 					if(!empty($row['scheduled_end']))
 						$sent = $GLOBALS["LANG"]->getLL('stats_overview_sent');

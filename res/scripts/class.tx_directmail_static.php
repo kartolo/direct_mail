@@ -374,9 +374,9 @@ class tx_directmail_static {
 	/**
 	 * Construct the array of uid's from $table selected by special query of mail group of such type
 	 *
+	 * @param	mailSelect		$queryGenerator: the query generator object
 	 * @param	string		$table: The table to select from
 	 * @param	array		$group: The direct_mail group record
-	 * @param	mailSelect		$queryGenerator: the query generator object
 	 * @return	string		The resulting query.
 	 */
 	static function getSpecialQueryIdList(&$queryGenerator,$table,$group) {
