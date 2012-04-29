@@ -567,8 +567,8 @@ class tx_directmail_importer {
 			foreach($dataArray as $kk => $fieldData){
 				if($this->indata['map'][$kk] !== 'noMap'){
 					if(($this->indata['valid_email']) && ($this->indata['map'][$kk] === 'email')){
-						$invalidEmail = t3lib_div::validEmail($fieldData)?0:1;
-						$tempData[$this->indata['map'][$kk]] = $fieldData;
+						$invalidEmail = t3lib_div::validEmail(trim($fieldData))?0:1;
+						$tempData[$this->indata['map'][$kk]] = trim($fieldData);
 					} else {
 						if ($this->indata['map'][$kk] !== 'cats'){
 							$tempData[$this->indata['map'][$kk]] = $fieldData;
