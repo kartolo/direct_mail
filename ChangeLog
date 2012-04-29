@@ -1,6 +1,7 @@
 2012-04-29 Ivan Kartolo <ivan@kartolo.de>
 	* remove SMTP config option
 	* Bug #35680: trim the email before validating it.
+	* Bug #35542: Sorting the dmail folder on the title
 
 2012-04-14 Ivan Kartolo <ivan@kartolo.de>
 	* swiftmailer: sending testmail per SM

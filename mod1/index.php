@@ -148,7 +148,7 @@ class tx_directmail_navframe{
 			'pages',
 			'doktype = 254 AND module in (\'dmail\')'. t3lib_BEfunc::deleteClause('pages'),
 			'',
-			'sorting'
+			'title'
 		);
 		$out = '';
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
