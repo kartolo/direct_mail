@@ -100,11 +100,23 @@ class tx_directmail_static {
 	 * @return	array		cleaned array
 	 */
 	static function cleanPlainList($plainlist)	{
-		$emails = array();
-		foreach($plainlist as $k => $v) {
-			if (in_array($v['email'],$emails))	{	unset($plainlist[$k]);	}
-			$emails[]=$v['email'];
-		}
+		/**
+		 * $plainlist is a multidimensional array.
+		 * this method only remove if a value has the same array
+		 * $plainlist = array(
+		 * 		0 => array(
+		 * 				name => '',
+		 * 				email => '',
+		 * 			),
+		 * 		1 => array(
+		 * 				name => '',
+		 * 				email => '',
+		 * 			),
+		 *
+		 * );
+		 */
+		$plainlist = array_map("unserialize", array_unique(array_map("serialize", $plainlist)));
+
 		return $plainlist;
 	}
 
