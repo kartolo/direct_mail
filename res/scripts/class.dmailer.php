@@ -637,9 +637,6 @@ class dmailer {
 	 * @return	void		...
 	 */
 	function dmailer_setBeginEnd($mid,$key)	{
-		/** @var $LANG language */
-		global $LANG;
-
 		$subject = '';
 		$message = "";
 
@@ -651,18 +648,18 @@ class dmailer {
 
 		switch($key)	{
 			case 'begin':
-				$subject = $LANG->getLL('dmailer_mid').' '.$mid. ' ' . $LANG->getLL('dmailer_job_begin');
-				$message = $LANG->getLL('dmailer_job_begin') . ': ' .date("d-m-y h:i:s");
+				$subject = $GLOBALS['LANG']->getLL('dmailer_mid').' '.$mid. ' ' . $GLOBALS['LANG']->getLL('dmailer_job_begin');
+				$message = $GLOBALS['LANG']->getLL('dmailer_job_begin') . ': ' .date("d-m-y h:i:s");
 			break;
 			case 'end':
-				$subject = $LANG->getLL('dmailer_mid').' '.$mid. ' ' . $LANG->getLL('dmailer_job_end');
-				$message = $LANG->getLL('dmailer_job_end') . ': ' .date("d-m-y h:i:s");
+				$subject = $GLOBALS['LANG']->getLL('dmailer_mid').' '.$mid. ' ' . $GLOBALS['LANG']->getLL('dmailer_job_end');
+				$message = $GLOBALS['LANG']->getLL('dmailer_job_end') . ': ' .date("d-m-y h:i:s");
 			break;
 		}
 		if (TYPO3_DLOG) t3lib_div::devLog($subject . ': '.$message, 'direct_mail');
 		$this->logArray[] = $subject . ': '.$message;
 
-		$from_name = ($this->from_name) ? $LANG->csConvObj->conv($this->from_name, $this->charset, $LANG->charSet) : '';
+		$from_name = ($this->from_name) ? $GLOBALS['LANG']->csConvObj->conv($this->from_name, $this->charset, $GLOBALS['LANG']->charSet) : '';
 
 		$headers[] = 'From: "'.$from_name.'" <'.$this->from_email.'>';
 		$headers[] = 'Reply-To: '.$this->replyto_email;
@@ -777,8 +774,10 @@ class dmailer {
 			$GLOBALS['LANG']= t3lib_div::makeInstance('language');
 			$L = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] ? $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] : $this->user_dmailerLang;
 			$GLOBALS['LANG']->init(trim($L));
-			$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
 		}
+
+		// always include locallang file
+		$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
 
 		$pt = t3lib_div::milliseconds();
 
