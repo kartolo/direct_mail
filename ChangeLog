@@ -1,3 +1,6 @@
+2012-05-20 Ivan Kartolo <ivan@kartolo.de>
+	* fix rdct Link in plain text
+
 2012-05-10 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #36806: Speed boosting on cleaning duplicates in plain list array (thx to Tomas Norre Mikkelsen)
 

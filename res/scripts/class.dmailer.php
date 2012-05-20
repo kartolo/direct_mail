@@ -356,7 +356,7 @@ class dmailer {
 				$tempContent_Plain = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipRow['sys_dmail_categories_list']);
 				if ($this->mailHasContent) {
 					$tempContent_Plain = $this->replaceMailMarkers($tempContent_Plain, $recipRow, $additionalMarkers);
-					if (trim($this->dmailer['sys_dmail_rec']['use_rdct'])) {
+					if (trim($this->dmailer['sys_dmail_rec']['use_rdct']) || trim($this->dmailer['sys_dmail_rec']['long_link_mode'])) {
 						$tempContent_Plain = t3lib_div::substUrlsInPlainText($tempContent_Plain, $this->dmailer['sys_dmail_rec']['long_link_mode']?'all':'76', $this->dmailer['sys_dmail_rec']['long_link_rdct_url']);
 					}
 					$this->theParts['plain']['content'] = $this->encodeMsg($tempContent_Plain);
