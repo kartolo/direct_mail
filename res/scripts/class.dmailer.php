@@ -928,8 +928,13 @@ class dmailer {
 		$mailer = t3lib_div::makeInstance('t3lib_mail_Message');
 		$mailer->setFrom(array($this->from_email => $this->from_name));
 		$mailer->setSubject($this->subject);
-		$mailer->setReplyTo(array($this->replyto_email => $this->replyto_name));
 		$mailer->setPriority($this->priority);
+
+		if ($this->replyto_email) {
+			$mailer->setReplyTo(array($this->replyto_email => $this->replyto_name));
+		} else {
+			$mailer->setReplyTo(array($this->from_email => $this->from_name));
+		}
 
 		//setting additional header
 		// organization and TYPO3MID

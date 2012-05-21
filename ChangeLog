@@ -1,3 +1,6 @@
+2012-05-21 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #27633: use from address if reply-to is not set
+
 2012-05-20 Ivan Kartolo <ivan@kartolo.de>
 	* fix rdct Link in plain text
 
