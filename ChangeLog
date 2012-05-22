@@ -1,3 +1,6 @@
+2012-05-23 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #27975: fix linking in the statistics module.
+
 2012-05-21 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #27633: use from address if reply-to is not set
 
