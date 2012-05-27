@@ -874,13 +874,13 @@ class dmailer {
 	 * @var $mailer t3lib_mail_Message
 	 */
 	function setContent(&$mailer) {
-		// TODO: add media (includeMedia)
-		$this->extractMediaLinks();
-
 		//todo: css??
 		// iterate through the media array and embed them
 		if ($this->includeMedia) {
-			foreach($this->theParts['html']['media'] as $k => $media) {
+			// extract all media path from the mail message
+			$this->extractMediaLinks();
+
+			foreach($this->theParts['html']['media'] as $media) {
 				if ($media['tag'] == 'img') {
 					$cid = $mailer->embed(Swift_Image::fromPath($media['absRef']));
 					$this->theParts['html']['content'] = str_replace($media['subst_str'], $cid, $this->theParts['html']['content']);
