@@ -423,7 +423,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			'*',
 			'sys_dmail',
 			'pid='.intval($this->id).
-				' AND type=0'.
+				' AND type IN (0,1)'.
 				' AND issent = 1'.
 				t3lib_BEfunc::deleteClause('sys_dmail'),
 			'',

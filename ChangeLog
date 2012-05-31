@@ -1,5 +1,6 @@
 2012-06-01 Ivan Kartolo <ivan@kartolo.de>
 	* Feature #33507: check if DAM loaded, then add media parseFunc
+	* Feature #31753: also show statistics from external URL newsletter
 
 2012-05-28 Ivan Kartolo <ivan@kartolo.de>
 	* Doc #37526: added upgrade notice to version 3.0.0
