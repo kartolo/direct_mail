@@ -1,3 +1,6 @@
+2012-06-04 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #31054: fix compiling recipient from fe_groups. module_sys_dmail_newsletter was ignored
+
 2012-06-01 Ivan Kartolo <ivan@kartolo.de>
 	* Feature #33507: check if DAM loaded, then add media parseFunc
 	* Feature #31753: also show statistics from external URL newsletter

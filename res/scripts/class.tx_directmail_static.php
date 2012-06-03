@@ -188,15 +188,16 @@ class tx_directmail_static {
 	static function getIdList($table,$pidList,$group_uid,$cat) {
 		$addWhere = '';
 
-		if ($table == 'fe_users') {
-			$addWhere = ' AND fe_users.module_sys_dmail_newsletter = 1';
-		}
-
 		if ($table == 'fe_groups') {
 			$switchTable = 'fe_users';
 		} else {
 			$switchTable = $table;
 		}
+
+		if ($switchTable == 'fe_users') {
+			$addWhere = ' AND fe_users.module_sys_dmail_newsletter = 1';
+		}
+
 			// Direct Mail needs an email address!
 		$emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('', $switchTable);
 
@@ -222,7 +223,8 @@ class tx_directmail_static {
 						t3lib_BEfunc::BEenableFields($switchTable).
 						t3lib_BEfunc::deleteClause($switchTable).
 						t3lib_BEfunc::BEenableFields($table).
-						t3lib_BEfunc::deleteClause($table)
+						t3lib_BEfunc::deleteClause($table).
+						$addWhere
 					);
 			} else {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -250,7 +252,8 @@ class tx_directmail_static {
 						t3lib_BEfunc::deleteClause($switchTable).
 						t3lib_BEfunc::BEenableFields($table).
 						t3lib_BEfunc::deleteClause($table).
-						t3lib_BEfunc::deleteClause('sys_dmail_group')
+						t3lib_BEfunc::deleteClause('sys_dmail_group').
+						$addWhere
 					);
 			} else {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -294,8 +297,15 @@ class tx_directmail_static {
 			// fe user group uid should be in list of fe users list of user groups
 		$field = $switchTable.'.usergroup';
 		$command = $table.'.uid';
+
 		// See comment above
 		// $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
+
+		// for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
+		if ($switchTable == "fe_users") {
+			$addWhere = ' AND '.$switchTable.".module_sys_dmail_newsletter = 1";
+		}
+
 		$usergroupInList = ' AND INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )';
 
 		if ($table == 'fe_groups') {
@@ -311,7 +321,8 @@ class tx_directmail_static {
 					t3lib_BEfunc::deleteClause($switchTable).
 					t3lib_BEfunc::BEenableFields($table).
 					t3lib_BEfunc::deleteClause($table).
-					t3lib_BEfunc::deleteClause('sys_dmail_group')
+					t3lib_BEfunc::deleteClause('sys_dmail_group').
+					$addWhere
 				);
 		} else {
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -323,10 +334,10 @@ class tx_directmail_static {
 					$emailIsNotNull.
 					t3lib_BEfunc::BEenableFields($switchTable).
 					t3lib_BEfunc::deleteClause($switchTable).
-					t3lib_BEfunc::deleteClause('sys_dmail_group')
+					t3lib_BEfunc::deleteClause('sys_dmail_group').
+					$addWhere
 				);
 		}
-
 
 		$outArr = array();
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
@@ -369,7 +380,8 @@ class tx_directmail_static {
 						t3lib_BEfunc::BEenableFields($switchTable).
 						t3lib_BEfunc::deleteClause($switchTable).
 						t3lib_BEfunc::BEenableFields($table).
-						t3lib_BEfunc::deleteClause($table)
+						t3lib_BEfunc::deleteClause($table).
+						$addWhere
 				);
 
 				while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
