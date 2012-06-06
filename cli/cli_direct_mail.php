@@ -26,10 +26,9 @@ class direct_mail_cli extends t3lib_cli {
 		/**
 		 * CLI engine
 		 *
-		 * @param    array        Command line arguments
 		 * @return    string
 		 */
-		function cli_main($argv) {
+		function cli_main() {
 
 			// get task (function)
 				$task = (string)$this->cli_args['_DEFAULT'][1];
@@ -77,9 +76,10 @@ class direct_mail_cli extends t3lib_cli {
 		t3lib_div::fixPermissions($lockfile);
 // TODO: remove htmlmail
 		require_once(PATH_t3lib.'class.t3lib_cs.php');
-		require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
 		require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.dmailer.php');
 
+		/** @var $htmlmail dmailer */
+		/** @var $htmlmail dmailer */
 		$htmlmail = t3lib_div::makeInstance('dmailer');
 		$htmlmail->start();
 		$htmlmail->runcron();
@@ -89,6 +89,8 @@ class direct_mail_cli extends t3lib_cli {
 }
 
 // Call the functionality
+/** @var $cleanerObj direct_mail_cli */
+/** @var $cleanerObj direct_mail_cli */
 $cleanerObj = t3lib_div::makeInstance('direct_mail_cli');
 $cleanerObj->cli_main($_SERVER['argv']);
 

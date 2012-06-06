@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+*  (c) 2012 Ivan Kartolo <ivan at kartolo dot de)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -24,24 +24,11 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   48: class ext_update
- *   55:     function main()
- *   80:     function access()
- *
- * TOTAL FUNCTIONS: 2
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
 
 /**
- * Class for updating Direct Mail to version 2.0.0
+ * Class for updating Direct Mail to version 3
  *
- * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @author		Ivan Kartolo <ivan at kartolo dot de>
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
@@ -53,55 +40,91 @@ class ext_update  {
 	 * @return	string		HTML
 	 */
 	function main()	{
-		global $LANG, $BE_USER;
 
-		$LANG->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
+		$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
 		require_once('mod6/class.tx_directmail_configuration.php');
-		$dmail = t3lib_div::makeInstance('tx_directmail_configuration');
-		$dmail->init();
 
-		if (!t3lib_div::GPvar('do_update'))	{
+		$content = $this->displayWarning();
+		if (!t3lib_div::_GP('do_update')) {
 			$onClick = "document.location='".t3lib_div::linkThisScript(array('do_update'=>1))."'; return false;";
-			return htmlspecialchars($LANG->getLL('update_convert_now')).'
+			$content .= htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_now')).'
 				<br /><br />
-				<form action=""><input type="submit" value="'.htmlspecialchars($LANG->getLL('update_convert_do_it_now')).'" onclick="'.htmlspecialchars($onClick).'"></form>
+				<form action=""><input type="submit" value="'.htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_do_it_now')).'" onclick="'.htmlspecialchars($onClick).'"></form>
 			';
 		} else {
-			$dmail->main();
-			return $dmail->cmd_convertCategories();
+			$updated = $this->convertTable();
+			$content .= sprintf($GLOBALS['LANG']->getLL('update_convert_result'), $updated);
 		}
+
+		return $content;
 	}
 
+	/**
+	 * convert the mailcontent data to base64 coded
+	 * @return	int	$i: the counter
+	 */
+	function convertTable() {
+		$dmailRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+			'uid',
+			'sys_dmail',
+			'1=1'
+		);
+
+		$i = 0;
+		foreach($dmailRows as $row) {
+			//get the mailContent
+			$mailContent = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+				'mailContent',
+				'sys_dmail',
+				'uid = '.$row['uid']
+			);
+
+			if (is_array(unserialize($mailContent[0]['mailContent']))) {
+				//update the table
+				$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+					'sys_dmail',
+					'uid = '.$row['uid'],
+					array('mailContent' => base64_encode($mailContent[0]['mailContent']))
+				);
+
+				// add the counter
+				$i++;
+			}
+		}
+
+		return $i;
+	}
 	/**
 	 * Checks how many rows are found and returns true if there are any
 	 *
 	 * @return	boolean		true if user have access, otherwise false
 	 */
 	function access() {
-		global $TYPO3_DB;
 			// We cannot update before the extension is installed: required tables are not yet in TCA
 		if (t3lib_extMgm::isLoaded('direct_mail')) {
-			$res = $TYPO3_DB->exec_SELECTquery(
-				'count(*)',
-				'sys_dmail_category',
-				'1=1'
-				);
-				// If we already have categories, do not try to update now.
-			if ($TYPO3_DB->sql_error() || $TYPO3_DB->sql_num_rows($res)) {
-				return FALSE;
-			} else {
-					// If we do not find any Direct mail folder, do not try to update now.
-				require_once('mod6/class.tx_directmail_configuration.php');
-				$dmail = t3lib_div::makeInstance('tx_directmail_configuration');
-				$dmail->init();
-				if (!is_array($dmail->modList['rows'])) {
-					return FALSE;
-				}
-			}
 			return TRUE;
 		} else {
 			return FALSE;
 		}
+	}
+
+	/**
+	 *
+	 * Enter description here ...
+	 * @return string
+	 */
+	function displayWarning() {
+		$out = '
+			<div style="padding:15px 15px 20px 0;">
+				<div class="typo3-message message-warning">
+						<div class="message-header">' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/locallang/locallang_mod2-6.xml:update_warningHeader') . '</div>
+						<div class="message-body">
+						' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/locallang/locallang_mod2-6.xml:update_warningMsg') . '
+					</div>
+				</div>
+			</div>';
+
+		return $out;
 	}
 }
 

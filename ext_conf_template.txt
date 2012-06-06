@@ -1,51 +1,30 @@
-  # cat=basic; type=int+; label=Number of messages per cycle : Number of messages to be sent per cycle of the dmailer cron task.
+	# cat=basic; type=int+; label=Number of messages per cycle : Number of messages to be sent per cycle of the dmailer cron task.
 sendPerCycle = 50
 
-  # cat=basic; type=string; label=Language of the cron task : Language used to localize progress messages sent by the dmailer cron task.
+	# cat=basic; type=string; label=Language of the cron task : Language used to localize progress messages sent by the dmailer cron task.
 cron_language = en
 
-  # cat=basic; type=string; label= Additional DB fields of the recipient : Additional fields that may be substituted in the direct mail messages.
+	# cat=basic; type=string; label= Additional DB fields of the recipient : Additional fields that may be substituted in the direct mail messages.
 addRecipFields =
 
-  # cat=basic; type=string; label=Administrator Email: Administrator email is used to send email if there's cronjob error.
+	# cat=basic; type=string; label=Administrator Email: Administrator email is used to send email if there's cronjob error.
 adminEmail = admin@website.com
 
-  # cat=basic; type=int+; label=Interval of the cronjob: Interval of the cronjob (in minute).
+	# cat=basic; type=int+; label=Interval of the cronjob: Interval of the cronjob (in minute).
 cronInt = 5
 
-  # cat=basic/enable; type=boolean; label=Enable notification email : Allow direct mail to send notification about start and end of a mailing job.
+	# cat=basic/enable; type=boolean; label=Enable notification email : Allow direct mail to send notification about start and end of a mailing job.
 notificationJob = 1
 
-  # cat=basic/enable; type=boolean; label=Enable sendmail defer mode : Use sendmail defer mode when running dmailer cron task.
-useDeferMode = 0
-
-  # cat=basic/enable; type=boolean; label=Enable plain text rendering of News: If set, a script will be enabled to render News (tt_news records) in plain text content of email messages.
+	# cat=basic/enable; type=boolean; label=Enable plain text rendering of News: If set, a script will be enabled to render News (tt_news records) in plain text content of email messages.
 enablePlainTextNews = 1
 
-  # cat=basic/enable; type=boolean; label=Encode header: If you enable this checkbox it will encode the header (in order to fix some charset problem in subject, senders and recepient name)
-encodeHeader = 1 
+	# cat=basic/enable; type=boolean; label=Encode header: If you enable this checkbox it will encode the header (in order to fix some charset problem in subject, senders and recepient name)
+encodeHeader = 1
 
-  # cat=basic/enable; type=boolean; label=Enable Sending through SMTP: Send all emails not through sendmail but through an external SMTP account (requires PEAR::Mail to be installed on the system)
-SmtpEnabled = 0
-
-  # cat=basic/enable; type=string; label=SMTP host: Name or IP of the SMTP host, only used when sending through SMTP is enabled (see above)
-SmtpHost = localhost
-
-  # cat=basic/enable; type=int+; label=SMTP port: Port for the SMTP protocol of the SMTP host, only used when sending through SMTP is enabled (see above)
-SmtpPort = 25
-
-  # cat=basic/enable; type=boolean; label=SMTP authentication: Activate if your SMTP account needs Authentication, only used when sending through SMTP is enabled (see above)
-SmtpAuth = 0
-
-  # cat=basic/enable; type=string; label=SMTP username: Use it if your SMTP account needs a authentication, only used when sending through SMTP is enabled (see above)
-SmtpUser = 
-
-  # cat=basic/enable; type=string; label=SMTP password: Use it if your SMTP account needs a authentication, only used when sending through SMTP is enabled (see above)
-SmtpPassword = 
-
-  # cat=basic/enable; type=boolean; label=SMTP persistent connection: Activate if you want to use a persistent connection while sending direct mails, only used when sending through SMTP is enabled (see above)
-SmtpPersistent = 0
-
-  # cat=basic/enable; type=boolean; label=Use http connection for fetching Newsletter-Content: Even if your TYPO3 Backend is in SSL-Mode, the URL for fetching the NEwsletter-Conts will be http
+	# cat=basic/enable; type=boolean; label=Use http connection for fetching Newsletter-Content: Even if your TYPO3 Backend is in SSL-Mode, the URL for fetching the NEwsletter-Conts will be http
 UseHttpToFetch = 0
+
+	# cat=basic/dev/1000; type=user[EXT:direct_mail/res/scripts/class.tx_directmail_tsparserext.php:tx_directmail_tsparserext->displayMessage]; label=LLL:EXT:direct_mail/locallang_mod2-6.xml:update_option
+updateMessage=0
 

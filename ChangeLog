@@ -21,19 +21,19 @@
 2012-01-04 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #26166: fixed single dot in mail body, since it means end of mail for mail server
 	* Bug #29911, #9271: properly encoded header.
-	
+
 2011-12-31 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #10809: added hook in cmd_compileMailGroup (mod2 und mod3)
 	* Bug #11851: added sorting of the dmail sysfolder
 	* Bug #32882: restore the cron logging for checking
-	* Bug #9459: remove the edit page icon, if TV is loaded, since direct_mail not really working with TV  
+	* Bug #9459: remove the edit page icon, if TV is loaded, since direct_mail not really working with TV
 
 2011-12-30 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #29503: improved statistic label
 	* Bug #31752: check SYS_TABLE_NAME in jumpurl
 	* layout CSV importer is improved
 	* Bug #11171: importer code cleanup
-	
+
 2011-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #26699: removing alternative link to create new page
 	* Bug #28921: check TYPO3 Version and set charset for the importer
@@ -45,10 +45,10 @@
 2011-07-08 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Feature #11010: add categories during import, instead overwriting existing one.
 	* Feature #6820: added attachment to quickmail
-	
+
 2011-07-07 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #27736: fixed MM-query getting fe_groups recursively. Check empty array.
-	
+
 2011-07-07 Jacob Rasmussen <jacob@lightbulb.dk>
 	* Bug #27736: SQL-Error "WHERE () AND" in tx_directmail_static
 	* Task #26696: Remove tx_directmail_cron.lock
@@ -81,13 +81,13 @@
 	* Made all modules templateable
 	* Updated look+feel of all modules to fit 4.4 styles
 	* Made use of message boxes of TYPO3 to display error messages or warning messages the right way
-	
+
 2011-03-16 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* release 2.6.10 (typo3-sa-2011-002)
-	
+
 2011-01-05 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* release 2.6.9
-	
+
 2010-12-13 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Update documentation
 
@@ -107,9 +107,9 @@
 
 2010-08-12 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #9252: deprecated ereg function (thanks to Gregor Hermens)
-	* show invalid email from plainlist (thanks to Xavier Perseguers)  
+	* show invalid email from plainlist (thanks to Xavier Perseguers)
 	* Bug #8051: Added TYPO3_CONF_VARS in CLI
-	
+
 2010-07-02 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #6744: wrong statistics counter
 	* Bug #7425: added authcode_fieldList in list of fields
@@ -129,20 +129,20 @@
 	* Manual is reverted
 	* Bug #7704: rid is not updated.
 	* Bug #7619: deprecated ereg_replace is replaced with str_replace
-	* Bug #7472: convert charset of the mail to lowercase 
+	* Bug #7472: convert charset of the mail to lowercase
 
 2010-04-27 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #6795: change deprecated split-function in PHP 5.3
 
 2010-03-18 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Release 2.6.7
-	
+
 2010-03-18 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Manual is optimized
 
 2010-03-17 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #6882(f): Importer: upload csv failed because the permission is wrong calculated
-	
+
 2010-03-12 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #6842(f): configuration module won't show up for new user.
 
@@ -150,7 +150,7 @@
 	* Release 2.6.6
 
 2010-03-10 Ivan Kartolo <ivan.kartolo@dkd.de>
-	* bug #13648(b): empty bullet list in plaintext 
+	* bug #13648(b): empty bullet list in plaintext
 	* bug #13280(b): SysFolder list in the importer module respects the user permission
 	* bug #6546(f):	fixed_lgd will be deprecated soon, changed it with fixed_lgd_cs
 
@@ -161,25 +161,25 @@
 2010-03-02 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #13349(b): fix the next and back button positioning in IE7
 	* bug #6515(f): fix typo
-	
+
 2010-02-22 Ivan kartolo <ivan.kartolo@dkd.de>
 	* bug #5772(f): removed getListOfBackendModules, since it will be deprecated soon, and direct mail doesn't need it anyway
 	* bug: fixed pointer (issue with php 5.3)
-	 
+
 2010-01-13 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #5733(f): recipRow as hook parameter
-	
+
 2009-12-13 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #5342(f): fixed uninitialized array
 	* bug #5477(f): quoted admin email
 	* bug #5698(f): fixed link to edit page
-	* bug #5687(f): copied substituteMarkerArray from t3lib_parsehtml for T3 < 4.2.x 
+	* bug #5687(f): copied substituteMarkerArray from t3lib_parsehtml for T3 < 4.2.x
 
 2009-12-01 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Release 2.6.5
-	
+
 2009-11-26 Ivan Kartolo <ivan.kartolo@dkd.de>
-	* bug: fixed XSS vulnerabilities 
+	* bug: fixed XSS vulnerabilities
 
 2009-11-11 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Release 2.6.4
@@ -187,16 +187,16 @@
 2009-11-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #5140(f): new layout of statistic module
 	* bug #5186(f): register autoload for TYPO3 4.3
-	* bug #5304(f): added title param to link of the newsletter in statistic module 
+	* bug #5304(f): added title param to link of the newsletter in statistic module
 
 2009-11-05 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* bug #4682(f): documentation is updated
 	* bug #4520(f): cmd_stats_postProcess hook expects the hook implementation to return the output. It won't be just adding hook's output to current output.
 	* bug #5245(f): Language class should only be included once (in dmailer class)
-	* bug #4767(f): additional test subject works only on smtp sending. Additional test subject is added in setHeader function.  
-	  
+	* bug #4767(f): additional test subject works only on smtp sending. Additional test subject is added in setHeader function.
+
 2009-10-20 Ivan Kartolo <ivan.kartolo@dkd.de>
-	* feature #4791 (f): added support for the coming scheduler in TYPO3 4.3 
+	* feature #4791 (f): added support for the coming scheduler in TYPO3 4.3
 
 2009-10-18 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* fixed bug #5004 (forge): only listed sysfolder.
@@ -207,9 +207,9 @@
 
 2009-09-07 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* fixed bug #11809 (bugs): category labels need to be passed through htmlspecialchars.
-	* fixed bug #3201 (forge): user edit link in statistic module is not functioning. 
+	* fixed bug #3201 (forge): user edit link in statistic module is not functioning.
 	* updated documentation
-	
+
 2009-08-27 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #4365(forge): Filter the sysfolder, which the user has as import destination (thanks to Robert Heel)
 
@@ -219,11 +219,11 @@
 2009-08-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* New Feature #3896(forge): added new field (module_sys_dmail_newsletter) in fe_user table to en-/disable newsletter without deleting the user (thanks to Sonja Scholz <ss@cabag.ch> for implementing this)
 	* New feature #3896(forge): recipient list is also updated to only show fe_user which has module_sys_dmail_newsletter flag
-	
+
 2009-08-5 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug: PID of the recipient list should not be check when fetching the recipient.
 	* Fixed bug: using trimExplode on exploding the list of fields (while replacing the marker in newsletter)
-	
+
 2009-07-19 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug: label in mailer engine.
 
@@ -247,31 +247,31 @@
 2009-05-15 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Show amount of the recipient in the list view (Recipient list module) and the last step of the sending wizard (module direct mail).
 	* Added delete link in the mailer engine to remove unsent direct mail
-	* Changed Javascript handling the calender and reformating the calender format. 
+	* Changed Javascript handling the calender and reformating the calender format.
 
 2009-03-21 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Preview icon (HTML and plaintext) will use correct domain
 	* Fetching will use the correct domain in the multidomain environment.
-	
+
 2009-03-20 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* changed: Attachment up to 10000 KB
-	
+
 2009-01-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug: Plaintext rendering of tt_news passes the images not in an array. (Thanks to Andrea Herzog for pointing me this one)
 
 2008-12-10 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9912: boundary for the attached media depends on the message ID
-	
+
 2008-11-30 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9570: message ID will always be new generated, everytime setHeaders is called.
-	
+
 2008-11-23 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9764: added missing field in cache_sys_dmail_stat
 	* Fixed bug #9767: check if PID given is numeric (Importer)
-	
+
 2008-11-20 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed: double semicolon in content type declaration if sending multiparts email
-	
+
 2008-10-29 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #9580: wrong parameter type, if using nested "from other recipient lists"
 
@@ -291,9 +291,9 @@
 	* Fixed bug #8982: convert linebraks to unix.
 	* Feature #8721: Plaintext is compatible to DAM
 	* Feature: Test Newsletter's subject will be prepended with additional subject.
-	* Fixed bug #9001: added missing form name. (added to all direct_mail forms) 
+	* Fixed bug #9001: added missing form name. (added to all direct_mail forms)
 	* Fixed bug #7384: don't render path, if there's no filelinks
-	
+
 2008-07-13 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* added UserTS to open default tab
 	* manual updates
@@ -323,13 +323,13 @@
 2008-02-26 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug: importer wrongly read CSV file, which has CR as newline
 	* Added: option to select import file charset
-	
+
 2008-02-25 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug: non admin user cannot upload file to import.
 
 2008-02-18 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #7244: bug in the recipient list "from other recipient list"
-	* Fixed bug #7127: wrong SQL "sort by" at calculating statistics 
+	* Fixed bug #7127: wrong SQL "sort by" at calculating statistics
 	* Fixed bug #7296: the listed SysFolder is filtered by the page access
 
 2008-02-07 Ivan Kartolo <ivan.kartolo@dkd.de>
@@ -341,7 +341,7 @@
 
 2007-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Fixed bug #5111: List of categories PID is correctly quoted.
-	
+
 2007-12-28 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Added: Support sending direct mail with SMTP (needs PEAR:mail class). Manual updated. Thanks to Benjamin Mack.
 	* Fixed: in send Wizard: if only warning, next button will be enabled

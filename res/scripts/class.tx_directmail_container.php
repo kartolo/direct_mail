@@ -35,20 +35,6 @@
  */
 
 /**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   55: class tx_directmail_container
- *   71:     function insert_dMailer_boundaries ($content,&$conf)
- *  126:     function stripInnerBoundaries($content)
- *
- * TOTAL FUNCTIONS: 2
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
-
-/**
  * Container class for auxilliary functions of tx_directmail
  *
  */
@@ -57,6 +43,9 @@ class tx_directmail_container	{
 	var $boundaryStartWrap = '<!--DMAILER_SECTION_BOUNDARY_ | -->';
 	var $boundaryEnd = '<!--DMAILER_SECTION_BOUNDARY_END-->';
 
+	/**
+	 * @var tslib_cObj
+	 */
 	var $cObj;
 
 	/**
@@ -69,18 +58,15 @@ class tx_directmail_container	{
 	 * @return	string		content of the email with dmail boundaries
 	 */
 	function insert_dMailer_boundaries ($content,$conf) {
-		global $TSFE, $TYPO3_DB;
-
 		if (isset( $conf['useParentCObj']) && $conf['useParentCObj']) {
 			$this->cObj = $conf['parentObj']->cObj;
 		}
 
 			// this check could probably be moved to TS
-		if ($TSFE->config['config']['insertDmailerBoundaries']) {
+		if ($GLOBALS['TSFE']->config['config']['insertDmailerBoundaries']) {
 			if ( $content != '' )	{
 				$categoryList = '';		// setting the default
 				if ( intval( $this->cObj->data['module_sys_dmail_category'] ) >= 1 )	{
-
 						// if content type "RECORDS" we have to strip off
 						// boundaries from indcluded records
 					if ( $this->cObj->data['CType'] == 'shortcut' )	{
@@ -91,7 +77,6 @@ class tx_directmail_container	{
 					$foreign_table = 'sys_dmail_category';
 					$select = "$foreign_table.uid";
 					$local_table_uidlist = intval( $this->cObj->data['uid'] );
-					$local_table = 'tt_content';
 					$mm_table = 'sys_dmail_ttcontent_category_mm';
 					$whereClause = '';
 					$orderBy = $foreign_table . '.uid';
@@ -103,11 +88,11 @@ class tx_directmail_container	{
 						$whereClause,
 						'',
 						$orderBy);
-					if ( $TYPO3_DB->sql_num_rows($res) )	{
-						while( $row = $TYPO3_DB->sql_fetch_assoc($res) )	{
+					if ( $GLOBALS['TYPO3_DB']->sql_num_rows($res) )	{
+						while( $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res) )	{
 							$categoryList .= $row['uid'] . ',';
 						}
-						$categoryList = t3lib_div::rm_endComma($categoryList);
+						$categoryList = rtrim($categoryList, ",");
 					}
 				}
 					// wrap boundaries around content
@@ -134,8 +119,9 @@ class tx_directmail_container	{
 	/**
 	 * Breaking lines into fixed length lines, using t3lib_div::breakLinesForEmail()
 	 *
-	 * @param	string	The string to break
-	 * @param	array	configuration options: linebreak, charWidth; stdWrap enabled	 * @return	string		Processed string
+	 * @param	string	$content: The string to break
+	 * @param	array	$conf: configuration options: linebreak, charWidth; stdWrap enabled	 * @return	string		Processed string
+	 * @return string
 	 * @see t3lib_div::breakLinesForEmail()
 	 */
 	function breakLines( $content, $conf )	{

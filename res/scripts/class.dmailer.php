@@ -45,7 +45,6 @@
  *  296:     function dmailer_sendSimple($addressList)
  *  326:     function dmailer_getBoundaryParts($cArray,$userCategories)
  *  370:     function getListOfRecipentCategories($table,$uid)
- *  398:     function dmailer_masssend($query_info,$table,$mid)
  *  443:     function dmailer_masssend_list($query_info,$mid)
  *  523:     function shipOfMail($mid,$recipRow,$tKey)
  *  562:     function convertFields($recipRow)
@@ -87,18 +86,24 @@
  * If there are mails, 100 is sent at a time per job.
  */
 // TODO: remove htmlmail
-require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
+//require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
 require_once(PATH_t3lib.'class.t3lib_befunc.php');
-
-// include Pear::Mail if exists
-@include_once('Mail.php');
 
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
  *
  */
-class dmailer extends t3lib_htmlmail {
-	var $sendPerCycle =50;
+class dmailer {
+
+	/**
+	 * @var int amount of mail sent in one batch
+	 */
+	var $sendPerCycle = 50;
+
+	/**
+	 * @var int
+	 * TODO: do we still need this?
+	 */
 	var $dontEncodeHeader = 1;
 	var $logArray = array();
 	var $massend_id_lists = array();
@@ -110,6 +115,63 @@ class dmailer extends t3lib_htmlmail {
 	var $user_dmailerLang = 'en';
 	var $mailObject = NULL;
 	var $testmail = false;
+
+	/**
+	 * @var string
+	 * Todo: need this in swift?
+	 */
+	var $charset = '';
+
+	/**
+	 * @var string
+	 * Todo: need this in swift?
+	 */
+	var $encoding = '';
+
+	/**
+	 * @var array the mail parts (HTML and Plain, incl. href and link to media)
+	 */
+	var $theParts = array();
+
+	/**
+	 * @var string the mail message ID
+	 * todo: do we still need this
+	 */
+	var $messageid = '';
+
+	/**
+	 * @var string the subject of the mail
+	 */
+	var $subject = '';
+
+	/**
+	 * @var string the sender mail
+	 */
+	var $from_email = '';
+
+	/**
+	 * @var string the sender's name
+	 */
+	var $from_name = '';
+
+	/**
+	 * @var string organisation of the mail
+	 */
+	var $organisation = '';
+
+	/**
+	 * special header to identify returned mail
+	 * @var string
+	 */
+	var $TYPO3MID;
+
+	var $replyto_email = '';
+	var $replyto_name = '';
+	var $priority = 0;
+	var $mailer;
+	var $authCode_fieldList;
+	var $dmailer;
+	var $mediaList;
 
 	/**
 	 * Preparing the Email. Headers are set in global variables
@@ -127,44 +189,29 @@ class dmailer extends t3lib_htmlmail {
 		if ($row['charset']) {
 			$this->charset = $row['charset'];
 		}
-		switch ($row['encoding']) {
-			case 'base64':
-				$this->useBase64();
-				break;
-			case '8bit':
-				$this->use8Bit();
-				break;
-			case 'printed-quotable':
-			default:
-				$this->useQuotedPrintable();
-				break;
-		}
 
-		$this->theParts  = unserialize($row['mailContent']);
+		$this->encoding = $row['encoding'];
+
+		$this->theParts  = unserialize(base64_decode($row['mailContent']));
 		$this->messageid = $this->theParts['messageid'];
 
-		$this->subject = $row['subject'];
-		$this->subject = $LANG->csConvObj->conv($this->subject, $LANG->charSet, $this->charset);
-		$this->subject = t3lib_div::encodeHeader($this->subject, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		$this->subject = $LANG->csConvObj->conv($row['subject'], $LANG->charSet, $this->charset);
 
 		$this->from_email = $row['from_email'];
-		$this->from_name = ($row['from_name']     ? $LANG->csConvObj->conv($row['from_name'], $LANG->charSet, $this->charset) : '');
-		$this->from_name = t3lib_div::encodeHeader($this->from_name, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		$this->from_name = ($row['from_name'] ? $LANG->csConvObj->conv($row['from_name'], $LANG->charSet, $this->charset) : '');
 
 		$this->replyto_email = ($row['replyto_email'] ? $row['replyto_email'] : '');
-		$this->replyto_name  = ($row['replyto_name']  ? $LANG->csConvObj->conv($row['replyto_name'], $LANG->charSet, $this->charset) : '');
-		$this->replyto_name = t3lib_div::encodeHeader($this->replyto_name, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		$this->replyto_name  = ($row['replyto_name'] ? $LANG->csConvObj->conv($row['replyto_name'], $LANG->charSet, $this->charset) : '');
 
 		$this->organisation  = ($row['organisation']  ? $LANG->csConvObj->conv($row['organisation'], $LANG->charSet, $this->charset) : '');
-		$this->organisation = t3lib_div::encodeHeader($this->organisation, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
 
 		$this->priority      = tx_directmail_static::intInRangeWrapper($row['priority'], 1, 5);
 		$this->mailer        = 'TYPO3 Direct Mail module';
 		$this->authCode_fieldList = ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid');
 
 		$this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
-		$this->dmailer['html_content']    = base64_decode($this->theParts['html']['content']);
-		$this->dmailer['plain_content']   = base64_decode($this->theParts['plain']['content']);
+		$this->dmailer['html_content']    =  $this->theParts['html']['content'];
+		$this->dmailer['plain_content']   = $this->theParts['plain']['content'];
 		$this->dmailer['messageID']       = $this->messageid;
 		$this->dmailer['sys_dmail_uid']   = $sys_dmail_uid;
 		$this->dmailer['sys_dmail_rec']   = $row;
@@ -268,6 +315,7 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function dmailer_sendAdvanced($recipRow, $tableNameChar) {
 		$returnCode = 0;
+		$tempRow = array();
 
 		//check recipRow for HTML
 		foreach($recipRow as $k => $v) {
@@ -308,41 +356,23 @@ class dmailer extends t3lib_htmlmail {
 				$tempContent_Plain = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipRow['sys_dmail_categories_list']);
 				if ($this->mailHasContent) {
 					$tempContent_Plain = $this->replaceMailMarkers($tempContent_Plain, $recipRow, $additionalMarkers);
-					if (trim($this->dmailer['sys_dmail_rec']['use_rdct']))        {
+					if (trim($this->dmailer['sys_dmail_rec']['use_rdct']) || trim($this->dmailer['sys_dmail_rec']['long_link_mode'])) {
 						$tempContent_Plain = t3lib_div::substUrlsInPlainText($tempContent_Plain, $this->dmailer['sys_dmail_rec']['long_link_mode']?'all':'76', $this->dmailer['sys_dmail_rec']['long_link_rdct_url']);
 					}
-
 					$this->theParts['plain']['content'] = $this->encodeMsg($tempContent_Plain);
 					$returnCode|=2;
 				}
 			}
 
-				// Set content
-			$this->Xid = $midRidId . '-' . md5($midRidId);
-			$this->returnPath = str_replace('###XID###', $midRidId, $this->dmailer['sys_dmail_rec']['return_path']);
-			//TODO: returnpath
-			//$this->returnPath = $this->from_name.' <'.$this->dmailer['sys_dmail_rec']['return_path'].'>';
+			$this->TYPO3MID = $midRidId . '-' . md5($midRidId);
 
-			$this->part = 0;
+			// recipient swiftmailer style
+			$recipient = array(
+				$recipRow['email'] => $GLOBALS['LANG']->csConvObj->conv($recipRow['name'], $GLOBALS['LANG']->charSet, $this->charset),
+			);
 
-			if (strlen(trim($recipRow['name'])) && TYPO3_OS != 'WIN') {
-				$recipName = $recipRow['name'];
-				$recipient = '"' . $GLOBALS['LANG']->csConvObj->conv($recipName, $GLOBALS['LANG']->charSet, $this->charset) . '" <' . $recipRow['email'] . '>';
-			} else {
-				$recipient = $recipRow['email'];
-			}
-			$this->setRecipient($recipient);
-
-			if (!$this->dontEncodeHeader) {
-				$this->recipient = t3lib_div::encodeHeader($this->recipient, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
-			}
-			$this->setHeaders();
-			$this->setContent();
-
-				// Put in the unique message id in whole message body
-			$this->message = str_replace($this->dmailer['messageID'], $uniqMsgId, $this->message);
 			if ($returnCode) {
-				$this->sendTheMail();
+				$this->sendTheMail($recipient);
 			}
 		}
 		return $returnCode;
@@ -351,11 +381,10 @@ class dmailer extends t3lib_htmlmail {
 	/**
 	 * Send a simple email (without personalizing)
 	 *
-	 * @param	string		$addressList: list of recipient address
+	 * @param	string		$addressList: list of recipient address, comma list of emails
 	 * @return	boolean		...
 	 */
 	function dmailer_sendSimple($addressList) {
-		global $TYPO3_CONF_VARS;
 
 		if ($this->theParts['html']['content']) {
 			$this->theParts['html']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'],-1));
@@ -368,23 +397,19 @@ class dmailer extends t3lib_htmlmail {
 			$this->theParts['plain']['content'] = '';
 		}
 
-		$this->useDeferMode = trim($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) ? intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) : 0;
-		$this->returnPath = $this->dmailer['sys_dmail_rec']['return_path'];
-
-		$this->setRecipient($addressList);
-		if(!$this->dontEncodeHeader){
-			$this->recipient = t3lib_div::encodeHeader($this->recipient, ($this->alt_base64 ? 'base64' : 'quoted_printable'), $this->charset);
+		$recipients = explode(",",$addressList);
+		foreach ($recipients as $recipient) {
+			$this->sendTheMail($recipient);
 		}
 
-		$this->setHeaders();
-		$this->setContent();
-
-		$this->sendTheMail();
 		return true;
 	}
 
 	/**
-	 * This function checks which content elements are suppsed to be sent to the recipient. tslib_content inserts dmail boudary markers in the content specifying which elements are intended for which categories, this functions check if the recipeient is subscribing to any of these categories and filters out the elements that are inteded for categories not subscribed to.
+	 * This function checks which content elements are suppsed to be sent to the recipient.
+	 * tslib_content inserts dmail boudary markers in the content specifying which elements are intended for which categories,
+	 * this functions check if the recipeient is subscribing to any of these categories and
+	 * filters out the elements that are inteded for categories not subscribed to.
 	 *
 	 * @param	array		$cArray: array of content split by dmail boundary
 	 * @param	string		$userCategories: The list of categories the user is subscribing to.
@@ -395,17 +420,17 @@ class dmailer extends t3lib_htmlmail {
 		$this->mailHasContent = FALSE;
 		$boundaryMax = count($cArray)-1;
 		foreach ($cArray as $bKey => $cP) {
-			$key=substr($cP[0],1);
+			$key = substr($cP[0],1);
 			$isSubscribed = FALSE;
-			if (!$key || intval($userCategories)==-1) {
-				$returnVal.=$cP[1];
-				$this->mediaList.=$cP['mediaList'];
+			if (!$key || (intval($userCategories) == -1)) {
+				$returnVal .= $cP[1];
+				$this->mediaList .= $cP['mediaList'];
 				if ($cP[1]) {
 					$this->mailHasContent = TRUE;
 				}
 			} elseif ($key == 'END') {
-				$returnVal.=$cP[1];
-				$this->mediaList.=$cP['mediaList'];
+				$returnVal .= $cP[1];
+				$this->mediaList .= $cP['mediaList'];
 					// There is content and it is not just the header and footer content, or it is the only content because we have no direct mail boundaries.
 				if (($cP[1] && !($bKey == 0 || $bKey == $boundaryMax)) || count($cArray) == 1) {
 					$this->mailHasContent = TRUE;
@@ -413,12 +438,12 @@ class dmailer extends t3lib_htmlmail {
 			} else {
 				foreach(explode(',',$key) as $group) {
 					if(t3lib_div::inList($userCategories,$group)) {
-						$isSubscribed= TRUE;
+						$isSubscribed = TRUE;
 					}
 				}
 				if ($isSubscribed) {
-					$returnVal.=$cP[1];
-					$this->mediaList.=$cP['mediaList'];
+					$returnVal .= $cP[1];
+					$this->mediaList .= $cP['mediaList'];
 					$this->mailHasContent = TRUE;
 				}
 			}
@@ -454,52 +479,6 @@ class dmailer extends t3lib_htmlmail {
 	}
 
 	/**
-	 * Mass sending email
-	 *
-	 * @param	array		$query_info: List of recipient from the sys_dmail record
-	 * @param	string		$table: which table of the recipient
-	 * @param	integer		$mid: Email ID from sys_dmail table
-	 * @return	boolean		...
-	 */
-	function dmailer_masssend($query_info, $table, $mid) {
-		$enableFields['tt_address'] = 'tt_address.deleted=0 AND tt_address.hidden=0';
-		$enableFields['fe_users']   = 'fe_users.deleted=0 AND fe_users.disable=0 AND module_sys_dmail_newsletter=1';
-		$tKey  = substr($table, 0, 1);
-		$begin = intval($this->dmailer_howManySendMails($mid, $tKey));
-		if ($query_info[$table]) {
-			// This way, we select newest edited records first.
-			// So if any record is added or changed in between, it'll end on top and do no harm
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-				$table.'.*',
-				$table,
-				$enableFields[$table].
-					' AND ('.$query_info[$table].')',
-				'',
-				'tstamp DESC',
-				intval($begin).','.$this->sendPerCycle
-			);
-			$numRows = $GLOBALS['TYPO3_DB']->sql_num_rows($res);
-			$cc=0;
-			while ($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-				if (!$this->dmailer_isSend($mid, $recipRow['uid'], $tKey)) {
-					$pt = t3lib_div::milliseconds();
-					$recipRow = $this->convertFields($recipRow);
-					$recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table, $recipRow['uid']);
-					$rC = $this->dmailer_sendAdvanced($recipRow, $tKey);
-					if ($rC) {
-						$this->dmailer_addToMailLog($mid,$tKey . '_' . $recipRow['uid'], strlen($this->message),t3lib_div::milliseconds()-$pt,$rC,$recipRow['email']);
-						$cc++;
-					}
-				}
-			}
-			if (TYPO3_DLOG) t3lib_div::devLog('Sending ' . $cc . ' mails to table ' . $table, 'direct_mail');
-			$this->logArray[] = 'Sending ' . $cc . ' mails to table ' . $table;
-			if ($numRows < $this->sendPerCycle)	return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Mass send to recipient in the list
 	 *
 	 * @param	array		$query_info: List of recipients' ID in the sys_dmail table
@@ -507,6 +486,7 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	boolean		...
 	 */
 	function dmailer_masssend_list($query_info, $mid) {
+		/** @var $LANG language */
 		global $LANG;
 
 		$enableFields['tt_address'] = 'tt_address.deleted=0 AND tt_address.hidden=0';
@@ -514,7 +494,7 @@ class dmailer extends t3lib_htmlmail {
 
 		$c = 0;
 		$returnVal = true;
-		if (is_array($query_info['id_lists']))	{
+		if (is_array($query_info['id_lists'])) {
 			foreach ($query_info['id_lists'] as $table => $listArr) {
 				if (is_array($listArr))	{
 					$ct = 0;
@@ -573,7 +553,9 @@ class dmailer extends t3lib_htmlmail {
 							}
 						}
 					}
-					if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_sending').' '.$ct.' '.$LANG->getLL('dmailer_sending_to_table').' '.$table, 'direct_mail');
+					if (TYPO3_DLOG) {
+						t3lib_div::devLog($LANG->getLL('dmailer_sending').' '.$ct.' '.$LANG->getLL('dmailer_sending_to_table').' '.$table, 'direct_mail');
+					}
 					$this->logArray[] = $LANG->getLL('dmailer_sending').' '.$ct.' '.$LANG->getLL('dmailer_sending_to_table').' '.$table;
 				}
 			}
@@ -586,41 +568,42 @@ class dmailer extends t3lib_htmlmail {
 	 *
 	 * @param	integer		$mid: newsletter ID. UID of the sys_dmail table
 	 * @param	array		$recipRow: Recipient's data array
-	 * @param	string		$tKey: table of the recipient
+	 * @param $tableKey
+	 * @internal param string $tKey : table of the recipient
 	 * @return	void		...
 	 */
 	function shipOfMail($mid, $recipRow, $tableKey) {
-				if (!$this->dmailer_isSend($mid, $recipRow['uid'], $tableKey)) {
-						$pt = t3lib_div::milliseconds();
-						$recipRow = $this->convertFields($recipRow);
+		if (!$this->dmailer_isSend($mid, $recipRow['uid'], $tableKey)) {
+			$pt = t3lib_div::milliseconds();
+			$recipRow = self::convertFields($recipRow);
 
 			// write to dmail_maillog table. if it can be written, continue with sending.
 			// if not, stop the script and report error
-						$rC = 0;
-						$ok = $this->dmailer_addToMailLog($mid, $tableKey.'_' . $recipRow['uid'], strlen($this->message) ,t3lib_div::milliseconds() - $pt, $rC, $recipRow['email']);
-						if ($ok) {
-								$logUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
-								$rC     = $this->dmailer_sendAdvanced($recipRow, $tableKey);
-								$parsetime = t3lib_div::milliseconds() - $pt;
-					// Update the log with real values
-		$updateFields = array(
-			'tstamp'    => time(),
-			'size'      => strlen($this->message),
-			'parsetime' => $parsetime,
-			'html_sent' => intval($rC)
-		);
-			$ok = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail_maillog', 'uid=' . $logUid, $updateFields);
-								if(!$ok) {
-									if (TYPO3_DLOG) t3lib_div::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')', 'direct_mail', 3);
-									die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')');
-								}
-						} else {
-							// stop the script if dummy log can't be made
-							if (TYPO3_DLOG) t3lib_div::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')', 'direct_mail', 3);
-							die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')');
-						}
+			$rC = 0;
+			$ok = $this->dmailer_addToMailLog($mid, $tableKey.'_' . $recipRow['uid'], strlen($this->message) ,t3lib_div::milliseconds() - $pt, $rC, $recipRow['email']);
+			if ($ok) {
+				$logUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
+				$rC     = $this->dmailer_sendAdvanced($recipRow, $tableKey);
+				$parsetime = t3lib_div::milliseconds() - $pt;
+				// Update the log with real values
+				$updateFields = array(
+					'tstamp'    => time(),
+					'size'      => strlen($this->message),
+					'parsetime' => $parsetime,
+					'html_sent' => intval($rC)
+				);
+				$ok = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail_maillog', 'uid=' . $logUid, $updateFields);
+				if(!$ok) {
+					if (TYPO3_DLOG) t3lib_div::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')', 'direct_mail', 3);
+					die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')');
 				}
+			} else {
+				// stop the script if dummy log can't be made
+				if (TYPO3_DLOG) t3lib_div::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')', 'direct_mail', 3);
+				die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid='.$mid.')');
+			}
 		}
+	}
 
 	/**
 	 * converting array key. fe_user and tt_address are using different fieldname for the same information
@@ -628,7 +611,7 @@ class dmailer extends t3lib_htmlmail {
 	 * @param	array		$recipRow: recipient's data array
 	 * @return	array		fixed recipient's data array
 	 */
-	function convertFields($recipRow) {
+	static function convertFields($recipRow) {
 
 			// Compensation for the fact that fe_users has the field 'telephone' instead of 'phone'
 		if ($recipRow['telephone'])	{
@@ -654,27 +637,29 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	void		...
 	 */
 	function dmailer_setBeginEnd($mid,$key)	{
-		global $LANG, $TYPO3_CONF_VARS, $TYPO3_DB;
+		$subject = '';
+		$message = "";
 
-		$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+		$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
 			'sys_dmail',
 			'uid='.intval($mid),
 			array('scheduled_'.$key => time())
-			);
+		);
+
 		switch($key)	{
 			case 'begin':
-				$subject=$LANG->getLL('dmailer_mid').' '.$mid. ' ' . $LANG->getLL('dmailer_job_begin');
-				$message=$LANG->getLL('dmailer_job_begin') . ': ' .date("d-m-y h:i:s");
+				$subject = $GLOBALS['LANG']->getLL('dmailer_mid').' '.$mid. ' ' . $GLOBALS['LANG']->getLL('dmailer_job_begin');
+				$message = $GLOBALS['LANG']->getLL('dmailer_job_begin') . ': ' .date("d-m-y h:i:s");
 			break;
 			case 'end':
-				$subject=$LANG->getLL('dmailer_mid').' '.$mid. ' ' . $LANG->getLL('dmailer_job_end');
-				$message=$LANG->getLL('dmailer_job_end') . ': ' .date("d-m-y h:i:s");
+				$subject = $GLOBALS['LANG']->getLL('dmailer_mid').' '.$mid. ' ' . $GLOBALS['LANG']->getLL('dmailer_job_end');
+				$message = $GLOBALS['LANG']->getLL('dmailer_job_end') . ': ' .date("d-m-y h:i:s");
 			break;
 		}
 		if (TYPO3_DLOG) t3lib_div::devLog($subject . ': '.$message, 'direct_mail');
 		$this->logArray[] = $subject . ': '.$message;
 
-		$from_name = ($this->from_name) ? $LANG->csConvObj->conv($this->from_name, $this->charset, $LANG->charSet) : '';
+		$from_name = ($this->from_name) ? $GLOBALS['LANG']->csConvObj->conv($this->from_name, $this->charset, $GLOBALS['LANG']->charSet) : '';
 
 		$headers[] = 'From: "'.$from_name.'" <'.$this->from_email.'>';
 		$headers[] = 'Reply-To: '.$this->replyto_email;
@@ -682,30 +667,7 @@ class dmailer extends t3lib_htmlmail {
 		$email = '"'.$from_name.'" <'.$this->from_email.'>';
 
 		if ($this->notificationJob) {
-				// format headers for SMTP use
-			if ($this->useSmtp) {
-				$headersSMTP = array();
-//				$headerlines = explode("\n",trim($this->headers));
-				$headersSMTP['To']      = $email;
-				$headersSMTP['Subject'] = $subject;
-				foreach($headers as $k => $hd) {
-					if (substr($hd,0,9)==" boundary") {
-						$headersSMTP['Content-Type'] .= "\n " . $hd;
-					} else {
-						$current = explode(':',$hd);
-						$headersSMTP[$current[0]] = trim($current[1]);
-					}
-				}
-				// create a new mail object if not existing
-				if (!is_a($this->mailObject, 'Mail_smtp') || $this->confSMTP['persist'] == 1) {
-					$this->mailObject = NULL;
-					$this->mailObject =& Mail::factory('smtp', $this->confSMTP);
-				}
-				$res = $this->mailObject->send($email, $headersSMTP, $message);
-
-			} else {
-				t3lib_div::plainMailEncoded($email,$subject,$message,implode(chr(10),$headers));
-			}
+			t3lib_div::plainMailEncoded($email,$subject,$message,implode(chr(10),$headers));
 		}
 	}
 
@@ -803,18 +765,19 @@ class dmailer extends t3lib_htmlmail {
 	 * @return	void		...
 	 */
 	function runcron() {
-		global $LANG, $TYPO3_CONF_VARS;
+		$this->sendPerCycle = trim($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['sendPerCycle']) ? intval($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['sendPerCycle']) : 50;
+		$this->notificationJob = intval($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['notificationJob']);
 
-		$this->sendPerCycle = trim($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['sendPerCycle']) ? intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['sendPerCycle']) : 50;
-		$this->useDeferMode = trim($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) ? intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useDeferMode']) : 0;
-		$this->notificationJob = intval($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['notificationJob']);
-		if(!is_object($LANG) ) {
+		if(!is_object($GLOBALS['LANG']) ) {
 			require_once (PATH_typo3.'sysext/lang/lang.php');
-			$LANG = t3lib_div::makeInstance('language');
-			$L = $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cron_language'] ? $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cron_language'] : $this->user_dmailerLang;
-			$LANG->init(trim($L));
-			$LANG->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
+			/** @var $LANG language */
+			$GLOBALS['LANG']= t3lib_div::makeInstance('language');
+			$L = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] ? $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] : $this->user_dmailerLang;
+			$GLOBALS['LANG']->init(trim($L));
 		}
+
+		// always include locallang file
+		$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
 
 		$pt = t3lib_div::milliseconds();
 
@@ -829,41 +792,41 @@ class dmailer extends t3lib_htmlmail {
 			'',
 			'scheduled'
 		);
-		if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y'), 'direct_mail');
-		$this->logArray[] = $LANG->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y');
+		if (TYPO3_DLOG) {
+			t3lib_div::devLog($GLOBALS['LANG']->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y'), 'direct_mail');
+		}
+		$this->logArray[] = $GLOBALS['LANG']->getLL('dmailer_invoked_at'). ' ' . date('h:i:s d-m-Y');
 
 		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-				// format headers for SMTP use
-			if ($this->useSmtp) {
-				// create a new mail object to be used to sending the mass email and notification job
-				if (!is_a($this->mailObject, 'Mail_smtp') || $this->confSMTP['persist'] == 1) {
-					$this->mailObject = NULL;
-					$this->mailObject =& Mail::factory('smtp', $this->confSMTP);
-				}
+			if (TYPO3_DLOG) {
+				t3lib_div::devLog($GLOBALS['LANG']->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid']. ', \'' . $row['subject'] . '\'' . $GLOBALS['LANG']->getLL('dmailer_processed'), 'direct_mail');
 			}
-
-			if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid']. ', \'' . $row['subject'] . '\'' . $LANG->getLL('dmailer_processed'), 'direct_mail');
-			$this->logArray[] = $LANG->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid']. ', \'' . $row['subject'] . '\'' . $LANG->getLL('dmailer_processed');
+			$this->logArray[] = $GLOBALS['LANG']->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid']. ', \'' . $row['subject'] . '\'' . $GLOBALS['LANG']->getLL('dmailer_processed');
 			$this->dmailer_prepare($row);
-			$query_info=unserialize($row['query_info']);
+			$query_info = unserialize($row['query_info']);
+
 			if (!$row['scheduled_begin'])   {
 				$this->dmailer_setBeginEnd($row['uid'],'begin');
 			}
+
 			$finished = $this->dmailer_masssend_list($query_info,$row['uid']);
+
 			if ($finished)  {
 				$this->dmailer_setBeginEnd($row['uid'],'end');
 			}
 		} else {
-			if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_nothing_to_do'), 'direct_mail');
-			$this->logArray[] = $LANG->getLL('dmailer_nothing_to_do');
+			if (TYPO3_DLOG) {
+				t3lib_div::devLog($GLOBALS['LANG']->getLL('dmailer_nothing_to_do'), 'direct_mail');
+			}
+			$this->logArray[] = $GLOBALS['LANG']->getLL('dmailer_nothing_to_do');
 		}
 
 		//closing DB connection
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		$parsetime = t3lib_div::milliseconds()-$pt;
-		if (TYPO3_DLOG) t3lib_div::devLog($LANG->getLL('dmailer_ending'). ' ' . $parsetime . ' ms', 'direct_mail');
-		$this->logArray[] = $LANG->getLL('dmailer_ending'). ' ' . $parsetime . ' ms';
+		if (TYPO3_DLOG) t3lib_div::devLog($GLOBALS['LANG']->getLL('dmailer_ending'). ' ' . $parsetime . ' ms', 'direct_mail');
+		$this->logArray[] = $GLOBALS['LANG']->getLL('dmailer_ending'). ' ' . $parsetime . ' ms';
 	}
 
 	/**
@@ -875,7 +838,23 @@ class dmailer extends t3lib_htmlmail {
 	 */
 	function start($user_dmailer_sendPerCycle=50,$user_dmailer_lang='en') {
 
-		parent::start();
+		// Sets the message id
+		$host = t3lib_div::getHostname();
+		if (!$host || $host == '127.0.0.1' || $host == 'localhost' || $host == 'localhost.localdomain') {
+			$host = ($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']) : 'localhost') . '.TYPO3';
+		}
+
+		$idLeft = time() . '.' . uniqid();
+		$idRight = !empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'swift.generated';
+		$this->messageid = $idLeft . '@' . $idRight;
+
+		// Default line break for Unix systems.
+		$this->linebreak = LF;
+		// Line break for Windows. This is needed because PHP on Windows systems
+		// send mails via SMTP instead of using sendmail, and thus the linebreak needs to be \r\n.
+		if (TYPO3_OS == 'WIN') {
+			$this->linebreak = CRLF;
+		}
 
 			// Mailer engine parameters
 		$this->sendPerCycle = $user_dmailer_sendPerCycle;
@@ -887,153 +866,108 @@ class dmailer extends t3lib_htmlmail {
 		}
 
 		$this->dontEncodeHeader = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['encodeHeader'];
-
-		// Ivan Kartolo
-		// set conf for SMTP
-		$this->confSMTP = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['smtp'];
-		$this->useSmtp = ($this->confSMTP['enabled'] && class_exists('Mail'));
-		if($this->useSmtp){
-			//if using SMTP, don't encode the headers
-			$this->dontEncodeHeader = TRUE;
-		}
 	}
 
 	/**
-	 * call parent's useBase64 function and set an additional email header.
 	 *
-	 * @return	void		...
+	 * set the content from $this->theParts['html'] or $this->theParts['plain'] to the swiftmailer
+	 * @var $mailer t3lib_mail_Message
 	 */
-	function useBase64() {
-		parent::useBase64();
-		if ($this->flowedFormat) {
-			$this->plain_text_header = 'Content-Type: text/plain; charset='.$this->charset.'; format=flowed'.$this->linebreak.'Content-Transfer-Encoding: base64';
-		}
-	}
+	function setContent(&$mailer) {
+		//todo: css??
+		// iterate through the media array and embed them
+		if ($this->includeMedia) {
+			// extract all media path from the mail message
+			$this->extractMediaLinks();
 
-	/**
-	 * call parent's use8it function and set an additional email header
-	 *
-	 * @return	void		...
-	 */
-	function use8Bit() {
-		parent::use8Bit();
-		if ($this->flowedFormat) {
-			$this->plain_text_header = 'Content-Type: text/plain; charset='.$this->charset.'; format=flowed'.$this->linebreak.'Content-Transfer-Encoding: 8bit';
+			foreach($this->theParts['html']['media'] as $media) {
+				if ($media['tag'] == 'img') {
+					$cid = $mailer->embed(Swift_Image::fromPath($media['absRef']));
+					$this->theParts['html']['content'] = str_replace($media['subst_str'], $cid, $this->theParts['html']['content']);
+				}
+			}
 		}
+
+		// TODO: multiple instance for each NL type? HTML+Plain or Plain only?
+		// http://groups.google.com/group/swiftmailer/browse_thread/thread/98041a123223e63d
+		//$mailer->attach($entity);
+
+		// set the html content
+		if ($this->theParts['html']) {
+			$mailer->setBody($this->theParts['html']['content'], 'text/html');
+			// set the plain content as alt part
+			if ($this->theParts['plain']) {
+				$mailer->addPart($this->theParts['plain']['content'], 'text/plain');
+			}
+		} elseif ($this->theParts['plain']) {
+			$mailer->setBody($this->theParts['plain']['content'], 'text/plain');
+		}
+
+		// set the attachment from $this->dmailer['sys_dmail_rec']['attachment']
+		// comma separated files
+		if (!empty($this->dmailer['sys_dmail_rec']['attachment'])) {
+			$files = explode(",", $this->dmailer['sys_dmail_rec']['attachment']);
+			foreach ($files as $file) {
+				$mailer->attach(Swift_Attachment::fromPath(PATH_site."uploads/tx_directmail/".$file));
+			}
+		}
+
 	}
 
 	/**
 	 * Send of the email using php mail function.
 	 *
+	 * @var	array	$recipient: the recipient array. array($name => $mail)
 	 * @return	boolean		true if there is recipient and content, otherwise false
 	 */
-	function sendTheMail() {
+	function sendTheMail($recipient) {
 //		$conf = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail'];
 
-			// format headers for SMTP use
-		if ($this->useSmtp) {
-			$headers = array();
-			$headerlines = explode("\n",trim($this->headers));
-			$headers['To']      = $this->recipient;
-			$headers['Subject'] = $this->subject;
-			foreach($headerlines as $k => $hd) {
-				if (substr($hd,0,9)==" boundary") {
-					$headers['Content-Type'] .= "\n " . $hd;
-				} else {
-					$current = explode(':',$hd);
-					$headers[$current[0]] = $current[1];
-				}
-			}
+		// init the swiftmailer object
+		/** @var $mailer t3lib_mail_Message */
+		$mailer = t3lib_div::makeInstance('t3lib_mail_Message');
+		$mailer->setFrom(array($this->from_email => $this->from_name));
+		$mailer->setSubject($this->subject);
+		$mailer->setPriority($this->priority);
 
-			// create a new mail object if not existing
-			if (!is_a($this->mailObject, 'Mail_smtp') || $this->confSMTP['persist'] == 1) {
-				$this->mailObject = NULL;
-				$this->mailObject =& Mail::factory('smtp', $this->confSMTP);
-			}
-		}
-
-		// Sends the mail, requires the recipient, message and headers to be set.
-		if (trim($this->recipient) && trim($this->message))	{	//  && trim($this->headers)
-			$returnPath = (strlen($this->returnPath)>0)?"-f".$this->returnPath:'';
-				//On windows the -f flag is not used (specific for Sendmail and Postfix), but instead the php.ini parameter sendmail_from is used.
-			if($this->returnPath) {
-				ini_set(sendmail_from, $this->returnPath);
-			}
-				// Setting defer mode
-			$deferMode = $this->useDeferMode ? (($returnPath ? ' ': '') . '-O DeliveryMode=defer') : '';
-			/**
-			 * TODO: will be obsolete, once swiftmailer is used
-			 */
-			$message = preg_replace('/^\.$/m', '. ', $this->message);
-
-			if ($this->useSmtp)	{
-				$this->mailObject->send($this->recipient, $headers, $message);
-			}
-			elseif(!ini_get('safe_mode') && $this->forceReturnPath) {
-				//If safe mode is on, the fifth parameter to mail is not allowed, so the fix wont work on unix with safe_mode=On
-				mail($this->recipient,
-						$this->subject,
-						$message,
-						$this->headers,
-						$returnPath.$deferMode);
-			} else {
-				mail($this->recipient,
-						$this->subject,
-						$message,
-						$this->headers);
-			}
-				// Sending copy:
-			if ($this->recipient_copy)	{
-				if ($this->useSmtp)	{
-					$this->mailObject->send($this->recipient, $headers, $message);
-				} elseif (!ini_get('safe_mode') && $this->forceReturnPath) {
-					mail($this->recipient_copy,
-								$this->subject,
-								$message,
-								$this->headers,
-								$returnPath.$deferMode);
-				} else {
-					mail($this->recipient_copy,
-								$this->subject,
-								$message,
-								$this->headers	);
-				}
-			}
-				// Auto response
-			if ($this->auto_respond_msg)	{
-				$theParts = explode('/',$this->auto_respond_msg,2);
-				$theParts[1] = str_replace("/",chr(10),$theParts[1]);
-				if ($this->useSmtp)	{
-																	$headers['Subject'] = $theParts[0];
-																	$headers['From'] = $this->recipient;
-																	$res = $this->mailObject->send($this->from_email, $headers, $theParts[1]);
-				} elseif (!ini_get('safe_mode') && $this->forceReturnPath) {
-					mail($this->from_email,
-								$theParts[0],
-								$theParts[1],
-								"From: ".$this->recipient,
-								$returnPath.$deferMode);
-				} else {
-					mail($this->from_email,
-								$theParts[0],
-								$theParts[1],
-								"From: ".$this->recipient);
-				}
-			}
-			if($this->returnPath) {
-				ini_restore(sendmail_from);
-			}
-			return true;
+		if ($this->replyto_email) {
+			$mailer->setReplyTo(array($this->replyto_email => $this->replyto_name));
 		} else {
-			return false;
+			$mailer->setReplyTo(array($this->from_email => $this->from_name));
 		}
+
+		//setting additional header
+		// organization and TYPO3MID
+		$header = $mailer->getHeaders();
+		$header->addTextHeader('X-TYPO3MID', $this->TYPO3MID);
+
+		if ($this->organisation) {
+			$header->addTextHeader('Organization', $this->organisation);
+		}
+
+		if (t3lib_div::validEmail($this->dmailer['sys_dmail_rec']['return_path'])) {
+			$mailer->setReturnPath($this->dmailer['sys_dmail_rec']['return_path']);
+		}
+
+		//set the recipient
+		$mailer->setTo($recipient);
+
+		// TODO: setContent should set the images (includeMedia) or add attachment
+		$this->setContent($mailer);
+
+		//TODO: do we really need the return value?
+		$sent = $mailer->send();
+		$failed = $mailer->getFailedRecipients();
+
+		//unset the mailer object
+		unset($mailer);
 	}
 
 
 	/**
 	 * add HTML to an email
 	 *
-	 * @param	string		location of the HTML
+	 * @param	$file string location of the HTML
 	 * @return	mixed		bool: HTML fetch status. string: if HTML is a frameset.
 	 */
 	function addHTML($file)	{
@@ -1045,13 +979,27 @@ class dmailer extends t3lib_htmlmail {
 		if ($this->extractFramesInfo())	{
 			return "Document was a frameset. Stopped";
 		}
-		$this->extractMediaLinks();
 		$this->extractHyperLinks();
-		$this->fetchHTMLMedia();
-		$this->substMediaNamesInHTML(!$this->includeMedia);	// 0 = relative
 		$this->substHREFsInHTML();
 		$this->setHTML($this->encodeMsg($this->theParts["html"]["content"]));
 		return true;
+	}
+
+	/**
+	* Fetches the HTML-content from either url og local serverfile
+	*
+	* @param	$url	string		url of the html to fetch
+	* @return	boolean		whether the data was fetched or not
+	*/
+	public function fetchHTML($url) {
+		// Fetches the content of the page
+		$this->theParts['html']['content'] = t3lib_div::getURL($url);
+		if ($this->theParts['html']['content']) {
+			$this->theParts['html']['path'] = $url;
+			return TRUE;
+		} else {
+			return FALSE;
+		}
 	}
 
 	/**
@@ -1065,60 +1013,6 @@ class dmailer extends t3lib_htmlmail {
 		} else {
 			return (count($this->theParts['html']['media']) && $this->includeMedia) ? 'multipart/related' : 'multipart/alternative';
 		}
-	}
-
-	/**
-	 * added additional HTML and set the boundary and transfer encoding
-	 *
-	 * @param	string		$boundary: boundary of the parts
-	 * @return	void		...
-	 */
-	function constructHTML($boundary) {
-		if (count($this->theParts['html']['media']) && $this->includeMedia) {	// If media, then we know, the multipart/related content-type has been set before this function call...
-			$this->add_message('--'.$boundary);
-				// HTML has media
-			$newBoundary = $this->getBoundary();
-			$this->add_message('Content-Type: multipart/alternative;');
-			$this->add_message(' boundary="'.$newBoundary.'"');
-			$this->add_message('Content-Transfer-Encoding: 7bit');
-			$this->add_message('');
-
-			$this->constructAlternative($newBoundary);	// Adding the plaintext/html mix
-
-			$this->constructHTML_media($boundary);
-		} else {
-			$this->constructAlternative($boundary);	// Adding the plaintext/html mix, and if no media, then use $boundary instead of $newBoundary
-		}
-	}
-
-	/**
-	 * adding HTML media. encode the media using base64.
-	 *
-	 * @param	string		$boundary: boundary of the parts
-	 * @return	void
-	 */
-	function constructHTML_media($boundary) {
-			// media is added
-		if (is_array($this->theParts['html']['media']) && $this->includeMedia) {
-			foreach ($this->theParts['html']['media'] as $key => $media) {
-				if (!$this->mediaList || t3lib_div::inList($this->mediaList,$key))	{
-					$this->add_message("--".$boundary);
-					$this->add_message("Content-Type: ".$media["ctype"]);
-					if ($media['filename']) {
-						$this->add_message(' name="' . $media['filename'] . '"');
-					}
-					$this->add_message("Content-ID: <part".$key.".".$this->messageid.">");
-					$this->add_message("Content-Transfer-Encoding: base64");
-					if ($media['filename']) {
-						$this->add_message('Content-Disposition: inline;');
-						$this->add_message(' filename="' . $media['filename'] . '"');
-					}
-					$this->add_message('');
-					$this->add_message($this->makeBase64($media["content"]));
-				}
-			}
-		}
-		$this->add_message("--".$boundary."--\n");
 	}
 
 	/**
@@ -1172,27 +1066,6 @@ class dmailer extends t3lib_htmlmail {
 	}
 
 	/**
-	 * overwrite parent's setHeaders function to set a new messageid.
-	 */
-	function setHeaders() {
-			// Sets the message id
-		$oldMsgID = $this->messageid;
-		$host = t3lib_div::getHostname();
-		if (!$host || $host == '127.0.0.1' || $host == 'localhost' || $host == 'localhost.localdomain') {
-			$host = ($TYPO3_CONF_VARS['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $TYPO3_CONF_VARS['SYS']['sitename']) : 'localhost') . '.TYPO3';
-		}
-		$this->messageid = md5(microtime()) . '@' . $host;
-
-		//adding testmail-subject if it is set
-		if ($this->testmail !== FALSE) {
-			$this->subject = (string)$this->testmail.' '.$this->subject;
-		}
-
-		parent::setHeaders();
-		$this->messageid = $oldMsgID;
-	}
-
-	/**
 	* write to log file and send a notification email to admin if no records in sys_dmail_maillog table can be made
 	*
 	* @param	string		$writeMode: mode to open a file
@@ -1213,65 +1086,389 @@ class dmailer extends t3lib_htmlmail {
 	}
 
 	/**
-	 * reads the URL or file and determines the Content-type by either guessing or opening a connection to the host
-	 *
-	 * @param	string		$url: the URL to get information of
-	 * @return	mixed		either false or the array with information
-	 */
-	public function getExtendedURL($url) {
-		$res = array();
-		$res['content'] = $this->getURL($url);
-		if (!$res['content']) {
-			return FALSE;
-		}
-		$pathInfo = parse_url($url);
-		$fileInfo = $this->split_fileref($pathInfo['path']);
-		switch ($fileInfo['fileext']) {
-			case 'gif':
-			case 'png':
-				$res['content_type'] = 'image/' . $fileInfo['fileext'];
-				break;
-			case 'jpg':
-			case 'jpeg':
-				$res['content_type'] = 'image/jpeg';
-				break;
-			case 'html':
-			case 'htm':
-				$res['content_type'] = 'text/html';
-				break;
-			case 'css':
-				$res['content_type'] = 'text/css';
-				break;
-			case 'swf':
-				$res['content_type'] = 'application/x-shockwave-flash';
-				break;
-			default:
-				$res['content_type'] = $this->getMimeType($url);
-		}
-		$res['filename'] = $fileInfo['file'];
-		return $res;
+	* Adds plain-text, replaces the HTTP urls in the plain text and then encodes it
+	*
+	* @param	string		$content that will be added
+	* @return	void
+	*/
+	public function addPlain($content) {
+		$content = $this->substHTTPurlsInPlainText($content);
+		$this->setPlain($this->encodeMsg($content));
 	}
 
 	/**
-	 * Fetches the mediafiles which are found by extractMediaLinks()
-	 *
-	 * @return	void
-	 */
-	public function fetchHTMLMedia() {
-		if (!is_array($this->theParts['html']['media']) || !count($this->theParts['html']['media'])) {
-			return;
+	*  This substitutes the http:// urls in plain text with links
+	*
+	* @param	string		$content: the content to use to substitute
+	* @return	string		the changed content
+	*/
+	public function substHTTPurlsInPlainText($content) {
+		if (!$this->jumperURL_prefix) {
+			return $content;
 		}
-		foreach ($this->theParts['html']['media'] as $key => $media) {
-				// fetching the content and the mime-type
-			$picdata = $this->getExtendedURL($this->theParts['html']['media'][$key]['absRef']);
-			if (is_array($picdata)) {
-				$this->theParts['html']['media'][$key]['content'] = $picdata['content'];
-				$this->theParts['html']['media'][$key]['ctype'] = $picdata['content_type'];
-				$this->theParts['html']['media'][$key]['filename'] = $picdata['filename'];
+
+		$textpieces = explode("http://", $content);
+		$pieces = count($textpieces);
+		$textstr = $textpieces[0];
+		for ($i = 1; $i < $pieces; $i++) {
+			$len = strcspn($textpieces[$i], chr(32) . TAB . CRLF);
+			if (trim(substr($textstr, -1)) == '' && $len) {
+				$lastChar = substr($textpieces[$i], $len - 1, 1);
+				if (!preg_match('/[A-Za-z0-9\/#]/', $lastChar)) {
+					$len--;
+				}
+
+				$parts = array();
+				$parts[0] = "http://" . substr($textpieces[$i], 0, $len);
+				$parts[1] = substr($textpieces[$i], $len);
+
+				if ($this->jumperURL_useId) {
+					$this->theParts['plain']['link_ids'][$i] = $parts[0];
+					$parts[0] = $this->jumperURL_prefix . '-' . $i;
+				} else {
+					$parts[0] = $this->jumperURL_prefix . t3lib_div::rawUrlEncodeFP($parts[0]);
+				}
+				$textstr .= $parts[0] . $parts[1];
+			} else {
+				$textstr .= 'http://' . $textpieces[$i];
+			}
+		}
+		return $textstr;
+	}
+
+	/**
+	* wrapper function. always quoted_printable
+	*
+	* @param	string		$content the content that will be encoded
+	* @return	string		the encoded content
+	*/
+	public function encodeMsg($content) {
+		return $content;
+	}
+
+	/**
+	* Returns base64-encoded content, which is broken every 76 character
+	*
+	* @param	string		$inputstr: the string to encode
+	* @return	string		the encoded string
+	*/
+	public function makeBase64($inputstr) {
+		return chunk_split(base64_encode($inputstr));
+	}
+
+	/**
+	* Sets the plain-text part. No processing done.
+	*
+	* @param	string		$content: the plain content
+	* @return	void
+	*/
+	public function setPlain($content) {
+		$this->theParts['plain']['content'] = $content;
+	}
+
+	/**
+	* Sets the HTML-part. No processing done.
+	*
+	* @param	string		$content: the HTML content
+	* @return	void
+	*/
+	public function setHtml($content) {
+		$this->theParts['html']['content'] = $content;
+	}
+
+	/**
+	* extracts all media-links from $this->theParts['html']['content']
+	*
+	* @return	void
+	*/
+	public function extractMediaLinks() {
+		$html_code = $this->theParts['html']['content'];
+		$attribRegex = $this->tag_regex(array('img', 'table', 'td', 'tr', 'body', 'iframe', 'script', 'input', 'embed'));
+		$image_fullpath_list = '';
+
+		// split the document by the beginning of the above tags
+		$codepieces = preg_split($attribRegex, $html_code);
+		$len = strlen($codepieces[0]);
+		$pieces = count($codepieces);
+		$reg = array();
+		for ($i = 1; $i < $pieces; $i++) {
+			$tag = strtolower(strtok(substr($html_code, $len + 1, 10), ' '));
+			$len += strlen($tag) + strlen($codepieces[$i]) + 2;
+			$dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
+			$attributes = $this->get_tag_attributes($reg[0]); // Fetches the attributes for the tag
+			$imageData = array();
+
+			// Finds the src or background attribute
+			$imageData['ref'] = ($attributes['src'] ? $attributes['src'] : $attributes['background']);
+			if ($imageData['ref']) {
+				// find out if the value had quotes around it
+				$imageData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $imageData['ref']) - 1, 1) == '"') ? '"' : '';
+				// subst_str is the string to look for, when substituting lateron
+				$imageData['subst_str'] = $imageData['quotes'] . $imageData['ref'] . $imageData['quotes'];
+				if ($imageData['ref'] && !strstr($image_fullpath_list, "|" . $imageData["subst_str"] . "|")) {
+					$image_fullpath_list .= "|" . $imageData['subst_str'] . "|";
+					$imageData['absRef'] = $this->absRef($imageData['ref']);
+					$imageData['tag'] = $tag;
+					$imageData['use_jumpurl'] = $attributes['dmailerping'] ? 1 : 0;
+					$this->theParts['html']['media'][] = $imageData;
+				}
+			}
+		}
+
+		// Extracting stylesheets
+		$attribRegex = $this->tag_regex(array('link'));
+		// Split the document by the beginning of the above tags
+		$codepieces = preg_split($attribRegex, $html_code);
+		$pieces = count($codepieces);
+		for ($i = 1; $i < $pieces; $i++) {
+			$dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
+			// fetches the attributes for the tag
+			$attributes = $this->get_tag_attributes($reg[0]);
+			$imageData = array();
+			if (strtolower($attributes['rel']) == 'stylesheet' && $attributes['href']) {
+				// Finds the src or background attribute
+				$imageData['ref'] = $attributes['href'];
+				// Finds out if the value had quotes around it
+				$imageData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $imageData['ref']) - 1, 1) == '"') ? '"' : '';
+				// subst_str is the string to look for, when substituting lateron
+				$imageData['subst_str'] = $imageData['quotes'] . $imageData['ref'] . $imageData['quotes'];
+				if ($imageData['ref'] && !strstr($image_fullpath_list, "|" . $imageData["subst_str"] . "|")) {
+					$image_fullpath_list .= "|" . $imageData["subst_str"] . "|";
+					$imageData['absRef'] = $this->absRef($imageData["ref"]);
+					$this->theParts['html']['media'][] = $imageData;
+				}
+			}
+		}
+
+		// fixes javascript rollovers
+		$codepieces = explode('.src', $html_code);
+		$pieces = count($codepieces);
+		$expr = '/^[^' . quotemeta('"') . quotemeta("'") . ']*/';
+		for ($i = 1; $i < $pieces; $i++) {
+			$temp = $codepieces[$i];
+			$temp = trim(str_replace('=', '', trim($temp)));
+			preg_match($expr, substr($temp, 1, strlen($temp)), $reg);
+			$imageData['ref'] = $reg[0];
+			$imageData['quotes'] = substr($temp, 0, 1);
+			// subst_str is the string to look for, when substituting lateron
+			$imageData['subst_str'] = $imageData['quotes'] . $imageData['ref'] . $imageData['quotes'];
+			$theInfo = $this->split_fileref($imageData['ref']);
+
+			switch ($theInfo['fileext']) {
+				case 'gif':
+				case 'jpeg':
+				case 'jpg':
+					if ($imageData['ref'] && !strstr($image_fullpath_list, "|" . $imageData["subst_str"] . "|")) {
+						$image_fullpath_list .= "|" . $imageData['subst_str'] . "|";
+						$imageData['absRef'] = $this->absRef($imageData['ref']);
+						$this->theParts['html']['media'][] = $imageData;
+					}
+					break;
 			}
 		}
 	}
 
+	/**
+	 * extracts all hyper-links from $this->theParts["html"]["content"]
+	 *
+	 * @return	void
+	 */
+	public function extractHyperLinks() {
+		$href_fullpath_list = '';
+
+		$html_code = $this->theParts['html']['content'];
+		$attribRegex = $this->tag_regex(array('a', 'form', 'area'));
+		$codepieces = preg_split($attribRegex, $html_code); // Splits the document by the beginning of the above tags
+		$len = strlen($codepieces[0]);
+		$pieces = count($codepieces);
+		for ($i = 1; $i < $pieces; $i++) {
+			$tag = strtolower(strtok(substr($html_code, $len + 1, 10), " "));
+			$len += strlen($tag) + strlen($codepieces[$i]) + 2;
+
+			$dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
+			// Fetches the attributes for the tag
+			$attributes = $this->get_tag_attributes($reg[0]);
+			$hrefData = array();
+			$hrefData['ref'] = ($attributes['href'] ? $attributes['href'] : $hrefData['ref'] = $attributes['action']);
+			if ($hrefData['ref']) {
+				// Finds out if the value had quotes around it
+				$hrefData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $hrefData["ref"]) - 1, 1) == '"') ? '"' : '';
+				// subst_str is the string to look for, when substituting lateron
+				$hrefData['subst_str'] = $hrefData['quotes'] . $hrefData['ref'] . $hrefData['quotes'];
+				if ($hrefData['ref'] && substr(trim($hrefData['ref']), 0, 1) != "#" && !strstr($href_fullpath_list, "|" . $hrefData['subst_str'] . "|")) {
+					$href_fullpath_list .= "|" . $hrefData['subst_str'] . "|";
+					$hrefData['absRef'] = $this->absRef($hrefData['ref']);
+					$hrefData['tag'] = $tag;
+					$this->theParts['html']['hrefs'][] = $hrefData;
+				}
+			}
+		}
+		// Extracts TYPO3 specific links made by the openPic() JS function
+		$codepieces = explode("onClick=\"openPic('", $html_code);
+		$pieces = count($codepieces);
+		for ($i = 1; $i < $pieces; $i++) {
+			$showpic_linkArr = explode("'", $codepieces[$i]);
+			$hrefData['ref'] = $showpic_linkArr[0];
+			if ($hrefData['ref']) {
+				$hrefData['quotes'] = "'";
+				// subst_str is the string to look for, when substituting lateron
+				$hrefData['subst_str'] = $hrefData['quotes'] . $hrefData['ref'] . $hrefData['quotes'];
+				if ($hrefData['ref'] && !strstr($href_fullpath_list, "|" . $hrefData['subst_str'] . "|")) {
+					$href_fullpath_list .= "|" . $hrefData['subst_str'] . "|";
+					$hrefData['absRef'] = $this->absRef($hrefData['ref']);
+					$this->theParts['html']['hrefs'][] = $hrefData;
+				}
+			}
+		}
+	}
+
+
+	/**
+	 * extracts all media-links from $this->theParts["html"]["content"]
+	 *
+	 * @return	array	two-dimensional array with information about each frame
+	 */
+	public function extractFramesInfo() {
+		$htmlCode = $this->theParts['html']['content'];
+		$info = array();
+		if (strpos(' ' . $htmlCode, '<frame ')) {
+			$attribRegex = $this->tag_regex('frame');
+			// Splits the document by the beginning of the above tags
+			$codepieces = preg_split($attribRegex, $htmlCode, 1000000);
+			$pieces = count($codepieces);
+			for ($i = 1; $i < $pieces; $i++) {
+				$dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
+				// Fetches the attributes for the tag
+				$attributes = $this->get_tag_attributes($reg[0]);
+				$frame = array();
+				$frame['src'] = $attributes['src'];
+				$frame['name'] = $attributes['name'];
+				$frame['absRef'] = $this->absRef($frame['src']);
+				$info[] = $frame;
+			}
+			return $info;
+		}
+	}
+
+	/**
+	* Creates a regular expression out of a list of tags
+	*
+	* @param	mixed		$tagArray: the list of tags (either as array or string if it is one tag)
+	* @return	string		the regular expression
+	*/
+	public function tag_regex($tags) {
+		$tags = (!is_array($tags) ? array($tags) : $tags);
+		$regexp = '/';
+		$c = count($tags);
+		foreach ($tags as $tag) {
+			$c--;
+			$regexp .= '<' . $tag . '[[:space:]]' . (($c) ? '|' : '');
+		}
+		return $regexp . '/i';
+	}
+
+	/**
+	* This function analyzes a HTML tag
+	* If an attribute is empty (like OPTION) the value of that key is just empty. Check it with is_set();
+	*
+	* @param	string		$tag: is either like this "<TAG OPTION ATTRIB=VALUE>" or
+	*				 this " OPTION ATTRIB=VALUE>" which means you can omit the tag-name
+	* @return	array		array with attributes as keys in lower-case
+	*/
+	public function get_tag_attributes($tag) {
+		$attributes = array();
+		$tag = ltrim(preg_replace('/^<[^ ]*/', '', trim($tag)));
+		$tagLen = strlen($tag);
+		$safetyCounter = 100;
+		// Find attribute
+		while ($tag) {
+			$value = '';
+			$reg = preg_split('/[[:space:]=>]/', $tag, 2);
+			$attrib = $reg[0];
+
+			$tag = ltrim(substr($tag, strlen($attrib), $tagLen));
+			if (substr($tag, 0, 1) == '=') {
+				$tag = ltrim(substr($tag, 1, $tagLen));
+				if (substr($tag, 0, 1) == '"') {
+					// Quotes around the value
+					$reg = explode('"', substr($tag, 1, $tagLen), 2);
+					$tag = ltrim($reg[1]);
+					$value = $reg[0];
+				} else {
+					// No quotes around value
+					preg_match('/^([^[:space:]>]*)(.*)/', $tag, $reg);
+					$value = trim($reg[1]);
+					$tag = ltrim($reg[2]);
+					if (substr($tag, 0, 1) == '>') {
+						$tag = '';
+					}
+				}
+			}
+			$attributes[strtolower($attrib)] = $value;
+			$safetyCounter--;
+			if ($safetyCounter < 0) {
+				break;
+			}
+		}
+		return $attributes;
+	}
+
+	/**
+	* Returns the absolute address of a link. This is based on
+	* $this->theParts["html"]["path"] being the root-address
+	*
+	* @param	string		$ref: address to use
+	* @return	string		the absolute address
+	*/
+	public function absRef($ref) {
+		$ref = trim($ref);
+		$info = parse_url($ref);
+		if ($info['scheme']) {
+			// if ref is an url
+			return $ref;
+		} elseif (preg_match('/^\//', $ref)) {
+			// if ref is an absolute link
+			$addr = parse_url($this->theParts['html']['path']);
+			return $addr['scheme'] . '://' . $addr['host'] . ($addr['port'] ? ':' . $addr['port'] : '') . $ref;
+		} else {
+			// If the reference is relative, the path is added, in order for us to fetch the content
+			if (substr($this->theParts['html']['path'], -1) == "/") {
+				// if the last char is a /, then prepend the ref
+				return $this->theParts['html']['path'] . $ref;
+			} else {
+				// if the last char not a /, then assume it's an absolute
+				$addr = parse_url($this->theParts['html']['path']);
+				return $addr['scheme'] . '://' . $addr['host'] . ($addr['port'] ? ':' . $addr['port'] : '') . '/' . $ref;
+			}
+		}
+	}
+
+	/**
+	* reads a url or file
+	*
+	* @param	string		$url: the URL to fetch
+	* @return	string		the content of the URL
+	*/
+	public function getURL($url) {
+		$url = $this->addUserPass($url);
+		return t3lib_div::getURL($url);
+	}
+
+	/**
+	* Adds HTTP user and password (from $this->http_username) to a URL
+	*
+	* @param	string		$url: the URL
+	* @return	string		the URL with the added values
+	*/
+	public function addUserPass($url) {
+		$user = $this->http_username;
+		$pass = $this->http_password;
+		$matches = array();
+		if ($user && $pass && preg_match('/^(https?:\/\/)/', $url, $matches)) {
+			return $matches[1] . $user . ':' . $pass . '@' . substr($url, strlen($matches[1]));
+		}
+		return $url;
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.dmailer.php'])	{

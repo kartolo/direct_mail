@@ -49,7 +49,7 @@ class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
 	 * Function executed from scheduler.
 	 * Creates a new newsletter record, and sets the scheduled time to "now"
 	 * 
-	 * @return	void
+	 * @return	bool
 	 */
 	function execute() {
 		if ($this->draftUid > 0) {

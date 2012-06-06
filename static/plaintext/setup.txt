@@ -10,7 +10,7 @@ plugin.tx_directmail_pi1 {
 
   siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
   flowedFormat = {$plugin.tx_directmail_pi1.flowedFormat}
-  
+
   header.defaultType = 1
   header.date = D-m-Y
   header.datePrefix = |###HEADER_DATE_PREFIX### |
@@ -27,7 +27,7 @@ plugin.tx_directmail_pi1 {
   header.3.preBlanks=2
   header.3.postBlanks=1
   header.3.stdWrap.case = upper
-  
+
   header.4 < .header.1
   header.4.preLineChar= =
   header.4.postLineChar= =
@@ -68,7 +68,7 @@ plugin.tx_directmail_pi1 {
     link < styles.content.parseFunc.tags.link
     typolist = USER
     typolist.userFunc = tx_directmail_pi1->typolist
-    typolist.siteUrl = {$plugin.tx_directmail_pi1.siteUrl} 
+    typolist.siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
     typolist.bulletlist =< plugin.tx_directmail_pi1.bulletlist
     typohead = USER
     typohead.userFunc = tx_directmail_pi1->typohead
@@ -110,3 +110,8 @@ This page type is deprecated. Type 99 will show up correctly in your browser, to
 	typeNum=199
 	config.no_cache=1
 }
+
+// check the globalString if dam is loaded. If so then reference the media tag.
+[globalString = TYPO3_LOADED_EXT|dam|type = *]
+plugin.tx_directmail_pi1.bodytext.stdWrap.parseFunc.tags.media =< plugin.tx_dam_tsfemediatag
+[global]

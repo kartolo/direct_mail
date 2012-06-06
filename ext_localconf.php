@@ -29,11 +29,6 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['defaultRecipFields'] = 'uid,name,title,em
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['addRecipFields'] = $_EXTCONF['addRecipFields'];
 
 /**
- * Enable the use of sendmail defer mode:
- */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['useDeferMode'] = $_EXTCONF['useDeferMode'] ? $_EXTCONF['useDeferMode'] : 0;
-
-/**
  * Admin email for sending the cronjob error message
  */
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['adminEmail'] = $_EXTCONF['adminEmail'];
@@ -47,20 +42,6 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['notificationJob'] = $_EXTCONF['notificati
  * Interval of the cronjob
  */
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['cronInt'] = $_EXTCONF['cronInt'];
-
-/**
- * SMTP options
- */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['smtp'] = array(
-	'enabled'  => ($_EXTCONF['SmtpEnabled'] == 1),
-	'host'     => $_EXTCONF['SmtpHost'],
-	'port'     => $_EXTCONF['SmtpPort'],
-	'auth'     => ($_EXTCONF['SmtpAuth'] == 1),
-	'username' => $_EXTCONF['SmtpUser'],
-	'password' => $_EXTCONF['SmtpPassword'],
-	'persist'  => ($_EXTCONF['smtpPersist'] == 1)
-);
-
 
 /**
  * Use HTTP to fetch contents

@@ -43,6 +43,9 @@ class tx_directmail_gabriel extends tx_gabriel_event {
 	 * @return	void
 	 */
 	function execute() {
+		// log this call as deprecated
+		t3lib_div::deprecationLog("direct_mail for gabriel will be removed in the upcoming direct_mail release (version 3.1). Please use the scheduler");
+
 		global $BE_USER;
 
 		// Check if cronjob is already running:
@@ -57,7 +60,6 @@ class tx_directmail_gabriel extends tx_gabriel_event {
 					'TYPO3 Direct Mail Cron: Aborting, another process is already running!',
 					array()
 				);
-				return false;
 			} else {
 				$BE_USER->writelog(
 					4,
@@ -73,6 +75,7 @@ class tx_directmail_gabriel extends tx_gabriel_event {
 		$lockfile = PATH_site.'typo3temp/tx_directmail_cron.lock';
 		touch ($lockfile);
 
+		/** @var $htmlmail dmailer */
 		$htmlmail = t3lib_div::makeInstance('dmailer');
 		$htmlmail->start();
 		$htmlmail->runcron();

@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 1999-2003 Kasper Skårhøj (kasper@typo3.com)
+*  (c) 1999-2003 Kasper Skï¿½rhï¿½j (kasper@typo3.com)
 *  (c) 2003-2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 *  All rights reserved
 *
@@ -27,7 +27,7 @@
 ***************************************************************/
 
 /**
- * @author		Kasper Skårhøj <kasper@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasper@typo3.com>
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
  * @package 	TYPO3
@@ -35,28 +35,12 @@
  * @version		$Id: class.readmail.php 6012 2007-07-23 12:54:25Z ivankartolo $
  */
 
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   62: class readmail extends t3lib_readmail
- *   77:     function find_MIDfromReturnPath($to)
- *   97:     function find_XTypo3MID($content)
- *  120:     function getMessage($mailParts)
- *  147:     function analyseReturnError($c)
- *  204:     function extractReason($text)
- *
- * TOTAL FUNCTIONS: 5
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
 require_once (PATH_t3lib.'class.t3lib_readmail.php');
 
 /**
  * Extension of the t3lib_readmail class for the purposes of the Direct mail extension.
  * Analysis of return mail reason is enhanced by checking more possible reason texts.
- * Tested on mailing list of approx. 1500 members with most domains in México and reason text in English or Spanish.
+ * Tested on mailing list of approx. 1500 members with most domains in Mï¿½xico and reason text in English or Spanish.
  *
  */
 class readmail extends t3lib_readmail {
@@ -94,21 +78,22 @@ class readmail extends t3lib_readmail {
 	 * @return	mixed		If "X-Typo3MID" header is found and integrity is OK, then an array with 'mid', 'rtbl' and 'rid' keys are returned. Otherwise void.
 	 * @internal
 	 */
-	function find_XTypo3MID($content)	{
-		if (strstr($content,'X-Typo3MID:'))	{
-			$p=explode('X-Typo3MID:',$content,2);
-			$l=explode(chr(10),$p[1],2);
-			list($mid,$hash)=t3lib_div::trimExplode('-',$l[0]);
-			if (md5($mid)==$hash)	{
-				$moreParts=explode('_',substr($mid,3));
-				$out=array(
+	function find_XTypo3MID($content) {
+		if (strstr($content,"X-TYPO3MID:"))	{
+			$p = explode("X-TYPO3MID:", $content, 2);
+			$l = explode(chr(10), $p[1], 2);
+			list($mid,$hash) = t3lib_div::trimExplode('-',$l[0]);
+			if (md5($mid) == $hash)	{
+				$moreParts = explode('_',substr($mid,3));
+				$out = array(
 					'mid' => $moreParts[0],
-					'rtbl' => substr($moreParts[1],0,1),
-					'rid' => substr($moreParts[1],1)
+					'rtbl' => substr($moreParts[1], 0, 1),
+					'rid' => substr($moreParts[1], 1)
 				);
 				return($out);
 			}
 		}
+		return "";
 	}
 
 	/**

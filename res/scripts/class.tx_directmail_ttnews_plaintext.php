@@ -33,21 +33,6 @@
  * @version		$Id: class.tx_directmail_ttnews_plaintext.php 15583 2009-01-10 17:59:30Z ivankartolo $
  */
 
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   58: class tx_directmail_ttnews_plaintext
- *   74:     function extraCodesProcessor(&$invokingObj)
- *  153:     function getImages($row)
- *  165:     function renderAuthor($row,$type=0)
- *
- * TOTAL FUNCTIONS: 3
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
-
 require_once(t3lib_extMgm::extPath('direct_mail').'pi1/class.tx_directmail_pi1.php');
 
 /**
@@ -56,24 +41,56 @@ require_once(t3lib_extMgm::extPath('direct_mail').'pi1/class.tx_directmail_pi1.p
  *
  */
 class tx_directmail_ttnews_plaintext {
+	/**
+	 * @var tslib_cObj
+	 */
 	var $cObj;
+
+	/**
+	 * ts array
+	 * @var array
+	 */
 	var $conf = array();
-	var $config= array();
-	var $charWidth=76;
+
+	/**
+	 * @var array
+	 */
+	var $config = array();
+	var $charWidth = 76;
+	/**
+	 * @var tx_directmail_pi1
+	 */
 	var $renderPlainText;
+
+	/**
+	 * @var int
+	 */
+	var $tt_news_uid;
+
+	/**
+	 * @var bool
+	 */
+	var $enableFields;
+
+	/**
+	 * @var string
+	 */
+	var $sys_language_mode;
+
+	/**
+	 * @var string
+	 */
+	var $templateCode;
 
 	/**
 	 * Main function, called from TypoScript
 	 * A content object that renders "tt_content" records. See the comment to this class for TypoScript example of how to trigger it.
 	 * This detects the CType of the current content element and renders it accordingly. Only wellknown types are rendered.
 	 *
-	 * @param	string		Empty, ignore.
-	 * @param	array		TypoScript properties for this content object/function call
-	 * @return	string		Plain text content
+	 * @param	tslib_pibase	$invokingObj the tt_news object
+	 * @return	string			Plain text content
 	 */
 	function extraCodesProcessor(&$invokingObj) {
-		global $TYPO3_DB, $TSFE;
-
 		$content = '';
 		$this->conf = $invokingObj->conf;
 
@@ -87,23 +104,23 @@ class tx_directmail_ttnews_plaintext {
 			$this->templateCode = $invokingObj->templateCode;
 
 			$this->renderPlainText = t3lib_div::makeInstance('tx_directmail_pi1');
-			$this->renderPlainText->init($TSFE->tmpl->setup['plugin.']['tx_directmail_pi1.']);
+			$this->renderPlainText->init($GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_directmail_pi1.']);
 			$this->renderPlainText->cObj = $this->cObj;
 			$this->renderPlainText->labelsList = 'tt_news_author_prefix,tt_news_author_date_prefix,tt_news_author_email_prefix,tt_news_short_header,tt_news_bodytext_header';
 
 			$lines = array();
 			$singleWhere = 'tt_news.uid=' . intval($this->tt_news_uid);
 			$singleWhere .= ' AND type=0' . $this->enableFields; // type=0->only real news.
-			$res = $TYPO3_DB->exec_SELECTquery(
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'*',
 				'tt_news',
 				$singleWhere
 				);
-			$row = $TYPO3_DB->sql_fetch_assoc($res);
+			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 				// get the translated record if the content language is not the default language
-			if ($TSFE->sys_language_content) {
+			if ($GLOBALS['TSFE']->sys_language_content) {
 				$OLmode = ($this->sys_language_mode == 'strict'?'hideNonTranslated':'');
-				$row = $TSFE->sys_page->getRecordOverlay('tt_news', $row, $TSFE->sys_language_content, $OLmode);
+				$row = $GLOBALS['TSFE']->sys_page->getRecordOverlay('tt_news', $row, $GLOBALS['TSFE']->sys_language_content, $OLmode);
 			}
 			if (is_array($row)) {
 					// Render the title
@@ -147,46 +164,48 @@ class tx_directmail_ttnews_plaintext {
 	/**
 	 * Get images found in the "image" field of "tt_news"
 	 *
-	 * @param	array		tt_news record
-	 * @return	string		Content
+	 * @param	array	$row: tt_news record
+	 * @return	string	Content
 	 */
-	function getImages($row)	{
+	function getImages($row) {
 		$images_arr = explode(',',$row['image']);
-		$images = $this->renderPlainText->renderImages($images_arr,'',$row['imagecaption']);
+		$images = $this->renderPlainText->renderImages($images_arr, '', $row['imagecaption']);
 		return $images;
 	}
 
 	/**
 	 * Renders the author and date columns of the tt_news record
 	 *
-	 * @param	string		The tt_news record
-	 * @param	boolean		...
-	 * @return	string		Content
+	 * @param	string	$row: The tt_news record
+	 * @param	int		$type:
+	 * @return	string	Content
 	 */
-	function renderAuthor($row,$type=0) {
+	function renderAuthor($row, $type=0) {
 		if ($row['author']) {
 			$hConf = $this->renderPlainText->conf['tt_news_author.'];
 			$str = $this->renderPlainText->getString($hConf['prefix']).$row['author'].$this->renderPlainText->getString($hConf['emailPrefix']).'<'.$row['author_email'].'>';
 			$defaultType = tx_directmail_static::intInRangeWrapper($hConf['defaultType'],1,5);
 			$type = tx_directmail_static::intInRangeWrapper($type,0,6);
+
 			if (!$type) {
-				$type=$defaultType;
+				$type = $defaultType;
 			}
+
 			if ($type != 6)	{	// not hidden
 				$tConf = $hConf[$type.'.'];
 
-				$lines=array();
+				$lines = array();
 
 				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preBlanks'],0,1000);
 				if ($blanks) {
-					$lines[]=str_pad('', $blanks-1, chr(10));
+					$lines[] = str_pad('', $blanks-1, chr(10));
 				}
 
 				$lines = $this->renderPlainText->pad($lines,$tConf['preLineChar'],$tConf['preLineLen']);
 
 				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preLineBlanks'],0,1000);
 				if ($blanks) {
-					$lines[]=str_pad('', $blanks-1, chr(10));
+					$lines[] = str_pad('', $blanks-1, chr(10));
 				}
 
 				if ($row['datetime']) {
@@ -213,6 +232,7 @@ class tx_directmail_ttnews_plaintext {
 				return implode(chr(10),$lines);
 			}
 		}
+		return "";
 	}
 }
 

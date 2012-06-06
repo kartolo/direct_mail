@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <T3locallang>
-    <meta type="array">
-        <description>Labels for the main Direct Mail module</description>
-        <type>module</type>
-        <csh_table></csh_table>
-        <fileId>EXT:direct_mail/mod/locallang.xml</fileId>
-        <labelContext type="array">
+	<meta type="array">
+		<description>Labels for the main Direct Mail module</description>
+		<type>module</type>
+		<csh_table></csh_table>
+		<fileId>EXT:direct_mail/mod/locallang.xml</fileId>
+		<labelContext type="array">
 			<label index="configure_HTMLParams_description"></label>
 			<label index="configure_HTMLParams_details"></label>
 			<label index="configure_default_content"></label>
@@ -307,6 +307,8 @@
 			<label index="testmail_simple_msg"></label>
 			<label index="update_convert_do_it_now"></label>
 			<label index="update_convert_now"></label>
+			<label index="update_warningHeader"></label>
+			<label index="update_warningMsg"></label>
 			<label index="view_delivery_begin_end"></label>
 			<label index="view_dmail"></label>
 			<label index="view_flowed"></label>
@@ -316,10 +318,10 @@
 			<label index="view_recipient_total_sent"></label>
 			<label index="view_replyto"></label>
 			<label index="yes"></label>
-        </labelContext>
-    </meta>
-    <data type="array">
-        <languageKey index="default" type="array">
+		</labelContext>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
 			<label index="configure_HTMLParams_description">Enter the additional URL parameters used to fetch the HTML content from a TYPO3 page.</label>
 			<label index="configure_HTMLParams_details">The specified parameters will be added to the URL used to fetch the HTML content of the direct mail from a TYPO3 page. If in doubt, leave it blank.</label>
 			<label index="configure_default_content">Set default values for mail content format:</label>
@@ -634,7 +636,17 @@ By clicking on the "Import" button below, all data will be written in tt_address
 			<label index="testmail_simple">Testmail - Simple</label>
 			<label index="testmail_simple_msg">A simple testmail includes all mail elements regardless of category. But any USER_fields are not substituted with data. Enter an email-address for the testmail:</label>
 			<label index="update_convert_do_it_now">Do it now</label>
-			<label index="update_convert_now">Categories defined in Page TSConfig of existing Direct Mail folders need to be converted into database records. You may do this now or you may do it at a later time using the Categories Conversion function of the Direct Mail module. If in doubt, please review this topic in the Direct Mail manual. Do you want to perform this action now?</label>
+			<label index="update_convert_now">The direct_mail data in the sys_dmail table need to be update. Please backup the sys_dmail table before clicking the following button. Convert the data?</label>
+			<label index="update_option">Updater</label>
+			<label index="update_optionHeader">Important!</label>
+			<label index="update_optionMsg">For the old data working with direct_mail version 3.0, data must be converted.</label>
+			<label index="update_optionLink">[Click here to open the updater]</label>
+			<label index="update_warningHeader">Warning! Please read!</label>
+			<label index="update_warningMsg">The updater manipulates your database.
+				So backup your database (at least the sys_dmail table) or do a t3d export of your site (direct_mail sysfolder)
+				&lt;strong&gt;BEFORE&lt;/strong&gt; &lt;br&gt;
+				you click on the "Do it now" buttons.</label>
+			<label index="update_convert_result">%d records are converted</label>
 			<label index="view_delivery_begin_end">Delivery begun/ended:</label>
 			<label index="view_dmail">Direct Mail:</label>
 			<label index="view_flowed">Flowed text:</label>
@@ -644,8 +656,8 @@ By clicking on the "Import" button below, all data will be written in tt_address
 			<label index="view_recipient_total_sent">Recipient total/sent:</label>
 			<label index="view_replyto">Reply:</label>
 			<label index="yes">Yes</label>
-        </languageKey>
-        <languageKey index="de" type="array">
+		</languageKey>
+		<languageKey index="de" type="array">
 			<label index="configure_HTMLParams_description">Gibt die zusätzliche URL-Parameter, die während des Auslesen der HTML-Inhalten einer TYPO3 Seite ein.</label>
 			<label index="configure_HTMLParams_details">Die eingegebene Parameter werden in der URL hinzugefügt, um HTML Inhalten einer TYPO3 Seite auszulesen. Im Zweifel lass es leer.</label>
 			<label index="configure_default_content">Setze Standardwerte des Formats von E-Mail-Inhalten fest:</label>
@@ -956,7 +968,17 @@ Wenn Sie auf "Importieren" klicken, werden die Daten in tt_address Tabelle impor
 			<label index="testmail_simple">Einfache Testmail versenden</label>
 			<label index="testmail_simple_msg">Eine einfache Testmail enthält alle Elemente ohne Rücksicht auf die Kategorie. Jedoch werden keine Benutzerdaten ersetzt. Dies ist nur im personalisierten Massenversand möglich. Geben Sie hier den Empfänger für die Testmail an:</label>
 			<label index="update_convert_do_it_now">Jetzt konvertieren</label>
-			<label index="update_convert_now">Kategorien in Direct Mail Ordnern, die über die Page TSConfig definiert sind, müssen in Datenbankeinträge konvertiert werden. Sie können die Konvertierung jetzt durchführen oder zu einem späteren Zeitpunkt über die Funktion 'Kategorien konvertieren' in der Direct Mail-Erweiterung. Im Zweifelsfall konsultieren sie das Manual zu diesem Thema. Wollen sie die Konvertierung jetzt durchführen?</label>
+			<label index="update_convert_now">Die direct_mail Datenformat in der sys_dmail Tabelle muss aktualisiert werden. Bitte sichern Sie die sys_dmail-Tabellen, bevor Sie den folgenden Button klicken. Die Konvertierung durchführen?</label>
+			<label index="update_option">Update</label>
+			<label index="update_optionHeader">Wichtig!</label>
+			<label index="update_optionMsg">Damit die alten Daten mit direct_mail 3.0 funktionieren, müssen die Daten konvertiert werden.</label>
+			<label index="update_optionLink">[Hier klicken um das Update-Skript auszuführen]</label>
+			<label index="update_warningHeader">Achtung! Bitte lesen!</label>
+			<label index="update_warningMsg">Folgendes Skript ändert die Daten in der Datenbank.
+				Bitte sichern Sie Ihre Datenbank (zumindes die sys_dmail Tabelle) oder exportieren Sie den Seitenbaum in t3d-Format (direct_mail SysOrdner)
+				&lt;strong&gt;BEVOR&lt;/strong&gt; &lt;br&gt;
+				Sie den "Jetzt konvertieren" Button klicken.</label>
+			<label index="update_convert_result">%d Datensätze sind konvertiert.</label>
 			<label index="view_delivery_begin_end">Versand begonnen/beendet:</label>
 			<label index="view_dmail">Versand:</label>
 			<label index="view_flowed">Fließender Text:</label>
@@ -966,6 +988,6 @@ Wenn Sie auf "Importieren" klicken, werden die Daten in tt_address Tabelle impor
 			<label index="view_recipient_total_sent">Empfänger insgesamt/verschickt:</label>
 			<label index="view_replyto">Antwort:</label>
 			<label index="yes">Ja</label>
-        </languageKey>
-    </data>
+		</languageKey>
+	</data>
 </T3locallang>

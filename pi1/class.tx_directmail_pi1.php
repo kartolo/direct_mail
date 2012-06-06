@@ -36,43 +36,6 @@
  * @version		$Id: class.tx_directmail_pi1.php 30973 2010-03-10 17:41:28Z ivankartolo $
  */
 
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   86: class tx_directmail_pi1 extends tslib_pibase
- *  106:     function main($content,$conf)
- *  195:     function init($conf)
- *  214:     function getMenuSitemap()
- *  225:     function getShortcut()
- *  237:     function getHTML($str=array())
- *  247:     function getHeader()
- *  257:     function getImages()
- *  269:     function parseBody($str,$altConf='bodytext')
- *  300:     function renderUploads($str,$upload_path='uploads/media/')
- *  318:     function renderHeader($str,$type=0)
- *  373:     function pad($lines,$preLineChar,$len)
- *  389:     function breakContent($str)
- *  405:     function breakBulletlist($str)
- *  436:     function breakTable($str)
- *  492:     function addDiv($messure,$content,$divChar,$joinChar,$cols)
- *  508:     function traverseTable($tableLines)
- *  535:     function renderImages($str,$links,$caption,$upload_path='uploads/pics/')
- *  578:     function getLink($ll)
- *  595:     function breakLines($str,$implChar="\n",$charWidth=0)
- *  607:     function getString($str)
- *  619:     function userProcess($mConfKey,$passVar)
- *  637:     function atag_to_http($content,$conf)
- *  656:     function typolist($content,$conf)
- *  671:     function typohead($content,$conf)
- *  690:     function typocode($content,$conf)
- *  703:     function addLabelsMarkers($markerArray)
- *
- * TOTAL FUNCTIONS: 26
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
 
 require_once(PATH_tslib.'class.tslib_pibase.php');
 
@@ -84,8 +47,11 @@ require_once(PATH_tslib.'class.tslib_pibase.php');
  *
  */
 class tx_directmail_pi1 extends tslib_pibase {
+	/**
+	 * @var tslib_cObj
+	 */
 	var $cObj;
-	var $conf=array();
+	var $conf = array();
 	var $prefixId = 'tx_directmail_pi1';
 	var $scriptRelPath = 'pi1/class.tx_directmail_pi1.php';
 	var $extKey = 'direct_mail';
@@ -104,61 +70,61 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @return	string		$content: Plain text content
 	 */
 	function main($content,$conf)	{
-		global $TSFE, $TYPO3_CONF_VARS;
+		global $TYPO3_CONF_VARS;
 
 		$this->init($conf);
 
 		$lines = array();
-		$CType= (string)$this->cObj->data['CType'];
+		$CType = (string)$this->cObj->data['CType'];
 		switch($CType)	{
 			case 'header':
-				$lines[]=$this->getHeader();
+				$lines[] = $this->getHeader();
 				if ($this->cObj->data['subheader'])	{
-					$lines[]=$this->breakContent(strip_tags($this->cObj->data['subheader']));
+					$lines[] = $this->breakContent(strip_tags($this->cObj->data['subheader']));
 				}
 			break;
 			case 'text':
 			case 'textpic':
-				$lines[]=$this->getHeader();
-				if ($CType=='textpic' && !($this->cObj->data['imageorient']&24))	{
-					$lines[]=$this->getImages();
-					$lines[]='';
+				$lines[] = $this->getHeader();
+				if (($CType == 'textpic') && !($this->cObj->data['imageorient']&24))	{
+					$lines[] = $this->getImages();
+					$lines[] = '';
 				}
-				$lines[]=$this->breakContent(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
-				if ($CType=='textpic' && ($this->cObj->data['imageorient']&24))	{
-					$lines[]='';
-					$lines[]=$this->getImages();
+				$lines[] = $this->breakContent(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
+				if (($CType == 'textpic') && ($this->cObj->data['imageorient']&24))	{
+					$lines[] = '';
+					$lines[] = $this->getImages();
 				}
 			break;
 			case 'image':
-				$lines[]=$this->getHeader();
-				$lines[]=$this->getImages();
+				$lines[] = $this->getHeader();
+				$lines[] = $this->getImages();
 			break;
 			case 'uploads':
-				$lines[]=$this->getHeader();
-				$lines[]=$this->renderUploads($this->cObj->data['media']);
+				$lines[] = $this->getHeader();
+				$lines[] = $this->renderUploads($this->cObj->data['media']);
 			break;
 			case 'menu':
-				$lines[]=$this->getHeader();
-				$lines[]=$this->getMenuSitemap();
+				$lines[] = $this->getHeader();
+				$lines[] = $this->getMenuSitemap();
 			break;
 			case 'shortcut':
-				$lines[]=$this->getShortcut();
+				$lines[] = $this->getShortcut();
 			break;
 			case 'bullets':
-				$lines[]=$this->getHeader();
-				$lines[]=$this->breakBulletlist(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
+				$lines[] = $this->getHeader();
+				$lines[] = $this->breakBulletlist(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
 			break;
 			case 'table':
-				$lines[]=$this->getHeader();
-				$lines[]=$this->breakTable(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
+				$lines[] = $this->getHeader();
+				$lines[] = $this->breakTable(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
 			break;
 			case 'html':
-				$lines[]=$this->getHTML();
+				$lines[] = $this->getHTML();
 			break;
 			default:
 					// Hook for processing other content types
-				if (is_array($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType']))	{
+				if (is_array($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'])) {
 					foreach($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'] as $_classRef) {
 						$_procObj = &t3lib_div::getUserObj($_classRef);
 						$lines = array_merge($lines, $_procObj->renderPlainText($this,$content));
@@ -166,14 +132,14 @@ class tx_directmail_pi1 extends tslib_pibase {
 				}
 				if (empty($lines)) {
 					$defaultOutput = $this->getString($this->conf['defaultOutput']);
-					if ($defaultOutput)	{
-						$lines[]=str_replace('###CType###',$CType,$defaultOutput);
+					if ($defaultOutput) {
+						$lines[] = str_replace('###CType###',$CType,$defaultOutput);
 					}
 				}
 			break;
 		}
 
-		$lines[]='';	// First break.
+		$lines[] = '';	// First break.
 		$content = implode(chr(10),$lines);
 
 			// Substitute labels
@@ -197,7 +163,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 
 		$this->conf = $conf;
 		$this->pi_loadLL();
-		$this->siteUrl= $this->conf['siteUrl'];
+		$this->siteUrl = $this->conf['siteUrl'];
 
 			// Default linebreak;
 		$this->linebreak = chr(10);
@@ -213,7 +179,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function getMenuSitemap()	{
 		$str = $this->cObj->cObjGetSingle($this->conf['menu'],$this->conf['menu.']);
-		$str = $this->breakBulletlist(trim(strip_tags(preg_replace('/<br\s*\/?>/i',chr(10),$this->parseBody($str)))));
+		$str = $this->breakBulletlist(trim(strip_tags(preg_replace('/<br\s*\/?>/i', chr(10), $this->parseBody($str)))));
 		return $str;
 	}
 
@@ -225,7 +191,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	function getShortcut()	{
 		$str = $this->cObj->cObjGetSingle($this->conf['shortcut'],$this->conf['shortcut.']);
 			//Remove html comment reporting shortcut inclusion
-		return preg_replace('/<![ \r\n\t]*(--([^\-]|[\r\n]|-[^\-])*--[ \r\n\t]*)\>/','',$str);
+		return preg_replace('/<![ \r\n\t]*(--([^\-]|[\r\n]|-[^\-])*--[ \r\n\t]*)\>/', '', $str);
 	}
 
 	/**
@@ -244,9 +210,9 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @return	string		Content
 	 * @see renderHeader()
 	 */
-	function getHeader()	{
+	function getHeader() {
 		// links...
-		return $this->renderHeader($this->cObj->data['header'],$this->cObj->data['header_layout']);
+		return $this->renderHeader($this->cObj->data['header'], $this->cObj->data['header_layout']);
 	}
 
 	/**
@@ -254,14 +220,14 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 *
 	 * @return	string		Content
 	 */
-	function getImages()	{
-		$images_arr=array();
+	function getImages() {
+		$images_arr = array();
 		$this->getImagesStandard($images_arr);
 		if(t3lib_extMgm::isLoaded('dam')){
 			$this->getImagesFromDam($images_arr);
 		}
-				
-		$images = $this->renderImages($images_arr,!$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'',$this->cObj->data['imagecaption']);
+
+		$images = $this->renderImages($images_arr, !$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'', $this->cObj->data['imagecaption']);
 
 		return $images;
 	}
@@ -269,29 +235,32 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Get images from image field and store this images to $images_arr
 	 *
+	 * @param array $images_arr
+	 * @param string $upload_path
 	 * @return	string		Content
 	 */
-	function getImagesStandard(&$images_arr,$upload_path='uploads/pics/'){
+	function getImagesStandard(&$images_arr, $upload_path='uploads/pics/'){
 		$images = explode(',',$this->cObj->data['image']);
-		while(list($k,$file)=each($images))	{
-			if (strlen(trim($file))>0) {
-				$images_arr[]=$this->siteUrl.$upload_path.$file;
+		foreach($images as $file) {
+			if (strlen(trim($file)) > 0) {
+				$images_arr[] = $this->siteUrl.$upload_path.$file;
 			}
 		}
-	
+
 	}
-	
+
 	/**
 	 * Get images from DAM and store this images to $images_arr
-	 *
+	 * TODO: rewrite sql?
+	 * @param array $images_arr
 	 * @return	string		Content
 	 */
 	function getImagesFromDam(&$images_arr){
-		$sql='SELECT tx_dam.* FROM tx_dam_mm_ref,tx_dam WHERE tx_dam_mm_ref.tablenames="tt_content" AND tx_dam_mm_ref.ident="tx_damttcontent_files" AND tx_dam_mm_ref.uid_foreign="'.$this->cObj->data['uid'].'" AND tx_dam_mm_ref.uid_local=tx_dam.uid AND tx_dam.deleted=0 ORDER BY sorting_foreign';
-		$res=mysql_query($sql);
+		$sql = 'SELECT tx_dam.* FROM tx_dam_mm_ref,tx_dam WHERE tx_dam_mm_ref.tablenames="tt_content" AND tx_dam_mm_ref.ident="tx_damttcontent_files" AND tx_dam_mm_ref.uid_foreign="'.$this->cObj->data['uid'].'" AND tx_dam_mm_ref.uid_local=tx_dam.uid AND tx_dam.deleted=0 ORDER BY sorting_foreign';
+		$res = mysql_query($sql);
 		if(mysql_num_rows($res)>0){
-			while($row=mysql_fetch_assoc($res)){
-				$images_arr[]=$this->siteUrl.$row['file_path'].$row['file_name'];
+			while($row = mysql_fetch_assoc($res)){
+				$images_arr[] = $this->siteUrl.$row['file_path'].$row['file_name'];
 			}
 		}
 	}
@@ -303,8 +272,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @param	string		$altConf: Altername conf name (especially when bodyext field in other table then tt_content)
 	 * @return	string		Processed content
 	 */
-	function parseBody($str,$altConf='bodytext')	{
-
+	function parseBody($str, $altConf='bodytext') {
 		if ($this->conf[$altConf.'.']['doubleLF']) {
 			$str = preg_replace("/\n/", "\n\n", $str);
 		}
@@ -314,8 +282,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 
 			// Then all a-tags:
 		$aConf = array();
-		$aConf['parseFunc.']['tags.']['a']='USER';
-		$aConf['parseFunc.']['tags.']['a.']['userFunc']='tx_directmail_pi1->atag_to_http';
+		$aConf['parseFunc.']['tags.']['a'] = 'USER';
+		$aConf['parseFunc.']['tags.']['a.']['userFunc'] = 'tx_directmail_pi1->atag_to_http';
 		$aConf['parseFunc.']['tags.']['a.']['siteUrl'] = $this->siteUrl;
 		$str = $this->cObj->stdWrap($str,$aConf);
 		$str = str_replace('&nbsp;',' ',t3lib_div::htmlspecialchars_decode($str));
@@ -336,12 +304,14 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function renderUploads($str,$upload_path='uploads/media/')	{
 		$files = explode(',',$str);
-		reset($files);
-		$lines=array();
+		$lines = array();
+
 		if (count($files) > 0 && strlen($files[0])) {
-			if ($this->conf['uploads.']['header'])	{$lines[]=$this->getString($this->conf['uploads.']['header']);}
-			while(list($k,$file)=each($files))	{
-				$lines[]=$this->siteUrl.$upload_path.$file;
+			if ($this->conf['uploads.']['header']) {
+				$lines[] = $this->getString($this->conf['uploads.']['header']);
+			}
+			foreach($files as $file) {
+				$lines[] = $this->siteUrl.$upload_path.$file;
 			}
  		}
 		return chr(10).implode(chr(10),$lines);
@@ -355,49 +325,72 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @return	string		Content
 	 */
 	function renderHeader($str,$type=0)	{
-		if ($str)	{
+		if ($str) {
 			$hConf = $this->conf['header.'];
 			$defaultType = tx_directmail_static::intInRangeWrapper($hConf['defaultType'],1,5);
 			$type = tx_directmail_static::intInRangeWrapper($type,0,6);
-			if (!$type)	$type=$defaultType;
-			if ($type!=6)	{	// not hidden
+			if (!$type) {
+				$type = $defaultType;
+			}
+			if ($type != 6)	{
+				// not hidden
 				$tConf = $hConf[$type.'.'];
 
 				if ($tConf['removeSplitChar']) {
 					$str = preg_replace('/'.preg_quote($tConf['removeSplitChar'],'/').'/', '', $str);
 				}
 
-				$lines=array();
+				$lines = array();
 
 				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preBlanks'],0,1000);
-				if ($blanks)	{
-					$lines[]=str_pad('', $blanks-1, chr(10));
+				if ($blanks) {
+					$lines[] = str_pad('', $blanks-1, chr(10));
 				}
 
-				$lines=$this->pad($lines,$tConf['preLineChar'],$tConf['preLineLen']);
+				$lines = $this->pad($lines,$tConf['preLineChar'],$tConf['preLineLen']);
 
 				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preLineBlanks'],0,1000);
-				if ($blanks)	{$lines[]=str_pad('', $blanks-1, chr(10));}
+				if ($blanks) {
+					$lines[] = str_pad('', $blanks-1, chr(10));
+				}
 
-				if ($this->cObj->data['date'])		{$lines[] = $this->getString($hConf['datePrefix']).date($hConf['date']?$hConf['date']:'d-m-Y',$this->cObj->data['date']);}
-				$prefix='';
-				$str=$this->getString($tConf['prefix']).$str;
-				if ($tConf['autonumber'])	$str=$this->cObj->parentRecordNumber.$str;
-				if ($this->cObj->data['header_position']=='right')	{$prefix=str_pad(' ',($this->charWidth-strlen($str)));}
-				if ($this->cObj->data['header_position']=='center')	{$prefix=str_pad(' ',floor(($this->charWidth-strlen($str))/2));}
-				$lines[]=$this->cObj->stdWrap($prefix.$str,$tConf['stdWrap.']);
-				if ($this->cObj->data['header_link'])		{$lines[] = $this->getString($hConf['linkPrefix']).$this->getLink($this->cObj->data['header_link']);}
+				if ($this->cObj->data['date']) {
+					$lines[] = $this->getString($hConf['datePrefix']).date($hConf['date']?$hConf['date']:'d-m-Y',$this->cObj->data['date']);
+				}
+
+				$prefix = '';
+				$str = $this->getString($tConf['prefix']).$str;
+				if ($tConf['autonumber']) {
+					$str = $this->cObj->parentRecordNumber.$str;
+				}
+				if ($this->cObj->data['header_position']=='right') {
+					$prefix = str_pad(' ',($this->charWidth-strlen($str)));
+				}
+				if ($this->cObj->data['header_position']=='center') {
+					$prefix = str_pad(' ',floor(($this->charWidth-strlen($str))/2));
+				}
+				$lines[] = $this->cObj->stdWrap($prefix.$str,$tConf['stdWrap.']);
+
+				if ($this->cObj->data['header_link']) {
+					$lines[] = $this->getString($hConf['linkPrefix']).$this->getLink($this->cObj->data['header_link']);
+				}
 
 				$blanks = tx_directmail_static::intInRangeWrapper($tConf['postLineBlanks'],0,1000);
-				if ($blanks)	{$lines[]=str_pad('', $blanks-1, chr(10));}
+				if ($blanks) {
+					$lines[] = str_pad('', $blanks-1, chr(10));
+				}
 
-				$lines=$this->pad($lines,$tConf['postLineChar'],$tConf['postLineLen']);
+				$lines = $this->pad($lines,$tConf['postLineChar'],$tConf['postLineLen']);
 
 				$blanks = tx_directmail_static::intInRangeWrapper($tConf['postBlanks'],0,1000);
-				if ($blanks)	{$lines[]=str_pad('', $blanks-1, chr(10));}
+				if ($blanks) {
+					$lines[] = str_pad('', $blanks-1, chr(10));
+				}
 				return implode(chr(10),$lines);
 			}
 		}
+
+		return "";
 	}
 
 	/**
@@ -412,8 +405,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	function pad($lines,$preLineChar,$len)	{
 		$strPad = tx_directmail_static::intInRangeWrapper($len,0,1000);
 		$strPadChar = $preLineChar?$preLineChar:'-';
-		if ($strPad)	{
-			$lines[]=str_pad('', $strPad, $strPadChar);
+		if ($strPad) {
+			$lines[] = str_pad('', $strPad, $strPadChar);
 		}
 		return $lines;
 	}
@@ -427,10 +420,9 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function breakContent($str)	{
 		$cParts = explode(chr(10),$str);
-		reset($cParts);
-		$lines=array();
-		while(list(,$substrs)=each($cParts))	{
-			$lines[]=$this->breakLines($substrs);
+		$lines = array();
+		foreach($cParts as $substrs) {
+			$lines[] = $this->breakLines($substrs,"");
 		}
 		return implode(chr(10),$lines);
 	}
@@ -443,28 +435,30 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function breakBulletlist($str)	{
 		$type = $this->cObj->data['layout'];
-		$type=tx_directmail_static::intInRangeWrapper($type,0,3);
+		$type = tx_directmail_static::intInRangeWrapper($type,0,3);
 
 		$tConf = $this->conf['bulletlist.'][$type.'.'];
 
 		$cParts = explode(chr(10),$str);
-		reset($cParts);
-		$lines=array();
-		$c=0;
-		while(list(,$substrs)=each($cParts))	{
+		$lines = array();
+		$c = 0;
+
+		foreach ($cParts as $substrs) {
 			if (!strlen($substrs)) {
 				continue;
 			}
 			$c++;
 			$bullet = $tConf['bullet'] ? $this->getString($tConf['bullet']) : ' - ';
-			$bLen=strlen($bullet);
+			$bLen = strlen($bullet);
 			$bullet = substr(str_replace('#',$c,$bullet),0,$bLen);
 			$secondRow = substr($tConf['secondRow']?$this->getString($tConf['secondRow']):str_pad('',strlen($bullet),' '),0,$bLen);
 
-			$lines[]=$bullet.$this->breakLines($substrs,chr(10).$secondRow,$this->charWidth-$bLen);
+			$lines[] = $bullet.$this->breakLines($substrs,chr(10).$secondRow,$this->charWidth-$bLen);
 
 			$blanks = tx_directmail_static::intInRangeWrapper($tConf['blanks'],0,1000);
-			if ($blanks)	{$lines[]=str_pad('', $blanks-1, chr(10));}
+			if ($blanks) {
+				$lines[] = str_pad('', $blanks-1, chr(10));
+			}
 		}
 		return implode(chr(10),$lines);
 	}
@@ -475,46 +469,46 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @param	string		$str: Content string
 	 * @return	string		Processed value
 	 */
-	function breakTable($str)	{
+	function breakTable($str) {
 		$cParts = explode(chr(10),$str);
-		reset($cParts);
-		$lines=array();
+
+		$lines = array();
 		$cols = intval($this->conf['cols']) ? intval($this->conf['cols']) : 0 ;
-		$c=0;
-		while(list(,$substrs)=each($cParts))	{
+		$c = 0;
+		foreach ($cParts as $substrs) {
 			$c++;
 			if (trim($substrs))	{
-				$lineParts=explode('|',$substrs);
-				if (!$cols)	$cols=count($lineParts);
+				$lineParts = explode('|',$substrs);
+				if (!$cols) {
+					$cols = count($lineParts);
+				}
 
-				for ($a=0;$a<$cols;$a++)	{
+				for ($a=0;$a<$cols;$a++) {
 					$jdu = explode(chr(10),$this->breakLines($lineParts[$a],chr(10),ceil($this->charWidth/$cols)));
-					$lines[$c][$a]=$jdu;
+					$lines[$c][$a] = $jdu;
 				}
 			}
 		}
 		$messure = $this->traverseTable($lines);
 
-
-		$divChar='-';
-		$joinChar='+';
-		$colChar='|';
+		$divChar = '-';
+		$joinChar = '+';
+		$colChar = '|';
 
 		// Make table:
 		$outLines = array();
-		$outLines[]=$this->addDiv($messure,'',$divChar,$joinChar,$cols);
+		$outLines[] = $this->addDiv($messure,'',$divChar,$joinChar,$cols);
 
-		reset($lines);
-		while(list($k,$v)=each($lines))	{
+		foreach ($lines as $k => $v) {
 			$top = intval($messure[1][$k]);
-			for ($aa=0;$aa<$top;$aa++)	{
-				$tempArr=array();
-				for ($bb=0;$bb<$cols;$bb++)	{
-					$tempArr[$bb]=str_pad($v[$bb][$aa],$messure[0][$bb],' ');
+			for ($aa = 0; $aa < $top; $aa++) {
+				$tempArr = array();
+				for ($bb = 0; $bb < $cols; $bb++)	{
+					$tempArr[$bb] = str_pad($v[$bb][$aa],$messure[0][$bb],' ');
 				}
-				$outLines[]=$colChar.implode($colChar,$tempArr).$colChar;
+				$outLines[] = $colChar.implode($colChar,$tempArr).$colChar;
 			}
-			$outLines[]=$this->addDiv($messure,'',$divChar,$joinChar,$cols);
+			$outLines[] = $this->addDiv($messure,'',$divChar,$joinChar,$cols);
 		}
 		return implode(chr(10),$outLines);
 	}
@@ -531,10 +525,10 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @access private
 	 * @see breakTable()
 	 */
-	function addDiv($messure,$content,$divChar,$joinChar,$cols)	{
-		$tempArr=array();
-		for ($a=0;$a<$cols;$a++)	{
-			$tempArr[$a]=str_pad($content,$messure[0][$a],$divChar);
+	function addDiv($messure,$content,$divChar,$joinChar,$cols) {
+		$tempArr = array();
+		for ($a = 0; $a < $cols; $a++)	{
+			$tempArr[$a] = str_pad($content,$messure[0][$a],$divChar);
 		}
 		return $joinChar.implode($joinChar,$tempArr).$joinChar;
 	}
@@ -547,18 +541,20 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @access private
 	 * @see breakTable()
 	 */
-	function traverseTable($tableLines)	{
-		$maxLen=array();
-		$maxLines=array();
-		reset($tableLines);
-		while(list($k,$v)=each($tableLines))	{
-			reset($v);
-			while(list($kk,$vv)=each($v))	{
-				reset($vv);
-				while(list($lk,$lv)=each($vv))	{
-					if (strlen($lv)>intval($maxLen[$kk]))	$maxLen[$kk]=strlen($lv);
+	function traverseTable($tableLines) {
+		$maxLen = array();
+		$maxLines = array();
+
+		foreach($tableLines as $k => $v){
+			foreach($v as $kk => $vv) {
+				foreach($vv as $lv) {
+					if (strlen($lv) > intval($maxLen[$kk])) {
+						$maxLen[$kk] = strlen($lv);
+					}
 				}
-				if (count($vv)>intval($maxLines[$k]))	$maxLines[$k]=count($vv);
+				if (count($vv) > intval($maxLines[$k])) {
+					$maxLines[$k] = count($vv);
+				}
 			}
 		}
 		return array($maxLen,$maxLines);
@@ -567,31 +563,31 @@ class tx_directmail_pi1 extends tslib_pibase {
 	/**
 	 * Render block of images - which means creating lines with links to the images.
 	 *
-	 * @param	string		$str: List of image filenames (from "image" field in tt_content records)
+	 * @param	 array		$images_arr: the image array
 	 * @param	string		$links: Link value from the "image_link" field in tt_content records
 	 * @param	string		$caption: Caption text
-	 * @param	string		$upload_path: Alternative relative path for the files listed in $str
 	 * @return	string		Content
 	 * @see getImages()
 	 */
-	function renderImages($images_arr,$links,$caption,$upload_path='uploads/pics/')	{
+	function renderImages($images_arr, $links, $caption) {
 		$linksArr = explode(',',$links);
-		reset($images_arr);
-		$lines=array();
+		$lines = array();
 		$imageExists = FALSE;
-		
-		while(list($k,$file)=each($images_arr))	{
-			if (strlen(trim($file))>0) {
-				$lines[]=$file;
-				if ($links && count($linksArr)>1)	{
-					if (isset($linksArr[$k]))	{
-						$ll=$linksArr[$k];
+
+		foreach($images_arr as $k => $file){
+			if (strlen(trim($file)) > 0) {
+				$lines[] = $file;
+				if ($links && count($linksArr) > 1) {
+					if (isset($linksArr[$k])) {
+						$ll = $linksArr[$k];
 					} else {
-						$ll=$linksArr[0];
+						$ll = $linksArr[0];
 					}
-	
+
 					$theLink = $this->getLink($ll);
-					if ($theLink)	{$lines[]=$this->getString($this->conf['images.']['linkPrefix']).$theLink;}
+					if ($theLink) {
+						$lines[] = $this->getString($this->conf['images.']['linkPrefix']).$theLink;
+					}
 				}
 				$imageExists = TRUE;
 			}
@@ -599,17 +595,19 @@ class tx_directmail_pi1 extends tslib_pibase {
 		if ($this->conf['images.']['header'] && $imageExists) {
 			array_unshift($lines, $this->getString($this->conf['images.']['header']));
 		}
-		if ($links && count($linksArr)==1)	{
+		if ($links && count($linksArr) == 1) {
 			$theLink = $this->getLink($links);
-			if ($theLink)	{
-				$lines[]=$this->getString($this->conf['images.']['linkPrefix']).$theLink;
+			if ($theLink) {
+				$lines[] = $this->getString($this->conf['images.']['linkPrefix']).$theLink;
 			}
 		}
-		if ($caption)	{
-			$lines[]='';
+		if ($caption) {
+			$lines[] = '';
 			$cHeader = trim($this->getString($this->conf['images.']['captionHeader']));
-			if ($cHeader)		$lines[]=$cHeader;
-			$lines[]=$this->breakContent($caption);
+			if ($cHeader) {
+				$lines[] = $cHeader;
+			}
+			$lines[] = $this->breakContent($caption);
 		}
 
 		return chr(10).implode(chr(10),$lines);
@@ -621,10 +619,10 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @param	string		$ll: Parameter to typolink
 	 * @return	string		The URL returned from $this->cObj->getTypoLink_URL(); - possibly it prefixed with the URL of the site if not present already
 	 */
-	function getLink($ll)	{
-		$theLink=$this->cObj->getTypoLink_URL($ll);
-		if (substr($theLink,0,4)!='http')	{
-			$theLink=$this->siteUrl.$theLink;
+	function getLink($ll) {
+		$theLink = $this->cObj->getTypoLink_URL($ll);
+		if (substr($theLink,0,4) != 'http') {
+			$theLink = $this->siteUrl.$theLink;
 		}
 		return $theLink;
 	}
@@ -634,17 +632,19 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 *
 	 * @param	string		$str: The string to break
 	 * @param	string		$implChar: Line break character
-	 * @param	integer		$charWitdh: Length of lines, default is $this->charWidth
+	 * @param	integer		$charWidth: Length of lines, default is $this->charWidth
 	 * @return	string		Processed string
 	 * @see t3lib_div::breakLinesForEmail()
 	 */
-	function breakLines($str,$implChar="\n",$charWidth=0)	{
+	function breakLines($str, $implChar, $charWidth=0) {
 		$cW = $charWidth ? $charWidth : $this->charWidth;
-		
+
+		$linebreak = $implChar ? $implChar : $this->linebreak;
+
 		if (t3lib_div::compat_version('4.6')) {
-			return t3lib_utility_Mail::breakLinesForEmail($str, $this->linebreak, $cW);
+			return t3lib_utility_Mail::breakLinesForEmail($str, $linebreak, $cW);
 		} else {
-			return t3lib_div::breakLinesForEmail($str, $this->linebreak, $cW);
+			return t3lib_div::breakLinesForEmail($str, $linebreak, $cW);
 		}
 	}
 
@@ -656,7 +656,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @return	string		Output string
 	 * @access private
 	 */
-	function getString($str)	{
+	function getString($str) {
 		$parts = explode('|',$str);
 		return strcmp($parts[1],'')?$parts[1]:$parts[0];
 	}
@@ -668,8 +668,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @param	mixed		$passVar: Variable to process
 	 * @return	mixed		The processed $passVar as returned by the function call
 	 */
-	function userProcess($mConfKey,$passVar)	{
-		if ($this->conf[$mConfKey])	{
+	function userProcess($mConfKey,$passVar) {
+		if ($this->conf[$mConfKey]) {
 			$funcConf = $this->conf[$mConfKey.'.'];
 			$funcConf['parentObj']=&$this;
 			$passVar = $GLOBALS['TSFE']->cObj->callUserFunction($this->conf[$mConfKey], $funcConf, $passVar);
@@ -686,14 +686,14 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @return	string		Processed output.
 	 * @see parseBody()
 	 */
-	function atag_to_http($content,$conf)	{
+	function atag_to_http($content,$conf) {
 		$this->conf = $conf;
-		$this->siteUrl=$conf['siteUrl'];
-		$theLink  = trim($this->cObj->parameters['href']);
-		if (strtolower(substr($theLink,0,7))=='mailto:')	{
-			$theLink=substr($theLink,7);
-		} elseif (substr($theLink,0,4)!='http')	{
-			$theLink=$this->siteUrl.$theLink;
+		$this->siteUrl = $conf['siteUrl'];
+		$theLink = trim($this->cObj->parameters['href']);
+		if (strtolower(substr($theLink,0,7)) == 'mailto:') {
+			$theLink = substr($theLink,7);
+		} elseif (substr($theLink,0,4) != 'http') {
+			$theLink = $this->siteUrl.$theLink;
 		}
 		return $this->cObj->getCurrentVal().' (###LINK_PREFIX### '.$theLink.' )';
 	}
@@ -705,9 +705,9 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @param	array		$conf: TypoScript parameters
 	 * @return	string		Processed output.
 	 */
-	function typolist($content,$conf)	{
+	function typolist($content,$conf) {
 		$this->conf = $this->cObj->mergeTSRef($conf,'bulletlist');
-		$this->siteUrl=$conf['siteUrl'];
+		$this->siteUrl = $conf['siteUrl'];
 		$str = trim($this->cObj->getCurrentVal());
 		$this->cObj->data['layout'] = $this->cObj->parameters['type'];
 		return $this->breakBulletlist($str);
@@ -720,14 +720,14 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @param	array		$conf: TypoScript parameters
 	 * @return	string		Processed output.
 	 */
-	function typohead($content,$conf)	{
+	function typohead($content,$conf) {
 		$this->conf = $this->cObj->mergeTSRef($conf,'header');
 
-		$this->siteUrl=$conf['siteUrl'];
+		$this->siteUrl = $conf['siteUrl'];
 		$str = trim($this->cObj->getCurrentVal());
 		$this->cObj->data['header_layout'] = $this->cObj->parameters['type'];
 		$this->cObj->data['header_position'] = $this->cObj->parameters['align'];
-		$this->cObj->data['header']=$str;
+		$this->cObj->data['header'] = $str;
 
 		return $this->getHeader();
 	}
@@ -739,10 +739,10 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @param	array		$conf: TypoScript parameters
 	 * @return	string		Processed output.
 	 */
-	function typocode($content,$conf)	{
+	function typocode($content,$conf) {
 			// Nothing is really done here...
 		$this->conf = $conf;
-		$this->siteUrl=$conf['siteUrl'];
+		$this->siteUrl = $conf['siteUrl'];
 		return $this->cObj->getCurrentVal();
 	}
 
@@ -755,7 +755,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	function addLabelsMarkers($markerArray) {
 
 		$labels = t3lib_div::trimExplode(',', $this->labelsList);
-		foreach ( $labels as $labelName ) {
+		foreach($labels as $labelName) {
 			$markerArray['###'.strtoupper($labelName).'###'] = $this->pi_getLL($labelName);
 		}
 		return $markerArray;

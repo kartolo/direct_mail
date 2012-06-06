@@ -37,7 +37,7 @@ $LANG->includeLLFile('EXT:direct_mail/locallang/locallang_csh_sysdmail.xml');
 /**
  * Class to producing navigation frame of the tx_directmail extension
  *
- * @author		Kasper Sk�rh�j <kasper@typo3.com>
+ * @author		Kasper Skårhøj <kasper@typo3.com>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
  *
  * @package 	TYPO3
@@ -45,26 +45,34 @@ $LANG->includeLLFile('EXT:direct_mail/locallang/locallang_csh_sysdmail.xml');
  * @version 	$Id: index.php 30331 2010-02-22 22:27:07Z ivankartolo $
  */
 
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   62: class tx_directmail_navframe
- *   68:     function init()
- *  134:     function main()
- *  177:     function printContent()
- *
- * TOTAL FUNCTIONS: 3
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
 class tx_directmail_navframe{
+
 	/**
- * first initialization of the global variables. Set some JS-code
- *
- * @return	void		...
- */
+	 * the template object
+	 * @var	template
+	 */
+	var $doc;
+
+	/**
+	 * set highlight
+	 * @var	string
+	 */
+	var $doHighlight;
+
+	/**
+	 * html output
+	 * @var string
+	 */
+	var $content;
+
+	var $cshTable;
+	var $pageinfo;
+
+	/**
+ 	 * first initialization of the global variables. Set some JS-code
+ 	 *
+ 	 * @return	void		...
+ 	 */
 	function init()	{
 		global $BE_USER,$LANG,$BACK_PATH,$TYPO3_CONF_VARS;
 
@@ -73,7 +81,7 @@ class tx_directmail_navframe{
 		$this->doc->setModuleTemplate('EXT:direct_mail/mod1/mod_template.html');
 		$this->doc->showFlashMessages = FALSE;
 
-		$this->currentSubScript = t3lib_div::_GP('currentSubScript');
+		$currentSubScript = t3lib_div::_GP('currentSubScript');
 
 			// Setting highlight mode:
 		$this->doHighlight = !$BE_USER->getTSConfigVal('options.pageTree.disableTitleHighlight');
@@ -84,7 +92,7 @@ class tx_directmail_navframe{
 
 			// Setting JavaScript for menu.
 		$this->doc->JScode=$this->doc->wrapScriptTags(
-			($this->currentSubScript?'top.currentSubScript=unescape("'.rawurlencode($this->currentSubScript).'");':'').'
+			($currentSubScript?'top.currentSubScript=unescape("'.rawurlencode($currentSubScript).'");':'').'
 
 			function jumpTo(params,linkObj,highLightID)	{ //
 				var theUrl = top.TS.PATH_typo3+top.currentSubScript+"?"+params;
@@ -135,18 +143,15 @@ class tx_directmail_navframe{
 	 * @return	void		...
 	 */
 	function main()	{
-		global $LANG,$BACK_PATH, $TYPO3_DB;
-
-
-		$res = $TYPO3_DB->exec_SELECTquery(
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'*',
 			'pages',
 			'doktype = 254 AND module in (\'dmail\')'. t3lib_BEfunc::deleteClause('pages'),
 			'',
-			'sorting'
+			'title'
 		);
 		$out = '';
-		while ($row = $TYPO3_DB->sql_fetch_assoc($res)){
+		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
 			if(t3lib_BEfunc::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){
 				$out .= '<tr onmouseover="this.style.backgroundColor=\''.t3lib_div::modifyHTMLColorAll($this->doc->bgColor,-5).'\'" onmouseout="this.style.backgroundColor=\'\'">'.
 					'<td id="dmail_'.$row['uid'].'" ><a href="#" onclick="top.fsMod.recentIds[\'txdirectmailM1\']='.$row['uid'].';jumpTo(\'id='.$row['uid'].'\',this,\'dmail_'.$row['uid'].'\');">&nbsp;&nbsp;'.
@@ -165,14 +170,14 @@ class tx_directmail_navframe{
 
 
 		$docHeaderButtons = array(
-			'CSH' => t3lib_BEfunc::cshItem($this->cshTable,'folders',$BACK_PATH, TRUE),
+			'CSH' => t3lib_BEfunc::cshItem($this->cshTable,'folders',$GLOBALS['BACK_PATH'], TRUE),
 			'REFRESH' => '<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => uniqid('directmail_navframe')))).'">'.
-				'<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/refresh_n.gif','width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.refresh',1).'" alt="" /></a>'
+				'<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/refresh_n.gif','width="14" height="14"').' title="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.refresh',1).'" alt="" /></a>'
 		);
 
 
 		$markers = array(
-			'HEADLINE' => $LANG->getLL('dmail_folders'),
+			'HEADLINE' => $GLOBALS['LANG']->getLL('dmail_folders'),
 			'CONTENT' => $content
 		);
 			// Build the <body> for the module
@@ -200,8 +205,8 @@ if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_
 }
 
 // Make instance:
-
-$GLOBALS['SOBE'] = t3lib_div::makeInstance('tx_directmail_navframe');
+/** @var $SOBE tx_directmail_navframe */
+$SOBE = t3lib_div::makeInstance('tx_directmail_navframe');
 $SOBE->init();
 $SOBE->main();
 $SOBE->printContent();

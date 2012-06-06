@@ -29,7 +29,7 @@
 /**
  * Used to generate queries for selecting users in the database
  *
- * @author		Kasper Skårhøj <kasper@typo3.com>
+ * @author		Kasper Skï¿½rhï¿½j <kasper@typo3.com>
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
  * @package 	TYPO3
@@ -37,18 +37,6 @@
  * @version 	$Id: class.mailselect.php 6012 2007-07-23 12:54:25Z ivankartolo $
  */
 
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   58: class mailSelect extends t3lib_queryGenerator
- *   70:     function mkTableSelect($name,$cur)
- *
- * TOTAL FUNCTIONS: 1
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
 require_once(PATH_t3lib.'class.t3lib_querygenerator.php');
 
 /**
@@ -62,20 +50,18 @@ class mailSelect extends t3lib_queryGenerator	{
 	/**
 	 * build a dropdown box. override function from parent class. Limit only to 2 tables.
 	 *
-	 * @param	string		name of the select-field
-	 * @param	string		table name, which is currently selected
+	 * @param	string		$name: name of the select-field
+	 * @param	string		$cur: table name, which is currently selected
 	 * @return	string		HTML select-field
 	 * @see t3lib_queryGenerator::mkTableSelect()
 	 */
-	function mkTableSelect($name,$cur) {
-		global $BE_USER, $TCA, $LANG;
-
-		$out='<select name="'.$name.'" onChange="submit();">';
-		$out.='<option value=""></option>';
-		reset($TCA);
-		while(list($tN)=each($TCA)) {
-			if ($BE_USER->check('tables_select',$tN) && in_array($tN, $this->allowedTables))	{
-				$out.='<option value="'.$tN.'"'.($tN==$cur ? ' selected':'').'>'.$LANG->sl($TCA[$tN]['ctrl']['title']).'</option>';
+	function mkTableSelect($name, $cur) {
+		$out = '<select name="'.$name.'" onChange="submit();">';
+		$out .= '<option value=""></option>';
+		reset($GLOBALS["TCA"]);
+		foreach ($GLOBALS["TCA"] as $tN) {
+			if ($GLOBALS["BE_USER"]->check('tables_select',$tN) && in_array($tN, $this->allowedTables))	{
+				$out.='<option value="'.$tN.'"'.($tN == $cur ? ' selected':'').'>'.$GLOBALS["LANG"]->sl($GLOBALS["TCA"][$tN]['ctrl']['title']).'</option>';
 			}
 		}
 		$out.='</select>';

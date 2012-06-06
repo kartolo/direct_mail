@@ -36,19 +36,6 @@
  */
 
 /**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   55: class tx_directmail_checkjumpurl
- *   63:     function checkDataSubmission (&$feObj)
- *
- * TOTAL FUNCTIONS: 1
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
-
-/**
  * JumpUrl processing hook on class.tslib_fe.php
  */
 class tx_directmail_checkjumpurl {
@@ -56,12 +43,10 @@ class tx_directmail_checkjumpurl {
 	/**
 	 * Get the url to jump to as set by Direct Mail
 	 *
-	 * @param	object		&$feObj: reference to invoking instance
+	 * @param	tslib_fe	$feObj: reference to invoking instance
 	 * @return	void
 	 */
 	function checkDataSubmission (&$feObj) {
-		global $TYPO3_CONF_VARS;
-
 		$jumpUrlVariables = t3lib_div::_GET();
 
 		$mid = $jumpUrlVariables['mid'];
@@ -85,7 +70,7 @@ class tx_directmail_checkjumpurl {
 				$isInt = t3lib_div::testInt($jumpurl);
 			}
 			if ($isInt) {
-				
+
 					// fetch the direct mail record where the mailing was sent (for this message)
 				$resMailing = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'mailContent, page, authcode_fieldList',
@@ -94,9 +79,7 @@ class tx_directmail_checkjumpurl {
 				);
 
 				if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resMailing)) {
-					$temp_unpackedMail = unserialize($row['mailContent']);
-						// internal page that was the template for the direct mailing
-					$internalPage = $row['page'];
+					$temp_unpackedMail = unserialize(base64_decode($row['mailContent']));
 					$url_id = $jumpurl;
 					if ($jumpurl >= 0) {
 							// Link (number)
@@ -124,9 +107,9 @@ class tx_directmail_checkjumpurl {
 						$recipRow = $feObj->sys_page->getRawRecord($theTable, $recipientUid);
 						if (is_array($recipRow)) {
 							$authCode = t3lib_div::stdAuthCode($recipRow, ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid'));
-							$rowFieldsArray = explode(',', $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['defaultRecipFields']);
-							if ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields']) {
-								$rowFieldsArray = array_merge($rowFieldsArray, explode(',', $TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields']));
+							$rowFieldsArray = explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']);
+							if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
+								$rowFieldsArray = array_merge($rowFieldsArray, explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
 							}
 
 							reset($rowFieldsArray);
@@ -175,6 +158,7 @@ class tx_directmail_checkjumpurl {
 					'url_id'        => intval($url_id)
 				);
 				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+				$GLOBALS['TYPO3_DB']->sql_free_result($res);
 			}
 		}
 
