@@ -1,3 +1,54 @@
+2012-06-06 Ivan Kartolo <ivan@kartolo.de>
+	* remove deprecated dmailer.phpsh
+
+2012-06-04 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #31054: fix compiling recipient from fe_groups. module_sys_dmail_newsletter was ignored
+
+2012-06-01 Ivan Kartolo <ivan@kartolo.de>
+	* Feature #33507: check if DAM loaded, then add media parseFunc
+	* Feature #31753: also show statistics from external URL newsletter
+
+2012-05-28 Ivan Kartolo <ivan@kartolo.de>
+	* Doc #37526: added upgrade notice to version 3.0.0
+
+2012-05-23 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #27975: fix linking in the statistics module.
+
+2012-05-21 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #27633: use from address if reply-to is not set
+
+2012-05-20 Ivan Kartolo <ivan@kartolo.de>
+	* fix rdct Link in plain text
+
+2012-05-10 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #36806: Speed boosting on cleaning duplicates in plain list array (thx to Tomas Norre Mikkelsen)
+
+2012-04-29 Ivan Kartolo <ivan@kartolo.de>
+	* remove SMTP config option
+	* Bug #35680: trim the email before validating it.
+	* Bug #35542: Sorting the dmail folder on the title
+
+2012-04-14 Ivan Kartolo <ivan@kartolo.de>
+	* swiftmailer: sending testmail per SM
+	* code clean up, remove deprecated TYPO3 API
+	* removing defer option
+	* additional organization and TYPO3MID header
+
+2012-03-30 Ivan Kartolo <ivan@kartolo.de>
+	* quickmail fetching
+
+2012-03-26 Ivan Kartolo <ivan@kartolo.de>
+	* added Updater script to convert mail_content to base64_encoded
+	* min TYPO3 to 4.5
+
+2012-03-25 Ivan Kartolo <ivan@kartolo.de>
+	* CGL identation
+	* Bug #27863: base64 encoded mail content in the DB
+	* swift: fetching dmail record
+
+2012-03-21 Ivan Kartolo <ivan.kartolo@dkd.de>
+	* removing old calendar lib. now using extJS Datepicker
+
 2012-02-21 Ivan Kartolo <ivan.kartolo@dkd.de>
 	* Bug #33571: fixed Edit-Page link
 
@@ -466,7 +517,7 @@
 
 2006-04-19 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 	* Version 2.1.2
-  	* Fix issue 3298: Fatal error: Call to a member function on a non-object in statistics function
+		* Fix issue 3298: Fatal error: Call to a member function on a non-object in statistics function
 	* Fix issue 3301: tca.php has short php open tag.
 	* Remove most field exclusions in tca.php.
 	* Issue error messages when content cannot be fetched.

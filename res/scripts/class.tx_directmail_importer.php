@@ -63,12 +63,12 @@ class tx_directmail_importer {
 
 	function init (&$pObj) {
 		$this->parent = &$pObj;
-
+		
 			//get some importer default from pageTS
 		$temp = t3lib_BEfunc::getModTSconfig(intval(t3lib_div::_GP('id')),'mod.web_modules.dmail.importer');
 		$this->params = $temp['properties'];
 	}
-
+	
 	/**
 	 * import CSV-Data in step-by-step mode
 	 *
@@ -76,7 +76,7 @@ class tx_directmail_importer {
 	 */
 	function cmd_displayImport()	{
 		$step = t3lib_div::_GP('importStep');
-
+		
 		$defaultConf = array(
 			'remove_existing' => 0,
 			'first_fieldname' => 0,
@@ -84,7 +84,7 @@ class tx_directmail_importer {
 			'remove_dublette' => 0,
 			'update_unique' => 0
 		);
-
+		
 		if (t3lib_div::_GP('CSV_IMPORT')) {
 			$importerConfig = t3lib_div::_GP('CSV_IMPORT');
 			if ($step['next'] == 'mapping') {
@@ -95,9 +95,9 @@ class tx_directmail_importer {
 		}
 
 		if (empty($this->indata)) {
-			$this->indata = array();
+			$this->indata = array(); 
 		}
-
+		
 		if (empty($this->params)) {
 			$this->params = array();
 		}
@@ -191,7 +191,7 @@ class tx_directmail_importer {
 				);
 
 				($this->params['inputDisable'] == 1) ? $disableInput = 'disabled="disabled"' : $disableInput = '';
-
+				
 					//show configuration
 				$out = '<hr /><h3>'.$GLOBALS['LANG']->getLL('mailgroup_import_header_conf').'</h3>';
 				$tblLines = array();
@@ -233,7 +233,7 @@ class tx_directmail_importer {
 				$out .= $this->formatTable($tblLines, array('nowrap','nowrap'), 0, array(1,1), 'border="0" cellpadding="0" cellspacing="0" class="typo3-dblist"');
 				$out .= '<input type="submit" name="CSV_IMPORT[update]" value="'.$GLOBALS['LANG']->getLL('mailgroup_import_update').'"/>';
 				unset($tblLines);
-
+				
 					//show mapping form
 				$out .= '<hr /><h3>'.$GLOBALS['LANG']->getLL('mailgroup_import_mapping_conf').'</h3>';
 
@@ -292,7 +292,7 @@ class tx_directmail_importer {
 				$tblLinesAdd = array();
 					//header
 				$tblLinesAdd[] = array($GLOBALS['LANG']->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"'.(!$this->indata['all_html']?'':' checked="checked"').'/> ');
-				//get categories
+				//get categories 
 				$temp = t3lib_BEfunc::getModTSconfig($this->parent->id,'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
 				if(is_numeric($temp['value'])){
 					$rowCat = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
@@ -306,11 +306,11 @@ class tx_directmail_importer {
 							$tblLinesAdd[] = array($GLOBALS['LANG']->getLL('mailgroup_import_mapping_cats_add'), '<input type="checkbox" name="CSV_IMPORT[add_cat]" value="1"'.($this->indata['add_cat']?' checked="checked"':'').'/> ');
 						}
 						foreach ($rowCat as $k => $v){
-							$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');
-						}
+							$tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"').'/> ');	
+						}	
 					}
 				}
-
+				
 				$out.= $this->formatTable($tblLines, array('nowrap','nowrap','nowrap','nowrap'), 1, array(0,0,1,1), 'border="0" cellpadding="0" cellspacing="0" class="typo3-dblist"');
 				$out.= '<br /><br />';
 				//additional options
@@ -391,13 +391,13 @@ class tx_directmail_importer {
 				$out = '<hr /><h3>'.$GLOBALS['LANG']->getLL('mailgroup_import_done').'</h3>';
 
 				$defaultOrder = array('new','update','invalid_email','double');
-
+				
 				if ( !empty($this->params['resultOrder']) ) {
-					$resultOrder = t3lib_div::trimExplode(',',$this->params['resultOrder']);
+					$resultOrder = t3lib_div::trimExplode(',',$this->params['resultOrder']);	
 				} else {
 					$resultOrder = array();
 				}
-
+				
 				$diffOrder = array_diff($defaultOrder,$resultOrder);
 				$endOrder = array_merge($resultOrder,$diffOrder);
 
@@ -408,7 +408,7 @@ class tx_directmail_importer {
 						foreach($result[$order] as $k => $v){
 							$mapKeys = array_keys($v);
 							$tblLines[]= array($k+1, $v[$mapKeys[0]], $v['email']);
-						}
+						}	
 					}
 					$out.= $this->formatTable($tblLines, array('nowrap', 'first' => 'colspan="3"'), 1, array(1));
 				}
@@ -448,28 +448,28 @@ class tx_directmail_importer {
 					//show upload file form
 				$out = '<hr /><h3>'.$GLOBALS['LANG']->getLL('mailgroup_import_header_upload').'</h3>';
 				$tempDir = $this->userTempFolder();
-
+				
 				$tblLines[] = $GLOBALS['LANG']->getLL('mailgroup_import_upload_file').'<input type="file" name="upload_1" size="30" />';
 				$tblLines[] = '<input type="checkbox" name="overwriteExistingFiles" value="1"'.' '.($_POST['importNow'] ? 'disabled' : '').'/>&nbsp;'.$GLOBALS['LANG']->getLL('mailgroup_import_overwrite');
 				if(($this->indata['mode'] == 'file') && !(((strpos($currentFileInfo['file'],'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt'))){
 					$tblLines[] = $GLOBALS['LANG']->getLL('mailgroup_import_current_file').'<b>'.$currentFileMessage.'</b>';
 				}
-
+				
 				if(((strpos($currentFileInfo['file'],'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt')){
 					$handleCSV = fopen($this->indata['newFile'],'r');
 					$this->indata['csv'] = fread($handleCSV, filesize($this->indata['newFile']));
 					fclose($handleCSV);
 				}
-
+				
 				$tblLines[] = '';
 				$tblLines[] = '<b>'.$GLOBALS['LANG']->getLL('mailgroup_import_or').'</b>';
 				$tblLines[] = '';
 				$tblLines[] = $GLOBALS['LANG']->getLL('mailgroup_import_paste_csv');
 				$tblLines[] = '<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"'.$this->parent->doc->formWidthText(48,'','off').'>'.t3lib_div::formatForTextarea($this->indata['csv']).'</textarea>';
 				$tblLines[] = '<input type="submit" name="CSV_IMPORT[next]" value="' . $GLOBALS['LANG']->getLL('mailgroup_import_next') . '" />';
-
+				
 				$out.= implode('<br />', $tblLines);
-
+				
 				$out.= '<input type="hidden" name="CMD" value="displayImport" />
 						<input type="hidden" name="importStep[next]" value="conf" />
 						<input type="hidden" name="file[upload][1][target]" value="'.htmlspecialchars($tempDir).'" '.($_POST['importNow'] ? 'disabled' : '').'/>
@@ -479,7 +479,7 @@ class tx_directmail_importer {
 		}
 
 		$theOutput = $this->parent->doc->section($GLOBALS['LANG']->getLL('mailgroup_import').t3lib_BEfunc::cshItem($this->cshTable,'mailgroup_import',$GLOBALS['BACK_PATH']),$out, 1, 1, 0, TRUE);
-
+		
 		/**
 		 *  Hook for cmd_displayImport
 		 *  use it to manipulate the steps in the import process
@@ -540,7 +540,7 @@ class tx_directmail_importer {
 		}
 		$csv['clean'] = $filtered;
 		$csv['double'] = $double;
-
+		
 		return $csv;
 	}
 
@@ -677,7 +677,7 @@ class tx_directmail_importer {
 		$tce->enableLogging = 0;
 		$tce->start($data,array());
 		$tce->process_datamap();
-
+		
 		/**
 		 * Hook for doImport Mail
 		 * will be called every time a record is inserted
@@ -687,17 +687,17 @@ class tx_directmail_importer {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'] as $classRef) {
 				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
 			}
-
+		
 			foreach($hookObjectsArr as $hookObj)    {
 				if (method_exists($hookObj, 'doImport')) {
 					$hookObj->doImport($this,$data,$c);
 				}
 			}
 		}
-
+		
 		return $resultImport;
 	}
-
+	
 	/**
 	 * Prepare insert array for the TCE
 	 * @param array $data: array for the TCE
@@ -827,10 +827,10 @@ class tx_directmail_importer {
 
 		/**
 	 * Convert charset if necessary
-	 *
+	 * 
 	 * @param	array	$data contains values to convert
 	 * @return	array	array of charset-converted values
-	 * @see	t3lib_cs::convArray()
+	 * @see	t3lib_cs::convArray() 
 	 */
 	function convCharset($data) {
 		if (t3lib_div::compat_version('4.5')) {
@@ -843,7 +843,7 @@ class tx_directmail_importer {
 			//if not, assumes it's an ISO DB
 			$dbCharset = 'iso-8859-1';
 		}
-
+		
 		if ( $dbCharset != $this->indata['charset'] )	{
 			$GLOBALS['LANG']->csConvObj->convArray( $data, $this->indata['charset'], $dbCharset );
 		}
@@ -875,12 +875,12 @@ class tx_directmail_importer {
 				if ($first) {
 					$v = '<B>'.$v.'</B>';
 				}
-
+				
 				$cellParam = array();
 				if ($cellParams[$k]) {
 					$cellParam[] = $cellParams[$k];
 				}
-
+				
 				if ($first && isset($cellParams['first'])) {
 					$cellParam[] = $cellParams['first'];
 				}
@@ -909,13 +909,13 @@ class tx_directmail_importer {
 				break;
 			}
 		}
-
+		
 		if ( !$tempFolder )	{
 				// we don't have a valid file mount
 				// use default upload folder
 			$tempFolder = t3lib_div::getFileAbsFileName('uploads/tx_directmail/');
 		}
-
+		
 		return $tempFolder;
 	}
 
@@ -927,16 +927,16 @@ class tx_directmail_importer {
 	function writeTempFile(){
 		$newfile = "";
 		$user_perms = $GLOBALS['BE_USER']->getFileoperationPermissions();
-
+		
 		unset($this->fileProcessor);
-
+		
 		//add uploads/tx_directmail to user filemounts
 		$GLOBALS['FILEMOUNTS']['tx_directmail'] = array(
 			'name' => 'direct_mail',
 			'path' => t3lib_div::getFileAbsFileName('uploads/tx_directmail/'),
 			'type'
 		);
-
+		
 		// Initializing:
 		/** @var $fileProcessor t3lib_extFileFunctions */
 		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
@@ -997,10 +997,10 @@ class tx_directmail_importer {
 				'path' => $tempFolder,
 				'name' => array_pop( explode( '/', trim( $tempFolder, '/' ) ) ). '/',
 			)
-		);
-
+		); 
+		
 		$user_perms = ($GLOBALS['BE_USER']->user['admin'])?1:$GLOBALS['BE_USER']->user['fileoper_perms'];
-
+		
 		// Initializing:
 		/** @var $fileProcessor t3lib_extFileFunctions */
 		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');

@@ -246,7 +246,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 				$images_arr[] = $this->siteUrl.$upload_path.$file;
 			}
 		}
-
+	
 	}
 
 	/**
@@ -583,7 +583,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 					} else {
 						$ll = $linksArr[0];
 					}
-
+	
 					$theLink = $this->getLink($ll);
 					if ($theLink) {
 						$lines[] = $this->getString($this->conf['images.']['linkPrefix']).$theLink;
