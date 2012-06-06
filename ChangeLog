@@ -1,3 +1,6 @@
+2012-06-06 Ivan Kartolo <ivan@kartolo.de>
+	* remove deprecated dmailer.phpsh
+
 2012-06-04 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #31054: fix compiling recipient from fe_groups. module_sys_dmail_newsletter was ignored
 
