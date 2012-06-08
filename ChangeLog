@@ -1,3 +1,6 @@
+2012-06-08 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #37821: fixed utf-8 problem in subject
+
 2012-06-06 Ivan Kartolo <ivan@kartolo.de>
 	* remove deprecated dmailer.phpsh
 

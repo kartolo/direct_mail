@@ -187,7 +187,11 @@ class dmailer {
 			$this->flowedFormat = 1;
 		}
 		if ($row['charset']) {
-			$this->charset = $row['charset'];
+			if ($row['type'] == 0) {
+				$this->charset = "utf-8";
+			} else {
+				$this->charset = $row['charset'];
+			}
 		}
 
 		$this->encoding = $row['encoding'];

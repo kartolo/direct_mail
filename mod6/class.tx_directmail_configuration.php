@@ -350,7 +350,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 			$this->implodedParams['plainParams'] = '&type=99';
 		}
 		if (!isset($this->implodedParams['quick_mail_charset'])) {
-			$this->implodedParams['quick_mail_charset'] = 'iso-8859-1';
+			$this->implodedParams['quick_mail_charset'] = 'utf-8';
 		}
 		if (!isset($this->implodedParams['direct_mail_charset'])) {
 			$this->implodedParams['direct_mail_charset'] = 'iso-8859-1';
@@ -362,7 +362,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 		foreach($rootline as $rArr) {
 			$rootlineID[] = $rArr['uid'];
 		}
-		
+
 		$res_domain = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'uid,domainName',
 			'sys_domain',
