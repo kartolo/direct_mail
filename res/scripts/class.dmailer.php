@@ -1186,6 +1186,8 @@ class dmailer {
 	* @return	void
 	*/
 	public function extractMediaLinks() {
+		$this->theParts['html']['media'] = array();
+
 		$html_code = $this->theParts['html']['content'];
 		$attribRegex = $this->tag_regex(array('img', 'table', 'td', 'tr', 'body', 'iframe', 'script', 'input', 'embed'));
 		$image_fullpath_list = '';
@@ -1256,7 +1258,7 @@ class dmailer {
 			$imageData['quotes'] = substr($temp, 0, 1);
 			// subst_str is the string to look for, when substituting lateron
 			$imageData['subst_str'] = $imageData['quotes'] . $imageData['ref'] . $imageData['quotes'];
-			$theInfo = $this->split_fileref($imageData['ref']);
+			$theInfo = t3lib_div::split_fileref($imageData['ref']);
 
 			switch ($theInfo['fileext']) {
 				case 'gif':
