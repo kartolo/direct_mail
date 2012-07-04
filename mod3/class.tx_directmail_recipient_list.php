@@ -305,7 +305,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 			if (is_array($idLists['fe_users']))	$count+=count($idLists['fe_users']);
 			if (is_array($idLists['PLAINLIST']))	$count+=count($idLists['PLAINLIST']);
 			if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
-			
+
 			$out.='<tr>
 					<td nowrap="nowrap">'.t3lib_iconWorks::getIconImage('sys_dmail_group', $row, $GLOBALS['BACK_PATH'], 'width="18" height="16" style="vertical-align: top;"').'</td>
 					<td>'.$this->editLink('sys_dmail_group',$row['uid']).'</td>
@@ -340,8 +340,14 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 	 * @return	string		the edit link
 	 */
 	function editLink($table,$uid)	{
-		$params = '&edit['.$table.']['.$uid.']=edit';
-		$str = '<a href="#" onClick="'.t3lib_BEfunc::editOnClick($params,$GLOBALS['BACK_PATH'],'').'"><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS['LANG']->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS['LANG']->getLL("dmail_edit").'" /></a>';
+		$str = "";
+
+		// check if the user has the right to modify the table
+		if ($GLOBALS["BE_USER"]->check('tables_modify',$table)) {
+			$params = '&edit['.$table.']['.$uid.']=edit';
+			$str = '<a href="#" onClick="'.t3lib_BEfunc::editOnClick($params,$GLOBALS['BACK_PATH'],'').'"><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS['LANG']->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS['LANG']->getLL("dmail_edit").'" /></a>';
+		}
+
 		return $str;
 	}
 
@@ -464,14 +470,14 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				}
 			}
 		}
-		
+
 		/**
 		* Hook for cmd_compileMailGroup
 		* manipulate the generated id_lists
 		*/
 		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'])) {
 			$hookObjectsArr = array();
-				
+
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'] as $classRef) {
 				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
 			}
@@ -480,12 +486,12 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 					$temp_lists = $hookObj->cmd_compileMailGroup_postProcess($id_lists, $this, $mailGroup);
 				}
 			}
-				
+
 			unset ($id_lists);
 			$id_lists = $temp_lists;
 		}
-		
-		
+
+
 		return array(
 			'queryInfo' => array('id_lists' => $id_lists)
 		);
@@ -555,19 +561,19 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				}
 			break;
 			default:
-			
+
 				if (is_array($idLists['tt_address']) && count($idLists['tt_address'])) {
 					$recipContent = $GLOBALS['LANG']->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) . '<br /><a href="' . t3lib_div::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $GLOBALS['LANG']->getLL('mailgroup_download') . '</a>';
 					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_table_address'), $recipContent);
 					$theOutput.= $this->doc->spacer(20);
 				}
-			
+
 				if (is_array($idLists['fe_users']) && count($idLists['fe_users'])) {
 					$recipContent = $GLOBALS['LANG']->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) . '<br /><a href="' . t3lib_div::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $GLOBALS['LANG']->getLL('mailgroup_download') . '</a>';
 					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_table_fe_users'), $recipContent);
 					$theOutput.= $this->doc->spacer(20);
 				}
-			
+
 				if (is_array($idLists['PLAINLIST']) && count($idLists['PLAINLIST'])) {
 					$recipContent = $GLOBALS['LANG']->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) . '<br /><a href="' . t3lib_div::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $GLOBALS['LANG']->getLL('mailgroup_download') . '</a>';
 					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_plain_list'), $recipContent);
@@ -581,7 +587,9 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 				}
 
 				if ($group['type'] == 3) {
-					$theOutput .= $this->cmd_specialQuery($group);
+					if ($GLOBALS["BE_USER"]->check('tables_modify','sys_dmail_group')) {
+						$theOutput .= $this->cmd_specialQuery($group);
+					}
 				}
 			break;
 		}
@@ -710,7 +718,7 @@ class tx_directmail_recipient_list extends t3lib_SCbase {
 		$table = t3lib_div::_GP('table');
 		t3lib_div::loadTCA($table);
 		$mm_table = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
-		
+
 		if(t3lib_div::_GP('submit')) {
 			$indata = t3lib_div::_GP('indata');
 			if(!$indata){

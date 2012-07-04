@@ -1,5 +1,9 @@
+2012-07-04 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #38003: hide query editor if user doesn't have right to the recipient table
+
 2012-07-01 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #38479: fixed recursively added media (thx to Tom)
+	* Bug #38003: remove the edit link of recipient list, if the user doesn't have the right to the table
 
 2012-06-08 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #37821: fixed utf-8 problem in subject
