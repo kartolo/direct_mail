@@ -883,7 +883,6 @@ class dmailer {
 		if ($this->includeMedia) {
 			// extract all media path from the mail message
 			$this->extractMediaLinks();
-
 			foreach($this->theParts['html']['media'] as $media) {
 				if ($media['tag'] == 'img') {
 					$cid = $mailer->embed(Swift_Image::fromPath($media['absRef']));
@@ -999,7 +998,7 @@ class dmailer {
 		// Fetches the content of the page
 		$this->theParts['html']['content'] = t3lib_div::getURL($url);
 		if ($this->theParts['html']['content']) {
-			$this->theParts['html']['path'] = $url;
+			$this->theParts['html']['path'] = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
 			return TRUE;
 		} else {
 			return FALSE;
