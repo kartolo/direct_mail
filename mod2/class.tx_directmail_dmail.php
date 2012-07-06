@@ -362,7 +362,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 			$dmail['sys_dmail']['NEW']['subject'] = $indata['subject'];
 			$dmail['sys_dmail']['NEW']['type'] = 1;
 			$dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
-			$dmail['sys_dmail']['NEW']['charset'] = isset($this->params['quick_mail_charset'])? $this->params['quick_mail_charset'] : 'utf-8';
+			$dmail['sys_dmail']['NEW']['charset'] = isset($this->params['quick_mail_charset'])? $this->params['quick_mail_charset'] : 'iso-8859-1';
 
 				// If params set, set default values:
 			if (isset($this->params['includeMedia'])) {

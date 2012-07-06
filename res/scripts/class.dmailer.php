@@ -187,11 +187,7 @@ class dmailer {
 			$this->flowedFormat = 1;
 		}
 		if ($row['charset']) {
-			if ($row['type'] == 0) {
-				$this->charset = "utf-8";
-			} else {
-				$this->charset = $row['charset'];
-			}
+			$this->charset = $row['charset'];
 		}
 
 		$this->encoding = $row['encoding'];
@@ -883,6 +879,7 @@ class dmailer {
 		if ($this->includeMedia) {
 			// extract all media path from the mail message
 			$this->extractMediaLinks();
+
 			foreach($this->theParts['html']['media'] as $media) {
 				if ($media['tag'] == 'img') {
 					$cid = $mailer->embed(Swift_Image::fromPath($media['absRef']));
@@ -998,7 +995,7 @@ class dmailer {
 		// Fetches the content of the page
 		$this->theParts['html']['content'] = t3lib_div::getURL($url);
 		if ($this->theParts['html']['content']) {
-			$this->theParts['html']['path'] = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
+			$this->theParts['html']['path'] = $url;
 			return TRUE;
 		} else {
 			return FALSE;
@@ -1185,8 +1182,6 @@ class dmailer {
 	* @return	void
 	*/
 	public function extractMediaLinks() {
-		$this->theParts['html']['media'] = array();
-
 		$html_code = $this->theParts['html']['content'];
 		$attribRegex = $this->tag_regex(array('img', 'table', 'td', 'tr', 'body', 'iframe', 'script', 'input', 'embed'));
 		$image_fullpath_list = '';
@@ -1257,7 +1252,7 @@ class dmailer {
 			$imageData['quotes'] = substr($temp, 0, 1);
 			// subst_str is the string to look for, when substituting lateron
 			$imageData['subst_str'] = $imageData['quotes'] . $imageData['ref'] . $imageData['quotes'];
-			$theInfo = t3lib_div::split_fileref($imageData['ref']);
+			$theInfo = $this->split_fileref($imageData['ref']);
 
 			switch ($theInfo['fileext']) {
 				case 'gif':
