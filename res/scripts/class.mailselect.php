@@ -59,7 +59,7 @@ class mailSelect extends t3lib_queryGenerator	{
 		$out = '<select name="'.$name.'" onChange="submit();">';
 		$out .= '<option value=""></option>';
 		reset($GLOBALS["TCA"]);
-		foreach ($GLOBALS["TCA"] as $tN => $tableTCA) {
+		foreach ($GLOBALS["TCA"] as $tN) {
 			if ($GLOBALS["BE_USER"]->check('tables_select',$tN) && in_array($tN, $this->allowedTables))	{
 				$out.='<option value="'.$tN.'"'.($tN == $cur ? ' selected':'').'>'.$GLOBALS["LANG"]->sl($GLOBALS["TCA"][$tN]['ctrl']['title']).'</option>';
 			}
