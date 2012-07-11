@@ -1,3 +1,6 @@
+2012-07-11 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #37781: added bounce reason
+
 2012-07-04 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #38003: hide query editor if user doesn't have right to the recipient table
 	* Bug #38232: fixed fetching included media from the wrong FE path
