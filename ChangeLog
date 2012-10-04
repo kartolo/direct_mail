@@ -1,3 +1,6 @@
+2012-10-04 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #39422: fixed dmailerping not counted in statistic module
+
 2012-07-11 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #37781: added bounce reason
 	* Bug #37989: fixed file operation permission for non-admin in importer

@@ -884,7 +884,7 @@ class dmailer {
 			// extract all media path from the mail message
 			$this->extractMediaLinks();
 			foreach($this->theParts['html']['media'] as $media) {
-				if ($media['tag'] == 'img') {
+				if (($media['tag'] == 'img') && !$media['use_jumpurl']) {
 					$cid = $mailer->embed(Swift_Image::fromPath($media['absRef']));
 					$this->theParts['html']['content'] = str_replace($media['subst_str'], $cid, $this->theParts['html']['content']);
 				}
@@ -1323,6 +1323,15 @@ class dmailer {
 					$hrefData['absRef'] = $this->absRef($hrefData['ref']);
 					$this->theParts['html']['hrefs'][] = $hrefData;
 				}
+			}
+		}
+
+		// substitute dmailerping URL
+		// get all media and search for use_jumpurl then add it to the hrefs array
+		$this->extractMediaLinks();
+		foreach ($this->theParts['html']['media'] as $k => $mediaData) {
+			if ($mediaData['use_jumpurl'] === 1) {
+				$this->theParts['html']['hrefs'][$mediaData['ref']] = $mediaData;
 			}
 		}
 	}
