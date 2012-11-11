@@ -173,6 +173,8 @@ class dmailer {
 	var $dmailer;
 	var $mediaList;
 
+	var $tempFileList = array();
+
 	/**
 	 * Preparing the Email. Headers are set in global variables
 	 *
@@ -885,8 +887,19 @@ class dmailer {
 			$this->extractMediaLinks();
 			foreach($this->theParts['html']['media'] as $media) {
 				if (($media['tag'] == 'img') && !$media['use_jumpurl']) {
-					$cid = $mailer->embed(Swift_Image::fromPath($media['absRef']));
+					// SwiftMailer depends on allow_url_fopen in PHP
+					// To work around this, download the files using t3lib::getURL() to a temporary location.
+					$fileContent = t3lib_div::getUrl($media['absRef']);
+					$tempFile = PATH_site.'uploads/tx_directmail/'.basename($media['absRef']);
+					t3lib_div::writeFile($tempFile,$fileContent);
+
+					unset($fileContent);
+
+					$cid = $mailer->embed(Swift_Image::fromPath($tempFile));
 					$this->theParts['html']['content'] = str_replace($media['subst_str'], $cid, $this->theParts['html']['content']);
+
+					// Temporary files will be removed again after the mail was sent!
+					$this->tempFileList[] = $tempFile;
 				}
 			}
 		}
@@ -964,6 +977,11 @@ class dmailer {
 
 		//unset the mailer object
 		unset($mailer);
+
+		// Delete temporary files
+		foreach ($this->tempFileList as $tempFile) {
+			unlink($tempFile);
+		}
 	}
 
 
