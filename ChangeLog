@@ -1,5 +1,6 @@
 2012-11-11 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #39883: using getURL to fetch attachment and embedded media
+	* Bug #42107: don't set ReplyTo if it's empty
 
 2012-10-04 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #39422: fixed dmailerping not counted in statistic module

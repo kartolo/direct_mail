@@ -668,7 +668,9 @@ class dmailer {
 		$from_name = ($this->from_name) ? $GLOBALS['LANG']->csConvObj->conv($this->from_name, $this->charset, $GLOBALS['LANG']->charSet) : '';
 
 		$headers[] = 'From: "'.$from_name.'" <'.$this->from_email.'>';
-		$headers[] = 'Reply-To: '.$this->replyto_email;
+		if (!empty($this->replyto_email)) {
+			$headers[] = 'Reply-To: '.$this->replyto_email;
+		}
 
 		$email = '"'.$from_name.'" <'.$this->from_email.'>';
 
