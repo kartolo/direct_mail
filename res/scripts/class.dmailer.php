@@ -888,7 +888,7 @@ class dmailer {
 			// extract all media path from the mail message
 			$this->extractMediaLinks();
 			foreach($this->theParts['html']['media'] as $media) {
-				if (($media['tag'] == 'img') && !$media['use_jumpurl']) {
+				if (($media['tag'] == 'img' || $media['tag'] == 'table' || $media['tag'] == 'tr' || $media['tag'] == 'td') && !$media['use_jumpurl']) {
 					// SwiftMailer depends on allow_url_fopen in PHP
 					// To work around this, download the files using t3lib::getURL() to a temporary location.
 					$fileContent = t3lib_div::getUrl($media['absRef']);
