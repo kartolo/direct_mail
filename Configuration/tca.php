@@ -212,6 +212,7 @@ $TCA['sys_dmail'] = array(
 			'config' => array(
 				'type' => 'select',
 				'internal_type' => 'db',
+				'foreign_table' => 'sys_domain',
 				'allowed' => 'sys_domain',
 				'items' => array(
 					array('', 0)

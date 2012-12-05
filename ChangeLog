@@ -1,5 +1,6 @@
 2012-12-5 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #38905: background image from table, tr or td tag can now be embedded in the newsletter
+	* Bug #41536: bug fix on using the domain for internal links
 
 2012-11-11 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #39883: using getURL to fetch attachment and embedded media
