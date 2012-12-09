@@ -373,11 +373,24 @@ class dmailer {
 			$this->TYPO3MID = $midRidId . '-' . md5($midRidId);
 
 			// recipient swiftmailer style
-			$recipient = array(
-				$recipRow['email'] => $GLOBALS['LANG']->csConvObj->conv($recipRow['name'], $GLOBALS['LANG']->charSet, $this->charset),
-			);
+			// check if the email valids
+			$recipient = array();
+			if (t3lib_div::validEmail($recipRow['email'])) {
+				if (!empty($recipRow['name'])) {
+					// if there's a name
+					$recipient = array(
+						$recipRow['email'] => $GLOBALS['LANG']->csConvObj->conv($recipRow['name'], $GLOBALS['LANG']->charSet, $this->charset),
+					);
+				} else {
+					// if only email is given
+					$recipient = array(
+						$recipRow['email'],
+					);
+				}
+			}
 
-			if ($returnCode) {
+
+			if ($returnCode && !empty($recipient)) {
 				$this->sendTheMail($recipient);
 			}
 		}
