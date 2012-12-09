@@ -1,5 +1,6 @@
 2012-12-09 Ivan Kartolo <iva@kartolo.de>
 	* Bug #41340: fixed recipient header if no name is given
+	* Bug #41480: message ID uses the host name
 
 2012-12-05 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #38905: background image from table, tr or td tag can now be embedded in the newsletter

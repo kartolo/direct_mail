@@ -866,7 +866,7 @@ class dmailer {
 		}
 
 		$idLeft = time() . '.' . uniqid();
-		$idRight = !empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'swift.generated';
+		$idRight = !empty($host) ? $host : 'swift.generated';
 		$this->messageid = $idLeft . '@' . $idRight;
 
 		// Default line break for Unix systems.
