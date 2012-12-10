@@ -48,7 +48,7 @@ class tx_directmail_select_categories {
 	 * Get the localization of the select field items (right-hand part of form)
 	 * Referenced by TCA
 	 *
-	 * @param	array		$params: array of searched translation 
+	 * @param	array		$params: array of searched translation
 	 * @return	void		...
 	 */
 	function get_localized_categories($params)	{
@@ -62,7 +62,6 @@ class tx_directmail_select_categories {
 		$params['row'] = $row;
 		$params['field'] = $field;
 */
-		$items = $params['items'];
 		$config = $params['config'];
 		$table = $config['itemsProcFunc_config']['table'];
 
@@ -71,8 +70,8 @@ class tx_directmail_select_categories {
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				//'sys_language.uid,static_languages.lg_collate_locale',
 				'sys_language.uid',
-				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-				'static_languages.lg_typo3='.$GLOBALS['TYPO3_DB']->fullQuoteStr($LANG->lang,'static_languages').
+				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode = static_languages.uid',
+				'static_languages.lg_typo3 = '.$GLOBALS['TYPO3_DB']->fullQuoteStr($LANG->lang,'static_languages').
 					t3lib_pageSelect::enableFields('sys_language').
 					t3lib_pageSelect::enableFields('static_languages')
 				);
@@ -81,20 +80,21 @@ class tx_directmail_select_categories {
 				$this->collate_locale = $row['lg_collate_locale'];
 			}
 		}
-		reset($params['items']);
-		while(list($k,$item) = each($params['items'])) {
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-				'*',
-				$table,
-				'uid='.intval($item[1])
+
+		if (is_array($params['items']) && !empty($params['items'])) {
+			foreach ($params['items'] as $k => $item ) {
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+					'*',
+					$table,
+						'uid='.intval($item[1])
 				);
-			while($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-				if($localizedRowCat = tx_directmail_static::getRecordOverlay($table,$rowCat,$this->sys_language_uid,'')) {
-					$params['items'][$k][0] = $localizedRowCat['category'];
+				while($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+					if($localizedRowCat = tx_directmail_static::getRecordOverlay($table,$rowCat,$this->sys_language_uid,'')) {
+						$params['items'][$k][0] = $localizedRowCat['category'];
+					}
 				}
 			}
 		}
-
 	}
 }
 
