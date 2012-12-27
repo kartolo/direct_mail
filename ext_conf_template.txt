@@ -22,7 +22,7 @@ enablePlainTextNews = 1
 	# cat=basic/enable; type=boolean; label=Encode header: If you enable this checkbox it will encode the header (in order to fix some charset problem in subject, senders and recepient name)
 encodeHeader = 1
 
-	# cat=basic/enable; type=boolean; label=Use http connection for fetching Newsletter-Content: Even if your TYPO3 Backend is in SSL-Mode, the URL for fetching the NEwsletter-Conts will be http
+	# cat=basic/enable; type=boolean; label=Use http connection for fetching Newsletter-Content: Even if your TYPO3 Backend is in SSL-Mode, the URL for fetching the newsletter contents will be http
 UseHttpToFetch = 0
 
 	# cat=basic/dev/1000; type=user[EXT:direct_mail/res/scripts/class.tx_directmail_tsparserext.php:tx_directmail_tsparserext->displayMessage]; label=LLL:EXT:direct_mail/locallang_mod2-6.xml:update_option

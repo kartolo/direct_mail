@@ -1031,7 +1031,21 @@ class dmailer {
 		// Fetches the content of the page
 		$this->theParts['html']['content'] = t3lib_div::getURL($url);
 		if ($this->theParts['html']['content']) {
-			$this->theParts['html']['path'] = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
+			$urlPart = parse_url($url);
+			if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
+				$urlPart['scheme'] = 'http';
+			}
+
+			if (!empty($urlPart['user'])) {
+				$user = $urlPart['user'];
+				if (!empty($urlPart['pass'])) {
+					$user .= ':'.$urlPart['pass'];
+				}
+				$user .= '@';
+			}
+
+			$this->theParts['html']['path'] = $urlPart['scheme'].'://'.$user.$urlPart['host'].t3lib_div::getIndpEnv('TYPO3_SITE_PATH');
+
 			return TRUE;
 		} else {
 			return FALSE;

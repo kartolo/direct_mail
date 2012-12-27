@@ -1,3 +1,11 @@
+2012-12-27 Ivan Kartolo <ivan@kartolo.de>
+	* Fixed typo in extension config
+	* Release 3.0.3
+
+2012-12-11 Ivan Kartolo <ivan@kartolo.de>
+	* Bug #43064: check if array is given in get_localized_categories userFunc.
+	* Bug #42544: bug fixed wrong link scheme if TYPO3 BE is https
+
 2012-12-09 Ivan Kartolo <iva@kartolo.de>
 	* Bug #41340: fixed recipient header if no name is given
 	* Bug #41480: message ID uses the host name
