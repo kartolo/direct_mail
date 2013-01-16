@@ -81,7 +81,7 @@ class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_sched
 			$fieldHtml .= '<option>' . 'No drafts found. Please add one first through the direct mail process'. '</option>';
 		} else {
 			foreach ($drafts as $draft) {
-				$selected = ($taskInfo['selecteddraft'] ? ' selected="selected"' : '');
+				$selected = ($task->draftUid == $draft['uid'] ? ' selected="selected"' : '');	// see #44577
 				$fieldHtml .= '<option value="' . $draft['uid'] . '"' . $selected . '>' . $draft['subject'] . ' [' . $draft['uid'] . ']</option>';
 			}
 		}
