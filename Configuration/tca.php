@@ -211,9 +211,7 @@ $TCA['sys_dmail'] = array(
 			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail.use_domain',
 			'config' => array(
 				'type' => 'select',
-				'internal_type' => 'db',
 				'foreign_table' => 'sys_domain',
-				'allowed' => 'sys_domain',
 				'items' => array(
 					array('', 0)
 				),
