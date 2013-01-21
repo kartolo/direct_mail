@@ -189,9 +189,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				$pageRenderer = $this->doc->getPageRenderer();
 				$pageRenderer->loadExtJS();
 				$pageRenderer->addJsFile($this->doc->backPath . '../t3lib/js/extjs/tceforms.js');
-				if (t3lib_div::compat_version('4.6')) {
-					$pageRenderer->addJsFile($this->doc->backPath .'../t3lib/js/extjs/ux/Ext.ux.DateTimePicker.js');
-				}
+				$pageRenderer->addJsFile($this->doc->backPath .'../t3lib/js/extjs/ux/Ext.ux.DateTimePicker.js');
 
 				// Define settings for Date Picker
 				$typo3Settings = array(
