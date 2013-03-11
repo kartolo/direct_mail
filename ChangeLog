@@ -1,5 +1,6 @@
 2013-03-11 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #46087: Fixed how the jumpurl is redirected to TYPO3. Thanks to Peter Niederlag
+	* Release 3.0.4
 
 2013-01-21 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #44579: Fixed date picker in the wizard.
