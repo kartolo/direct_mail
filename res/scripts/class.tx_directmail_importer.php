@@ -913,7 +913,7 @@ class tx_directmail_importer {
 		if ( !$tempFolder )	{
 				// we don't have a valid file mount
 				// use default upload folder
-			$tempFolder = t3lib_div::getFileAbsFileName('uploads/tx_directmail/');
+			$tempFolder = 'uploads/tx_directmail/';
 		}
 
 		return $tempFolder;
@@ -989,33 +989,42 @@ class tx_directmail_importer {
 	 */
 	function checkUpload()	{
 		$file = t3lib_div::_GP('file');
-		$fm = array();
 
-		$tempFolder = $this->userTempFolder();
+		//add uploads/tx_directmail to user filemounts
+		$GLOBALS['FILEMOUNTS']['tx_directmail'] = array(
+			'name' => 'direct_mail',
+			'path' => t3lib_div::getFileAbsFileName('uploads/tx_directmail/'),
+			'type'
+		);
+
+		//$tempFolder = $this->userTempFolder();
+		$tempFolder = 'uploads/tx_directmail/';
 		$fm = array(
 			$GLOBALS['EXEC_TIME'] => array (
 				'path' => $tempFolder,
 				'name' => array_pop( explode( '/', trim( $tempFolder, '/' ) ) ). '/',
 			)
 		);
-
+t3lib_utility_Debug::debug($GLOBALS['FILEMOUNTS'],'mounts');
 		// Initializing:
 		/** @var $fileProcessor t3lib_extFileFunctions */
 		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
-		$this->fileProcessor->init($fm, $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
+		$this->fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
 		$this->fileProcessor->init_actionPerms($GLOBALS['BE_USER']->getFileoperationPermissions());
 		$this->fileProcessor->dontCheckForUnique = t3lib_div::_GP('overwriteExistingFiles') ? 1 : 0;
 
 		// Checking referer / executing:
 		$refInfo = parse_url(t3lib_div::getIndpEnv('HTTP_REFERER'));
 		$httpHost = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
-
+t3lib_utility_Debug::debug($_FILES,'files');
+t3lib_utility_Debug::debug($file,'file');
 		if ($httpHost != $refInfo['host'] && $this->vC != $GLOBALS['BE_USER']->veriCode() && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
 			$this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', array($refInfo['host'], $httpHost));
 		} else {
 			$this->fileProcessor->start($file);
-			$newfile = $this->fileProcessor->func_upload($file['upload']['1']);
+				$newfile = $this->fileProcessor->processData();
 		}
+t3lib_utility_Debug::debug($newfile,'newFile');
 		return $newfile;
 	}
 }
