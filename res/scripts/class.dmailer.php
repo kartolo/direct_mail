@@ -902,19 +902,27 @@ class dmailer {
 			$this->extractMediaLinks();
 			foreach($this->theParts['html']['media'] as $media) {
 				if (($media['tag'] == 'img' || $media['tag'] == 'table' || $media['tag'] == 'tr' || $media['tag'] == 'td') && !$media['use_jumpurl']) {
-					// SwiftMailer depends on allow_url_fopen in PHP
-					// To work around this, download the files using t3lib::getURL() to a temporary location.
-					$fileContent = t3lib_div::getUrl($media['absRef']);
-					$tempFile = PATH_site.'uploads/tx_directmail/'.basename($media['absRef']);
-					t3lib_div::writeFile($tempFile,$fileContent);
 
-					unset($fileContent);
+					if (ini_get('allow_url_fopen')) {
+						// SwiftMailer depends on allow_url_fopen in PHP
+						$cid = $mailer->embed(Swift_Image::fromPath($media['absRef']));
+					} else {
+						// If allow_url_fopen is deactivated
+						// SwiftMailer depends on allow_url_fopen in PHP
+						// To work around this, download the files using t3lib::getURL() to a temporary location.
+						$fileContent = t3lib_div::getUrl($media['absRef']);
+						$tempFile = PATH_site.'uploads/tx_directmail/'.basename($media['absRef']);
+						t3lib_div::writeFile($tempFile,$fileContent);
 
-					$cid = $mailer->embed(Swift_Image::fromPath($tempFile));
+						unset($fileContent);
+
+						$cid = $mailer->embed(Swift_Image::fromPath($tempFile));
+						// Temporary files will be removed again after the mail was sent!
+						$this->tempFileList[] = $tempFile;
+					}
+
 					$this->theParts['html']['content'] = str_replace($media['subst_str'], $cid, $this->theParts['html']['content']);
 
-					// Temporary files will be removed again after the mail was sent!
-					$this->tempFileList[] = $tempFile;
 				}
 			}
 		}
@@ -994,8 +1002,13 @@ class dmailer {
 		unset($mailer);
 
 		// Delete temporary files
-		foreach ($this->tempFileList as $tempFile) {
-			unlink($tempFile);
+		// see setContent, where temp images are downloaded
+		if (!empty($this->tempFileList)) {
+			foreach ($this->tempFileList as $tempFile) {
+				if (file_exists($tempFile)) {
+					unlink($tempFile);
+				}
+			}
 		}
 	}
 
