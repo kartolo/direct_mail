@@ -151,7 +151,7 @@ class tx_directmail_checkjumpurl {
 					// received (url, dmailerping)
 				$responseType = -1;
 				// Check if jumpurl is /typo3conf/ext/direct_mail/res/gfx/dmailerping.gif
-				if ($jumpurl === '/typo3conf/ext/direct_mail/res/gfx/dmailerping.gif'){
+				if (strpos($jumpurl, 'dmailerping.gif') !== false){
 					// set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
 					t3lib_div::_GETset(t3lib_div::hmac($jumpurl, 'jumpurl'), 'juHash');
 				}

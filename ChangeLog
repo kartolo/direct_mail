@@ -1,5 +1,6 @@
 2013-05-06 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #46224: check if allow_url_fopen is active, else use getUrl
+	* do not check the whole path for the dmailerping
 
 2013-03-11 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #46087: Fixed how the jumpurl is redirected to TYPO3. Thanks to Peter Niederlag
