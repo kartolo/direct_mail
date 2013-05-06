@@ -49,7 +49,7 @@ require_once (t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directm
  *
  */
 class tx_directmail_recipient_list extends t3lib_SCbase {
-	var $fieldList = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
+	var $fieldList = 'uid,name,first_name,middle_name,last_name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
 	// Internal
 	var $params = array();
 	var $perms_clause = '';

@@ -1,6 +1,7 @@
 2013-05-06 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #46224: check if allow_url_fopen is active, else use getUrl
 	* do not check the whole path for the dmailerping
+	* Bug #46226: added first_name, middle_name and last_name to the recipient list exporter
 
 2013-03-11 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #46087: Fixed how the jumpurl is redirected to TYPO3. Thanks to Peter Niederlag
