@@ -1,3 +1,6 @@
+2013-12-04 Ivan Kartolo <ivan@kartolo.de>
+    * Feature #48723: added hide field in importer mapping
+
 2013-05-06 Ivan Kartolo <ivan@kartolo.de>
 	* Bug #46224: check if allow_url_fopen is active, else use getUrl
 	* do not check the whole path for the dmailerping

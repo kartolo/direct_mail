@@ -253,7 +253,7 @@ class tx_directmail_importer {
 				}
 
 				//read tt_address TCA
-				$no_map = array('hidden','image');
+				$no_map = array('image');
 				$tt_address_fields = array_keys($GLOBALS['TCA']['tt_address']['columns']);
 				foreach($no_map as $v){
 					$tt_address_fields = t3lib_div::removeArrayEntryByValue($tt_address_fields, $v);
