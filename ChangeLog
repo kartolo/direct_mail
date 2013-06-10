@@ -1,3 +1,6 @@
+2013-06-10 Bernhard Kraft <kraft@webconsulting.at>
+	* Bug #46452: Statistics module: Use boolean compare instead of t3lib_div::inList
+
 2013-06-04 Ivan Kartolo <ivan@kartolo.de>
 	* Feature #48723: added hide field in importer mapping
 

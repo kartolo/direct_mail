@@ -659,7 +659,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		$tblLines[] = array('',$GLOBALS["LANG"]->getLL('stats_HTML_link_nr'),$GLOBALS["LANG"]->getLL('stats_plaintext_link_nr'),$GLOBALS["LANG"]->getLL('stats_total'),$GLOBALS["LANG"]->getLL('stats_HTML'),$GLOBALS["LANG"]->getLL('stats_plaintext'),'');
 
 			// HTML mails
-		if (t3lib_div::inList('2,3', $row['sendOptions'])) {
+		if (intval($row['sendOptions']) & 0x2) {
 			$HTMLContent = $temp_unpackedMail['html']['content'];
 
 			$HTMLlinks = array();
