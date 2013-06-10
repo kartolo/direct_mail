@@ -36,6 +36,8 @@ class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
 
 	public $draftUid = NULL;
 
+	protected $hookObjects = array();
+
 	/**
 	 * setter function to set the draft ID that the task should use
 	 * @param 	integer 	$draftUid	the UID of the sys_dmail record (needs to be of type=3 or type=4)
@@ -53,36 +55,81 @@ class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
 	 */
 	function execute() {
 		if ($this->draftUid > 0) {
+			$this->initializeHookObjects();
+			$hookParams = array();
+
 			$draftRecord = t3lib_BEfunc::getRecord('sys_dmail', $this->draftUid);
 			
-				// make a real record out of it
-			unset($draftRecord['uid']);
-			$draftRecord['tstamp'] = time();
-			$draftRecord['type'] -= 2;	// set the right type (3 => 1, 2 => 0)
-			$GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail', $draftRecord);
-			$dmailUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
-
-				// fetch the cloned record
-			$mailRecord = t3lib_BEfunc::getRecord('sys_dmail', $dmailUid);
-
 				// get some parameters from tsConfig
 			$tsConfig = t3lib_BEfunc::getModTSconfig($draftRecord['pid'], 'mod.web_modules.dmail');
 			$defaultParams = $tsConfig['properties'];
 
+				// make a real record out of it
+			unset($draftRecord['uid']);
+			$draftRecord['tstamp'] = time();
+			$draftRecord['type'] -= 2;	// set the right type (3 => 1, 2 => 0)
+
+				// Insert the new dmail record into the DB
+			$GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail', $draftRecord);
+			$this->dmailUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
+
+				// Call a hook after insertion of the cloned dmail record
+				// This hook can get used to modify fields of the direct mail.
+				// For example the current date could get appended to the subject.
+			$hookParams['draftRecord'] = &$draftRecord;
+			$hookParams['defaultParams'] = &$defaultParams;
+			$this->callHooks('postInsertClone', $hookParams);
+
+				// fetch the cloned record
+			$mailRecord = t3lib_BEfunc::getRecord('sys_dmail', $this->dmailUid);
+
 			tx_directmail_static::fetchUrlContentsForDirectMailRecord($mailRecord, $defaultParams);
 
-			$mailRecord = t3lib_BEfunc::getRecord('sys_dmail', $dmailUid);
+			$mailRecord = t3lib_BEfunc::getRecord('sys_dmail', $this->dmailUid);
 			if ($mailRecord['mailContent'] && $mailRecord['renderedsize'] > 0) {
 				$updateData = array(
 					'scheduled' => time(),
 					'issent'    => 1
 				);
-				$GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail', 'uid = ' . intval($dmailUid), $updateData);
+					// Call a hook before enqueuing the cloned dmail record into
+					// the direct mail delivery queue
+				$hookParams['mailRecord'] = &$mailRecord;
+				$hookParams['updateData'] = &$updateData;
+				$this->callHooks('enqueueClonedDmail', $hookParams);
+					// Update the cloned dmail so it will get sent upon next
+					// invocation of the mailer engine
+				$GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail', 'uid = ' . intval($this->dmailUid), $updateData);
 			}
 
 		}
 		return TRUE;
 	}
+
+	/**
+	 * Calls the passed hook method of all configured hook object instances
+	 *
+	 * @return	void
+	 */
+	function callHooks($hookMethod, $hookParams) {
+		foreach ($this->hookObjects as $hookObjectInstance) {
+			$hookObjectInstance->$hookMethod($hookParams, $this);
+		}
+	}
+
+	/**
+	 * Initializes hook objects for this class
+	 *
+	 * @return	void
+	 */
+	function initializeHookObjects() {
+		foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] as $hookObj) {
+			$hookObjectInstance = t3lib_div::getUserObj($hookObj);
+			if (is_object($hookObjectInstance) && ($hookObjectInstance instanceof tx_directmail_Scheduler_MailFromDraftHook)) {
+				$this->hookObjects[] = $hookObjectInstance;
+			}
+		}
+	}
+
 
 }
 
