@@ -567,22 +567,46 @@ various functions of the Direct Mail module.
          enter them here in a comma-separated list.
 
 
+.. ### BEGIN~OF~TABLE ###
+
+Following settings are for the statistics module
+
+.. ### BEGIN~OF~TABLE ###
+
 .. container:: table-row
 
    Property
-         test\_dmail\_group\_uids
+         showContentTitle
 
    Data type
-         list of UIDs
+         bool
 
    Description
-         List of UID numbers of test recipient lists.
-
-         Alternatively to sending test-mails to individuals, you can choose to
-         send to a whole list. This is the list of recipient list UID numbers
-         available for this action.
+         if set to 1, then only content title, in which the link can be found, will be shown in the click statistics.
 
 
-.. ###### END~OF~TABLE ######
+.. container:: table-row
 
+   Property
+         prependContentTitle
+
+   Data type
+         bool
+
+   Description
+         if set to 1, then content title and the linked words will be shown
+
+.. container:: table-row
+
+   Property
+         maxLabelLength
+
+   Data type
+         int
+
+   Description
+         maximum length of the clicked statistics label
+
+
+.. ### BEGIN~OF~TABLE ###
 

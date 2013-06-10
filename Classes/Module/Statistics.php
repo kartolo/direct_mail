@@ -54,10 +54,10 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
  */
 class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	var $extKey = 'direct_mail';
-	var $TSconfPrefix = 'mod.web_modules.dmail.';
 	var $fieldList = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
 	// Internal
 	var $params = array();
+	var $implodedParams = array();
 	var $perms_clause = '';
 	var $pageinfo = '';
 	var $sys_dmail_uid;
@@ -93,6 +93,11 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$this->MCONF = $GLOBALS['MCONF'];
 
 		parent::init();
+
+		// get TS Params
+		$temp = BackendUtility::getModTSconfig($this->id,'mod.web_modules.dmail');
+		$this->params = $temp['properties'];
+		$this->implodedParams = BackendUtility::implodeTSParams($this->params);
 
 		$this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params,$this->MOD_MENU['dmail_mode'],'menu.dmail_mode');
 
@@ -721,7 +726,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				// a link to this host?
 			$uParts = @parse_url($url);
 			$urlstr = $this->getUrlStr($uParts);
-			$label = $HTMLlinks[$id]['label'].' (' . ($urlstr ? GeneralUtility::fixed_lgd_cs($urlstr, 60) : '/') . ')';
+
+			$label = $this->getLinkLabel($url, $urlstr, FALSE, $HTMLlinks[$id]['label']);
 
 			$img = '<a href="'.$urlstr.'" target="_blank"><img '.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($label).'" /></a>';
 
@@ -1280,6 +1286,77 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		return $theOutput;
 	}
 
+
+	/**
+	 * This method returns the label for a specified URL.
+	 * If the page is local and contains a fragment it returns the label of the content element linked to.
+	 * In any other case it simply fetches the page and extracts the <title> tag content as label
+	 * @notice This method was added as part of the ages_plaintextmail extension (kraftb)
+	 *
+	 * @param string	$url:The statistics click-URL for which to return a label
+	 * @param string	$urlStr: A processed variant of the url string. This could get appended to the label???
+	 * @param bool		$forceFetch: When this parameter is set to true the "fetch and extract <title> tag" method will get used
+	 * @return string	The label for the passed $url parameter
+	 */
+	function getLinkLabel($url, $urlStr, $forceFetch = false, $linkedWord = '') {
+
+		$pathSite = $this->getBaseURL();
+		$label = $linkedWord;
+		$contentTitle = '';
+
+		$urlParts = parse_url($url);
+		if (!$forceFetch && (substr($url, 0, strlen($pathSite)) === $pathSite)) {
+			if ($urlParts['fragment'] && (substr($urlParts['fragment'], 0, 1) == 'c')) {
+				// linking directly to a content
+				$elementUid = intval(substr($urlParts['fragment'], 1));
+				$row = BackendUtility::getRecord('tt_content', $elementUid);
+				if ($row) {
+					$contentTitle = BackendUtility::getRecordTitle('tt_content', $row, false, true);
+				}
+			} else {
+				$contentTitle = $this->getLinkLabel($url, $urlStr, true);
+			}
+		} else {
+			if (empty($urlParts['host']) && (substr($url, 0, strlen($pathSite)) !== $pathSite)) {
+				// it's internal
+				$url = $pathSite.$url;
+			}
+
+			$content = GeneralUtility::getURL($url);
+
+			if (preg_match('/\<\s*title\s*\>(.*)\<\s*\/\s*title\s*\>/i', $content, $matches)) {
+				// get the page title
+				$contentTitle = GeneralUtility::fixed_lgd_cs(trim($matches[1]),50);
+			} else {
+				// file?
+				$file = GeneralUtility::split_fileref($url);
+				$contentTitle = $file['file'];
+			}
+		}
+
+		if ($this->params['showContentTitle'] == 1) {
+			$label = $contentTitle;
+		}
+
+		if ($this->params['prependContentTitle'] == 1) {
+			$label =  $contentTitle . ' (' . $linkedWord . ')';
+		}
+
+		if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'])) {
+			foreach($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] as $_funcRef) {
+				$_params = array('pObj' => &$this, 'url' => $url, 'urlStr' => $urlStr, 'label' => $label);
+				$label = GeneralUtility::callUserFunction($_funcRef, $_params, $this);
+			}
+		}
+
+		if (isset($this->params['maxLabelLength']) && ($this->params['maxLabelLength'] > 0)) {
+			$label =  GeneralUtility::fixed_lgd_cs($label, $this->params['maxLabelLength']);
+		}
+
+		return $label;
+	}
+
+
 	/**
 	 * generates a string for the URL
 	 *
@@ -1287,9 +1364,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 * @return	string	the URL string
 	 */
 	function getUrlStr($uParts) {
-		$urlstr = '';
-
-		$baseURL = GeneralUtility::getIndpEnv("TYPO3_SITE_URL");
+		$baseURL = $this->getBaseURL();
 
 		if (is_array($uParts) && GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY') == $uParts['host']) {
 			$m = array();
@@ -1309,13 +1384,34 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$query = preg_replace('/(?:^|&)id=([0-9a-z_]+)/', '', $uParts['query']);
 				$urlstr = GeneralUtility::fixed_lgd_cs($temp_page['title'], 50) . GeneralUtility::fixed_lgd_cs(($query ? ' / ' . $query : ''), 20);
 			} else {
-				$urlstr = $baseURL.substr($uParts['path'],1) . ($uParts['query'] ? '?' . $uParts['query'] : '');
+				$urlstr = $baseURL.substr($uParts['path'],1);
+				$urlstr .= $uParts['query'] ? '?' . $uParts['query'] : '';
+				$urlstr .= $uParts['fragment'] ? '#' . $uParts['fragment'] : '';
 			}
 		} else {
-			$urlstr =  ($uParts['host'] ? $uParts['scheme'].'://'.$uParts['host'] : $baseURL).$uParts['path']. ($uParts['query'] ? '?' . $uParts['query'] : '');
+			$urlstr =  ($uParts['host'] ? $uParts['scheme'].'://'.$uParts['host'] : $baseURL) . $uParts['path'];
+			$urlstr .= $uParts['query'] ? '?' . $uParts['query'] : '';
+			$urlstr .= $uParts['fragment'] ? '#' . $uParts['fragment'] : '';
 		}
 
 		return $urlstr;
+	}
+
+	/**
+	 * get baseURL of the FE
+	 * force http if UseHttpToFetch is set
+	 *
+	 * @return string the baseURL
+	 */
+	function getBaseURL() {
+		$baseURL = GeneralUtility::getIndpEnv("TYPO3_SITE_URL");
+
+		# if fetching the newsletter using http, set the url to http here
+		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
+			$baseURL = str_replace('https','http', $baseURL);
+		}
+
+		return $baseURL;
 	}
 
 	/**
