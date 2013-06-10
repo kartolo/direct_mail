@@ -1,6 +1,7 @@
 2013-07-05 Bernhard Kraft <kraft@webconsulting.at>
 	* Feature #48727: Improve privacy of newsletter jumpurl links
 	* Feature #48994: Adding hooks when sending direct mails via scheduler
+	* Bug #46454: Plain text link counters don't work
 
 2013-06-25 Frans Saris <frans@beech.it>
 	* Feature #49378: Trim items of address list readed from csv

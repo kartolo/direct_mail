@@ -712,13 +712,14 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 		foreach ($urlCounter['total'] as $id => $hits) {
 				// $id is the jumpurl ID
+			$origId = $id;
 			$id     = abs(intval($id));
-			$url    = $HTMLlinks[$id]['url'];
+			$url    = $HTMLlinks[$id]['url'] ? $HTMLlinks[$id]['url'] : $urlArr[$origId];
 				// a link to this host?
 			$uParts = @parse_url($url);
 			$urlstr = $this->getUrlStr($uParts);
-
 			$label = $HTMLlinks[$id]['label'].' (' . ($urlstr ? t3lib_div::fixed_lgd_cs($urlstr, 60) : '/') . ')';
+
 			$img = '<a href="'.$urlstr.'" target="_blank"><img '.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($label).'" /></a>';
 
 			if (isset($urlCounter['html'][$id]['plainId']))	{
@@ -726,7 +727,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					$label,
 					$id,
 					$urlCounter['html'][$id]['plainId'],
-					$urlCounter['total'][$id]['counter'],
+					$urlCounter['total'][$origId]['counter'],
 					$urlCounter['html'][$id]['counter'],
 					$urlCounter['html'][$id]['plainCounter'],
 					$img
@@ -736,10 +737,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				$tblLines[] = array(
 					$label,
 					($html ? $id : '-'),
-					($html ? '-' : abs($id)),
-					($html ? $urlCounter['html'][$id]['counter'] : $urlCounter['plain'][$id]['counter']),
+					($html ? '-' : $id),
+					($html ? $urlCounter['html'][$id]['counter'] : $urlCounter['plain'][$origId]['counter']),
 					$urlCounter['html'][$id]['counter'],
-					$urlCounter['plain'][$id]['counter'],
+					$urlCounter['plain'][$origId]['counter'],
 					$img
 				);
 			}
