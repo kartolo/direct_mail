@@ -61,7 +61,12 @@ class tx_directmail_checkjumpurl {
 
 				// this will split up the "rid=f_13667", where the first part
 				// is the DB table name and the second part the UID of the record in the DB table
-			list($recipientTable, $recipientUid) = explode('_', $rid);
+			$recipientTable = '';
+			$recipientUid = '';
+			if (!empty($rid)) {
+				list($recipientTable, $recipientUid) = explode('_', $rid);
+			}
+
 
 			$url_id = 0;
 			if (t3lib_div::compat_version('4.6')) {
@@ -161,13 +166,17 @@ class tx_directmail_checkjumpurl {
 			if ($responseType != 0) {
 				$insertFields = array(
 					'mid'           => intval($mid),	// the message ID
-					'rtbl'          => $recipientTable,	// the receiver table
-					'rid'           => intval($recipientUid),
 					'tstamp'        => time(),
 					'url'           => $jumpurl,
 					'response_type' => intval($responseType),
 					'url_id'        => intval($url_id)
 				);
+
+				if (!empty($recipientTable) && !empty($recipientUid)) {
+					$insertFields['rtbl'] = $recipientTable;	// the receiver table
+					$insertFields['rid'] = intval($recipientUid);
+				}
+
 				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail_maillog', $insertFields);
 				$GLOBALS['TYPO3_DB']->sql_free_result($res);
 			}

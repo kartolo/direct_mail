@@ -332,6 +332,7 @@ class tx_directmail_configuration extends t3lib_SCbase {
 			'use_rdct' => array('check', tx_directmail_static::fName('use_rdct'), $GLOBALS['LANG']->getLL('use_rdct.description').'<br />'.$GLOBALS['LANG']->getLL('use_rdct.details').'<br />'.$GLOBALS['LANG']->getLL('configure_options_links_rdct')),
 			'long_link_mode' => array('check', tx_directmail_static::fName('long_link_mode'), $GLOBALS['LANG']->getLL('long_link_mode.description')),
 			'enable_jump_url' => array('check', $GLOBALS['LANG']->getLL('configure_options_links_jumpurl'), $GLOBALS['LANG']->getLL('configure_options_links_jumpurl_description')),
+			'jumpurl_tracking_privacy' => array('check', $GLOBALS['LANG']->getLL('configure_jumpurl_tracking_privacy'), $GLOBALS['LANG']->getLL('configure_jumpurl_tracking_privacy_description')),
 			'enable_mailto_jump_url' => array('check', $GLOBALS['LANG']->getLL('configure_options_mailto_jumpurl'), $GLOBALS['LANG']->getLL('configure_options_mailto_jumpurl_description')),
 			'authcode_fieldList' => array('short', tx_directmail_static::fName('authcode_fieldList'), $GLOBALS['LANG']->getLL('authcode_fieldList.description')),
 		);

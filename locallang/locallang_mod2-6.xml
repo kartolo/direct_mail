@@ -27,6 +27,8 @@
 			<label index="configure_options_links"></label>
 			<label index="configure_options_links_jumpurl"></label>
 			<label index="configure_options_links_jumpurl_description"></label>
+			<label index="configure_jumpurl_tracking_privacy"></label>
+			<label index="configure_jumpurl_tracking_privacy_description"></label>
 			<label index="configure_options_links_rdct"></label>
 			<label index="configure_options_mailto_jumpurl"></label>
 			<label index="configure_options_mailto_jumpurl_description"></label>
@@ -344,6 +346,8 @@ If you do not specify a username and password and the newsletter pages happen to
 			<label index="configure_options_links">Set options for links in mail content:</label>
 			<label index="configure_options_links_jumpurl">Enable jump URL's:</label>
 			<label index="configure_options_links_jumpurl_description">Check this option to enable jump URL's and the collection of click statistics.</label>
+			<label index="configure_jumpurl_tracking_privacy">Privacy jumpurl</label>
+			<label index="configure_jumpurl_tracking_privacy_description">Set this option, to anonymize click statistics </label>
 			<label index="configure_options_links_rdct">This configuration determines how QuickMails are handled and further sets the default value for Direct Mails.</label>
 			<label index="configure_options_mailto_jumpurl">Enable jump URL's for mailto links:</label>
 			<label index="configure_options_mailto_jumpurl_description">Check this option to enable jump URL's for mailto links.</label>
@@ -680,6 +684,8 @@ Wenn Benutzername und Kennwort nicht angegeben sind und die Newsletter-Seite ist
 			<label index="configure_options_links">Setze die Einstellungen der Links in E-Mail ein:</label>
 			<label index="configure_options_links_jumpurl">Aktiviere Jump URL's:</label>
 			<label index="configure_options_links_jumpurl_description">Kreuze diese Einstellung an, um die Jump URL's zu aktivieren und Statistiken von Klicks zu sammeln.</label>
+			<label index="configure_jumpurl_tracking_privacy">Anonyme jumpurl</label>
+			<label index="configure_jumpurl_tracking_privacy_description">Setze diese Option ein, um die Klick-Statistiken zu anonymisieren</label>
 			<label index="configure_options_links_rdct">Diese Einstellung stellt fest, wie Quickmails behandelt und die Standardwerte der Direct Mails einsetze.</label>
 			<label index="configure_options_mailto_jumpurl">Aktivere Jump URL's für mailto-Links:</label>
 			<label index="configure_options_mailto_jumpurl_description">Kreuze diese Einstellung en, um die Jump URL's für mailto-Links zu aktivieren.</label>

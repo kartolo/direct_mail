@@ -1039,7 +1039,7 @@ class tx_directmail_static {
 		if ($params['enable_jump_url']) {
 			$htmlmail->jumperURL_prefix = $urlBase
 				. '?id='  . $row['page']
-				. '&rid=###SYS_TABLE_NAME###_###USER_uid###'
+				. (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###')
 				. '&mid=###SYS_MAIL_ID###'
 				. '&aC=###SYS_AUTHCODE###'
 				. '&jumpurl=';
