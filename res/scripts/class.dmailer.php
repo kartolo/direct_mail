@@ -330,7 +330,10 @@ class dmailer {
 		unset($recipRow);
 		$recipRow = $tempRow;
 
-		if ($recipRow['email'])	{
+		// Workaround for strict checking of email addresses in TYPO3 (trailing newline = invalid address)
+		$recipRow['email'] = trim($recipRow['email']);
+
+		if ($recipRow['email']) {
 			$midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
 			$uniqMsgId = md5(microtime()) . '_' . $midRidId;
 			$authCode = t3lib_div::stdAuthCode($recipRow, $this->authCode_fieldList);
