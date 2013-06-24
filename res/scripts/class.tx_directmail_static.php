@@ -517,7 +517,7 @@ class tx_directmail_static {
 									}
 								}
 							} else {
-								$out[$c][$fN[0]] = $data[$kk];
+								$out[$c][$fN[0]] = trim($data[$kk]);
 							}
 						}
 					}
@@ -539,7 +539,7 @@ class tx_directmail_static {
 		if (is_array($plainMails)) {
 			$c = 0;
 			foreach ($plainMails as $v) {
-				$out[$c]['email'] = $v;
+				$out[$c]['email'] = trim($v);
 				$out[$c]['name'] = '';
 				$c++;
 			}
