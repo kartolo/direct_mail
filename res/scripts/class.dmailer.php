@@ -85,8 +85,6 @@
  * Every minute the cronjob checks if there are mails in the queue.
  * If there are mails, 100 is sent at a time per job.
  */
-// TODO: remove htmlmail
-//require_once(PATH_t3lib.'class.t3lib_htmlmail.php');
 require_once(PATH_t3lib.'class.t3lib_befunc.php');
 
 /**
@@ -374,6 +372,7 @@ class dmailer {
 			}
 
 			$this->TYPO3MID = $midRidId . '-' . md5($midRidId);
+			$this->dmailer['sys_dmail_rec']['return_path'] = str_replace('###XID###', $midRidId, $this->dmailer['sys_dmail_rec']['return_path']);
 
 			// recipient swiftmailer style
 			// check if the email valids
