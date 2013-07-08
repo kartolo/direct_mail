@@ -152,13 +152,22 @@ class tx_directmail_checkjumpurl {
 				}
 			} else {
 					// jumpUrl is not an integer -- then this is a URL, that means that the "dmailerping"
-					// functionality was used to count the number of "opened mails"
-					// received (url, dmailerping)
-				$responseType = -1;
-				// Check if jumpurl is /typo3conf/ext/direct_mail/res/gfx/dmailerping.gif
-				if (strpos($jumpurl, 'dmailerping.gif') !== false){
-					// set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
+					// functionality was used to count the number of "opened mails" received (url, dmailerping)
+
+					// Check if jumpurl is a valid link to a "dmailerping.gif"
+					// Make $checkPath an absolute path pointing to dmailerping.gif so it can get checked via ::isAllowedAbsPath()
+					// and remove an eventual "/" at beginning of $jumpurl (because PATH_site already contains "/" at the end)
+				$checkPath = PATH_site . preg_replace('#^/#', '', $jumpurl);
+
+					// Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
+				if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && t3lib_div::isAllowedAbsPath($checkPath)) {
+						// set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
 					t3lib_div::_GETset(t3lib_div::hmac($jumpurl, 'jumpurl'), 'juHash');
+					$responseType = -1;
+				} elseif (t3lib_div::isValidUrl($jumpurl) && preg_match('#^(http://|https://)#', $jumpurl)) {
+						// Also allow jumpurl to be a valid URL
+					t3lib_div::_GETset(t3lib_div::hmac($jumpurl, 'jumpurl'), 'juHash');
+					$responseType = -1;
 				}
 
 			}
