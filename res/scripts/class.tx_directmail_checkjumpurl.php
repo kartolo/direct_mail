@@ -170,6 +170,9 @@ class tx_directmail_checkjumpurl {
 					$responseType = -1;
 				}
 
+				// to count the dmailerping correctly, we need something unique
+				$recipientUid = $aC;
+
 			}
 
 			if ($responseType != 0) {
@@ -178,13 +181,10 @@ class tx_directmail_checkjumpurl {
 					'tstamp'        => time(),
 					'url'           => $jumpurl,
 					'response_type' => intval($responseType),
-					'url_id'        => intval($url_id)
+					'url_id'        => intval($url_id),
+					'rtbl'			=> $recipientTable,
+					'rid'			=> $recipientUid
 				);
-
-				if (!empty($recipientTable) && !empty($recipientUid)) {
-					$insertFields['rtbl'] = $recipientTable;	// the receiver table
-					$insertFields['rid'] = intval($recipientUid);
-				}
 
 				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail_maillog', $insertFields);
 				$GLOBALS['TYPO3_DB']->sql_free_result($res);

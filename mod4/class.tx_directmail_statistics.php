@@ -1379,9 +1379,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 //				debug($thisRecPointer);
 				$recRec = array(
 					'mid'			=> intval($mrow['uid']),
-					'rid'			=> intval($row['rid']),
-					'rtbl'			=>$row['rtbl'],
-					'pings'			=>array(),
+					'rid'			=> $row['rid'],
+					'rtbl'			=> $row['rtbl'],
+					'pings'			=> array(),
 					'plain_links'	=> array(),
 					'html_links'	=> array(),
 					'response'		=> array(),

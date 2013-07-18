@@ -10,7 +10,7 @@
 #
 CREATE TABLE cache_sys_dmail_stat (
   mid int(11) DEFAULT '0' NOT NULL,
-  rid int(11) DEFAULT '0' NOT NULL,
+  rid varchar(11) DEFAULT '0' NOT NULL,
   rtbl char(1) DEFAULT '' NOT NULL,
   pings tinyint(3) unsigned DEFAULT '0' NOT NULL,
   plain_links tinyint(3) unsigned DEFAULT '0' NOT NULL,
@@ -129,7 +129,7 @@ CREATE TABLE sys_dmail_group_mm (
 CREATE TABLE sys_dmail_maillog (
   uid int(11) unsigned NOT NULL auto_increment,
   mid int(11) unsigned DEFAULT '0' NOT NULL,
-  rid int(11) unsigned DEFAULT '0' NOT NULL,
+  rid varchar(11) unsigned DEFAULT '0' NOT NULL,
   email varchar(255) DEFAULT '' NOT NULL,
   rtbl char(1) DEFAULT '' NOT NULL,
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
@@ -163,14 +163,14 @@ CREATE TABLE sys_dmail_category (
     hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
     category tinytext NOT NULL,
     old_cat_number char(2) DEFAULT '' NOT NULL,
-    
+
     PRIMARY KEY (uid),
     KEY parent (pid)
 );
 
 #
 # Table structure for table 'sys_dmail_group_category_mm'
-# 
+#
 #
 CREATE TABLE sys_dmail_group_category_mm (
   uid_local int(11) unsigned DEFAULT '0' NOT NULL,
