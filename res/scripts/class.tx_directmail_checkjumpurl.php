@@ -187,7 +187,6 @@ class tx_directmail_checkjumpurl {
 				);
 
 				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail_maillog', $insertFields);
-				$GLOBALS['TYPO3_DB']->sql_free_result($res);
 			}
 		}
 
