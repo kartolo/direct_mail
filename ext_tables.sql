@@ -129,7 +129,7 @@ CREATE TABLE sys_dmail_group_mm (
 CREATE TABLE sys_dmail_maillog (
   uid int(11) unsigned NOT NULL auto_increment,
   mid int(11) unsigned DEFAULT '0' NOT NULL,
-  rid varchar(11) unsigned DEFAULT '0' NOT NULL,
+  rid varchar(11) DEFAULT '0' NOT NULL,
   email varchar(255) DEFAULT '' NOT NULL,
   rtbl char(1) DEFAULT '' NOT NULL,
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
