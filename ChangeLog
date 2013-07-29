@@ -1,17 +1,16 @@
-2013-07-05 Bernhard Kraft <kraft@webconsulting.at>
-	* Feature #48727: Improve privacy of newsletter jumpurl links
-	* Feature #48994: Adding hooks when sending direct mails via scheduler
-	* Bug #46454: Plain text link counters don't work
-
-2013-06-25 Frans Saris <frans@beech.it>
-	* Feature #49378: Trim items of address list readed from csv
-
-2013-06-16 Ivan Kartolo <ivan@kartolo.de>
-	* Bug #48515: Trim email addresses when fetching from database
-
-2013-06-10 Bernhard Kraft <kraft@webconsulting.at>
-	* Bug #46452: Statistics module: Use boolean compare instead of t3lib_div::inList
-
+2013-07-29  d2c3ccb             [RELEASE] Release of direct_mail 3.1.0 (Ivan Kartolo)
+2013-07-29  5e4bb80             [BUGFIX] fixes SQL definition for sys_dmail_maillog table (Ivan Kartolo)
+2013-07-26  f4b217b  #48035     [BUGFIX] sql_free_result not working with bool (Ivan Kartolo)
+2013-07-25  e777918             [TASK] set version to 3.1.0-dev (Ivan Kartolo)
+2013-07-18  1207ce3  #50053     [BUGFIX] dmailerping is not correctly counted (Ivan Kartolo)
+2013-07-08  0d63c2d  #48889     [BUGFIX] Fix possible jumpurl/dmailerping security leak (Bernhard Kraft)
+2013-06-10  7a87231  #46454     [BUGFIX] Plain text link counters don't work (Bernhard Kraft)
+2013-06-10  ee08af1  #48994     [FEATURE] Adding hooks when sending direct mails via scheduler (Bernhard Kraft)
+2013-06-12  d5ec09d  #48727     [FEATURE] Improve privacy of newsletter jumpurl links (Bernhard Kraft)
+2013-06-27  6e80e36  #49422     [FEATURE] ###XID### replacement in return_path (Ivan Kartolo)
+2013-06-24  fa1bb9b  #49378     [FEATURE] Trim items of address list readed from csv (Frans Saris)
+2013-06-16  d1ad346  #48515     [BUGFIX] Trim email addresses when fetching from database (Ivan Kartolo)
+2013-06-10  5988d55  #46452     [BUGFIX] Statistics module uses unnecessary t3lib_div::inList (Bernhard Kraft)
 2013-06-04 Ivan Kartolo <ivan@kartolo.de>
 	* Feature #48723: added hide field in importer mapping
 
