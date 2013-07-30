@@ -1,3 +1,5 @@
+2013-07-30  42f959d             [RELEASE] Release of 3.1.1 (Ivan Kartolo)
+2013-07-30  eff44c1             [TASK] add dependency of TYPO3 version (Ivan Kartolo)
 2013-07-29  d2c3ccb             [RELEASE] Release of direct_mail 3.1.0 (Ivan Kartolo)
 2013-07-29  5e4bb80             [BUGFIX] fixes SQL definition for sys_dmail_maillog table (Ivan Kartolo)
 2013-07-26  f4b217b  #48035     [BUGFIX] sql_free_result not working with bool (Ivan Kartolo)
