@@ -1107,8 +1107,11 @@ class dmailer {
 	function substHREFsInHTML() {
 		if (!is_array($this->theParts['html']['hrefs'])) return;
 		foreach ($this->theParts['html']['hrefs'] as $urlId => $val) {
-				// Form elements cannot use jumpurl!
-			if ($this->jumperURL_prefix && ($val['tag'] != 'form') && ( !strstr( $val['ref'], 'mailto:' ))) {
+			if ($val['no_jumpurl']) {
+					// A tag attribute "no_jumpurl=1" allows to disable jumpurl for custom links
+				$substVal = $val['absRef'];
+			} elseif ($this->jumperURL_prefix && ($val['tag'] != 'form') && ( !strstr( $val['ref'], 'mailto:' ))) {
+					// Form elements cannot use jumpurl!
 				if ($this->jumperURL_useId) {
 					$substVal = $this->jumperURL_prefix . $urlId;
 				} else {
@@ -1164,6 +1167,8 @@ class dmailer {
 	/**
 	*  This substitutes the http:// urls in plain text with links
 	*
+	* @todo Use preg_replace_callback for link parsing and replacement instead of "explode"
+	*
 	* @param	string		$content: the content to use to substitute
 	* @return	string		the changed content
 	*/
@@ -1187,7 +1192,10 @@ class dmailer {
 				$parts[0] = "http://" . substr($textpieces[$i], 0, $len);
 				$parts[1] = substr($textpieces[$i], $len);
 
-				if ($this->jumperURL_useId) {
+				if (strpos($parts[0], '&no_jumpurl=1') !== false) {
+						// A link parameter "&no_jumpurl=1" allows to disable jumpurl for plain text links
+					$parts[0] = str_replace('&no_jumpurl=1', '', $parts[0]);
+				} elseif ($this->jumperURL_useId) {
 					$this->theParts['plain']['link_ids'][$i] = $parts[0];
 					$parts[0] = $this->jumperURL_prefix . '-' . $i;
 				} else {
@@ -1366,6 +1374,7 @@ class dmailer {
 					$href_fullpath_list .= "|" . $hrefData['subst_str'] . "|";
 					$hrefData['absRef'] = $this->absRef($hrefData['ref']);
 					$hrefData['tag'] = $tag;
+					$hrefData['no_jumpurl'] = intval($attributes['no_jumpurl']) ? 1 : 0;
 					$this->theParts['html']['hrefs'][] = $hrefData;
 				}
 			}
