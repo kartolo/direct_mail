@@ -30,11 +30,9 @@ require_once($extPath . '/res/scripts/class.tx_directmail_select_categories.php'
  */
 
  	// pages modified
-t3lib_div::loadTCA('pages');
 $TCA['pages']['columns']['module']['config']['items'][] = array('LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:pages.module.I.5', 'dmail');
 
  	// tt_content modified
-t3lib_div::loadTCA('tt_content');
 $tt_content_cols = array(
 	'module_sys_dmail_category' => array(
 		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:sys_dmail_category.category',
@@ -90,7 +88,6 @@ $tempCols = array(
 		)
 	);
 
-t3lib_div::loadTCA('tt_address');
 t3lib_extMgm::addTCAcolumns('tt_address',$tempCols);
 t3lib_extMgm::addToAllTCATypes('tt_address','--div--;Direct mail,module_sys_dmail_category;;;;1-1-1,module_sys_dmail_html');
 $TCA['tt_address']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_category,module_sys_dmail_html';
@@ -132,7 +129,6 @@ $tempCols = array(
 	)
 );
 
-t3lib_div::loadTCA('fe_users');
 t3lib_extMgm::addTCAcolumns('fe_users',$tempCols);
 $TCA['fe_users']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_newsletter,module_sys_dmail_category,module_sys_dmail_html';
 t3lib_extMgm::addToAllTCATypes('fe_users','--div--;Direct mail,module_sys_dmail_newsletter;;;;1-1-1,module_sys_dmail_category,module_sys_dmail_html');
@@ -209,7 +205,7 @@ t3lib_extMgm::addLLrefForTCAdescr('_MOD_web_txdirectmailM','EXT:'.$_EXTKEY.'/loc
 
 
 if (TYPO3_MODE == 'BE') {
-	
+
 		// add module before 'Help'
 	if (!isset($TBE_MODULES['txdirectmailM1']))	{
 		$temp_TBE_MODULES = array();
@@ -230,7 +226,7 @@ if (TYPO3_MODE == 'BE') {
 	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM4', 'bottom', $extPath.'mod4/');
 	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM5', 'bottom', $extPath.'mod5/');
 	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM6', 'bottom', $extPath.'mod6/');
-	
+
 	//t3lib_extMgm::addModule('web','txdirectmailM2','',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
 		//use SpriteManager if TYPO3 4.4.0
 	if (t3lib_div::compat_version("4.4")) {

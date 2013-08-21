@@ -209,7 +209,6 @@ class tx_directmail_static {
 		// The following will work but INSTR and CONCAT are available only in mySQL
 		$usergroupInList = ' AND INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )';
 
-		t3lib_div::loadTCA($switchTable);
 		$mm_table = $GLOBALS["TCA"][$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
 		$cat = intval($cat);
 		if($cat < 1) {

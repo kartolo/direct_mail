@@ -114,8 +114,6 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		if ($GLOBALS["BE_USER"]->uc['edit_showFieldHelp']){
 			$GLOBALS["LANG"]->loadSingleTableDescription($this->cshTable);
 		}
-
-		t3lib_div::loadTCA('sys_dmail');
 	}
 
 	/**
@@ -302,7 +300,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		$uid = intval(t3lib_div::_GP('uid'));
 		$indata = t3lib_div::_GP('indata');
 		$table = t3lib_div::_GP('table');
-		t3lib_div::loadTCA($table);
+
 		$mm_table = $GLOBALS["TCA"][$table]['columns']['module_sys_dmail_category']['config']['MM'];
 
 		if(t3lib_div::_GP('submit')){

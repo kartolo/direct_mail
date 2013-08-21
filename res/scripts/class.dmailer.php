@@ -484,7 +484,6 @@ class dmailer {
 			return '';
 		}
 
-		t3lib_div::loadTCA($table);
 		$mm_table = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'uid_foreign',

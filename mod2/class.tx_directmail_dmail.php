@@ -97,7 +97,6 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		$this->implodedParams = t3lib_BEfunc::implodeTSParams($this->params);
 		if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']]))	{
 			$this->userTable = $this->params['userTable'];
-			t3lib_div::loadTCA($this->userTable);
 			$this->allowedTables[] = $this->userTable;
 		}
 
@@ -140,8 +139,6 @@ class tx_directmail_dmail extends t3lib_SCbase {
 		if ($GLOBALS['BE_USER']->uc['edit_showFieldHelp']){
 			$GLOBALS['LANG']->loadSingleTableDescription($this->cshTable);
 		}
-
-		t3lib_div::loadTCA('sys_dmail');
 	}
 
 	/**
