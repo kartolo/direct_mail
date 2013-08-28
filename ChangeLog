@@ -1,3 +1,4 @@
+2013-08-28  85b34b9             [BUGFIX] security fix: jumpurl and information disclosure (Ivan Kartolo)
 2013-07-30  42f959d             [RELEASE] Release of 3.1.1 (Ivan Kartolo)
 2013-07-30  eff44c1             [TASK] add dependency of TYPO3 version (Ivan Kartolo)
 2013-07-29  d2c3ccb             [RELEASE] Release of direct_mail 3.1.0 (Ivan Kartolo)
