@@ -112,38 +112,31 @@ class tx_directmail_checkjumpurl {
 						$recipRow = $feObj->sys_page->getRawRecord($theTable, $recipientUid);
 						if (is_array($recipRow)) {
 							$authCode = t3lib_div::stdAuthCode($recipRow, ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid'));
+							$rowFieldsArray = explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']);
+							if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
+								$rowFieldsArray = array_merge($rowFieldsArray, explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
+							}
 
-							// check if supplied aC identical with counted authCode
-							if ( ($aC != '') && ($aC == $authCode) ) {
-								$rowFieldsArray = explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']);
-								if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
-									$rowFieldsArray = array_merge($rowFieldsArray, explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
-								}
-
-								reset($rowFieldsArray);
-								foreach ($rowFieldsArray as $substField) {
-									$jumpurl = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $jumpurl);
-								}
+							reset($rowFieldsArray);
+							foreach ($rowFieldsArray as $substField) {
+								$jumpurl = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $jumpurl);
+							}
 								// Put in the tablename of the userinformation
-								$jumpurl = str_replace('###SYS_TABLE_NAME###', substr($theTable, 0, 1), $jumpurl);
+							$jumpurl = str_replace('###SYS_TABLE_NAME###', substr($theTable, 0, 1), $jumpurl);
 								// Put in the uid of the mail-record
-								$jumpurl = str_replace('###SYS_MAIL_ID###', $mid, $jumpurl);
-
+							$jumpurl = str_replace('###SYS_MAIL_ID###', $mid, $jumpurl);
 								// If authCode is provided, keep it.
-								$jumpurl = str_replace('###SYS_AUTHCODE###', $aC, $jumpurl);
+							$jumpurl = str_replace('###SYS_AUTHCODE###', ($aC ? $aC : $authCode), $jumpurl);
 
 								// Auto Login an FE User, only possible if we're allowed to set the $_POST variables and
 								// in the authcode_fieldlist the field "password" is computed in as well
 								// TODO: add a switch in Direct Mail configuration to decide if this option should be enabled by default
-								if ($theTable == 'fe_users' && $aC != '' && $aC == $authCode && t3lib_div::inList($row['authcode_fieldList'], 'password')) {
-									$_POST['user'] = $recipRow['username'];
-									$_POST['pass'] = $recipRow['password'];
-									$_POST['pid']  = $recipRow['pid'];
-									$_POST['logintype'] = 'login';
-									$GLOBALS['TSFE']->initFEuser();
-								}
-							} else {
-								throw new Exception('authCode: Calculated authCode did not match the submitted authCode.', 1376899631);
+							if ($theTable == 'fe_users' && $aC != '' && $aC == $authCode && t3lib_div::inList($row['authcode_fieldList'], 'password')) {
+								$_POST['user'] = $recipRow['username'];
+								$_POST['pass'] = $recipRow['password'];
+								$_POST['pid']  = $recipRow['pid'];
+								$_POST['logintype'] = 'login';
+								$GLOBALS['TSFE']->initFEuser();
 							}
 						}
 					}
