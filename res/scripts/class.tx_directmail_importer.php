@@ -111,6 +111,10 @@ class tx_directmail_importer {
 
 		if(empty($this->indata['csv']) && !empty($_FILES['upload_1']['name'])){
 			$this->indata['newFile'] = $this->checkUpload();
+			// TYPO3 6.0 returns an object...
+			if(is_object($this->indata['newFile'][0])){
+				$this->indata['newFile'] = $this->indata['newFile'][0]->getIdentifier();
+			}
 		} elseif(!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
 			if(((strpos($currentFileInfo['file'],'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt')){
 				//do nothing
@@ -799,6 +803,10 @@ class tx_directmail_importer {
 		ini_set('auto_detect_line_endings',TRUE);
 
 		$mydata = array();
+		// TYPO3 6.0 works with relative path, we need absolute here
+		if(version_compare(TYPO3_version,'6.0.0','>=')){
+			$this->indata['newFile'] = PATH_site . ltrim($this->indata['newFile'],'/');
+		}
 		$handle = fopen($this->indata['newFile'], "r");
 		$i = 0;
 		$delimiter = $this->indata['delimiter'];
@@ -911,9 +919,15 @@ class tx_directmail_importer {
 		}
 
 		if ( !$tempFolder )	{
+			// TYPO3 6.0 FAL has a slight different API, use the relative path
+			// and prepend the global storae uid 0
+			if(version_compare(TYPO3_version,'6.0.0','>=')){
+				$tempFolder = '0:uploads/tx_directmail/';
+			}else{
 				// we don't have a valid file mount
 				// use default upload folder
-			$tempFolder = t3lib_div::getFileAbsFileName('uploads/tx_directmail/');
+				$tempFolder = t3lib_div::getFileAbsFileName('uploads/tx_directmail/');
+			}
 		}
 
 		return $tempFolder;
@@ -939,7 +953,11 @@ class tx_directmail_importer {
 
 		// Initializing:
 		/** @var $fileProcessor t3lib_extFileFunctions */
-		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
+		if(version_compare(TYPO3_version,'6.0.0','>=')){
+			$this->fileProcessor = TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Core\Utility\File\ExtendedFileUtility');
+		}else{
+			$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
+		}
 		$this->fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
 		$this->fileProcessor->init_actionPerms($user_perms);
 		$this->fileProcessor->dontCheckForUnique = 1;
@@ -970,10 +988,15 @@ class tx_directmail_importer {
 			} else {
 				$this->fileProcessor->start($file);
 				$newfile = $this->fileProcessor->func_newfile($file['newfile']['1']);
+				// in TYPO3 6.0 func_newfile returns an object, but we need the path to the new file name later on!
+				if(is_object($newfile)){
+					$newfile = $newfile->getIdentifier();
+				}
 			}
 		} else {
 			$newfile = $this->indata['newFile'];
 		}
+
 		if($newfile){
 			$csvFile['data'] = $this->indata['csv'];
 			$csvFile['target'] = $newfile;
