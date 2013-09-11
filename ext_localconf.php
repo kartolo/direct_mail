@@ -3,7 +3,7 @@
 if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
 	// Register jumpurl processing hook
-$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:'.$_EXTKEY.'/res/scripts/class.tx_directmail_checkjumpurl.php:&tx_directmail_checkjumpurl';
+$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:'.$_EXTKEY.'/Classes/Checkjumpurl.php:&DirectMailTeam\DirectMail\Checkjumpurl';
 
 	// unserializing the configuration so we can use it here:
 $_EXTCONF = unserialize($_EXTCONF);
@@ -53,23 +53,23 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseHttpToFetch'] = $_EXTCONF['UseHttpToFe
  */
 if ($_EXTCONF['enablePlainTextNews']) {
 		// Register tt_news plain text processing hook
-	$TYPO3_CONF_VARS['EXTCONF']['tt_news']['extraCodesHook'][] = 'EXT:'.$_EXTKEY.'/res/scripts/class.tx_directmail_ttnews_plaintext.php:&tx_directmail_ttnews_plaintext';
+	$TYPO3_CONF_VARS['EXTCONF']['tt_news']['extraCodesHook'][] = 'DirectMailTeam\\DirectMail\\Hooks\\TtnewsPlaintextHook';
 }
 
 /**
  * Registering class to scheduler
  */
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_directmail_scheduler'] = array(
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\DirectmailScheduler'] = array(
 	'extension' => $_EXTKEY,
 	'title' => 'Direct Mail: Mailing Queue',
 	'description' => 'This task invokes dmailer in order to process queued messages.',
 );
 
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_directmail_Scheduler_MailFromDraft'] = array(
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraft'] = array(
 	'extension'			=> $_EXTKEY,
 	'title'				=> 'Direct Mail: Create Mail from Draft',
 	'description' 		=> 'This task allows you to select a DirectMail draft that gets copied and then sent to the. This allows automatic (periodic) sending of the same TYPO3 page.',
-	'additionalFields'	=> 'EXT:direct_mail/Classes/Scheduler/MailFromDraft_AdditionalFields.php:tx_directmail_Scheduler_MailFromDraft_AdditionalFields'
+	'additionalFields'	=> 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraftAdditionalFields'
 );
 
 

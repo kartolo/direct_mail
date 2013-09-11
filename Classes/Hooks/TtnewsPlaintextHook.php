@@ -1,4 +1,6 @@
 <?php
+namespace DirectMailTeam\DirectMail\Hooks;
+
 /***************************************************************
 *  Copyright notice
 *
@@ -33,14 +35,16 @@
  * @version		$Id: class.tx_directmail_ttnews_plaintext.php 15583 2009-01-10 17:59:30Z ivankartolo $
  */
 
-require_once(t3lib_extMgm::extPath('direct_mail').'pi1/class.tx_directmail_pi1.php');
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+
+require_once(ExtensionManagementUtility::extPath('direct_mail').'pi1/class.tx_directmail_pi1.php');
 
 /**
  * Generating plain text content of tt_news records for Direct Mails
  * Implements hook $TYPO3_CONF_VARS['EXTCONF']['tt_news']['extraCodesHook']
  *
  */
-class tx_directmail_ttnews_plaintext {
+class TtnewsPlaintextHook {
 	/**
 	 * @var tslib_cObj
 	 */
@@ -103,7 +107,7 @@ class tx_directmail_ttnews_plaintext {
 			$this->sys_language_mode = $invokingObj->sys_language_mode;
 			$this->templateCode = $invokingObj->templateCode;
 
-			$this->renderPlainText = t3lib_div::makeInstance('tx_directmail_pi1');
+			$this->renderPlainText = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_directmail_pi1');
 			$this->renderPlainText->init($GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_directmail_pi1.']);
 			$this->renderPlainText->cObj = $this->cObj;
 			$this->renderPlainText->labelsList = 'tt_news_author_prefix,tt_news_author_date_prefix,tt_news_author_email_prefix,tt_news_short_header,tt_news_bodytext_header';
@@ -184,8 +188,8 @@ class tx_directmail_ttnews_plaintext {
 		if ($row['author']) {
 			$hConf = $this->renderPlainText->conf['tt_news_author.'];
 			$str = $this->renderPlainText->getString($hConf['prefix']).$row['author'].$this->renderPlainText->getString($hConf['emailPrefix']).'<'.$row['author_email'].'>';
-			$defaultType = tx_directmail_static::intInRangeWrapper($hConf['defaultType'],1,5);
-			$type = tx_directmail_static::intInRangeWrapper($type,0,6);
+			$defaultType = DirectMailUtility::intInRangeWrapper($hConf['defaultType'],1,5);
+			$type = DirectMailUtility::intInRangeWrapper($type,0,6);
 
 			if (!$type) {
 				$type = $defaultType;
@@ -196,14 +200,14 @@ class tx_directmail_ttnews_plaintext {
 
 				$lines = array();
 
-				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preBlanks'],0,1000);
+				$blanks = DirectMailUtility::intInRangeWrapper($tConf['preBlanks'],0,1000);
 				if ($blanks) {
 					$lines[] = str_pad('', $blanks-1, chr(10));
 				}
 
 				$lines = $this->renderPlainText->pad($lines,$tConf['preLineChar'],$tConf['preLineLen']);
 
-				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preLineBlanks'],0,1000);
+				$blanks = DirectMailUtility::intInRangeWrapper($tConf['preLineBlanks'],0,1000);
 				if ($blanks) {
 					$lines[] = str_pad('', $blanks-1, chr(10));
 				}
@@ -218,14 +222,14 @@ class tx_directmail_ttnews_plaintext {
 
 				$lines[]=$this->cObj->stdWrap($str,$tConf['stdWrap.']);
 
-				$blanks = tx_directmail_static::intInRangeWrapper($tConf['postLineBlanks'],0,1000);
+				$blanks = DirectMailUtility::intInRangeWrapper($tConf['postLineBlanks'],0,1000);
 				if ($blanks) {
 					$lines[]=str_pad('', $blanks-1, chr(10));
 				}
 
 				$lines = $this->renderPlainText->pad($lines,$tConf['postLineChar'],$tConf['postLineLen']);
 
-				$blanks = tx_directmail_static::intInRangeWrapper($tConf['postBlanks'],0,1000);
+				$blanks = DirectMailUtility::intInRangeWrapper($tConf['postBlanks'],0,1000);
 				if ($blanks) {
 					$lines[]=str_pad('', $blanks-1, chr(10));
 				}
@@ -236,7 +240,4 @@ class tx_directmail_ttnews_plaintext {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_ttnews_plaintext.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_ttnews_plaintext.php']);
-}
 ?>

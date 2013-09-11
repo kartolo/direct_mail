@@ -1,4 +1,7 @@
 <?php
+
+namespace DirectMailTeam\DirectMail\Utility;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -34,22 +37,23 @@
  * @package TYPO3
  * @subpackage direct_mail
  */
-class tx_directmail_tsparserext {
-
+class TsParserExt {
 
 	/**
 	 * displaying a message to click the update in the extension config
 	 *
-	 * @return string	$out: the html message
+	 * @return string    $out: the html message
 	 */
-	function displayMessage() {
+	static public function displayMessage() {
 
-		$out = '';
+		$parameters = array(
+			'tx_extensionmanager_tools_extensionmanagerextensionmanager[extensionKey]' => 'direct_mail',
+			'tx_extensionmanager_tools_extensionmanagerextensionmanager[action]' => 'show',
+			'tx_extensionmanager_tools_extensionmanagerextensionmanager[controller]' => 'UpdateScript',
+		);
+		$link = \TYPO3\CMS\Backend\Utility\BackendUtility::getModuleUrl('tools_ExtensionmanagerExtensionmanager', $parameters);
 
-		$link = "mod.php?&amp;id=0&amp;M=tools_em&amp;CMD[showExt]=direct_mail&amp;SET[singleDetails]=updateModule";
-
-
-		$out .= "
+		$out = "
 		<div style=\"position:absolute;top:10px;right:10px; width:300px;\">
 			<div class=\"typo3-message message-information\">
 					<div class=\"message-header\">" . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/locallang/locallang_mod2-6.xml:update_optionHeader') . "</div>
@@ -65,7 +69,5 @@ class tx_directmail_tsparserext {
 		return $out;
 	}
 }
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_tsparserext.php']) {
-	include_once ($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_tsparserext.php']);
-}
+
 ?>

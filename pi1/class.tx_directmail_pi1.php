@@ -36,8 +36,10 @@
  * @version		$Id: class.tx_directmail_pi1.php 30973 2010-03-10 17:41:28Z ivankartolo $
  */
 
-
-require_once(PATH_tslib.'class.tslib_pibase.php');
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\MailUtility;
+use DirectMailTeam\DirectMail\DirectMailUtility;
 
 /**
  * Generating plain text rendering of content elements for inclusion as plain text content in Direct Mails
@@ -46,7 +48,7 @@ require_once(PATH_tslib.'class.tslib_pibase.php');
  * If you do so, the plain text output will appear with type=99.
  *
  */
-class tx_directmail_pi1 extends tslib_pibase {
+class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * @var tslib_cObj
 	 */
@@ -69,14 +71,14 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @param	array		$conf: TypoScript properties for this content object/function call
 	 * @return	string		$content: Plain text content
 	 */
-	function main($content,$conf)	{
+	function main($content,$conf) {
 		global $TYPO3_CONF_VARS;
 
 		$this->init($conf);
 
 		$lines = array();
 		$CType = (string)$this->cObj->data['CType'];
-		switch($CType)	{
+		switch($CType) {
 			case 'header':
 				$lines[] = $this->getHeader();
 				if ($this->cObj->data['subheader'])	{
@@ -126,7 +128,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 					// Hook for processing other content types
 				if (is_array($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'])) {
 					foreach($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'] as $_classRef) {
-						$_procObj = &t3lib_div::getUserObj($_classRef);
+						$_procObj = &GeneralUtility::getUserObj($_classRef);
 						$lines = array_merge($lines, $_procObj->renderPlainText($this,$content));
 					}
 				}
@@ -223,7 +225,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	function getImages() {
 		$images_arr = array();
 		$this->getImagesStandard($images_arr);
-		if(t3lib_extMgm::isLoaded('dam')){
+		if(ExtensionManagementUtility::isLoaded('dam')){
 			$this->getImagesFromDam($images_arr);
 		}
 
@@ -246,7 +248,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 				$images_arr[] = $this->siteUrl.$upload_path.$file;
 			}
 		}
-	
+
 	}
 
 	/**
@@ -286,7 +288,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 		$aConf['parseFunc.']['tags.']['a.']['userFunc'] = 'tx_directmail_pi1->atag_to_http';
 		$aConf['parseFunc.']['tags.']['a.']['siteUrl'] = $this->siteUrl;
 		$str = $this->cObj->stdWrap($str,$aConf);
-		$str = str_replace('&nbsp;',' ',t3lib_div::htmlspecialchars_decode($str));
+		$str = str_replace('&nbsp;',' ',GeneralUtility::htmlspecialchars_decode($str));
 
 		if ($this->conf[$altConf.'.']['header']) {
 			$str = $this->getString($this->conf[$altConf.'.']['header']).chr(10).$str;
@@ -327,8 +329,8 @@ class tx_directmail_pi1 extends tslib_pibase {
 	function renderHeader($str,$type=0)	{
 		if ($str) {
 			$hConf = $this->conf['header.'];
-			$defaultType = tx_directmail_static::intInRangeWrapper($hConf['defaultType'],1,5);
-			$type = tx_directmail_static::intInRangeWrapper($type,0,6);
+			$defaultType = DirectMailUtility::intInRangeWrapper($hConf['defaultType'],1,5);
+			$type = DirectMailUtility::intInRangeWrapper($type,0,6);
 			if (!$type) {
 				$type = $defaultType;
 			}
@@ -342,14 +344,14 @@ class tx_directmail_pi1 extends tslib_pibase {
 
 				$lines = array();
 
-				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preBlanks'],0,1000);
+				$blanks = DirectMailUtility::intInRangeWrapper($tConf['preBlanks'],0,1000);
 				if ($blanks) {
 					$lines[] = str_pad('', $blanks-1, chr(10));
 				}
 
 				$lines = $this->pad($lines,$tConf['preLineChar'],$tConf['preLineLen']);
 
-				$blanks = tx_directmail_static::intInRangeWrapper($tConf['preLineBlanks'],0,1000);
+				$blanks = DirectMailUtility::intInRangeWrapper($tConf['preLineBlanks'],0,1000);
 				if ($blanks) {
 					$lines[] = str_pad('', $blanks-1, chr(10));
 				}
@@ -375,14 +377,14 @@ class tx_directmail_pi1 extends tslib_pibase {
 					$lines[] = $this->getString($hConf['linkPrefix']).$this->getLink($this->cObj->data['header_link']);
 				}
 
-				$blanks = tx_directmail_static::intInRangeWrapper($tConf['postLineBlanks'],0,1000);
+				$blanks = DirectMailUtility::intInRangeWrapper($tConf['postLineBlanks'],0,1000);
 				if ($blanks) {
 					$lines[] = str_pad('', $blanks-1, chr(10));
 				}
 
 				$lines = $this->pad($lines,$tConf['postLineChar'],$tConf['postLineLen']);
 
-				$blanks = tx_directmail_static::intInRangeWrapper($tConf['postBlanks'],0,1000);
+				$blanks = DirectMailUtility::intInRangeWrapper($tConf['postBlanks'],0,1000);
 				if ($blanks) {
 					$lines[] = str_pad('', $blanks-1, chr(10));
 				}
@@ -403,7 +405,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 * @see renderHeader()
 	 */
 	function pad($lines,$preLineChar,$len)	{
-		$strPad = tx_directmail_static::intInRangeWrapper($len,0,1000);
+		$strPad = DirectMailUtility::intInRangeWrapper($len,0,1000);
 		$strPadChar = $preLineChar?$preLineChar:'-';
 		if ($strPad) {
 			$lines[] = str_pad('', $strPad, $strPadChar);
@@ -435,7 +437,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function breakBulletlist($str)	{
 		$type = $this->cObj->data['layout'];
-		$type = tx_directmail_static::intInRangeWrapper($type,0,3);
+		$type = DirectMailUtility::intInRangeWrapper($type,0,3);
 
 		$tConf = $this->conf['bulletlist.'][$type.'.'];
 
@@ -455,7 +457,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 
 			$lines[] = $bullet.$this->breakLines($substrs,chr(10).$secondRow,$this->charWidth-$bLen);
 
-			$blanks = tx_directmail_static::intInRangeWrapper($tConf['blanks'],0,1000);
+			$blanks = DirectMailUtility::intInRangeWrapper($tConf['blanks'],0,1000);
 			if ($blanks) {
 				$lines[] = str_pad('', $blanks-1, chr(10));
 			}
@@ -477,7 +479,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 		$c = 0;
 		foreach ($cParts as $substrs) {
 			$c++;
-			if (trim($substrs))	{
+			if (trim($substrs)) {
 				$lineParts = explode('|',$substrs);
 				if (!$cols) {
 					$cols = count($lineParts);
@@ -503,7 +505,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 			$top = intval($messure[1][$k]);
 			for ($aa = 0; $aa < $top; $aa++) {
 				$tempArr = array();
-				for ($bb = 0; $bb < $cols; $bb++)	{
+				for ($bb = 0; $bb < $cols; $bb++) {
 					$tempArr[$bb] = str_pad($v[$bb][$aa],$messure[0][$bb],' ');
 				}
 				$outLines[] = $colChar.implode($colChar,$tempArr).$colChar;
@@ -583,7 +585,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 					} else {
 						$ll = $linksArr[0];
 					}
-	
+
 					$theLink = $this->getLink($ll);
 					if ($theLink) {
 						$lines[] = $this->getString($this->conf['images.']['linkPrefix']).$theLink;
@@ -628,24 +630,20 @@ class tx_directmail_pi1 extends tslib_pibase {
 	}
 
 	/**
-	 * Breaking lines into fixed length lines, using t3lib_div::breakLinesForEmail()
+	 * Breaking lines into fixed length lines, using MailUtility::breakLinesForEmail()
 	 *
 	 * @param	string		$str: The string to break
 	 * @param	string		$implChar: Line break character
 	 * @param	integer		$charWidth: Length of lines, default is $this->charWidth
 	 * @return	string		Processed string
-	 * @see t3lib_div::breakLinesForEmail()
+	 * @see MailUtility::breakLinesForEmail()
 	 */
 	function breakLines($str, $implChar, $charWidth=0) {
 		$cW = $charWidth ? $charWidth : $this->charWidth;
 
 		$linebreak = $implChar ? $implChar : $this->linebreak;
 
-		if (t3lib_div::compat_version('4.6')) {
-			return t3lib_utility_Mail::breakLinesForEmail($str, $linebreak, $cW);
-		} else {
-			return t3lib_div::breakLinesForEmail($str, $linebreak, $cW);
-		}
+		return MailUtility::breakLinesForEmail($str, $linebreak, $cW);
 	}
 
 	/**
@@ -754,7 +752,7 @@ class tx_directmail_pi1 extends tslib_pibase {
 	 */
 	function addLabelsMarkers($markerArray) {
 
-		$labels = t3lib_div::trimExplode(',', $this->labelsList);
+		$labels = GeneralUtility::trimExplode(',', $this->labelsList);
 		foreach($labels as $labelName) {
 			$markerArray['###'.strtoupper($labelName).'###'] = $this->pi_getLL($labelName);
 		}
@@ -762,7 +760,4 @@ class tx_directmail_pi1 extends tslib_pibase {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/pi1/class.tx_directmail_pi1.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/pi1/class.tx_directmail_pi1.php']);
-}
 ?>

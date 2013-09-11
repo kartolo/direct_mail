@@ -1,8 +1,10 @@
 <?php
+namespace DirectMailTeam\DirectMail\Scheduler;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Bernhard Kraft <kraft@webconsulting.at>
+ *  (c) 2013-2014 Bernhard Kraft <kraft@webconsulting.at>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -37,7 +39,7 @@
  * @package		TYPO3
  * @subpackage		tx_directmail
  */
-interface tx_directmail_Scheduler_MailFromDraftHook {
+interface MailFromDraftHookInterface {
 
 	/**
 	 * Gets called before a copy of the direct mail draft record gets inserted into the database.
@@ -64,4 +66,3 @@ interface tx_directmail_Scheduler_MailFromDraftHook {
 
 }
 
-?>

@@ -1,4 +1,6 @@
 <?php
+namespace DirectMailTeam\DirectMail\Scheduler;
+
 /***************************************************************
 *  Copyright notice
 *
@@ -22,6 +24,7 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 
+use TYPO3\CMS\Core\Utility;
 
 /**
 * Class tx_directmail_scheduler
@@ -30,26 +33,22 @@
 * @package TYPO3
 * @subpackage	tx_directmail
 */
-class tx_directmail_scheduler extends tx_scheduler_Task {
+class DirectmailScheduler extends \TYPO3\CMS\Scheduler\Task\AbstractTask {
 
 	/**
 	 * Function executed from scheduler.
 	 * Send the newsletter
-	 * 
+	 *
 	 * @return	bool
 	 */
 	function execute() {
-		/** @var $htmlmail dmailer */
-		$htmlmail = t3lib_div::makeInstance('dmailer');
+		/** @var $htmlmail Dmailer */
+		$htmlmail = Utility\GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
 		$htmlmail->start();
 		$htmlmail->runcron();
 		return TRUE;
 	}
 
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/class.tx_directmail_scheduler.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/class.tx_directmail_scheduler.php']);
 }
 
 ?>

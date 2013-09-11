@@ -5,11 +5,8 @@
 ## @version $Id: setup.txt 6012 2007-07-23 12:54:25Z ivankartolo $
 ##
 
- 	// Configuring the insertion of dmailer boundaries
-includeLibs.tx_directmail_container = EXT:direct_mail/res/scripts/class.tx_directmail_container.php
-
 	// In html content
-tt_content.stdWrap.postUserFunc = tx_directmail_container->insert_dMailer_boundaries
+tt_content.stdWrap.postUserFunc = DirectMailTeam\DirectMail\Container->insert_dMailer_boundaries
 
 	// In old plaintext content static tenmplate
 lib.alt_plaintext.renderObj.userProc < tt_content.stdWrap.postUserFunc
@@ -27,6 +24,6 @@ config.insertDmailerBoundaries = 1
 tt_content.menu.20.3.renderObj {
 	outerWrap.cObject = USER
 	outerWrap.cObject {
-		userFunc = tx_directmail_container->insertSitemapBoundaries
+		userFunc = DirectMailTeam\DirectMail\Container->insertSitemapBoundaries
 	}
 }

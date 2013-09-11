@@ -1,4 +1,6 @@
 <?php
+namespace DirectMailTeam\DirectMail;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -33,14 +35,15 @@
  * @version		$Id: class.tx_directmail_select_categories.php 6012 2007-07-23 12:54:25Z ivankartolo $
  */
 
-require_once (PATH_t3lib.'class.t3lib_page.php');
-require_once (t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directmail_static.php');
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Frontend\Page\PageRepository;
+use DirectMailTeam\DirectMail;
 
 /**
  * Localize categories for backend forms
  *
  */
-class tx_directmail_select_categories {
+class SelectCategories {
 	var $sys_language_uid = 0;
 	var $collate_locale = 'C';
 
@@ -51,7 +54,7 @@ class tx_directmail_select_categories {
 	 * @param	array		$params: array of searched translation
 	 * @return	void		...
 	 */
-	function get_localized_categories($params)	{
+	function get_localized_categories($params) {
 		global $LANG;
 
 /*
@@ -66,14 +69,14 @@ class tx_directmail_select_categories {
 		$table = $config['itemsProcFunc_config']['table'];
 
 			// initialize backend user language
-		if ($LANG->lang && t3lib_extMgm::isLoaded('static_info_tables')) {
+		if ($LANG->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				//'sys_language.uid,static_languages.lg_collate_locale',
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode = static_languages.uid',
 				'static_languages.lg_typo3 = '.$GLOBALS['TYPO3_DB']->fullQuoteStr($LANG->lang,'static_languages').
-					t3lib_pageSelect::enableFields('sys_language').
-					t3lib_pageSelect::enableFields('static_languages')
+					PageRepository::enableFields('sys_language').
+					PageRepository::enableFields('static_languages')
 				);
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 				$this->sys_language_uid = $row['uid'];
@@ -89,7 +92,7 @@ class tx_directmail_select_categories {
 						'uid='.intval($item[1])
 				);
 				while($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-					if($localizedRowCat = tx_directmail_static::getRecordOverlay($table,$rowCat,$this->sys_language_uid,'')) {
+					if($localizedRowCat = DirectMailUtility::getRecordOverlay($table,$rowCat,$this->sys_language_uid,'')) {
 						$params['items'][$k][0] = $localizedRowCat['category'];
 					}
 				}
@@ -98,7 +101,4 @@ class tx_directmail_select_categories {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_select_categories.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_select_categories.php']);
-}
 ?>

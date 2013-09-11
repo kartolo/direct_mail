@@ -25,6 +25,9 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+
 /**
  * Class for updating Direct Mail to version 3
  *
@@ -42,11 +45,10 @@ class ext_update  {
 	function main()	{
 
 		$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
-		require_once('mod6/class.tx_directmail_configuration.php');
 
 		$content = $this->displayWarning();
-		if (!t3lib_div::_GP('do_update')) {
-			$onClick = "document.location='".t3lib_div::linkThisScript(array('do_update'=>1))."'; return false;";
+		if (!GeneralUtility::_GP('do_update')) {
+			$onClick = "document.location='".GeneralUtility::linkThisScript(array('do_update'=>1))."'; return false;";
 			$content .= htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_now')).'
 				<br /><br />
 				<form action=""><input type="submit" value="'.htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_do_it_now')).'" onclick="'.htmlspecialchars($onClick).'"></form>
@@ -101,7 +103,7 @@ class ext_update  {
 	 */
 	function access() {
 			// We cannot update before the extension is installed: required tables are not yet in TCA
-		if (t3lib_extMgm::isLoaded('direct_mail')) {
+		if (ExtensionManagementUtility::isLoaded('direct_mail')) {
 			return TRUE;
 		} else {
 			return FALSE;
@@ -126,10 +128,6 @@ class ext_update  {
 
 		return $out;
 	}
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/class.ext_update.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/class.ext_update.php']);
 }
 
 ?>

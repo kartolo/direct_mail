@@ -1,5 +1,5 @@
 <?php
-namespace TYPO3\CMS\DirectMail\Tests\Unit\Mailer;
+namespace DirectMailTeam\DirectMail\Tests\Unit\Mailer;
 
 /***************************************************************
  *  Copyright notice

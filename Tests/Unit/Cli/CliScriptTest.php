@@ -1,5 +1,5 @@
 <?php
-namespace TYPO3\CMS\DirectMail\Tests\Unit\Cli;
+namespace DirectMailTeam\DirectMail\Tests\Unit\Cli;
 
 /***************************************************************
  *  Copyright notice
@@ -35,7 +35,7 @@ class CliScriptTest extends \TYPO3\CMS\Core\Tests\UnitTestCase {
 	 * @test
 	 */
 	public function test_canIncludeCliScript() {
-		$path = \t3lib_extMgm::extPath('direct_mail').'cli/cli_direct_mail.php';
+		$path = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail').'cli/cli_direct_mail.php';
 		$_SERVER['argv'] = array('direct_mail', 'otherTask');
 		define('TYPO3_cliMode', '1');
 		require_once($path);

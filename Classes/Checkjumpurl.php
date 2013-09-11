@@ -1,4 +1,6 @@
 <?php
+namespace DirectMailTeam\DirectMail;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -35,10 +37,13 @@
  * @version		$Id: class.tx_directmail_checkjumpurl.php 30935 2010-03-09 18:12:41Z ivankartolo $
  */
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
+
 /**
  * JumpUrl processing hook on class.tslib_fe.php
  */
-class tx_directmail_checkjumpurl {
+class Checkjumpurl {
 
 	/**
 	 * Get the url to jump to as set by Direct Mail
@@ -47,7 +52,7 @@ class tx_directmail_checkjumpurl {
 	 * @return	void
 	 */
 	function checkDataSubmission (&$feObj) {
-		$jumpUrlVariables = t3lib_div::_GET();
+		$jumpUrlVariables = GeneralUtility::_GET();
 
 		$mid = $jumpUrlVariables['mid'];
 		$rid = $jumpUrlVariables['rid'];
@@ -69,11 +74,8 @@ class tx_directmail_checkjumpurl {
 
 
 			$url_id = 0;
-			if (t3lib_div::compat_version('4.6')) {
-				$isInt = t3lib_utility_Math::canBeInterpretedAsInteger($jumpurl);
-			} else {
-				$isInt = t3lib_div::testInt($jumpurl);
-			}
+			$isInt = MathUtility::canBeInterpretedAsInteger($jumpurl);
+
 			if ($isInt) {
 
 					// fetch the direct mail record where the mailing was sent (for this message)
@@ -95,7 +97,7 @@ class tx_directmail_checkjumpurl {
 						$responseType = 2;
 						$jumpurl = $temp_unpackedMail['plain']['link_ids'][abs($url_id)];
 					}
-					$jumpurl = t3lib_div::htmlspecialchars_decode($jumpurl);
+					$jumpurl = GeneralUtility::htmlspecialchars_decode($jumpurl);
 					switch ($recipientTable) {
 						case 't':
 							$theTable = 'tt_address';
@@ -111,7 +113,7 @@ class tx_directmail_checkjumpurl {
 					if ($theTable) {
 						$recipRow = $feObj->sys_page->getRawRecord($theTable, $recipientUid);
 						if (is_array($recipRow)) {
-							$authCode = t3lib_div::stdAuthCode($recipRow, ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid'));
+							$authCode = GeneralUtility::stdAuthCode($recipRow, ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid'));
 
 							// check if supplied aC identical with counted authCode
 							if ( ($aC != '') && ($aC == $authCode) ) {
@@ -135,7 +137,7 @@ class tx_directmail_checkjumpurl {
 								// Auto Login an FE User, only possible if we're allowed to set the $_POST variables and
 								// in the authcode_fieldlist the field "password" is computed in as well
 								// TODO: add a switch in Direct Mail configuration to decide if this option should be enabled by default
-								if ($theTable == 'fe_users' && $aC != '' && $aC == $authCode && t3lib_div::inList($row['authcode_fieldList'], 'password')) {
+								if ($theTable == 'fe_users' && $aC != '' && $aC == $authCode && GeneralUtility::inList($row['authcode_fieldList'], 'password')) {
 									$_POST['user'] = $recipRow['username'];
 									$_POST['pass'] = $recipRow['password'];
 									$_POST['pid']  = $recipRow['pid'];
@@ -155,7 +157,7 @@ class tx_directmail_checkjumpurl {
 					// jumpurl has been validated by lookup of id in direct_mail tables
 					// for this reason it is save to set the juHash
 					// set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
-					t3lib_div::_GETset(t3lib_div::hmac($jumpurl, 'jumpurl'), 'juHash');
+					GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
 				}
 			} else {
 					// jumpUrl is not an integer -- then this is a URL, that means that the "dmailerping"
@@ -167,13 +169,13 @@ class tx_directmail_checkjumpurl {
 				$checkPath = PATH_site . preg_replace('#^/#', '', $jumpurl);
 
 					// Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
-				if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && t3lib_div::isAllowedAbsPath($checkPath)) {
+				if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && GeneralUtility::isAllowedAbsPath($checkPath)) {
 						// set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
-					t3lib_div::_GETset(t3lib_div::hmac($jumpurl, 'jumpurl'), 'juHash');
+					GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
 					$responseType = -1;
-				} elseif (t3lib_div::isValidUrl($jumpurl) && preg_match('#^(http://|https://)#', $jumpurl)) {
+				} elseif (GeneralUtility::isValidUrl($jumpurl) && preg_match('#^(http://|https://)#', $jumpurl)) {
 						// Also allow jumpurl to be a valid URL
-					t3lib_div::_GETset(t3lib_div::hmac($jumpurl, 'jumpurl'), 'juHash');
+					GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
 					$responseType = -1;
 				}
 
@@ -201,10 +203,6 @@ class tx_directmail_checkjumpurl {
 		$feObj->jumpurl = $jumpurl;
 	}
 
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_checkjumpurl.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_checkjumpurl.php']);
 }
 
 ?>

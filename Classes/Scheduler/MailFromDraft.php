@@ -1,4 +1,6 @@
 <?php
+namespace DirectMailTeam\DirectMail\Scheduler;
+
 /***************************************************************
 *  Copyright notice
 *
@@ -22,6 +24,10 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 
+use \TYPO3\CMS\Backend\Utility\BackendUtility;
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
+use \TYPO3\CMS\Scheduler\Task\AbstractTask;
+use \DirectMailTeam\DirectMail\DirectMailUtility;
 
 /**
  * Class tx_directmail_Scheduler_MailFromDraft
@@ -32,7 +38,7 @@
  * @package TYPO3
  * @subpackage	tx_directmail
  */
-class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
+class MailFromDraft extends AbstractTask {
 
 	public $draftUid = NULL;
 
@@ -40,8 +46,8 @@ class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
 
 	/**
 	 * setter function to set the draft ID that the task should use
-	 * @param 	integer 	$draftUid	the UID of the sys_dmail record (needs to be of type=3 or type=4)
-	 * @param 	void
+	 * @param integer $draftUid the UID of the sys_dmail record (needs to be of type=3 or type=4)
+	 * @param void
 	 */
 	function setDraft($draftUid) {
 		$this->draftUid = $draftUid;
@@ -50,7 +56,7 @@ class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
 	/**
 	 * Function executed from scheduler.
 	 * Creates a new newsletter record, and sets the scheduled time to "now"
-	 * 
+	 *
 	 * @return	bool
 	 */
 	function execute() {
@@ -58,10 +64,10 @@ class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
 			$this->initializeHookObjects();
 			$hookParams = array();
 
-			$draftRecord = t3lib_BEfunc::getRecord('sys_dmail', $this->draftUid);
-			
+			$draftRecord = BackendUtility::getRecord('sys_dmail', $this->draftUid);
+
 				// get some parameters from tsConfig
-			$tsConfig = t3lib_BEfunc::getModTSconfig($draftRecord['pid'], 'mod.web_modules.dmail');
+			$tsConfig = BackendUtility::getModTSconfig($draftRecord['pid'], 'mod.web_modules.dmail');
 			$defaultParams = $tsConfig['properties'];
 
 				// make a real record out of it
@@ -81,11 +87,11 @@ class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
 			$this->callHooks('postInsertClone', $hookParams);
 
 				// fetch the cloned record
-			$mailRecord = t3lib_BEfunc::getRecord('sys_dmail', $this->dmailUid);
+			$mailRecord = BackendUtility::getRecord('sys_dmail', $this->dmailUid);
 
-			tx_directmail_static::fetchUrlContentsForDirectMailRecord($mailRecord, $defaultParams);
+			DirectMailUtility::fetchUrlContentsForDirectMailRecord($mailRecord, $defaultParams);
 
-			$mailRecord = t3lib_BEfunc::getRecord('sys_dmail', $this->dmailUid);
+			$mailRecord = BackendUtility::getRecord('sys_dmail', $this->dmailUid);
 			if ($mailRecord['mailContent'] && $mailRecord['renderedsize'] > 0) {
 				$updateData = array(
 					'scheduled' => time(),
@@ -108,7 +114,9 @@ class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
 	/**
 	 * Calls the passed hook method of all configured hook object instances
 	 *
-	 * @return	void
+	 * @param $hookMethod
+	 * @param $hookParams
+	 * @return    void
 	 */
 	function callHooks($hookMethod, $hookParams) {
 		foreach ($this->hookObjects as $hookObjectInstance) {
@@ -119,24 +127,18 @@ class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
 	/**
 	 * Initializes hook objects for this class
 	 *
-	 * @return	void
+	 * @return void
 	 */
 	function initializeHookObjects() {
 		if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'])) {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] as $hookObj) {
-				$hookObjectInstance = t3lib_div::getUserObj($hookObj);
-				if (is_object($hookObjectInstance) && ($hookObjectInstance instanceof tx_directmail_Scheduler_MailFromDraftHook)) {
-					$this->hookObjects[] = $hookObjectInstance;
+				$hookObjectInstance = GeneralUtility::getUserObj($hookObj);
+				if (!(is_object($hookObjectInstance) && ($hookObjectInstance instanceof \DirectMailTeam\DirectMail\Scheduler\MailFromDraftHookInterface))) {
+					throw new Exception('Hook object for "mailFromDraft" must implement the "MailFromDraftHookInterface"!', 1400866815);
 				}
+				$this->hookObjects[] = $hookObjectInstance;
 			}
 		}
 	}
-
-
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/Classes/Scheduler/MailFromDraft.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/Classes/Scheduler/MailFromDraft.php']);
-}
-
-?>

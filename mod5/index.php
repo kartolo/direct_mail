@@ -25,25 +25,26 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 /**
- * @author	Kasper Skårhøj <kasper@typo3.com>
+ * @author	Kasper Skï¿½rhï¿½j <kasper@typo3.com>
  * @author  Jan-Erik Revsbech <jer@moccompany.com>
  * @author	Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
  */
+
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 // DEFAULT initialization of a module [BEGIN]
 error_reporting (E_ALL ^ E_NOTICE);
 unset($MCONF);
 require ('conf.php');
 require ($BACK_PATH.'init.php');
-require ($BACK_PATH.'template.php');
+
 $LANG->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
 //$LANG->includeLLFile('EXT:direct_mail/mod/locallang_csh_web_directmail.xml');
 $LANG->includeLLFile('EXT:direct_mail/locallang/locallang_csh_sysdmail.xml');
 $BE_USER->modAccess($MCONF,1);    // This checks permissions and exits if the users has no permission for entry.
 
 // Make instance:
-require_once(t3lib_extMgm::extPath('direct_mail').'mod5/class.tx_directmail_mailer_engine.php');
-$SOBE = t3lib_div::makeInstance('tx_directmail_mailer_engine');
+$SOBE = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Module\\MailerEngine');
 $SOBE->init();
 
 // Include files?

@@ -1,4 +1,6 @@
 <?php
+namespace DirectMailTeam\DirectMail;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -36,14 +38,15 @@
  * @version		$Id: class.tx_directmail_recipient_list.php 8398 2008-02-26 14:22:00Z ivankartolo $
  */
 
-require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
-require_once (PATH_t3lib.'class.t3lib_extfilefunc.php');
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 
 /**
  * Recipient list module for tx_directmail extension
  *
  */
-class tx_directmail_importer {
+class Importer {
 	/**
 	 * the GET-Data
 	 * @var array
@@ -57,7 +60,7 @@ class tx_directmail_importer {
 	var $parent;
 
 	/**
-	 * @var t3lib_extFileFunctions
+	 * @var \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility
 	 */
 	var $fileProcessor;
 
@@ -65,7 +68,7 @@ class tx_directmail_importer {
 		$this->parent = &$pObj;
 
 			//get some importer default from pageTS
-		$temp = t3lib_BEfunc::getModTSconfig(intval(t3lib_div::_GP('id')),'mod.web_modules.dmail.importer');
+		$temp = BackendUtility::getModTSconfig(intval(GeneralUtility::_GP('id')),'mod.web_modules.dmail.importer');
 		$this->params = $temp['properties'];
 	}
 
@@ -75,7 +78,7 @@ class tx_directmail_importer {
 	 * @return	string		HTML form
 	 */
 	function cmd_displayImport()	{
-		$step = t3lib_div::_GP('importStep');
+		$step = GeneralUtility::_GP('importStep');
 
 		$defaultConf = array(
 			'remove_existing' => 0,
@@ -85,10 +88,10 @@ class tx_directmail_importer {
 			'update_unique' => 0
 		);
 
-		if (t3lib_div::_GP('CSV_IMPORT')) {
-			$importerConfig = t3lib_div::_GP('CSV_IMPORT');
+		if (GeneralUtility::_GP('CSV_IMPORT')) {
+			$importerConfig = GeneralUtility::_GP('CSV_IMPORT');
 			if ($step['next'] == 'mapping') {
-				$this->indata = t3lib_div::array_merge($defaultConf, $importerConfig);
+				$this->indata = GeneralUtility::array_merge($defaultConf, $importerConfig);
 			} else {
 				$this->indata = $importerConfig;
 			}
@@ -102,18 +105,19 @@ class tx_directmail_importer {
 			$this->params = array();
 		}
 		// merge it with inData, but inData has priority.
-		$this->indata = t3lib_div::array_merge($this->params, $this->indata);
+		$this->indata = GeneralUtility::array_merge($this->params, $this->indata);
 
-		$currentFileInfo = t3lib_basicFileFunctions::getTotalFileInfo($this->indata['newFile']);
+		$currentFileInfo = BasicFileUtility::getTotalFileInfo($this->indata['newFile']);
 		$currentFileName = $currentFileInfo['file'];
-		$curentFileSize = t3lib_div::formatSize($currentFileInfo['size']);
-		$currentFileMessage = $currentFileName.' ('.$curentFileSize.')';
+		$currentFileSize = GeneralUtility::formatSize($currentFileInfo['size']);
+		$currentFileMessage = $currentFileName.' ('.$currentFileSize.')';
 
 		if(empty($this->indata['csv']) && !empty($_FILES['upload_1']['name'])){
 			$this->indata['newFile'] = $this->checkUpload();
 			// TYPO3 6.0 returns an object...
 			if(is_object($this->indata['newFile'][0])){
-				$this->indata['newFile'] = $this->indata['newFile'][0]->getIdentifier();
+				$storageConfig = $this->indata['newFile'][0]->getStorage()->getConfiguration();
+				$this->indata['newFile'] = $storageConfig['basePath'].ltrim($this->indata['newFile'][0]->getIdentifier(),'/');
 			}
 		} elseif(!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
 			if(((strpos($currentFileInfo['file'],'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt')){
@@ -145,10 +149,10 @@ class tx_directmail_importer {
 			$map = $this->indata['map'];
 			$error = array();
 			//check noMap
-			$newMap = t3lib_div::removeArrayEntryByValue(array_unique($map),'noMap');
+			$newMap = GeneralUtility::removeArrayEntryByValue(array_unique($map),'noMap');
 			if (empty($newMap)){
 				$error[]='noMap';
-			} elseif(!t3lib_div::inArray($map,'email')){
+			} elseif(!GeneralUtility::inArray($map,'email')){
 				$error[] = 'email';
 			}
 
@@ -165,13 +169,13 @@ class tx_directmail_importer {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'uid,title',
 					'pages',
-					'doktype = 254 AND '.$GLOBALS['BE_USER']->getPagePermsClause(3).t3lib_BEfunc::deleteClause('pages').t3lib_BEfunc::BEenableFields('pages'),
+					'doktype = 254 AND '.$GLOBALS['BE_USER']->getPagePermsClause(3).BackendUtility::deleteClause('pages').BackendUtility::BEenableFields('pages'),
 					'',
 					'uid'
 				);
 				$optStorage = array();
 				while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
-					if(t3lib_BEfunc::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){
+					if(BackendUtility::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){
 						$optStorage[] = array($row['uid'],$row['title'].' [uid:'.$row['uid'].']');
 					}
 				}
@@ -260,7 +264,7 @@ class tx_directmail_importer {
 				$no_map = array('image');
 				$tt_address_fields = array_keys($GLOBALS['TCA']['tt_address']['columns']);
 				foreach($no_map as $v){
-					$tt_address_fields = t3lib_div::removeArrayEntryByValue($tt_address_fields, $v);
+					$tt_address_fields = GeneralUtility::removeArrayEntryByValue($tt_address_fields, $v);
 				}
 				$mapFields = array();
 				foreach($tt_address_fields as $map){
@@ -297,12 +301,12 @@ class tx_directmail_importer {
 					//header
 				$tblLinesAdd[] = array($GLOBALS['LANG']->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"'.(!$this->indata['all_html']?'':' checked="checked"').'/> ');
 				//get categories
-				$temp = t3lib_BEfunc::getModTSconfig($this->parent->id,'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
+				$temp = BackendUtility::getModTSconfig($this->parent->id,'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
 				if(is_numeric($temp['value'])){
 					$rowCat = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 						'*',
 						'sys_dmail_category',
-						'pid IN ('. $temp['value'].')'.t3lib_BEfunc::deleteClause('sys_dmail_category').t3lib_BEfunc::BEenableFields('sys_dmail_category')
+						'pid IN ('. $temp['value'].')'.BackendUtility::deleteClause('sys_dmail_category').BackendUtility::BEenableFields('sys_dmail_category')
 					);
 					if(!empty($rowCat)){
 						$tblLinesAdd[] = array($GLOBALS['LANG']->getLL('mailgroup_import_mapping_cats'), '');
@@ -397,7 +401,7 @@ class tx_directmail_importer {
 				$defaultOrder = array('new','update','invalid_email','double');
 
 				if ( !empty($this->params['resultOrder']) ) {
-					$resultOrder = t3lib_div::trimExplode(',',$this->params['resultOrder']);
+					$resultOrder = GeneralUtility::trimExplode(',',$this->params['resultOrder']);
 				} else {
 					$resultOrder = array();
 				}
@@ -469,7 +473,7 @@ class tx_directmail_importer {
 				$tblLines[] = '<b>'.$GLOBALS['LANG']->getLL('mailgroup_import_or').'</b>';
 				$tblLines[] = '';
 				$tblLines[] = $GLOBALS['LANG']->getLL('mailgroup_import_paste_csv');
-				$tblLines[] = '<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"'.$this->parent->doc->formWidthText(48,'','off').'>'.t3lib_div::formatForTextarea($this->indata['csv']).'</textarea>';
+				$tblLines[] = '<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"'.$this->parent->doc->formWidthText(48,'','off').'>'.GeneralUtility::formatForTextarea($this->indata['csv']).'</textarea>';
 				$tblLines[] = '<input type="submit" name="CSV_IMPORT[next]" value="' . $GLOBALS['LANG']->getLL('mailgroup_import_next') . '" />';
 
 				$out.= implode('<br />', $tblLines);
@@ -482,7 +486,7 @@ class tx_directmail_importer {
 			break;
 		}
 
-		$theOutput = $this->parent->doc->section($GLOBALS['LANG']->getLL('mailgroup_import').t3lib_BEfunc::cshItem($this->cshTable,'mailgroup_import',$GLOBALS['BACK_PATH']),$out, 1, 1, 0, TRUE);
+		$theOutput = $this->parent->doc->section($GLOBALS['LANG']->getLL('mailgroup_import').BackendUtility::cshItem($this->cshTable,'mailgroup_import',$GLOBALS['BACK_PATH']),$out, 1, 1, 0, TRUE);
 
 		/**
 		 *  Hook for cmd_displayImport
@@ -491,7 +495,7 @@ class tx_directmail_importer {
 		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport'])) {
 	   		$hookObjectsArr = array();
 	   		foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport'] as $classRef) {
-				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+				$hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
 			}
 		}
 		if(is_array($hookObjectsArr)){
@@ -571,7 +575,7 @@ class tx_directmail_importer {
 			foreach($dataArray as $kk => $fieldData){
 				if($this->indata['map'][$kk] !== 'noMap'){
 					if(($this->indata['valid_email']) && ($this->indata['map'][$kk] === 'email')){
-						$invalidEmail = t3lib_div::validEmail(trim($fieldData))?0:1;
+						$invalidEmail = GeneralUtility::validEmail(trim($fieldData))?0:1;
 						$tempData[$this->indata['map'][$kk]] = trim($fieldData);
 					} else {
 						if ($this->indata['map'][$kk] !== 'cats'){
@@ -607,7 +611,7 @@ class tx_directmail_importer {
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'uid,'.$this->indata['record_unique'],
 				'tt_address',
-				'pid = '.$this->indata['storage'].t3lib_BEfunc::deleteClause('tt_address')
+				'pid = '.$this->indata['storage'].BackendUtility::deleteClause('tt_address')
 			);
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_row($res)){
 				$user[]=$row[1];
@@ -625,7 +629,7 @@ class tx_directmail_importer {
 						if($this->indata['all_html']){
 							$data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_html'] = $this->indata['all_html'];
 						}
-						if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
+						if( is_array($this->indata['cat']) && !GeneralUtility::inArray($this->indata['map'], 'cats') ){
 							if($this->indata['add_cat']){
 								// Load already assigned categories
 								$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -675,8 +679,8 @@ class tx_directmail_importer {
 		$resultImport['double'] = (is_array($filteredCSV['double']))?$filteredCSV['double']: array();
 
 		// start importing
-		/** @var $tce t3lib_TCEmain */
-		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+		/** @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
+		$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
 		$tce->stripslashes_values = 0;
 		$tce->enableLogging = 0;
 		$tce->start($data,array());
@@ -689,7 +693,7 @@ class tx_directmail_importer {
 		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'])) {
 			$hookObjectsArr = array();
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'] as $classRef) {
-				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+				$hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
 			}
 
 			foreach($hookObjectsArr as $hookObj)    {
@@ -714,7 +718,7 @@ class tx_directmail_importer {
 		if($this->indata['all_html']){
 			$data['tt_address'][$id]['module_sys_dmail_html'] = $this->indata['all_html'];
 		}
-		if( is_array($this->indata['cat']) && !t3lib_div::inArray($this->indata['map'], 'cats') ){
+		if( is_array($this->indata['cat']) && !GeneralUtility::inArray($this->indata['map'], 'cats') ){
 			foreach($this->indata['cat'] as $k => $v){
 				$data['tt_address'][$id]['module_sys_dmail_category'][$k] = $v;
 			}
@@ -804,9 +808,7 @@ class tx_directmail_importer {
 
 		$mydata = array();
 		// TYPO3 6.0 works with relative path, we need absolute here
-		if(version_compare(TYPO3_version,'6.0.0','>=')){
-			$this->indata['newFile'] = PATH_site . ltrim($this->indata['newFile'],'/');
-		}
+		$this->indata['newFile'] = PATH_site . $this->indata['newFile'];
 		$handle = fopen($this->indata['newFile'], "r");
 		$i = 0;
 		$delimiter = $this->indata['delimiter'];
@@ -838,20 +840,10 @@ class tx_directmail_importer {
 	 *
 	 * @param	array	$data contains values to convert
 	 * @return	array	array of charset-converted values
-	 * @see	t3lib_cs::convArray()
+	 * @see \TYPO3\CMS\Core\Charset\CharsetConverter::convArray()
 	 */
 	function convCharset($data) {
-		if (t3lib_div::compat_version('4.5')) {
-			// set to uft-8 if TYPO3 > 4.5, since it's default
-			$dbCharset = 'utf-8';
-		} elseif (!t3lib_div::compat_version('4.5') && isset($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])) {
-			// if TYPO3 < 4.5 and forceCharset is set and use this
-			$dbCharset = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
-		} else {
-			//if not, assumes it's an ISO DB
-			$dbCharset = 'iso-8859-1';
-		}
-
+		$dbCharset = 'utf-8';
 		if ( $dbCharset != $this->indata['charset'] )	{
 			$GLOBALS['LANG']->csConvObj->convArray( $data, $this->indata['charset'], $dbCharset );
 		}
@@ -909,28 +901,7 @@ class tx_directmail_importer {
 	 * @return	string		Absolute path to first "_temp_" folder of the current user, otherwise blank.
 	 */
 	function userTempFolder() {
-		$tempFolder = "";
-
-		foreach($GLOBALS['FILEMOUNTS'] as $filePathInfo) {
-			if ( @is_dir( $filePathInfo['path'].'_temp_/' ) ) {
-				$tempFolder = $filePathInfo['path'].'_temp_/';
-				break;
-			}
-		}
-
-		if ( !$tempFolder )	{
-			// TYPO3 6.0 FAL has a slight different API, use the relative path
-			// and prepend the global storae uid 0
-			if(version_compare(TYPO3_version,'6.0.0','>=')){
-				$tempFolder = '0:uploads/tx_directmail/';
-			}else{
-				// we don't have a valid file mount
-				// use default upload folder
-				$tempFolder = t3lib_div::getFileAbsFileName('uploads/tx_directmail/');
-			}
-		}
-
-		return $tempFolder;
+		return $tempFolder = 'fileadmin/_temp_/';
 	}
 
 	/**
@@ -947,17 +918,13 @@ class tx_directmail_importer {
 		//add uploads/tx_directmail to user filemounts
 		$GLOBALS['FILEMOUNTS']['tx_directmail'] = array(
 			'name' => 'direct_mail',
-			'path' => t3lib_div::getFileAbsFileName('uploads/tx_directmail/'),
+			'path' => GeneralUtility::getFileAbsFileName('uploads/tx_directmail/'),
 			'type'
 		);
 
 		// Initializing:
-		/** @var $fileProcessor t3lib_extFileFunctions */
-		if(version_compare(TYPO3_version,'6.0.0','>=')){
-			$this->fileProcessor = TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Core\Utility\File\ExtendedFileUtility');
-		}else{
-			$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
-		}
+		/** @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
+		$this->fileProcessor = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Utility\\File\\ExtendedFileUtility');
 		$this->fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
 		$this->fileProcessor->init_actionPerms($user_perms);
 		$this->fileProcessor->dontCheckForUnique = 1;
@@ -972,12 +939,12 @@ class tx_directmail_importer {
 			// this throws a error message because we have no rights to upload files
 			// to our extension's own upload folder
 			// further investigation needed
-			$file['upload']['1']['target'] = t3lib_div::getFileAbsFileName('uploads/tx_directmail/');
+			$file['upload']['1']['target'] = GeneralUtility::getFileAbsFileName('uploads/tx_directmail/');
 		}
 
 		// Checking referer / executing:
-		$refInfo = parse_url(t3lib_div::getIndpEnv('HTTP_REFERER'));
-		$httpHost = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
+		$refInfo = parse_url(GeneralUtility::getIndpEnv('HTTP_REFERER'));
+		$httpHost = GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY');
 
 		if(empty($this->indata['newFile'])){
 				//new file
@@ -1011,7 +978,7 @@ class tx_directmail_importer {
 	 * @return	string		the complete physical file name, including path info.
 	 */
 	function checkUpload()	{
-		$file = t3lib_div::_GP('file');
+		$file = GeneralUtility::_GP('file');
 		$fm = array();
 
 		$tempFolder = $this->userTempFolder();
@@ -1023,15 +990,15 @@ class tx_directmail_importer {
 		);
 
 		// Initializing:
-		/** @var $fileProcessor t3lib_extFileFunctions */
-		$this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
+		/** @var $fileProcessor TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
+		$this->fileProcessor = GeneralUtility::makeInstance('TYPO3\CMS\Core\Utility\File\ExtendedFileUtility');
 		$this->fileProcessor->init($fm, $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-		$this->fileProcessor->init_actionPerms($GLOBALS['BE_USER']->getFileoperationPermissions());
-		$this->fileProcessor->dontCheckForUnique = t3lib_div::_GP('overwriteExistingFiles') ? 1 : 0;
+		$this->fileProcessor->setActionPermissions();
+		$this->fileProcessor->dontCheckForUnique = GeneralUtility::_GP('overwriteExistingFiles') ? 1 : 0;
 
 		// Checking referer / executing:
-		$refInfo = parse_url(t3lib_div::getIndpEnv('HTTP_REFERER'));
-		$httpHost = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
+		$refInfo = parse_url(GeneralUtility::getIndpEnv('HTTP_REFERER'));
+		$httpHost = GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY');
 
 		if ($httpHost != $refInfo['host'] && $this->vC != $GLOBALS['BE_USER']->veriCode() && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
 			$this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', array($refInfo['host'], $httpHost));
@@ -1041,10 +1008,6 @@ class tx_directmail_importer {
 		}
 		return $newfile;
 	}
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_importer.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/res/scripts/class.tx_directmail_importer.php']);
 }
 
 ?>

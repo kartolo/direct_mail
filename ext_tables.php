@@ -1,207 +1,35 @@
 <?php
-/**
- *
- * @package TYPO3
- * @subpackage tx_directmail
- * @version $Id$
- */
+if (!defined('TYPO3_MODE')) {
+	die ('Access denied.');
+}
 
-if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
+$extPath = TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY);
 
-
-$extPath = t3lib_extMgm::extPath($_EXTKEY);
-
-t3lib_extMgm::addStaticFile($_EXTKEY, 'static/boundaries/','Direct Mail Content Boundaries');
-t3lib_extMgm::addStaticFile($_EXTKEY, 'static/plaintext/', 'Direct Mail Plain text');
-t3lib_extMgm::addStaticFile($_EXTKEY, 'static/tt_news_plaintext/', 'Direct Mail News Plain text');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'static/boundaries/','Direct Mail Content Boundaries');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'static/plaintext/', 'Direct Mail Plain text');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'static/tt_news_plaintext/', 'Direct Mail News Plain text');
 
 	// Category field disabled by default in backend forms.
-t3lib_extMgm::addPageTSConfig('
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
 	TCEFORM.tt_content.module_sys_dmail_category.disabled = 1
 	TCEFORM.tt_address.module_sys_dmail_category.disabled = 1
 	TCEFORM.fe_users.module_sys_dmail_category.disabled = 1
 	TCEFORM.sys_dmail_group.select_categories.disabled = 1
 ');
 
-require_once($extPath . '/res/scripts/class.tx_directmail_select_categories.php');
-
 /**
  * Setting up the direct mail module
  */
-
- 	// pages modified
-$TCA['pages']['columns']['module']['config']['items'][] = array('LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:pages.module.I.5', 'dmail');
-
- 	// tt_content modified
-$tt_content_cols = array(
-	'module_sys_dmail_category' => array(
-		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:sys_dmail_category.category',
-		'exclude' => '1',
-		'l10n_mode' => 'exclude',
-		'config' => array(
-			'type' => 'select',
-			'foreign_table' => 'sys_dmail_category',
-			'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.sorting',
-			'itemsProcFunc' => 'tx_directmail_select_categories->get_localized_categories',
-			'itemsProcFunc_config' => array(
-				'table' => 'sys_dmail_category',
-				'indexField' => 'uid',
-			),
-			'size' => 5,
-			'minitems' => 0,
-			'maxitems' => 60,
-			'renderMode' => 'checkbox',
-			'MM' => 'sys_dmail_ttcontent_category_mm',
-		)
-	),
-);
-t3lib_extMgm::addTCAcolumns('tt_content',$tt_content_cols);
-t3lib_extMgm::addToAllTCATypes('tt_content','module_sys_dmail_category;;;;1-1-1');
-
-	// tt_address modified
-$tempCols = array(
-	'module_sys_dmail_category' => array(
-		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.category',
-		'exclude' => '1',
-		'config' => array(
-			'type' => 'select',
-			'foreign_table' => 'sys_dmail_category',
-			'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.sorting',
-			'itemsProcFunc' => 'tx_directmail_select_categories->get_localized_categories',
-			'itemsProcFunc_config' => array(
-				'table' => 'sys_dmail_category',
-				'indexField' => 'uid',
-			),
-			'size' => 5,
-			'minitems' => 0,
-			'maxitems' => 60,
-			'renderMode' => 'checkbox',
-			'MM' => 'sys_dmail_ttaddress_category_mm',
-		)
-	),
-	'module_sys_dmail_html' => array(
-		'label'=>'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.htmlemail',
-		'exclude' => '1',
-		'config'=>array(
-			'type'=>'check'
-			)
-		)
-	);
-
-t3lib_extMgm::addTCAcolumns('tt_address',$tempCols);
-t3lib_extMgm::addToAllTCATypes('tt_address','--div--;Direct mail,module_sys_dmail_category;;;;1-1-1,module_sys_dmail_html');
-$TCA['tt_address']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_category,module_sys_dmail_html';
-
-	// fe_users modified
-$tempCols = array(
-	'module_sys_dmail_newsletter' => array(
-		'label'=>'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.newsletter',
-		'exclude' => '1',
-		'config'=>array(
-			'type'=>'check'
-			)
-		),
-	'module_sys_dmail_category' => array(
-		'label' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.category',
-		'exclude' => '1',
-		'config' => array(
-			'type' => 'select',
-			'foreign_table' => 'sys_dmail_category',
-			'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.sorting',
-			'itemsProcFunc' => 'tx_directmail_select_categories->get_localized_categories',
-			'itemsProcFunc_config' => array(
-				'table' => 'sys_dmail_category',
-				'indexField' => 'uid',
-			),
-			'size' => 5,
-			'minitems' => 0,
-			'maxitems' => 60,
-			'renderMode' => 'checkbox',
-			'MM' => 'sys_dmail_feuser_category_mm',
-		)
-	),
-	'module_sys_dmail_html' => array(
-		'label'=>'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:module_sys_dmail_group.htmlemail',
-		'exclude' => '1',
-		'config'=>array(
-			'type'=>'check'
-		)
-	)
-);
-
-t3lib_extMgm::addTCAcolumns('fe_users',$tempCols);
-$TCA['fe_users']['feInterface']['fe_admin_fieldList'].=',module_sys_dmail_newsletter,module_sys_dmail_category,module_sys_dmail_html';
-t3lib_extMgm::addToAllTCATypes('fe_users','--div--;Direct mail,module_sys_dmail_newsletter;;;;1-1-1,module_sys_dmail_category,module_sys_dmail_html');
-
-// ******************************************************************
-// sys_dmail
-// ******************************************************************
-$TCA['sys_dmail'] = array(
-	'ctrl' => array(
-		'label' => 'subject',
-		'default_sortby' => 'ORDER BY tstamp DESC',
-		'tstamp' => 'tstamp',
-		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.xml:LGL.prependAtCopy',
-		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:sys_dmail',
-		'delete' => 'deleted',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY).'res/gfx/mail.gif',
-		'type' => 'type',
-		'useColumnsForDefaultValues' => 'from_email,from_name,replyto_email,replyto_name,organisation,priority,encoding,charset,sendOptions,type',
-		'dynamicConfigFile' => $extPath . 'Configuration/tca.php',
-		'dividers2tabs' => TRUE,
-	)
-);
-
-// ******************************************************************
-// Categories
-// ******************************************************************
-$TCA['sys_dmail_category'] = array(
-	'ctrl' => array(
-		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:sys_dmail_category',
-		'label' => 'category',
-		'tstamp' => 'tstamp',
-		'crdate' => 'crdate',
-		'cruser_id' => 'cruser_id',
-		'languageField' => 'sys_language_uid',
-		'transOrigPointerField' => 'l18n_parent',
-		'transOrigDiffSourceField' => 'l18n_diffsource',
-		'sortby' => 'sorting',
-		'delete' => 'deleted',
-		'enablecolumns' => array(
-			'disabled' => 'hidden',
-			),
-		'dynamicConfigFile' => $extPath . 'Configuration/tca.php',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY).'res/gfx/icon_tx_directmail_category.gif',
-		)
-);
-
-// ******************************************************************
-// sys_dmail_group
-// ******************************************************************
-$TCA['sys_dmail_group'] = array(
-	'ctrl' => array(
-		'label' => 'title',
-		'default_sortby' => 'ORDER BY title',
-		'tstamp' => 'tstamp',
-		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.xml:LGL.prependAtCopy',
-		'title' => 'LLL:EXT:'.$_EXTKEY.'/locallang_tca.xml:sys_dmail_group',
-		'delete' => 'deleted',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY).'res/gfx/mailgroup.gif',
-		'type' => 'type',
-		'dynamicConfigFile' => $extPath . 'Configuration/tca.php',
-	)
-);
-
-t3lib_extMgm::addLLrefForTCAdescr('sys_dmail','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmail.xml');
-t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_group','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmailg.xml');
-t3lib_extMgm::addLLrefForTCAdescr('sys_dmail_category','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmailcat.xml');
-t3lib_extMgm::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM2','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM2.xml');
-t3lib_extMgm::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM3','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM3.xml');
-t3lib_extMgm::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM4','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM4.xml');
-t3lib_extMgm::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM5','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM5.xml');
-t3lib_extMgm::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM6','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM6.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmail.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_group','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmailg.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_category','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmailcat.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM2','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM2.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM3','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM3.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM4','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM4.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM5','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM5.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM6','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM6.xml');
 //old
-t3lib_extMgm::addLLrefForTCAdescr('_MOD_web_txdirectmailM','EXT:'.$_EXTKEY.'/locallang/locallang_csh_web_txdirectmail.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_web_txdirectmailM','EXT:'.$_EXTKEY.'/locallang/locallang_csh_web_txdirectmail.xml');
 
 
 if (TYPO3_MODE == 'BE') {
@@ -220,20 +48,18 @@ if (TYPO3_MODE == 'BE') {
 
 		$TBE_MODULES = $temp_TBE_MODULES;
 	}
-	t3lib_extMgm::addModule('txdirectmailM1', '', '', $extPath.'mod1/');
-	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM2', 'bottom', $extPath.'mod2/');
-	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM3', 'bottom', $extPath.'mod3/');
-	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM4', 'bottom', $extPath.'mod4/');
-	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM5', 'bottom', $extPath.'mod5/');
-	t3lib_extMgm::addModule('txdirectmailM1', 'txdirectmailM6', 'bottom', $extPath.'mod6/');
-
-	//t3lib_extMgm::addModule('web','txdirectmailM2','',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
-		//use SpriteManager if TYPO3 4.4.0
-	if (t3lib_div::compat_version("4.4")) {
-		t3lib_SpriteManager::addTcaTypeIcon('pages', 'contains-dmail', '../typo3conf/ext/direct_mail/res/gfx/ext_icon_dmail_folder.gif');
-	} else {
-		$ICON_TYPES['dmail'] = array('icon' => t3lib_extMgm::extRelPath($_EXTKEY).'res/gfx/ext_icon_dmail_folder.gif');
-	}
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', '', '', $extPath.'mod1/');
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', 'txdirectmailM2', 'bottom', $extPath.'mod2/');
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', 'txdirectmailM3', 'bottom', $extPath.'mod3/');
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', 'txdirectmailM4', 'bottom', $extPath.'mod4/');
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', 'txdirectmailM5', 'bottom', $extPath.'mod5/');
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', 'txdirectmailM6', 'bottom', $extPath.'mod6/');
 }
+
+\TYPO3\CMS\Backend\Sprite\SpriteManager::addTcaTypeIcon(
+	'pages',
+	'contains-dmail',
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath($_EXTKEY) . 'res/gfx/ext_icon_dmail_folder.gif'
+);
 
 ?>

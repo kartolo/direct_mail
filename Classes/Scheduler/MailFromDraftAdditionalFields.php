@@ -1,4 +1,6 @@
 <?php
+namespace DirectMailTeam\DirectMail\Scheduler;
+
 /***************************************************************
 *  Copyright notice
 *
@@ -22,6 +24,9 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+
 /**
  * Aditional fields provider class for usage with the Scheduler's MailFromDraft task
  *
@@ -31,7 +36,7 @@
  *
  * $Id: $
  */
-class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_scheduler_AdditionalFieldProvider {
+class MailFromDraftAdditionalFields implements \TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface {
 
 	/**
 	 * This method is used to define new fields for adding or editing a task
@@ -39,7 +44,7 @@ class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_sched
 	 *
 	 * @param	array					$taskInfo: reference to the array containing the info used in the add/edit form
 	 * @param	object					$task: when editing, reference to the current task object. Null when adding.
-	 * @param	tx_scheduler_Module		$parentObject: reference to the calling object (Scheduler's BE module)
+	 * @param	\TYPO3\CMS\Scheduler\Controller\SchedulerModuleController		$parentObject: reference to the calling object (Scheduler's BE module)
 	 * @return	array					Array containg all the information pertaining to the additional fields
 	 *									The array is multidimensional, keyed to the task class name and each field's id
 	 *									For each field it provides an associative sub-array with the following:
@@ -48,7 +53,7 @@ class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_sched
 	 *										['cshKey']		=> The CSH key for the field
 	 *										['cshLabel']	=> The code of the CSH label
 	 */
-	public function getAdditionalFields(array &$taskInfo, $task, tx_scheduler_Module $parentObject) {
+	public function getAdditionalFields(array &$taskInfo, $task, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $parentObject) {
 
 			// Initialize extra field value
 		if (empty($taskInfo['selecteddraft'])) {
@@ -60,11 +65,11 @@ class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_sched
 				$taskInfo['selecteddraft'] = '';
 			}
 		}
-		
+
 		// fetch all available drafts
 		$drafts = array();
-		$draftsInternal = t3lib_BEfunc::getRecordsByField('sys_dmail', 'type', 2);
-		$draftsExternal = t3lib_BEfunc::getRecordsByField('sys_dmail', 'type', 3);
+		$draftsInternal = BackendUtility::getRecordsByField('sys_dmail', 'type', 2);
+		$draftsExternal = BackendUtility::getRecordsByField('sys_dmail', 'type', 3);
 		if (is_array($draftsInternal)) {
 			$drafts = array_merge($drafts, $draftsInternal);
 		}
@@ -75,7 +80,7 @@ class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_sched
 			// Create the input field
 		$fieldID = 'task_selecteddraft';
 		$fieldHtml = '';
-		
+
 		if (count($drafts) === 0) {
 				// TODO: localization
 			$fieldHtml .= '<option>' . 'No drafts found. Please add one first through the direct mail process'. '</option>';
@@ -86,7 +91,7 @@ class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_sched
 			}
 		}
 		$fieldHtml = '<select name="tx_scheduler[selecteddraft]" id="' . $fieldID . '">' . $fieldHtml . '</select>';
-		
+
 
 		$additionalFields = array();
 		$additionalFields[$fieldID] = array(
@@ -104,23 +109,23 @@ class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_sched
 	 * If the task class is not relevant, the method is expected to return true
 	 *
 	 * @param	array					$submittedData: reference to the array containing the data submitted by the user
-	 * @param	tx_scheduler_Module		$parentObject: reference to the calling object (Scheduler's BE module)
+	 * @param	\TYPO3\CMS\Scheduler\Controller\SchedulerModuleController		$parentObject: reference to the calling object (Scheduler's BE module)
 	 * @return	boolean					True if validation was ok (or selected class is not relevant), false otherwise
 	 */
-	public function validateAdditionalFields(array &$submittedData, tx_scheduler_Module $parentObject) {
+	public function validateAdditionalFields(array &$submittedData, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $parentObject) {
 		$draftUid = $submittedData['selecteddraft'] = intval($submittedData['selecteddraft']);
 		if ($draftUid > 0) {
-			$draftRecord = t3lib_BEfunc::getRecord('sys_dmail', $draftUid);
+			$draftRecord = BackendUtility::getRecord('sys_dmail', $draftUid);
 			if ($draftRecord['type'] == 2 || $draftRecord['type'] == 3) {
 				$result = TRUE;
 			} else {
 				// TODO: localization
-				$parentObject->addMessage('No draft record selected', t3lib_FlashMessage::ERROR);
+				$parentObject->addMessage('No draft record selected', FlashMessage::ERROR);
 				$result = FALSE;
 			}
 		} else {
 			// TODO: localization
-			$parentObject->addMessage('No drafts found. Please add one first through the direct mail process', t3lib_FlashMessage::ERROR);
+			$parentObject->addMessage('No drafts found. Please add one first through the direct mail process', FlashMessage::ERROR);
 			$result = FALSE;
 		}
 
@@ -132,16 +137,12 @@ class tx_directmail_Scheduler_MailFromDraft_AdditionalFields implements tx_sched
 	 * if the task class matches
 	 *
 	 * @param	array				$submittedData: array containing the data submitted by the user
-	 * @param	tx_scheduler_Task	$task: reference to the current task object
+	 * @param	\TYPO3\CMS\Scheduler\Task\AbstractTask	$task: reference to the current task object
 	 * @return	void
 	 */
-	public function saveAdditionalFields(array $submittedData, tx_scheduler_Task $task) {
+	public function saveAdditionalFields(array $submittedData, \TYPO3\CMS\Scheduler\Task\AbstractTask $task) {
 		$task->setDraft($submittedData['selecteddraft']);
 	}
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/Classes/Scheduler/MailFromDraft_AdditionalFields.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/Classes/Scheduler/MailFromDraft_AdditionalFields.php']);
 }
 
 ?>

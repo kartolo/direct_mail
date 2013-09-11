@@ -1,4 +1,6 @@
 <?php
+namespace DirectMailTeam\DirectMail\Module;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -38,15 +40,18 @@
  * @version		$Id: class.tx_directmail_statistics.php 30936 2010-03-09 18:43:37Z ivankartolo $
  */
 
-require_once (PATH_t3lib.'class.t3lib_scbase.php');
-require_once (PATH_t3lib.'class.t3lib_page.php');
-require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.tx_directmail_static.php');
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Backend\Utility\IconUtility;
+use DirectMailTeam\DirectMail\DirectMailUtility;
 
 /**
  * Module Statistics of tx_directmail extension
  *
  */
-class tx_directmail_statistics extends t3lib_SCbase {
+class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	var $extKey = 'direct_mail';
 	var $TSconfPrefix = 'mod.web_modules.dmail.';
 	var $fieldList = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
@@ -69,7 +74,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	var $formname = 'dmailform';
 
 	/**
-	 * @var t3lib_pageSelect
+	 * @var \TYPO3\CMS\Frontend\Page\PageRepository
 	 */
 	var $sys_page;
 
@@ -88,22 +93,21 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 		parent::init();
 
-		$this->MOD_MENU['dmail_mode'] = t3lib_BEfunc::unsetMenuItems($this->params,$this->MOD_MENU['dmail_mode'],'menu.dmail_mode');
+		$this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params,$this->MOD_MENU['dmail_mode'],'menu.dmail_mode');
 
 			// initialize the page selector
-		/** @var $sys_page t3lib_pageSelect */
-		$this->sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
+		$this->sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
 		$this->sys_page->init(true);
 
 			// initialize backend user language
-		if ($GLOBALS["LANG"]->lang && t3lib_extMgm::isLoaded('static_info_tables')) {
+		if ($GLOBALS["LANG"]->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
 				'static_languages.lg_typo3='.$GLOBALS["TYPO3_DB"]->fullQuoteStr($GLOBALS["LANG"]->lang,'static_languages').
-					t3lib_BEfunc::BEenableFields('sys_language').
-					t3lib_BEfunc::deleteClause('sys_language').
-					t3lib_BEfunc::deleteClause('static_languages')
+					BackendUtility::BEenableFields('sys_language').
+					BackendUtility::deleteClause('sys_language').
+					BackendUtility::deleteClause('static_languages')
 				);
 			while($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res)) {
 				$this->sys_language_uid = $row['uid'];
@@ -132,16 +136,16 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	 * @return	void		no return value: update the global variable 'content'
 	 */
 	function main()	{
-		$this->CMD = t3lib_div::_GP('CMD');
-		$this->pages_uid = intval(t3lib_div::_GP('pages_uid'));
-		$this->sys_dmail_uid = intval(t3lib_div::_GP('sys_dmail_uid'));
-		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
+		$this->CMD = GeneralUtility::_GP('CMD');
+		$this->pages_uid = intval(GeneralUtility::_GP('pages_uid'));
+		$this->sys_dmail_uid = intval(GeneralUtility::_GP('sys_dmail_uid'));
+		$this->pageinfo = BackendUtility::readPageAccess($this->id,$this->perms_clause);
 		$access = is_array($this->pageinfo) ? 1 : 0;
 
 		if (($this->id && $access) || ($GLOBALS["BE_USER"]->user['admin'] && !$this->id))	{
 
 			// Draw the header.
-			$this->doc = t3lib_div::makeInstance('template');
+			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
 			$this->doc->backPath = $GLOBALS["BACK_PATH"];
 			$this->doc->setModuleTemplate('EXT:direct_mail/mod4/mod_template.html');
 			$this->doc->form='<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
@@ -186,9 +190,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			);
 
 			$docHeaderButtons = array(
-				'PAGEPATH' => $GLOBALS["LANG"]->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
+				'PAGEPATH' => $GLOBALS["LANG"]->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
 				'SHORTCUT' => '',
-				'CSH' => t3lib_BEfunc::cshItem($this->cshTable, '', $GLOBALS["BACK_PATH"])
+				'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS["BACK_PATH"])
 			);
 				// shortcut icon
 			if ($GLOBALS["BE_USER"]->mayMakeShortcut()) {
@@ -197,7 +201,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 			$module = $this->pageinfo['module'];
 			if (!$module)	{
-				$pidrec=t3lib_BEfunc::getRecord('pages',intval($this->pageinfo['pid']));
+				$pidrec=BackendUtility::getRecord('pages',intval($this->pageinfo['pid']));
 				$module=$pidrec['module'];
 			}
 
@@ -208,19 +212,19 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					$markers['CONTENT'] = '<h2>' . $GLOBALS['LANG']->getLL('stats_overview_header') . '</h2>'
 					. $this->moduleContent();
 				} elseif ($this->id != 0) {
-					/** @var $flashMessage t3lib_FlashMessage */
-					$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
+					/** @var $flashMessage FlashMessage */
+					$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
 						$GLOBALS['LANG']->getLL('dmail_noRegular'),
 						$GLOBALS['LANG']->getLL('dmail_newsletters'),
-						t3lib_FlashMessage::WARNING
+						FlashMessage::WARNING
 					);
 					$markers['FLASHMESSAGES'] = $flashMessage->render();
 				}
 			} else {
-				$flashMessage = t3lib_div::makeInstance('t3lib_FlashMessage',
+				$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
 					$GLOBALS['LANG']->getLL('select_folder'),
 					$GLOBALS['LANG']->getLL('header_stat'),
-					t3lib_FlashMessage::WARNING
+					FlashMessage::WARNING
 				);
 				$markers['FLASHMESSAGES'] = $flashMessage->render();
 
@@ -232,7 +236,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		} else {
 			// If no access or if ID == zero
 
-			$this->doc = t3lib_div::makeInstance('mediumDoc');
+			$this->doc = GeneralUtility::makeInstance('mediumDoc');
 			$this->doc->backPath = $GLOBALS["BACK_PATH"];
 
 			$this->content.=$this->doc->startPage($GLOBALS["LANG"]->getLL('title'));
@@ -260,7 +264,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				'sys_dmail',
 				'pid='.intval($this->id).
 					' AND uid='.intval($this->sys_dmail_uid).
-					t3lib_BEfunc::deleteClause('sys_dmail')
+					BackendUtility::deleteClause('sys_dmail')
 				);
 
 			$this->noView = 0;
@@ -282,7 +286,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					if (is_array($GLOBALS["TYPO3_CONF_VARS"]['EXT']['directmail']['handledirectmailcmd-'.$this->CMD])) {
 						foreach($GLOBALS["TYPO3_CONF_VARS"]['EXT']['directmail']['handledirectmailcmd-'.$this->CMD] as $_funcRef) {
 							$_params = array('pObj' => &$this);
-							$theOutput = t3lib_div::callUserFunction($_funcRef,$_params,$this);
+							$theOutput = GeneralUtility::callUserFunction($_funcRef,$_params,$this);
 						}
 					}
 				}
@@ -297,14 +301,14 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	 * @return	string		HTML showing user's info and the categories
 	 */
 	function cmd_displayUserInfo()	{
-		$uid = intval(t3lib_div::_GP('uid'));
-		$indata = t3lib_div::_GP('indata');
-		$table = t3lib_div::_GP('table');
+		$uid = intval(GeneralUtility::_GP('uid'));
+		$indata = GeneralUtility::_GP('indata');
+		$table = GeneralUtility::_GP('table');
 
 		$mm_table = $GLOBALS["TCA"][$table]['columns']['module_sys_dmail_category']['config']['MM'];
 
-		if(t3lib_div::_GP('submit')){
-			$indata = t3lib_div::_GP('indata');
+		if(GeneralUtility::_GP('submit')){
+			$indata = GeneralUtility::_GP('indata');
 			if(!$indata){
 				$indata['html']= 0;
 			}
@@ -329,8 +333,8 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				}
 				$data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
 
-				/** @var $tce t3lib_TCEmain */
-				$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+				/** @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
+				$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
 				$tce->stripslashes_values=0;
 				$tce->start($data,Array());
 				$tce->process_datamap();
@@ -345,9 +349,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
 					'tt_address.uid='.intval($uid).
 						' AND '.$this->perms_clause.
-						t3lib_BEfunc::deleteClause('pages').
-						t3lib_BEfunc::BEenableFields('tt_address').
-						t3lib_BEfunc::deleteClause('tt_address')
+						BackendUtility::deleteClause('pages').
+						BackendUtility::BEenableFields('tt_address').
+						BackendUtility::deleteClause('tt_address')
 					);
 				break;
 			case 'fe_users':
@@ -356,9 +360,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					'fe_users LEFT JOIN pages ON pages.uid=fe_users.pid',
 					'fe_users.uid='.intval($uid).
 						' AND '.$this->perms_clause.
-						t3lib_BEfunc::deleteClause('pages').
-						t3lib_BEfunc::BEenableFields('fe_users').
-						t3lib_BEfunc::deleteClause('fe_users')
+						BackendUtility::deleteClause('pages').
+						BackendUtility::BEenableFields('fe_users').
+						BackendUtility::deleteClause('fe_users')
 					);
 				break;
 		}
@@ -386,17 +390,17 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 			$Eparams = '&edit['.$table.']['.$row['uid'].']=edit';
 			$out = '';
-			$out .= t3lib_iconWorks::getIconImage($table, $row, $GLOBALS["BACK_PATH"], 'width="18" height="16" title="'.htmlspecialchars(t3lib_BEfunc::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').htmlspecialchars($row['name'].' <'.$row['email'].'>');
-			$out .= '&nbsp;&nbsp;<a href="#" onClick="'.t3lib_BEfunc::editOnClick($Eparams,$GLOBALS["BACK_PATH"],'').'"><img'.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS["LANG"]->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS["LANG"]->getLL("dmail_edit").'" /><b>' . $GLOBALS["LANG"]->getLL('dmail_edit') . '</b></a>';
+			$out .= IconUtility::getIconImage($table, $row, $GLOBALS["BACK_PATH"], 'width="18" height="16" title="'.htmlspecialchars(BackendUtility::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').htmlspecialchars($row['name'].' <'.$row['email'].'>');
+			$out .= '&nbsp;&nbsp;<a href="#" onClick="'.BackendUtility::editOnClick($Eparams,$GLOBALS["BACK_PATH"],'').'"><img'.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS["LANG"]->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS["LANG"]->getLL("dmail_edit").'" /><b>' . $GLOBALS["LANG"]->getLL('dmail_edit') . '</b></a>';
 			$theOutput = $this->doc->section($GLOBALS["LANG"]->getLL('subscriber_info'),$out);
 
 			$out = '';
 			$out_check = '';
 
-			$this->categories = tx_directmail_static::makeCategories($table, $row, $this->sys_language_uid);
+			$this->categories = DirectMailUtility::makeCategories($table, $row, $this->sys_language_uid);
 
 			foreach ($this->categories as $pKey => $pVal) {
-				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0" /><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(t3lib_div::inList($row_categories,$pKey)?' checked="checked"':'').' /> '.htmlspecialchars($pVal).'<br />';
+				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0" /><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(GeneralUtility::inList($row_categories,$pKey)?' checked="checked"':'').' /> '.htmlspecialchars($pVal).'<br />';
 			}
 			$out_check .= '<br /><br /><input type="checkbox" name="indata[html]" value="1"'.($row['module_sys_dmail_html']?' checked="checked"':'').' /> ';
 			$out_check .= $GLOBALS["LANG"]->getLL('subscriber_profile_htmlemail') . '<br />';
@@ -423,7 +427,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			'pid='.intval($this->id).
 				' AND type IN (0,1)'.
 				' AND issent = 1'.
-				t3lib_BEfunc::deleteClause('sys_dmail'),
+				BackendUtility::deleteClause('sys_dmail'),
 			'',
 			'scheduled DESC, scheduled_begin DESC'
 			);
@@ -467,11 +471,11 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				}
 
 				$out.='<tr class="bgColor4">
-					<td>'.t3lib_iconWorks::getIconImage('sys_dmail',$row, $GLOBALS["BACK_PATH"], 'width="18" height="16" style="vertical-align: top;"').'</td>
-					<td>'.$this->linkDMail_record(t3lib_div::fixed_lgd_cs($row['subject'],30).'  ',$row['uid'],$row['subject']).'&nbsp;&nbsp;</td>
-					<td>'.t3lib_BEfunc::datetime($row["scheduled"]).'</td>
-					<td>'.($row["scheduled_begin"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'&nbsp;').'</td>
-					<td>'.($row["scheduled_end"]?t3lib_BEfunc::datetime($row["scheduled_end"]):'&nbsp;').'</td>
+					<td>'.IconUtility::getIconImage('sys_dmail',$row, $GLOBALS["BACK_PATH"], 'width="18" height="16" style="vertical-align: top;"').'</td>
+					<td>'.$this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'],30).'  ',$row['uid'],$row['subject']).'&nbsp;&nbsp;</td>
+					<td>'.BackendUtility::datetime($row["scheduled"]).'</td>
+					<td>'.($row["scheduled_begin"]?BackendUtility::datetime($row["scheduled_begin"]):'&nbsp;').'</td>
+					<td>'.($row["scheduled_end"]?BackendUtility::datetime($row["scheduled_end"]):'&nbsp;').'</td>
 					<td>'.($count?$count:'&nbsp;').'</td>
 					<td>'.$sent.'</td>
 				</tr>';
@@ -504,7 +508,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	 * @return	string		statistics of a mail
 	 */
 	function cmd_stats($row)	{
-		if (t3lib_div::_GP("recalcCache"))	{
+		if (GeneralUtility::_GP("recalcCache"))	{
 			$this->makeStatTempTableContent($row);
 		}
 		$thisurl = 'index.php?id='.$this->id.'&sys_dmail_uid='.$row['uid'].'&CMD='.$this->CMD.'&recalcCache=1';
@@ -556,7 +560,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		$tblLines[] = array($GLOBALS["LANG"]->getLL('stats_unique_responses'),$this->showWithPercent($unique_html_responses+$unique_plain_responses,$sent_total),$this->showWithPercent($unique_html_responses,$sent_html),$this->showWithPercent($unique_plain_responses,$sent_plain?$sent_plain:$sent_html));
 
 		$output.='<br /><h2>' . $GLOBALS["LANG"]->getLL('stats_general_information') . '</h2>';
-		$output.= tx_directmail_static::formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1, array(), 'cellspacing="0" cellpadding="3" class="stats-table"');
+		$output.= DirectMailUtility::formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1, array(), 'cellspacing="0" cellpadding="3" class="stats-table"');
 
 			// ******************
 			// Links:
@@ -646,7 +650,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		);
 
 		$output.='<br /><h2>' . $GLOBALS["LANG"]->getLL('stats_response') . '</h2>';
-		$output.=tx_directmail_static::formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(0,0,0,0), 'cellspacing="0" cellpadding="3" class="stats-table"');
+		$output.=DirectMailUtility::formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(0,0,0,0), 'cellspacing="0" cellpadding="3" class="stats-table"');
 
 		arsort($urlCounter['total']);
 		arsort($urlCounter['html']);
@@ -682,7 +686,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				// where the lower level of the array contains two values, the URL and the unique ID (see $urlArr)
 			foreach ($bodyPart as $k => $str) {
 				if (preg_match('/a.href/', $str)) {
-					$tagAttr = t3lib_div::get_tag_attributes($bodyPart[$k]);
+					$tagAttr = GeneralUtility::get_tag_attributes($bodyPart[$k]);
 					if (strpos($str, '>') === strlen($str) - 1) {
 						if ($tagAttr['href']{0} != '#') {
 							list(, $jumpurlId) = explode('jumpurl=', $tagAttr['href']);
@@ -690,9 +694,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 							// Use the link title if it exists - otherwise use the URL
 							if (strlen($tagAttr['title'])) {
-								$label = $GLOBALS["LANG"]->getLL('stats_img_link') . '<span title="'.$tagAttr['title'].'">' . t3lib_div::fixed_lgd_cs(substr($url, 7), 40) . '</span>';
+								$label = $GLOBALS["LANG"]->getLL('stats_img_link') . '<span title="'.$tagAttr['title'].'">' . GeneralUtility::fixed_lgd_cs(substr($url, 7), 40) . '</span>';
 							} else {
-								$label = $GLOBALS["LANG"]->getLL('stats_img_link') . '<span title="'.$url.'">' . t3lib_div::fixed_lgd_cs(substr($url, 7), 40) . '</span>';
+								$label = $GLOBALS["LANG"]->getLL('stats_img_link') . '<span title="'.$url.'">' . GeneralUtility::fixed_lgd_cs(substr($url, 7), 40) . '</span>';
 							}
 							$HTMLlinks[$jumpurlId]['label'] = $label;
 						}
@@ -716,9 +720,9 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				// a link to this host?
 			$uParts = @parse_url($url);
 			$urlstr = $this->getUrlStr($uParts);
-			$label = $HTMLlinks[$id]['label'].' (' . ($urlstr ? t3lib_div::fixed_lgd_cs($urlstr, 60) : '/') . ')';
+			$label = $HTMLlinks[$id]['label'].' (' . ($urlstr ? GeneralUtility::fixed_lgd_cs($urlstr, 60) : '/') . ')';
 
-			$img = '<a href="'.$urlstr.'" target="_blank"><img '.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($label).'" /></a>';
+			$img = '<a href="'.$urlstr.'" target="_blank"><img '.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($label).'" /></a>';
 
 			if (isset($urlCounter['html'][$id]['plainId']))	{
 				$tblLines[] = array(
@@ -754,7 +758,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				$urlstr = $this->getUrlStr($uParts);
 
 				$label = $HTMLlinks[$id]['label'] . ' (' . ($urlstr ? $urlstr : '/') . ')';
-				$img = '<a href="' . htmlspecialchars($link) . '" target="_blank"><img ' . t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . htmlspecialchars($link) . '" /></a>';
+				$img = '<a href="' . htmlspecialchars($link) . '" target="_blank"><img ' . IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . htmlspecialchars($link) . '" /></a>';
 				$tblLines[] = array(
 					$label,
 					($html ? $id : '-'),
@@ -769,7 +773,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 		if ($urlCounter['total']) {
 			$output .= '<br /><h2>' . $GLOBALS["LANG"]->getLL('stats_response_link') . '</h2>';
-			$output .= tx_directmail_static::formatTable($tblLines, array('nowrap','nowrap width="100"','nowrap width="100"','nowrap align="right"','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(1,0,0,0,0,0,1), ' cellspacing="0" cellpadding="3"  class="stats-table"');
+			$output .= DirectMailUtility::formatTable($tblLines, array('nowrap','nowrap width="100"','nowrap width="100"','nowrap align="right"','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(1,0,0,0,0,0,1), ' cellspacing="0" cellpadding="3"  class="stats-table"');
 		}
 
 
@@ -780,16 +784,16 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		// ******************
 
 			//The icons:
-		$listIcons = '<img '.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"], 'gfx/list.gif', 'width="12" height="12" alt=""').' />';
-		$csvIcons = '<img '.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"], 'gfx/csv.gif', 'width="27" height="12" alt=""').' />';
-		if(t3lib_extMgm::isLoaded('tt_address')){
-			$iconPath = t3lib_extMgm::extRelPath('tt_address').'ext_icon__h.gif';
+		$listIcons = '<img '.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/list.gif', 'width="12" height="12" alt=""').' />';
+		$csvIcons = '<img '.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/csv.gif', 'width="27" height="12" alt=""').' />';
+		if(ExtensionManagementUtility::isLoaded('tt_address')){
+			$iconPath = ExtensionManagementUtility::extRelPath('tt_address').'ext_icon__h.gif';
 			$iconParam = 'width="18" height="16"' ;
 		} else {
 			$iconPath = 'gfx/button_hide.gif';
 			$iconParam = 'width="11" height="10"';
 		}
-		$hideIcons = '<img '.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"], $iconPath, $iconParam.' alt=""').' />';
+		$hideIcons = '<img '.IconUtility::skinImg($GLOBALS["BACK_PATH"], $iconPath, $iconParam.' alt=""').' />';
 
 			//icons mails returned
 		$iconsMailReturned[]='<a href="'.$thisurl.'&returnList=1" class="bubble">' . $listIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_list_returned') . '</span></a>';
@@ -836,10 +840,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		$tblLines[]=array($GLOBALS["LANG"]->getLL('stats_reason_unkown'), $this->showWithPercent($table_ret['-1']['counter'],$table['-127']['counter']),implode('&nbsp;&nbsp;',$iconsUnknownReason));
 
 		$output.='<br /><h2>' . $GLOBALS["LANG"]->getLL('stats_mails_returned') . '</h2>';
-		$output.=tx_directmail_static::formatTable($tblLines,array('nowrap','nowrap align="right"',''),1,array(0,0,1), 'cellspacing="0" cellpadding="3" class="stats-table"');
+		$output.=DirectMailUtility::formatTable($tblLines,array('nowrap','nowrap align="right"',''),1,array(0,0,1), 'cellspacing="0" cellpadding="3" class="stats-table"');
 
 			//Find all returned mail
-		if (t3lib_div::_GP('returnList')||t3lib_div::_GP('returnDisable')||t3lib_div::_GP('returnCSV'))		{
+		if (GeneralUtility::_GP('returnList')||GeneralUtility::_GP('returnDisable')||GeneralUtility::_GP('returnCSV'))		{
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
@@ -864,34 +868,34 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				}
 			}
 
-			if (t3lib_div::_GP('returnList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+			if (GeneralUtility::_GP('returnList'))	{
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
-			if (t3lib_div::_GP('returnDisable'))	{
+			if (GeneralUtility::_GP('returnDisable'))	{
 				if (is_array($idLists['tt_address']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
 				}
 				if (is_array($idLists['fe_users']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
 				}
 			}
-			if (t3lib_div::_GP('returnCSV'))	{
+			if (GeneralUtility::_GP('returnCSV'))	{
 				$emails=array();
 				if (is_array($idLists['tt_address']))	{
-					$arr=tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address');
+					$arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
 				}
 				if (is_array($idLists['fe_users']))	{
-					$arr=tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users');
+					$arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
@@ -900,12 +904,12 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
 			//Find Unknown Recipient
-		if (t3lib_div::_GP('unknownList')||t3lib_div::_GP('unknownDisable')||t3lib_div::_GP('unknownCSV'))		{
+		if (GeneralUtility::_GP('unknownList')||GeneralUtility::_GP('unknownDisable')||GeneralUtility::_GP('unknownCSV'))		{
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
@@ -931,38 +935,38 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				}
 			}
 
-			if (t3lib_div::_GP('unknownList'))	{
+			if (GeneralUtility::_GP('unknownList'))	{
 				if (is_array($idLists['tt_address'])) {
-					$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);
+					$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);
 				}
 				if (is_array($idLists['fe_users'])) {
-					$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);
+					$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);
 				}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
-			if (t3lib_div::_GP('unknownDisable'))	{
+			if (GeneralUtility::_GP('unknownDisable'))	{
 				if (is_array($idLists['tt_address']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
 				}
 				if (is_array($idLists['fe_users']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
 				}
 			}
-			if (t3lib_div::_GP('unknownCSV'))	{
+			if (GeneralUtility::_GP('unknownCSV'))	{
 				$emails=array();
 				if (is_array($idLists['tt_address']))	{
-					$arr=tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address');
+					$arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
 				}
 				if (is_array($idLists['fe_users']))	{
-					$arr=tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users');
+					$arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
@@ -971,12 +975,12 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_unknown_recipient_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
 			//Mailbox Full
-		if (t3lib_div::_GP('fullList')||t3lib_div::_GP('fullDisable')||t3lib_div::_GP('fullCSV'))		{
+		if (GeneralUtility::_GP('fullList')||GeneralUtility::_GP('fullDisable')||GeneralUtility::_GP('fullCSV'))		{
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
@@ -1002,34 +1006,34 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				}
 			}
 
-			if (t3lib_div::_GP('fullList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+			if (GeneralUtility::_GP('fullList'))	{
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
-			if (t3lib_div::_GP('fullDisable'))	{
+			if (GeneralUtility::_GP('fullDisable'))	{
 				if (is_array($idLists['tt_address']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
 				}
 				if (is_array($idLists['fe_users']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
 				}
 			}
-			if (t3lib_div::_GP('fullCSV'))	{
+			if (GeneralUtility::_GP('fullCSV'))	{
 				$emails=array();
 				if (is_array($idLists['tt_address']))	{
-					$arr=tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address');
+					$arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
 				}
 				if (is_array($idLists['fe_users']))	{
-					$arr=tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users');
+					$arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
@@ -1038,12 +1042,12 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_mailbox_full_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
 			//find Bad Host
-		if (t3lib_div::_GP('badHostList')||t3lib_div::_GP('badHostDisable')||t3lib_div::_GP('badHostCSV'))		{
+		if (GeneralUtility::_GP('badHostList')||GeneralUtility::_GP('badHostDisable')||GeneralUtility::_GP('badHostCSV'))		{
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
@@ -1069,34 +1073,34 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				}
 			}
 
-			if (t3lib_div::_GP('badHostList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+			if (GeneralUtility::_GP('badHostList'))	{
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
-			if (t3lib_div::_GP('badHostDisable'))	{
+			if (GeneralUtility::_GP('badHostDisable'))	{
 				if (is_array($idLists['tt_address']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
 				}
 				if (is_array($idLists['fe_users']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
 				}
 			}
-			if (t3lib_div::_GP('badHostCSV'))	{
+			if (GeneralUtility::_GP('badHostCSV'))	{
 				$emails=array();
 				if (is_array($idLists['tt_address']))	{
-					$arr=tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address');
+					$arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
 				}
 				if (is_array($idLists['fe_users']))	{
-					$arr=tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users');
+					$arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
@@ -1105,12 +1109,12 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_bad_host_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
 			//find Bad Header
-		if (t3lib_div::_GP('badHeaderList')||t3lib_div::_GP('badHeaderDisable')||t3lib_div::_GP('badHeaderCSV'))		{
+		if (GeneralUtility::_GP('badHeaderList')||GeneralUtility::_GP('badHeaderDisable')||GeneralUtility::_GP('badHeaderCSV'))		{
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
@@ -1136,35 +1140,35 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				}
 			}
 
-			if (t3lib_div::_GP('badHeaderList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+			if (GeneralUtility::_GP('badHeaderList'))	{
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
 
-			if (t3lib_div::_GP('badHeaderDisable'))	{
+			if (GeneralUtility::_GP('badHeaderDisable'))	{
 				if (is_array($idLists['tt_address']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
 				}
 				if (is_array($idLists['fe_users']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
 				}
 			}
-			if (t3lib_div::_GP('badHeaderCSV'))	{
+			if (GeneralUtility::_GP('badHeaderCSV'))	{
 				$emails=array();
 				if (is_array($idLists['tt_address']))	{
-					$arr=tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address');
+					$arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
 				}
 				if (is_array($idLists['fe_users']))	{
-					$arr=tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users');
+					$arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
@@ -1173,13 +1177,13 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_bad_header_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
 			//find Unknown Reasons
 			//TODO: list all reason
-		if (t3lib_div::_GP('reasonUnknownList')||t3lib_div::_GP('reasonUnknownDisable')||t3lib_div::_GP('reasonUnknownCSV'))		{
+		if (GeneralUtility::_GP('reasonUnknownList')||GeneralUtility::_GP('reasonUnknownDisable')||GeneralUtility::_GP('reasonUnknownCSV'))		{
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
@@ -1205,34 +1209,34 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				}
 			}
 
-			if (t3lib_div::_GP('reasonUnknownList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . tx_directmail_static::getRecordList(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+			if (GeneralUtility::_GP('reasonUnknownList'))	{
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
-			if (t3lib_div::_GP('reasonUnknownDisable'))	{
+			if (GeneralUtility::_GP('reasonUnknownDisable'))	{
 				if (is_array($idLists['tt_address']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
 				}
 				if (is_array($idLists['fe_users']))	{
-					$c=$this->disableRecipients(tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
+					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
 					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
 				}
 			}
-			if (t3lib_div::_GP('reasonUnknownCSV'))	{
+			if (GeneralUtility::_GP('reasonUnknownCSV'))	{
 				$emails=array();
 				if (is_array($idLists['tt_address']))	{
-					$arr = tx_directmail_static::fetchRecordsListValues($idLists['tt_address'],'tt_address');
+					$arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
 				}
 				if (is_array($idLists['fe_users']))	{
-					$arr = tx_directmail_static::fetchRecordsListValues($idLists['fe_users'],'fe_users');
+					$arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
@@ -1241,7 +1245,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_reason_unknown_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.t3lib_div::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
 			}
 		}
 
@@ -1252,7 +1256,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'])) {
 			$hookObjectsArr = array();
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] as $classRef) {
-				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+				$hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
 			}
 
 			$this->output = $output;	// assigned $output to class property to make it acesssible inside hook
@@ -1284,17 +1288,13 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	function getUrlStr($uParts) {
 		$urlstr = '';
 
-		$baseURL = t3lib_div::getIndpEnv("TYPO3_SITE_URL");
+		$baseURL = GeneralUtility::getIndpEnv("TYPO3_SITE_URL");
 
-		if (is_array($uParts) && t3lib_div::getIndpEnv('TYPO3_HOST_ONLY') == $uParts['host']) {
+		if (is_array($uParts) && GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY') == $uParts['host']) {
 			$m = array();
 			// do we have an id?
 			if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $uParts['query'], $m)) {
-				if (t3lib_div::compat_version('4.6')) {
-					$isInt = t3lib_utility_Math::canBeInterpretedAsInteger($m[1]);
-				} else {
-					$isInt = t3lib_div::testInt($m[1]);
-				}
+				$isInt = GeneralUtility::testInt($m[1]);
 
 				if ($isInt) {
 					$uid = intval($m[1]);
@@ -1306,7 +1306,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 				// array_shift reverses the array (rootline has numeric index in the wrong order!)
 				$temp_root_line = array_reverse($temp_root_line);
 				$query = preg_replace('/(?:^|&)id=([0-9a-z_]+)/', '', $uParts['query']);
-				$urlstr = t3lib_div::fixed_lgd_cs($temp_page['title'], 50) . t3lib_div::fixed_lgd_cs(($query ? ' / ' . $query : ''), 20);
+				$urlstr = GeneralUtility::fixed_lgd_cs($temp_page['title'], 50) . GeneralUtility::fixed_lgd_cs(($query ? ' / ' . $query : ''), 20);
 			} else {
 				$urlstr = $baseURL.substr($uParts['path'],1) . ($uParts['query'] ? '?' . $uParts['query'] : '');
 			}
@@ -1451,15 +1451,15 @@ class tx_directmail_statistics extends t3lib_SCbase {
 			$recRec['links_last'] = intval(@max($recRec['links']));
 			$recRec['links'] = count($recRec['links']);
 
-			$recRec['response_first'] = tx_directmail_static::intInRangeWrapper(intval(@min($recRec['response']))-$recRec['tstamp'],0);
-			$recRec['response_last'] = tx_directmail_static::intInRangeWrapper(intval(@max($recRec['response']))-$recRec['tstamp'],0);
+			$recRec['response_first'] = DirectMailUtility::intInRangeWrapper(intval(@min($recRec['response']))-$recRec['tstamp'],0);
+			$recRec['response_last'] = DirectMailUtility::intInRangeWrapper(intval(@max($recRec['response']))-$recRec['tstamp'],0);
 			$recRec['response'] = count($recRec['response']);
 
-			$recRec['time_firstping'] = tx_directmail_static::intInRangeWrapper($recRec['pings_first']-$recRec['tstamp'],0);
-			$recRec['time_lastping'] = tx_directmail_static::intInRangeWrapper($recRec['pings_last']-$recRec['tstamp'],0);
+			$recRec['time_firstping'] = DirectMailUtility::intInRangeWrapper($recRec['pings_first']-$recRec['tstamp'],0);
+			$recRec['time_lastping'] = DirectMailUtility::intInRangeWrapper($recRec['pings_last']-$recRec['tstamp'],0);
 
-			$recRec['time_first_link'] = tx_directmail_static::intInRangeWrapper($recRec['links_first']-$recRec['tstamp'],0);
-			$recRec['time_last_link'] = tx_directmail_static::intInRangeWrapper($recRec['links_last']-$recRec['tstamp'],0);
+			$recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper($recRec['links_first']-$recRec['tstamp'],0);
+			$recRec['time_last_link'] = DirectMailUtility::intInRangeWrapper($recRec['links_last']-$recRec['tstamp'],0);
 
 			$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery(
 				'cache_sys_dmail_stat',
@@ -1522,7 +1522,7 @@ class tx_directmail_statistics extends t3lib_SCbase {
 	 */
 	function setURLs($row)	{
 			// Finding the domain to use
-		$this->urlbase = tx_directmail_static::getUrlBase($row['use_domain']);
+		$this->urlbase = DirectMailUtility::getUrlBase($row['use_domain']);
 
 			// Finding the url to fetch content from
 		switch((string)$row['type'])	{
@@ -1568,27 +1568,27 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		if ($row['type']) {
 			$dmailData = $row['plainParams'].', '.$row['HTMLParams'];
 		} else {
-			$page = t3lib_BEfunc::getRecord('pages',$row['page'],'title');
+			$page = BackendUtility::getRecord('pages',$row['page'],'title');
 			$dmailData = $row['page'].', '.htmlspecialchars($page['title']);
 
-			$dmail_info = tx_directmail_static::fName('plainParams').' '.htmlspecialchars($row['plainParams'].chr(10).tx_directmail_static::fName('HTMLParams').$row['HTMLParams']).'; '.chr(10);
+			$dmail_info = DirectMailUtility::fName('plainParams').' '.htmlspecialchars($row['plainParams'].chr(10).DirectMailUtility::fName('HTMLParams').$row['HTMLParams']).'; '.chr(10);
 		}
-		$dmail_info .= $GLOBALS["LANG"]->getLL('view_media').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','includeMedia',$row['includeMedia']).'; '.chr(10).
-			$GLOBALS["LANG"]->getLL('view_flowed').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','flowedFormat',$row['flowedFormat']);
-		$dmail_info = '<img'.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$dmail_info.'">';
+		$dmail_info .= $GLOBALS["LANG"]->getLL('view_media').' '.BackendUtility::getProcessedValue('sys_dmail','includeMedia',$row['includeMedia']).'; '.chr(10).
+			$GLOBALS["LANG"]->getLL('view_flowed').' '.BackendUtility::getProcessedValue('sys_dmail','flowedFormat',$row['flowedFormat']);
+		$dmail_info = '<img'.IconUtility::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$dmail_info.'">';
 
 		$from_info = $GLOBALS["LANG"]->getLL('view_replyto').' '.htmlspecialchars($row['replyto_name'].' <'.$row['replyto_email'].'>').'; '.chr(10).
-			tx_directmail_static::fName('organisation').' '.htmlspecialchars($row['organisation']).'; '.chr(10).
-			tx_directmail_static::fName('return_path').' '.htmlspecialchars($row['return_path']);
-		$from_info = '<img'.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$from_info.'">';
+			DirectMailUtility::fName('organisation').' '.htmlspecialchars($row['organisation']).'; '.chr(10).
+			DirectMailUtility::fName('return_path').' '.htmlspecialchars($row['return_path']);
+		$from_info = '<img'.IconUtility::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$from_info.'">';
 
-		$mail_info = tx_directmail_static::fName('priority').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','priority',$row['priority']).'; '.chr(10).
-			tx_directmail_static::fName('encoding').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','encoding',$row['encoding']).'; '.chr(10).
-			tx_directmail_static::fName('charset').' '.t3lib_BEfunc::getProcessedValue('sys_dmail','charset',$row['charset']);
-		$mail_info = '<img'.t3lib_iconWorks::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$mail_info.'">';
+		$mail_info = DirectMailUtility::fName('priority').' '.BackendUtility::getProcessedValue('sys_dmail','priority',$row['priority']).'; '.chr(10).
+			DirectMailUtility::fName('encoding').' '.BackendUtility::getProcessedValue('sys_dmail','encoding',$row['encoding']).'; '.chr(10).
+			DirectMailUtility::fName('charset').' '.BackendUtility::getProcessedValue('sys_dmail','charset',$row['charset']);
+		$mail_info = '<img'.IconUtility::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$mail_info.'">';
 
-		$delBegin = ($row["scheduled_begin"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'-');
-		$delEnd = ($row["scheduled_end"]?t3lib_BEfunc::datetime($row["scheduled_begin"]):'-');
+		$delBegin = ($row["scheduled_begin"]?BackendUtility::datetime($row["scheduled_begin"]):'-');
+		$delEnd = ($row["scheduled_end"]?BackendUtility::datetime($row["scheduled_begin"]):'-');
 
 		//count total recipient from the query_info
 		$totalRecip = 0;
@@ -1599,10 +1599,10 @@ class tx_directmail_statistics extends t3lib_SCbase {
 		$sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*','sys_dmail_maillog','mid='.$row['uid'].' AND response_type = 0','','rid ASC'));
 
 		$out = '<table cellpadding="3" cellspacing="0" class="stats-table">';
-		$out .= '<tr class="bgColor2"><td colspan="3">' . t3lib_iconWorks::getIconImage('sys_dmail', $row, $GLOBALS["BACK_PATH"], 'style="vertical-align: top;"') . htmlspecialchars($row['subject']) . '</td></tr>';
+		$out .= '<tr class="bgColor2"><td colspan="3">' . IconUtility::getIconImage('sys_dmail', $row, $GLOBALS["BACK_PATH"], 'style="vertical-align: top;"') . htmlspecialchars($row['subject']) . '</td></tr>';
 		$out .= '<tr class="bgColor4"><td>'.$GLOBALS["LANG"]->getLL('view_from').'</td><td>'.htmlspecialchars($row['from_name'].' <'.htmlspecialchars($row['from_email']).'>').'</td><td>'.$from_info.'</td></tr>';
-		$out .= '<tr class="bgColor4"><td>'.$GLOBALS["LANG"]->getLL('view_dmail').'</td><td>'.t3lib_BEfunc::getProcessedValue('sys_dmail','type',$row['type']).': '.$dmailData.'</td><td>'.$dmail_info.'</td></tr>';
-		$out .= '<tr class="bgColor4"><td>'.$GLOBALS["LANG"]->getLL('view_mail').'</td><td>'.t3lib_BEfunc::getProcessedValue('sys_dmail','sendOptions',$row['sendOptions']).($row['attachment']?'; ':'').t3lib_BEfunc::getProcessedValue('sys_dmail','attachment',$row['attachment']).'</td><td>'.$mail_info.'</td></tr>';
+		$out .= '<tr class="bgColor4"><td>'.$GLOBALS["LANG"]->getLL('view_dmail').'</td><td>'.BackendUtility::getProcessedValue('sys_dmail','type',$row['type']).': '.$dmailData.'</td><td>'.$dmail_info.'</td></tr>';
+		$out .= '<tr class="bgColor4"><td>'.$GLOBALS["LANG"]->getLL('view_mail').'</td><td>'.BackendUtility::getProcessedValue('sys_dmail','sendOptions',$row['sendOptions']).($row['attachment']?'; ':'').BackendUtility::getProcessedValue('sys_dmail','attachment',$row['attachment']).'</td><td>'.$mail_info.'</td></tr>';
 		$out .= '<tr class="bgColor4"><td>'.$GLOBALS["LANG"]->getLL('view_delivery_begin_end').'</td><td>'.$delBegin.' / '.$delEnd.'</td><td>&nbsp;</td></tr>';
 		$out .= '<tr class="bgColor4"><td>'.$GLOBALS["LANG"]->getLL('view_recipient_total_sent').'</td><td>'.$totalRecip.' / '.$sentRecip.'</td><td>&nbsp;</td></tr>';
 		$out .= '</table>';
@@ -1610,10 +1610,6 @@ class tx_directmail_statistics extends t3lib_SCbase {
 
 		return $out;
 	}
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/mod4/class.tx_directmail_statistics.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/direct_mail/mod4/class.tx_directmail_statistics.php']);
 }
 
 ?>
