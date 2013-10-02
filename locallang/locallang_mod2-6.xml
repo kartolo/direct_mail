@@ -204,6 +204,7 @@
 			<label index="nl_l_subject"></label>
 			<label index="nl_l_tPage"></label>
 			<label index="nl_l_tUrl"></label>
+			<label index="nl_l_tDraft"></label>
 			<label index="nl_l_type"></label>
 			<label index="nl_l_update"></label>
 			<label index="nl_l_warning"></label>
@@ -531,6 +532,7 @@ By clicking on the "Import" button below, all data will be written in tt_address
 			<label index="nl_l_subject">Subject</label>
 			<label index="nl_l_tPage">PAGE</label>
 			<label index="nl_l_tUrl">EXT URL</label>
+			<label index="nl_l_tDraft">Draft</label>
 			<label index="nl_l_type">Type</label>
 			<label index="nl_l_update">Update category settings</label>
 			<label index="nl_l_warning">There are already %s Direct Mails based on this newsletter. Are you sure you want to create another one?</label>
@@ -869,6 +871,7 @@ Wenn Sie auf "Importieren" klicken, werden die Daten in tt_address Tabelle impor
 			<label index="nl_l_subject">Betreff</label>
 			<label index="nl_l_tPage">SEITE</label>
 			<label index="nl_l_tUrl">Externe URL</label>
+			<label index="nl_l_tDraft">Entwurf</label>
 			<label index="nl_l_type">Typ</label>
 			<label index="nl_l_update">Kategorie-Einstellungen ändern</label>
 			<label index="nl_l_warning">Für diesen Newsletter wurden bereits %s Versandobjekte erstellt. Sind Sie sicher, dass Sie einen weiteren Versand erstellen möchten?</label>

@@ -1667,7 +1667,7 @@ class tx_directmail_dmail extends t3lib_SCbase {
 				($row['issent'] ? $GLOBALS['LANG']->getLL('dmail_yes') : $GLOBALS['LANG']->getLL('dmail_no')),
 				($row['renderedsize'] ? t3lib_div::formatSize($row['renderedsize']) : ''),
 				($row['attachment'] ? '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], t3lib_extMgm::extRelPath($this->extKey).'res/gfx/attach.gif', 'width="9" height="13"').' alt="'.htmlspecialchars($GLOBALS['LANG']->getLL('nl_l_attach')).'" title="'.htmlspecialchars($row['attachment']).'" width="9" height="13">' : ''),
-				($row['type'] ? $GLOBALS['LANG']->getLL('nl_l_tUrl') : $GLOBALS['LANG']->getLL('nl_l_tPage')),
+				($row['type'] & 0x1 ? $GLOBALS['LANG']->getLL('nl_l_tUrl') : $GLOBALS['LANG']->getLL('nl_l_tPage')).($row['type']  & 0x2 ? ' ('.$GLOBALS['LANG']->getLL('nl_l_tDraft').')' : ''),
 				$this->deleteLink($row['uid'])
 			);
 		}
