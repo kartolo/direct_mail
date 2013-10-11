@@ -36,43 +36,19 @@
  *
  */
 
-error_reporting (E_ALL ^ E_NOTICE);
-if ($_SERVER['PHP_SELF']) {
-	if (!defined('PATH_thisScript')) define('PATH_thisScript',str_replace('//','/', str_replace('\\','/', $_SERVER['PHP_SELF'])));
-} else {
-	if (!defined('PATH_thisScript')) define('PATH_thisScript',str_replace('//','/', str_replace('\\','/', $_ENV['_'])));
-}
-if (!defined('PATH_site')) define('PATH_site', dirname(dirname(dirname(dirname(dirname(dirname(PATH_thisScript)))))).'/');
-if (!defined('PATH_t3lib')) if (!defined('PATH_t3lib')) define('PATH_t3lib', PATH_site.'t3lib/');
-define('PATH_typo3conf', PATH_site.'typo3conf/');
-define('TYPO3_mainDir', 'typo3/');
-if (!defined('PATH_typo3')) define('PATH_typo3', PATH_site.TYPO3_mainDir);
-if (!defined('PATH_tslib')) {
-	if (@is_dir(PATH_site.'typo3/sysext/cms/tslib/')) {
-		define('PATH_tslib', PATH_site.'typo3/sysext/cms/tslib/');
-	} elseif (@is_dir(PATH_site.'tslib/')) {
-		define('PATH_tslib', PATH_site.'tslib/');
-	}
-}
-define('TYPO3_OS', stristr(PHP_OS,'win')&&!stristr(PHP_OS,'darwin')?'WIN':'');
 define('TYPO3_MODE', 'BE');
-	
-require_once(PATH_t3lib.'class.t3lib_div.php');
-require_once(PATH_t3lib.'class.t3lib_extmgm.php');
-require_once(PATH_t3lib.'config_default.php');
-require_once(PATH_typo3conf.'localconf.php');
-	
-if (!defined ('TYPO3_db'))  die ('The configuration file was not included.');
-if (isset($_POST['GLOBALS']) || isset($_GET['GLOBALS']))      die('You cannot set the GLOBALS-array from outside this script.');
-	
-	// Connect to the database
-require_once(PATH_t3lib.'class.t3lib_db.php');
-$TYPO3_DB = t3lib_div::makeInstance('t3lib_DB');
-$result = $TYPO3_DB->sql_pconnect(TYPO3_db_host, TYPO3_db_username, TYPO3_db_password); 
-if (!$result)	{
-	die("Couldn't connect to database at ".TYPO3_db_host);
-}
-$TYPO3_DB->sql_select_db(TYPO3_db); 
+define('TYPO3_cliMode', TRUE);
+
+require __DIR__ . '/../../../../../typo3/sysext/core/Classes/Core/CliBootstrap.php';
+\TYPO3\CMS\Core\Core\CliBootstrap::checkEnvironmentOrDie();
+
+require __DIR__ . '/../../../../../typo3/sysext/core/Classes/Core/Bootstrap.php';
+\TYPO3\CMS\Core\Core\Bootstrap::getInstance()
+	->baseSetup('typo3conf/ext/direct_mail/res/scripts/')
+	->loadConfigurationAndInitialize()
+	->loadTypo3LoadedExtAndExtLocalconf(TRUE)
+	->applyAdditionalConfigurationSettings()
+	->initializeTypo3DbGlobal();
 
 require_once(t3lib_extMgm::extPath('direct_mail').'res/scripts/class.readmail.php');
 
