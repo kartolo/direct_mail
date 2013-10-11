@@ -221,7 +221,7 @@ class DirectMailUtility {
 		if($cat < 1) {
 			if ($table == 'fe_groups') {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-					'DISTINCT '.$switchTable.'.uid',
+					'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
 					$switchTable.','.$table,
 					'fe_groups.pid IN('.$pidList.')'.
 						$usergroupInList.
@@ -230,23 +230,25 @@ class DirectMailUtility {
 						BackendUtility::deleteClause($switchTable).
 						BackendUtility::BEenableFields($table).
 						BackendUtility::deleteClause($table).
-						$addWhere
-					);
+						$addWhere,
+					$switchTable . '.email'
+				);
 			} else {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-					'DISTINCT '.$switchTable.'.uid',
+					'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
 					$switchTable,
 					$switchTable.'.pid IN('.$pidList.')'.
 						$emailIsNotNull.
 						BackendUtility::BEenableFields($switchTable).
 						BackendUtility::deleteClause($switchTable).
-						$addWhere
-					);
+						$addWhere,
+					$switchTable . '.email'
+				);
 			}
 		} else {
 			if ($table == 'fe_groups') {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-					'DISTINCT '.$switchTable.'.uid',
+					'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
 					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, fe_groups, '.$mm_table.' as mm_1 LEFT JOIN '.$switchTable.' ON '.$switchTable.'.uid = mm_1.uid_local',
 					'fe_groups.pid IN ('.$pidList.')'.
 						$usergroupInList.
@@ -259,11 +261,12 @@ class DirectMailUtility {
 						BackendUtility::BEenableFields($table).
 						BackendUtility::deleteClause($table).
 						BackendUtility::deleteClause('sys_dmail_group').
-						$addWhere
-					);
+						$addWhere,
+					$switchTable . '.email'
+				);
 			} else {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-					'DISTINCT '.$switchTable.'.uid',
+					'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
 					'sys_dmail_group, sys_dmail_group_category_mm as g_mm, '.$mm_table.' as mm_1 LEFT JOIN '.$table.' ON '.$table.'.uid = mm_1.uid_local',
 					$switchTable.'.pid IN('.$pidList.')'.
 						' AND mm_1.uid_foreign=g_mm.uid_foreign'.
@@ -273,8 +276,9 @@ class DirectMailUtility {
 						BackendUtility::BEenableFields($switchTable).
 						BackendUtility::deleteClause($switchTable).
 						BackendUtility::deleteClause('sys_dmail_group').
-						$addWhere
-					);
+						$addWhere,
+					$switchTable . '.email'
+				);
 			}
 		}
 		$outArr = array();
@@ -316,7 +320,7 @@ class DirectMailUtility {
 
 		if ($table == 'fe_groups') {
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-				'DISTINCT '.$switchTable.'.uid',
+				'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
 				$switchTable.','.$table.',sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
 				'sys_dmail_group.uid='.intval($uid).
 					' AND fe_groups.uid=sys_dmail_group_mm.uid_foreign'.
@@ -328,11 +332,12 @@ class DirectMailUtility {
 					BackendUtility::BEenableFields($table).
 					BackendUtility::deleteClause($table).
 					BackendUtility::deleteClause('sys_dmail_group').
-					$addWhere
-				);
+					$addWhere,
+				$switchTable . '.email'
+			);
 		} else {
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-				'DISTINCT '.$switchTable.'.uid',
+				'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
 				'sys_dmail_group,'.$switchTable.' LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_foreign='.$switchTable.'.uid',
 				'sys_dmail_group.uid = '.intval($uid).
 					' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid'.
@@ -341,8 +346,9 @@ class DirectMailUtility {
 					BackendUtility::BEenableFields($switchTable).
 					BackendUtility::deleteClause($switchTable).
 					BackendUtility::deleteClause('sys_dmail_group').
-					$addWhere
-				);
+					$addWhere,
+				$switchTable . '.email'
+			);
 		}
 
 		$outArr = array();
@@ -380,7 +386,7 @@ class DirectMailUtility {
 
 				// fetch all fe_users from these subgroups
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-					'DISTINCT '.$switchTable.'.uid',
+					'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
 					$switchTable.','.$table.'',
 					$usergroupInList.
 						$emailIsNotNull.
@@ -388,7 +394,8 @@ class DirectMailUtility {
 						BackendUtility::deleteClause($switchTable).
 						BackendUtility::BEenableFields($table).
 						BackendUtility::deleteClause($table).
-						$addWhere
+						$addWhere,
+						$switchTable . '.email'
 				);
 
 				while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
