@@ -122,10 +122,12 @@ class tx_directmail_Scheduler_MailFromDraft extends tx_scheduler_Task {
 	 * @return	void
 	 */
 	function initializeHookObjects() {
-		foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] as $hookObj) {
-			$hookObjectInstance = t3lib_div::getUserObj($hookObj);
-			if (is_object($hookObjectInstance) && ($hookObjectInstance instanceof tx_directmail_Scheduler_MailFromDraftHook)) {
-				$this->hookObjects[] = $hookObjectInstance;
+		if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'])) {
+			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] as $hookObj) {
+				$hookObjectInstance = t3lib_div::getUserObj($hookObj);
+				if (is_object($hookObjectInstance) && ($hookObjectInstance instanceof tx_directmail_Scheduler_MailFromDraftHook)) {
+					$this->hookObjects[] = $hookObjectInstance;
+				}
 			}
 		}
 	}
