@@ -1364,7 +1364,7 @@ class dmailer {
 			// Fetches the attributes for the tag
 			$attributes = $this->get_tag_attributes($reg[0]);
 			$hrefData = array();
-			$hrefData['ref'] = ($attributes['href'] ? $attributes['href'] : $hrefData['ref'] = $attributes['action']);
+			$hrefData['ref'] = $attributes['href'] ?: $attributes['action'];
 			if ($hrefData['ref']) {
 				// Finds out if the value had quotes around it
 				$hrefData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $hrefData["ref"]) - 1, 1) == '"') ? '"' : '';
