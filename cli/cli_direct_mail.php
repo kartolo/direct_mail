@@ -16,11 +16,12 @@ class direct_mail_cli extends CommandLineController {
 			parent::__construct();
 
 			// Setting help texts:
-			$this->cli_help['name'] = 'Name of script';
+			$this->cli_help['name'] = 'direct_mail';
 			$this->cli_help['synopsis'] = '###OPTIONS###';
-			$this->cli_help['description'] = 'Class with basic functionality for CLI scripts';
-			$this->cli_help['examples'] = '/.../cli_dispatch.phpsh EXTKEY TASK';
+			$this->cli_help['description'] = 'Invoke direct_mail e-mail distribution engine';
+			$this->cli_help['examples'] = '/.../cli_dispatch.phpsh direct_mail [masssend]';
 			$this->cli_help['author'] = 'Ivan Kartolo, (c) 2008';
+			$this->cli_options[] = array('masssend', 'Invoke sending of mails!');
 		}
 
 		/**
@@ -84,8 +85,8 @@ class direct_mail_cli extends CommandLineController {
 }
 
 // Call the functionality
-/** @var $cleanerObj direct_mail_cli */
-$cleanerObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('direct_mail_cli');
-$cleanerObj->cli_main($_SERVER['argv']);
+/** @var $mailerObj direct_mail_cli */
+$mailerObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('direct_mail_cli');
+$mailerObj->cli_main($_SERVER['argv']);
 
 ?>
