@@ -154,8 +154,15 @@ return array(
 				'renderMode' => 'checkbox',
 				'MM' => 'sys_dmail_group_category_mm',
 			)
+		),
+		'query' => array(
+			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.query',
+			'config' => array(
+				'type' => 'text',
+				'cols' => '48',
+				'rows' => '10'
+			)
 		)
-
 	),
 	'types' => array(
 		'0' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--,pages;;;;5-5-5,recursive,whichtables,select_categories'),
