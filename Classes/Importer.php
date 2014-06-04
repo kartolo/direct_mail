@@ -458,7 +458,6 @@ class Importer {
 				$tempDir = $this->userTempFolder();
 
 				$tblLines[] = $GLOBALS['LANG']->getLL('mailgroup_import_upload_file').'<input type="file" name="upload_1" size="30" />';
-				$tblLines[] = '<input type="checkbox" name="overwriteExistingFiles" value="1"'.' '.($_POST['importNow'] ? 'disabled' : '').'/>&nbsp;'.$GLOBALS['LANG']->getLL('mailgroup_import_overwrite');
 				if(($this->indata['mode'] == 'file') && !(((strpos($currentFileInfo['file'],'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt'))){
 					$tblLines[] = $GLOBALS['LANG']->getLL('mailgroup_import_current_file').'<b>'.$currentFileMessage.'</b>';
 				}
@@ -808,7 +807,9 @@ class Importer {
 
 		$mydata = array();
 		// TYPO3 6.0 works with relative path, we need absolute here
-		$this->indata['newFile'] = PATH_site . $this->indata['newFile'];
+		if (!is_file($this->indata['newFile']) && (strpos($this->indata['newFile'],PATH_site) === FALSE)) {
+			$this->indata['newFile'] = PATH_site . $this->indata['newFile'];
+		}
 		$handle = fopen($this->indata['newFile'], "r");
 		$i = 0;
 		$delimiter = $this->indata['delimiter'];
@@ -911,7 +912,7 @@ class Importer {
 	 */
 	function writeTempFile(){
 		$newfile = "";
-		$user_perms = $GLOBALS['BE_USER']->getFileoperationPermissions();
+		$user_perms = $GLOBALS['BE_USER']->getFilePermissions();
 
 		unset($this->fileProcessor);
 
@@ -954,10 +955,11 @@ class Importer {
 				$this->fileProcessor->writeLog(0,2,1,'Referer host "%s" and server host "%s" did not match!',array($refInfo['host'],$httpHost));
 			} else {
 				$this->fileProcessor->start($file);
-				$newfile = $this->fileProcessor->func_newfile($file['newfile']['1']);
+				$newfileObj = $this->fileProcessor->func_newfile($file['newfile']['1']);
 				// in TYPO3 6.0 func_newfile returns an object, but we need the path to the new file name later on!
-				if(is_object($newfile)){
-					$newfile = $newfile->getIdentifier();
+				if(is_object($newfileObj)){
+					$storageConfig = $newfileObj->getStorage()->getConfiguration();
+					$newfile = $storageConfig['basePath'].ltrim($newfileObj->getIdentifier(),'/');
 				}
 			}
 		} else {
@@ -991,10 +993,10 @@ class Importer {
 
 		// Initializing:
 		/** @var $fileProcessor TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
-		$this->fileProcessor = GeneralUtility::makeInstance('TYPO3\CMS\Core\Utility\File\ExtendedFileUtility');
+		$this->fileProcessor = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Utility\\File\\ExtendedFileUtility');
 		$this->fileProcessor->init($fm, $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
 		$this->fileProcessor->setActionPermissions();
-		$this->fileProcessor->dontCheckForUnique = GeneralUtility::_GP('overwriteExistingFiles') ? 1 : 0;
+		$this->fileProcessor->dontCheckForUnique = 1;
 
 		// Checking referer / executing:
 		$refInfo = parse_url(GeneralUtility::getIndpEnv('HTTP_REFERER'));
