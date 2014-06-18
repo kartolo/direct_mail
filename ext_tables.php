@@ -1,4 +1,7 @@
 <?php
+
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
+
 if (!defined('TYPO3_MODE')) {
 	die ('Access denied.');
 }
@@ -61,5 +64,9 @@ if (TYPO3_MODE == 'BE') {
 	'contains-dmail',
 	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath($_EXTKEY) . 'res/gfx/ext_icon_dmail_folder.gif'
 );
+
+if (VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
+	include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY)."Configuration/TCA/Overrides/tt_address.php");
+}
 
 ?>
