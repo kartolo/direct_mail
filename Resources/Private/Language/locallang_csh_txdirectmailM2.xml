@@ -3,7 +3,7 @@
 	<meta type="array">
 		<description>CSH for Direct Mail Module</description>
 		<type>CSH</type>
-		<fileId>EXT:direct_mail/locallang/locallang_csh_txdirectmailM2</fileId>
+		<fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_txdirectmailM2</fileId>
 		<csh_table>_MOD_txdirectmailM1_txdirectmailM2</csh_table>
 		<keep_original_text>1</keep_original_text>
 		<labelContext type="array">
@@ -35,7 +35,7 @@
 	    <label index="select_newsletter.alttitle">Select a newsletter</label>
 	    <label index="select_newsletter.description">Click on one of these already created newsletters.</label>
             <label index="select_newsletter.details">You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</label>
-	    <label index="create_newsletter.alttitle">Create a newsletter</label>	    
+	    <label index="create_newsletter.alttitle">Create a newsletter</label>
 	    <label index="create_newsletter.description">Click on this link if you want to create a new newsletter.</label>
             <label index="create_newsletter.details">A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
 
@@ -76,7 +76,7 @@ If you do not assign any category to an element, the element will appear in all 
 	    <label index="directmail_actions.alttitle">Direct Mails options menu</label>
 	    <label index="directmail_actions.description">Select the action you want to perform on this direct mail.</label>
             <label index="directmail_actions.details">Possible actions are the following, but their availability vary depending on the current state of the direct mail:
-	    
+
 1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
 
 2. Send a testmail: this option lets you send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application.
@@ -112,7 +112,7 @@ If you do not assign any category to an element, the element will appear in all 
 		    <label index="select_newsletter.alttitle">Wählen Sie eine Newsletter-Seite.</label>
 		    <label index="select_newsletter.description">Klicken Sie einen der bereits angelegten Newsletter.</label>
             <label index="select_newsletter.details">Sie können einen der aufgelisteten Newsletter anklicken, um Informationen über ihn zu erhalten, ihn zu bearbeiten und einen Versand daraus zu erstellen.</label>
-		    <label index="create_newsletter.alttitle">Newsletter anlegen</label>	    
+		    <label index="create_newsletter.alttitle">Newsletter anlegen</label>
 	    	<label index="create_newsletter.description">Klicken Sie hier, um eine neue Newsletter-Seite anzulegen.</label>
             <label index="create_newsletter.details">A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
 
@@ -153,7 +153,7 @@ If you do not assign any category to an element, the element will appear in all 
 		    <label index="directmail_actions.alttitle">Direct Mails options menu</label>
 		    <label index="directmail_actions.description">Select the action you want to perform on this direct mail.</label>
             <label index="directmail_actions.details">Possible actions are the following, but their availability vary depending on the current state of the direct mail:
-	    
+
 1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
 
 2. Send a testmail: this option lets you send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application.

@@ -3,7 +3,7 @@
 	<meta type="array">
 		<description>CSH for Direct Mail Mailer Engine Module</description>
 		<type>CSH</type>
-		<fileId>EXT:direct_mail/locallang/locallang_csh_txdirectmailM5</fileId>
+		<fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_txdirectmailM5</fileId>
 		<csh_table>_MOD_txdirectmailM1_txdirectmailM5</csh_table>
 		<keep_original_text>1</keep_original_text>
 		<labelContext type="array">

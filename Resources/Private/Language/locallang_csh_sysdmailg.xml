@@ -4,7 +4,7 @@
         <description>Context Sensitive Help for Recipient lists</description>
         <type>CSH</type>
         <csh_table>sys_dmail_group</csh_table>
-        <fileId>EXT:direct_mail/locallang_csh_sysdmailg.xml</fileId>
+        <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmailg.xml</fileId>
         <labelContext type="array">
             <label index=".description"></label>
             <label index=".details"></label>
@@ -37,7 +37,7 @@
         <languageKey index="default" type="array">
             <label index=".description">A list of recipients of direct mails</label>
             <label index=".details">Recipient lists are used by the Direct mail module to send newsletters to a group of recipients.
-	    
+
 There are five types of Recipient lists:
 
 1.From pages: a list dynamically built from records found on pages of the website; you select the pages with the Starting Point field; you may include records from subtrees using the Include page subtree checkbox; you must specify the type(s) of records to include: Address, Website User, Website User Group and/or From custom-defined Table; if Website User Group is checked and a Website User Group is found, all Website Users members of the group will be included in the list; you may also restrict the selection of records to those with specific categories assignments;

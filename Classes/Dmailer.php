@@ -753,7 +753,7 @@ class Dmailer {
 		}
 
 		// always include locallang file
-		$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
+		$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xml');
 
 		$pt = GeneralUtility::milliseconds();
 

@@ -6,14 +6,14 @@ if (!defined('TYPO3_MODE')) {
 // fe_users modified
 $fe_users_cols = array(
 	'module_sys_dmail_newsletter' => array(
-		'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:module_sys_dmail_group.newsletter',
+		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:module_sys_dmail_group.newsletter',
 		'exclude' => '1',
 		'config' => array(
 			'type' => 'check'
 		)
 	),
 	'module_sys_dmail_category' => array(
-		'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:module_sys_dmail_group.category',
+		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:module_sys_dmail_group.category',
 		'exclude' => '1',
 		'config' => array(
 			'type' => 'select',
@@ -32,7 +32,7 @@ $fe_users_cols = array(
 		)
 	),
 	'module_sys_dmail_html' => array(
-		'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:module_sys_dmail_group.htmlemail',
+		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:module_sys_dmail_group.htmlemail',
 		'exclude' => '1',
 		'config' => array(
 			'type' => 'check'

@@ -2,7 +2,7 @@
 
 return array(
 	'ctrl' => array(
-		'title' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_category',
+		'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_category',
 		'label' => 'category',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -59,14 +59,14 @@ return array(
 			)
 		),
 		'category' => array(
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_category.category',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_category.category',
 			'config' => array(
 				'type' => 'input',
 				'size' => '30',
 			)
 		),
 		'old_cat_number' => array(
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_category.old_cat_number',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_category.old_cat_number',
 			'l10n_mode' => 'exclude',
 			'config' => array(
 				'type' => 'input',

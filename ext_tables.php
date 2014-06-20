@@ -23,16 +23,16 @@ TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
 /**
  * Setting up the direct mail module
  */
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmail.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_group','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmailg.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_category','EXT:'.$_EXTKEY.'/locallang/locallang_csh_sysdmailcat.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM2','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM2.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM3','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM3.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM4','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM4.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM5','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM5.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM6','EXT:'.$_EXTKEY.'/locallang/locallang_csh_txdirectmailM6.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail','EXT:'.$_EXTKEY.'/Resources/Private/Language/locallang_csh_sysdmail.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_group','EXT:'.$_EXTKEY.'/Resources/Private/Language/locallang_csh_sysdmailg.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_category','EXT:'.$_EXTKEY.'/Resources/Private/Language/locallang_csh_sysdmailcat.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM2','EXT:'.$_EXTKEY.'/Resources/Private/Language/locallang_csh_txdirectmailM2.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM3','EXT:'.$_EXTKEY.'/Resources/Private/Language/locallang_csh_txdirectmailM3.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM4','EXT:'.$_EXTKEY.'/Resources/Private/Language/locallang_csh_txdirectmailM4.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM5','EXT:'.$_EXTKEY.'/Resources/Private/Language/locallang_csh_txdirectmailM5.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM6','EXT:'.$_EXTKEY.'/Resources/Private/Language/locallang_csh_txdirectmailM6.xml');
 //old
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_web_txdirectmailM','EXT:'.$_EXTKEY.'/locallang/locallang_csh_web_txdirectmail.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_web_txdirectmailM','EXT:'.$_EXTKEY.'/Resources/Private/Language/locallang_csh_web_txdirectmail.xml');
 
 
 if (TYPO3_MODE == 'BE') {

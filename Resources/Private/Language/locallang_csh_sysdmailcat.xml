@@ -4,7 +4,7 @@
         <description>Context Sensitive Help for Direct Mail Categories</description>
         <type>CSH</type>
         <csh_table>sys_dmail_category</csh_table>
-        <fileId>EXT:direct_mail/locallang_csh_sysdmailcat.xml</fileId>
+        <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmailcat.xml</fileId>
         <labelContext type="array">
             <label index=".description"></label>
             <label index=".details"></label>

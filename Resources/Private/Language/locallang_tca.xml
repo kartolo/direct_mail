@@ -4,7 +4,7 @@
         <description>Labels for the Direct Mail tables</description>
         <type>database</type>
         <csh_table></csh_table>
-        <fileId>EXT:direct_mail/locallang_tca.xml</fileId>
+        <fileId>EXT:direct_mail/Resources/Private/Language/locallang_tca.xml</fileId>
         <labelContext type="array">
 	    <label index="pages.module.I.5"></label>
             <label index="module_sys_dmail_group.category"></label>
@@ -92,8 +92,8 @@
 			<label index="sys_dmail.tab1">Composition</label>
 			<label index="sys_dmail.tab2">Mail headers</label>
 			<label index="sys_dmail.tab3">Send options</label>
-			
-			
+
+
             <label index="sys_dmail">Direct mails</label>
             <label index="sys_dmail.subject">Subject:</label>
             <label index="sys_dmail.page">Mail page:</label>

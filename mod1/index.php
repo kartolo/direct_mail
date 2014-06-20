@@ -32,8 +32,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 unset($MCONF);
 include ('conf.php');
 include ($BACK_PATH.'init.php');
-$LANG->includeLLFile('EXT:direct_mail/locallang/locallang_mod2-6.xml');
-$LANG->includeLLFile('EXT:direct_mail/locallang/locallang_csh_sysdmail.xml');
+$LANG->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xml');
+$LANG->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xml');
 
 
 // Make instance:
