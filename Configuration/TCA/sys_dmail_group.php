@@ -56,7 +56,12 @@ return array(
 				'size' => '20',
 				'maxitems' => '100000',
 				'minitems' => '0',
-				'show_thumbs' => '1'
+				'show_thumbs' => '1',
+				'wizards' => array(
+					'suggest' => array(
+						'type' => 'suggest',
+					),
+				),
 			)
 		),
 		'pages' => array(
@@ -68,7 +73,12 @@ return array(
 				'size' => '3',
 				'maxitems' => '22',
 				'minitems' => '0',
-				'show_thumbs' => '1'
+				'show_thumbs' => '1',
+				'wizards' => array(
+					'suggest' => array(
+						'type' => 'suggest',
+					),
+				),
 			)
 		),
 		'mail_groups' => array(
@@ -80,7 +90,12 @@ return array(
 				'size' => '3',
 				'maxitems' => '22',
 				'minitems' => '0',
-				'show_thumbs' => '1'
+				'show_thumbs' => '1',
+				'wizards' => array(
+					'suggest' => array(
+						'type' => 'suggest',
+					),
+				),
 			)
 		),
 		'recursive' => array(

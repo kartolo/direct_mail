@@ -34,7 +34,12 @@ return array(
 				'allowed' => 'pages',
 				'size' => '1',
 				'maxitems' => 1,
-				'minitems' => 0
+				'minitems' => 0,
+				'wizards' => array(
+					'suggest' => array(
+						'type' => 'suggest',
+					),
+				),
 			)
 		),
 		'from_email' => array(
