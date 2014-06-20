@@ -1,0 +1,14 @@
+﻿.. |img-18|     image:: ../../Images/manual_html_m140e3d0e.png
+   :height: 77
+   :width: 277
+.. :align: left
+.. :border: 0
+.. :name: graphics10
+
+.. |img-19|     image:: ../../Images/manual_html_mbad09ae.png
+   :height: 174
+   :width: 454
+.. :align: left
+.. :border: 0
+.. :name: graphics18
+

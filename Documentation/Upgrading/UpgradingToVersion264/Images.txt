@@ -1,0 +1,7 @@
+﻿.. |img-20|     image:: ../../Images/manual_html_m76be2680.png
+   :height: 111
+   :width: 205
+.. :align: left
+.. :border: 0
+.. :name: graphics16
+

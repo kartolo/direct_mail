@@ -1,0 +1,7 @@
+﻿.. |img-16|     image:: ../../Images/manual_html_1a695546.png
+   :height: 75
+   :width: 317
+.. :align: left
+.. :border: 0
+.. :name: Image1
+

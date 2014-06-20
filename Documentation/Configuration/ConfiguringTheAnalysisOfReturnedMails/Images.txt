@@ -1,0 +1,7 @@
+﻿.. |img-17|     image:: ../../Images/manual_html_m2a446403.png
+   :height: 144
+   :width: 635
+.. :align: left
+.. :border: 0
+.. :name: Graphic2
+
