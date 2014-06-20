@@ -8,9 +8,9 @@ if (!defined('TYPO3_MODE')) {
 
 $extPath = TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY);
 
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'static/boundaries/','Direct Mail Content Boundaries');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'static/plaintext/', 'Direct Mail Plain text');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'static/tt_news_plaintext/', 'Direct Mail News Plain text');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'Configuration/TypoScript/boundaries/','Direct Mail Content Boundaries');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'Configuration/TypoScript/plaintext/', 'Direct Mail Plain text');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'Configuration/TypoScript/tt_news_plaintext/', 'Direct Mail News Plain text');
 
 	// Category field disabled by default in backend forms.
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
