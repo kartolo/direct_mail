@@ -751,7 +751,7 @@ class DirectMailUtility {
 		fwrite ($fh, trim($str));
 		fseek ($fh,0);
 		$lines = array();
-		if ($sep == 'tab') $sep = chr(9);
+		if ($sep == 'tab') $sep = TAB;
 		while ($data = fgetcsv ($fh, 1000, $sep)) {
 			$lines[] = $data;
 		}
@@ -800,7 +800,7 @@ class DirectMailUtility {
 		}
 		if (count($lines))	{
 			$out= $GLOBALS["LANG"]->getLL('dmail_number_records') . '<strong>'.$count.'</strong><br />';
-			$out.='<table border="0" cellspacing="1" cellpadding="0">'.implode(chr(10),$lines).'</table>';
+			$out.='<table border="0" cellspacing="1" cellpadding="0">'.implode(LF,$lines).'</table>';
 		}
 		return $out;
 	}

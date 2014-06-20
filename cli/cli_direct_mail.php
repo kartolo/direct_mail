@@ -64,9 +64,9 @@ class direct_mail_cli extends CommandLineController {
 		if (@file_exists(PATH_site . 'typo3temp/tx_directmail_cron.lock')) {
 			// If the lock is not older than 1 day, skip index creation:
 			if (filemtime(PATH_site . 'typo3temp/tx_directmail_cron.lock') > (time() - (60 * 60 * 24))) {
-				die('TYPO3 Direct Mail Cron: Aborting, another process is already running!' . chr(10));
+				die('TYPO3 Direct Mail Cron: Aborting, another process is already running!' . LF);
 			} else {
-				echo('TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...' . chr(10));
+				echo('TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...' . LF);
 			}
 		}
 

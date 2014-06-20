@@ -780,7 +780,7 @@ class Importer {
 		$delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
 		$delimiter = ($delimiter === 'semicolon') ? ';' : $delimiter;
 		$delimiter = ($delimiter === 'colon') ? ':' : $delimiter;
-		$delimiter = ($delimiter === 'tab') ? chr(9) : $delimiter;
+		$delimiter = ($delimiter === 'tab') ? TAB : $delimiter;
 		$encaps = ($encaps === 'singleQuote') ? "'" : $encaps;
 		$encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
 		while (($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== FALSE) {
@@ -818,7 +818,7 @@ class Importer {
 		$delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
 		$delimiter = ($delimiter === 'semicolon') ? ';' : $delimiter;
 		$delimiter = ($delimiter === 'colon') ? ':' : $delimiter;
-		$delimiter = ($delimiter === 'tab') ? chr(9) : $delimiter;
+		$delimiter = ($delimiter === 'tab') ? TAB : $delimiter;
 		$encaps = ($encaps === 'singleQuote') ? "'" : $encaps;
 		$encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
 		while ((($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== FALSE)) {

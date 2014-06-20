@@ -130,7 +130,7 @@ class Container {
 	 * @see GeneralUtility::breakLinesForEmail()
 	 */
 	function breakLines($content, $conf) {
-		$linebreak = $GLOBALS['TSFE']->cObj->stdWrap(($conf['linebreak'] ? $conf['linebreak'] : chr(32) . chr(10)), $conf['linebreak.']);
+		$linebreak = $GLOBALS['TSFE']->cObj->stdWrap(($conf['linebreak'] ? $conf['linebreak'] : chr(32) . LF), $conf['linebreak.']);
 		$charWidth = $GLOBALS['TSFE']->cObj->stdWrap(($conf['charWidth'] ? intval($conf['charWidth']) : 76), $conf['charWidth.']);
 
 		return MailUtility::breakLinesForEmail($content, $linebreak, $charWidth);

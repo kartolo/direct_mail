@@ -704,7 +704,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$mimeType = 'application/octet-stream';
 		Header('Content-Type: '.$mimeType);
 		Header('Content-Disposition: attachment; filename='.$filename);
-		echo implode(chr(13).chr(10),$lines);
+		echo implode(CR.LF,$lines);
 		exit;
 	}
 

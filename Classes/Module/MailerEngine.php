@@ -441,7 +441,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$htmlmail->nonCron = 1;
 		$htmlmail->start();
 		$htmlmail->runcron();
-		return implode(chr(10),$htmlmail->logArray);
+		return implode(LF,$htmlmail->logArray);
 	}
 
 }

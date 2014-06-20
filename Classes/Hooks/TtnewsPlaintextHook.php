@@ -152,7 +152,7 @@ class TtnewsPlaintextHook {
 			}
 
 			if (!empty($lines)) {
-				$content = implode(chr(10),$lines).$content;
+				$content = implode(LF,$lines).$content;
 			}
 
 				// Substitute labels
@@ -203,14 +203,14 @@ class TtnewsPlaintextHook {
 
 				$blanks = DirectMailUtility::intInRangeWrapper($tConf['preBlanks'],0,1000);
 				if ($blanks) {
-					$lines[] = str_pad('', $blanks-1, chr(10));
+					$lines[] = str_pad('', $blanks-1, LF);
 				}
 
 				$lines = $this->renderPlainText->pad($lines,$tConf['preLineChar'],$tConf['preLineLen']);
 
 				$blanks = DirectMailUtility::intInRangeWrapper($tConf['preLineBlanks'],0,1000);
 				if ($blanks) {
-					$lines[] = str_pad('', $blanks-1, chr(10));
+					$lines[] = str_pad('', $blanks-1, LF);
 				}
 
 				if ($row['datetime']) {
@@ -225,16 +225,16 @@ class TtnewsPlaintextHook {
 
 				$blanks = DirectMailUtility::intInRangeWrapper($tConf['postLineBlanks'],0,1000);
 				if ($blanks) {
-					$lines[]=str_pad('', $blanks-1, chr(10));
+					$lines[]=str_pad('', $blanks-1, LF);
 				}
 
 				$lines = $this->renderPlainText->pad($lines,$tConf['postLineChar'],$tConf['postLineLen']);
 
 				$blanks = DirectMailUtility::intInRangeWrapper($tConf['postBlanks'],0,1000);
 				if ($blanks) {
-					$lines[]=str_pad('', $blanks-1, chr(10));
+					$lines[]=str_pad('', $blanks-1, LF);
 				}
-				return implode(chr(10),$lines);
+				return implode(LF,$lines);
 			}
 		}
 		return "";

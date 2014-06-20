@@ -101,7 +101,7 @@ class Readmail {
 	function find_XTypo3MID($content) {
 		if (strstr($content,"X-TYPO3MID:"))	{
 			$p = explode("X-TYPO3MID:", $content, 2);
-			$l = explode(chr(10), $p[1], 2);
+			$l = explode(LF, $p[1], 2);
 			list($mid,$hash) = GeneralUtility::trimExplode('-',$l[0]);
 			if (md5($mid) == $hash)	{
 				$moreParts = explode('_',substr($mid,3));

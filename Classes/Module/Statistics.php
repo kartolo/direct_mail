@@ -905,7 +905,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
 			}
 		}
 
@@ -976,7 +976,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_unknown_recipient_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
 			}
 		}
 
@@ -1043,7 +1043,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_mailbox_full_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
 			}
 		}
 
@@ -1110,7 +1110,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_bad_host_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
 			}
 		}
 
@@ -1178,7 +1178,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_bad_header_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
 			}
 		}
 
@@ -1246,7 +1246,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
 				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_reason_unknown_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(chr(10), $emails)).'</textarea>';
+				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
 			}
 		}
 
@@ -1572,19 +1572,19 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$page = BackendUtility::getRecord('pages',$row['page'],'title');
 			$dmailData = $row['page'].', '.htmlspecialchars($page['title']);
 
-			$dmail_info = DirectMailUtility::fName('plainParams').' '.htmlspecialchars($row['plainParams'].chr(10).DirectMailUtility::fName('HTMLParams').$row['HTMLParams']).'; '.chr(10);
+			$dmail_info = DirectMailUtility::fName('plainParams').' '.htmlspecialchars($row['plainParams'].LF.DirectMailUtility::fName('HTMLParams').$row['HTMLParams']).'; '.LF;
 		}
-		$dmail_info .= $GLOBALS["LANG"]->getLL('view_media').' '.BackendUtility::getProcessedValue('sys_dmail','includeMedia',$row['includeMedia']).'; '.chr(10).
+		$dmail_info .= $GLOBALS["LANG"]->getLL('view_media').' '.BackendUtility::getProcessedValue('sys_dmail','includeMedia',$row['includeMedia']).'; '.LF.
 			$GLOBALS["LANG"]->getLL('view_flowed').' '.BackendUtility::getProcessedValue('sys_dmail','flowedFormat',$row['flowedFormat']);
 		$dmail_info = '<img'.IconUtility::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$dmail_info.'">';
 
-		$from_info = $GLOBALS["LANG"]->getLL('view_replyto').' '.htmlspecialchars($row['replyto_name'].' <'.$row['replyto_email'].'>').'; '.chr(10).
-			DirectMailUtility::fName('organisation').' '.htmlspecialchars($row['organisation']).'; '.chr(10).
+		$from_info = $GLOBALS["LANG"]->getLL('view_replyto').' '.htmlspecialchars($row['replyto_name'].' <'.$row['replyto_email'].'>').'; '.LF.
+			DirectMailUtility::fName('organisation').' '.htmlspecialchars($row['organisation']).'; '.LF.
 			DirectMailUtility::fName('return_path').' '.htmlspecialchars($row['return_path']);
 		$from_info = '<img'.IconUtility::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$from_info.'">';
 
-		$mail_info = DirectMailUtility::fName('priority').' '.BackendUtility::getProcessedValue('sys_dmail','priority',$row['priority']).'; '.chr(10).
-			DirectMailUtility::fName('encoding').' '.BackendUtility::getProcessedValue('sys_dmail','encoding',$row['encoding']).'; '.chr(10).
+		$mail_info = DirectMailUtility::fName('priority').' '.BackendUtility::getProcessedValue('sys_dmail','priority',$row['priority']).'; '.LF.
+			DirectMailUtility::fName('encoding').' '.BackendUtility::getProcessedValue('sys_dmail','encoding',$row['encoding']).'; '.LF.
 			DirectMailUtility::fName('charset').' '.BackendUtility::getProcessedValue('sys_dmail','charset',$row['charset']);
 		$mail_info = '<img'.IconUtility::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$mail_info.'">';
 

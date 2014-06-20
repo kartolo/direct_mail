@@ -847,7 +847,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		// added disabled. see hook
-		$select = '<select multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
+		$select = '<select multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(LF,$opt).'</select>';
 
 			// Set up form:
 		$msg = "";
@@ -912,7 +912,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				// Fixing addresses:
 			$addresses = GeneralUtility::_GP('SET');
 			$addressList = $addresses['dmail_test_email'] ? $addresses['dmail_test_email'] : $this->MOD_SETTINGS['dmail_test_email'];
-			$addresses = preg_split('|['.chr(10).',;]|',$addressList);
+			$addresses = preg_split('|['.LF.',;]|',$addressList);
 
 			foreach ($addresses as $key => $val) {
 				$addresses[$key] = trim($val);
@@ -1234,7 +1234,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		}
 		if (count($lines))	{
 			$out= $GLOBALS['LANG']->getLL('dmail_number_records') . '<strong>'.$count.'</strong><br />';
-			$out.='<table border="0" cellspacing="1" cellpadding="0">'.implode(chr(10),$lines).'</table>';
+			$out.='<table border="0" cellspacing="1" cellpadding="0">'.implode(LF,$lines).'</table>';
 		}
 		return $out;
 	}

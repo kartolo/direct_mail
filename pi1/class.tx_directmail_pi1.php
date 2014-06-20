@@ -142,7 +142,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 		}
 
 		$lines[] = '';	// First break.
-		$content = implode(chr(10),$lines);
+		$content = implode(LF,$lines);
 
 			// Substitute labels
 		$markerArray = array();
@@ -168,9 +168,9 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 		$this->siteUrl = $this->conf['siteUrl'];
 
 			// Default linebreak;
-		$this->linebreak = chr(10);
+		$this->linebreak = LF;
 		if ($this->conf['flowedFormat']) {
-			$this->linebreak = chr(32).chr(10);
+			$this->linebreak = chr(32).LF;
 		}
 	}
 
@@ -181,7 +181,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	 */
 	function getMenuSitemap()	{
 		$str = $this->cObj->cObjGetSingle($this->conf['menu'],$this->conf['menu.']);
-		$str = $this->breakBulletlist(trim(strip_tags(preg_replace('/<br\s*\/?>/i', chr(10), $this->parseBody($str)))));
+		$str = $this->breakBulletlist(trim(strip_tags(preg_replace('/<br\s*\/?>/i', LF, $this->parseBody($str)))));
 		return $str;
 	}
 
@@ -203,7 +203,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	 * @return	string		Plain content.
 	 */
 	function getHTML($str=array())	{
-		return $this->breakContent(strip_tags(preg_replace('/<br\s*\/?>/i',chr(10),$this->parseBody(is_string($str)?$str:$this->cObj->data['bodytext']))));
+		return $this->breakContent(strip_tags(preg_replace('/<br\s*\/?>/i',LF,$this->parseBody(is_string($str)?$str:$this->cObj->data['bodytext']))));
 	}
 
 	/**
@@ -279,7 +279,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 			$str = preg_replace("/\n/", "\n\n", $str);
 		}
 			// Regular parsing:
-		$str = preg_replace('/<br\s*\/?>/i', chr(10), $str);
+		$str = preg_replace('/<br\s*\/?>/i', LF, $str);
 		$str = $this->cObj->stdWrap($str,$this->conf[$altConf.'.']['stdWrap.']);
 
 			// Then all a-tags:
@@ -291,10 +291,10 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 		$str = str_replace('&nbsp;',' ',GeneralUtility::htmlspecialchars_decode($str));
 
 		if ($this->conf[$altConf.'.']['header']) {
-			$str = $this->getString($this->conf[$altConf.'.']['header']).chr(10).$str;
+			$str = $this->getString($this->conf[$altConf.'.']['header']).LF.$str;
 		}
 
-		return chr(10).$str;
+		return LF.$str;
 	}
 
 	/**
@@ -316,7 +316,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 				$lines[] = $this->siteUrl.$upload_path.$file;
 			}
  		}
-		return chr(10).implode(chr(10),$lines);
+		return LF.implode(LF,$lines);
 	}
 
 	/**
@@ -346,14 +346,14 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 
 				$blanks = DirectMailUtility::intInRangeWrapper($tConf['preBlanks'],0,1000);
 				if ($blanks) {
-					$lines[] = str_pad('', $blanks-1, chr(10));
+					$lines[] = str_pad('', $blanks-1, LF);
 				}
 
 				$lines = $this->pad($lines,$tConf['preLineChar'],$tConf['preLineLen']);
 
 				$blanks = DirectMailUtility::intInRangeWrapper($tConf['preLineBlanks'],0,1000);
 				if ($blanks) {
-					$lines[] = str_pad('', $blanks-1, chr(10));
+					$lines[] = str_pad('', $blanks-1, LF);
 				}
 
 				if ($this->cObj->data['date']) {
@@ -379,16 +379,16 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 
 				$blanks = DirectMailUtility::intInRangeWrapper($tConf['postLineBlanks'],0,1000);
 				if ($blanks) {
-					$lines[] = str_pad('', $blanks-1, chr(10));
+					$lines[] = str_pad('', $blanks-1, LF);
 				}
 
 				$lines = $this->pad($lines,$tConf['postLineChar'],$tConf['postLineLen']);
 
 				$blanks = DirectMailUtility::intInRangeWrapper($tConf['postBlanks'],0,1000);
 				if ($blanks) {
-					$lines[] = str_pad('', $blanks-1, chr(10));
+					$lines[] = str_pad('', $blanks-1, LF);
 				}
-				return implode(chr(10),$lines);
+				return implode(LF,$lines);
 			}
 		}
 
@@ -421,12 +421,12 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	 * @see main_plaintext(), breakLines()
 	 */
 	function breakContent($str)	{
-		$cParts = explode(chr(10),$str);
+		$cParts = explode(LF,$str);
 		$lines = array();
 		foreach($cParts as $substrs) {
 			$lines[] = $this->breakLines($substrs,"");
 		}
-		return implode(chr(10),$lines);
+		return implode(LF,$lines);
 	}
 
 	/**
@@ -441,7 +441,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 
 		$tConf = $this->conf['bulletlist.'][$type.'.'];
 
-		$cParts = explode(chr(10),$str);
+		$cParts = explode(LF,$str);
 		$lines = array();
 		$c = 0;
 
@@ -455,14 +455,14 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 			$bullet = substr(str_replace('#',$c,$bullet),0,$bLen);
 			$secondRow = substr($tConf['secondRow']?$this->getString($tConf['secondRow']):str_pad('',strlen($bullet),' '),0,$bLen);
 
-			$lines[] = $bullet.$this->breakLines($substrs,chr(10).$secondRow,$this->charWidth-$bLen);
+			$lines[] = $bullet.$this->breakLines($substrs,LF.$secondRow,$this->charWidth-$bLen);
 
 			$blanks = DirectMailUtility::intInRangeWrapper($tConf['blanks'],0,1000);
 			if ($blanks) {
-				$lines[] = str_pad('', $blanks-1, chr(10));
+				$lines[] = str_pad('', $blanks-1, LF);
 			}
 		}
-		return implode(chr(10),$lines);
+		return implode(LF,$lines);
 	}
 
 	/**
@@ -472,7 +472,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	 * @return	string		Processed value
 	 */
 	function breakTable($str) {
-		$cParts = explode(chr(10),$str);
+		$cParts = explode(LF,$str);
 
 		$lines = array();
 		$cols = intval($this->conf['cols']) ? intval($this->conf['cols']) : 0 ;
@@ -486,7 +486,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 				}
 
 				for ($a=0;$a<$cols;$a++) {
-					$jdu = explode(chr(10),$this->breakLines($lineParts[$a],chr(10),ceil($this->charWidth/$cols)));
+					$jdu = explode(LF,$this->breakLines($lineParts[$a],LF,ceil($this->charWidth/$cols)));
 					$lines[$c][$a] = $jdu;
 				}
 			}
@@ -512,7 +512,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 			}
 			$outLines[] = $this->addDiv($messure,'',$divChar,$joinChar,$cols);
 		}
-		return implode(chr(10),$outLines);
+		return implode(LF,$outLines);
 	}
 
 	/**
@@ -612,7 +612,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 			$lines[] = $this->breakContent($caption);
 		}
 
-		return chr(10).implode(chr(10),$lines);
+		return LF.implode(LF,$lines);
 	}
 
 	/**

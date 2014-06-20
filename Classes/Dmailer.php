@@ -1095,7 +1095,7 @@ class Dmailer {
 	function dmailer_log($writeMode,$logMsg){
 		global $TYPO3_CONF_VARS;
 
-		$content = time().' => '.$logMsg.chr(10);
+		$content = time().' => '.$logMsg.LF;
 		$logfilePath = 'typo3temp/tx_directmail_dmailer_log.txt';
 
 		$fp = fopen(PATH_site.$logfilePath,$writeMode);
