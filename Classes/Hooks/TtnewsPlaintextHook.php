@@ -121,6 +121,7 @@ class TtnewsPlaintextHook {
 				$singleWhere
 				);
 			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 				// get the translated record if the content language is not the default language
 			if ($GLOBALS['TSFE']->sys_language_content) {
 				$OLmode = ($this->sys_language_mode == 'strict'?'hideNonTranslated':'');

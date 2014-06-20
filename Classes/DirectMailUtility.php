@@ -76,6 +76,7 @@ class DirectMailUtility {
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				$outListArr[$row['uid']] = $row;
 			}
+			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 		}
 		return $outListArr;
 	}
@@ -349,6 +350,7 @@ class DirectMailUtility {
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 			$outArr[] = $row['uid'];
 		}
+		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		if ($table == 'fe_groups') {
 
@@ -462,6 +464,8 @@ class DirectMailUtility {
 				$groups[] = $row['uid'];
 			}
 		}
+		$GLOBALS['TYPO3_DB']->sql_free_result($res);
+
 		return $groups;
 	}
 
@@ -716,6 +720,7 @@ class DirectMailUtility {
 				$scheme = $url_parts['scheme'];
 				$port = $url_parts['port'];
 			}
+			$GLOBALS['TYPO3_DB']->sql_free_result($res_domain);
 		}
 		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1){
 			$scheme = 'http';

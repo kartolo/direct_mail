@@ -443,6 +443,8 @@ class Dmailer {
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			$list[] = $row['uid_foreign'];
 		}
+		$GLOBALS['TYPO3_DB']->sql_free_result($res);
+
 		return implode(',', $list);
 	}
 
@@ -519,6 +521,7 @@ class Dmailer {
 								$ct++;
 								$c++;
 							}
+							$GLOBALS['TYPO3_DB']->sql_free_result($res);
 						}
 					}
 					if (TYPO3_DLOG) {
@@ -706,6 +709,8 @@ class Dmailer {
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			$list[] = $row['rid'];
 		}
+		$GLOBALS['TYPO3_DB']->sql_free_result($res);
+
 		return implode(',', $list);
 	}
 
@@ -796,6 +801,7 @@ class Dmailer {
 			}
 			$this->logArray[] = $GLOBALS['LANG']->getLL('dmailer_nothing_to_do');
 		}
+		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		//closing DB connection
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);

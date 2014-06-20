@@ -179,6 +179,7 @@ class Importer {
 						$optStorage[] = array($row['uid'],$row['title'].' [uid:'.$row['uid'].']');
 					}
 				}
+				$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 				$optDelimiter=array(
 					array('comma',$GLOBALS['LANG']->getLL('mailgroup_import_separator_comma')),

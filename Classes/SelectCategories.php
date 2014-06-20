@@ -82,6 +82,7 @@ class SelectCategories {
 				$this->sys_language_uid = $row['uid'];
 				$this->collate_locale = $row['lg_collate_locale'];
 			}
+			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 		}
 
 		if (is_array($params['items']) && !empty($params['items'])) {
@@ -96,6 +97,7 @@ class SelectCategories {
 						$params['items'][$k][0] = $localizedRowCat['category'];
 					}
 				}
+				$GLOBALS['TYPO3_DB']->sql_free_result($res);
 			}
 		}
 	}

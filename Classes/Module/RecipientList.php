@@ -746,7 +746,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					}
 				}
 				$data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
-				/** @var $tce TYPO3\CMS\Core\DataHandling\DataHandler*/
+				/** @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler*/
 				$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
 				$tce->stripslashes_values = 0;
 				$tce->start($data, Array());

@@ -119,6 +119,7 @@ class Configuration extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 				$this->sys_language_uid = $row['uid'];
 			}
+			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 		}
 			// load contextual help
 		$this->cshTable = '_MOD_'.$this->MCONF['name'];

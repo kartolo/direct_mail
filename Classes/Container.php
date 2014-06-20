@@ -96,6 +96,7 @@ class Container {
 						while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 							$categoryList .= $row['uid'] . ',';
 						}
+						$GLOBALS['TYPO3_DB']->sql_free_result($res);
 						$categoryList = rtrim($categoryList, ",");
 					}
 				}

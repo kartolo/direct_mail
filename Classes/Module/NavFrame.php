@@ -165,6 +165,7 @@ class NavFrame {
 					htmlspecialchars($row['title']).'</a></td></tr>';
 			}
 		}
+		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		$content = '<table cellspacing="0" cellpadding="0" border="0" width="100%">'.$out.'</table>';
 
