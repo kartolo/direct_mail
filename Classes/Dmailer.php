@@ -907,7 +907,7 @@ class Dmailer {
 		if (!empty($this->dmailer['sys_dmail_rec']['attachment'])) {
 			$files = explode(",", $this->dmailer['sys_dmail_rec']['attachment']);
 			foreach ($files as $file) {
-				$mailer->attach(Swift_Attachment::fromPath(PATH_site."uploads/tx_directmail/".$file));
+				$mailer->attach(\Swift_Attachment::fromPath(PATH_site."uploads/tx_directmail/".$file));
 			}
 		}
 
