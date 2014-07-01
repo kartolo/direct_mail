@@ -25,13 +25,4 @@ You may get support in the use of this extension by subscribing to
 `news://news.netfielders.de/typo3.projects.direct-mail
 <news://news.netfielders.de/typo3.projects.direct-mail>`_ .
 
-#. SMTP / PEAR
-   
-   There is a bug in PEAR class in sending email to user with special
-   characters in the name field. Example: it won't send email to a user,
-   whose name is test-directmail.
-   
-   More of this bug please see `PEAR Bugtracker
-   <http://pear.php.net/bugs/bug.php?id=11238>`_
-
 

@@ -55,37 +55,10 @@ extension configuration variables:
 - **Enable notification email:** Allow Direct Mail to send notification
   emails about start and end of mailing job.
 
-- **Enable Sendmail defer mode:** use Sendmail deferred delivery mode;
-  applies only to the Sendmail program on Unix/Linux; default value is
-  0. Note that the option cannot be set if PHP is running with
-  safe\_mode enabled;
-
 - **Enable plain text rendering of News** : if set, a script will be
   enabled to render News (tt\_news records) in plain text for inclusion
   as plain text content of email messages.
 
-- **Enable Sending through SMTP:** Send all emails not through sendmail
-  but through an external SMTP account (requires PEAR::Mail to be
-  installed on the system)
-
-- **SMTP Host:** Name or IP of the SMTP host, only used when sending
-  through SMTP is enabled
-
-- **SMTP Port:** Port for the SMTP protocol of the SMTP host, only used
-  when sending through SMTP is enabled
-
-- **SMTP authentication:** Activate if your SMTP account needs
-  Authentication, only used when sending through SMTP is enabled
-
-- **SMTP Username:** Use it if your SMTP account needs a authentication,
-  only used when sending through SMTP is enabled
-
-- **SMTP Password:** Use it if your SMTP account needs a authentication,
-  only used when sending through SMTP is enabled
-
-- **SMTP persistent connection:** Activate if you want to use a
-  persistent connection while sending direct mails, only used when
-  sending through SMTP is enabled
 
 - **Use HTTP to fetch**: always use http to fetch the newsletter regardless https in BE
 
