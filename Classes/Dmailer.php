@@ -801,7 +801,6 @@ class Dmailer {
 			}
 			$this->logArray[] = $GLOBALS['LANG']->getLL('dmailer_nothing_to_do');
 		}
-		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		//closing DB connection
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
