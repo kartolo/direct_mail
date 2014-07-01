@@ -51,11 +51,6 @@ class Dmailer {
 	 */
 	var $sendPerCycle = 50;
 
-	/**
-	 * @var int
-	 * TODO: do we still need this?
-	 */
-	var $dontEncodeHeader = 1;
 	var $logArray = array();
 	var $massend_id_lists = array();
 	var $mailHasContent;
@@ -846,7 +841,6 @@ class Dmailer {
 			$this->dmailer_log('w','starting directmail cronjob');
 		}
 
-		$this->dontEncodeHeader = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['encodeHeader'];
 	}
 
 	/**

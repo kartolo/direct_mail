@@ -87,6 +87,8 @@ extension configuration variables:
   persistent connection while sending direct mails, only used when
   sending through SMTP is enabled
 
+- **Use HTTP to fetch**: always use http to fetch the newsletter regardless https in BE
+
 If you are upgrading to version 2.0+ from an earlier version, an
 additional entry may be presented in the function drop-down menu of
 the extension manager: UPDATE! This option provides a function to
