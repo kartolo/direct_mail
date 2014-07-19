@@ -43,6 +43,7 @@ namespace DirectMailTeam\DirectMail\Module;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
@@ -1294,7 +1295,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$m = array();
 			// do we have an id?
 			if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $uParts['query'], $m)) {
-				$isInt = GeneralUtility::testInt($m[1]);
+				$isInt = MathUtility::canBeInterpretedAsInteger($m[1]);
 
 				if ($isInt) {
 					$uid = intval($m[1]);
