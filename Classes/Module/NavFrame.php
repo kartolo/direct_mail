@@ -160,7 +160,7 @@ class NavFrame {
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
 			if(BackendUtility::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){
 				$out .= '<tr onmouseover="this.style.backgroundColor=\''.GeneralUtility::modifyHTMLColorAll($this->doc->bgColor,-5).'\'" onmouseout="this.style.backgroundColor=\'\'">'.
-					'<td id="dmail_'.$row['uid'].'" ><a href="#" onclick="top.fsMod.recentIds[\'txdirectmailM1\']='.$row['uid'].';jumpTo(\'id='.$row['uid'].'\',this,\'dmail_'.$row['uid'].'\');">&nbsp;&nbsp;'.
+					'<td id="dmail_'.$row['uid'].'" ><a href="#" onclick="top.fsMod.recentIds[\'txdirectmailM1\']='.$row['uid'].';jumpTo(\'id='.$row['uid'].'\',this,\'dmail_'.$row['uid'].'\');">'.
 					IconUtility::getSpriteIconForRecord('pages',$row,array('title' => htmlspecialchars(BackendUtility::getRecordPath($row['uid'], ' 1=1',20)), 'align'=>'top')).
 					htmlspecialchars($row['title']).'</a></td></tr>';
 			}
@@ -183,8 +183,8 @@ class NavFrame {
 
 
 		$markers = array(
-			'HEADLINE' => $GLOBALS['LANG']->getLL('dmail_folders'),
-			'CONTENT' => $content
+			'HEADLINE' => '',
+			'CONTENT' => $GLOBALS['LANG']->getLL('dmail_folders').$content
 		);
 		// Build the <body> for the module
 		$this->content = $this->doc->startPage('TYPO3 Direct Mail Navigation');
