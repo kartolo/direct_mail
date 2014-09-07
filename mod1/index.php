@@ -38,7 +38,7 @@ $LANG->includeLLFile('EXT:direct_mail/locallang/locallang_csh_sysdmail.xml');
 
 // Make instance:
 /** @var $SOBE NavFrame */
-$SOBE = GeneralUtility::makeInstance('\\DirectMailTeam\\DirectMail\\Module\\NavFrame');
+$SOBE = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Module\\NavFrame');
 $SOBE->init();
 $SOBE->main();
 $SOBE->printContent();
