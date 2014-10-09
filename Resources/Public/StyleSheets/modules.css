@@ -42,7 +42,7 @@ div.toggleTitle a img {
 }
 
 .t3-wizard-steps {
-	margin-top: 0;
+	margin: 0px 10px 0px 0px;
 	padding-left: 30px;
 	padding-right: 30px;
 	float: left;
@@ -65,9 +65,7 @@ div.toggleTitle a img {
 .t3-btn-next {
 	margin-top: 5px;
 }
-.t3-btn-back {
-	margin: 0px 5px 0px 15px;
-}
+
 .t3-btn-disabled {
 	background: #ccc;
 }
