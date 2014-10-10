@@ -49,8 +49,10 @@ class Checkjumpurl {
 	 * Get the url to jump to as set by Direct Mail
 	 *
 	 * @param	tslib_fe	$feObj: reference to invoking instance
+	 * * @throws Exception
 	 * @return	void
 	 */
+
 	function checkDataSubmission (&$feObj) {
 		$jumpUrlVariables = GeneralUtility::_GET();
 
@@ -97,7 +99,7 @@ class Checkjumpurl {
 						$responseType = 2;
 						$jumpurl = $temp_unpackedMail['plain']['link_ids'][abs($url_id)];
 					}
-					$jumpurl = GeneralUtility::htmlspecialchars_decode($jumpurl);
+					$jumpurl = htmlspecialchars_decode(urldecode($jumpurl));
 					switch ($recipientTable) {
 						case 't':
 							$theTable = 'tt_address';
