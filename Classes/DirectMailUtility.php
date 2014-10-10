@@ -46,7 +46,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Lang\Domain\Model\LanguageSelectionForm;
 
 /**
  * Static class.
@@ -1210,7 +1209,67 @@ class DirectMailUtility {
 		return $result;
 	}
 
+	/**
+	 * Initializes the TSFE for a given page ID and language.
+	 *
+	 * @param	integer	The page id to initialize the TSFE for
+	 * @param	integer	System language uid, optional, defaults to 0
+	 * @param	boolean	Use cache to reuse TSFE
+	 * @return	void
+	 */
+	public static function initializeTsfe($pageId, $language = 0, $useCache = TRUE) {
+		static $tsfeCache = array();
 
+		// resetting, a TSFE instance with data from a different page Id could be set already
+		unset($GLOBALS['TSFE']);
+
+		$cacheId = $pageId . '|' . $language;
+
+		if (!is_object($GLOBALS['TT'])) {
+			$GLOBALS['TT'] = GeneralUtility::makeInstance('TYPO3\CMS\Core\TimeTracker\TimeTracker');
+		}
+
+		if (!isset($tsfeCache[$cacheId]) || !$useCache) {
+			GeneralUtility::_GETset($language, 'L');
+
+			$GLOBALS['TSFE'] = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController', $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
+
+			// for certain situations we need to trick TSFE into granting us
+			// access to the page in any case to make getPageAndRootline() work
+			// see http://forge.typo3.org/issues/42122
+			$pageRecord = BackendUtility::getRecord('pages', $pageId);
+			$groupListBackup = $GLOBALS['TSFE']->gr_list;
+			$GLOBALS['TSFE']->gr_list = $pageRecord['fe_group'];
+
+			$GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Page\PageRepository');
+			$GLOBALS['TSFE']->getPageAndRootline();
+
+			// restore gr_list
+			$GLOBALS['TSFE']->gr_list = $groupListBackup;
+
+			$GLOBALS['TSFE']->initTemplate();
+			$GLOBALS['TSFE']->forceTemplateParsing = TRUE;
+			$GLOBALS['TSFE']->initFEuser();
+			$GLOBALS['TSFE']->initUserGroups();
+
+			$GLOBALS['TSFE']->no_cache = TRUE;
+			$GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
+			$GLOBALS['TSFE']->no_cache = FALSE;
+			$GLOBALS['TSFE']->getConfigArray();
+
+			$GLOBALS['TSFE']->settingLanguage();
+			$GLOBALS['TSFE']->newCObj();
+			$GLOBALS['TSFE']->absRefPrefix = ($GLOBALS['TSFE']->config['config']['absRefPrefix'] ? trim($GLOBALS['TSFE']->config['config']['absRefPrefix']) : '');
+
+			if ($useCache) {
+				$tsfeCache[$cacheId] = $GLOBALS['TSFE'];
+			}
+		}
+
+		if ($useCache) {
+			$GLOBALS['TSFE'] = $tsfeCache[$cacheId];
+		}
+	}
 
 	/**
 	 * get the charset of a page
@@ -1220,26 +1279,24 @@ class DirectMailUtility {
 	 */
 	public static function getCharacterSetOfPage($pageId) {
 
-			// initialize the TS template
-		$GLOBALS['TT'] = new \TYPO3\CMS\Core\TimeTracker\TimeTracker();
-		/** @var $tmpl \TYPO3\CMS\Core\TypoScript\TemplateService */
-		$tmpl = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\TypoScript\\TemplateService');
-		$tmpl->init();
-
-			// initialize the page selector
-		/** @var $sys_page \TYPO3\CMS\Frontend\Page\PageRepository */
+		// get the root page of the pageID
 		$sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
-		$sys_page->init(TRUE);
+		$sys_page->init(true);
+		$rootLine = $sys_page->getRootLine($pageId);
 
-		$rootline = $sys_page->getRootLine($pageId);
-		$tmpl->forceTemplateParsing = 1;
-		$tmpl->start($rootline);
+		// init a fake TSFE object
+		self::initializeTsfe($rootLine[0]['uid']);
+
 		$characterSet = 'iso-8859-1';
-		if ($tmpl->setup['config.']['metaCharset']) {
-			$characterSet = $tmpl->setup['config.']['metaCharset'];
+
+		if ($GLOBALS['TSFE']->tmpl->setup['config.']['metaCharset']) {
+			$characterSet = $GLOBALS['TSFE']->tmpl->setup['config.']['metaCharset'];
 		} else if ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) {
 			$characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
 		}
+
+		// destroy it :)
+		unset($GLOBALS['TSFE']);
 
 		return strtolower($characterSet);
 	}
