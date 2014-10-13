@@ -19,7 +19,7 @@ EXT: Direct Mail
 ================
 
 :Author:
-      Kasper Skårhøj
+      Ivan Kartolo
 
 :Created:
       2002-11-01 32::0:0:

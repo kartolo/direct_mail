@@ -36,4 +36,4 @@ Configuration
    EnablingClickStatistics/Index
    AutomaticallyInvokeTheMailerEngine/Index
    ConfiguringTheAnalysisOfReturnedMails/Index
-
+   Hooks/Index

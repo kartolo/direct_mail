@@ -48,4 +48,7 @@ that the src attribute will be replaced by one that refers to the
 address of a script. Such attribute in HTML content of email messages
 may be disabled by SPAM filtering software.
 
+If the :ref:`jumpurl_tracking_privacy <jumpurl_tracking_privacy>` is enabled in the configuration, then you might
+want to use ``&no_jumpurl=1`` for link, which should not be replaced by
+a jump URL.
 
