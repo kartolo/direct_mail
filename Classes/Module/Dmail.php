@@ -1005,6 +1005,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				}
 
 				$updateFields = array(
+					'recipientGroups' => implode(',', $recipientGroups);
 					'scheduled'  => $distributionTime,
 					'query_info' => serialize($queryInfo)
 				);
