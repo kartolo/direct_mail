@@ -767,13 +767,11 @@ class DirectMailUtility {
 	 * @param	array		$listArr: all DB records to be formated
 	 * @param	string		$table: table name
 	 * @param	integer		$pageId: pageID, to which the link points to
-	 * @param	string		$bgColor: background Color of the row
-	 * @param	integer		$dim: if set, icon will be shaded
 	 * @param	bool|int	$editLinkFlag : if set, edit link is showed
 	 * @param	int			$sys_dmail_uid
 	 * @return	string		list of record in HTML format
 	 */
-	static function getRecordList($listArr,$table,$pageId,$bgColor,$dim=0,$editLinkFlag=1,$sys_dmail_uid = 0) {
+	static function getRecordList($listArr,$table,$pageId,$editLinkFlag=1,$sys_dmail_uid = 0) {
 		$count = 0;
 		$lines = array();
 		$out = '';

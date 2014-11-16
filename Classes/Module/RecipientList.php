@@ -308,7 +308,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
 
 			$out.='<tr>
-					<td nowrap="nowrap">'.IconUtility::getIconImage('sys_dmail_group', $row, $GLOBALS['BACK_PATH'], 'width="18" height="16" style="vertical-align: top;"').'</td>
+					<td nowrap="nowrap">'.IconUtility::getSpriteIconForRecord('sys_dmail_group', $row).'</td>
 					<td>'.$this->editLink('sys_dmail_group',$row['uid']).'</td>
 					<td nowrap="nowrap">'.$this->linkRecip_record('<strong>'.htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'],30)).'</strong>&nbsp;&nbsp;',$row['uid']).'</td>
 					<td nowrap="nowrap">'.htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group','type',$row['type'])).'&nbsp;&nbsp;</td>
@@ -321,7 +321,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$theOutput = $this->doc->section(BackendUtility::cshItem($this->cshTable,'select_mailgroup',$GLOBALS['BACK_PATH']).$GLOBALS['LANG']->getLL('recip_select_mailgroup'),$out,1,1, 0, TRUE);
 
 			// New:
-		$out='<a href="#" class="t3-link" onClick="'.BackendUtility::editOnClick('&edit[sys_dmail_group]['.$this->id.']=new',$GLOBALS['BACK_PATH'],'').'">'.IconUtility::getIconImage('sys_dmail_group',array(),$GLOBALS['BACK_PATH'],'align="top"'). $GLOBALS['LANG']->getLL('recip_create_mailgroup_msg') . '</a>';
+		$out='<a href="#" class="t3-link" onClick="'.BackendUtility::editOnClick('&edit[sys_dmail_group]['.$this->id.']=new',$GLOBALS['BACK_PATH'],'').'">'.IconUtility::getSpriteIconForRecord('sys_dmail_group', array()). $GLOBALS['LANG']->getLL('recip_create_mailgroup_msg') . '</a>';
 		$theOutput.= $this->doc->spacer(20);
 		$theOutput.= $this->doc->section(BackendUtility::cshItem($this->cshTable,'create_mailgroup',$GLOBALS['BACK_PATH']).$GLOBALS['LANG']->getLL('recip_create_mailgroup'),$out, 1, 0, FALSE, TRUE, FALSE, TRUE);
 
@@ -521,7 +521,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		}
 
 		$group = BackendUtility::getRecord('sys_dmail_group',intval(GeneralUtility::_GP('group_uid')));
-		$out = IconUtility::getIconImage('sys_dmail_group',$group,$GLOBALS['BACK_PATH'],'style="vertical-align: top;"') . htmlspecialchars($group['title']);
+		$out = IconUtility::getSpriteIconForRecord('sys_dmail_group',$group) . htmlspecialchars($group['title']);
 
 		$lCmd = GeneralUtility::_GP('lCmd');
 
@@ -546,19 +546,19 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		switch($lCmd) {
 			case 'listall':
 				if (is_array($idLists['tt_address'])) {
-					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_table_address'),DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'), 'tt_address', $this->id, $this->doc->bgColor4));
+					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_table_address'),DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'), 'tt_address', $this->id));
 					$theOutput.= $this->doc->spacer(20);
 				}
 				if (is_array($idLists['fe_users'])) {
-					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_table_fe_users'),DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'), 'fe_users', $this->id, $this->doc->bgColor4));
+					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_table_fe_users'),DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'), 'fe_users', $this->id));
 					$theOutput.= $this->doc->spacer(20);
 				}
 				if (is_array($idLists['PLAINLIST'])) {
-					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_plain_list'),DirectMailUtility::getRecordList($idLists['PLAINLIST'],'default',$this->id,$this->doc->bgColor4,1));
+					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_plain_list'),DirectMailUtility::getRecordList($idLists['PLAINLIST'],'default',$this->id));
 					$theOutput.= $this->doc->spacer(20);
 				}
 				if (is_array($idLists[$this->userTable])) {
-					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_table_custom') . ' ' . $this->userTable,DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable],$this->userTable),$this->userTable,$this->id,$this->doc->bgColor4));
+					$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('mailgroup_table_custom') . ' ' . $this->userTable,DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable],$this->userTable),$this->userTable,$this->id));
 				}
 			break;
 			default:
@@ -795,7 +795,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 			$Eparams = '&edit['.$table.']['.$row['uid'].']=edit';
 			$out = '';
-			$out .= IconUtility::getIconImage($table, $row, $GLOBALS['BACK_PATH'], 'width="18" height="16" title="'.htmlspecialchars(BackendUtility::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').htmlspecialchars($row['name']).htmlspecialchars(' <'.$row['email'].'>');
+			$out .= IconUtility::getSpriteIconForRecord($table, $row, array('title' => BackendUtility::getRecordPath ($row['pid'],$this->perms_clause,40))).htmlspecialchars($row['name']).htmlspecialchars(' <'.$row['email'].'>');
 			$out .= '&nbsp;&nbsp;<a href="#" onClick="'.BackendUtility::editOnClick($Eparams,$GLOBALS['BACK_PATH'],'').'"><img'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS['LANG']->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS['LANG']->getLL("dmail_edit").'" /><b>' . $GLOBALS['LANG']->getLL('dmail_edit') . '</b></a>';
 			$theOutput = $this->doc->section($GLOBALS['LANG']->getLL('subscriber_info'),$out);
 

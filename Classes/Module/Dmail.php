@@ -1113,7 +1113,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$ids[] = $row['uid'];
 			}
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
-			$msg .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids,'tt_address'),'tt_address', 0, 1, 1);
+			$msg .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids,'tt_address'),'tt_address', 1, 1);
 
 			$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('testmail_individual'),$msg, 1, 1, 0, TRUE);
 			$theOutput.= $this->doc->spacer(20);
@@ -1131,7 +1131,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				);
 			$msg = $GLOBALS['LANG']->getLL('testmail_mailgroup_msg') . '<br /><br />';
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-				$msg.='<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&sys_dmail_group_uid[]='.$row['uid'].'">'.IconUtility::getIconImage('sys_dmail_group', $row, $GLOBALS['BACK_PATH'], 'width="18" height="16" style="vertical-align: top;"').htmlspecialchars($row['title']).'</a><br />';
+				$msg.='<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&sys_dmail_group_uid[]='.$row['uid'].'">'.IconUtility::getSpriteIconForRecord('sys_dmail_group', $row).htmlspecialchars($row['title']).'</a><br />';
 					// Members:
 				$result = $this->cmd_compileMailGroup(array($row['uid']));
 				$msg.='<table border="0">
@@ -1178,7 +1178,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$out .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
 		}
 		if (is_array($idLists['PLAINLIST'])) {
-			$out.=$this->getRecordList($idLists['PLAINLIST'],'default',1);
+			$out.=$this->getRecordList($idLists['PLAINLIST'],'default');
 		}
 		if (is_array($idLists[$this->userTable])) {
 			$out.=$this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable],$this->userTable),$this->userTable);
@@ -1192,12 +1192,11 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 *
 	 * @param	array		$listArr: list of recipients ID
 	 * @param	string		$table: table name
-	 * @param bool|int $dim : if set, icon will be shaded
 	 * @param bool|int $editLinkFlag : if set, edit link is showed
 	 * @param bool|int $testMailLink : if set, send mail link is showed
 	 * @return	string		HTML, the table showing the recipient's info
 	 */
-	function getRecordList($listArr, $table, $dim=0, $editLinkFlag=1, $testMailLink=0) {
+	function getRecordList($listArr, $table, $editLinkFlag=1, $testMailLink=0) {
 		$count = 0;
 		$lines = array();
 		$out = '';
@@ -1209,7 +1208,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$testLink = "";
 
 				if ($row['uid']) {
-					$tableIcon = '<td>'.IconUtility::getIconImage($table,array(),$GLOBALS['BACK_PATH'],'title="'.($row['uid']?'uid: '.$row['uid']:'').'"',$dim).'</td>';
+					$tableIcon = '<td>'.IconUtility::getSpriteIconForRecord($table, $row).'</td>';
 					if ($editLinkFlag) {
 						$requestURI = GeneralUtility::getIndpEnv('REQUEST_URI').'&CMD=send_test&sys_dmail_uid='.$this->sys_dmail_uid.'&pages_uid='.$this->pages_uid;
 						$editLink = '<td><a href="#" onClick="'.BackendUtility::editOnClick('&edit[tt_address]['.$row['uid'].']=edit',$GLOBALS['BACK_PATH'],$requestURI).'">' .
@@ -1524,7 +1523,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$colPosVal = $row["colPos"];
 				}
 				$out .= '<tr>';
-				$out .= '<td valign="top" width="75%">'.IconUtility::getIconImage("tt_content", $row, $GLOBALS['BACK_PATH'], 'width="18" height="16" title="'.htmlspecialchars(BackendUtility::getProcessedValue('tt_content','CType',$row['CType'])).'" style="vertical-align: top;"').
+				$out .= '<td valign="top" width="75%">'.IconUtility::getSpriteIconForRecord('tt_content', $row, array('title' => BackendUtility::getProcessedValue('tt_content','CType',$row['CType']))).
 					$row['header'].'<br />'.GeneralUtility::fixed_lgd_cs(strip_tags($row['bodytext']),200).'<br /></td>';
 
 				$out .= '<td>  </td><td nowrap valign="top">';
@@ -1663,7 +1662,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		);
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
 			$tblLines[] = array(
-				IconUtility::getIconImage('sys_dmail',$row, $GLOBALS['BACK_PATH'], ' style="vertical-align: top;"'),
+				IconUtility::getSpriteIconForRecord('sys_dmail',$row),
 				$this->linkDMail_record($row['subject'],$row['uid']),
 				BackendUtility::date($row['tstamp']),
 				($row['issent'] ? $GLOBALS['LANG']->getLL('dmail_yes') : $GLOBALS['LANG']->getLL('dmail_no')),
@@ -1819,7 +1818,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		}
 		$content = '<table border="0" cellpadding="1" cellspacing="1" width="460" class="typo3-dblist">' . $content . '</table>';
 
-		$sectionTitle = IconUtility::getIconImage('sys_dmail', $row, $GLOBALS['BACK_PATH'], 'style="vertical-align: top;"') . '&nbsp;' . htmlspecialchars($row['subject']);
+		$sectionTitle = IconUtility::getSpriteIconForRecord('sys_dmail', $row) . '&nbsp;' . htmlspecialchars($row['subject']);
 		return $this->doc->section($sectionTitle, $content, 1, 1, 0, TRUE);
 	}
 

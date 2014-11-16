@@ -396,7 +396,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 			$Eparams = '&edit['.$table.']['.$row['uid'].']=edit';
 			$out = '';
-			$out .= IconUtility::getIconImage($table, $row, $GLOBALS["BACK_PATH"], 'width="18" height="16" title="'.htmlspecialchars(BackendUtility::getRecordPath ($row['pid'],$this->perms_clause,40)).'" style="vertical-align:top;"').htmlspecialchars($row['name'].' <'.$row['email'].'>');
+			$out .= IconUtility::getSpriteIconForRecord($table, $row, array('title' => BackendUtility::getRecordPath ($row['pid'],$this->perms_clause,40))).htmlspecialchars($row['name'].' <'.$row['email'].'>');
 			$out .= '&nbsp;&nbsp;<a href="#" onClick="'.BackendUtility::editOnClick($Eparams,$GLOBALS["BACK_PATH"],'').'"><img'.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS["LANG"]->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS["LANG"]->getLL("dmail_edit").'" /><b>' . $GLOBALS["LANG"]->getLL('dmail_edit') . '</b></a>';
 			$theOutput = $this->doc->section($GLOBALS["LANG"]->getLL('subscriber_info'),$out);
 
@@ -477,7 +477,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				}
 
 				$out.='<tr class="bgColor4">
-					<td>'.IconUtility::getIconImage('sys_dmail',$row, $GLOBALS["BACK_PATH"], 'width="18" height="16" style="vertical-align: top;"').'</td>
+					<td>'.IconUtility::getSpriteIconForRecord('sys_dmail', $row).'</td>
 					<td>'.$this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'],30).'  ',$row['uid'],$row['subject']).'&nbsp;&nbsp;</td>
 					<td>'.BackendUtility::datetime($row["scheduled"]).'</td>
 					<td>'.($row["scheduled_begin"]?BackendUtility::datetime($row["scheduled_begin"]):'&nbsp;').'</td>
@@ -876,8 +876,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			}
 
 			if (GeneralUtility::_GP('returnList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
@@ -944,10 +944,10 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 			if (GeneralUtility::_GP('unknownList'))	{
 				if (is_array($idLists['tt_address'])) {
-					$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);
+					$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);
 				}
 				if (is_array($idLists['fe_users'])) {
-					$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);
+					$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);
 				}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
@@ -1014,8 +1014,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			}
 
 			if (GeneralUtility::_GP('fullList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
@@ -1081,8 +1081,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			}
 
 			if (GeneralUtility::_GP('badHostList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
@@ -1148,8 +1148,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			}
 
 			if (GeneralUtility::_GP('badHeaderList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
@@ -1217,8 +1217,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			}
 
 			if (GeneralUtility::_GP('reasonUnknownList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,$this->doc->bgColor4,0,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);}
 				if (is_array($idLists['PLAINLIST'])) {
 					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
@@ -1696,7 +1696,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*','sys_dmail_maillog','mid='.$row['uid'].' AND response_type = 0','','rid ASC'));
 
 		$out = '<table cellpadding="3" cellspacing="0" class="stats-table">';
-		$out .= '<tr class="bgColor2"><td colspan="3">' . IconUtility::getIconImage('sys_dmail', $row, $GLOBALS["BACK_PATH"], 'style="vertical-align: top;"') . htmlspecialchars($row['subject']) . '</td></tr>';
+		$out .= '<tr class="bgColor2"><td colspan="3">' . IconUtility::getSpriteIconForRecord('sys_dmail', $row) . htmlspecialchars($row['subject']) . '</td></tr>';
 		$out .= '<tr class="bgColor4"><td>'.$GLOBALS["LANG"]->getLL('view_from').'</td><td>'.htmlspecialchars($row['from_name'].' <'.htmlspecialchars($row['from_email']).'>').'</td><td>'.$from_info.'</td></tr>';
 		$out .= '<tr class="bgColor4"><td>'.$GLOBALS["LANG"]->getLL('view_dmail').'</td><td>'.BackendUtility::getProcessedValue('sys_dmail','type',$row['type']).': '.$dmailData.'</td><td>'.$dmail_info.'</td></tr>';
 		$out .= '<tr class="bgColor4"><td>'.$GLOBALS["LANG"]->getLL('view_mail').'</td><td>'.BackendUtility::getProcessedValue('sys_dmail','sendOptions',$row['sendOptions']).($row['attachment']?'; ':'').BackendUtility::getProcessedValue('sys_dmail','attachment',$row['attachment']).'</td><td>'.$mail_info.'</td></tr>';

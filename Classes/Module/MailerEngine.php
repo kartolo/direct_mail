@@ -385,7 +385,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				);
 			list($count) = $GLOBALS["TYPO3_DB"]->sql_fetch_row($countres);
 			$out.='<tr>
-						<td>'.IconUtility::getIconImage('sys_dmail',$row, $GLOBALS["BACK_PATH"], 'width="18" height="16" style="vertical-align: top;"').'</td>
+						<td>'.IconUtility::getSpriteIconForRecord('sys_dmail',$row).'</td>
 						<td>'.$this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'],100)).'&nbsp;&nbsp;',$row['uid']).'</td>
 						<td>'.BackendUtility::datetime($row['scheduled']).'&nbsp;&nbsp;'.'</td>
 						<td>'.($row['scheduled_begin']?BackendUtility::datetime($row['scheduled_begin']):'').'&nbsp;&nbsp;'.'</td>
