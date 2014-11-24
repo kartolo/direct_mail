@@ -1287,7 +1287,7 @@ class DirectMailUtility {
 		// init a fake TSFE object
 		self::initializeTsfe($rootLine[0]['uid']);
 
-		$characterSet = 'iso-8859-1';
+		$characterSet = 'utf-8';
 
 		if ($GLOBALS['TSFE']->tmpl->setup['config.']['metaCharset']) {
 			$characterSet = $GLOBALS['TSFE']->tmpl->setup['config.']['metaCharset'];
