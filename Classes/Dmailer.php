@@ -951,6 +951,14 @@ class Dmailer {
 		// TODO: setContent should set the images (includeMedia) or add attachment
 		$this->setContent($mailer);
 
+		if ($this->encoding == 'base64') {
+			$mailer->setEncoder(\Swift_Encoding::getBase64Encoding());
+		}
+
+		if ($this->encoding == '8bit') {
+			$mailer->setEncoder(\Swift_Encoding::get8BitEncoding());
+		}
+
 		//TODO: do we really need the return value?
 		$sent = $mailer->send();
 		$failed = $mailer->getFailedRecipients();
