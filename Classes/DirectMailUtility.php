@@ -358,9 +358,6 @@ class DirectMailUtility {
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		if ($table == 'fe_groups') {
-
-			$GLOBALS['TYPO3_DB']->sql_free_result($res);
-
 			// get the uid of the current fe_group
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'DISTINCT '.$table.'.uid',
