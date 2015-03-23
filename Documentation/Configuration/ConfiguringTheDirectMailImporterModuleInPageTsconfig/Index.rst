@@ -42,7 +42,7 @@ mail's importer determine the configurations.
 .. container:: table-row
 
    Property
-         remove\_exisitng
+         remove\_existing
 
    Data type
          boolean
