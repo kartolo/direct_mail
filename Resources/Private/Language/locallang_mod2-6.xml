@@ -342,6 +342,10 @@
 			<label index="configure_http_username_description">If mail content is protected by HTTP authentication, enter the username here.</label>
 			<label index="configure_http_username_details">The username and password is used to fetch mail content. They are NOT sent in the mail!
 If you do not specify a username and password and the newsletter pages happen to be protected, an error will occur and no mail content will be fetched.</label>
+			<label index="configure_simulate_usergroup">Frontend User Group</label>
+			<label index="configure_simulate_usergroup_description">If mail content is protected by Frontend user authentication, enter the user group here.</label>
+			<label index="configure_simulate_usergroup_details">The usergroup with the uid specified is used to to fetch the mail content.
+If you do not specify a usergroup uid and the page has frontend user restrictions, an error will occur and no mail content will be fetched.</label>
 			<label index="configure_options_additional">Set additional module options:</label>
 			<label index="configure_options_encoding">Set options for content transfer encoding and character set:</label>
 			<label index="configure_options_links">Set options for links in mail content:</label>

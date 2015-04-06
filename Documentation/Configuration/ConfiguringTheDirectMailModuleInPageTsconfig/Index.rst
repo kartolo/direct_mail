@@ -539,6 +539,23 @@ various functions of the Direct Mail module.
 .. container:: table-row
 
    Property
+         simulate\_usergroup
+
+   Data type
+         integer
+
+   Description
+         If mail content is protected by Frontend user authentication, enter
+         a user group that has access to the page.
+
+         Note: If you do not specify a usergroup uid and the page has frontend
+         user restrictions, an error will occur and no mail content will be
+         fetched.
+
+
+.. container:: table-row
+
+   Property
          userTable
 
    Data type

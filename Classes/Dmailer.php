@@ -39,6 +39,7 @@ namespace DirectMailTeam\DirectMail;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
@@ -120,6 +121,11 @@ class Dmailer {
 	var $mediaList;
 
 	var $tempFileList = array();
+
+	/**
+	 * @var integer Usergroup that is simulated when fetching the mail content
+	 */
+	public $simulateUsergroup;
 
 	/**
 	 * Preparing the Email. Headers are set in global variables
@@ -1002,7 +1008,7 @@ class Dmailer {
 	}
 
 	/**
-	* Fetches the HTML-content from either url og local serverfile
+	* Fetches the HTML-content from either url or local server file
 	*
 	* @param	$url	string		url of the html to fetch
 	* @return	boolean		whether the data was fetched or not
@@ -1502,6 +1508,7 @@ class Dmailer {
 	*/
 	public function getURL($url) {
 		$url = $this->addUserPass($url);
+		$url = $this->addSimulateUsergroup($url);
 		return GeneralUtility::getURL($url);
 	}
 
@@ -1517,6 +1524,20 @@ class Dmailer {
 		$matches = array();
 		if ($user && $pass && preg_match('/^(https?:\/\/)/', $url, $matches)) {
 			return $matches[1] . $user . ':' . $pass . '@' . substr($url, strlen($matches[1]));
+		}
+		return $url;
+	}
+
+	/**
+	 * If the page containing the mail is access protected, access permission can be simulated when fetching the e-mail
+	 * by adding a special parameter to the URL
+	 *
+	 * @param string $url The URL
+	 * @return string The URL with the added values
+	 */
+	public function addSimulateUsergroup($url) {
+		if ($this->simulateUsergroup && MathUtility::canBeInterpretedAsInteger($this->simulateUsergroup)) {
+			return $url . '&dmail_fe_group=' . (int)$this->simulateUsergroup . '&access_token=' . DirectMailUtility::createAndGetAccessToken();
 		}
 		return $url;
 	}

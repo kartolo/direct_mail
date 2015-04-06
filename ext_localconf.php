@@ -5,6 +5,9 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 	// Register jumpurl processing hook
 $TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:'.$_EXTKEY.'/Classes/Checkjumpurl.php:&DirectMailTeam\DirectMail\Checkjumpurl';
 
+// Register hook for simulating a user group
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['determineId-PreProcessing']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\TypoScriptFrontendController->simulateUsergroup';
+
 	// unserializing the configuration so we can use it here:
 $_EXTCONF = unserialize($_EXTCONF);
 

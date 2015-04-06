@@ -1066,6 +1066,7 @@ class DirectMailUtility {
 		$htmlmail->charset = $row['charset'];
 		$htmlmail->http_username = $params['http_username'];
 		$htmlmail->http_password = $params['http_password'];
+		$htmlmail->simulateUsergroup = $params['simulate_usergroup'];
 		$htmlmail->includeMedia = $row['includeMedia'];
 
 		if ($plainTextUrl) {
@@ -1159,7 +1160,42 @@ class DirectMailUtility {
 		if ($user && $pass && substr($url, 0, 7) == 'http://') {
 			$url = 'http://' . $user . ':' . $pass . '@' . substr($url, 7);
 		}
+		if ($params['simulate_usergroup'] && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
+			$url = $url . '&dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' . self::createAndGetAccessToken();
+		}
 		return $url;
+	}
+
+	/**
+	 * Create an access token and save it in the Registry
+	 *
+	 * @return string
+	 */
+	public static function createAndGetAccessToken() {
+		/** @var \TYPO3\CMS\Core\Registry $registry */
+		$registry = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Registry');
+		$accessToken = GeneralUtility::getRandomHexString(32);
+		$registry->set('tx_directmail', 'accessToken', $accessToken);
+		return $accessToken;
+	}
+
+	/**
+	 * Create an access token and save it in the Registry
+	 *
+	 * @param string $accessToken The access token to validate
+	 * @return string
+	 */
+	public static function validateAndRemoveAccessToken($accessToken) {
+		/** @var \TYPO3\CMS\Core\Registry $registry */
+		$registry = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Registry');
+		$registeredAccessToken = $registry->get('tx_directmail', 'accessToken');
+		if (!empty($registeredAccessToken) && $registeredAccessToken === $accessToken) {
+			$registry->remove('tx_directmail', 'accessToken');
+			return TRUE;
+		} else {
+			$registry->remove('tx_directmail', 'accessToken');
+			return FALSE;
+		}
 	}
 
 	/**
