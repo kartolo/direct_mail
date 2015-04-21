@@ -1283,13 +1283,8 @@ class DirectMailUtility {
 	 */
 	public static function getCharacterSetOfPage($pageId) {
 
-		// get the root page of the pageID
-		$sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
-		$sys_page->init(true);
-		$rootLine = $sys_page->getRootLine($pageId);
-
 		// init a fake TSFE object
-		self::initializeTsfe($rootLine[0]['uid']);
+		self::initializeTsfe($pageId);
 
 		$characterSet = 'utf-8';
 
