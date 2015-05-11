@@ -36,7 +36,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Frontend\Page\PageRepository;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use DirectMailTeam\DirectMail;
 
 /**
@@ -70,13 +70,14 @@ class SelectCategories {
 
 			// initialize backend user language
 		if ($LANG->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
+			$sys_page = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Page\PageRepository');
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				//'sys_language.uid,static_languages.lg_collate_locale',
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode = static_languages.uid',
 				'static_languages.lg_typo3 = '.$GLOBALS['TYPO3_DB']->fullQuoteStr($LANG->lang,'static_languages').
-					PageRepository::enableFields('sys_language').
-					PageRepository::enableFields('static_languages')
+					$sys_page->enableFields('sys_language').
+					$sys_page->enableFields('static_languages')
 				);
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 				$this->sys_language_uid = $row['uid'];
