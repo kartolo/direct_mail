@@ -52,3 +52,9 @@ If the :ref:`jumpurl_tracking_privacy <jumpurl_tracking_privacy>` is enabled in 
 want to use ``&no_jumpurl=1`` for link, which should not be replaced by
 a jump URL.
 
+
+Adding third party tracking images
+----------------------------------
+
+When :ref:`includeMedia <pageTsconfig_includeMedia>` is enabled all added images are embedded.
+Put attribute ``do_not_embed="1"`` to the images to prevent it from being embedded.

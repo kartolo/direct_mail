@@ -180,6 +180,8 @@ the format of the content of direct mail messages.
          Default: 3
 
 
+.. _pageTsconfig_includeMedia:
+
 .. container:: table-row
 
    Property
@@ -195,6 +197,9 @@ the format of the content of direct mail messages.
          Note: When this option is set on a direct mail, images and other media
          are encoded and incorporated into the messages. Sent messages will be
          heavier to transport.
+
+         Note: To prevent embedding of a specific image add ``do_not_embed="1"`` to
+         the image tag. This can be useful for adding third party tracking.
 
          When the option is not set, images and media are included in HTML
          content by absolute reference (href) to their location on the site

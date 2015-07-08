@@ -858,7 +858,7 @@ class Dmailer {
 			// extract all media path from the mail message
 			$this->extractMediaLinks();
 			foreach($this->theParts['html']['media'] as $media) {
-				if (($media['tag'] == 'img' || $media['tag'] == 'table' || $media['tag'] == 'tr' || $media['tag'] == 'td') && !$media['use_jumpurl']) {
+				if (($media['tag'] == 'img' || $media['tag'] == 'table' || $media['tag'] == 'tr' || $media['tag'] == 'td') && !$media['use_jumpurl'] && !$media['do_not_embed']) {
 
 					if (ini_get('allow_url_fopen')) {
 						// SwiftMailer depends on allow_url_fopen in PHP
@@ -882,6 +882,8 @@ class Dmailer {
 
 				}
 			}
+			// remove ` do_not_embed="1"` attributes
+			$this->theParts['html']['content'] = str_replace(' do_not_embed="1"', '', $this->theParts['html']['content']);
 		}
 
 		// TODO: multiple instance for each NL type? HTML+Plain or Plain only?
@@ -1248,6 +1250,7 @@ class Dmailer {
 					$imageData['absRef'] = $this->absRef($imageData['ref']);
 					$imageData['tag'] = $tag;
 					$imageData['use_jumpurl'] = $attributes['dmailerping'] ? 1 : 0;
+					$imageData['do_not_embed'] = !empty($attributes['do_not_embed']);
 					$this->theParts['html']['media'][] = $imageData;
 				}
 			}
