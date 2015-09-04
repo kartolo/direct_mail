@@ -134,7 +134,7 @@ class MailFromDraft extends AbstractTask {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] as $hookObj) {
 				$hookObjectInstance = GeneralUtility::getUserObj($hookObj);
 				if (!(is_object($hookObjectInstance) && ($hookObjectInstance instanceof \DirectMailTeam\DirectMail\Scheduler\MailFromDraftHookInterface))) {
-					throw new Exception('Hook object for "mailFromDraft" must implement the "MailFromDraftHookInterface"!', 1400866815);
+					throw new \Exception('Hook object for "mailFromDraft" must implement the "MailFromDraftHookInterface"!', 1400866815);
 				}
 				$this->hookObjects[] = $hookObjectInstance;
 			}

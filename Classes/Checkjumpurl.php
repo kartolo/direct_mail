@@ -147,7 +147,7 @@ class Checkjumpurl {
 									$GLOBALS['TSFE']->initFEuser();
 								}
 							} else {
-								throw new Exception('authCode: Calculated authCode did not match the submitted authCode.', 1376899631);
+								throw new \Exception('authCode: Calculated authCode did not match the submitted authCode.', 1376899631);
 							}
 						}
 					}
