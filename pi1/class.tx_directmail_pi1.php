@@ -58,7 +58,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	var $scriptRelPath = 'pi1/class.tx_directmail_pi1.php';
 	var $extKey = 'direct_mail';
 	var $charWidth = 76;
-	var $linebreak;
+	var $linebreak = LF;
 	var $siteUrl;
 	var $labelsList = 'header_date_prefix,header_link_prefix,uploads_header,images_header,image_link_prefix,caption_header,unrendered_content,link_prefix';
 
@@ -168,7 +168,6 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 		$this->siteUrl = $this->conf['siteUrl'];
 
 			// Default linebreak;
-		$this->linebreak = LF;
 		if ($this->conf['flowedFormat']) {
 			$this->linebreak = chr(32).LF;
 		}
