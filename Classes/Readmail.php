@@ -258,7 +258,7 @@ class Readmail {
 			$cp['mailserver'] = 'unknown';
 			$cp['reason'] = $this->extractReason($cp['reason_text']);
 		}
-		$cp['mailserver'] = 'unknown';
+
 		return $cp;
 	}
 
