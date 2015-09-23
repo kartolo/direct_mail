@@ -1,46 +1,22 @@
 <?php
 namespace DirectMailTeam\DirectMail\Module;
 
-/***************************************************************
- *  Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- *  (c) 1999-2004 Kasper Skaarhoj (kasper@typo3.com)
- *  (c) 2005-2006 Jan-Erik Revsbech <jer@moccompany.com>
- *  (c) 2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *  All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
  *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *  A copy is found in the textfile GPL.txt and important notices to the license
- *  from the author is found in LICENSE.txt distributed with these scripts.
- *
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
-
-/**
- * @author		Kasper Skårhøj <kasper@typo3.com>
- * @author  	Jan-Erik Revsbech <jer@moccompany.com>
- * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
- *
- * @package 	TYPO3
- * @subpackage	tx_directmail
- *
- * @version 	$Id: class.tx_directmail_dmail.php 30935 2010-03-09 18:12:41Z ivankartolo $
+ * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Dmailer;
+use TYPO3\CMS\Backend\Module\BaseScriptClass;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -48,12 +24,21 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\Icon;
 
 /**
  * Direct mail Module of the tx_directmail extension for sending newsletter
  *
+ * @author		Kasper Skårhøj <kasper@typo3.com>
+ * @author  	Jan-Erik Revsbech <jer@moccompany.com>
+ * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
+ *
+ * @package 	TYPO3
+ * @subpackage	tx_directmail
  */
-class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
+class Dmail extends BaseScriptClass {
 	var $extKey = 'direct_mail';
 	var $TSconfPrefix = 'mod.web_modules.dmail.';
 	var $fieldList = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
@@ -71,7 +56,9 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	var $noView;
 	var $mode;
 	var $implodedParams = array();
-	var $userTable;		// If set a valid user table is around
+
+	// If set a valid user table is around
+	var $userTable;
 	var $sys_language_uid = 0;
 	var $error='';
 	var $allowedTables = array('tt_address','fe_users');
@@ -80,23 +67,35 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	var $formname = 'dmailform';
 
 
+	/**
+	 * IconFactory for skinning
+	 * @var \TYPO3\CMS\Core\Imaging\IconFactory
+	 */
+	protected $iconFactory;
+
 	protected $currentStep = 1;
 
 	/**
-	 * first initialization of global variables
+	 * First initialization of global variables
 	 *
-	 * @return	void		...
+	 * @return	void
 	 */
-	function init()	{
+	function init() {
 		$this->MCONF = $GLOBALS['MCONF'];
 
 		parent::init();
 
+		// initialize IconFactory
+		$this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+
 		// get the config from pageTS
 		$temp = BackendUtility::getModTSconfig($this->id,'mod.web_modules.dmail');
+		if (!is_array($temp['properties'])) {
+			$temp['properties'] = array();
+		}
 		$this->params = $temp['properties'];
-		$this->implodedParams = BackendUtility::implodeTSParams($this->params);
-		if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']]))	{
+		$this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
+		if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']])) {
 			$this->userTable = $this->params['userTable'];
 			$this->allowedTables[] = $this->userTable;
 		}
@@ -107,8 +106,8 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			if ($rootLine) {
 				$parts = parse_url(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'));
 				if (BackendUtility::getDomainStartPage($parts['host'],$parts['path'])) {
-					$preUrl_temp = BackendUtility::firstDomainRecord($rootLine);
-					$domain = BackendUtility::getRecordsByField('sys_domain','domainName',$preUrl_temp,' AND hidden=0','','sorting');
+					$temporaryPreUrl = BackendUtility::firstDomainRecord($rootLine);
+					$domain = BackendUtility::getRecordsByField('sys_domain', 'domainName', $temporaryPreUrl, ' AND hidden=0', '', 'sorting');
 					if (is_array($domain)) {
 						reset($domain);
 						$dom = current($domain);
@@ -121,33 +120,33 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params,$this->MOD_MENU['dmail_mode'],'menu.dmail_mode');
 
 			// initialize backend user language
-		if ($GLOBALS['LANG']->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
+		if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-				'static_languages.lg_typo3='.$GLOBALS['TYPO3_DB']->fullQuoteStr($GLOBALS['LANG']->lang,'static_languages').
-					BackendUtility::BEenableFields('sys_language').
-					BackendUtility::deleteClause('sys_language').
+				'static_languages.lg_typo3=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($this->getLanguageService()->lang, 'static_languages') .
+					BackendUtility::BEenableFields('sys_language') .
+					BackendUtility::deleteClause('sys_language') .
 					BackendUtility::deleteClause('static_languages')
 				);
-			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+			while(($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 				$this->sys_language_uid = $row['uid'];
 			}
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 		}
 			// load contextual help
-		$this->cshTable = '_MOD_'.$this->MCONF['name'];
+		$this->cshTable = '_MOD_' . $this->MCONF['name'];
 		if ($GLOBALS['BE_USER']->uc['edit_showFieldHelp']){
-			$GLOBALS['LANG']->loadSingleTableDescription($this->cshTable);
+			$this->getLanguageService()->loadSingleTableDescription($this->cshTable);
 		}
 	}
 
 	/**
 	 * Prints out the module HTML
 	 *
-	 * @return	void		...
+	 * @return	void
 	 */
-	function printContent()	{
+	function printContent() {
 		$this->content .= $this->doc->endPage();
 		echo $this->content;
 	}
@@ -155,9 +154,9 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	/**
 	 * The main function. Set CSS and JS
 	 *
-	 * @return	void		...
+	 * @return	void
 	 */
-	function main()	{
+	function main() {
 		global $BE_USER;
 
 		$this->CMD = GeneralUtility::_GP('CMD');
@@ -174,21 +173,17 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
 			$this->doc->backPath = $GLOBALS['BACK_PATH'];
 			$this->doc->setModuleTemplate('EXT:direct_mail/mod2/mod_template.html');
-			$this->doc->form = '<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
+			$this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
-			$pageRenderer = $this->doc->getPageRenderer();
 				// Add CSS
-			$pageRenderer->addCssFile('../Resources/Public/StyleSheets/modules.css', 'stylesheet', 'all', '', FALSE, FALSE);
+			$this->getPageRenderer()->addCssFile(ExtensionManagementUtility::extRelPath('direct_mail') . 'Resources/Public/StyleSheets/modules.css', 'stylesheet', 'all', '', FALSE, FALSE);
 
 			// JavaScript
-			if (GeneralUtility::inList('send_mail_final,send_mass',$this->CMD)) {
+			if (GeneralUtility::inList('send_mail_final,send_mass', $this->CMD)) {
 				// Load necessary extJS lib
-				/** @var $pageRenderer \TYPO3\CMS\Core\Page\PageRenderer */
-				$pageRenderer = $this->doc->getPageRenderer();
-				$pageRenderer->loadExtJS();
-				// TODO: Datepicker JS
-				$pageRenderer->addJsFile($this->doc->backPath . 'sysext/backend/Resources/Public//JavaScript/tceforms.js');
-				$pageRenderer->addJsFile($this->doc->backPath .'js/extjs/ux/Ext.ux.DateTimePicker.js');
+
+				$this->getPageRenderer()->loadJquery();
+				$this->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
 
 				// Define settings for Date Picker
 				$typo3Settings = array(
@@ -196,7 +191,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					'dateFormat'       => array('j-n-Y', 'G:i j-n-Y'),
 					'dateFormatUS'     => array('n-j-Y', 'G:i n-j-Y'),
 				);
-				$pageRenderer->addInlineSettingArray('', $typo3Settings);
+				$this->getPageRenderer()->addInlineSettingArray('', $typo3Settings);
 			}
 
 			$this->doc->JScode .= '
@@ -206,7 +201,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 						window.location.href = URL;
 					}
 					function jumpToUrlD(URL) { //
-						window.location.href = URL+"&sys_dmail_uid='.$this->sys_dmail_uid.'";
+						window.location.href = URL+"&sys_dmail_uid=' . $this->sys_dmail_uid . '";
 					}
 					function toggleDisplay(toggleId, e, countBox) { //
 						if (!e) {
@@ -220,12 +215,12 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 						for (i=1; i<=countBox; i++){
 							newToggleId = prefix[0]+"-"+i;
 							body = document.getElementById(newToggleId);
-							image = document.getElementById(toggleId + "_toggle");
+							image = document.getElementById(newToggleId + "_toggle");
 							if (newToggleId != toggleId){
 								if (body.style.display == "block"){
 									body.style.display = "none";
 									if (image) {
-										image.src = "'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/button_right.gif', '', 1).'";
+										image.className = image.className.replace( /expand/ , "collapse");
 									}
 								}
 							}
@@ -239,12 +234,12 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 						if (body.style.display == "none") {
 							body.style.display = "block";
 							if (image) {
-								image.src = "'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/button_down.gif', '', 1).'";
+								image.className = image.className.replace( /collapse/ , "expand");
 							}
 						} else {
 							body.style.display = "none";
 							if (image) {
-								image.src = "'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/button_right.gif', '', 1).'";
+								image.className = image.className.replace( /expand/ , "collapse");
 							}
 						}
 						if (e) {
@@ -263,7 +258,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$this->doc->postCode='
 				<script language="javascript" type="text/javascript">
 					script_ended = 1;
-					if (top.fsMod) top.fsMod.recentIds[\'web\'] = '.intval($this->id).';
+					if (top.fsMod) top.fsMod.recentIds[\'web\'] = ' . intval($this->id) . ';
 				</script>
 			';
 
@@ -276,12 +271,12 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			);
 
 			$docHeaderButtons = array(
-				'PAGEPATH' => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'],50),
+				'PAGEPATH' => $this->getLanguageService()->sL('LLL:EXT:lang/locallang_core.php:labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
 				'SHORTCUT' => ''
 			);
 				// shortcut icon
 			if ($BE_USER->mayMakeShortcut()) {
-				$docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
+				$docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name'], 1, 'btn btn-default btn-sm');
 			}
 
 			$module = $this->pageinfo['module'];
@@ -295,34 +290,34 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				if (($this->pageinfo['doktype'] == 254) && ($this->pageinfo['module'] == 'dmail'))	{
 					$markers = $this->moduleContent();
 				} elseif ($this->id != 0) {
-					/** @var $flashMessage FlashMessage */
+					/* @var $flashMessage FlashMessage */
 					$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-						$GLOBALS['LANG']->getLL('dmail_noRegular'),
-						$GLOBALS['LANG']->getLL('dmail_newsletters'),
+						$this->getLanguageService()->getLL('dmail_noRegular'),
+						$this->getLanguageService()->getLL('dmail_newsletters'),
 						FlashMessage::WARNING
 					);
 					$markers['FLASHMESSAGES'] = $flashMessage->render();
 				}
 			} else {
 				$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-					$GLOBALS['LANG']->getLL('select_folder'),
-					$GLOBALS['LANG']->getLL('header_directmail'),
+					$this->getLanguageService()->getLL('select_folder'),
+					$this->getLanguageService()->getLL('header_directmail'),
 					FlashMessage::WARNING
 				);
 				$markers['FLASHMESSAGES'] = $flashMessage->render();
 			}
 
-			$this->content = $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
+			$this->content = $this->doc->startPage($this->getLanguageService()->getLL('title'));
 			$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
 
 		} else {
 			// If no access or if ID == zero
 
-			$this->doc = GeneralUtility::makeInstance('template');
+			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
 			$this->doc->backPath = $GLOBALS['BACK_PATH'];
 
-			$this->content .= $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
-			$this->content .= $this->doc->header($GLOBALS['LANG']->getLL('title'));
+			$this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
+			$this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
 			$this->content .= $this->doc->spacer(5);
 			$this->content .= $this->doc->spacer(10);
 		}
@@ -332,90 +327,94 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 * Creates a directmail entry in th DB.
 	 * used only for quickmail.
 	 *
-	 * @param	array		$indata: quickmail data (quickmail content, etc.)
-	 * @return	string		error or warning message produced during the process
+	 * @param array $indata Quickmail data (quickmail content, etc.)
+	 *
+	 * @return string error or warning message produced during the process
 	 */
-	function createDMail_quick($indata)	{
+	function createDMail_quick(array $indata) {
 		$theOutput = "";
-				// Set default values:
-			$dmail = array();
-			$dmail['sys_dmail']['NEW'] = array (
-				'from_email'		=> $indata['senderEmail'],
-				'from_name'			=> $indata['senderName'],
-				'replyto_email'		=> $this->params['replyto_email'],
-				'replyto_name'		=> $this->params['replyto_name'],
-				'return_path'		=> $this->params['return_path'],
-				'priority'			=> $this->params['priority'],
-				'use_domain'		=> $this->params['use_domain'],
-				'use_rdct'			=> $this->params['use_rdct'],
-				'long_link_mode'	=> $this->params['long_link_mode'],
-				'organisation'		=> $this->params['organisation'],
-				'authcode_fieldList'=> $this->params['authcode_fieldList'],
-				'plainParams'		=> ''
-				);
+			// Set default values:
+		$dmail = array();
+		$dmail['sys_dmail']['NEW'] = array (
+			'from_email'		=> $indata['senderEmail'],
+			'from_name'			=> $indata['senderName'],
+			'replyto_email'		=> $this->params['replyto_email'],
+			'replyto_name'		=> $this->params['replyto_name'],
+			'return_path'		=> $this->params['return_path'],
+			'priority'			=> $this->params['priority'],
+			'use_domain'		=> $this->params['use_domain'],
+			'use_rdct'			=> $this->params['use_rdct'],
+			'long_link_mode'	=> $this->params['long_link_mode'],
+			'organisation'		=> $this->params['organisation'],
+			'authcode_fieldList'=> $this->params['authcode_fieldList'],
+			'plainParams'		=> ''
+			);
 
-			$dmail['sys_dmail']['NEW']['sendOptions'] = 1;		//always plaintext
-			$dmail['sys_dmail']['NEW']['long_link_rdct_url'] = DirectMailUtility::getUrlBase($this->params['use_domain']);
-			$dmail['sys_dmail']['NEW']['subject'] = $indata['subject'];
-			$dmail['sys_dmail']['NEW']['type'] = 1;
-			$dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
-			$dmail['sys_dmail']['NEW']['charset'] = isset($this->params['quick_mail_charset'])? $this->params['quick_mail_charset'] : 'utf-8';
+		// always plaintext
+		$dmail['sys_dmail']['NEW']['sendOptions'] = 1;
+		$dmail['sys_dmail']['NEW']['long_link_rdct_url'] = DirectMailUtility::getUrlBase($this->params['use_domain']);
+		$dmail['sys_dmail']['NEW']['subject'] = $indata['subject'];
+		$dmail['sys_dmail']['NEW']['type'] = 1;
+		$dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
+		$dmail['sys_dmail']['NEW']['charset'] = isset($this->params['quick_mail_charset'])? $this->params['quick_mail_charset'] : 'utf-8';
 
-				// If params set, set default values:
-			if (isset($this->params['includeMedia'])) {
-				$dmail['sys_dmail']['NEW']['includeMedia'] = $this->params['includeMedia'];
+			// If params set, set default values:
+		if (isset($this->params['includeMedia'])) {
+			$dmail['sys_dmail']['NEW']['includeMedia'] = $this->params['includeMedia'];
+		}
+		if (isset($this->params['flowedFormat'])) {
+			$dmail['sys_dmail']['NEW']['flowedFormat'] = $this->params['flowedFormat'];
+		}
+		if (isset($this->params['direct_mail_encoding'])) {
+			$dmail['sys_dmail']['NEW']['encoding'] = $this->params['direct_mail_encoding'];
+		}
+
+
+		if ($dmail['sys_dmail']['NEW']['pid'] && $dmail['sys_dmail']['NEW']['sendOptions']) {
+			/* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
+			$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+			$tce->stripslashes_values = 0;
+			$tce->start($dmail,Array());
+			$tce->process_datamap();
+			$this->sys_dmail_uid = $tce->substNEWwithIDs['NEW'];
+
+			$row = BackendUtility::getRecord('sys_dmail',intval($this->sys_dmail_uid));
+			// link in the mail
+			$message = '<!--DMAILER_SECTION_BOUNDARY_-->' . $indata['message'] . '<!--DMAILER_SECTION_BOUNDARY_END-->';
+			if (trim($this->params['use_rdct'])) {
+				$message = GeneralUtility::substUrlsInPlainText($message,$this->params['long_link_mode']?'all':'76',
+					DirectMailUtility::getUrlBase($this->params['use_domain']));
 			}
-			if (isset($this->params['flowedFormat'])) {
-				$dmail['sys_dmail']['NEW']['flowedFormat'] = $this->params['flowedFormat'];
+			if ($indata['breakLines'])	{
+				$message = wordwrap($message,76,"\n");
 			}
-			if (isset($this->params['direct_mail_encoding'])) {
-				$dmail['sys_dmail']['NEW']['encoding'] = $this->params['direct_mail_encoding'];
+			// fetch functions
+			$theOutput = $this->compileQuickMail($row, $message);
+			/* end fetch function*/
+		} else {
+			if (!$dmail['sys_dmail']['NEW']['sendOptions']) {
+				$this->error = 'no_valid_url';
 			}
-
-
-			if ($dmail['sys_dmail']['NEW']['pid'] && $dmail['sys_dmail']['NEW']['sendOptions']) {
-				/** @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-				$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
-				$tce->stripslashes_values = 0;
-				$tce->start($dmail,Array());
-				$tce->process_datamap();
-				$this->sys_dmail_uid = $tce->substNEWwithIDs['NEW'];
-
-				$row = BackendUtility::getRecord('sys_dmail',intval($this->sys_dmail_uid));
-				//link in the mail
-				$message = '<!--DMAILER_SECTION_BOUNDARY_-->'.$indata['message'].'<!--DMAILER_SECTION_BOUNDARY_END-->';
-				if (trim($this->params['use_rdct'])) {
-					$message = GeneralUtility::substUrlsInPlainText($message,$this->params['long_link_mode']?'all':'76',
-						DirectMailUtility::getUrlBase($this->params['use_domain']));
-				}
-				if ($indata['breakLines'])	{
-					$message = wordwrap($message,76,"\n");
-				}
-				//fetch functions
-				$theOutput = $this->compileQuickMail($row, $message);
-				/* end fetch function*/
-			} else {
-				if (!$dmail['sys_dmail']['NEW']['sendOptions']) {
-					$this->error = 'no_valid_url';
-				}
-			}
+		}
 
 		return $theOutput;
 	}
 
 	/**
-	 * compiling the quickmail content and save to DB
+	 * Compiling the quickmail content and save to DB
 	 *
-	 * @param array $row: the sys_dmail record
-	 * @param string $message: body of the mail
+	 * @param array $row The sys_dmail record
+	 * @param string $message Body of the mail
+	 *
+	 * @return string
 	 * @TODO: remove htmlmail, compiling mail
 	 */
-	function compileQuickMail($row, $message) {
+	function compileQuickMail(array $row, $message) {
 		$errorMsg = "";
 		$warningMsg = "";
 
 		// Compile the mail
-		/** @var $htmlmail Dmailer */
+		/* @var $htmlmail Dmailer */
 		$htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
 		$htmlmail->nonCron = 1;
 		$htmlmail->start();
@@ -423,12 +422,12 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$htmlmail->addPlain($message);
 
 		if (!$message || !$htmlmail->theParts['plain']['content']) {
-			$errorMsg .= '<br /><strong>' . $GLOBALS['LANG']->getLL('dmail_no_plain_content') . '</strong>';
+			$errorMsg .= '<br /><strong>' . $this->getLanguageService()->getLL('dmail_no_plain_content') . '</strong>';
 		} elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']),'<!--DMAILER_SECTION_BOUNDARY')) {
-			$warningMsg .= '<br /><strong>' . $GLOBALS['LANG']->getLL('dmail_no_plain_boundaries') . '</strong>';
+			$warningMsg .= '<br /><strong>' . $this->getLanguageService()->getLL('dmail_no_plain_boundaries') . '</strong>';
 		}
 
-		//add attachment is removed. since it will be add during sending
+		// add attachment is removed. since it will be add during sending
 
 		if (!$errorMsg) {
 			// Update the record:
@@ -443,21 +442,24 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			);
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
 				'sys_dmail',
-				'uid='.intval($this->sys_dmail_uid),
+				'uid=' . intval($this->sys_dmail_uid),
 				$updateFields
 			);
 
-			if ($warningMsg)	{
-				$theOutput = $this->doc->section($GLOBALS['LANG']->getLL('dmail_warning'), $warningMsg.'<br /><br />');
+			if ($warningMsg) {
+				return $this->doc->section($this->getLanguageService()->getLL('dmail_warning'), $warningMsg . '<br /><br />');
 			}
 		}
+
+		return '';
 	}
 
 	/**
-	 * showing steps number on top of every page
+	 * Showing steps number on top of every page
 	 *
-	 * @param	integer		$totalSteps: total step
-	 * @return	string		HTML
+	 * @param int $totalSteps Total step
+	 *
+	 * @return string HTML
 	 */
 	function showSteps($totalSteps) {
 		$content = '';
@@ -472,7 +474,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	/**
 	 * Function mailModule main()
 	 *
-	 * @return	string		HTML (steps)
+	 * @return	string	HTML (steps)
 	 */
 	function moduleContent() {
 		$theOutput = "";
@@ -511,42 +513,44 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 		$backButtonPressed = GeneralUtility::_GP('back');
 		if ($backButtonPressed) {
-				//CMD move 1 step back
+				// CMD move 1 step back
 			switch (GeneralUtility::_GP('currentCMD')) {
 				case 'info':
 					$this->CMD = '';
-				break;
-
+					break;
 				case 'cats':
 					$this->CMD = 'info';
-				break;
-
+					break;
 				case 'send_test':
+					// Sameas send_mail_test
 				case 'send_mail_test':
 					if (($this->CMD == 'send_mass') && $hideCategoryStep) {
 						$this->CMD = 'info';
 					} else {
 						$this->CMD = 'cats';
 					}
-				break;
+					break;
 
 				case 'send_mail_final':
+					// The same as send_mass
 				case 'send_mass':
 					$this->CMD = 'send_test';
-				break;
+					break;
+				default:
+					// Do nothing
 			}
 		}
 
-		$nextCMD = "";
+		$nextCmd = "";
 		if ($hideCategoryStep) {
 			$totalSteps = 4;
 			if ($this->CMD == 'info') {
-				$nextCMD = 'send_test';
+				$nextCmd = 'send_test';
 			}
 		} else {
 			$totalSteps = 5;
 			if ($this->CMD == 'info') {
-				$nextCMD = 'cats';
+				$nextCmd = 'cats';
 			}
 		}
 
@@ -557,7 +561,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 					// step 2: create the Direct Mail record, or use existing
 				$this->currentStep = 2;
-				$markers['TITLE'] = $GLOBALS['LANG']->getLL('dmail_wiz2_detail');
+				$markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz2_detail');
 
 				// greyed out next-button if fetching is not successful (on error)
 				$fetchError = TRUE;
@@ -580,9 +584,9 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 							// fetch the data
 						if ($shouldFetchData) {
 							$fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
-							$fetchError = ((strstr($fetchMessage, $GLOBALS['LANG']->getLL('dmail_error')) === FALSE) ? FALSE : TRUE);
+							$fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === FALSE) ? FALSE : TRUE);
 						}
-						$theOutput .= '<input type="hidden" name="CMD" value="' . ($nextCMD ? $nextCMD : 'cats') . '">';
+						$theOutput .= '<input type="hidden" name="CMD" value="' . ($nextCmd ? $nextCmd : 'cats') . '">';
 					} else {
 							// TODO: Error message - Error while adding the DB set
 					}
@@ -600,7 +604,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 							// fetch the data
 						if ($shouldFetchData) {
 							$fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
-							$fetchError = ((strstr($fetchMessage, $GLOBALS['LANG']->getLL('dmail_error')) === FALSE) ? FALSE : TRUE);
+							$fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === FALSE) ? FALSE : TRUE);
 						}
 						$theOutput .= '<input type="hidden" name="CMD" value="send_test">';
 					} else {
@@ -611,7 +615,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 						// Quickmail
 				} elseif ($quickmail['send']) {
 					$fetchMessage = $this->createDMail_quick($quickmail);
-					$fetchError = ((strstr($fetchMessage, $GLOBALS['LANG']->getLL('dmail_error')) === FALSE) ? FALSE : TRUE);
+					$fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === FALSE) ? FALSE : TRUE);
 					$row = BackendUtility::getRecord('sys_dmail',$this->sys_dmail_uid);
 					$theOutput.= '<input type="hidden" name="CMD" value="send_test">';
 					// existing dmail
@@ -622,7 +626,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 						$fetchError = FALSE;
 						$theOutput .= '<input type="hidden" name="CMD" value="send_test">';
 
-						//add attachment here, since attachment added in 2nd step
+						// add attachment here, since attachment added in 2nd step
 						$unserializedMailContent = unserialize(base64_decode($row['mailContent']));
 						$theOutput .= $this->compileQuickMail($row, $unserializedMailContent['plain']['content'],false);
 
@@ -630,27 +634,27 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 						if ($shouldFetchData) {
 							$fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
-							$fetchError = ((strstr($fetchMessage, $GLOBALS['LANG']->getLL('dmail_error')) === FALSE) ? FALSE : TRUE);
+							$fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === FALSE) ? FALSE : TRUE);
 						}
 
 						if ($row['type'] == 0) {
-							$theOutput .= '<input type="hidden" name="CMD" value="'.$nextCMD.'">';
+							$theOutput .= '<input type="hidden" name="CMD" value="' . $nextCmd . '">';
 						} else {
 							$theOutput .= '<input type="hidden" name="CMD" value="send_test">';
 						}
 					}
 				}
 
-				$navigationButtons = '<input type="submit" class="t3-btn-back" value="' . $GLOBALS['LANG']->getLL('dmail_wiz_back') . '" name="back">';
-				$navigationButtons.= '<input type="submit" value="'.$GLOBALS['LANG']->getLL('dmail_wiz_next').'" ' . ($fetchError ? 'disabled="disabled" class="next t3-btn-disabled"' : ' class="t3-btn-next"').'>';
+				$navigationButtons = '<input type="submit" class="btn btn-default" value="' . $this->getLanguageService()->getLL('dmail_wiz_back') . '" name="back"> &nbsp;';
+				$navigationButtons .= '<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '" ' . ($fetchError ? 'disabled="disabled" class="next btn btn-default disabled"' : ' class="btn btn-default"') . '>';
 
 				if ($fetchMessage) {
 					$markers['FLASHMESSAGES'] = $fetchMessage;
 				} elseif (!$fetchError && $shouldFetchData) {
-					/** @var $flashMessage FlashMessage */
+					/* @var $flashMessage FlashMessage */
 					$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
 						'',
-						$GLOBALS['LANG']->getLL('dmail_wiz2_fetch_success'),
+						$this->getLanguageService()->getLL('dmail_wiz2_fetch_success'),
 						FlashMessage::OK
 					);
 					$markers['FLASHMESSAGES'] = $flashMessage->render();
@@ -662,40 +666,41 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$theOutput .= '</div>';
 				}
 
-				$theOutput .= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
-				$theOutput .= !empty($row['page'])?'<input type="hidden" name="pages_uid" value="'.$row['page'].'">':'';
-				$theOutput .= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
-			break;
+				$theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
+				$theOutput .= !empty($row['page'])?'<input type="hidden" name="pages_uid" value="' . $row['page'] . '">':'';
+				$theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->CMD . '">';
+				break;
 
 			case 'cats':
 				// shows category if content-based cat
 				$this->currentStep = 3;
-				$markers['TITLE'] = $GLOBALS['LANG']->getLL('dmail_wiz3_cats');
+				$markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz3_cats');
 
-				$navigationButtons = '<input type="submit" class="t3-btn-back" value="'.$GLOBALS['LANG']->getLL('dmail_wiz_back').'" name="back">';
-				$navigationButtons.= '<input type="submit" class="t3-btn-next" value="'.$GLOBALS['LANG']->getLL('dmail_wiz_next').'">';
+				$navigationButtons = '<input type="submit" class="btn btn-default " value="' . $this->getLanguageService()->getLL('dmail_wiz_back') . '" name="back">&nbsp;';
+				$navigationButtons .= '<input type="submit" class="btn btn-default " value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '">';
 
 				$theOutput .= '<div id="box-1" class="toggleBox">';
 				$theOutput .= $this->makeCategoriesForm($row);
 				$theOutput .= '</div></div>';
 
 				$theOutput .= '<input type="hidden" name="CMD" value="send_test">';
-				$theOutput .= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
-				$theOutput .= '<input type="hidden" name="pages_uid" value="'.$this->pages_uid.'">';
-				$theOutput .= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
-			break;
+				$theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
+				$theOutput .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">';
+				$theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->CMD . '">';
+				break;
 
 			case 'send_test':
+				// Same as send_mail_test
 			case 'send_mail_test':
 					// send test mail
 				$this->currentStep = (4 - (5 - $totalSteps));
-				$markers['TITLE'] = $GLOBALS['LANG']->getLL('dmail_wiz4_testmail');
+				$markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz4_testmail');
 
-				$navigationButtons = '<input type="submit" class="t3-btn-back" value="'.$GLOBALS['LANG']->getLL('dmail_wiz_back').'" name="back">';
-				$navigationButtons.= '<input type="submit" class="t3-btn-next" value="'.$GLOBALS['LANG']->getLL('dmail_wiz_next').'">';
+				$navigationButtons = '<input type="submit" class="btn btn-default" value="' . $this->getLanguageService()->getLL('dmail_wiz_back') . '" name="back">&nbsp;';
+				$navigationButtons.= '<input type="submit" class="btn btn-default" value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '">';
 
 				if ($this->CMD == 'send_mail_test') {
-					//using Flashmessages to show sent test mail
+					// using Flashmessages to show sent test mail
 					$markers['FLASHMESSAGES'] = $this->cmd_send_mail($row);
 				}
 				$theOutput .= '<br /><div id="box-1" class="toggleBox">';
@@ -703,17 +708,18 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$theOutput .= '</div></div>';
 
 				$theOutput .= '<input type="hidden" name="CMD" value="send_mass">';
-				$theOutput .= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
-				$theOutput .= '<input type="hidden" name="pages_uid" value="'.$this->pages_uid.'">';
-				$theOutput .= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
-			break;
+				$theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
+				$theOutput .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">';
+				$theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->CMD . '">';
+				break;
 
 			case 'send_mail_final':
+				// same as send_mass
 			case 'send_mass':
 				$this->currentStep = (5 - (5 - $totalSteps));
 
 				if ($this->CMD == 'send_mass') {
-					$navigationButtons = '<input type="submit" class="t3-btn-back" value="'.$GLOBALS['LANG']->getLL('dmail_wiz_back').'" name="back">';
+					$navigationButtons = '<input type="submit" class="btn btn-default" value="' . $this->getLanguageService()->getLL('dmail_wiz_back') . '" name="back">';
 				}
 
 				if($this->CMD=='send_mail_final'){
@@ -725,29 +731,28 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 						$theOutput .= 'no recipients';
 					}
 				}
-				//send mass, show calendar
+				// send mass, show calendar
 				$theOutput .= '<div id="box-1" class="toggleBox">';
 				$theOutput .= $this->cmd_finalmail();
 				$theOutput .= '</div>';
 
-				$theOutput = $this->doc->section($GLOBALS['LANG']->getLL('dmail_wiz5_sendmass'),$theOutput,1,1,0, TRUE);
+				$theOutput = $this->doc->section($this->getLanguageService()->getLL('dmail_wiz5_sendmass'),$theOutput,1,1,0, TRUE);
 
 				$theOutput .= '<input type="hidden" name="CMD" value="send_mail_final">';
-				$theOutput .= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'">';
-				$theOutput .= '<input type="hidden" name="pages_uid" value="'.$this->pages_uid.'">';
-				$theOutput .= '<input type="hidden" name="currentCMD" value="'.$this->CMD.'">';
-
-			break;
+				$theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
+				$theOutput .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">';
+				$theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->CMD . '">';
+				break;
 
 			default:
-					//choose source newsletter
+				// choose source newsletter
 				$this->currentStep = 1;
-				$markers['TITLE'] = $GLOBALS['LANG']->getLL('dmail_wiz1_new_newsletter') . ' - ' . $GLOBALS['LANG']->getLL('dmail_wiz1_select_nl_source');
+				$markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz1_new_newsletter') . ' - ' . $this->getLanguageService()->getLL('dmail_wiz1_select_nl_source');
 
 				$showTabs = array('int','ext','quick','dmail');
 				$hideTabs = GeneralUtility::trimExplode(',',$GLOBALS['BE_USER']->userTS['tx_directmail.']['hideTabs']);
 				foreach ($hideTabs as $hideTab) {
-					$showTabs = GeneralUtility::removeArrayEntryByValue($showTabs, $hideTab);
+					$showTabs = ArrayUtility::removeArrayEntryByValue($showTabs, $hideTab);
 				}
 
 				if (!$GLOBALS['BE_USER']->userTS['tx_directmail.']['defaultTab']) {
@@ -763,24 +768,22 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					}
 					switch ($showTab) {
 						case 'int':
-							$theOutput .= $this->makeFormInternal('box-'.$i, $countTabs, $open);
+							$theOutput .= $this->makeFormInternal('box-' . $i, $countTabs, $open);
 							break;
 						case 'ext':
-							$theOutput .= $this->makeFormExternal('box-'.$i, $countTabs, $open);
+							$theOutput .= $this->makeFormExternal('box-' . $i, $countTabs, $open);
 							break;
 						case 'quick':
-							$theOutput .= $this->makeFormQuickMail('box-'.$i, $countTabs, $open);
+							$theOutput .= $this->makeFormQuickMail('box-' . $i, $countTabs, $open);
 							break;
 						case 'dmail':
-							$theOutput .= $this->makeListDMail('box-'.$i, $countTabs, $open);
+							$theOutput .= $this->makeListDMail('box-' . $i, $countTabs, $open);
 							break;
 						default:
-							break;
 					}
 					$i++;
 				}
 				$theOutput .= '<input type="hidden" name="CMD" value="info" />';
-				break;
 		}
 
 		$markers['NAVIGATION'] = $navigationButtons;
@@ -790,11 +793,11 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * shows the final steps of the process. Show recipient list and calendar library
+	 * Shows the final steps of the process. Show recipient list and calendar library
 	 *
 	 * @return	string		HTML
 	 */
-	function cmd_finalmail()	{
+	function cmd_finalmail() {
 		/**
 		 * Hook for cmd_finalmail
 		 * insert a link to open extended importer
@@ -818,14 +821,14 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'uid,pid,title',
 			'sys_dmail_group',
-			'pid='.intval($this->id).
+			'pid=' . intval($this->id) .
 				BackendUtility::deleteClause('sys_dmail_group'),
 			'',
 			$GLOBALS['TYPO3_DB']->stripOrderBy($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
 		);
 
 		$opt = array();
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+		while(($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 
 			$result = $this->cmd_compileMailGroup(array($row['uid']));
 			$count = 0;
@@ -842,40 +845,36 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			if (is_array($idLists[$this->userTable])) {
 				$count += count($idLists[$this->userTable]);
 			}
-			$opt[] = '<option value="'.$row['uid'].'">'.htmlspecialchars($row['title'].' (#'.$count.')').'</option>';
+			$opt[] = '<option value="' . $row['uid'] . '">' . htmlspecialchars($row['title'] . ' (#' . $count . ')') . '</option>';
 		}
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		// added disabled. see hook
-		$select = '<select multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(LF,$opt).'</select>';
+		$select = '<select multiple="multiple" name="mailgroup_uid[]" ' . ($hookSelectDisabled ? 'disabled' : '') . '>' . implode(LF,$opt) . '</select>';
 
 			// Set up form:
 		$msg = "";
-		$msg .= '<input type="hidden" name="id" value="'.$this->id.'" />';
-		$msg .= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'" />';
+		$msg .= '<input type="hidden" name="id" value="' . $this->id . '" />';
+		$msg .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '" />';
 		$msg .= '<input type="hidden" name="CMD" value="send_mail_final" />';
-		$msg .= $GLOBALS['LANG']->getLL('schedule_mailgroup') . '<br />'.$select.'<br /><br />';
+		$msg .= $this->getLanguageService()->getLL('schedule_mailgroup') . '<br />' . $select . '<br /><br />';
 
 		// put content from hook
 		$msg .= $hookContents;
 
 
-		$msg .= $GLOBALS['LANG']->getLL('schedule_time') .
-			'<br /><input type="text" id="tceforms-datetimefield-startdate" name="send_mail_datetime'.'" '.$GLOBALS['TBE_TEMPLATE']->formWidth(20).' value="'.strftime('%H:%M %d-%m-%Y',time()).'">'.
-			IconUtility::getSpriteIcon(
-				'actions-edit-pick-date',
-				array(
-					'style' => 'cursor:pointer;',
-					'id' => 'picker-tceforms-datetimefield-startdate'
-				)
-			).
-			'<br />';
+		$msg .= $this->getLanguageService()->getLL('schedule_time') .
+			'<br /><div class="form-control-wrap"><div class="input-group">' .
+			'<input class="form-control t3js-datetimepicker t3js-clearable" data-date-type="datetime" data-date-offset="0" type="text" id="tceforms-datetimefield-startdate" name="send_mail_datetime_hr" value="' . strftime('%H:%M %d-%m-%Y',time()) . '">' .
+			'<input name="send_mail_datetime" value="' . strftime('%H:%M %d-%m-%Y',time()) . '" type="hidden">' .
+			'<span class="input-group-btn"><label class="btn btn-default" for="tceforms-datetimefield-startdate"><span class="fa fa-calendar"></span></label></span>' .
+			'</div></div><br />';
 
-		$msg .= '<br/><label for="tx-directmail-sendtestmail-check"><input type="checkbox" name="testmail" id="tx-directmail-sendtestmail-check" value="1" />&nbsp;' . $GLOBALS['LANG']->getLL('schedule_testmail') . '</label>';
-		$msg .= '<br/><label for="tx-directmail-savedraft-check"><input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;' . $GLOBALS['LANG']->getLL('schedule_draft') . '</label>';
-		$msg .= '<br /><br /><input type="Submit" name="mailingMode_mailGroup" value="' . $GLOBALS['LANG']->getLL('schedule_send_all') . '" />';
+		$msg .= '<br/><label for="tx-directmail-sendtestmail-check"><input type="checkbox" name="testmail" id="tx-directmail-sendtestmail-check" value="1" />&nbsp;' . $this->getLanguageService()->getLL('schedule_testmail') . '</label>';
+		$msg .= '<br/><label for="tx-directmail-savedraft-check"><input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;' . $this->getLanguageService()->getLL('schedule_draft') . '</label>';
+		$msg .= '<br /><br /><input class="btn btn-default" type="Submit" name="mailingMode_mailGroup" value="' . $this->getLanguageService()->getLL('schedule_send_all') . '" />';
 
-		$theOutput = $this->doc->section($GLOBALS['LANG']->getLL('schedule_select_mailgroup'),$msg, 1, 1, 0, TRUE);
+		$theOutput = $this->doc->section($this->getLanguageService()->getLL('schedule_select_mailgroup'),$msg, 1, 1, 0, TRUE);
 		$theOutput .= $this->doc->spacer(20);
 
 		$this->noView = 1;
@@ -883,17 +882,18 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * sending the mail.
+	 * Sending the mail.
 	 * if it's a test mail, then will be sent directly.
-	 * if it's a mass-send mail, only update the DB record. the dmailer script will send it.
+	 * if mass-send mail, only update the DB record. the dmailer script will send it.
 	 *
-	 * @param	array		$row: directmal DB record
-	 * @return	string		Messages if the mail is sent or planned to sent
+	 * @param array $row Directmal DB record
+	 *
+	 * @return string Messages if the mail is sent or planned to sent
 	 * @todo	remove htmlmail. sending test mail
 	 */
 	function cmd_send_mail($row) {
 			// Preparing mailer
-		/** @var $htmlmail Dmailer */
+		/* @var $htmlmail Dmailer */
 		$htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
 		$htmlmail->nonCron = 1;
 		$htmlmail->start();
@@ -912,7 +912,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				// Fixing addresses:
 			$addresses = GeneralUtility::_GP('SET');
 			$addressList = $addresses['dmail_test_email'] ? $addresses['dmail_test_email'] : $this->MOD_SETTINGS['dmail_test_email'];
-			$addresses = preg_split('|['.LF.',;]|',$addressList);
+			$addresses = preg_split('|[' . LF . ',;]|',$addressList);
 
 			foreach ($addresses as $key => $val) {
 				$addresses[$key] = trim($val);
@@ -929,13 +929,13 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$htmlmail->dmailer_sendSimple($addressList);
 				$sentFlag = TRUE;
 
-				/** @var $flashMessage FlashMessage */
+				/* @var $flashMessage FlashMessage */
 				$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-					$GLOBALS['LANG']->getLL('send_was_sent').
-						'<br /><br />'.
-						$GLOBALS['LANG']->getLL('send_recipients') . '<br />'.htmlspecialchars($addressList), //text
-					$GLOBALS['LANG']->getLL('send_sending'), //header
-					FlashMessage::OK //severity
+					$this->getLanguageService()->getLL('send_was_sent') .
+						'<br /><br />' .
+						$this->getLanguageService()->getLL('send_recipients') . '<br />' . htmlspecialchars($addressList),
+					$this->getLanguageService()->getLL('send_sending'),
+					FlashMessage::OK
 				);
 
 				$this->noView = 1;
@@ -946,26 +946,26 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$htmlmail->testmail = $this->params['testmail'];
 
 			if (GeneralUtility::_GP('tt_address_uid'))	{
-				//personalized to tt_address
+				// personalized to tt_address
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'tt_address.*',
 					'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
-					'tt_address.uid='.intval(GeneralUtility::_GP('tt_address_uid')).
-						' AND '.$this->perms_clause.
-						BackendUtility::deleteClause('pages').
-						BackendUtility::BEenableFields('tt_address').
+					'tt_address.uid=' . intval(GeneralUtility::_GP('tt_address_uid')) .
+						' AND ' . $this->perms_clause .
+						BackendUtility::deleteClause('pages') .
+						BackendUtility::BEenableFields('tt_address') .
 						BackendUtility::deleteClause('tt_address')
 					);
-				if ($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-					$recipRow = \DirectMailTeam\DirectMail\Dmailer::convertFields($recipRow);
+				if (($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+					$recipRow = Dmailer::convertFields($recipRow);
 					$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address',$recipRow['uid']);
 					$htmlmail->dmailer_sendAdvanced($recipRow,'t');
 					$sentFlag=true;
 
-					/** @var $flashMessage FlashMessage */
+					/* @var $flashMessage FlashMessage */
 					$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-						sprintf($GLOBALS['LANG']->getLL('send_was_sent_to_name'), htmlspecialchars($recipRow['name']).htmlspecialchars(' <'.$recipRow['email'].'>')),
-						$GLOBALS['LANG']->getLL('send_sending'),
+						sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), htmlspecialchars($recipRow['name']) . htmlspecialchars(' <' . $recipRow['email'] . '>')),
+						$this->getLanguageService()->getLL('send_sending'),
 						FlashMessage::OK
 					);
 				}
@@ -982,10 +982,10 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$sendFlag += $this->sendTestMailToTable($idLists,'PLAINLIST',$htmlmail);
 				$sendFlag += $this->sendTestMailToTable($idLists,$this->userTable,$htmlmail);
 
-				/** @var $flashMessage FlashMessage */
+				/* @var $flashMessage FlashMessage */
 				$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-					sprintf($GLOBALS['LANG']->getLL('send_was_sent_to_number'), $sendFlag),
-					$GLOBALS['LANG']->getLL('send_sending'),
+					sprintf($this->getLanguageService()->getLL('send_was_sent_to_number'), $sendFlag),
+					$this->getLanguageService()->getLL('send_sending'),
 					FlashMessage::OK
 				);
 			}
@@ -1023,11 +1023,11 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					}
 
 					$updateFields['scheduled'] = 0;
-					$content = $GLOBALS['LANG']->getLL('send_draft_scheduler');
-					$sectionTitle = $GLOBALS['LANG']->getLL('send_draft_saved');
+					$content = $this->getLanguageService()->getLL('send_draft_scheduler');
+					$sectionTitle = $this->getLanguageService()->getLL('send_draft_saved');
 				} else {
-					$content = $GLOBALS['LANG']->getLL('send_was_scheduled_for') . ' '.BackendUtility::datetime($distributionTime);
-					$sectionTitle = $GLOBALS['LANG']->getLL('send_was_scheduled');
+					$content = $this->getLanguageService()->getLL('send_was_scheduled_for') . ' ' . BackendUtility::datetime($distributionTime);
+					$sectionTitle = $this->getLanguageService()->getLL('send_was_scheduled');
 				}
 				$sentFlag = TRUE;
 				$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
@@ -1036,10 +1036,10 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$updateFields
 				);
 
-				/** @var $flashMessage FlashMessage */
+				/* @var $flashMessage FlashMessage */
 				$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-					$sectionTitle.'<br /><br />'.$content,
-					$GLOBALS['LANG']->getLL('dmail_wiz5_sendmass'),
+					$sectionTitle . '<br /><br />' . $content,
+					$this->getLanguageService()->getLL('dmail_wiz5_sendmass'),
 					FlashMessage::OK
 				);
 
@@ -1059,15 +1059,16 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * send mail to recipient based on table.
+	 * Send mail to recipient based on table.
 	 *
-	 * @param	array		$idLists: list of recipient ID
-	 * @param	string		$table: table name
-	 * @param	dmailer		$htmlmail: object of the dmailer script
-	 * @return	integer		total of sent mail
+	 * @param array $idLists List of recipient ID
+	 * @param string $table Table name
+	 * @param Dmailer $htmlmail Object of the dmailer script
+	 *
+	 * @return int Total of sent mail
 	 * @todo: remove htmlmail. sending mails to table
 	 */
-	protected function sendTestMailToTable($idLists, $table, $htmlmail) {
+	protected function sendTestMailToTable(array $idLists, $table, Dmailer $htmlmail) {
 		$sentFlag = 0;
 		if (is_array($idLists[$table])) {
 			if ($table != 'PLAINLIST') {
@@ -1075,7 +1076,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			} else {
 				$recs = $idLists['PLAINLIST'];
 			}
-			foreach ($recs as $k => $rec) {
+			foreach ($recs as $rec) {
 				$recipRow = $htmlmail->convertFields($rec);
 				$recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table, $recipRow['uid']);
 				$kc = substr($table, 0, 1);
@@ -1089,34 +1090,34 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * show the step of sending a test mail
+	 * Show the step of sending a test mail
 	 *
-	 * @return	string		the HTML form
+	 * @return string the HTML form
 	 */
-	function cmd_testmail()	{
+	function cmd_testmail() {
 		$theOutput = "";
 
-		if ($this->params['test_tt_address_uids'])	{
+		if ($this->params['test_tt_address_uids']) {
 			$intList = implode(',', GeneralUtility::intExplode(',',$this->params['test_tt_address_uids']));
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'tt_address.*',
 				'tt_address LEFT JOIN pages ON tt_address.pid=pages.uid',
-				'tt_address.uid IN ('.$intList.')'.
-					' AND '.$this->perms_clause.
-					BackendUtility::deleteClause('pages').
-					BackendUtility::BEenableFields('tt_address').
+				'tt_address.uid IN (' . $intList . ')' .
+					' AND ' . $this->perms_clause .
+					BackendUtility::deleteClause('pages') .
+					BackendUtility::BEenableFields('tt_address') .
 					BackendUtility::deleteClause('tt_address')
 				);
-			$msg = $GLOBALS['LANG']->getLL('testmail_individual_msg') . '<br /><br />';
+			$msg = $this->getLanguageService()->getLL('testmail_individual_msg') . '<br /><br />';
 
 			$ids = array();
-			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+			while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 				$ids[] = $row['uid'];
 			}
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 			$msg .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids,'tt_address'),'tt_address', 1, 1);
 
-			$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('testmail_individual'),$msg, 1, 1, 0, TRUE);
+			$theOutput.= $this->doc->section($this->getLanguageService()->getLL('testmail_individual'),$msg, 1, 1, 0, TRUE);
 			$theOutput.= $this->doc->spacer(20);
 		}
 
@@ -1125,51 +1126,53 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'sys_dmail_group.*',
 				'sys_dmail_group LEFT JOIN pages ON sys_dmail_group.pid=pages.uid',
-				'sys_dmail_group.uid IN ('.$intList.')'.
-					' AND '.$this->perms_clause.
-					BackendUtility::deleteClause('pages').
+				'sys_dmail_group.uid IN (' . $intList . ')' .
+					' AND ' . $this->perms_clause .
+					BackendUtility::deleteClause('pages') .
 					BackendUtility::deleteClause('sys_dmail_group')
 				);
-			$msg = $GLOBALS['LANG']->getLL('testmail_mailgroup_msg') . '<br /><br />';
-			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-				$msg.='<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&sys_dmail_group_uid[]='.$row['uid'].'">'.IconUtility::getSpriteIconForRecord('sys_dmail_group', $row).htmlspecialchars($row['title']).'</a><br />';
+			$msg = $this->getLanguageService()->getLL('testmail_mailgroup_msg') . '<br /><br />';
+			while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+				$msg .='<a href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM2') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&sys_dmail_group_uid[]=' . $row['uid'] . '">' .
+					$this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL) .
+					htmlspecialchars($row['title']) . '</a><br />';
 					// Members:
 				$result = $this->cmd_compileMailGroup(array($row['uid']));
-				$msg.='<table border="0">
+				$msg.='<table border="0" class="table table-striped table-hover">
 				<tr>
-					<td style="width: 50px;"></td>
-					<td>'.$this->cmd_displayMailGroup_test($result).'</td>
+					<td>' . $this->cmd_displayMailGroup_test($result) . '</td>
 				</tr>
 				</table>';
 			}
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
-			$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('testmail_mailgroup'),$msg, 1, 1, 0, TRUE);
+			$theOutput.= $this->doc->section($this->getLanguageService()->getLL('testmail_mailgroup'),$msg, 1, 1, 0, TRUE);
 			$theOutput.= $this->doc->spacer(20);
 		}
 
 		$msg='';
-		$msg.= $GLOBALS['LANG']->getLL('testmail_simple_msg') . '<br /><br />';
-		$msg.= '<input'.$GLOBALS['TBE_TEMPLATE']->formWidth().' type="text" name="SET[dmail_test_email]" value="'.$this->MOD_SETTINGS['dmail_test_email'].'" /><br /><br />';
+		$msg.= $this->getLanguageService()->getLL('testmail_simple_msg') . '<br /><br />';
+		$msg.= '<input' . $GLOBALS['TBE_TEMPLATE']->formWidth() . ' type="text" name="SET[dmail_test_email]" value="' . $this->MOD_SETTINGS['dmail_test_email'] . '" /><br /><br />';
 
-		$msg.= '<input type="hidden" name="id" value="'.$this->id.'" />';
-		$msg.= '<input type="hidden" name="sys_dmail_uid" value="'.$this->sys_dmail_uid.'" />';
+		$msg.= '<input type="hidden" name="id" value="' . $this->id . '" />';
+		$msg.= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '" />';
 		$msg.= '<input type="hidden" name="CMD" value="send_mail_test" />';
-		$msg.= '<input type="submit" name="mailingMode_simple" value="' . $GLOBALS['LANG']->getLL('dmail_send') . '" />';
+		$msg.= '<input type="submit" name="mailingMode_simple" value="' . $this->getLanguageService()->getLL('dmail_send') . '" />';
 
-		$theOutput.= $this->doc->section($GLOBALS['LANG']->getLL('testmail_simple'),$msg, 1, 1, 0, TRUE);
+		$theOutput.= $this->doc->section($this->getLanguageService()->getLL('testmail_simple'),$msg, 1, 1, 0, TRUE);
 
 		$this->noView=1;
 		return $theOutput;
 	}
 
 	/**
-	 * display the test mail group, which configured in the configuration module
+	 * Display the test mail group, which configured in the configuration module
 	 *
-	 * @param	array		$result: lists of the recipient IDs based on directmail DB record
-	 * @return	string		list of the recipient (in HTML)
+	 * @param array $result Lists of the recipient IDs based on directmail DB record
+	 *
+	 * @return string List of the recipient (in HTML)
 	 */
-	function cmd_displayMailGroup_test($result)	{
+	function cmd_displayMailGroup_test($result) {
 		$idLists = $result['queryInfo']['id_lists'];
 		$out='';
 		if (is_array($idLists['tt_address'])) {
@@ -1189,15 +1192,16 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * show the recipient info and a link to edit it
+	 * Show the recipient info and a link to edit it
 	 *
-	 * @param	array		$listArr: list of recipients ID
-	 * @param	string		$table: table name
-	 * @param bool|int $editLinkFlag : if set, edit link is showed
-	 * @param bool|int $testMailLink : if set, send mail link is showed
-	 * @return	string		HTML, the table showing the recipient's info
+	 * @param array $listArr List of recipients ID
+	 * @param string $table Table name
+	 * @param bool|int $editLinkFlag If set, edit link is showed
+	 * @param bool|int $testMailLink If set, send mail link is showed
+	 *
+	 * @return string HTML, the table showing the recipient's info
 	 */
-	function getRecordList($listArr, $table, $editLinkFlag=1, $testMailLink=0) {
+	function getRecordList(array $listArr, $table, $editLinkFlag=1, $testMailLink=0) {
 		$count = 0;
 		$lines = array();
 		$out = '';
@@ -1209,32 +1213,32 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$testLink = "";
 
 				if ($row['uid']) {
-					$tableIcon = '<td>'.IconUtility::getSpriteIconForRecord($table, $row).'</td>';
+					$tableIcon = '<td>' . $this->iconFactory->getIconForRecord($table, $row, Icon::SIZE_SMALL) . '</td>';
 					if ($editLinkFlag) {
-						$requestURI = GeneralUtility::getIndpEnv('REQUEST_URI').'&CMD=send_test&sys_dmail_uid='.$this->sys_dmail_uid.'&pages_uid='.$this->pages_uid;
-						$editLink = '<td><a href="#" onClick="'.BackendUtility::editOnClick('&edit[tt_address]['.$row['uid'].']=edit',$GLOBALS['BACK_PATH'],$requestURI).'">' .
-								'<img'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/edit2.gif', 'width="12" height="12"').' alt="' . $GLOBALS['LANG']->getLL('dmail_edit') . '" width="12" height="12" style="margin:0px 5px; vertical-align:top;" title="' . $GLOBALS['LANG']->getLL('dmail_edit') . '" />' .
-								'</a></td>';
+						$requestUri = GeneralUtility::getIndpEnv('REQUEST_URI') . '&CMD=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid;
+						$editLink = '<td><a href="#" onClick="' . BackendUtility::editOnClick('&edit[tt_address][' . $row['uid'] . ']=edit',$GLOBALS['BACK_PATH'],$requestUri) . '" title="' . $this->getLanguageService()->getLL("dmail_edit") . '">' .
+							$this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
+							'</a></td>';
 					}
 
 					if ($testMailLink) {
-						$testLink = '<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$this->sys_dmail_uid.'&CMD=send_mail_test&tt_address_uid='.$row['uid'].'">'.htmlspecialchars($row['email']).'</a>';
+						$testLink = '<a href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM2') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&tt_address_uid=' . $row['uid'] . '">' . htmlspecialchars($row['email']) . '</a>';
 					} else {
 						$testLink = htmlspecialchars($row['email']);
 					}
 				}
 
-				$lines[]='<tr bgcolor="'.$this->doc->bgColor4.'">
-				'.$tableIcon.'
-				'.$editLink.'
-				<td nowrap> '.$testLink.' </td>
-				<td nowrap> '.htmlspecialchars($row['name']).' </td>
+				$lines[] = '<tr class="db_list_normal">
+				' . $tableIcon . '
+				' . $editLink . '
+				<td nowrap> ' . $testLink . ' </td>
+				<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>
 				</tr>';
 			}
 		}
 		if (count($lines))	{
-			$out= $GLOBALS['LANG']->getLL('dmail_number_records') . '<strong>'.$count.'</strong><br />';
-			$out.='<table border="0" cellspacing="1" cellpadding="0">'.implode(LF,$lines).'</table>';
+			$out= $this->getLanguageService()->getLL('dmail_number_records') . '<strong>' . $count . '</strong><br />';
+			$out.='<table border="0" cellspacing="1" cellpadding="0" class="table table-striped table-hover">' . implode(LF,$lines) . '</table>';
 		}
 		return $out;
 	}
@@ -1242,8 +1246,9 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	/**
 	 * Get the recipient IDs given a list of group IDs
 	 *
-	 * @param	array		$groups: list of selected group IDs
-	 * @return	array		list of the recipient ID
+	 * @param array $groups List of selected group IDs
+	 *
+	 * @return array list of the recipient ID
 	 */
 	protected function cmd_compileMailGroup(array $groups) {
 		// If supplied with an empty array, quit instantly as there is nothing to do
@@ -1252,7 +1257,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		}
 
 		// Looping through the selected array, in order to fetch recipient details
-		$id_lists = array();
+		$idLists = array();
 		foreach ($groups AS $group) {
 			// Testing to see if group ID is a valid integer, if not - skip to next group ID
 			$group = MathUtility::convertToPositiveInteger($group);
@@ -1265,13 +1270,25 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				continue;
 			}
 
-			$id_lists = array_merge_recursive($id_lists, $recipientList);
+			$idLists = array_merge_recursive($idLists, $recipientList);
 		}
+
 		// Make unique entries
-		if (is_array($id_lists['tt_address']))	$id_lists['tt_address'] = array_unique($id_lists['tt_address']);
-		if (is_array($id_lists['fe_users']))	$id_lists['fe_users'] = array_unique($id_lists['fe_users']);
-		if (is_array($id_lists[$this->userTable]) && $this->userTable)	$id_lists[$this->userTable] = array_unique($id_lists[$this->userTable]);
-		if (is_array($id_lists['PLAINLIST']))	{$id_lists['PLAINLIST'] = DirectMailUtility::cleanPlainList($id_lists['PLAINLIST']);}
+		if (is_array($idLists['tt_address'])) {
+			$idLists['tt_address'] = array_unique($idLists['tt_address']);
+		}
+
+		if (is_array($idLists['fe_users'])) {
+			$idLists['fe_users'] = array_unique($idLists['fe_users']);
+		}
+
+		if (is_array($idLists[$this->userTable]) && $this->userTable) {
+			$idLists[$this->userTable] = array_unique($idLists[$this->userTable]);
+		}
+
+		if (is_array($idLists['PLAINLIST'])) {
+			$idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($idLists['PLAINLIST']);
+		}
 
 		/**
 		 * Hook for cmd_compileMailGroup
@@ -1279,137 +1296,148 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		 */
 		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'])) {
 			$hookObjectsArr = array();
-			$temp_lists = "";
+			$temporaryList = "";
 
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] as $classRef) {
 				$hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
 			}
 			foreach($hookObjectsArr as $hookObj)    {
 				if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
-					$temp_lists = $hookObj->cmd_compileMailGroup_postProcess($id_lists, $this, $groups);
+					$temporaryList = $hookObj->cmd_compileMailGroup_postProcess($idLists, $this, $groups);
 				}
 			}
 
-			unset ($id_lists);
-			$id_lists = $temp_lists;
+			unset ($idLists);
+			$idLists = $temporaryList;
 		}
 
 		return array(
-			'queryInfo' => array('id_lists' => $id_lists)
+			'queryInfo' => array('id_lists' => $idLists)
 		);
 	}
 
 	/**
 	 * Fetches recipient IDs from a given group ID
-	 *
 	 * Most of the functionality from cmd_compileMailGroup in order to use multiple recipient lists when sending
 	 *
-	 * @param integer		$group_uid: recipient group ID
-	 * @return array		list of recipient IDs
+	 * @param int $groupUid Recipient group ID
+	 *
+	 * @return array List of recipient IDs
 	 */
-	protected function getSingleMailGroup($group_uid) {
-		$id_lists = array();
-		if ($group_uid) {
-			$mailGroup = BackendUtility::getRecord('sys_dmail_group',$group_uid);
+	protected function getSingleMailGroup($groupUid) {
+		$idLists = array();
+		if ($groupUid) {
+			$mailGroup = BackendUtility::getRecord('sys_dmail_group',$groupUid);
 
 			if (is_array($mailGroup)) {
 				switch($mailGroup['type']) {
-				case 0:
-					// From pages
-					$thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;		// use current page if no else
-					$pages = GeneralUtility::intExplode(',',$thePages);	// Explode the pages
-					$pageIdArray = array();
+					case 0:
+						// From pages
+						// use current page if no else
+						$thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;
+						// Explode the pages
+						$pages = GeneralUtility::intExplode(',', $thePages);
+						$pageIdArray = array();
 
-					foreach ($pages AS $pageUid) {
-						if ($pageUid > 0) {
-							$pageinfo = BackendUtility::readPageAccess($pageUid,$this->perms_clause);
-							if (is_array($pageinfo)) {
-								$info['fromPages'][] = $pageinfo;
-								$pageIdArray[] = $pageUid;
-								if ($mailGroup['recursive']) {
-									$pageIdArray = array_merge($pageIdArray,DirectMailUtility::getRecursiveSelect($pageUid,$this->perms_clause));
+						foreach ($pages AS $pageUid) {
+							if ($pageUid > 0) {
+								$pageinfo = BackendUtility::readPageAccess($pageUid,$this->perms_clause);
+								if (is_array($pageinfo)) {
+									$info['fromPages'][] = $pageinfo;
+									$pageIdArray[] = $pageUid;
+									if ($mailGroup['recursive']) {
+										$pageIdArray = array_merge($pageIdArray,DirectMailUtility::getRecursiveSelect($pageUid,$this->perms_clause));
+									}
 								}
 							}
 						}
-					}
-						// Remove any duplicates
-					$pageIdArray = array_unique($pageIdArray);
-					$pidList = implode(',',$pageIdArray);
-					$info['recursive'] = $mailGroup['recursive'];
+							// Remove any duplicates
+						$pageIdArray = array_unique($pageIdArray);
+						$pidList = implode(',',$pageIdArray);
+						$info['recursive'] = $mailGroup['recursive'];
 
-						// Make queries
-					if ($pidList)	{
+							// Make queries
+						if ($pidList) {
+							$whichTables = intval($mailGroup['whichtables']);
+							if ($whichTables&1) {
+								// tt_address
+								$idLists['tt_address'] = DirectMailUtility::getIdList('tt_address',$pidList,$groupUid,$mailGroup['select_categories']);
+							}
+							if ($whichTables&2) {
+								// fe_users
+								$idLists['fe_users'] = DirectMailUtility::getIdList('fe_users',$pidList,$groupUid,$mailGroup['select_categories']);
+							}
+							if ($this->userTable && ($whichTables&4)) {
+								// user table
+								$idLists[$this->userTable] = DirectMailUtility::getIdList($this->userTable,$pidList,$groupUid,$mailGroup['select_categories']);
+							}
+							if ($whichTables&8) {
+								// fe_groups
+								if (!is_array($idLists['fe_users'])) $idLists['fe_users'] = array();
+								$idLists['fe_users'] = array_unique(array_merge($idLists['fe_users'], DirectMailUtility::getIdList('fe_groups',$pidList,$groupUid,$mailGroup['select_categories'])));
+							}
+						}
+						break;
+					case 1:
+						// List of mails
+						if ($mailGroup['csv']==1)	{
+							$recipients = DirectMailUtility::rearrangeCsvValues(DirectMailUtility::getCsvValues($mailGroup['list']), $this->fieldList);
+						} else {
+							$recipients = DirectMailUtility::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|',$mailGroup['list'])));
+						}
+						$idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($recipients);
+						break;
+					case 2:
+						// Static MM list
+						$idLists['tt_address'] = DirectMailUtility::getStaticIdList('tt_address',$groupUid);
+						$idLists['fe_users'] = DirectMailUtility::getStaticIdList('fe_users',$groupUid);
+						$idLists['fe_users'] = array_unique(array_merge($idLists['fe_users'],DirectMailUtility::getStaticIdList('fe_groups',$groupUid)));
+						if ($this->userTable)	{
+							$idLists[$this->userTable] = DirectMailUtility::getStaticIdList($this->userTable,$groupUid);
+						}
+						break;
+					case 3:
+						// Special query list
+						$mailGroup = $this->update_SpecialQuery($mailGroup);
 						$whichTables = intval($mailGroup['whichtables']);
-						if ($whichTables&1)	{	// tt_address
-							$id_lists['tt_address'] = DirectMailUtility::getIdList('tt_address',$pidList,$group_uid,$mailGroup['select_categories']);
+						$table = '';
+						if ($whichTables&1) {
+							$table = 'tt_address';
+						} elseif ($whichTables&2) {
+							$table = 'fe_users';
+						} elseif ($this->userTable && ($whichTables&4)) {
+							$table = $this->userTable;
 						}
-						if ($whichTables&2)	{	// fe_users
-							$id_lists['fe_users'] = DirectMailUtility::getIdList('fe_users',$pidList,$group_uid,$mailGroup['select_categories']);
+						if ($table) {
+							// initialize the query generator
+							$queryGenerator = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\MailSelect');
+							$idLists[$table] = DirectMailUtility::getSpecialQueryIdList($queryGenerator,$table,$mailGroup);
 						}
-						if ($this->userTable && ($whichTables&4))	{	// user table
-							$id_lists[$this->userTable] = DirectMailUtility::getIdList($this->userTable,$pidList,$group_uid,$mailGroup['select_categories']);
+						break;
+					case 4:
+						$groups = array_unique(DirectMailUtility::getMailGroups($mailGroup['mail_groups'],array($mailGroup['uid']),$this->perms_clause));
+						foreach($groups AS $v) {
+							$collect = $this->getSingleMailGroup($v);
+							if (is_array($collect)) {
+								$idLists = array_merge_recursive($idLists,$collect);
+							}
 						}
-						if ($whichTables&8)	{	// fe_groups
-							if (!is_array($id_lists['fe_users'])) $id_lists['fe_users'] = array();
-							$id_lists['fe_users'] = array_unique(array_merge($id_lists['fe_users'], DirectMailUtility::getIdList('fe_groups',$pidList,$group_uid,$mailGroup['select_categories'])));
-						}
-					}
-					break;
-				case 1: // List of mails
-					if ($mailGroup['csv']==1)	{
-						$recipients = DirectMailUtility::rearrangeCsvValues(DirectMailUtility::getCsvValues($mailGroup['list']), $this->fieldList);
-					} else {
-						$recipients = DirectMailUtility::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|',$mailGroup['list'])));
-					}
-					$id_lists['PLAINLIST'] = DirectMailUtility::cleanPlainList($recipients);
-					break;
-				case 2:	// Static MM list
-					$id_lists['tt_address'] = DirectMailUtility::getStaticIdList('tt_address',$group_uid);
-					$id_lists['fe_users'] = DirectMailUtility::getStaticIdList('fe_users',$group_uid);
-					$id_lists['fe_users'] = array_unique(array_merge($id_lists['fe_users'],DirectMailUtility::getStaticIdList('fe_groups',$group_uid)));
-					if ($this->userTable)	{
-						$id_lists[$this->userTable] = DirectMailUtility::getStaticIdList($this->userTable,$group_uid);
-					}
-					break;
-				case 3:	// Special query list
-					$mailGroup = $this->update_SpecialQuery($mailGroup);
-					$whichTables = intval($mailGroup['whichtables']);
-					$table = '';
-					if ($whichTables&1) {
-						$table = 'tt_address';
-					} elseif ($whichTables&2) {
-						$table = 'fe_users';
-					} elseif ($this->userTable && ($whichTables&4)) {
-						$table = $this->userTable;
-					}
-					if ($table) {
-						// initialize the query generator
-						$queryGenerator = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\MailSelect');
-						$id_lists[$table] = DirectMailUtility::getSpecialQueryIdList($queryGenerator,$table,$mailGroup);
-					}
-					break;
-				case 4:	//
-					$groups = array_unique(DirectMailUtility::getMailGroups($mailGroup['mail_groups'],array($mailGroup['uid']),$this->perms_clause));
-					foreach($groups AS $v) {
-						$collect = $this->getSingleMailGroup($v);
-						if (is_array($collect)) {
-							$id_lists = array_merge_recursive($id_lists,$collect);
-						}
-					}
-					break;
+						break;
+					default:
 				}
 			}
 		}
-		return $id_lists;
+		return $idLists;
 	}
 
 	/**
-	 * update the mailgroup DB record
+	 * Update the mailgroup DB record
 	 *
-	 * @param	array		$mailGroup: mailgroup DB record
-	 * @return	array		mailgroup DB record after updated
+	 * @param array $mailGroup Mailgroup DB record
+	 *
+	 * @return array Mailgroup DB record after updated
 	 */
-	function update_specialQuery($mailGroup) {
+	function update_specialQuery(array $mailGroup) {
 		$set = GeneralUtility::_GP('SET');
 		$queryTable = $set['queryTable'];
 		$queryConfig = GeneralUtility::_GP('dmail_queryConfig');
@@ -1446,12 +1474,12 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				'whichtables' => intval($whichTables),
 				'query' => $this->MOD_SETTINGS['queryConfig']
 			);
-			$res_update = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+			$updateResult = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
 				"sys_dmail_group",
-				"uid = ".intval($mailGroup['uid']),
+				"uid = " . intval($mailGroup['uid']),
 				$updateFields
 			);
-			$GLOBALS['TYPO3_DB']->sql_free_result($res_update);
+			$GLOBALS['TYPO3_DB']->sql_free_result($updateResult);
 
 			$mailGroup = BackendUtility::getRecord('sys_dmail_group',$mailGroup['uid']);
 		}
@@ -1459,14 +1487,16 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * show the categories table for user to categorize the directmail content (TYPO3 content)
+	 * Show the categories table for user to categorize the directmail content
+	 * TYPO3 content)
 	 *
-	 * @param	array		$row: the dmail row.
-	 * @return	string		HTML form showing the categories
+	 * @param array $row The dmail row.
+	 *
+	 * @return string HTML form showing the categories
 	 */
-	function makeCategoriesForm($row){
+	function makeCategoriesForm(array $row) {
 		$indata = GeneralUtility::_GP('indata');
-		if (is_array($indata['categories']))	{
+		if (is_array($indata['categories'])) {
 			$data = array();
 			foreach ($indata['categories'] as $recUid => $recValues) {
 				$enabled = array();
@@ -1478,131 +1508,132 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$data['tt_content'][$recUid]['module_sys_dmail_category'] = implode(',', $enabled);
 			}
 
-			/** @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
+			/* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
 			$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
 			$tce->stripslashes_values = 0;
 			$tce->start($data, array());
 			$tce->process_datamap();
 
-			//remove cache
+			// remove cache
 			$tce->clear_cacheCmd($this->pages_uid);
 			$out = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
 		}
-				//Todo Perhaps we should here check if TV is installed and fetch content from that instead of the old Columns...
+
+		// Todo Perhaps we should here check if TV is installed and fetch content from that instead of the old Columns...
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'colPos, CType, uid, pid, header, bodytext, module_sys_dmail_category',
 			'tt_content',
-			'pid='.intval($this->pages_uid).
-				BackendUtility::deleteClause('tt_content').
+			'pid=' . intval($this->pages_uid) .
+				BackendUtility::deleteClause('tt_content') .
 				BackendUtility::BEenableFields('tt_content'),
 			'',
 			'colPos,sorting'
 		);
 
 		if (!$GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
-			$theOutput = $this->doc->section($GLOBALS['LANG']->getLL('nl_cat'),$GLOBALS['LANG']->getLL('nl_cat_msg1'),1,1,0,TRUE);
+			$theOutput = $this->doc->section($this->getLanguageService()->getLL('nl_cat'),$this->getLanguageService()->getLL('nl_cat_msg1'),1,1,0,TRUE);
 		} else {
 			$out = '';
 			$colPosVal = 99;
-			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-				$row_categories = '';
+			while(($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+				$categoriesRow = '';
 				$resCat = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'uid_foreign',
 					'sys_dmail_ttcontent_category_mm',
-					'uid_local='.$row['uid']
+					'uid_local=' . $row['uid']
 					);
-				while($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat)) {
-					$row_categories .= $rowCat['uid_foreign'].',';
+				while(($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat))) {
+					$categoriesRow .= $rowCat['uid_foreign'] . ',';
 				}
 				$GLOBALS['TYPO3_DB']->sql_free_result($resCat);
 
-				$row_categories = rtrim($row_categories,',');
+				$categoriesRow = rtrim($categoriesRow,',');
 
-				$out .= '<tr><td colspan="3" style="height: 15px;"></td></tr>';
 				if ($colPosVal != $row['colPos'])	{
-					$out .= '<tr><td colspan="3" bgcolor="'.$this->doc->bgColor5.'">'.$GLOBALS['LANG']->getLL('nl_l_column').': <strong>'.BackendUtility::getProcessedValue('tt_content','colPos',$row['colPos']).'</strong></td></tr>';
+					$out .= '<tr><td colspan="3" bgcolor="' . $this->doc->bgColor5 . '">' . $this->getLanguageService()->getLL('nl_l_column') . ': <strong>' . BackendUtility::getProcessedValue('tt_content','colPos',$row['colPos']) . '</strong></td></tr>';
 					$colPosVal = $row["colPos"];
 				}
 				$out .= '<tr>';
-				$out .= '<td valign="top" width="75%">'.IconUtility::getSpriteIconForRecord('tt_content', $row, array('title' => BackendUtility::getProcessedValue('tt_content','CType',$row['CType']))).
-					$row['header'].'<br />'.GeneralUtility::fixed_lgd_cs(strip_tags($row['bodytext']),200).'<br /></td>';
+				$out .= '<td valign="top" width="75%">' . $this->iconFactory->getIconForRecord('tt_content', $row, Icon::SIZE_SMALL) .
+					$row['header'] . '<br />' . GeneralUtility::fixed_lgd_cs(strip_tags($row['bodytext']),200) . '<br /></td>';
 
-				$out .= '<td>  </td><td nowrap valign="top">';
-				$out_check = '';
+				$out .= '<td nowrap valign="top">';
+				$checkBox = '';
 				if ($row['module_sys_dmail_category']) {
-					$out_check .= '<font color="red"><strong>'.$GLOBALS['LANG']->getLL('nl_l_ONLY').'</strong></font>';
+					$checkBox .= '<strong style="color:red;">' . $this->getLanguageService()->getLL('nl_l_ONLY') . '</strong>';
 				} else {
-					$out_check .= '<font color="green"><strong>'.$GLOBALS['LANG']->getLL('nl_l_ALL').'</strong></font>';
+					$checkBox .= '<strong style="color:green">' . $this->getLanguageService()->getLL('nl_l_ALL') . '</strong>';
 				}
-				$out_check .= '<br />';
+				$checkBox .= '<br />';
 
 				$this->categories = DirectMailUtility::makeCategories('tt_content', $row, $this->sys_language_uid);
 				reset($this->categories);
 				foreach ($this->categories as $pKey => $pVal) {
-					$out_check .= '<input type="hidden" name="indata[categories]['.$row["uid"].']['.$pKey.']" value="0"><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(GeneralUtility::inList($row_categories,$pKey) ?' checked':'').'> '.htmlspecialchars($pVal).'<br />';
+					$checkBox .= '<input type="hidden" name="indata[categories][' . $row["uid"] . '][' . $pKey . ']" value="0">' .
+					'<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categoriesRow,$pKey) ?' checked':'') . '> ' .
+						htmlspecialchars($pVal) . '<br />';
 				}
-				$out .= $out_check.'</td></tr>';
+				$out .= $checkBox . '</td></tr>';
 			}
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
-			$out = '<table border="0" cellpadding="0" cellspacing="0">'.$out.'</table>';
-			$out .= '<input type="hidden" name="pages_uid" value="'.$this->pages_uid.'"><input type="hidden" name="CMD" value="'.$this->CMD.'"><br /><input type="submit" name="update_cats" value="'.$GLOBALS['LANG']->getLL('nl_l_update').'">';
-			$theOutput = $this->doc->section($GLOBALS['LANG']->getLL('nl_cat').BackendUtility::cshItem($this->cshTable,'assign_categories',$GLOBALS['BACK_PATH']), $out, 1, 1, 0, TRUE);
+			$out = '<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">' . $out . '</table>';
+			$out .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">' .
+				'<input type="hidden" name="CMD" value="' . $this->CMD . '"><br />' .
+				'<input type="submit" name="update_cats" value="' . $this->getLanguageService()->getLL('nl_l_update') . '">';
+
+			$theOutput = $this->doc->section($this->getLanguageService()->getLL('nl_cat') . BackendUtility::cshItem($this->cshTable,'assign_categories',$GLOBALS['BACK_PATH']), $out, 1, 1, 0, TRUE);
 		}
 		return $theOutput;
 	}
 
 	/**
-	 * makes box for internal page. (first step)
+	 * Makes box for internal page. (first step)
 	 *
-	 * @param	string		$boxID: ID name for the HTML element
-	 * @param	integer		$totalBox: total of all boxes
-	 * @param	bool		$open: state of the box
-	 * @return	string		HTML with list of internal pages
+	 * @param string $boxId ID name for the HTML element
+	 * @param int $totalBox Total of all boxes
+	 * @param bool $open State of the box
+	 *
+	 * @return string HTML with list of internal pages
 	 */
-	function makeFormInternal($boxID, $totalBox, $open=FALSE){
-		$imgSrc = IconUtility::skinImg(
-			$GLOBALS['BACK_PATH'],
-			'gfx/button_'. ($open?'down':'right') .'.gif'
-		);
+	function makeFormInternal($boxId, $totalBox, $open = FALSE) {
+		$imgSrc = $this->getNewsletterTabIcon($open);
 
 		$output = '<div class="box"><div class="toggleTitle">';
-		$output .= '<a href="#" onclick="toggleDisplay(\''.$boxID.'\', event, '.$totalBox.')"><img id="'.$boxID.'_toggle" '.$imgSrc.' alt="" >'.$GLOBALS['LANG']->getLL('dmail_wiz1_internal_page').'</a>';
-		$output .= '</div><div id="'.$boxID.'" class="toggleBox" style="display:'. ($open?'block':'none') .'">';
+		$output .= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_internal_page') . '</a>';
+		$output .= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
 		$output .= $this->cmd_news();
 		$output .= '</div></div></div>';
 		return $output;
 	}
 
 	/**
-	 * make input form for external URL (first step)
+	 * Make input form for external URL (first step)
 	 *
-	 * @param	string		$boxID: ID name for the HTML element
-	 * @param	integer		$totalBox:total of the boxes
-	 * @param	bool		$open: state of the box
-	 * @return	string		HTML input form for inputing the external page information
+	 * @param string $boxId ID name for the HTML element
+	 * @param int $totalBox Total of the boxes
+	 * @param bool $open State of the box
+	 *
+	 * @return string HTML input form for inputing the external page information
 	 */
-	function makeFormExternal($boxID, $totalBox, $open=FALSE){
-		$imgSrc = IconUtility::skinImg(
-			$GLOBALS['BACK_PATH'],
-			'gfx/button_'. ($open?'down':'right') .'.gif'
-		);
+	function makeFormExternal($boxId, $totalBox, $open=FALSE){
+		$imgSrc = $this->getNewsletterTabIcon($open);
 
 		$output = '<div class="box"><div class="toggleTitle">';
-		$output .= '<a href="#" onclick="toggleDisplay(\''.$boxID.'\', event, '.$totalBox.')"><img id="'.$boxID.'_toggle" '.$imgSrc.' alt="" >'.$GLOBALS['LANG']->getLL('dmail_wiz1_external_page').'</a>';
-		$output .= '</div><div id="'.$boxID.'" class="toggleBox" style="display:'. ($open?'block':'none') .'">';
+		$output .= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_external_page') . '</a>';
+		$output .= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
 
 			// Create
-		$out = $GLOBALS['LANG']->getLL('dmail_HTML_url') . '<br />
-				<input type="text" value="http://" name="createMailFrom_HTMLUrl"'.$GLOBALS['TBE_TEMPLATE']->formWidth(40).' /><br />' .
-				$GLOBALS['LANG']->getLL('dmail_plaintext_url') . '<br />
-				<input type="text" value="http://" name="createMailFrom_plainUrl"'.$GLOBALS['TBE_TEMPLATE']->formWidth(40).' /><br />' .
-				$GLOBALS['LANG']->getLL('dmail_subject') . '<br />' .
-				'<input type="text" value="' . $GLOBALS['LANG']->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';"'.$GLOBALS['TBE_TEMPLATE']->formWidth(40).' /><br />' .
-				(($this->error == 'no_valid_url')?('<br /><b>'.$GLOBALS['LANG']->getLL('dmail_no_valid_url').'</b><br /><br />'):'') .
-				'<input type="submit" value="'.$GLOBALS['LANG']->getLL("dmail_createMail").'" />
+		$out = $this->getLanguageService()->getLL('dmail_HTML_url') . '<br />
+				<input type="text" value="http://" name="createMailFrom_HTMLUrl"' . $GLOBALS['TBE_TEMPLATE']->formWidth(40) . ' /><br />' .
+				$this->getLanguageService()->getLL('dmail_plaintext_url') . '<br />
+				<input type="text" value="http://" name="createMailFrom_plainUrl"' . $GLOBALS['TBE_TEMPLATE']->formWidth(40) . ' /><br />' .
+				$this->getLanguageService()->getLL('dmail_subject') . '<br />' .
+				'<input type="text" value="' . $this->getLanguageService()->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';"' . $GLOBALS['TBE_TEMPLATE']->formWidth(40) . ' /><br />' .
+				(($this->error == 'no_valid_url')?('<br /><b>' . $this->getLanguageService()->getLL('dmail_no_valid_url') . '</b><br /><br />'):'') .
+				'<input type="submit" value="' . $this->getLanguageService()->getLL("dmail_createMail") . '" />
 				<input type="hidden" name="fetchAtOnce" value="1">';
-		$output.= '<h3>'.$GLOBALS['LANG']->getLL('dmail_dovsk_crFromUrl').BackendUtility::cshItem($this->cshTable,'create_directmail_from_url',$GLOBALS['BACK_PATH']).'</h3>';
+		$output.= '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromUrl') . BackendUtility::cshItem($this->cshTable,'create_directmail_from_url',$GLOBALS['BACK_PATH']) . '</h3>';
 		$output.= $out;
 
 		$output.= '</div></div>';
@@ -1610,42 +1641,41 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * makes input form for the quickmail (first step)
+	 * Makes input form for the quickmail (first step)
 	 *
-	 * @param	string		$boxID: ID name for the HTML element
-	 * @param	integer		$totalBox: total of the boxes
-	 * @param	bool		$open: state of the box
-	 * @return	string		HTML input form for the quickmail
+	 * @param string $boxId ID name for the HTML element
+	 * @param int $totalBox Total of the boxes
+	 * @param bool $open State of the box
+	 *
+	 * @return string HTML input form for the quickmail
 	 */
-	function makeFormQuickMail($boxID, $totalBox, $open=FALSE){
-		$imgSrc = IconUtility::skinImg(
-			$GLOBALS['BACK_PATH'],
-			'gfx/button_'. ($open?'down':'right') .'.gif'
-		);
+	function makeFormQuickMail($boxId, $totalBox, $open=FALSE){
+		$imgSrc = $this->getNewsletterTabIcon($open);
 
 		$output = '<div class="box"><div class="toggleTitle">';
-		$output.= '<a href="#" onclick="toggleDisplay(\''.$boxID.'\', event, '.$totalBox.')"><img id="'.$boxID.'_toggle" '.$imgSrc.' alt="" >'.$GLOBALS['LANG']->getLL('dmail_wiz1_quickmail').'</a>';
-		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:'. ($open?'block':'none') .'">';
-		$output.= '<h3>'.$GLOBALS['LANG']->getLL('dmail_wiz1_quickmail_header').'</h3>';
+		$output.= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_quickmail') . '</a>';
+		$output.= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
+		$output.= '<h3>' . $this->getLanguageService()->getLL('dmail_wiz1_quickmail_header') . '</h3>';
 		$output.= $this->cmd_quickmail();
 		$output.= '</div></div>';
 		return $output;
 	}
 
 	/**
-	 * list all direct mail, which have not been sent (first step)
+	 * List all direct mail, which have not been sent (first step)
 	 *
-	 * @param	string		$boxID: ID name for the HTML element
-	 * @param	integer		$totalBox: total of the boxes
-	 * @param	bool		$open: state of the box
-	 * @return	string		HTML lists of all existing dmail records
+	 * @param string $boxId ID name for the HTML element
+	 * @param int $totalBox Total of the boxes
+	 * @param bool $open State of the box
+	 *
+	 * @return string HTML lists of all existing dmail records
 	 */
-	function makeListDMail($boxID, $totalBox, $open=FALSE){
+	function makeListDMail($boxId, $totalBox, $open=FALSE){
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'uid,pid,subject,tstamp,issent,renderedsize,attachment,type',
 			'sys_dmail',
-			'pid = '.intval($this->id).
-				' AND scheduled=0 AND issent=0'.BackendUtility::deleteClause('sys_dmail'),
+			'pid = ' . intval($this->id) .
+				' AND scheduled=0 AND issent=0' . BackendUtility::deleteClause('sys_dmail'),
 			'',
 			$GLOBALS['TYPO3_DB']->stripOrderBy($GLOBALS['TCA']['sys_dmail']['ctrl']['default_sortby'])
 		);
@@ -1653,67 +1683,64 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$tblLines = array();
 		$tblLines[] = array(
 			'',
-			$GLOBALS['LANG']->getLL('nl_l_subject'),
-			$GLOBALS['LANG']->getLL('nl_l_lastM'),
-			$GLOBALS['LANG']->getLL('nl_l_sent'),
-			$GLOBALS['LANG']->getLL('nl_l_size'),
-			$GLOBALS['LANG']->getLL('nl_l_attach'),
-			$GLOBALS['LANG']->getLL('nl_l_type'),
+			$this->getLanguageService()->getLL('nl_l_subject'),
+			$this->getLanguageService()->getLL('nl_l_lastM'),
+			$this->getLanguageService()->getLL('nl_l_sent'),
+			$this->getLanguageService()->getLL('nl_l_size'),
+			$this->getLanguageService()->getLL('nl_l_attach'),
+			$this->getLanguageService()->getLL('nl_l_type'),
 			''
 		);
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
+		while(($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 			$tblLines[] = array(
-				IconUtility::getSpriteIconForRecord('sys_dmail',$row),
+				$this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
 				$this->linkDMail_record($row['subject'],$row['uid']),
 				BackendUtility::date($row['tstamp']),
-				($row['issent'] ? $GLOBALS['LANG']->getLL('dmail_yes') : $GLOBALS['LANG']->getLL('dmail_no')),
+				($row['issent'] ? $this->getLanguageService()->getLL('dmail_yes') : $this->getLanguageService()->getLL('dmail_no')),
 				($row['renderedsize'] ? GeneralUtility::formatSize($row['renderedsize']) : ''),
-				($row['attachment'] ? '<img '.IconUtility::skinImg($GLOBALS['BACK_PATH'], ExtensionManagementUtility::extRelPath($this->extKey).'res/gfx/attach.gif', 'width="9" height="13"').' alt="'.htmlspecialchars($GLOBALS['LANG']->getLL('nl_l_attach')).'" title="'.htmlspecialchars($row['attachment']).'" width="9" height="13">' : ''),
-				($row['type'] & 0x1 ? $GLOBALS['LANG']->getLL('nl_l_tUrl') : $GLOBALS['LANG']->getLL('nl_l_tPage')).($row['type']  & 0x2 ? ' ('.$GLOBALS['LANG']->getLL('nl_l_tDraft').')' : ''),
+				($row['attachment'] ? $this->iconFactory->getIcon('directmail-attachment', Icon::SIZE_SMALL) : ''),
+				($row['type'] & 0x1 ? $this->getLanguageService()->getLL('nl_l_tUrl') : $this->getLanguageService()->getLL('nl_l_tPage')) . ($row['type']  & 0x2 ? ' (' . $this->getLanguageService()->getLL('nl_l_tDraft') . ')' : ''),
 				$this->deleteLink($row['uid'])
 			);
 		}
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
-		$imgSrc = IconUtility::skinImg(
-			$GLOBALS['BACK_PATH'],
-			'gfx/button_'. ($open?'down':'right') .'.gif'
-		);
+		$imgSrc = $this->getNewsletterTabIcon($open);
 
 		$output = '<div id="header" class="box"><div class="toggleTitle">';
-		$output.= '<a href="#" onclick="toggleDisplay(\''.$boxID.'\', event, '.$totalBox.')"><img id="'.$boxID.'_toggle" '.$imgSrc.' alt="" >'.$GLOBALS['LANG']->getLL('dmail_wiz1_list_dmail').'</a>';
-		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:'. ($open?'block':'none') .'">';
-		$output.= '<h3>'.$GLOBALS['LANG']->getLL('dmail_wiz1_list_header').'</h3>';
+		$output.= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_list_dmail') . '</a>';
+		$output.= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
+		$output.= '<h3>' . $this->getLanguageService()->getLL('dmail_wiz1_list_header') . '</h3>';
 		$output.= DirectMailUtility::formatTable($tblLines, array(), 1, array(1,1,1,0,0,1,0,1));
 		$output.= '</div></div>';
 		return $output;
 	}
 
 	/**
-	 * show the quickmail input form (first step)
+	 * Show the quickmail input form (first step)
 	 *
-	 * @return	string		HTML input form
+	 * @return	string HTML input form
 	 */
-	function cmd_quickmail()	{
+	function cmd_quickmail() {
 		$theOutput='';
 		$indata = GeneralUtility::_GP('quickmail');
 
 		$senderName = ($indata['senderName']?$indata['senderName']:$GLOBALS['BE_USER']->user['realName']);
 		$senderMail = ($indata['senderEmail']?$indata['senderEmail']:$GLOBALS['BE_USER']->user['email']);
 			// Set up form:
-		$theOutput.= '<input type="hidden" name="id" value="'.$this->id.'" />';
-		$theOutput.= $GLOBALS['LANG']->getLL('quickmail_sender_name') . '<br /><input type="text" name="quickmail[senderName]" value="'.htmlspecialchars($senderName).'"'.$this->doc->formWidth().' /><br />';
-		$theOutput.= $GLOBALS['LANG']->getLL('quickmail_sender_email') . '<br /><input type="text" name="quickmail[senderEmail]" value="'.htmlspecialchars($senderMail).'"'.$this->doc->formWidth().' /><br />';
-		$theOutput.= $GLOBALS['LANG']->getLL('dmail_subject') . '<br /><input type="text" name="quickmail[subject]" value="'.htmlspecialchars($indata['subject']).'"'.$this->doc->formWidth().' /><br />';
-		$theOutput.= $GLOBALS['LANG']->getLL('quickmail_message') . '<br /><textarea rows="20" name="quickmail[message]"'.$this->doc->formWidthText().'>'.GeneralUtility::formatForTextarea($indata['message']).'</textarea><br />';
-		$theOutput.= $GLOBALS['LANG']->getLL('quickmail_break_lines') . ' <input type="checkbox" name="quickmail[breakLines]" value="1"'.($indata['breakLines']?' checked="checked"':'').' /><br /><br />';
-		$theOutput.= '<input type="Submit" name="quickmail[send]" value="' . $GLOBALS['LANG']->getLL('dmail_wiz_next') . '" />';
+		$theOutput.= '<input type="hidden" name="id" value="' . $this->id . '" />';
+		$theOutput.= $this->getLanguageService()->getLL('quickmail_sender_name') . '<br /><input type="text" name="quickmail[senderName]" value="' . htmlspecialchars($senderName) . '"' . $this->doc->formWidth() . ' /><br />';
+		$theOutput.= $this->getLanguageService()->getLL('quickmail_sender_email') . '<br /><input type="text" name="quickmail[senderEmail]" value="' . htmlspecialchars($senderMail) . '"' . $this->doc->formWidth() . ' /><br />';
+		$theOutput.= $this->getLanguageService()->getLL('dmail_subject') . '<br /><input type="text" name="quickmail[subject]" value="' . htmlspecialchars($indata['subject']) . '"' . $this->doc->formWidth() . ' /><br />';
+		$theOutput.= $this->getLanguageService()->getLL('quickmail_message') . '<br /><textarea rows="20" name="quickmail[message]"' . $this->doc->formWidth() . '>' . LF . htmlspecialchars($indata['message']) . '</textarea><br />';
+		$theOutput.= $this->getLanguageService()->getLL('quickmail_break_lines') . ' <input type="checkbox" name="quickmail[breakLines]" value="1"' . ($indata['breakLines']?' checked="checked"':'') . ' /><br /><br />';
+		$theOutput.= '<input type="Submit" name="quickmail[send]" value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '" />';
 
 		return $theOutput;
 	}
 
 	/**
-	 * show the list of existing directmail records, which haven't been sent
+	 * Show the list of existing directmail records, which haven't been sent
 	 *
 	 * @return	string		HTML
 	 */
@@ -1722,49 +1749,52 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'uid,doktype,title,abstract',
 			'pages',
-			'pid='.intval($this->id).
-				' AND doktype IN ('.$GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'].')'.
-				' AND '.$this->perms_clause.
-				BackendUtility::BEenableFields('pages').
+			'pid=' . intval($this->id) .
+				' AND doktype IN (' . $GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'] . ')' .
+				' AND ' . $this->perms_clause .
+				BackendUtility::BEenableFields('pages') .
 				BackendUtility::deleteClause('pages'),
 			'',
 			'sorting'
 			);
 		if (!$GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
-			$theOutput = $this->doc->section($GLOBALS['LANG']->getLL('nl_select'),$GLOBALS['LANG']->getLL('nl_select_msg1'),0,1);
+			$theOutput = $this->doc->section($this->getLanguageService()->getLL('nl_select'),$this->getLanguageService()->getLL('nl_select_msg1'),0,1);
 		} else {
 			$outLines = array();
-			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+			while(($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 
-				$iconPreviewHTML = '<a href="#" onClick="'.BackendUtility::viewOnClick($row['uid'],$GLOBALS['BACK_PATH'],BackendUtility::BEgetRootLine($row['uid']),'','',$this->implodedParams['HTMLParams']).'"><img src="../res/gfx/preview_html.gif" width="16" height="16" alt="" style="vertical-align:top;" title="'.$GLOBALS['LANG']->getLL('nl_viewPage_HTML').'"/></a>';
-				$iconPreviewText = '<a href="#" onClick="'.BackendUtility::viewOnClick($row['uid'],$GLOBALS['BACK_PATH'],BackendUtility::BEgetRootLine($row['uid']),'','',$this->implodedParams['plainParams']).'"><img src="../res/gfx/preview_txt.gif" width="16" height="16" alt="" style="vertical-align:top;" title="'.$GLOBALS['LANG']->getLL('nl_viewPage_TXT').'"/></a>';
+				$iconPreviewHtml = '<a href="#" onClick="' . BackendUtility::viewOnClick($row['uid'],$GLOBALS['BACK_PATH'],BackendUtility::BEgetRootLine($row['uid']),'','',$this->implodedParams['HTMLParams']) . '" title="' . $this->getLanguageService()->getLL('nl_viewPage_HTML') . '">' .
+					$this->iconFactory->getIcon('directmail-dmail-preview-html', Icon::SIZE_SMALL) .
+					'</a>';
+				$iconPreviewText = '<a href="#" onClick="' . BackendUtility::viewOnClick($row['uid'],$GLOBALS['BACK_PATH'],BackendUtility::BEgetRootLine($row['uid']),'','',$this->implodedParams['plainParams']) . '" title="' . $this->getLanguageService()->getLL('nl_viewPage_TXT') . '">' .
+					$this->iconFactory->getIcon('directmail-dmail-preview-text', Icon::SIZE_SMALL) .
+					'</a>';
 
-				//switch
 				switch ($this->params['sendOptions']) {
 					case 1:
 						$iconPreview = $iconPreviewText;
 						break;
 					case 2:
-						$iconPreview = $iconPreviewHTML;
+						$iconPreview = $iconPreviewHtml;
 						break;
 					case 3:
+						// also as default
 					default:
-						$iconPreview = $iconPreviewHTML.'&nbsp;&nbsp;'.$iconPreviewText;
-					break;
+						$iconPreview = $iconPreviewHtml . '&nbsp;&nbsp;' . $iconPreviewText;
 				}
 
-				$createDmailLink = 'index.php?id='.$this->id.'&createMailFrom_UID='.$row['uid'].'&fetchAtOnce=1&CMD=info';
-				$pageIcon = IconUtility::getSpriteIconForRecord('pages', $row).htmlspecialchars($row['title']);
+				$createDmailLink = BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM2') . '&id=' . $this->id . '&createMailFrom_UID=' . $row['uid'] . '&fetchAtOnce=1&CMD=info';
+				$pageIcon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
 
 				$outLines[] = array(
-					'<a href="'.$createDmailLink.'">'.$pageIcon.'</a>',
-					'<a href="'.$createDmailLink.'"><img'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/newmail', 'width="16" height="18"').' alt="'.$GLOBALS['LANG']->getLL("dmail_createMail").'" style="vertical-align:top;" title="'.$GLOBALS['LANG']->getLL("nl_create").'" /></a>',
-					'<a onclick="'.htmlspecialchars(BackendUtility::editOnClick('&edit[pages]['.$row['uid'].']=edit',$this->doc->backPath)).'" href="#"><img'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS['LANG']->getLL("dmail_edit").'" style="vertical-align:top;" title="'.$GLOBALS['LANG']->getLL("nl_editPage").'" /></a>',
+					'<a href="' . $createDmailLink . '">' . $pageIcon . '</a>',
+					'<a href="' . $createDmailLink . '" title="' . $this->getLanguageService()->getLL("nl_create") . '">' . $this->iconFactory->getIcon('directmail-dmail-new', Icon::SIZE_SMALL) . '</a>',
+					'<a onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[pages][' . $row['uid'] . ']=edit',$this->doc->backPath)) . '" href="#">' . $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
 					$iconPreview
 					);
 			}
 			$out = DirectMailUtility::formatTable($outLines, array(), 0, array(1,1,1,1));
-			$theOutput = $this->doc->section($GLOBALS['LANG']->getLL('dmail_dovsk_crFromNL').BackendUtility::cshItem($this->cshTable,'select_newsletter',$GLOBALS['BACK_PATH']), $out, 1, 1, 0, TRUE);
+			$theOutput = $this->doc->section($this->getLanguageService()->getLL('dmail_dovsk_crFromNL') . BackendUtility::cshItem($this->cshTable,'select_newsletter',$GLOBALS['BACK_PATH']), $out, 1, 1, 0, TRUE);
 		}
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
@@ -1772,42 +1802,47 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * wrap a string as a link
+	 * Wrap a string as a link
 	 *
-	 * @param	string		$str: String to be linked
-	 * @param	integer		$uid: UID of the directmail record
-	 * @return	string		the link
+	 * @param string $str String to be linked
+	 * @param int $uid UID of the directmail record
+	 *
+	 * @return string the link
 	 */
-	function linkDMail_record($str,$uid)	{
-		return '<a class="t3-link" href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&CMD=info&fetchAtOnce=1">'.htmlspecialchars($str).'</a>';
+	function linkDMail_record($str,$uid) {
+		return '<a class="t3-link" href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM2') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&CMD=info&fetchAtOnce=1">' . htmlspecialchars($str) . '</a>';
 	}
 
 
 	/**
-	 * shows the infos of a directmail
-	 * record in a table
+	 * Shows the infos of a directmail record in a table
 	 *
-	 * @param	array	$row: DirectMail DB record
-	 * @return	string	the HTML output
+	 * @param array $row DirectMail DB record
+	 *
+	 * @return string the HTML output
 	 */
-	protected function renderRecordDetailsTable($row) {
+	protected function renderRecordDetailsTable(array $row) {
 		if (!$row['issent']) {
 			if ($GLOBALS['BE_USER']->check('tables_modify','sys_dmail')) {
-				$retUrl = 'returnUrl='.rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
-				$Eparams='&edit[sys_dmail]['.$row['uid'].']=edit';
-				$editOnClick = 'document.location=\''.$GLOBALS['BACK_PATH'].'alt_doc.php?'.$retUrl.$Eparams.'\'; return false;';
-				$content = '<a href="#" onClick="' .$editOnClick . '"><img'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS['LANG']->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS['LANG']->getLL("dmail_edit").'" />'.'<b>'.$GLOBALS['LANG']->getLL('dmail_edit').'</b>'.'</a>';
+				// $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
+				$requestUri = GeneralUtility::getIndpEnv('REQUEST_URI') . '&CMD=info&sys_dmail_uid=' . $row['uid'] . '&fetchAtOnce=1';
+
+				$editParams = BackendUtility::editOnClick('&edit[sys_dmail][' . $row['uid'] . ']=edit', $GLOBALS['BACK_PATH'],$requestUri);
+
+				$content = '<a href="#" onClick="' . $editParams . '" title="' . $this->getLanguageService()->getLL("dmail_edit") . '">' .
+					$this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
+					'<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
 			} else {
-				$content = '<img'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS['LANG']->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS['LANG']->getLL("dmail_edit").'" />'.'('.$GLOBALS['LANG']->getLL('dmail_noEdit_noPerms').')';
+				$content = $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . ' (' . $this->getLanguageService()->getLL('dmail_noEdit_noPerms') . ')';
 			}
 		} else {
-			$content = '<img'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS['LANG']->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS['LANG']->getLL("dmail_edit").'" />'.'('.$GLOBALS['LANG']->getLL('dmail_noEdit_isSent').')';
+			$content = $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '(' . $this->getLanguageService()->getLL('dmail_noEdit_isSent') . ')';
 		}
 
-		$content = '<tr class="t3-row-header">
-			<td>' . DirectMailUtility::fName('subject') . ' <b>' . GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject']), 60) . '</b></td>
-			<td style="text-align: right;">' . $content . '</td>
-		</tr>';
+		$content = '<thead >
+			<th>' . DirectMailUtility::fName('subject') . ' <b>' . GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject']), 60) . '</b></th>
+			<th style="text-align: right;">' . $content . '</th>
+		</thead>';
 
 		$nameArr = explode(',','from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,attachment,type,page,sendOptions,includeMedia,flowedFormat,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
 		foreach ($nameArr as $name) {
@@ -1817,32 +1852,34 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				<td>' . htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail', $name, $row[$name])) . '</td>
 			</tr>';
 		}
-		$content = '<table width="460" class="typo3-dblist">' . $content . '</table>';
+		$content = '<table width="460" class="table table-striped table-hover">' . $content . '</table>';
 
-		$sectionTitle = IconUtility::getSpriteIconForRecord('sys_dmail', $row) . '&nbsp;' . htmlspecialchars($row['subject']);
+		$sectionTitle = $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '&nbsp;' . htmlspecialchars($row['subject']);
 		return $this->doc->section($sectionTitle, $content, 1, 1, 0, TRUE);
 	}
 
 	/**
-	 * create delete link with trash icon
+	 * Create delete link with trash icon
 	 *
-	 * @param	int		$uid: uid of the record
-	 * @return	string	link with the trash icon
+	 * @param int $uid Uid of the record
+	 *
+	 * @return string link with the trash icon
 	 */
 	function deleteLink($uid) {
-		$icon = IconUtility::getSpriteIcon('actions-edit-delete');
+		$icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
 		$dmail = BackendUtility::getRecord('sys_dmail', $uid);
 		if (!$dmail['scheduled_begin']) {
-			return '<a href="index.php?id='.$this->id.'&CMD=delete&uid='.$uid.'">'.$icon.'</a>';
-		} else {
-			return '';
+			return '<a href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM2') . '&id=' . $this->id . '&CMD=delete&uid=' . $uid . '">' . $icon . '</a>';
 		}
+
+		return '';
 	}
 
 	/**
-	 * delete existing dmail record
+	 * Delete existing dmail record
 	 *
-	 * @param int $uid: record uid to be deleted
+	 * @param int $uid record uid to be deleted
+	 *
 	 * @return void
 	 */
 	function deleteDMail($uid) {
@@ -1850,12 +1887,39 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
 				$table,
-				'uid = '.$uid,
+				'uid = ' . $uid,
 				array($GLOBALS['TCA'][$table]['ctrl']['delete'] => 1)
 			);
 		}
 
 		return;
+	}
+
+	/**
+	 * The icon for the source tab
+	 *
+	 * @param bool $expand State of the tab
+	 *
+	 * @return string
+	 */
+	protected function getNewsletterTabIcon($expand = FALSE) {
+
+		if ($expand) {
+			// opened
+			return $this->iconFactory->getIcon('apps-pagetree-expand', Icon::SIZE_SMALL);
+		}
+
+		// closes
+		return $this->iconFactory->getIcon('apps-pagetree-collapse', Icon::SIZE_SMALL);
+	}
+
+	/**
+	 * Returns LanguageService
+	 *
+	 * @return \TYPO3\CMS\Lang\LanguageService
+	 */
+	protected function getLanguageService() {
+		return $GLOBALS['LANG'];
 	}
 }
 

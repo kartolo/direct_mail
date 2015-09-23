@@ -48,10 +48,10 @@ class ext_update  {
 
 		$content = $this->displayWarning();
 		if (!GeneralUtility::_GP('do_update')) {
-			$onClick = "document.location='".GeneralUtility::linkThisScript(array('do_update'=>1))."'; return false;";
-			$content .= htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_now')).'
+			$onClick = "document.location='" . GeneralUtility::linkThisScript(array('do_update' => 1)) . "'; return false;";
+			$content .= htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_now')) . '
 				<br /><br />
-				<form action=""><input type="submit" value="'.htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_do_it_now')).'" onclick="'.htmlspecialchars($onClick).'"></form>
+				<form action=""><input type="submit" value="' . htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_do_it_now')) . '" onclick="' . htmlspecialchars($onClick) . '"></form>
 			';
 		} else {
 			$updated = $this->convertTable();
@@ -62,7 +62,7 @@ class ext_update  {
 	}
 
 	/**
-	 * convert the mailcontent data to base64 coded
+	 * Convert the mailcontent data to base64 coded
 	 * @return	int	$i: the counter
 	 */
 	function convertTable() {
@@ -74,18 +74,18 @@ class ext_update  {
 
 		$i = 0;
 		foreach($dmailRows as $row) {
-			//get the mailContent
+			// get the mailContent
 			$mailContent = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 				'mailContent',
 				'sys_dmail',
-				'uid = '.$row['uid']
+				'uid = ' . $row['uid']
 			);
 
 			if (is_array(unserialize($mailContent[0]['mailContent']))) {
-				//update the table
+				// update the table
 				$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
 					'sys_dmail',
-					'uid = '.$row['uid'],
+					'uid = ' . $row['uid'],
 					array('mailContent' => base64_encode($mailContent[0]['mailContent']))
 				);
 
@@ -99,7 +99,7 @@ class ext_update  {
 	/**
 	 * Checks how many rows are found and returns true if there are any
 	 *
-	 * @return	boolean		true if user have access, otherwise false
+	 * @return	bool		true if user have access, otherwise false
 	 */
 	function access() {
 			// We cannot update before the extension is installed: required tables are not yet in TCA
@@ -111,7 +111,6 @@ class ext_update  {
 	}
 
 	/**
-	 *
 	 * Enter description here ...
 	 * @return string
 	 */
@@ -129,5 +128,3 @@ class ext_update  {
 		return $out;
 	}
 }
-
-?>

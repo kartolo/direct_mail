@@ -1,46 +1,30 @@
 <?php
 namespace DirectMailTeam\DirectMail;
 
-/***************************************************************
- *  Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- *  (c) 1999-2004 Kasper Skaarhoj (kasperYYYY@typo3.com)
- *  (c) 2006 Thorsten Kahler <thorsten.kahler@dkd.de>
- *  All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
  *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *  A copy is found in the textfile GPL.txt and important notices to the license
- *  from the author is found in LICENSE.txt distributed with these scripts.
+ * The TYPO3 project - inspiring people to share!
+ */
+
+use TYPO3\CMS\Core\Utility\MailUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+
+	/**
+ * Container class for auxilliary functions of tx_directmail
  *
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
-/**
  * @author		Kasper Sk�rh�j <kasperYYYY>@typo3.com>
  * @author		Thorsten Kahler <thorsten.kahler@dkd.de>
  *
  * @package 	TYPO3
  * @subpackage 	tx_directmail
- * @version 	$Id: class.tx_directmail_container.php 30332 2010-02-22 22:28:37Z ivankartolo $
- */
-
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\MailUtility;
-
-/**
- * Container class for auxilliary functions of tx_directmail
  */
 class Container {
 
@@ -48,7 +32,7 @@ class Container {
 	var $boundaryEnd = '<!--DMAILER_SECTION_BOUNDARY_END-->';
 
 	/**
-	 * @var tslib_cObj
+	 * @var TypoScriptFrontendController
 	 */
 	var $cObj;
 
@@ -57,11 +41,13 @@ class Container {
 	 * The comments contain the uids of assigned direct mail categories.
 	 * It is called as "USER_FUNC" from TS.
 	 *
-	 * @param    string $content : incoming HTML code which will be wrapped
-	 * @param    array $conf : pointer to the conf array (TS)
+	 * @param    string $content Incoming HTML code which will be wrapped
+	 * @param    array|null $conf Pointer to the conf array (TS)
+	 *
 	 * @return    string        content of the email with dmail boundaries
 	 */
-	function insert_dMailer_boundaries($content, $conf) {
+	function insert_dMailer_boundaries($content, $conf = array()) {
+
 		if (isset($conf['useParentCObj']) && $conf['useParentCObj']) {
 			$this->cObj = $conf['parentObj']->cObj;
 		}
@@ -69,7 +55,8 @@ class Container {
 		// this check could probably be moved to TS
 		if ($GLOBALS['TSFE']->config['config']['insertDmailerBoundaries']) {
 			if ($content != '') {
-				$categoryList = ''; // setting the default
+				// setting the default
+				$categoryList = '';
 				if (intval($this->cObj->data['module_sys_dmail_category']) >= 1) {
 					// if content type "RECORDS" we have to strip off
 					// boundaries from indcluded records
@@ -78,22 +65,23 @@ class Container {
 					}
 
 					// get categories of tt_content element
-					$foreign_table = 'sys_dmail_category';
-					$select = "$foreign_table.uid";
-					$local_table_uidlist = intval($this->cObj->data['uid']);
-					$mm_table = 'sys_dmail_ttcontent_category_mm';
+					$foreignTable = 'sys_dmail_category';
+					$select = "$foreignTable.uid";
+					$localTableUidList = intval($this->cObj->data['uid']);
+					$mmTable = 'sys_dmail_ttcontent_category_mm';
 					$whereClause = '';
-					$orderBy = $foreign_table . '.uid';
+					$orderBy = $foreignTable . '.uid';
 					$res = $this->cObj->exec_mm_query_uidList(
 						$select,
-						$local_table_uidlist,
-						$mm_table,
-						$foreign_table,
+						$localTableUidList,
+						$mmTable,
+						$foreignTable,
 						$whereClause,
 						'',
 						$orderBy);
+
 					if ($GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
-						while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+						while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 							$categoryList .= $row['uid'] . ',';
 						}
 						$GLOBALS['TYPO3_DB']->sql_free_result($res);
@@ -108,10 +96,11 @@ class Container {
 	}
 
 	/**
-	 * remove boundaries from TYPO3 content
+	 * Remove boundaries from TYPO3 content
 	 *
-	 * @param    string $content : the content with boundaries in comment
-	 * @return    string        the content without boundaries
+	 * @param string $content the content with boundaries in comment
+	 *
+	 * @return string the content without boundaries
 	 */
 	function stripInnerBoundaries($content) {
 		// only dummy code at the moment
@@ -124,12 +113,13 @@ class Container {
 	/**
 	 * Breaking lines into fixed length lines, using GeneralUtility::breakLinesForEmail()
 	 *
-	 * @param    string $content : The string to break
-	 * @param    array $conf : configuration options: linebreak, charWidth; stdWrap enabled
+	 * @param string $content The string to break
+	 * @param array $conf Configuration options: linebreak, charWidth; stdWrap enabled
+	 *
 	 * @return string Processed string
 	 * @see GeneralUtility::breakLinesForEmail()
 	 */
-	function breakLines($content, $conf) {
+	function breakLines($content, array $conf) {
 		$linebreak = $GLOBALS['TSFE']->cObj->stdWrap(($conf['linebreak'] ? $conf['linebreak'] : chr(32) . LF), $conf['linebreak.']);
 		$charWidth = $GLOBALS['TSFE']->cObj->stdWrap(($conf['charWidth'] ? intval($conf['charWidth']) : 76), $conf['charWidth.']);
 
@@ -137,13 +127,14 @@ class Container {
 	}
 
 	/**
-	 * inserting boundaries for each sitemap point.
+	 * Inserting boundaries for each sitemap point.
 	 *
-	 * @param string $content : the content string
-	 * @param array $conf : the TS conf
+	 * @param string $content The content string
+	 * @param array $conf The TS conf
+	 *
 	 * @return string $content: the string wrapped with boundaries
 	 */
-	public function insertSitemapBoundaries($content, $conf) {
+	public function insertSitemapBoundaries($content, array $conf) {
 		$uid = $this->cObj->data['uid'];
 		$content = '';
 

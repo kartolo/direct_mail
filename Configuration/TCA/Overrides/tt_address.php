@@ -4,7 +4,7 @@ if (!defined('TYPO3_MODE')) {
 }
 
 // tt_address modified
-$tt_address_cols = array(
+$ttAddressCols = array(
 	'module_sys_dmail_category' => array(
 		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:module_sys_dmail_group.category',
 		'exclude' => '1',
@@ -33,6 +33,6 @@ $tt_address_cols = array(
 	)
 );
 
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_address', $tt_address_cols);
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_address', $ttAddressCols);
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCATypes('tt_address', '--div--;Direct mail,module_sys_dmail_category;;;;1-1-1,module_sys_dmail_html');
 $GLOBALS['TCA']['tt_address']['feInterface']['fe_admin_fieldList'] .= ',module_sys_dmail_category,module_sys_dmail_html';

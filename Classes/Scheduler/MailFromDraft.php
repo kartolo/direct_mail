@@ -1,28 +1,18 @@
 <?php
 namespace DirectMailTeam\DirectMail\Scheduler;
 
-/***************************************************************
-*  Copyright notice
-*
-*  (c) 2010 Benjamin Mack <benni@typo3.org>
-*  All rights reserved
-*
-*  This script is part of the TYPO3 project. The TYPO3 project is
-*  free software; you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
-*  (at your option) any later version.
-*
-*  The GNU General Public License can be found at
-*  http://www.gnu.org/copyleft/gpl.html.
-*
-*  This script is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  This copyright notice MUST APPEAR in all copies of the script!
-***************************************************************/
+/*
+ * This file is part of the TYPO3 CMS project.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
+ */
 
 use \TYPO3\CMS\Backend\Utility\BackendUtility;
 use \TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -45,9 +35,11 @@ class MailFromDraft extends AbstractTask {
 	protected $hookObjects = array();
 
 	/**
-	 * setter function to set the draft ID that the task should use
-	 * @param integer $draftUid the UID of the sys_dmail record (needs to be of type=3 or type=4)
-	 * @param void
+	 * Setter function to set the draft ID that the task should use
+	 *
+	 * @param int $draftUid The UID of the sys_dmail record (needs to be of type=3 or type=4)
+	 *
+	 * @return void
 	 */
 	function setDraft($draftUid) {
 		$this->draftUid = $draftUid;
@@ -73,7 +65,8 @@ class MailFromDraft extends AbstractTask {
 				// make a real record out of it
 			unset($draftRecord['uid']);
 			$draftRecord['tstamp'] = time();
-			$draftRecord['type'] -= 2;	// set the right type (3 => 1, 2 => 0)
+			// set the right type (3 => 1, 2 => 0)
+			$draftRecord['type'] -= 2;
 
 				// Insert the new dmail record into the DB
 			$GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail', $draftRecord);
@@ -114,11 +107,12 @@ class MailFromDraft extends AbstractTask {
 	/**
 	 * Calls the passed hook method of all configured hook object instances
 	 *
-	 * @param $hookMethod
-	 * @param $hookParams
+	 * @param string $hookMethod The hook method name
+	 * @param array $hookParams The hook params
+	 *
 	 * @return    void
 	 */
-	function callHooks($hookMethod, $hookParams) {
+	function callHooks($hookMethod, array $hookParams) {
 		foreach ($this->hookObjects as $hookObjectInstance) {
 			$hookObjectInstance->$hookMethod($hookParams, $this);
 		}
@@ -128,12 +122,13 @@ class MailFromDraft extends AbstractTask {
 	 * Initializes hook objects for this class
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	function initializeHookObjects() {
 		if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'])) {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] as $hookObj) {
 				$hookObjectInstance = GeneralUtility::getUserObj($hookObj);
-				if (!(is_object($hookObjectInstance) && ($hookObjectInstance instanceof \DirectMailTeam\DirectMail\Scheduler\MailFromDraftHookInterface))) {
+				if (!(is_object($hookObjectInstance) && ($hookObjectInstance instanceof MailFromDraftHookInterface))) {
 					throw new \Exception('Hook object for "mailFromDraft" must implement the "MailFromDraftHookInterface"!', 1400866815);
 				}
 				$this->hookObjects[] = $hookObjectInstance;

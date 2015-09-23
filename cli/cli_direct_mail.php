@@ -27,7 +27,7 @@ class direct_mail_cli extends CommandLineController {
 		/**
 		 * CLI engine
 		 *
-		 * @return    string
+		 * @return    void
 		 */
 		function cli_main() {
 
@@ -55,8 +55,9 @@ class direct_mail_cli extends CommandLineController {
 		}
 
 	/**
-	 * myFunction which is called over cli
+	 * Start sending the newsletter
 	 *
+	 * @return void
 	 */
 	function massSend() {
 
@@ -75,7 +76,10 @@ class direct_mail_cli extends CommandLineController {
 		// Fixing filepermissions
 		\TYPO3\CMS\Core\Utility\GeneralUtility::fixPermissions($lockfile);
 
-		/** @var $htmlmail \DirectMailTeam\DirectMail\Dmailer */
+		/**
+		 * The direct_mail engine
+		 * @var $htmlmail \DirectMailTeam\DirectMail\Dmailer
+		 */
 		$htmlmail = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
 		$htmlmail->start();
 		$htmlmail->runcron();
@@ -85,7 +89,10 @@ class direct_mail_cli extends CommandLineController {
 }
 
 // Call the functionality
-/** @var $mailerObj direct_mail_cli */
+/**
+ * Initializing the CLI class
+ * @var $mailerObj direct_mail_cli
+ */
 $mailerObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('direct_mail_cli');
 $mailerObj->cli_main($_SERVER['argv']);
 

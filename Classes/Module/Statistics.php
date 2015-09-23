@@ -1,46 +1,22 @@
 <?php
 namespace DirectMailTeam\DirectMail\Module;
 
-/***************************************************************
- *  Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- *  (c) 1999-2004 Kasper Skaarhoj (kasper@typo3.com)
- *  (c) 2005-2006 Jan-Erik Revsbech <jer@moccompany.com>
- *  (c) 2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *  All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
  *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *  A copy is found in the textfile GPL.txt and important notices to the license
- *  from the author is found in LICENSE.txt distributed with these scripts.
- *
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
-
-/**
- * @author		Kasper Sk�rh�j <kasper@typo3.com>
- * @author  	Jan-Erik Revsbech <jer@moccompany.com>
- * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
- * @version		$Id: class.tx_directmail_statistics.php 30936 2010-03-09 18:43:37Z ivankartolo $
+ * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Imaging\Icon;
+	use TYPO3\CMS\Core\Imaging\IconFactory;
+	use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -51,6 +27,13 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 /**
  * Module Statistics of tx_directmail extension
  *
+ * @author		Kasper Sk�rh�j <kasper@typo3.com>
+ * @author  	Jan-Erik Revsbech <jer@moccompany.com>
+ * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
+ *
+ * @package 	TYPO3
+ * @subpackage 	tx_directmail
  */
 class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	var $extKey = 'direct_mail';
@@ -74,30 +57,42 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	var $cshTable;
 	var $formname = 'dmailform';
 
-	/**
+	/*
 	 * @var \TYPO3\CMS\Frontend\Page\PageRepository
 	 */
 	var $sys_page;
 
-	/**
+	/*
 	 * @var array
 	 */
 	var $categories;
 
 	/**
-	 * first initialization of global variables
-	 *
-	 * @return	void		no return values: initialize global variables
+	 * IconFactory for skinning
+	 * @var \TYPO3\CMS\Core\Imaging\IconFactory
 	 */
-	function init()	{
+	protected $iconFactory;
+
+	/**
+	 * First initialization of global variables
+	 *
+	 * @return	void
+	 */
+	function init() {
 		$this->MCONF = $GLOBALS['MCONF'];
 
 		parent::init();
 
+		// initialize IconFactory
+		$this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+
 		// get TS Params
 		$temp = BackendUtility::getModTSconfig($this->id,'mod.web_modules.dmail');
+		if (!is_array($temp['properties'])) {
+			$temp['properties'] = array();
+		}
 		$this->params = $temp['properties'];
-		$this->implodedParams = BackendUtility::implodeTSParams($this->params);
+		$this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
 
 		$this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params,$this->MOD_MENU['dmail_mode'],'menu.dmail_mode');
 
@@ -106,32 +101,32 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$this->sys_page->init(true);
 
 			// initialize backend user language
-		if ($GLOBALS["LANG"]->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
+		if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'sys_language.uid',
 				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-				'static_languages.lg_typo3='.$GLOBALS["TYPO3_DB"]->fullQuoteStr($GLOBALS["LANG"]->lang,'static_languages').
-					BackendUtility::BEenableFields('sys_language').
-					BackendUtility::deleteClause('sys_language').
+				'static_languages.lg_typo3=' . $GLOBALS["TYPO3_DB"]->fullQuoteStr($this->getLanguageService()->lang,'static_languages') .
+					BackendUtility::BEenableFields('sys_language') .
+					BackendUtility::deleteClause('sys_language') .
 					BackendUtility::deleteClause('static_languages')
 				);
-			while($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res)) {
+			while(($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
 				$this->sys_language_uid = $row['uid'];
 			}
 		}
 			// load contextual help
 		$this->cshTable = '_MOD_'.$this->MCONF['name'];
 		if ($GLOBALS["BE_USER"]->uc['edit_showFieldHelp']){
-			$GLOBALS["LANG"]->loadSingleTableDescription($this->cshTable);
+			$this->getLanguageService()->loadSingleTableDescription($this->cshTable);
 		}
 	}
 
 	/**
 	 * Prints out the module HTML
 	 *
-	 * @return	void		no return values: print out the global variable 'content'
+	 * @return	void
 	 */
-	function printContent()	{
+	function printContent() {
 		$this->content.=$this->doc->endPage();
 		echo $this->content;
 	}
@@ -139,9 +134,9 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	/**
 	 * The main function.
 	 *
-	 * @return	void		no return value: update the global variable 'content'
+	 * @return	void
 	 */
-	function main()	{
+	function main() {
 		$this->CMD = GeneralUtility::_GP('CMD');
 		$this->pages_uid = intval(GeneralUtility::_GP('pages_uid'));
 		$this->sys_dmail_uid = intval(GeneralUtility::_GP('sys_dmail_uid'));
@@ -154,7 +149,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
 			$this->doc->backPath = $GLOBALS["BACK_PATH"];
 			$this->doc->setModuleTemplate('EXT:direct_mail/mod4/mod_template.html');
-			$this->doc->form='<form action="" method="post" name="'.$this->formname.'" enctype="multipart/form-data">';
+			$this->doc->form='<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
 			// Add CSS
 			$this->doc->inDocStyles = '
@@ -173,7 +168,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 						window.location.href = URL;
 					}
 					function jumpToUrlD(URL) { //
-						window.location.href = URL+"&sys_dmail_uid='.$this->sys_dmail_uid.'";
+						window.location.href = URL+"&sys_dmail_uid=' . $this->sys_dmail_uid . '";
 					}
 				</script>
 			';
@@ -181,7 +176,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$this->doc->postCode='
 				<script language="javascript" type="text/javascript">
 					script_ended = 1;
-					if (top.fsMod) top.fsMod.recentIds[\'web\'] = '.intval($this->id).';
+					if (top.fsMod) top.fsMod.recentIds[\'web\'] = ' . intval($this->id) . ';
 				</script>
 			';
 
@@ -193,7 +188,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			);
 
 			$docHeaderButtons = array(
-				'PAGEPATH' => $GLOBALS["LANG"]->sL('LLL:EXT:lang/locallang_core.php:labels.path').': '.GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
+				'PAGEPATH' => $this->getLanguageService()->sL('LLL:EXT:lang/locallang_core.php:labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
 				'SHORTCUT' => '',
 				'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS["BACK_PATH"])
 			);
@@ -212,47 +207,46 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					// Direct mail module
 					// Render content:
 				if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail') {
-					$markers['CONTENT'] = '<h1>' . $GLOBALS['LANG']->getLL('stats_overview_header') . '</h1>'
-					. $this->moduleContent();
+					$markers['CONTENT'] = '<h1>' . $this->getLanguageService()->getLL('stats_overview_header') . '</h1>' . $this->moduleContent();
 				} elseif ($this->id != 0) {
-					/** @var $flashMessage FlashMessage */
+					/* @var $flashMessage FlashMessage */
 					$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-						$GLOBALS['LANG']->getLL('dmail_noRegular'),
-						$GLOBALS['LANG']->getLL('dmail_newsletters'),
+						$this->getLanguageService()->getLL('dmail_noRegular'),
+						$this->getLanguageService()->getLL('dmail_newsletters'),
 						FlashMessage::WARNING
 					);
 					$markers['FLASHMESSAGES'] = $flashMessage->render();
 				}
 			} else {
 				$flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-					$GLOBALS['LANG']->getLL('select_folder'),
-					$GLOBALS['LANG']->getLL('header_stat'),
+					$this->getLanguageService()->getLL('select_folder'),
+					$this->getLanguageService()->getLL('header_stat'),
 					FlashMessage::WARNING
 				);
 				$markers['FLASHMESSAGES'] = $flashMessage->render();
 
-				$markers['CONTENT'] = '<h2>' . $GLOBALS['LANG']->getLL('stats_overview_header') . '</h2>';
+				$markers['CONTENT'] = '<h2>' . $this->getLanguageService()->getLL('stats_overview_header') . '</h2>';
 			}
 
-			$this->content = $this->doc->startPage($GLOBALS["LANG"]->getLL('stats_overview_header'));
+			$this->content = $this->doc->startPage($this->getLanguageService()->getLL('stats_overview_header'));
 			$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
 		} else {
 			// If no access or if ID == zero
 
-			$this->doc = GeneralUtility::makeInstance('mediumDoc');
+			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\MediumDocumentTemplate');
 			$this->doc->backPath = $GLOBALS["BACK_PATH"];
 
-			$this->content.=$this->doc->startPage($GLOBALS["LANG"]->getLL('title'));
-			$this->content.=$this->doc->header($GLOBALS["LANG"]->getLL('title'));
+			$this->content.=$this->doc->startPage($this->getLanguageService()->getLL('title'));
+			$this->content.=$this->doc->header($this->getLanguageService()->getLL('title'));
 			$this->content.=$this->doc->spacer(5);
 			$this->content.=$this->doc->spacer(10);
 		}
 	}
 
 	/**
-	 * compiled content of the module
+	 * Compiled content of the module
 	 *
-	 * @return	string		the compiled content of the module
+	 * @return string The compiled content of the module
 	 */
 	public function moduleContent() {
 		$theOutput = "";
@@ -265,14 +259,14 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'*',
 				'sys_dmail',
-				'pid='.intval($this->id).
-					' AND uid='.intval($this->sys_dmail_uid).
+				'pid=' . intval($this->id) .
+					' AND uid=' . intval($this->sys_dmail_uid) .
 					BackendUtility::deleteClause('sys_dmail')
 				);
 
 			$this->noView = 0;
 
-			if ($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res)) {
+			if (($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
 					// Set URL data for commands
 				$this->setURLs($row);
 
@@ -280,18 +274,18 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				switch($this->CMD) {
 					case 'displayUserInfo':
 						$theOutput = $this->cmd_displayUserInfo();
-					break;
+						break;
 					case 'stats':
 						$theOutput = $this->cmd_stats($row);
-					break;
-				default:
+						break;
+					default:
 						// Hook for handling of custom direct mail commands:
-					if (is_array($GLOBALS["TYPO3_CONF_VARS"]['EXT']['directmail']['handledirectmailcmd-'.$this->CMD])) {
-						foreach($GLOBALS["TYPO3_CONF_VARS"]['EXT']['directmail']['handledirectmailcmd-'.$this->CMD] as $_funcRef) {
-							$_params = array('pObj' => &$this);
-							$theOutput = GeneralUtility::callUserFunction($_funcRef,$_params,$this);
+						if (is_array($GLOBALS["TYPO3_CONF_VARS"]['EXT']['directmail']['handledirectmailcmd-' . $this->CMD])) {
+							foreach($GLOBALS["TYPO3_CONF_VARS"]['EXT']['directmail']['handledirectmailcmd-' . $this->CMD] as $funcRef) {
+								$params = array('pObj' => &$this);
+								$theOutput = GeneralUtility::callUserFunction($funcRef,$params,$this);
+							}
 						}
-					}
 				}
 			}
 		}
@@ -299,16 +293,16 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * shows user's info and categories
+	 * Shows user's info and categories
 	 *
-	 * @return	string		HTML showing user's info and the categories
+	 * @return string HTML showing user's info and the categories
 	 */
-	function cmd_displayUserInfo()	{
+	function cmd_displayUserInfo() {
 		$uid = intval(GeneralUtility::_GP('uid'));
 		$indata = GeneralUtility::_GP('indata');
 		$table = GeneralUtility::_GP('table');
 
-		$mm_table = $GLOBALS["TCA"][$table]['columns']['module_sys_dmail_category']['config']['MM'];
+		$mmTable = $GLOBALS["TCA"][$table]['columns']['module_sys_dmail_category']['config']['MM'];
 
 		if(GeneralUtility::_GP('submit')){
 			$indata = GeneralUtility::_GP('indata');
@@ -317,43 +311,46 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			}
 		}
 
-		switch($table)	{
-		case 'tt_address':
-		case 'fe_users':
-			if (is_array($indata))	{
-				$data=array();
-				if (is_array($indata['categories']))	{
-					reset($indata['categories']);
-					foreach($indata["categories"] as $recValues) {
-						$enabled = array();
-						while(list($k,$b)=each($recValues))	{
-							if ($b)	{
-								$enabled[] = $k;
+		switch($table) {
+			case 'tt_address':
+				// see fe_users
+			case 'fe_users':
+				if (is_array($indata)) {
+					$data=array();
+					if (is_array($indata['categories']))	{
+						reset($indata['categories']);
+						foreach($indata["categories"] as $recValues) {
+							$enabled = array();
+							foreach ($recValues as $k => $b) {
+								if ($b) {
+									$enabled[] = $k;
+								}
 							}
+							$data[$table][$uid]['module_sys_dmail_category'] = implode(',',$enabled);
 						}
-						$data[$table][$uid]['module_sys_dmail_category'] = implode(',',$enabled);
 					}
-				}
-				$data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
+					$data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
 
-				/** @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-				$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
-				$tce->stripslashes_values=0;
-				$tce->start($data,Array());
-				$tce->process_datamap();
-			}
-			break;
+					/* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
+					$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+					$tce->stripslashes_values=0;
+					$tce->start($data,Array());
+					$tce->process_datamap();
+				}
+				break;
+			default:
+				// do nothing
 		}
 
-		switch($table)	{
+		switch($table) {
 			case 'tt_address':
 				$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 					'tt_address.*',
 					'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
-					'tt_address.uid='.intval($uid).
-						' AND '.$this->perms_clause.
-						BackendUtility::deleteClause('pages').
-						BackendUtility::BEenableFields('tt_address').
+					'tt_address.uid=' . intval($uid) .
+						' AND ' . $this->perms_clause .
+						BackendUtility::deleteClause('pages') .
+						BackendUtility::BEenableFields('tt_address') .
 						BackendUtility::deleteClause('tt_address')
 					);
 				break;
@@ -361,13 +358,15 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 					'fe_users.*',
 					'fe_users LEFT JOIN pages ON pages.uid=fe_users.pid',
-					'fe_users.uid='.intval($uid).
-						' AND '.$this->perms_clause.
-						BackendUtility::deleteClause('pages').
-						BackendUtility::BEenableFields('fe_users').
+					'fe_users.uid=' . intval($uid) .
+						' AND ' . $this->perms_clause .
+						BackendUtility::deleteClause('pages') .
+						BackendUtility::BEenableFields('fe_users') .
 						BackendUtility::deleteClause('fe_users')
 					);
 				break;
+			default:
+				// do nothing
 		}
 
 		$row = array();
@@ -378,143 +377,150 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 		$theOutput = "";
 		if (is_array($row)) {
-			$row_categories = '';
+			$categories = '';
 			$resCat = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'uid_foreign',
-				$mm_table,
-				'uid_local='.$row['uid']
+				$mmTable,
+				'uid_local=' . $row['uid']
 				);
 
-			while($rowCat = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($resCat)) {
-				$row_categories .= $rowCat['uid_foreign'].',';
+			while(($rowCat = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($resCat))) {
+				$categories .= $rowCat['uid_foreign'] . ',';
 			}
-			$row_categories = rtrim($row_categories, ",");
+			$categories = rtrim($categories, ",");
 			$GLOBALS["TYPO3_DB"]->sql_free_result($resCat);
 
-			$Eparams = '&edit['.$table.']['.$row['uid'].']=edit';
+			$editParameters = '&edit[' . $table . '][' . $row['uid'] . ']=edit';
 			$out = '';
-			$out .= IconUtility::getSpriteIconForRecord($table, $row, array('title' => BackendUtility::getRecordPath ($row['pid'],$this->perms_clause,40))).htmlspecialchars($row['name'].' <'.$row['email'].'>');
-			$out .= '&nbsp;&nbsp;<a href="#" onClick="'.BackendUtility::editOnClick($Eparams,$GLOBALS["BACK_PATH"],'').'"><img'.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS["LANG"]->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS["LANG"]->getLL("dmail_edit").'" /><b>' . $GLOBALS["LANG"]->getLL('dmail_edit') . '</b></a>';
-			$theOutput = $this->doc->section($GLOBALS["LANG"]->getLL('subscriber_info'),$out);
+			$out .= $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name'] . ' <' . $row['email'] . '>');
+			$out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParameters,$GLOBALS["BACK_PATH"],'') . '" title="' . $this->getLanguageService()->getLL("dmail_edit") . '">' .
+				$this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
+				$this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
+			$theOutput = $this->doc->section($this->getLanguageService()->getLL('subscriber_info'),$out);
 
 			$out = '';
-			$out_check = '';
 
 			$this->categories = DirectMailUtility::makeCategories($table, $row, $this->sys_language_uid);
 
 			foreach ($this->categories as $pKey => $pVal) {
-				$out_check.='<input type="hidden" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="0" /><input type="checkbox" name="indata[categories]['.$row['uid'].']['.$pKey.']" value="1"'.(GeneralUtility::inList($row_categories,$pKey)?' checked="checked"':'').' /> '.htmlspecialchars($pVal).'<br />';
+				$out .='<input type="hidden" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="0" />' .
+					'<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categories,$pKey)?' checked="checked"':'') . ' /> ' .
+					htmlspecialchars($pVal) . '<br />';
 			}
-			$out_check .= '<br /><br /><input type="checkbox" name="indata[html]" value="1"'.($row['module_sys_dmail_html']?' checked="checked"':'').' /> ';
-			$out_check .= $GLOBALS["LANG"]->getLL('subscriber_profile_htmlemail') . '<br />';
-			$out .= $out_check;
+			$out .= '<br /><br /><input type="checkbox" name="indata[html]" value="1"' . ($row['module_sys_dmail_html']?' checked="checked"':'') . ' /> ';
+			$out .= $this->getLanguageService()->getLL('subscriber_profile_htmlemail') . '<br />';
 
-			$out .= '<input type="hidden" name="table" value="'.$table.'" /><input type="hidden" name="uid" value="'.$uid.'" /><input type="hidden" name="CMD" value="'.$this->CMD.'" /><br /><input type="submit" name="submit" value="' . htmlspecialchars($GLOBALS["LANG"]->getLL('subscriber_profile_update')) . '" />';
+			$out .= '<input type="hidden" name="table" value="' . $table . '" />' .
+				'<input type="hidden" name="uid" value="' . $uid . '" />' .
+				'<input type="hidden" name="CMD" value="' . $this->CMD . '" /><br />' .
+				'<input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
 			$theOutput .= $this->doc->spacer(20);
-			$theOutput .= $this->doc->section($GLOBALS["LANG"]->getLL('subscriber_profile'), $GLOBALS["LANG"]->getLL('subscriber_profile_instructions') . '<br /><br />'.$out);
+			$theOutput .= $this->doc->section($this->getLanguageService()->getLL('subscriber_profile'), $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out);
 		}
 
 		return $theOutput;
 	}
 
 	/**
-	 * shows the info of a page
+	 * Shows the info of a page
 	 *
-	 * @return	string		The infopage of the sent newsletters
+	 * @return string The infopage of the sent newsletters
 	 */
-	function cmd_displayPageInfo()	{
+	function cmd_displayPageInfo() {
 			// Here the dmail list is rendered:
 		$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 			'*',
 			'sys_dmail',
-			'pid='.intval($this->id).
-				' AND type IN (0,1)'.
-				' AND issent = 1'.
+			'pid=' . intval($this->id) .
+				' AND type IN (0,1)' .
+				' AND issent = 1' .
 				BackendUtility::deleteClause('sys_dmail'),
 			'',
 			'scheduled DESC, scheduled_begin DESC'
 			);
 
-		if ($GLOBALS["TYPO3_DB"]->sql_num_rows($res))	{
-			$onClick = ' onClick="return confirm('.$GLOBALS["LANG"]->JScharCode(sprintf($GLOBALS["LANG"]->getLL('nl_l_warning'),$GLOBALS["TYPO3_DB"]->sql_num_rows($res))).');"';
+		if ($GLOBALS["TYPO3_DB"]->sql_num_rows($res)) {
+			$onClick = ' onClick="return confirm(' . GeneralUtility::quoteJSvalue(sprintf($this->getLanguageService()->getLL('nl_l_warning'),$GLOBALS["TYPO3_DB"]->sql_num_rows($res))) . ');"';
 		} else {
 			$onClick = '';
 		}
-		$out="";
+		$out = '';
 
-		if ($GLOBALS["TYPO3_DB"]->sql_num_rows($res))	{
-			$out.='<table border="0" cellpadding="0" cellspacing="0" class="typo3-dblist">';
-				$out.='<tr class="t3-row-header">
-					<td>&nbsp;</td>
-					<td><b>'.$GLOBALS["LANG"]->getLL('stats_overview_subject').'</b></td>
-					<td><b>'.$GLOBALS["LANG"]->getLL('stats_overview_scheduled').'</b></td>
-					<td><b>'.$GLOBALS["LANG"]->getLL('stats_overview_delivery_begun').'</b></td>
-					<td><b>'.$GLOBALS["LANG"]->getLL('stats_overview_delivery_ended').'</b></td>
-					<td nowrap="nowrap"><b>'.$GLOBALS["LANG"]->getLL('stats_overview_total_sent').'</b></td>
-					<td><b>'.$GLOBALS["LANG"]->getLL('stats_overview_status').'</b></td>
-				</tr>';
-			while($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))	{
+		if ($GLOBALS["TYPO3_DB"]->sql_num_rows($res)) {
+			$out .='<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">';
+				$out .='<thead>
+					<th>&nbsp;</th>
+					<th><b>' . $this->getLanguageService()->getLL('stats_overview_subject') . '</b></th>
+					<th><b>' . $this->getLanguageService()->getLL('stats_overview_scheduled') . '</b></th>
+					<th><b>' . $this->getLanguageService()->getLL('stats_overview_delivery_begun') . '</b></th>
+					<th><b>' . $this->getLanguageService()->getLL('stats_overview_delivery_ended') . '</b></th>
+					<th nowrap="nowrap"><b>' . $this->getLanguageService()->getLL('stats_overview_total_sent') . '</b></th>
+					<th><b>' . $this->getLanguageService()->getLL('stats_overview_status') . '</b></th>
+				</thead>';
+			while(($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
 
 				$countRes = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 					'count(*)',
 					'sys_dmail_maillog',
-					'mid = '.$row['uid'].
-						' AND response_type=0'.
+					'mid = ' . $row['uid'] .
+						' AND response_type=0' .
 						' AND html_sent>0'
 				);
 				list($count) = $GLOBALS["TYPO3_DB"]->sql_fetch_row($countRes);
 
 				if(!empty($row['scheduled_begin'])){
 					if(!empty($row['scheduled_end']))
-						$sent = $GLOBALS["LANG"]->getLL('stats_overview_sent');
+						$sent = $this->getLanguageService()->getLL('stats_overview_sent');
 					else
-						$sent = $GLOBALS["LANG"]->getLL('stats_overview_sending');
+						$sent = $this->getLanguageService()->getLL('stats_overview_sending');
 				} else {
-					$sent = $GLOBALS["LANG"]->getLL('stats_overview_queuing');
+					$sent = $this->getLanguageService()->getLL('stats_overview_queuing');
 				}
 
 				$out.='<tr class="db_list_normal">
-					<td>'.IconUtility::getSpriteIconForRecord('sys_dmail', $row).'</td>
-					<td>'.$this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'],30).'  ',$row['uid'],$row['subject']).'&nbsp;&nbsp;</td>
-					<td>'.BackendUtility::datetime($row["scheduled"]).'</td>
-					<td>'.($row["scheduled_begin"]?BackendUtility::datetime($row["scheduled_begin"]):'&nbsp;').'</td>
-					<td>'.($row["scheduled_end"]?BackendUtility::datetime($row["scheduled_end"]):'&nbsp;').'</td>
-					<td>'.($count?$count:'&nbsp;').'</td>
-					<td>'.$sent.'</td>
+					<td>' . $this->iconFactory->getIconForRecord('sys_dmail', $row)->render() . '</td>
+					<td>' . $this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'],30) . '  ',$row['uid'],$row['subject']) . '&nbsp;&nbsp;</td>
+					<td>' . BackendUtility::datetime($row["scheduled"]) . '</td>
+					<td>' . ($row["scheduled_begin"]?BackendUtility::datetime($row["scheduled_begin"]):'&nbsp;') . '</td>
+					<td>' . ($row["scheduled_end"]?BackendUtility::datetime($row["scheduled_end"]):'&nbsp;') . '</td>
+					<td>' . ($count?$count:'&nbsp;') . '</td>
+					<td>' . $sent . '</td>
 				</tr>';
 			}
 			$out.='</table>';
 		}
 
-		$theOutput = $this->doc->section($GLOBALS["LANG"]->getLL('stats_overview_choose'), $out , 1, 1, 0, TRUE);
+		$theOutput = $this->doc->section($this->getLanguageService()->getLL('stats_overview_choose'), $out , 1, 1, 0, TRUE);
 		$theOutput .= $this->doc->spacer(20);
 
 		return $theOutput;
 	}
 
 	/**
-	 * wrap a string with a link
+	 * Wrap a string with a link
 	 *
-	 * @param	string		$str: string to be wrapped with a link
-	 * @param	integer		$uid: record uid to be link
-	 * @param	string		$aTitle: title param of the link tag
-	 * @return	string		wrapped string as a link
+	 * @param string $str String to be wrapped with a link
+	 * @param int $uid Record uid to be link
+	 * @param string $aTitle Title param of the link tag
+	 *
+	 * @return string wrapped string as a link
 	 */
-	function linkDMail_record($str,$uid,$aTitle='')	{
-		return '<a title="'.htmlspecialchars($aTitle).'" href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&SET[dmail_mode]=direct&CMD=stats">'.htmlspecialchars($str).'</a>';
+	function linkDMail_record($str,$uid,$aTitle='') {
+		return '<a title="' . htmlspecialchars($aTitle) . '" href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM4') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&SET[dmail_mode]=direct&CMD=stats">' . htmlspecialchars($str) . '</a>';
 	}
 
 	/**
-	 * get statistics from DB and compile them.
+	 * Get statistics from DB and compile them.
 	 *
-	 * @param	array		$row: DB record
-	 * @return	string		statistics of a mail
+	 * @param array $row DB record
+	 *
+	 * @return string Statistics of a mail
 	 */
-	function cmd_stats($row)	{
+	function cmd_stats($row) {
 		if (GeneralUtility::_GP("recalcCache"))	{
 			$this->makeStatTempTableContent($row);
 		}
-		$thisurl = 'index.php?id='.$this->id.'&sys_dmail_uid='.$row['uid'].'&CMD='.$this->CMD.'&recalcCache=1';
+		$thisurl = BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM4') . '&id=' . $this->id . '&sys_dmail_uid=' . $row['uid'] . '&CMD=' . $this->CMD . '&recalcCache=1';
 		$output = $this->directMail_compactView($row);
 
 			// *****************************
@@ -528,41 +534,41 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			// Plaintext/HTML
 		$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery('html_sent,count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=0','html_sent');
 
-		$text_html = array();
-		while( $row2 = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res)){
+		$textHtml = array();
+		while(($row2 = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
 			// 0:No mail; 1:HTML; 2:TEXT; 3:HTML+TEXT
-			$text_html[$row2['html_sent']] = $row2['counter'];
+			$textHtml[$row2['html_sent']] = $row2['counter'];
 		}
 		$GLOBALS["TYPO3_DB"]->sql_free_result($res);
 
 			// Unique responses, html
 		$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery('count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=1', 'rid,rtbl', 'counter');
-		$unique_html_responses = $GLOBALS["TYPO3_DB"]->sql_num_rows($res);
+		$uniqueHtmlResponses = $GLOBALS["TYPO3_DB"]->sql_num_rows($res);
 		$GLOBALS["TYPO3_DB"]->sql_free_result($res);
 
 			// Unique responses, Plain
 		$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery('count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=2', 'rid,rtbl', 'counter');
-		$unique_plain_responses = $GLOBALS["TYPO3_DB"]->sql_num_rows($res);
+		$uniquePlainResponses = $GLOBALS["TYPO3_DB"]->sql_num_rows($res);
 		$GLOBALS["TYPO3_DB"]->sql_free_result($res);
 
 			// Unique responses, pings
 		$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery('count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=-1', 'rid,rtbl', 'counter');
-		$unique_ping_responses = $GLOBALS["TYPO3_DB"]->sql_num_rows($res);
+		$uniquePingResponses = $GLOBALS["TYPO3_DB"]->sql_num_rows($res);
 		$GLOBALS["TYPO3_DB"]->sql_free_result($res);
 
 		$tblLines = array();
-		$tblLines[]=array('',$GLOBALS["LANG"]->getLL('stats_total'),$GLOBALS["LANG"]->getLL('stats_HTML'),$GLOBALS["LANG"]->getLL('stats_plaintext'));
+		$tblLines[]=array('',$this->getLanguageService()->getLL('stats_total'),$this->getLanguageService()->getLL('stats_HTML'),$this->getLanguageService()->getLL('stats_plaintext'));
 
-		$sent_total = intval($text_html['1']+$text_html['2']+$text_html['3']);
-		$sent_html = intval($text_html['1']+$text_html['3']);
-		$sent_plain = intval($text_html['2']);
+		$totalSent = intval($textHtml['1'] + $textHtml['2'] + $textHtml['3']);
+		$htmlSent = intval($textHtml['1']+$textHtml['3']);
+		$plainSent = intval($textHtml['2']);
 
-		$tblLines[] = array($GLOBALS["LANG"]->getLL('stats_mails_sent'),$sent_total,$sent_html,$sent_plain);
-		$tblLines[] = array($GLOBALS["LANG"]->getLL('stats_mails_returned'),$this->showWithPercent($table['-127']['counter'],$sent_total));
-		$tblLines[] = array($GLOBALS["LANG"]->getLL('stats_HTML_mails_viewed'),'',$this->showWithPercent($unique_ping_responses,$sent_html));
-		$tblLines[] = array($GLOBALS["LANG"]->getLL('stats_unique_responses'),$this->showWithPercent($unique_html_responses+$unique_plain_responses,$sent_total),$this->showWithPercent($unique_html_responses,$sent_html),$this->showWithPercent($unique_plain_responses,$sent_plain?$sent_plain:$sent_html));
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_mails_sent'),$totalSent,$htmlSent,$plainSent);
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_mails_returned'),$this->showWithPercent($table['-127']['counter'],$totalSent));
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_HTML_mails_viewed'),'',$this->showWithPercent($uniquePingResponses,$htmlSent));
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_unique_responses'),$this->showWithPercent($uniqueHtmlResponses+$uniquePlainResponses,$totalSent),$this->showWithPercent($uniqueHtmlResponses,$htmlSent),$this->showWithPercent($uniquePlainResponses,$plainSent?$plainSent:$htmlSent));
 
-		$output.='<br /><h2>' . $GLOBALS["LANG"]->getLL('stats_general_information') . '</h2>';
+		$output.='<br /><h2>' . $this->getLanguageService()->getLL('stats_general_information') . '</h2>';
 		$output.= DirectMailUtility::formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1, array());
 
 			// ******************
@@ -576,40 +582,41 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			'html' => array(),
 		);
 			// Most popular links, html:
-		$queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=1', 'url_id', 'counter');
+		$queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=1', 'url_id', 'counter');
 		$htmlUrlsTable=$this->getQueryRows($queryArray,'url_id');
 
 			// Most popular links, plain:
-		$queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=2', 'url_id', 'counter');
+		$queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=2', 'url_id', 'counter');
 		$plainUrlsTable=$this->getQueryRows($queryArray,'url_id');
 
 
 		// Find urls:
-		$temp_unpackedMail = unserialize(base64_decode($row['mailContent']));
+		$unpackedMail = unserialize(base64_decode($row['mailContent']));
 		// this array will include a unique list of all URLs that are used in the mailing
 		$urlArr = array();
 
 		$urlMd5Map = array();
-		if (is_array($temp_unpackedMail['html']['hrefs'])) {
-			foreach ($temp_unpackedMail['html']['hrefs'] as $k => $v) {
-				$urlArr[$k] = html_entity_decode($v['absRef']);	// convert &amp; of query params back
+		if (is_array($unpackedMail['html']['hrefs'])) {
+			foreach ($unpackedMail['html']['hrefs'] as $k => $v) {
+				// convert &amp; of query params back
+				$urlArr[$k] = html_entity_decode($v['absRef']);
 				$urlMd5Map[md5($v['absRef'])] = $k;
 			}
 		}
-		if (is_array($temp_unpackedMail['plain']['link_ids'])) {
-			foreach ($temp_unpackedMail['plain']['link_ids'] as $k => $v) {
+		if (is_array($unpackedMail['plain']['link_ids'])) {
+			foreach ($unpackedMail['plain']['link_ids'] as $k => $v) {
 				$urlArr[intval(-$k)] = $v;
 			}
 		}
 
 		// Traverse plain urls:
-		$plainUrlsTable_mapped = array();
+		$mappedPlainUrlsTable = array();
 		foreach ($plainUrlsTable as $id => $c) {
 			$url = $urlArr[intval($id)];
 			if (isset($urlMd5Map[md5($url)])) {
-				$plainUrlsTable_mapped[$urlMd5Map[md5($url)]] = $c;
+				$mappedPlainUrlsTable[$urlMd5Map[md5($url)]] = $c;
 			} else {
-				$plainUrlsTable_mapped[$id] = $c;
+				$mappedPlainUrlsTable[$id] = $c;
 			}
 		}
 
@@ -624,10 +631,10 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 		// Traverse plain urls:
 		$urlCounter['plain'] = array();
-		foreach ($plainUrlsTable_mapped as $id => $c) {
+		foreach ($mappedPlainUrlsTable as $id => $c) {
 			// Look up plain url in html urls
 			$htmlLinkFound = FALSE;
-			foreach ($urlCounter['html'] as $htmlId => $htmlLink) {
+			foreach ($urlCounter['html'] as $htmlId => $_) {
 				if ($urlArr[$id] == $urlArr[$htmlId]) {
 					$urlCounter['html'][$htmlId]['plainId'] = $id;
 					$urlCounter['html'][$htmlId]['plainCounter'] = $c['counter'];
@@ -642,17 +649,17 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			}
 		}
 
-		$tblLines=array();
-		$tblLines[]=array('',$GLOBALS["LANG"]->getLL('stats_total'),$GLOBALS["LANG"]->getLL('stats_HTML'),$GLOBALS["LANG"]->getLL('stats_plaintext'));
-		$tblLines[]=array($GLOBALS["LANG"]->getLL('stats_total_responses'),$table['1']['counter']+$table['2']['counter'],$table['1']['counter']?$table['1']['counter']:'0',$table['2']['counter']?$table['2']['counter']:'0');
-		$tblLines[]=array($GLOBALS["LANG"]->getLL('stats_unique_responses'),$this->showWithPercent($unique_html_responses+$unique_plain_responses,$sent_total), $this->showWithPercent($unique_html_responses,$sent_html), $this->showWithPercent($unique_plain_responses,$sent_plain?$sent_plain:$sent_html));
-		$tblLines[]=array($GLOBALS["LANG"]->getLL('stats_links_clicked_per_respondent'),
-			($unique_html_responses+$unique_plain_responses ? number_format(($table['1']['counter']+$table['2']['counter'])/($unique_html_responses+$unique_plain_responses),2) : '-'),
-			($unique_html_responses  ? number_format(($table['1']['counter'])/($unique_html_responses),2)  : '-'),
-			($unique_plain_responses ? number_format(($table['2']['counter'])/($unique_plain_responses),2) : '-')
+		$tblLines = array();
+		$tblLines[] = array('',$this->getLanguageService()->getLL('stats_total'),$this->getLanguageService()->getLL('stats_HTML'),$this->getLanguageService()->getLL('stats_plaintext'));
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_total_responses'),$table['1']['counter'] + $table['2']['counter'],$table['1']['counter']?$table['1']['counter']:'0',$table['2']['counter']?$table['2']['counter']:'0');
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_unique_responses'),$this->showWithPercent($uniqueHtmlResponses+$uniquePlainResponses,$totalSent), $this->showWithPercent($uniqueHtmlResponses,$htmlSent), $this->showWithPercent($uniquePlainResponses,$plainSent?$plainSent:$htmlSent));
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_links_clicked_per_respondent'),
+			($uniqueHtmlResponses+$uniquePlainResponses ? number_format(($table['1']['counter']+$table['2']['counter'])/($uniqueHtmlResponses+$uniquePlainResponses),2) : '-'),
+			($uniqueHtmlResponses  ? number_format(($table['1']['counter'])/($uniqueHtmlResponses),2)  : '-'),
+			($uniquePlainResponses ? number_format(($table['2']['counter'])/($uniquePlainResponses),2) : '-')
 		);
 
-		$output.='<br /><h2>' . $GLOBALS["LANG"]->getLL('stats_response') . '</h2>';
+		$output.='<br /><h2>' . $this->getLanguageService()->getLL('stats_response') . '</h2>';
 		$output.=DirectMailUtility::formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(0,0,0,0));
 
 		arsort($urlCounter['total']);
@@ -661,16 +668,16 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		reset($urlCounter['total']);
 
 		$tblLines = array();
-		$tblLines[] = array('',$GLOBALS["LANG"]->getLL('stats_HTML_link_nr'),$GLOBALS["LANG"]->getLL('stats_plaintext_link_nr'),$GLOBALS["LANG"]->getLL('stats_total'),$GLOBALS["LANG"]->getLL('stats_HTML'),$GLOBALS["LANG"]->getLL('stats_plaintext'),'');
+		$tblLines[] = array('',$this->getLanguageService()->getLL('stats_HTML_link_nr'),$this->getLanguageService()->getLL('stats_plaintext_link_nr'),$this->getLanguageService()->getLL('stats_total'),$this->getLanguageService()->getLL('stats_HTML'),$this->getLanguageService()->getLL('stats_plaintext'),'');
 
 			// HTML mails
 		if (intval($row['sendOptions']) & 0x2) {
-			$HTMLContent = $temp_unpackedMail['html']['content'];
+			$htmlContent = $unpackedMail['html']['content'];
 
-			$HTMLlinks = array();
-			if(is_array($temp_unpackedMail['html']['hrefs'])) {
-				foreach ($temp_unpackedMail['html']['hrefs'] as $jumpurlId => $data) {
-					$HTMLlinks[$jumpurlId] = array(
+			$htmlLinks = array();
+			if(is_array($unpackedMail['html']['hrefs'])) {
+				foreach ($unpackedMail['html']['hrefs'] as $jumpurlId => $data) {
+					$htmlLinks[$jumpurlId] = array(
 						'url'   => $data['ref'],
 						'label' => ''
 					);
@@ -679,7 +686,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 			// Parse mail body
 			$dom = new \DOMDocument;
-			@$dom->loadHTML($HTMLContent);
+			@$dom->loadHTML($htmlContent);
 			$links = array();
 			// Get all links
 			foreach ($dom->getElementsByTagName('a') as $node) {
@@ -688,7 +695,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 			// Process all links found
 			foreach ($links as $link) {
-				/** @var \DOMElement $link */
+				/* @var \DOMElement $link */
 				$url =  $link->getAttribute('href');
 
 				if (empty($url)) {
@@ -709,7 +716,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				}
 
 				$jumpurlId = $parsedUrl['jumpurl'];
-				$targetUrl = $HTMLlinks[$jumpurlId]['url'];
+				$targetUrl = $htmlLinks[$jumpurlId]['url'];
 
 				$title = $link->getAttribute('title');
 
@@ -720,24 +727,24 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$label = '<span title="' . $targetUrl . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
 				}
 
-				$HTMLlinks[$jumpurlId]['label'] = $label;
+				$htmlLinks[$jumpurlId]['label'] = $label;
 
 			}
 
 		}
 
-		foreach ($urlCounter['total'] as $id => $hits) {
+		foreach ($urlCounter['total'] as $id => $_) {
 				// $id is the jumpurl ID
 			$origId = $id;
 			$id     = abs(intval($id));
-			$url    = $HTMLlinks[$id]['url'] ? $HTMLlinks[$id]['url'] : $urlArr[$origId];
+			$url    = $htmlLinks[$id]['url'] ? $htmlLinks[$id]['url'] : $urlArr[$origId];
 				// a link to this host?
 			$uParts = @parse_url($url);
 			$urlstr = $this->getUrlStr($uParts);
 
-			$label = $this->getLinkLabel($url, $urlstr, FALSE, $HTMLlinks[$id]['label']);
+			$label = $this->getLinkLabel($url, $urlstr, FALSE, $htmlLinks[$id]['label']);
 
-			$img = '<a href="'.$urlstr.'" target="_blank"><img '.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"').' title="'.htmlspecialchars($label).'" /></a>';
+			$img = '<a href="' . $urlstr . '" target="_blank"><img ' . IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . htmlspecialchars($label) . '" /></a>';
 
 			if (isset($urlCounter['html'][$id]['plainId']))	{
 				$tblLines[] = array(
@@ -767,12 +774,12 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			// go through all links that were not clicked yet and that have a label
 		$clickedLinks = array_keys($urlCounter['total']);
 		foreach ($urlArr as $id => $link) {
-			if (!in_array($id, $clickedLinks) && (isset($HTMLlinks['id']))) {
+			if (!in_array($id, $clickedLinks) && (isset($htmlLinks['id']))) {
 					// a link to this host?
 				$uParts = @parse_url($link);
 				$urlstr = $this->getUrlStr($uParts);
 
-				$label = $HTMLlinks[$id]['label'] . ' (' . ($urlstr ? $urlstr : '/') . ')';
+				$label = $htmlLinks[$id]['label'] . ' (' . ($urlstr ? $urlstr : '/') . ')';
 				$img = '<a href="' . htmlspecialchars($link) . '" target="_blank"><img ' . IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . htmlspecialchars($link) . '" /></a>';
 				$tblLines[] = array(
 					$label,
@@ -787,7 +794,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		}
 
 		if ($urlCounter['total']) {
-			$output .= '<br /><h2>' . $GLOBALS["LANG"]->getLL('stats_response_link') . '</h2>';
+			$output .= '<br /><h2>' . $this->getLanguageService()->getLL('stats_response_link') . '</h2>';
 			$output .= DirectMailUtility::formatTable($tblLines, array('nowrap','nowrap width="100"','nowrap width="100"','nowrap align="right"','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(1,0,0,0,0,0,1));
 		}
 
@@ -798,107 +805,111 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		// Returned mails
 		// ******************
 
-			//The icons:
-		$listIcons = '<img '.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/list.gif', 'width="12" height="12" alt=""').' />';
-		$csvIcons = '<img '.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/csv.gif', 'width="27" height="12" alt=""').' />';
+		// The icons:
+		$listIcons = $this->iconFactory->getIcon('actions-system-list-open', Icon::SIZE_SMALL);
+		$csvIcons = $this->iconFactory->getIcon('actions-document-export-csv', Icon::SIZE_SMALL);
 		if(ExtensionManagementUtility::isLoaded('tt_address')){
-			$iconPath = ExtensionManagementUtility::extRelPath('tt_address').'ext_icon__h.gif';
+			$iconPath = ExtensionManagementUtility::extRelPath('tt_address') . 'ext_icon__h.gif';
 			$iconParam = 'width="18" height="16"' ;
 		} else {
 			$iconPath = 'gfx/button_hide.gif';
 			$iconParam = 'width="11" height="10"';
 		}
-		$hideIcons = '<img '.IconUtility::skinImg($GLOBALS["BACK_PATH"], $iconPath, $iconParam.' alt=""').' />';
+		$hideIcons = '<img ' . IconUtility::skinImg($GLOBALS["BACK_PATH"], $iconPath, $iconParam . ' alt=""') . ' />';
 
-			//icons mails returned
-		$iconsMailReturned[]='<a href="'.$thisurl.'&returnList=1" class="bubble">' . $listIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_list_returned') . '</span></a>';
-		$iconsMailReturned[]='<a href="'.$thisurl.'&returnDisable=1" class="bubble">' . $hideIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_disable_returned') . '</span></a>';
-		$iconsMailReturned[]='<a href="'.$thisurl.'&returnCSV=1" class="bubble">' . $csvIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_CSV_returned') . '</span></a>';
+		// Icons mails returned
+		$iconsMailReturned[] = '<a href="' . $thisurl . '&returnList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned') . '"> ' . $listIcons . '</span></a>';
+		$iconsMailReturned[] = '<a href="' . $thisurl . '&returnDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned') . '"> ' . $hideIcons . '</span></a>';
+		$iconsMailReturned[] = '<a href="' . $thisurl . '&returnCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned') . '"> ' . $csvIcons . '</span></a>';
 
-			//icons unknown recip
-		$iconsUnknownRecip[] ='<a href="'.$thisurl.'&unknownList=1" class="bubble">' . $listIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_list_returned_unknown_recipient') . '</span></a>';
-		$iconsUnknownRecip[] ='<a href="'.$thisurl.'&unknownDisable=1" class="bubble">' . $hideIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_disable_returned_unknown_recipient') . '</span></a>';
-		$iconsUnknownRecip[] ='<a href="'.$thisurl.'&unknownCSV=1" class="bubble">' . $csvIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_CSV_returned_unknown_recipient') . '</span></a>';
+		// Icons unknown recip
+		$iconsUnknownRecip[] = '<a href="' . $thisurl . '&unknownList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned_unknown_recipient') . '"> ' . $listIcons . '</span></a>';
+		$iconsUnknownRecip[] = '<a href="' . $thisurl . '&unknownDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_unknown_recipient') . '"> ' . $hideIcons . '</span></a>';
+		$iconsUnknownRecip[] = '<a href="' . $thisurl . '&unknownCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_unknown_recipient') . '"> ' . $csvIcons . '</span></a>';
 
-			//icons mailbox full
-		$iconsMailbox[] ='<a href="'.$thisurl.'&fullList=1" class="bubble">' . $listIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_list_returned_mailbox_full') . '</span></a>';
-		$iconsMailbox[] ='<a href="'.$thisurl.'&fullDisable=1" class="bubble">' . $hideIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_disable_returned_mailbox_full') . '</span></a>';
-		$iconsMailbox[] ='<a href="'.$thisurl.'&fullCSV=1" class="bubble">' . $csvIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_CSV_returned_mailbox_full') . '</span></a>';
+		// Icons mailbox full
+		$iconsMailbox[] = '<a href="' . $thisurl . '&fullList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned_mailbox_full') . '"> ' . $listIcons . '</span></a>';
+		$iconsMailbox[] = '<a href="' . $thisurl . '&fullDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_mailbox_full') . '"> ' . $hideIcons . '</span></a>';
+		$iconsMailbox[] = '<a href="' . $thisurl . '&fullCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_mailbox_full') . '"> ' . $csvIcons . '</span></a>';
 
-			//icons bad host
-		$iconsBadhost[] ='<a href="'.$thisurl.'&badHostList=1" class="bubble">' . $listIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_list_returned_bad_host') . '</span></a>';
-		$iconsBadhost[] ='<a href="'.$thisurl.'&badHostDisable=1" class="bubble">' . $hideIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_disable_returned_bad_host') . '</span></a>';
-		$iconsBadhost[] ='<a href="'.$thisurl.'&badHostCSV=1" class="bubble">' . $csvIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_CSV_returned_bad_host') . '</span></a>';
+		// Icons bad host
+		$iconsBadhost[] = '<a href="' . $thisurl . '&badHostList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned_bad_host') . '"> ' . $listIcons . '</span></a>';
+		$iconsBadhost[] = '<a href="' . $thisurl . '&badHostDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_bad_host') . '"> ' . $hideIcons . '</span></a>';
+		$iconsBadhost[] = '<a href="' . $thisurl . '&badHostCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_bad_host') . '"> ' . $csvIcons . '</span></a>';
 
-			//icons bad header
-		$iconsBadheader[] ='<a href="'.$thisurl.'&badHeaderList=1" class="bubble">' . $listIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_list_returned_bad_header') . '</span></a>';
-		$iconsBadheader[] ='<a href="'.$thisurl.'&badHeaderDisable=1" class="bubble">' . $hideIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_disable_returned_bad_header') . '</span></a>';
-		$iconsBadheader[] ='<a href="'.$thisurl.'&badHeaderCSV=1" class="bubble">' . $csvIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_CSV_returned_bad_header') . '</span></a>';
+		// Icons bad header
+		$iconsBadheader[] = '<a href="' . $thisurl . '&badHeaderList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned_bad_header') . '"> ' . $listIcons . '</span></a>';
+		$iconsBadheader[] = '<a href="' . $thisurl . '&badHeaderDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_bad_header') . '"> ' . $hideIcons . '</span></a>';
+		$iconsBadheader[] = '<a href="' . $thisurl . '&badHeaderCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_bad_header') . '"> ' . $csvIcons . '</span></a>';
 
-			//icons unknown reasons
-			//TODO: link to show all reason
-		$iconsUnknownReason[] ='<a href="'.$thisurl.'&reasonUnknownList=1" class="bubble">' . $listIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_list_returned_reason_unknown') . '</span></a>';
-		$iconsUnknownReason[] ='<a href="'.$thisurl.'&reasonUnknownDisable=1" class="bubble">' . $hideIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_disable_returned_reason_unknown') . '</span></a>';
-		$iconsUnknownReason[] ='<a href="'.$thisurl.'&reasonUnknownCSV=1" class="bubble">' . $csvIcons.'<span class="help">'.$GLOBALS["LANG"]->getLL('stats_CSV_returned_reason_unknown') . '</span></a>';
+		// Icons unknown reasons
+		// TODO: link to show all reason
+		$iconsUnknownReason[] = '<a href="' . $thisurl . '&reasonUnknownList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned_reason_unknown') . '"> ' . $listIcons . '</span></a>';
+		$iconsUnknownReason[] = '<a href="' . $thisurl . '&reasonUnknownDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_reason_unknown') . '"> ' . $hideIcons . '</span></a>';
+		$iconsUnknownReason[] = '<a href="' . $thisurl . '&reasonUnknownCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_reason_unknown') . '"> ' . $csvIcons . '</span></a>';
 
-			//Table with Icon
-		$queryArray = array('count(*) as counter,return_code', 'sys_dmail_maillog', 'mid='.intval($row['uid']).' AND response_type=-127', 'return_code');
-		$table_ret = $this->getQueryRows($queryArray,'return_code');
+		// Table with Icon
+		$queryArray = array('count(*) as counter,return_code', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=-127', 'return_code');
+		$responseResult = $this->getQueryRows($queryArray,'return_code');
 
-		$tblLines=array();
-		$tblLines[]=array('',$GLOBALS["LANG"]->getLL('stats_count'),'');
-		$tblLines[]=array($GLOBALS["LANG"]->getLL('stats_total_mails_returned'), ($table['-127']['counter']?number_format(intval($table['-127']['counter'])):'0'), implode('&nbsp;&nbsp;',$iconsMailReturned));
-		$tblLines[]=array($GLOBALS["LANG"]->getLL('stats_recipient_unknown'), $this->showWithPercent($table_ret['550']['counter']+$table_ret['553']['counter'],$table['-127']['counter']), implode('&nbsp;&nbsp;',$iconsUnknownRecip));
-		$tblLines[]=array($GLOBALS["LANG"]->getLL('stats_mailbox_full'), $this->showWithPercent($table_ret['551']['counter'],$table['-127']['counter']), implode('&nbsp;&nbsp;',$iconsMailbox));
-		$tblLines[]=array($GLOBALS["LANG"]->getLL('stats_bad_host'), $this->showWithPercent($table_ret['552']['counter'],$table['-127']['counter']), implode('&nbsp;&nbsp;',$iconsBadhost));
-		$tblLines[]=array($GLOBALS["LANG"]->getLL('stats_error_in_header'), $this->showWithPercent($table_ret['554']['counter'],$table['-127']['counter']),implode('&nbsp;&nbsp;',$iconsBadheader));
-		$tblLines[]=array($GLOBALS["LANG"]->getLL('stats_reason_unkown'), $this->showWithPercent($table_ret['-1']['counter'],$table['-127']['counter']),implode('&nbsp;&nbsp;',$iconsUnknownReason));
+		$tblLines = array();
+		$tblLines[] = array('',$this->getLanguageService()->getLL('stats_count'),'');
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_total_mails_returned'), ($table['-127']['counter']?number_format(intval($table['-127']['counter'])):'0'), implode('&nbsp;',$iconsMailReturned));
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_recipient_unknown'), $this->showWithPercent($responseResult['550']['counter']+$responseResult['553']['counter'],$table['-127']['counter']), implode('&nbsp;',$iconsUnknownRecip));
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_mailbox_full'), $this->showWithPercent($responseResult['551']['counter'],$table['-127']['counter']), implode('&nbsp;',$iconsMailbox));
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_bad_host'), $this->showWithPercent($responseResult['552']['counter'],$table['-127']['counter']), implode('&nbsp;',$iconsBadhost));
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_error_in_header'), $this->showWithPercent($responseResult['554']['counter'],$table['-127']['counter']),implode('&nbsp;',$iconsBadheader));
+		$tblLines[] = array($this->getLanguageService()->getLL('stats_reason_unkown'), $this->showWithPercent($responseResult['-1']['counter'],$table['-127']['counter']),implode('&nbsp;',$iconsUnknownReason));
 
-		$output.='<br /><h2>' . $GLOBALS["LANG"]->getLL('stats_mails_returned') . '</h2>';
-		$output .= DirectMailUtility::formatTable($tblLines, array('nowrap', 'nowrap align="right"', ''), 1, array(0, 0, 1));
+		$output.='<br /><h2>' . $this->getLanguageService()->getLL('stats_mails_returned') . '</h2>';
+		$output .= DirectMailUtility::formatTable($tblLines, array('nowrap', 'nowrap', ''), 1, array(0, 0, 1));
 
-			//Find all returned mail
-		if (GeneralUtility::_GP('returnList')||GeneralUtility::_GP('returnDisable')||GeneralUtility::_GP('returnCSV'))		{
+		// Find all returned mail
+		if (GeneralUtility::_GP('returnList')||GeneralUtility::_GP('returnDisable')||GeneralUtility::_GP('returnCSV')) {
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
-				'mid='.intval($row['uid']).
+				'mid=' . intval($row['uid']) .
 					' AND response_type=-127'
 				);
 			$idLists = array();
-			while($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))	{
-				switch($rrow['rtbl'])	{
+
+			while(($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
+				switch($rrow['rtbl']) {
 					case 't':
 						$idLists['tt_address'][]=$rrow['rid'];
-					break;
+						break;
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
-					break;
+						break;
 					case 'P':
 						$idLists['PLAINLIST'][] = $rrow['email'];
-					break;
+						break;
 					default:
 						$idLists[$rrow['rtbl']][]=$rrow['rid'];
-					break;
 				}
 			}
 
 			if (GeneralUtility::_GP('returnList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<h3>' . $GLOBALS["LANG"]->getLL('stats_emails') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<h3>' . $GLOBALS["LANG"]->getLL('stats_website_users') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);}
+				if (is_array($idLists['tt_address'])) {
+					$output .= '<h3>' . $this->getLanguageService()->getLL('stats_emails') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);
+				}
+				if (is_array($idLists['fe_users'])) {
+					$output .= '<h3>' . $this->getLanguageService()->getLL('stats_website_users') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);
+				}
 				if (is_array($idLists['PLAINLIST'])) {
-					$output .= '<h3>' . $GLOBALS["LANG"]->getLL('stats_plainlist') . '</h3>';
+					$output .= '<h3>' . $this->getLanguageService()->getLL('stats_plainlist') . '</h3>';
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
-			if (GeneralUtility::_GP('returnDisable'))	{
-				if (is_array($idLists['tt_address']))	{
+			if (GeneralUtility::_GP('returnDisable')) {
+				if (is_array($idLists['tt_address'])) {
 					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
+					$output.='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
 				}
 				if (is_array($idLists['fe_users']))	{
 					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
+					$output.='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
 				}
 			}
 			if (GeneralUtility::_GP('returnCSV'))	{
@@ -918,64 +929,64 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				if (is_array($idLists['PLAINLIST'])) {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
-				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
+				$output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_list') . '<br />';
+				$output .= '<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
 			}
 		}
 
-			//Find Unknown Recipient
-		if (GeneralUtility::_GP('unknownList')||GeneralUtility::_GP('unknownDisable')||GeneralUtility::_GP('unknownCSV'))		{
+		// Find Unknown Recipient
+		if (GeneralUtility::_GP('unknownList')||GeneralUtility::_GP('unknownDisable')||GeneralUtility::_GP('unknownCSV')) {
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
-				'mid='.intval($row['uid']).
-					' AND response_type=-127'.
+				'mid=' . intval($row['uid']) .
+					' AND response_type=-127' .
 					' AND (return_code=550 OR return_code=553)'
 				);
+
 			$idLists = array();
-			while($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))	{
+			while(($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
 				switch($rrow['rtbl'])	{
 					case 't':
 						$idLists['tt_address'][]=$rrow['rid'];
-					break;
+						break;
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
-					break;
+						break;
 					case 'P':
 						$idLists['PLAINLIST'][] = $rrow['email'];
-					break;
+						break;
 					default:
 						$idLists[$rrow['rtbl']][]=$rrow['rid'];
-					break;
 				}
 			}
 
 			if (GeneralUtility::_GP('unknownList'))	{
 				if (is_array($idLists['tt_address'])) {
-					$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);
+					$output .='<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);
 				}
 				if (is_array($idLists['fe_users'])) {
-					$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);
+					$output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);
 				}
 				if (is_array($idLists['PLAINLIST'])) {
-					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
+					$output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
-			if (GeneralUtility::_GP('unknownDisable'))	{
-				if (is_array($idLists['tt_address']))	{
-					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
+			if (GeneralUtility::_GP('unknownDisable')) {
+				if (is_array($idLists['tt_address'])) {
+					$c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
+					$output .='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
 				}
-				if (is_array($idLists['fe_users']))	{
-					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
+				if (is_array($idLists['fe_users'])) {
+					$c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
+					$output .='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
 				}
 			}
-			if (GeneralUtility::_GP('unknownCSV'))	{
-				$emails=array();
-				if (is_array($idLists['tt_address']))	{
-					$arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
+			if (GeneralUtility::_GP('unknownCSV')) {
+				$emails = array();
+				if (is_array($idLists['tt_address'])) {
+					$arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
@@ -989,65 +1000,68 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				if (is_array($idLists['PLAINLIST'])) {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
-				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_unknown_recipient_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
+				$output .='<br />' . $this->getLanguageService()->getLL('stats_emails_returned_unknown_recipient_list') . '<br />';
+				$output .='<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
 			}
 		}
 
-			//Mailbox Full
-		if (GeneralUtility::_GP('fullList')||GeneralUtility::_GP('fullDisable')||GeneralUtility::_GP('fullCSV'))		{
+		// Mailbox Full
+		if (GeneralUtility::_GP('fullList')||GeneralUtility::_GP('fullDisable')||GeneralUtility::_GP('fullCSV')) {
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
-				'mid='.intval($row['uid']).
-					' AND response_type=-127'.
+				'mid=' . intval($row['uid']) .
+					' AND response_type=-127' .
 					' AND return_code=551'
 				);
 			$idLists = array();
-			while($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))	{
-				switch($rrow['rtbl'])	{
+			while (($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
+				switch($rrow['rtbl']) {
 					case 't':
 						$idLists['tt_address'][]=$rrow['rid'];
-					break;
+						break;
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
-					break;
+						break;
 					case 'P':
 						$idLists['PLAINLIST'][] = $rrow['email'];
-					break;
+						break;
 					default:
 						$idLists[$rrow['rtbl']][]=$rrow['rid'];
-					break;
 				}
 			}
 
-			if (GeneralUtility::_GP('fullList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);}
+			if (GeneralUtility::_GP('fullList')) {
+				if (is_array($idLists['tt_address'])) {
+					$output .='<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);
+				}
+				if (is_array($idLists['fe_users'])) {
+					$output.= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);
+				}
 				if (is_array($idLists['PLAINLIST'])) {
-					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
+					$output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
-			if (GeneralUtility::_GP('fullDisable'))	{
-				if (is_array($idLists['tt_address']))	{
+			if (GeneralUtility::_GP('fullDisable')) {
+				if (is_array($idLists['tt_address'])) {
 					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
+					$output.='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
 				}
 				if (is_array($idLists['fe_users']))	{
 					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
+					$output.='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
 				}
 			}
-			if (GeneralUtility::_GP('fullCSV'))	{
+			if (GeneralUtility::_GP('fullCSV')) {
 				$emails=array();
-				if (is_array($idLists['tt_address']))	{
+				if (is_array($idLists['tt_address'])) {
 					$arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
 					}
 				}
-				if (is_array($idLists['fe_users']))	{
+				if (is_array($idLists['fe_users'])) {
 					$arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
@@ -1056,195 +1070,204 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				if (is_array($idLists['PLAINLIST'])) {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
-				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_mailbox_full_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
+				$output .='<br />' . $this->getLanguageService()->getLL('stats_emails_returned_mailbox_full_list') . '<br />';
+				$output .='<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
 			}
 		}
 
-			//find Bad Host
-		if (GeneralUtility::_GP('badHostList')||GeneralUtility::_GP('badHostDisable')||GeneralUtility::_GP('badHostCSV'))		{
+		// find Bad Host
+		if (GeneralUtility::_GP('badHostList')||GeneralUtility::_GP('badHostDisable')||GeneralUtility::_GP('badHostCSV')) {
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
-				'mid='.intval($row['uid']).
-					' AND response_type=-127'.
+				'mid=' . intval($row['uid']) .
+					' AND response_type=-127' .
 					' AND return_code=552'
 				);
 			$idLists = array();
-			while($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))	{
-				switch($rrow['rtbl'])	{
+			while(($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
+				switch($rrow['rtbl']) {
 					case 't':
 						$idLists['tt_address'][]=$rrow['rid'];
-					break;
+						break;
 					case 'f':
 						$idLists['fe_users'][]=$rrow['rid'];
-					break;
+						break;
 					case 'P':
 						$idLists['PLAINLIST'][] = $rrow['email'];
-					break;
+						break;
 					default:
 						$idLists[$rrow['rtbl']][]=$rrow['rid'];
-					break;
 				}
 			}
 
-			if (GeneralUtility::_GP('badHostList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);}
+			if (GeneralUtility::_GP('badHostList')) {
+				if (is_array($idLists['tt_address'])) {
+					$output .='<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);
+				}
+				if (is_array($idLists['fe_users'])) {
+					$output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);
+				}
 				if (is_array($idLists['PLAINLIST'])) {
-					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
+					$output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
-			if (GeneralUtility::_GP('badHostDisable'))	{
-				if (is_array($idLists['tt_address']))	{
-					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
+			if (GeneralUtility::_GP('badHostDisable')) {
+				if (is_array($idLists['tt_address'])) {
+					$c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
+					$output .='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
 				}
 				if (is_array($idLists['fe_users']))	{
-					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
+					$c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
+					$output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
 				}
 			}
-			if (GeneralUtility::_GP('badHostCSV'))	{
-				$emails=array();
-				if (is_array($idLists['tt_address']))	{
-					$arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
+			if (GeneralUtility::_GP('badHostCSV')) {
+				$emails = array();
+				if (is_array($idLists['tt_address'])) {
+					$arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
-						$emails[]=$v['email'];
+						$emails[] = $v['email'];
 					}
 				}
-				if (is_array($idLists['fe_users']))	{
-					$arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
+				if (is_array($idLists['fe_users'])) {
+					$arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
 					foreach ($arr as $v) {
-						$emails[]=$v['email'];
+						$emails[] = $v['email'];
 					}
 				}
 				if (is_array($idLists['PLAINLIST'])) {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
-				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_bad_host_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
+				$output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_bad_host_list') . '<br />';
+				$output .= '<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
 			}
 		}
 
-			//find Bad Header
-		if (GeneralUtility::_GP('badHeaderList')||GeneralUtility::_GP('badHeaderDisable')||GeneralUtility::_GP('badHeaderCSV'))		{
+		// find Bad Header
+		if (GeneralUtility::_GP('badHeaderList')||GeneralUtility::_GP('badHeaderDisable')||GeneralUtility::_GP('badHeaderCSV')) {
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
-				'mid='.intval($row['uid']).
-					' AND response_type=-127'.
+				'mid=' . intval($row['uid']) .
+					' AND response_type=-127' .
 					' AND return_code=554'
 				);
 			$idLists = array();
-			while($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))	{
-				switch($rrow['rtbl'])	{
+			while(($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
+				switch($rrow['rtbl']) {
 					case 't':
-						$idLists['tt_address'][]=$rrow['rid'];
-					break;
+						$idLists['tt_address'][] = $rrow['rid'];
+						break;
 					case 'f':
-						$idLists['fe_users'][]=$rrow['rid'];
-					break;
+						$idLists['fe_users'][] = $rrow['rid'];
+						break;
 					case 'P':
 						$idLists['PLAINLIST'][] = $rrow['email'];
-					break;
+						break;
 					default:
-						$idLists[$rrow['rtbl']][]=$rrow['rid'];
-					break;
+						$idLists[$rrow['rtbl']][] = $rrow['rid'];
 				}
 			}
 
-			if (GeneralUtility::_GP('badHeaderList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);}
+			if (GeneralUtility::_GP('badHeaderList')) {
+				if (is_array($idLists['tt_address'])) {
+					$output .='<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);
+				}
+				if (is_array($idLists['fe_users'])) {
+					$output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);
+				}
 				if (is_array($idLists['PLAINLIST'])) {
-					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
+					$output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
 
-			if (GeneralUtility::_GP('badHeaderDisable'))	{
-				if (is_array($idLists['tt_address']))	{
-					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
+			if (GeneralUtility::_GP('badHeaderDisable')) {
+				if (is_array($idLists['tt_address'])) {
+					$c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
+					$output .='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
 				}
 				if (is_array($idLists['fe_users']))	{
-					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
+					$c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
+					$output .='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
 				}
 			}
-			if (GeneralUtility::_GP('badHeaderCSV'))	{
-				$emails=array();
-				if (is_array($idLists['tt_address']))	{
-					$arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
+			if (GeneralUtility::_GP('badHeaderCSV')) {
+				$emails = array();
+				if (is_array($idLists['tt_address'])) {
+					$arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
-						$emails[]=$v['email'];
+						$emails[] = $v['email'];
 					}
 				}
-				if (is_array($idLists['fe_users']))	{
-					$arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
+				if (is_array($idLists['fe_users'])) {
+					$arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users');
 					foreach ($arr as $v) {
-						$emails[]=$v['email'];
+						$emails[] = $v['email'];
 					}
 				}
 				if (is_array($idLists['PLAINLIST'])) {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
-				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_bad_header_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
+				$output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_bad_header_list') .  '<br />';
+				$output .= '<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
 			}
 		}
 
-			//find Unknown Reasons
-			//TODO: list all reason
-		if (GeneralUtility::_GP('reasonUnknownList')||GeneralUtility::_GP('reasonUnknownDisable')||GeneralUtility::_GP('reasonUnknownCSV'))		{
+		// find Unknown Reasons
+		// TODO: list all reason
+		if (GeneralUtility::_GP('reasonUnknownList')||GeneralUtility::_GP('reasonUnknownDisable')||GeneralUtility::_GP('reasonUnknownCSV')) {
 			$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 				'rid,rtbl,email',
 				'sys_dmail_maillog',
-				'mid='.intval($row['uid']).
-					' AND response_type=-127'.
+				'mid=' . intval($row['uid']) .
+					' AND response_type=-127' .
 					' AND return_code=-1'
 				);
 			$idLists = array();
-			while($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))	{
-				switch($rrow['rtbl'])	{
+			while(($rrow = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
+				switch($rrow['rtbl']) {
 					case 't':
-						$idLists['tt_address'][]=$rrow['rid'];
-					break;
+						$idLists['tt_address'][] = $rrow['rid'];
+						break;
 					case 'f':
-						$idLists['fe_users'][]=$rrow['rid'];
-					break;
+						$idLists['fe_users'][] = $rrow['rid'];
+						break;
 					case 'P':
 						$idLists['PLAINLIST'][] = $rrow['email'];
-					break;
+						break;
 					default:
-						$idLists[$rrow['rtbl']][]=$rrow['rid'];
-					break;
+						$idLists[$rrow['rtbl']][] = $rrow['rid'];
 				}
 			}
 
-			if (GeneralUtility::_GP('reasonUnknownList'))	{
-				if (is_array($idLists['tt_address']))	{$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);}
-				if (is_array($idLists['fe_users']))		{$output.= '<br />' . $GLOBALS["LANG"]->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);}
+			if (GeneralUtility::_GP('reasonUnknownList')) {
+				if (is_array($idLists['tt_address'])) {
+					$output .='<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address',$this->id,1,$this->sys_dmail_uid);
+				}
+				if (is_array($idLists['fe_users'])) {
+					$output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users',$this->id,1,$this->sys_dmail_uid);
+				}
 				if (is_array($idLists['PLAINLIST'])) {
-					$output .= '<br />' . $GLOBALS["LANG"]->getLL('stats_plainlist');
+					$output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
 					$output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
 				}
 			}
-			if (GeneralUtility::_GP('reasonUnknownDisable'))	{
-				if (is_array($idLists['tt_address']))	{
-					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_emails_disabled');
+			if (GeneralUtility::_GP('reasonUnknownDisable')) {
+				if (is_array($idLists['tt_address'])) {
+					$c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'),'tt_address');
+					$output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
 				}
-				if (is_array($idLists['fe_users']))	{
-					$c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
-					$output.='<br />' . $c . ' ' . $GLOBALS["LANG"]->getLL('stats_website_users_disabled');
+				if (is_array($idLists['fe_users'])) {
+					$c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'),'fe_users');
+					$output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
 				}
 			}
-			if (GeneralUtility::_GP('reasonUnknownCSV'))	{
-				$emails=array();
-				if (is_array($idLists['tt_address']))	{
+			if (GeneralUtility::_GP('reasonUnknownCSV')) {
+				$emails = array();
+				if (is_array($idLists['tt_address'])) {
 					$arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address');
 					foreach ($arr as $v) {
 						$emails[]=$v['email'];
@@ -1259,8 +1282,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				if (is_array($idLists['PLAINLIST'])) {
 					$emails = array_merge($emails, $idLists['PLAINLIST']);
 				}
-				$output.='<br />' . $GLOBALS["LANG"]->getLL('stats_emails_returned_reason_unknown_list') .  '<br />';
-				$output.='<textarea'.$GLOBALS["TBE_TEMPLATE"]->formWidthText().' rows="6" name="nothing">'.GeneralUtility::formatForTextarea(implode(LF, $emails)).'</textarea>';
+				$output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_reason_unknown_list') . '<br />';
+				$output .= '<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
 			}
 		}
 
@@ -1274,8 +1297,11 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
 			}
 
-			$this->output = $output;	// assigned $output to class property to make it acesssible inside hook
-			$output = '';			// and clear the former $output to collect hoot return code there
+			// assigned $output to class property to make it acesssible inside hook
+			$this->output = $output;
+
+			// and clear the former $output to collect hoot return code there
+			$output = '';
 
 			foreach($hookObjectsArr as $hookObj)    {
 				if (method_exists($hookObj, 'cmd_stats_postProcess')) {
@@ -1286,11 +1312,11 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 		$this->noView = 1;
 		// put all the stats tables in a section
-		$theOutput = $this->doc->section($GLOBALS["LANG"]->getLL('stats_direct_mail'), $output, 1, 1, 0, TRUE);
+		$theOutput = $this->doc->section($this->getLanguageService()->getLL('stats_direct_mail'), $output, 1, 1, 0, TRUE);
 		$theOutput .= $this->doc->spacer(20);
 
-		$link = '<p><a style="text-decoration: underline;" href="'.$thisurl.'">' . $GLOBALS["LANG"]->getLL('stats_recalculate_stats') . '</a></p>';
-		$theOutput .= $this->doc->section($GLOBALS["LANG"]->getLL('stats_recalculate_cached_data'), $link, 1, 1, 0, TRUE);
+		$link = '<p><a style="text-decoration: underline;" href="' . $thisurl . '">' . $this->getLanguageService()->getLL('stats_recalculate_stats') . '</a></p>';
+		$theOutput .= $this->doc->section($this->getLanguageService()->getLL('stats_recalculate_cached_data'), $link, 1, 1, 0, TRUE);
 		return $theOutput;
 	}
 
@@ -1299,12 +1325,13 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 * This method returns the label for a specified URL.
 	 * If the page is local and contains a fragment it returns the label of the content element linked to.
 	 * In any other case it simply fetches the page and extracts the <title> tag content as label
-	 * @notice This method was added as part of the ages_plaintextmail extension (kraftb)
 	 *
-	 * @param string	$url:The statistics click-URL for which to return a label
-	 * @param string	$urlStr: A processed variant of the url string. This could get appended to the label???
-	 * @param bool		$forceFetch: When this parameter is set to true the "fetch and extract <title> tag" method will get used
-	 * @return string	The label for the passed $url parameter
+	 * @param string $url The statistics click-URL for which to return a label
+	 * @param string $urlStr  A processed variant of the url string. This could get appended to the label???
+	 * @param bool $forceFetch When this parameter is set to true the "fetch and extract <title> tag" method will get used
+	 * @param string $linkedWord The word to be linked
+	 *
+	 * @return string The label for the passed $url parameter
 	 */
 	function getLinkLabel($url, $urlStr, $forceFetch = false, $linkedWord = '') {
 
@@ -1327,7 +1354,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		} else {
 			if (empty($urlParts['host']) && (substr($url, 0, strlen($pathSite)) !== $pathSite)) {
 				// it's internal
-				$url = $pathSite.$url;
+				$url = $pathSite . $url;
 			}
 
 			$content = GeneralUtility::getURL($url);
@@ -1351,9 +1378,9 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		}
 
 		if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'])) {
-			foreach($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] as $_funcRef) {
-				$_params = array('pObj' => &$this, 'url' => $url, 'urlStr' => $urlStr, 'label' => $label);
-				$label = GeneralUtility::callUserFunction($_funcRef, $_params, $this);
+			foreach($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] as $funcRef) {
+				$params = array('pObj' => &$this, 'url' => $url, 'urlStr' => $urlStr, 'label' => $label);
+				$label = GeneralUtility::callUserFunction($funcRef, $params, $this);
 			}
 		}
 
@@ -1366,18 +1393,19 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 
 	/**
-	 * generates a string for the URL
+	 * Generates a string for the URL
 	 *
-	 * @param	array	$uParts	the parts of the URL
-	 * @return	string	the URL string
+	 * @param array $urlParts The parts of the URL
+	 *
+	 * @return string The URL string
 	 */
-	function getUrlStr($uParts) {
-		$baseURL = $this->getBaseURL();
+	function getUrlStr(array $urlParts) {
+		$baseUrl = $this->getBaseURL();
 
-		if (is_array($uParts) && GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY') == $uParts['host']) {
+		if (is_array($urlParts) && GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY') == $urlParts['host']) {
 			$m = array();
 			// do we have an id?
-			if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $uParts['query'], $m)) {
+			if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $urlParts['query'], $m)) {
 				$isInt = MathUtility::canBeInterpretedAsInteger($m[1]);
 
 				if ($isInt) {
@@ -1385,63 +1413,64 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				} else {
 					$uid = $this->sys_page->getPageIdFromAlias($m[1]);
 				}
-				$temp_root_line = $this->sys_page->getRootLine($uid);
-				$temp_page = array_shift($temp_root_line);
+				$rootLine = $this->sys_page->getRootLine($uid);
+				$pages = array_shift($rootLine);
 				// array_shift reverses the array (rootline has numeric index in the wrong order!)
-				$temp_root_line = array_reverse($temp_root_line);
-				$query = preg_replace('/(?:^|&)id=([0-9a-z_]+)/', '', $uParts['query']);
-				$urlstr = GeneralUtility::fixed_lgd_cs($temp_page['title'], 50) . GeneralUtility::fixed_lgd_cs(($query ? ' / ' . $query : ''), 20);
+				$rootLine = array_reverse($rootLine);
+				$query = preg_replace('/(?:^|&)id=([0-9a-z_]+)/', '', $urlParts['query']);
+				$urlstr = GeneralUtility::fixed_lgd_cs($pages['title'], 50) . GeneralUtility::fixed_lgd_cs(($query ? ' / ' . $query : ''), 20);
 			} else {
-				$urlstr = $baseURL.substr($uParts['path'],1);
-				$urlstr .= $uParts['query'] ? '?' . $uParts['query'] : '';
-				$urlstr .= $uParts['fragment'] ? '#' . $uParts['fragment'] : '';
+				$urlstr = $baseUrl . substr($urlParts['path'],1);
+				$urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
+				$urlstr .= $urlParts['fragment'] ? '#' . $urlParts['fragment'] : '';
 			}
 		} else {
-			$urlstr =  ($uParts['host'] ? $uParts['scheme'].'://'.$uParts['host'] : $baseURL) . $uParts['path'];
-			$urlstr .= $uParts['query'] ? '?' . $uParts['query'] : '';
-			$urlstr .= $uParts['fragment'] ? '#' . $uParts['fragment'] : '';
+			$urlstr =  ($urlParts['host'] ? $urlParts['scheme'] . '://' . $urlParts['host'] : $baseUrl) . $urlParts['path'];
+			$urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
+			$urlstr .= $urlParts['fragment'] ? '#' . $urlParts['fragment'] : '';
 		}
 
 		return $urlstr;
 	}
 
 	/**
-	 * get baseURL of the FE
+	 * Get baseURL of the FE
 	 * force http if UseHttpToFetch is set
 	 *
 	 * @return string the baseURL
 	 */
 	function getBaseURL() {
-		$baseURL = GeneralUtility::getIndpEnv("TYPO3_SITE_URL");
+		$baseUrl = GeneralUtility::getIndpEnv("TYPO3_SITE_URL");
 
 		# if fetching the newsletter using http, set the url to http here
 		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
-			$baseURL = str_replace('https','http', $baseURL);
+			$baseUrl = str_replace('https','http', $baseUrl);
 		}
 
-		return $baseURL;
+		return $baseUrl;
 	}
 
 	/**
-	 * set disable=1 to all record in an array
+	 * Set disable=1 to all record in an array
 	 *
-	 * @param	array		$arr: DB records
-	 * @param	string		$table: table name
-	 * @return	integer		total of disabled records
+	 * @param array $arr DB records
+	 * @param string $table table name
+	 *
+	 * @return int total of disabled records
 	 */
-	function disableRecipients($arr,$table)	{
-		if ($GLOBALS['TCA'][$table])	{
-			$fields_values=array();
+	function disableRecipients(array $arr, $table) {
+		if ($GLOBALS['TCA'][$table]) {
+			$values = array();
 			$enField = $GLOBALS['TCA'][$table]['ctrl']['enablecolumns']['disabled'];
 			if ($enField)	{
-				$fields_values[$enField]=1;
-				$count=count($arr);
+				$values[$enField] = 1;
+				$count = count($arr);
 				$uidList = array_keys($arr);
-				if (count($uidList))	{
+				if (count($uidList)) {
 					$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
 						$table,
-						'uid IN ('.implode(',',$GLOBALS['TYPO3_DB']->cleanIntArray($uidList)).')',
-						$fields_values
+						'uid IN (' . implode(',',$GLOBALS['TYPO3_DB']->cleanIntArray($uidList)) . ')',
+						$values
 						);
 					$GLOBALS["TYPO3_DB"]->sql_free_result($res);
 				}
@@ -1451,22 +1480,23 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * write the statistic to a temporary table
+	 * Write the statistic to a temporary table
 	 *
-	 * @param	array		$mrow: DB mail records
-	 * @return	void		no return value: call storeRecRec function
+	 * @param array $mrow DB mail records
+	 *
+	 * @return void
 	 */
-	function makeStatTempTableContent($mrow) {
+	function makeStatTempTableContent(array $mrow) {
 		// Remove old:
 		$GLOBALS["TYPO3_DB"]->exec_DELETEquery(
 			'cache_sys_dmail_stat',
-			'mid='.intval($mrow['uid'])
+			'mid=' . intval($mrow['uid'])
 			);
 
 		$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 			'rid,rtbl,tstamp,response_type,url_id,html_sent,size',
 			'sys_dmail_maillog',
-			'mid='.intval($mrow['uid']),
+			'mid=' . intval($mrow['uid']),
 			'',
 			'rtbl,rid,tstamp'
 			);
@@ -1474,12 +1504,10 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$currentRec = '';
 		$recRec = '';
 
-		while($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res)) {
-			$thisRecPointer = $row['rtbl'].$row['rid'];
+		while(($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
+			$thisRecPointer = $row['rtbl'] . $row['rid'];
 
 			if ($thisRecPointer != $currentRec)	{
-				$this->storeRecRec($recRec);
-//				debug($thisRecPointer);
 				$recRec = array(
 					'mid'			=> intval($mrow['uid']),
 					'rid'			=> $row['rid'],
@@ -1490,7 +1518,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					'response'		=> array(),
 					'links'			=> array()
 					);
-				$currentRec=$thisRecPointer;
+				$currentRec = $thisRecPointer;
 			}
 			switch ($row['response_type']) {
 				case '-1':
@@ -1504,7 +1532,9 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$recRec['tstamp'] = $row['tstamp'];
 					break;
 				case '1':
+					// treat html links like plain text
 				case '2':
+					// plain text link response
 					$recRec[($row['response_type']==1?'html_links':'plain_links')][] = $row['tstamp'];
 					$recRec['links'][] = $row['tstamp'];
 					if (!$recRec['firstlink']) {
@@ -1525,6 +1555,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				case '-127':
 					$recRec['returned'] = 1;
 					break;
+				default:
+					// do nothing
 			}
 		}
 
@@ -1533,12 +1565,13 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * insert statistic to a temporary table
+	 * Insert statistic to a temporary table
 	 *
-	 * @param	array		$recRec: statistic array
-	 * @return	void		no return value: write the array to a table
+	 * @param array $recRec Statistic array
+	 *
+	 * @return void
 	 */
-	function storeRecRec($recRec) {
+	function storeRecRec(array $recRec) {
 		if (is_array($recRec)) {
 			$recRec['pings_first'] = intval(@min($recRec['pings']));
 			$recRec['pings_last'] = intval(@max($recRec['pings']));
@@ -1575,13 +1608,14 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * make a select query
+	 * Make a select query
 	 *
-	 * @param	array		$queryArray: part of select-statement in an array
-	 * @param	string		$key_field: DB fieldname to be the array keys
-	 * @return	array		result of the Select-query
+	 * @param array $queryArray Part of select-statement in an array
+	 * @param string $fieldName DB fieldname to be the array keys
+	 *
+	 * @return array Result of the Select-query
 	 */
-	function getQueryRows($queryArray,$key_field) {
+	function getQueryRows(array $queryArray, $fieldName) {
 		$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery(
 			$queryArray[0],
 			$queryArray[1],
@@ -1591,9 +1625,9 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$queryArray[5]
 			);
 		$lines = array();
-		while($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))	{
-			if ($key_field)	{
-				$lines[$row[$key_field]] = $row;
+		while(($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))) {
+			if ($fieldName) {
+				$lines[$row[$fieldName]] = $row;
 			} else {
 				$lines[] = $row;
 			}
@@ -1604,17 +1638,18 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
-	 * make a percent from the given parameters
+	 * Make a percent from the given parameters
 	 *
-	 * @param	integer		$pieces: number of pieces
-	 * @param	integer		$total: total of pieces
-	 * @return	string		show number of pieces and the percent
+	 * @param int $pieces Number of pieces
+	 * @param int $total Total of pieces
+	 *
+	 * @return string show number of pieces and the percent
 	 */
 	function showWithPercent($pieces,$total) {
 		$total = intval($total);
 		$str = $pieces?number_format(intval($pieces)):'0';
 		if ($total) {
-			$str.= ' / '.number_format(($pieces/$total*100),2).'%';
+			$str .= ' / ' . number_format(($pieces/$total*100),2) . '%';
 		}
 		return $str;
 	}
@@ -1622,23 +1657,23 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	/**
 	 * Set up URL variables for this $row.
 	 *
-	 * @param	array		$row: DB records
-	 * @return	void		no return values: update the global variables 'url_plain' and 'url_html'
+	 * @param array $row DB records
+	 *
+	 * @return void
 	 */
-	function setURLs($row)	{
-			// Finding the domain to use
+	function setURLs(array $row) {
+		// Finding the domain to use
 		$this->urlbase = DirectMailUtility::getUrlBase($row['use_domain']);
 
 			// Finding the url to fetch content from
-		switch((string)$row['type'])	{
+		switch((string)$row['type']) {
 			case 1:
 				$this->url_html = $row['HTMLParams'];
 				$this->url_plain = $row['plainParams'];
 				break;
 			default:
-				$this->url_html = $this->urlbase.'?id='.$row['page'].$row['HTMLParams'];
-				$this->url_plain = $this->urlbase.'?id='.$row['page'].$row['plainParams'];
-				break;
+				$this->url_html = $this->urlbase . '?id=' . $row['page'] . $row['HTMLParams'];
+				$this->url_plain = $this->urlbase . '?id=' . $row['page'] . $row['plainParams'];
 		}
 
 		// plain
@@ -1647,7 +1682,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		} else {
 			$urlParts = @parse_url($this->url_plain);
 			if (!$urlParts['scheme']) {
-				$this->url_plain = 'http://'.$this->url_plain;
+				$this->url_plain = 'http://' . $this->url_plain;
 			}
 		}
 
@@ -1657,63 +1692,91 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		} else {
 			$urlParts = @parse_url($this->url_html);
 			if (!$urlParts['scheme']) {
-				$this->url_html = 'http://'.$this->url_html;
+				$this->url_html = 'http://' . $this->url_html;
 			}
 		}
 	}
 
 	/**
-	 * show the compact information of a direct mail record
+	 * Show the compact information of a direct mail record
 	 *
-	 * @param	array		$row: direct mail record
-	 * @return	string		the compact infos of the direct mail record
+	 * @param array $row Direct mail record
+	 *
+	 * @return string The compact infos of the direct mail record
 	 */
 	function directMail_compactView($row) {
 			// Render record:
 		if ($row['type']) {
-			$dmailData = $row['plainParams'].', '.$row['HTMLParams'];
+			$dmailData = $row['plainParams'] . ', ' . $row['HTMLParams'];
 		} else {
 			$page = BackendUtility::getRecord('pages',$row['page'],'title');
-			$dmailData = $row['page'].', '.htmlspecialchars($page['title']);
+			$dmailData = $row['page'] . ', ' . htmlspecialchars($page['title']);
 
-			$dmail_info = DirectMailUtility::fName('plainParams').' '.htmlspecialchars($row['plainParams'].LF.DirectMailUtility::fName('HTMLParams').$row['HTMLParams']).'; '.LF;
+			$dmailInfo = DirectMailUtility::fName('plainParams') . ' ' . htmlspecialchars($row['plainParams'] . LF . DirectMailUtility::fName('HTMLParams') . $row['HTMLParams']) . '; ' . LF;
 		}
-		$dmail_info .= $GLOBALS["LANG"]->getLL('view_media').' '.BackendUtility::getProcessedValue('sys_dmail','includeMedia',$row['includeMedia']).'; '.LF.
-			$GLOBALS["LANG"]->getLL('view_flowed').' '.BackendUtility::getProcessedValue('sys_dmail','flowedFormat',$row['flowedFormat']);
-		$dmail_info = '<img'.IconUtility::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$dmail_info.'">';
 
-		$from_info = $GLOBALS["LANG"]->getLL('view_replyto').' '.htmlspecialchars($row['replyto_name'].' <'.$row['replyto_email'].'>').'; '.LF.
-			DirectMailUtility::fName('organisation').' '.htmlspecialchars($row['organisation']).'; '.LF.
-			DirectMailUtility::fName('return_path').' '.htmlspecialchars($row['return_path']);
-		$from_info = '<img'.IconUtility::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$from_info.'">';
+		$dmailInfo .= $this->getLanguageService()->getLL('view_media') . ' ' . BackendUtility::getProcessedValue('sys_dmail','includeMedia',$row['includeMedia']) . '; ' . LF .
+			$this->getLanguageService()->getLL('view_flowed') . ' ' . BackendUtility::getProcessedValue('sys_dmail','flowedFormat',$row['flowedFormat']);
 
-		$mail_info = DirectMailUtility::fName('priority').' '.BackendUtility::getProcessedValue('sys_dmail','priority',$row['priority']).'; '.LF.
-			DirectMailUtility::fName('encoding').' '.BackendUtility::getProcessedValue('sys_dmail','encoding',$row['encoding']).'; '.LF.
-			DirectMailUtility::fName('charset').' '.BackendUtility::getProcessedValue('sys_dmail','charset',$row['charset']);
-		$mail_info = '<img'.IconUtility::skinImg($GLOBALS["BACK_PATH"],'gfx/zoom2.gif','width="12" height="12"').' title="'.$mail_info.'">';
+		$dmailInfo = '<span title="' . $dmailInfo . '">' .
+			$this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL) .
+			'</span>';
+
+		$fromInfo = $this->getLanguageService()->getLL('view_replyto') . ' ' . htmlspecialchars($row['replyto_name'] . ' <' . $row['replyto_email'] . '>') . '; ' . LF .
+			DirectMailUtility::fName('organisation') . ' ' . htmlspecialchars($row['organisation']) . '; ' . LF .
+			DirectMailUtility::fName('return_path') . ' ' . htmlspecialchars($row['return_path']);
+		$fromInfo = '<span title="' . $fromInfo . '">' .
+			$this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL) .
+			'</span>';
+
+		$mailInfo = DirectMailUtility::fName('priority') . ' ' . BackendUtility::getProcessedValue('sys_dmail','priority',$row['priority']) . '; ' . LF .
+			DirectMailUtility::fName('encoding') . ' ' . BackendUtility::getProcessedValue('sys_dmail','encoding',$row['encoding']) . '; ' . LF .
+			DirectMailUtility::fName('charset') . ' ' . BackendUtility::getProcessedValue('sys_dmail','charset',$row['charset']);
+		$mailInfo = '<span title="' . $mailInfo . '">' .
+			$this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL) .
+			'</span>';
 
 		$delBegin = ($row["scheduled_begin"]?BackendUtility::datetime($row["scheduled_begin"]):'-');
 		$delEnd = ($row["scheduled_end"]?BackendUtility::datetime($row["scheduled_begin"]):'-');
 
-		//count total recipient from the query_info
+		// count total recipient from the query_info
 		$totalRecip = 0;
-		$id_lists = unserialize($row['query_info']);
-		foreach( $id_lists['id_lists'] as $idArray) {
+		$idLists = unserialize($row['query_info']);
+		foreach( $idLists['id_lists'] as $idArray) {
 			$totalRecip += count($idArray);
 		}
-		$sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*','sys_dmail_maillog','mid='.$row['uid'].' AND response_type = 0','','rid ASC'));
+		$sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*','sys_dmail_maillog','mid=' . $row['uid'] . ' AND response_type = 0','','rid ASC'));
 
-		$out = '<table class="typo3-dblist">';
-		$out .= '<tr class="t3-row-header"><td colspan="3">' . IconUtility::getSpriteIconForRecord('sys_dmail', $row) . htmlspecialchars($row['subject']) . '</td></tr>';
-		$out .= '<tr class="db_list_normal"><td>'.$GLOBALS["LANG"]->getLL('view_from').'</td><td>'.htmlspecialchars($row['from_name'].' <'.htmlspecialchars($row['from_email']).'>').'</td><td>'.$from_info.'</td></tr>';
-		$out .= '<tr class="db_list_normal"><td>'.$GLOBALS["LANG"]->getLL('view_dmail').'</td><td>'.BackendUtility::getProcessedValue('sys_dmail','type',$row['type']).': '.$dmailData.'</td><td>'.$dmail_info.'</td></tr>';
-		$out .= '<tr class="db_list_normal"><td>'.$GLOBALS["LANG"]->getLL('view_mail').'</td><td>'.BackendUtility::getProcessedValue('sys_dmail','sendOptions',$row['sendOptions']).($row['attachment']?'; ':'').BackendUtility::getProcessedValue('sys_dmail','attachment',$row['attachment']).'</td><td>'.$mail_info.'</td></tr>';
-		$out .= '<tr class="db_list_normal"><td>'.$GLOBALS["LANG"]->getLL('view_delivery_begin_end').'</td><td>'.$delBegin.' / '.$delEnd.'</td><td>&nbsp;</td></tr>';
-		$out .= '<tr class="db_list_normal"><td>'.$GLOBALS["LANG"]->getLL('view_recipient_total_sent').'</td><td>'.$totalRecip.' / '.$sentRecip.'</td><td>&nbsp;</td></tr>';
+		$out = '<table class="table table-striped table-hover">';
+		$out .= '<tr class="t3-row-header"><td colspan="3">' . $this->iconFactory->getIconForRecord('sys_dmail', $row)->render() . htmlspecialchars($row['subject']) . '</td></tr>';
+		$out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_from') . '</td>' .
+			'<td>' . htmlspecialchars($row['from_name'] . ' <' . htmlspecialchars($row['from_email']) . '>') . '</td>' .
+			'<td>' . $fromInfo . '</td></tr>';
+		$out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_dmail') . '</td>' .
+			'<td>' . BackendUtility::getProcessedValue('sys_dmail','type',$row['type']) . ': ' . $dmailData . '</td>' .
+			'<td>' . $dmailInfo . '</td></tr>';
+		$out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_mail') . '</td>' .
+			'<td>' . BackendUtility::getProcessedValue('sys_dmail','sendOptions',$row['sendOptions']) . ($row['attachment']?'; ':'') . BackendUtility::getProcessedValue('sys_dmail','attachment',$row['attachment']) . '</td>' .
+			'<td>' . $mailInfo . '</td></tr>';
+		$out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_delivery_begin_end') . '</td>' .
+			'<td>' . $delBegin . ' / ' . $delEnd . '</td>' .
+			'<td>&nbsp;</td></tr>';
+		$out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_recipient_total_sent') . '</td>' .
+			'<td>' . $totalRecip . ' / ' . $sentRecip . '</td>' .
+			'<td>&nbsp;</td></tr>';
 		$out .= '</table>';
 		$out .= $this->doc->spacer(5);
 
 		return $out;
+	}
+
+	/**
+	 * Returns LanguageService
+	 *
+	 * @return \TYPO3\CMS\Lang\LanguageService
+	 */
+	protected function getLanguageService() {
+		return $GLOBALS['LANG'];
 	}
 }
 

@@ -143,7 +143,7 @@ return array(
 				'type' => 'select',
 				'foreign_table' => 'sys_dmail_category',
 				'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.sorting',
-				'itemsProcFunc' => '\DirectMailTeam\DirectMail\SelectCategories->get_localized_categories',
+				'itemsProcFunc' => 'DirectMailTeam\\DirectMail\\SelectCategories->get_localized_categories',
 				'itemsProcFunc_config' => array(
 					'table' => 'sys_dmail_category',
 					'indexField' => 'uid',
@@ -156,7 +156,7 @@ return array(
 			)
 		),
 		'query' => array(
-			'label' => 'LLL:EXT:direct_mail/locallang_tca.xml:sys_dmail_group.query',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.query',
 			'config' => array(
 				'type' => 'text',
 				'cols' => '48',
@@ -165,10 +165,10 @@ return array(
 		)
 	),
 	'types' => array(
-		'0' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--,pages;;;;5-5-5,recursive,whichtables,select_categories'),
-		'1' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--,list;;;;5-5-5,csv'),
-		'2' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--,static_list;;;;5-5-5'),
+		'0' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.advanced,pages;;;;5-5-5,recursive,whichtables,select_categories'),
+		'1' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.advanced,list;;;;5-5-5,csv'),
+		'2' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.advanced,static_list;;;;5-5-5'),
 		'3' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description'),
-		'4' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--,mail_groups;;;;5-5-5')
+		'4' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.advanced,mail_groups;;;;5-5-5')
 	)
 );

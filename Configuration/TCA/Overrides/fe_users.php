@@ -4,7 +4,7 @@ if (!defined('TYPO3_MODE')) {
 }
 
 // fe_users modified
-$fe_users_cols = array(
+$feUsersCols = array(
 	'module_sys_dmail_newsletter' => array(
 		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:module_sys_dmail_group.newsletter',
 		'exclude' => '1',
@@ -40,6 +40,6 @@ $fe_users_cols = array(
 	)
 );
 
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('fe_users', $fe_users_cols);
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('fe_users', $feUsersCols);
 $GLOBALS['TCA']['fe_users']['feInterface']['fe_admin_fieldList'] .= ',module_sys_dmail_newsletter,module_sys_dmail_category,module_sys_dmail_html';
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCATypes('fe_users', '--div--;Direct mail,module_sys_dmail_newsletter;;;;1-1-1,module_sys_dmail_category,module_sys_dmail_html');

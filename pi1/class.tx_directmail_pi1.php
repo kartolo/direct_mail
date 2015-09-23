@@ -33,24 +33,28 @@
  * @package 	TYPO3
  * @subpackage 	direct_mail
  *
- * @version		$Id: class.tx_directmail_pi1.php 30973 2010-03-10 17:41:28Z ivankartolo $
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
-/**
+	/**
  * Generating plain text rendering of content elements for inclusion as plain text content in Direct Mails
  * That means text-only output. No HTML at all.
  * To use and configure this plugin, you may include static template "Direct Mail Plain Text".
  * If you do so, the plain text output will appear with type=99.
  *
+ * @author Ivan Kartolo <ivan.kartolo@gmail.com>
  */
-class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
+class tx_directmail_pi1 extends AbstractPlugin {
+
 	/**
-	 * @var tslib_cObj
+	 * ObjectRenderer
+	 *
+	 * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
 	 */
 	var $cObj;
 	var $conf = array();
@@ -67,81 +71,83 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	 * A content object that renders "tt_content" records. See the comment to this class for TypoScript example of how to trigger it.
 	 * This detects the CType of the current content element and renders it accordingly. Only wellknown types are rendered.
 	 *
-	 * @param	string		$content: Empty, ignore.
-	 * @param	array		$conf: TypoScript properties for this content object/function call
-	 * @return	string		$content: Plain text content
+	 * @param	string	$content Empty, ignore.
+	 * @param	array	$conf TypoScript properties for this content object/function call
+	 *
+	 * @return	string
 	 */
-	function main($content,$conf) {
+	function main($content, array $conf) {
 		global $TYPO3_CONF_VARS;
 
 		$this->init($conf);
 
 		$lines = array();
-		$CType = (string)$this->cObj->data['CType'];
-		switch($CType) {
+		$cType = (string)$this->cObj->data['CType'];
+		switch($cType) {
 			case 'header':
 				$lines[] = $this->getHeader();
 				if ($this->cObj->data['subheader'])	{
 					$lines[] = $this->breakContent(strip_tags($this->cObj->data['subheader']));
 				}
-			break;
+				break;
 			case 'text':
+				// same as textpic
 			case 'textpic':
 				$lines[] = $this->getHeader();
-				if (($CType == 'textpic') && !($this->cObj->data['imageorient']&24))	{
+				if (($cType == 'textpic') && !($this->cObj->data['imageorient']&24))	{
 					$lines[] = $this->getImages();
 					$lines[] = '';
 				}
 				$lines[] = $this->breakContent(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
-				if (($CType == 'textpic') && ($this->cObj->data['imageorient']&24))	{
+				if (($cType == 'textpic') && ($this->cObj->data['imageorient']&24))	{
 					$lines[] = '';
 					$lines[] = $this->getImages();
 				}
-			break;
+				break;
 			case 'image':
 				$lines[] = $this->getHeader();
 				$lines[] = $this->getImages();
-			break;
+				break;
 			case 'uploads':
 				$lines[] = $this->getHeader();
 				$lines[] = $this->renderUploads($this->cObj->data['media']);
-			break;
+				break;
 			case 'menu':
 				$lines[] = $this->getHeader();
 				$lines[] = $this->getMenuSitemap();
-			break;
+				break;
 			case 'shortcut':
 				$lines[] = $this->getShortcut();
-			break;
+				break;
 			case 'bullets':
 				$lines[] = $this->getHeader();
 				$lines[] = $this->breakBulletlist(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
-			break;
+				break;
 			case 'table':
 				$lines[] = $this->getHeader();
 				$lines[] = $this->breakTable(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
-			break;
+				break;
 			case 'html':
-				$lines[] = $this->getHTML();
-			break;
+				$lines[] = $this->getHtml();
+				break;
 			default:
 					// Hook for processing other content types
 				if (is_array($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'])) {
-					foreach($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'] as $_classRef) {
-						$_procObj = &GeneralUtility::getUserObj($_classRef);
-						$lines = array_merge($lines, $_procObj->renderPlainText($this,$content));
+					foreach($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'] as $classRef) {
+						$procObj = &GeneralUtility::getUserObj($classRef);
+						$lines = array_merge($lines, $procObj->renderPlainText($this,$content));
 					}
 				}
 				if (empty($lines)) {
 					$defaultOutput = $this->getString($this->conf['defaultOutput']);
 					if ($defaultOutput) {
-						$lines[] = str_replace('###CType###',$CType,$defaultOutput);
+						$lines[] = str_replace('###CType###',$cType,$defaultOutput);
 					}
 				}
-			break;
 		}
 
-		$lines[] = '';	// First break.
+		// First break.
+		$lines[] = '';
 		$content = implode(LF,$lines);
 
 			// Substitute labels
@@ -155,13 +161,14 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	}
 
 	/**
-	 * initializing the parent class
+	 * Initializing the parent class
 	 *
-	 * @param	array		$conf: TS conf
-	 * @return	void		...
+	 * @param	array		$conf TS conf
+	 *
+	 * @return	void
 	 */
-	function init($conf) {
-		tslib_pibase::__construct();
+	function init(array $conf) {
+		AbstractPlugin::__construct();
 
 		$this->conf = $conf;
 		$this->pi_loadLL();
@@ -169,7 +176,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 
 			// Default linebreak;
 		if ($this->conf['flowedFormat']) {
-			$this->linebreak = chr(32).LF;
+			$this->linebreak = chr(32) . LF;
 		}
 	}
 
@@ -191,17 +198,19 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	 */
 	function getShortcut()	{
 		$str = $this->cObj->cObjGetSingle($this->conf['shortcut'],$this->conf['shortcut.']);
-			//Remove html comment reporting shortcut inclusion
+
+		// Remove html comment reporting shortcut inclusion
 		return preg_replace('/<![ \r\n\t]*(--([^\-]|[\r\n]|-[^\-])*--[ \r\n\t]*)\>/', '', $str);
 	}
 
 	/**
 	 * Creates an HTML element (stripping tags of course)
 	 *
-	 * @param	mixed		$str: HTML content (as string or in an array) to process. If not passed along, the bodytext field is used.
+	 * @param	mixed	$str HTML content (as string or in an array) to process. If not passed along, the bodytext field is used.
+	 *
 	 * @return	string		Plain content.
 	 */
-	function getHTML($str=array())	{
+	function getHtml($str = array()) {
 		return $this->breakContent(strip_tags(preg_replace('/<br\s*\/?>/i',LF,$this->parseBody(is_string($str)?$str:$this->cObj->data['bodytext']))));
 	}
 
@@ -222,13 +231,13 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	 * @return	string		Content
 	 */
 	function getImages() {
-		$images_arr = array();
-		$this->getImagesStandard($images_arr);
+		$imagesArray = array();
+		$this->getImagesStandard($imagesArray);
 		if(ExtensionManagementUtility::isLoaded('dam')){
-			$this->getImagesFromDam($images_arr);
+			$this->getImagesFromDam($imagesArray);
 		}
 
-		$images = $this->renderImages($images_arr, !$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'', $this->cObj->data['imagecaption']);
+		$images = $this->renderImages($imagesArray, !$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'', $this->cObj->data['imagecaption']);
 
 		return $images;
 	}
@@ -236,15 +245,16 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Get images from image field and store this images to $images_arr
 	 *
-	 * @param array $images_arr
-	 * @param string $upload_path
-	 * @return	string		Content
+	 * @param array $imagesArray The image array
+	 * @param string $upload_path The upload path
+	 *
+	 * @return	void
 	 */
-	function getImagesStandard(&$images_arr, $upload_path='uploads/pics/'){
+	function getImagesStandard(array &$imagesArray, $uploadPath='uploads/pics/') {
 		$images = explode(',',$this->cObj->data['image']);
 		foreach($images as $file) {
 			if (strlen(trim($file)) > 0) {
-				$images_arr[] = $this->siteUrl.$upload_path.$file;
+				$imagesArray[] = $this->siteUrl . $uploadPath . $file;
 			}
 		}
 
@@ -253,15 +263,15 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Get images from DAM and store this images to $images_arr
 	 * TODO: rewrite sql?
-	 * @param array $images_arr
+	 * @param array $imagesArray
 	 * @return	string		Content
 	 */
-	function getImagesFromDam(&$images_arr){
-		$sql = 'SELECT tx_dam.* FROM tx_dam_mm_ref,tx_dam WHERE tx_dam_mm_ref.tablenames="tt_content" AND tx_dam_mm_ref.ident="tx_damttcontent_files" AND tx_dam_mm_ref.uid_foreign="'.$this->cObj->data['uid'].'" AND tx_dam_mm_ref.uid_local=tx_dam.uid AND tx_dam.deleted=0 ORDER BY sorting_foreign';
+	function getImagesFromDam(array &$imagesArray){
+		$sql = 'SELECT tx_dam.* FROM tx_dam_mm_ref,tx_dam WHERE tx_dam_mm_ref.tablenames="tt_content" AND tx_dam_mm_ref.ident="tx_damttcontent_files" AND tx_dam_mm_ref.uid_foreign="' . $this->cObj->data['uid'] . '" AND tx_dam_mm_ref.uid_local=tx_dam.uid AND tx_dam.deleted=0 ORDER BY sorting_foreign';
 		$res = mysql_query($sql);
 		if(mysql_num_rows($res)>0){
-			while($row = mysql_fetch_assoc($res)){
-				$images_arr[] = $this->siteUrl.$row['file_path'].$row['file_name'];
+			while(($row = mysql_fetch_assoc($res))) {
+				$imagesArray[] = $this->siteUrl . $row['file_path'] . $row['file_name'];
 			}
 		}
 	}
@@ -269,41 +279,43 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Parsing the bodytext field content, removing typical entities and <br /> tags.
 	 *
-	 * @param	string		$str: Field content from "bodytext" or other text field
-	 * @param	string		$altConf: Altername conf name (especially when bodyext field in other table then tt_content)
+	 * @param	string		$str Field content from "bodytext" or other text field
+	 * @param	string		$altConf Altername conf name (especially when bodyext field in other table then tt_content)
+	 *
 	 * @return	string		Processed content
 	 */
 	function parseBody($str, $altConf='bodytext') {
-		if ($this->conf[$altConf.'.']['doubleLF']) {
+		if ($this->conf[$altConf . '.']['doubleLF']) {
 			$str = preg_replace("/\n/", "\n\n", $str);
 		}
 			// Regular parsing:
 		$str = preg_replace('/<br\s*\/?>/i', LF, $str);
-		$str = $this->cObj->stdWrap($str,$this->conf[$altConf.'.']['stdWrap.']);
+		$str = $this->cObj->stdWrap($str, $this->conf[$altConf . '.']['stdWrap.']);
 
 			// Then all a-tags:
 		$aConf = array();
 		$aConf['parseFunc.']['tags.']['a'] = 'USER';
 		$aConf['parseFunc.']['tags.']['a.']['userFunc'] = 'tx_directmail_pi1->atag_to_http';
 		$aConf['parseFunc.']['tags.']['a.']['siteUrl'] = $this->siteUrl;
-		$str = $this->cObj->stdWrap($str,$aConf);
-		$str = str_replace('&nbsp;',' ',GeneralUtility::htmlspecialchars_decode($str));
+		$str = $this->cObj->stdWrap($str, $aConf);
+		$str = str_replace('&nbsp;', ' ', htmlspecialchars_decode($str));
 
-		if ($this->conf[$altConf.'.']['header']) {
-			$str = $this->getString($this->conf[$altConf.'.']['header']).LF.$str;
+		if ($this->conf[$altConf . '.']['header']) {
+			$str = $this->getString($this->conf[$altConf . '.']['header']) . LF . $str;
 		}
 
-		return LF.$str;
+		return LF . $str;
 	}
 
 	/**
 	 * Creates a list of links to uploaded files.
 	 *
-	 * @param	string		$str: List of uploaded filenames from "uploads/media/" (or $upload_path)
-	 * @param	string		$upload_path: Alternative path value
+	 * @param	string		$str List of uploaded filenames from "uploads/media/" (or $upload_path)
+	 * @param	string		$uploadPath Alternative path value
+	 *
 	 * @return	string		Content
 	 */
-	function renderUploads($str,$upload_path='uploads/media/')	{
+	function renderUploads($str, $uploadPath='uploads/media/')	{
 		$files = explode(',',$str);
 		$lines = array();
 
@@ -312,20 +324,21 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 				$lines[] = $this->getString($this->conf['uploads.']['header']);
 			}
 			foreach($files as $file) {
-				$lines[] = $this->siteUrl.$upload_path.$file;
+				$lines[] = $this->siteUrl . $uploadPath . $file;
 			}
- 		}
-		return LF.implode(LF,$lines);
+		}
+		return LF . implode(LF, $lines);
 	}
 
 	/**
 	 * Renders a content element header, observing the layout type giving different header formattings
 	 *
-	 * @param	string		$str: The header string
-	 * @param	integer		$type: The layout type of the header (in the content element)
+	 * @param	string		$str The header string
+	 * @param	integer		$type The layout type of the header (in the content element)
+	 *
 	 * @return	string		Content
 	 */
-	function renderHeader($str,$type=0)	{
+	function renderHeader($str, $type = 0)	{
 		if ($str) {
 			$hConf = $this->conf['header.'];
 			$defaultType = DirectMailUtility::intInRangeWrapper($hConf['defaultType'],1,5);
@@ -335,10 +348,10 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 			}
 			if ($type != 6)	{
 				// not hidden
-				$tConf = $hConf[$type.'.'];
+				$tConf = $hConf[$type . '.'];
 
 				if ($tConf['removeSplitChar']) {
-					$str = preg_replace('/'.preg_quote($tConf['removeSplitChar'],'/').'/', '', $str);
+					$str = preg_replace('/' . preg_quote($tConf['removeSplitChar'],'/') . '/', '', $str);
 				}
 
 				$lines = array();
@@ -356,24 +369,24 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 				}
 
 				if ($this->cObj->data['date']) {
-					$lines[] = $this->getString($hConf['datePrefix']).date($hConf['date']?$hConf['date']:'d-m-Y',$this->cObj->data['date']);
+					$lines[] = $this->getString($hConf['datePrefix']) . date($hConf['date']?$hConf['date']:'d-m-Y', $this->cObj->data['date']);
 				}
 
 				$prefix = '';
-				$str = $this->getString($tConf['prefix']).$str;
+				$str = $this->getString($tConf['prefix']) . $str;
 				if ($tConf['autonumber']) {
-					$str = $this->cObj->parentRecordNumber.$str;
+					$str = $this->cObj->parentRecordNumber . $str;
 				}
-				if ($this->cObj->data['header_position']=='right') {
-					$prefix = str_pad(' ',($this->charWidth-strlen($str)));
+				if ($this->cObj->data['header_position'] == 'right') {
+					$prefix = str_pad(' ',($this->charWidth - strlen($str)));
 				}
-				if ($this->cObj->data['header_position']=='center') {
+				if ($this->cObj->data['header_position'] == 'center') {
 					$prefix = str_pad(' ',floor(($this->charWidth-strlen($str))/2));
 				}
-				$lines[] = $this->cObj->stdWrap($prefix.$str,$tConf['stdWrap.']);
+				$lines[] = $this->cObj->stdWrap($prefix . $str, $tConf['stdWrap.']);
 
 				if ($this->cObj->data['header_link']) {
-					$lines[] = $this->getString($hConf['linkPrefix']).$this->getLink($this->cObj->data['header_link']);
+					$lines[] = $this->getString($hConf['linkPrefix']) . $this->getLink($this->cObj->data['header_link']);
 				}
 
 				$blanks = DirectMailUtility::intInRangeWrapper($tConf['postLineBlanks'],0,1000);
@@ -397,13 +410,14 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Function used to repeat a char pattern in head lines (like if you want "********" above/below a header)
 	 *
-	 * @param	array		$lines: Array of existing lines to which the new char-pattern should be added
-	 * @param	string		$preLineChar: The character pattern to repeat. Default is "-"
-	 * @param	integer		$len: The length of the line. $preLineChar will be repeated to fill in this length.
+	 * @param	array		$lines Array of existing lines to which the new char-pattern should be added
+	 * @param	string		$preLineChar The character pattern to repeat. Default is "-"
+	 * @param	integer		$len The length of the line. $preLineChar will be repeated to fill in this length.
+	 *
 	 * @return	array		The input array with a new line added.
 	 * @see renderHeader()
 	 */
-	function pad($lines,$preLineChar,$len)	{
+	function pad(array $lines, $preLineChar, $len) {
 		$strPad = DirectMailUtility::intInRangeWrapper($len,0,1000);
 		$strPadChar = $preLineChar?$preLineChar:'-';
 		if ($strPad) {
@@ -415,7 +429,8 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Function used to wrap the bodytext field content (or image caption) into lines of a max length of
 	 *
-	 * @param	string		$str: The content to break
+	 * @param	string		$str The content to break
+	 *
 	 * @return	string		Processed value.
 	 * @see main_plaintext(), breakLines()
 	 */
@@ -431,14 +446,15 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Breaks content lines into a bullet list
 	 *
-	 * @param	string		$str: Content string to make into a bullet list
+	 * @param	string		$str Content string to make into a bullet list
+	 *
 	 * @return	string		Processed value
 	 */
 	function breakBulletlist($str)	{
 		$type = $this->cObj->data['layout'];
 		$type = DirectMailUtility::intInRangeWrapper($type,0,3);
 
-		$tConf = $this->conf['bulletlist.'][$type.'.'];
+		$tConf = $this->conf['bulletlist.'][$type . '.'];
 
 		$cParts = explode(LF,$str);
 		$lines = array();
@@ -454,7 +470,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 			$bullet = substr(str_replace('#',$c,$bullet),0,$bLen);
 			$secondRow = substr($tConf['secondRow']?$this->getString($tConf['secondRow']):str_pad('',strlen($bullet),' '),0,$bLen);
 
-			$lines[] = $bullet.$this->breakLines($substrs,LF.$secondRow,$this->charWidth-$bLen);
+			$lines[] = $bullet . $this->breakLines($substrs, LF . $secondRow, $this->charWidth-$bLen);
 
 			$blanks = DirectMailUtility::intInRangeWrapper($tConf['blanks'],0,1000);
 			if ($blanks) {
@@ -467,7 +483,8 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Formatting a table in plain text (based on the paradigm of lines being content rows and cells separated by "|")
 	 *
-	 * @param	string		$str: Content string
+	 * @param	string		$str Content string
+	 *
 	 * @return	string		Processed value
 	 */
 	function breakTable($str) {
@@ -507,7 +524,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 				for ($bb = 0; $bb < $cols; $bb++) {
 					$tempArr[$bb] = str_pad($v[$bb][$aa],$messure[0][$bb],' ');
 				}
-				$outLines[] = $colChar.implode($colChar,$tempArr).$colChar;
+				$outLines[] = $colChar . implode($colChar,$tempArr) . $colChar;
 			}
 			$outLines[] = $this->addDiv($messure,'',$divChar,$joinChar,$cols);
 		}
@@ -517,32 +534,34 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Subfunction for breakTable(): Adds a divider line between table rows.
 	 *
-	 * @param	array		$messure: Some information about sizes
-	 * @param	string		$content: Empty string.
-	 * @param	string		$divChar: Character to use for the divider line, typically "-"
-	 * @param	string		$joinChar: Join character, typically "+"
-	 * @param	integer		$cols: Number of table columns
+	 * @param	array		$messure Some information about sizes
+	 * @param	string		$content Empty string.
+	 * @param	string		$divChar Character to use for the divider line, typically "-"
+	 * @param	string		$joinChar Join character, typically "+"
+	 * @param	int			$cols Number of table columns
+	 *
 	 * @return	string		Divider line for the table
 	 * @access private
 	 * @see breakTable()
 	 */
-	function addDiv($messure,$content,$divChar,$joinChar,$cols) {
+	function addDiv(array $messure, $content, $divChar, $joinChar, $cols) {
 		$tempArr = array();
 		for ($a = 0; $a < $cols; $a++)	{
 			$tempArr[$a] = str_pad($content,$messure[0][$a],$divChar);
 		}
-		return $joinChar.implode($joinChar,$tempArr).$joinChar;
+		return $joinChar . implode($joinChar,$tempArr) . $joinChar;
 	}
 
 	/**
 	 * Traverses the table lines/cells and creates arrays with statistics for line numbers and lengths
 	 *
-	 * @param	array		$tableLines: Array with [table rows] [table cells] [lines in cell]
+	 * @param	array		$tableLines Array with [table rows] [table cells] [lines in cell]
+	 *
 	 * @return	array		Statistics (max lines/lengths)
 	 * @access private
 	 * @see breakTable()
 	 */
-	function traverseTable($tableLines) {
+	function traverseTable(array $tableLines) {
 		$maxLen = array();
 		$maxLines = array();
 
@@ -564,18 +583,19 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Render block of images - which means creating lines with links to the images.
 	 *
-	 * @param	 array		$images_arr: the image array
-	 * @param	string		$links: Link value from the "image_link" field in tt_content records
-	 * @param	string		$caption: Caption text
+	 * @param	 array		$imagesArray The image array
+	 * @param	string		$links Link value from the "image_link" field in tt_content records
+	 * @param	string		$caption Caption text
+	 *
 	 * @return	string		Content
 	 * @see getImages()
 	 */
-	function renderImages($images_arr, $links, $caption) {
+	function renderImages(array $imagesArray, $links, $caption) {
 		$linksArr = explode(',',$links);
 		$lines = array();
 		$imageExists = FALSE;
 
-		foreach($images_arr as $k => $file){
+		foreach($imagesArray as $k => $file){
 			if (strlen(trim($file)) > 0) {
 				$lines[] = $file;
 				if ($links && count($linksArr) > 1) {
@@ -587,7 +607,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 
 					$theLink = $this->getLink($ll);
 					if ($theLink) {
-						$lines[] = $this->getString($this->conf['images.']['linkPrefix']).$theLink;
+						$lines[] = $this->getString($this->conf['images.']['linkPrefix']) . $theLink;
 					}
 				}
 				$imageExists = TRUE;
@@ -599,7 +619,7 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 		if ($links && count($linksArr) == 1) {
 			$theLink = $this->getLink($links);
 			if ($theLink) {
-				$lines[] = $this->getString($this->conf['images.']['linkPrefix']).$theLink;
+				$lines[] = $this->getString($this->conf['images.']['linkPrefix']) . $theLink;
 			}
 		}
 		if ($caption) {
@@ -611,19 +631,20 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 			$lines[] = $this->breakContent($caption);
 		}
 
-		return LF.implode(LF,$lines);
+		return LF . implode(LF,$lines);
 	}
 
 	/**
 	 * Returns a typolink URL based on input.
 	 *
-	 * @param	string		$ll: Parameter to typolink
+	 * @param	string		$ll Parameter to typolink
+	 *
 	 * @return	string		The URL returned from $this->cObj->getTypoLink_URL(); - possibly it prefixed with the URL of the site if not present already
 	 */
 	function getLink($ll) {
 		$theLink = $this->cObj->getTypoLink_URL($ll);
 		if (substr($theLink,0,4) != 'http') {
-			$theLink = $this->siteUrl.$theLink;
+			$theLink = $this->siteUrl . $theLink;
 		}
 		return $theLink;
 	}
@@ -631,9 +652,10 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Breaking lines into fixed length lines, using MailUtility::breakLinesForEmail()
 	 *
-	 * @param	string		$str: The string to break
-	 * @param	string		$implChar: Line break character
-	 * @param	integer		$charWidth: Length of lines, default is $this->charWidth
+	 * @param	string		$str The string to break
+	 * @param	string		$implChar Line break character
+	 * @param	int			$charWidth Length of lines, default is $this->charWidth
+	 *
 	 * @return	string		Processed string
 	 * @see MailUtility::breakLinesForEmail()
 	 */
@@ -649,7 +671,8 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	 * Explodes a string with "|" and if the second part is found it will return this, otherwise the first part.
 	 * Used for many TypoScript properties used in this class since they need preceeding whitespace to be preserved.
 	 *
-	 * @param	string		$str: Input string
+	 * @param	string		$str Input string
+	 *
 	 * @return	string		Output string
 	 * @access private
 	 */
@@ -661,13 +684,14 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Calls a user function for processing of data
 	 *
-	 * @param	string		$mConfKey: TypoScript property name, pointing to the definition of the user function to call (from the TypoScript array internally in this class). This array is passed to the user function. Notice that "parentObj" property is a reference to this class ($this)
-	 * @param	mixed		$passVar: Variable to process
+	 * @param	string		$mConfKey TypoScript property name, pointing to the definition of the user function to call (from the TypoScript array internally in this class). This array is passed to the user function. Notice that "parentObj" property is a reference to this class ($this)
+	 * @param	mixed		$passVar Variable to process
+	 *
 	 * @return	mixed		The processed $passVar as returned by the function call
 	 */
 	function userProcess($mConfKey,$passVar) {
 		if ($this->conf[$mConfKey]) {
-			$funcConf = $this->conf[$mConfKey.'.'];
+			$funcConf = $this->conf[$mConfKey . '.'];
 			$funcConf['parentObj']=&$this;
 			$passVar = $GLOBALS['TSFE']->cObj->callUserFunction($this->conf[$mConfKey], $funcConf, $passVar);
 		}
@@ -678,8 +702,9 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	 * Function used by TypoScript "parseFunc" to process links in the bodytext.
 	 * Extracts the link and shows it in plain text in a parathesis next to the link text. If link was relative the site URL was prepended.
 	 *
-	 * @param	string		$content: Empty, ignore.
-	 * @param	array		$conf: TypoScript parameters
+	 * @param	string		$content Empty, ignore.
+	 * @param	array		$conf TypoScript parameters
+	 *
 	 * @return	string		Processed output.
 	 * @see parseBody()
 	 */
@@ -690,20 +715,21 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 		if (strtolower(substr($theLink,0,7)) == 'mailto:') {
 			$theLink = substr($theLink,7);
 		} elseif (substr($theLink,0,4) != 'http') {
-			$theLink = $this->siteUrl.$theLink;
+			$theLink = $this->siteUrl . $theLink;
 		}
-		return $this->cObj->getCurrentVal().' (###LINK_PREFIX### '.$theLink.' )';
+		return $this->cObj->getCurrentVal() . ' (###LINK_PREFIX### ' . $theLink . ' )';
 	}
 
 	/**
 	 * User function (called from TypoScript) for generating a bullet list (used in parsefunc)
 	 *
-	 * @param	string		$content: Empty, ignore.
-	 * @param	array		$conf: TypoScript parameters
+	 * @param	string		$content Empty, ignore.
+	 * @param	array		$conf TypoScript parameters
+	 *
 	 * @return	string		Processed output.
 	 */
-	function typolist($content,$conf) {
-		$this->conf = $this->cObj->mergeTSRef($conf,'bulletlist');
+	function typolist($content, $conf) {
+		$this->conf = $this->cObj->mergeTSRef($conf, 'bulletlist');
 		$this->siteUrl = $conf['siteUrl'];
 		$str = trim($this->cObj->getCurrentVal());
 		$this->cObj->data['layout'] = $this->cObj->parameters['type'];
@@ -713,11 +739,12 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * User function (called from TypoScript) for generating a typo header tag (used in parsefunc)
 	 *
-	 * @param	string		$content: Empty, ignore.
-	 * @param	array		$conf: TypoScript parameters
+	 * @param	string		$content Empty, ignore.
+	 * @param	array		$conf TypoScript parameters
+	 *
 	 * @return	string		Processed output.
 	 */
-	function typohead($content,$conf) {
+	function typohead($content, $conf) {
 		$this->conf = $this->cObj->mergeTSRef($conf,'header');
 
 		$this->siteUrl = $conf['siteUrl'];
@@ -732,11 +759,12 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * User function (called from TypoScript) for generating a code listing (used in parsefunc)
 	 *
-	 * @param	string		$content: Empty, ignore.
-	 * @param	array		$conf: TypoScript parameters
+	 * @param	string		$content Empty, ignore.
+	 * @param	array		$conf TypoScript parameters
+	 *
 	 * @return	string		Processed output.
 	 */
-	function typocode($content,$conf) {
+	function typocode($content, $conf) {
 			// Nothing is really done here...
 		$this->conf = $conf;
 		$this->siteUrl = $conf['siteUrl'];
@@ -746,17 +774,16 @@ class tx_directmail_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 	/**
 	 * Adds language-dependent label markers
 	 *
-	 * @param	array		$markerArray: the input marker array
+	 * @param	array		$markerArray the input marker array
+	 *
 	 * @return	array		the output marker array
 	 */
-	function addLabelsMarkers($markerArray) {
+	function addLabelsMarkers(array $markerArray) {
 
 		$labels = GeneralUtility::trimExplode(',', $this->labelsList);
 		foreach($labels as $labelName) {
-			$markerArray['###'.strtoupper($labelName).'###'] = $this->pi_getLL($labelName);
+			$markerArray['###' . strtoupper($labelName) . '###'] = $this->pi_getLL($labelName);
 		}
 		return $markerArray;
 	}
 }
-
-?>

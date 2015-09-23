@@ -1,59 +1,43 @@
 <?php
 namespace DirectMailTeam\DirectMail;
 
-/***************************************************************
- *  Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- *  (c) 1999-2004 Kasper Skaarhoj (kasperYYYY@typo3.com)
- *  (c) 2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *  All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
  *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *  A copy is found in the textfile GPL.txt and important notices to the license
- *  from the author is found in LICENSE.txt distributed with these scripts.
- *
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * The TYPO3 project - inspiring people to share!
+ */
+
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
+ * JumpUrl processing hook on class.tslib_fe.php
+ *
  * @author		Kasper Sk�rh�j <kasperYYYY>@typo3.com>
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
  * @package 	TYPO3
  * @subpackage 	tx_directmail
- * @version		$Id: class.tx_directmail_checkjumpurl.php 30935 2010-03-09 18:12:41Z ivankartolo $
- */
-
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\MathUtility;
-
-/**
- * JumpUrl processing hook on class.tslib_fe.php
  */
 class Checkjumpurl {
 
 	/**
 	 * Get the url to jump to as set by Direct Mail
 	 *
-	 * @param	tslib_fe	$feObj: reference to invoking instance
-	 * * @throws Exception
+	 * @param TypoScriptFrontendController $feObj reference to invoking instance
+	 *
 	 * @return	void
+	 * @throws \Exception
 	 */
-
-	function checkDataSubmission (&$feObj) {
+	function checkDataSubmission (TypoScriptFrontendController &$feObj) {
 		$jumpUrlVariables = GeneralUtility::_GET();
 
 		$mid = $jumpUrlVariables['mid'];
@@ -66,8 +50,8 @@ class Checkjumpurl {
 				// overwrite the jumpUrl with the one from the &jumpurl= get parameter
 			$jumpurl = $jumpUrlVariables['jumpurl'];
 
-				// this will split up the "rid=f_13667", where the first part
-				// is the DB table name and the second part the UID of the record in the DB table
+			// this will split up the "rid=f_13667", where the first part
+			// is the DB table name and the second part the UID of the record in the DB table
 			$recipientTable = '';
 			$recipientUid = '';
 			if (!empty($rid)) {
@@ -75,7 +59,7 @@ class Checkjumpurl {
 			}
 
 
-			$url_id = 0;
+			$urlId = 0;
 			$isInt = MathUtility::canBeInterpretedAsInteger($jumpurl);
 
 			if ($isInt) {
@@ -87,29 +71,28 @@ class Checkjumpurl {
 					'uid = ' . intval($mid)
 				);
 
-				if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resMailing)) {
-					$temp_unpackedMail = unserialize(base64_decode($row['mailContent']));
-					$url_id = $jumpurl;
+				if (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resMailing))) {
+					$mailContent = unserialize(base64_decode($row['mailContent']));
+					$urlId = $jumpurl;
 					if ($jumpurl >= 0) {
 							// Link (number)
 						$responseType = 1;
-						$jumpurl = $temp_unpackedMail['html']['hrefs'][$url_id]['absRef'];
+						$jumpurl = $mailContent['html']['hrefs'][$urlId]['absRef'];
 					} else {
 							// Link (number, plaintext)
 						$responseType = 2;
-						$jumpurl = $temp_unpackedMail['plain']['link_ids'][abs($url_id)];
+						$jumpurl = $mailContent['plain']['link_ids'][abs($urlId)];
 					}
 					$jumpurl = htmlspecialchars_decode(urldecode($jumpurl));
 					switch ($recipientTable) {
 						case 't':
 							$theTable = 'tt_address';
-						break;
+							break;
 						case 'f':
 							$theTable = 'fe_users';
-						break;
+							break;
 						default:
 							$theTable = '';
-						break;
 					}
 
 					if ($theTable) {
@@ -126,7 +109,7 @@ class Checkjumpurl {
 
 								reset($rowFieldsArray);
 								foreach ($rowFieldsArray as $substField) {
-									$jumpurl = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $jumpurl);
+									$jumpurl = str_replace('###USER_' . $substField . '###', $recipRow[$substField], $jumpurl);
 								}
 								// Put in the tablename of the userinformation
 								$jumpurl = str_replace('###SYS_TABLE_NAME###', substr($theTable, 0, 1), $jumpurl);
@@ -172,7 +155,7 @@ class Checkjumpurl {
 
 					// Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
 				if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && GeneralUtility::isAllowedAbsPath($checkPath)) {
-						// set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
+					// set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
 					GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
 					$responseType = -1;
 				} elseif (GeneralUtility::isValidUrl($jumpurl) && preg_match('#^(http://|https://)#', $jumpurl)) {
@@ -188,11 +171,12 @@ class Checkjumpurl {
 
 			if ($responseType != 0) {
 				$insertFields = array(
-					'mid'           => intval($mid),	// the message ID
+					// the message ID
+					'mid'           => intval($mid),
 					'tstamp'        => time(),
 					'url'           => $jumpurl,
 					'response_type' => intval($responseType),
-					'url_id'        => intval($url_id),
+					'url_id'        => intval($urlId),
 					'rtbl'			=> $recipientTable,
 					'rid'			=> $recipientUid
 				);

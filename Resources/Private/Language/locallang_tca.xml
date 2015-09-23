@@ -92,8 +92,7 @@
 			<label index="sys_dmail.tab1">Composition</label>
 			<label index="sys_dmail.tab2">Mail headers</label>
 			<label index="sys_dmail.tab3">Send options</label>
-
-
+			<label index="sys_dmail_group.advanced">Configuration</label>
             <label index="sys_dmail">Direct mails</label>
             <label index="sys_dmail.subject">Subject:</label>
             <label index="sys_dmail.page">Mail page:</label>
@@ -244,6 +243,7 @@
             <label index="sys_dmail.plainParams.ALT.1">URL für normalen Text:</label>
             <label index="sys_dmail.HTMLParams.ALT.1">URL für HTML-Inhalt:</label>
             <label index="sys_dmail.authcode_fieldList">Für die Authentifizierung verwendete Felder:</label>
+			<label index="sys_dmail_group.advanced">Konfigurationen</label>
             <label index="sys_dmail_group">Versandgruppe</label>
             <label index="sys_dmail_group.type.I.0">Von Seiten</label>
             <label index="sys_dmail_group.type.I.1">Normale Liste</label>

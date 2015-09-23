@@ -1,7 +1,7 @@
 a.bubble {position:relative; z-index:24; color:#000; text-decoration:none}
 a.bubble:hover {z-index:25; background-color: #e6e8ea;}
 a.bubble span.help {display: none;}
-a.bubble:hover span.help {display:block; position:absolute; top:2em; left:2em; width:25em; border:1px solid #0cf; background-color:#cff; padding: 2px;}
+a.bubble:hover span.help {display:block; position:absolute; top:2em; left:2em; width:32em; border:1px solid #aaaaaa; background-color:#e3dfdb; padding: 2px;}
 
 .box {
 	margin: 0 0 1em 0;
@@ -13,12 +13,10 @@ a.bubble:hover span.help {display:block; position:absolute; top:2em; left:2em; w
 .toggleTitle a {
 	width: 100%;
 	position: relative;
-	top: -3px;
 	display: block;
 }
 div.toggleTitle a img {
 	position: relative;
-	top: 4px;
 	margin-right: 4px;
 }
 .toggleTitle {
@@ -32,7 +30,7 @@ div.toggleTitle a img {
 	background: #ffffff;
 	border: 1px solid #aaaaaa;
 	padding: 1em;
-	width: 50em;
+	width: 70%;
 }
 
 
@@ -60,12 +58,4 @@ div.toggleTitle a img {
 
 .t3-wizard-steps span.t3-wizard-item-active {
 	color: #000000;
-}
-
-.t3-btn-next {
-	margin-top: 5px;
-}
-
-.t3-btn-disabled {
-	background: #ccc;
 }

@@ -4,7 +4,7 @@ if (!defined('TYPO3_MODE')) {
 }
 
 // tt_content modified
-$tt_content_cols = array(
+$ttContentCols = array(
 	'module_sys_dmail_category' => array(
 		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_category.category',
 		'exclude' => '1',
@@ -26,5 +26,5 @@ $tt_content_cols = array(
 		)
 	),
 );
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_content', $tt_content_cols);
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_content', $ttContentCols);
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCATypes('tt_content', 'module_sys_dmail_category;;;;1-1-1');
