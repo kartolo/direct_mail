@@ -674,7 +674,7 @@ class DirectMailUtility {
 	 * @param	string		$tableParams: the additional table parameter
 	 * @return	string		HTML table
 	 */
-	static function formatTable($tableLines,$cellParams,$header,$cellcmd=array(),$tableParams='border="0" cellpadding="2" cellspacing="3"')	{
+	static function formatTable($tableLines, $cellParams, $header, $cellcmd = array(), $tableParams = 'class="typo3-dblist"') {
 		reset($tableLines);
 		$cols = count(current($tableLines));
 
@@ -688,15 +688,15 @@ class DirectMailUtility {
 				$v = $r[$k];
 				$v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : "&nbsp;";
 				if ($first) {
-					$rowA[] = '<td class="t3-row-header">'.$v.'</td>';
+					$rowA[] = '<td>'.$v.'</td>';
 				} else {
 					$rowA[] = '<td'.($cellParams[$k]?" ".$cellParams[$k]:"").'>'.$v.'</td>';
 				}
 			}
-			$lines[] = '<tr class="'.($first?'bgColor2':'bgColor4').'">'.implode('',$rowA).'</tr>';
+			$lines[] = '<tr class="' . ($first ? 't3-row-header' : 'db_list_normal') . '">' . implode('', $rowA) . '</tr>';
 			$first = 0;
 		}
-		$table = '<table class="typo3-dblist" '.$tableParams.'>'.implode('',$lines).'</table>';
+		$table = '<table '.$tableParams.'>'.implode('',$lines).'</table>';
 		return $table;
 	}
 
@@ -791,7 +791,7 @@ class DirectMailUtility {
 					}
 				}
 
-				$lines[]='<tr>
+				$lines[]='<tr class="db_list_normal">
 				'.$tableIcon.'
 				'.$editLink.'
 				<td nowrap> '.htmlspecialchars($row['email']).' </td>
@@ -800,8 +800,8 @@ class DirectMailUtility {
 			}
 		}
 		if (count($lines))	{
-			$out= $GLOBALS["LANG"]->getLL('dmail_number_records') . '<strong>'.$count.'</strong><br />';
-			$out.='<table border="0" cellspacing="1" cellpadding="0">'.implode(LF,$lines).'</table>';
+			$out= $GLOBALS["LANG"]->getLL('dmail_number_records') . '<strong> '.$count.'</strong><br />';
+			$out .= '<table class="typo3-dblist">' . implode(LF, $lines) . '</table>';
 		}
 		return $out;
 	}

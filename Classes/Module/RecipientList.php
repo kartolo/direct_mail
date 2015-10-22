@@ -199,7 +199,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			if ($module == 'dmail') {
 						// Direct mail module
 				if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail') {
-					$markers['CONTENT'] = '<h2>' . $GLOBALS['LANG']->getLL('mailgroup_header') . '</h2>'
+					$markers['CONTENT'] = '<h1>' . $GLOBALS['LANG']->getLL('mailgroup_header') . '</h1>'
 					. $this->moduleContent();
 				} elseif ($this->id != 0) {
 					/** @var $flashMessage FlashMessage */
@@ -281,12 +281,12 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 * @return	string		List of existing recipient list, link to create a new list and link to import
 	 */
 	public function showExistingRecipientLists() {
-		$out = '<tr>
-					<td class="t3-row-header" colspan="2">&nbsp;</td>
-					<td class="t3-row-header">' . $GLOBALS['LANG']->sL(BackendUtility::getItemLabel('sys_dmail_group', 'title')) . '</td>
-					<td class="t3-row-header">' . $GLOBALS['LANG']->sL(BackendUtility::getItemLabel('sys_dmail_group', 'type')) . '</td>
-					<td class="t3-row-header">' . $GLOBALS['LANG']->sL(BackendUtility::getItemLabel('sys_dmail_group', 'description')) . '</td>
-					<td class="t3-row-header">' . $GLOBALS['LANG']->getLL('recip_group_amount') . '</td>
+		$out = '<tr class="t3-row-header">
+					<td colspan="2">&nbsp;</td>
+					<td>' . $GLOBALS['LANG']->sL(BackendUtility::getItemLabel('sys_dmail_group', 'title')) . '</td>
+					<td>' . $GLOBALS['LANG']->sL(BackendUtility::getItemLabel('sys_dmail_group', 'type')) . '</td>
+					<td>' . $GLOBALS['LANG']->sL(BackendUtility::getItemLabel('sys_dmail_group', 'description')) . '</td>
+					<td>' . $GLOBALS['LANG']->getLL('recip_group_amount') . '</td>
 				</tr>';
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -307,7 +307,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			if (is_array($idLists['PLAINLIST']))	$count+=count($idLists['PLAINLIST']);
 			if (is_array($idLists[$this->userTable]))	$count+=count($idLists[$this->userTable]);
 
-			$out.='<tr>
+			$out.='<tr class="db_list_normal">
 					<td nowrap="nowrap">'.IconUtility::getSpriteIconForRecord('sys_dmail_group', $row).'</td>
 					<td>'.$this->editLink('sys_dmail_group',$row['uid']).'</td>
 					<td nowrap="nowrap">'.$this->linkRecip_record('<strong>'.htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'],30)).'</strong>&nbsp;&nbsp;',$row['uid']).'</td>
@@ -317,7 +317,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				</tr>';
 		}
 
-		$out='<table class="typo3-dblist" border="0" cellpadding="0" cellspacing="0">' . $out . '</table>';
+		$out='<table class="typo3-dblist">' . $out . '</table>';
 		$theOutput = $this->doc->section(BackendUtility::cshItem($this->cshTable,'select_mailgroup',$GLOBALS['BACK_PATH']).$GLOBALS['LANG']->getLL('recip_select_mailgroup'),$out,1,1, 0, TRUE);
 
 			// New:

@@ -249,7 +249,7 @@ class Configuration extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			if ($module == 'dmail') {
 						// Direct mail module
 				if (($this->pageinfo['doktype'] == 254) && ($this->pageinfo['module'] == 'dmail')) {
-					$markers['CONTENT'] = '<h2>' . $GLOBALS['LANG']->getLL('header_conf') . '</h2>'
+					$markers['CONTENT'] = '<h1>' . $GLOBALS['LANG']->getLL('header_conf') . '</h1>'
 					. $this->moduleContent();
 				} elseif ($this->id != 0) {
 					/** @var $flashMessage FlashMessage */

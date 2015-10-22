@@ -1684,7 +1684,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$output.= '<a href="#" onclick="toggleDisplay(\''.$boxID.'\', event, '.$totalBox.')"><img id="'.$boxID.'_toggle" '.$imgSrc.' alt="" >'.$GLOBALS['LANG']->getLL('dmail_wiz1_list_dmail').'</a>';
 		$output.= '</div><div id="'.$boxID.'" class="toggleBox" style="display:'. ($open?'block':'none') .'">';
 		$output.= '<h3>'.$GLOBALS['LANG']->getLL('dmail_wiz1_list_header').'</h3>';
-		$output.= DirectMailUtility::formatTable($tblLines, array(), 1, array(1,1,1,0,0,1,0,1), 'border="0" cellspacing="0" cellpadding="3"');
+		$output.= DirectMailUtility::formatTable($tblLines, array(), 1, array(1,1,1,0,0,1,0,1));
 		$output.= '</div></div>';
 		return $output;
 	}
@@ -1763,7 +1763,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					$iconPreview
 					);
 			}
-			$out = DirectMailUtility::formatTable($outLines, array(), 0, array(1,1,1,1), 'border="0" cellspacing="1" cellpadding="0"');
+			$out = DirectMailUtility::formatTable($outLines, array(), 0, array(1,1,1,1));
 			$theOutput = $this->doc->section($GLOBALS['LANG']->getLL('dmail_dovsk_crFromNL').BackendUtility::cshItem($this->cshTable,'select_newsletter',$GLOBALS['BACK_PATH']), $out, 1, 1, 0, TRUE);
 		}
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
@@ -1804,20 +1804,20 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$content = '<img'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/edit2.gif', 'width="12" height="12"').' alt="'.$GLOBALS['LANG']->getLL("dmail_edit").'" width="12" height="12" style="margin: 2px 3px; vertical-align:top;" title="'.$GLOBALS['LANG']->getLL("dmail_edit").'" />'.'('.$GLOBALS['LANG']->getLL('dmail_noEdit_isSent').')';
 		}
 
-		$content = '<tr>
-			<td class="t3-row-header">' . DirectMailUtility::fName('subject') . ' <b>' . GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject']), 60) . '</b></td>
-			<td class="t3-row-header" style="text-align: right;">' . $content . '</td>
+		$content = '<tr class="t3-row-header">
+			<td>' . DirectMailUtility::fName('subject') . ' <b>' . GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject']), 60) . '</b></td>
+			<td style="text-align: right;">' . $content . '</td>
 		</tr>';
 
 		$nameArr = explode(',','from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,attachment,type,page,sendOptions,includeMedia,flowedFormat,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
 		foreach ($nameArr as $name) {
 			$content .= '
-			<tr>
+			<tr class="db_list_normal">
 				<td>' . DirectMailUtility::fName($name) . '</td>
 				<td>' . htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail', $name, $row[$name])) . '</td>
 			</tr>';
 		}
-		$content = '<table border="0" cellpadding="1" cellspacing="1" width="460" class="typo3-dblist">' . $content . '</table>';
+		$content = '<table width="460" class="typo3-dblist">' . $content . '</table>';
 
 		$sectionTitle = IconUtility::getSpriteIconForRecord('sys_dmail', $row) . '&nbsp;' . htmlspecialchars($row['subject']);
 		return $this->doc->section($sectionTitle, $content, 1, 1, 0, TRUE);
@@ -1830,7 +1830,7 @@ class Dmail extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 * @return	string	link with the trash icon
 	 */
 	function deleteLink($uid) {
-		$icon = '<img'.IconUtility::skinImg($GLOBALS['BACK_PATH'], 'gfx/delete_record.gif').' />';
+		$icon = IconUtility::getSpriteIcon('actions-edit-delete');
 		$dmail = BackendUtility::getRecord('sys_dmail', $uid);
 		if (!$dmail['scheduled_begin']) {
 			return '<a href="index.php?id='.$this->id.'&CMD=delete&uid='.$uid.'">'.$icon.'</a>';

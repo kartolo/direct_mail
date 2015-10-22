@@ -177,7 +177,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 					// Direct mail module
 				if ($this->pageinfo['doktype'] == 254 && $this->pageinfo['module'] == 'dmail') {
-					$markers['CONTENT'] = '<h2>' . $GLOBALS['LANG']->getLL('header_mailer') . '</h2>'
+					$markers['CONTENT'] = '<h1>' . $GLOBALS['LANG']->getLL('header_mailer') . '</h1>'
 					. $this->cmd_cronMonitor() . $this->cmd_mailerengine();
 				} elseif ($this->id != 0) {
 					/** @var $flashMessage FlashMessage */
@@ -365,14 +365,14 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			'scheduled DESC'
 		);
 
-		$out = '<tr>
-				<td class="t3-row-header">'.'&nbsp;'.'</td>
-				<td class="t3-row-header"><b>'.$GLOBALS["LANG"]->getLL('dmail_mailerengine_subject') . '&nbsp;&nbsp;'.'</b></td>
-				<td class="t3-row-header"><b>'.$GLOBALS["LANG"]->getLL('dmail_mailerengine_scheduled') . '&nbsp;&nbsp;'.'</b></td>
-				<td class="t3-row-header"><b>'.$GLOBALS["LANG"]->getLL('dmail_mailerengine_delivery_begun') . '&nbsp;&nbsp;'.'</b></td>
-				<td class="t3-row-header"><b>'.$GLOBALS["LANG"]->getLL('dmail_mailerengine_delivery_ended') . '&nbsp;&nbsp;'.'</b></td>
-				<td class="t3-row-header" style="text-align: center;"><b>'."&nbsp;" . $GLOBALS["LANG"]->getLL('dmail_mailerengine_number_sent') . '&nbsp;'.'</b></td>
-				<td class="t3-row-header" style="text-align: center;"><b>'."&nbsp;" . $GLOBALS["LANG"]->getLL('dmail_mailerengine_delete') . '&nbsp;'.'</b></td>
+		$out = '<tr class="t3-row-header">
+				<td>'.'&nbsp;'.'</td>
+				<td><b>'.$GLOBALS["LANG"]->getLL('dmail_mailerengine_subject') . '&nbsp;&nbsp;'.'</b></td>
+				<td><b>'.$GLOBALS["LANG"]->getLL('dmail_mailerengine_scheduled') . '&nbsp;&nbsp;'.'</b></td>
+				<td><b>'.$GLOBALS["LANG"]->getLL('dmail_mailerengine_delivery_begun') . '&nbsp;&nbsp;'.'</b></td>
+				<td><b>'.$GLOBALS["LANG"]->getLL('dmail_mailerengine_delivery_ended') . '&nbsp;&nbsp;'.'</b></td>
+				<td style="text-align: center;"><b>'."&nbsp;" . $GLOBALS["LANG"]->getLL('dmail_mailerengine_number_sent') . '&nbsp;'.'</b></td>
+				<td style="text-align: center;"><b>'."&nbsp;" . $GLOBALS["LANG"]->getLL('dmail_mailerengine_delete') . '&nbsp;'.'</b></td>
 			</tr>';
 
 		while($row = $GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res))	{
@@ -384,7 +384,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					' AND html_sent>0'
 				);
 			list($count) = $GLOBALS["TYPO3_DB"]->sql_fetch_row($countres);
-			$out.='<tr>
+			$out.='<tr class="db_list_normal">
 						<td>'.IconUtility::getSpriteIconForRecord('sys_dmail',$row).'</td>
 						<td>'.$this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'],100)).'&nbsp;&nbsp;',$row['uid']).'</td>
 						<td>'.BackendUtility::datetime($row['scheduled']).'&nbsp;&nbsp;'.'</td>
@@ -395,7 +395,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 					</tr>';
 		}
 
-		$out = $invokeMessage . '<table class="typo3-dblist" cellpadding="1" cellspacing="0">'.$out.'</table>';
+		$out = $invokeMessage . '<table class="typo3-dblist">'.$out.'</table>';
 		return $this->doc->section(BackendUtility::cshItem($this->cshTable,'mailerengine_status',$GLOBALS["BACK_PATH"]).$GLOBALS["LANG"]->getLL('dmail_mailerengine_status'),$out,1,1, 0, TRUE);
 	}
 
@@ -406,7 +406,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 * @return	string	link with the trash icon
 	 */
 	function deleteLink($uid) {
-		$icon = '<img'.IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/delete_record.gif').' />';
+		$icon = IconUtility::getSpriteIcon('actions-edit-delete');
 		$dmail = BackendUtility::getRecord('sys_dmail', $uid);
 		if (!$dmail['scheduled_begin']) {
 			return '<a href="index.php?id='.$this->id.'&cmd=delete&uid='.$uid.'">'.$icon.'</a>';
