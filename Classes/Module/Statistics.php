@@ -680,42 +680,53 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				}
 			}
 
-				// get body
-			if (strstr($HTMLContent,'<BODY')) {
-				$tmp = explode('<BODY', $HTMLContent);
-			} else {
-				$tmp = explode('<body', $HTMLContent);
+			// Parse mail body
+			$dom = new \DOMDocument;
+			@$dom->loadHTML($HTMLContent);
+			$links = array();
+			// Get all links
+			foreach ($dom->getElementsByTagName('a') as $node) {
+				$links[] = $node;
 			}
-			$bodyPart = explode('<', $tmp[1]);
 
-				// load all <a href="*" parts into $tempHref array, in a 2-dimensional array
-				// where the lower level of the array contains two values, the URL and the unique ID (see $urlArr)
-			foreach ($bodyPart as $k => $str) {
-				if (preg_match('/a.href/', $str)) {
-					$tagAttr = GeneralUtility::get_tag_attributes($bodyPart[$k]);
-					if (strpos($str, '>') === strlen($str) - 1) {
-						if ($tagAttr['href']{0} != '#') {
-							list(, $jumpurlId) = explode('jumpurl=', $tagAttr['href']);
-							$url = $HTMLlinks[$jumpurlId]['url'];
+			// Process all links found
+			foreach ($links as $link) {
+				/** @var \DOMElement $link */
+				$url =  $link->getAttribute('href');
 
-							// Use the link title if it exists - otherwise use the URL
-							if (strlen($tagAttr['title'])) {
-								$label = $GLOBALS["LANG"]->getLL('stats_img_link') . '<span title="'.$tagAttr['title'].'">' . GeneralUtility::fixed_lgd_cs(substr($url, 7), 40) . '</span>';
-							} else {
-								$label = $GLOBALS["LANG"]->getLL('stats_img_link') . '<span title="'.$url.'">' . GeneralUtility::fixed_lgd_cs(substr($url, 7), 40) . '</span>';
-							}
-							$HTMLlinks[$jumpurlId]['label'] = $label;
-						}
-					} else {
-						if ($tagAttr['href']{0} != '#') {
-							list($url, $jumpurlId) = explode('jumpurl=', $tagAttr['href']);
-							$wordPos = strpos($str, '>');
-							$label = substr($str, $wordPos+1);
-							$HTMLlinks[$jumpurlId]['label'] = $label;
-						}
-					}
+				if (empty($url)) {
+					// Drop a tags without href
+					continue;
 				}
+
+				if (GeneralUtility::isFirstPartOfStr($url, 'mailto:')) {
+					// Drop mail links
+					continue;
+				}
+
+				$parsedUrl = GeneralUtility::explodeUrl2Array($url);
+
+				if (!array_key_exists('jumpurl', $parsedUrl)) {
+					// Ignore non-jumpurl links
+					continue;
+				}
+
+				$jumpurlId = $parsedUrl['jumpurl'];
+				$targetUrl = $HTMLlinks[$jumpurlId]['url'];
+
+				$title = $link->getAttribute('title');
+
+				if (!empty($title)) {
+					// no title attribute
+					$label = '<span title="' . $title . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
+				} else {
+					$label = '<span title="' . $targetUrl . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
+				}
+
+				$HTMLlinks[$jumpurlId]['label'] = $label;
+
 			}
+
 		}
 
 		foreach ($urlCounter['total'] as $id => $hits) {
