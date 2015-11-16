@@ -318,8 +318,7 @@ class Dmail extends BaseScriptClass {
 
 			$this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
 			$this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
-			$this->content .= $this->doc->spacer(5);
-			$this->content .= $this->doc->spacer(10);
+			$this->content .= '<div style="padding-top: 15px;"></div>';
 		}
 	}
 
@@ -875,7 +874,7 @@ class Dmail extends BaseScriptClass {
 		$msg .= '<br /><br /><input class="btn btn-default" type="Submit" name="mailingMode_mailGroup" value="' . $this->getLanguageService()->getLL('schedule_send_all') . '" />';
 
 		$theOutput = $this->doc->section($this->getLanguageService()->getLL('schedule_select_mailgroup'),$msg, 1, 1, 0, TRUE);
-		$theOutput .= $this->doc->spacer(20);
+		$theOutput .= '<div style="padding-top: 20px;"></div>';
 
 		$this->noView = 1;
 		return $theOutput;
@@ -1118,7 +1117,7 @@ class Dmail extends BaseScriptClass {
 			$msg .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids,'tt_address'),'tt_address', 1, 1);
 
 			$theOutput.= $this->doc->section($this->getLanguageService()->getLL('testmail_individual'),$msg, 1, 1, 0, TRUE);
-			$theOutput.= $this->doc->spacer(20);
+			$theOutput.= '<div style="padding-top: 20px;"></div>';
 		}
 
 		if ($this->params['test_dmail_group_uids'])	{
@@ -1147,7 +1146,7 @@ class Dmail extends BaseScriptClass {
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 			$theOutput.= $this->doc->section($this->getLanguageService()->getLL('testmail_mailgroup'),$msg, 1, 1, 0, TRUE);
-			$theOutput.= $this->doc->spacer(20);
+			$theOutput.= '<div style="padding-top: 20px;"></div>';
 		}
 
 		$msg='';

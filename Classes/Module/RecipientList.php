@@ -320,12 +320,12 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$out = '<a href="#" class="t3-link" onClick="' . BackendUtility::editOnClick('&edit[sys_dmail_group][' . $this->id . ']=new',$GLOBALS['BACK_PATH'],'') . '">' .
 			$this->iconFactory->getIconForRecord('sys_dmail_group', array(), Icon::SIZE_SMALL) .
 			$this->getLanguageService()->getLL('recip_create_mailgroup_msg') . '</a>';
-		$theOutput .= $this->doc->spacer(20);
+		$theOutput .= '<div style="padding-top: 20px;"></div>';
 		$theOutput .= $this->doc->section(BackendUtility::cshItem($this->cshTable,'create_mailgroup',$GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('recip_create_mailgroup'),$out, 1, 0, FALSE, TRUE, FALSE, TRUE);
 
 			// Import
 		$out = '<a class="t3-link" href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM3') . '&id=' . $this->id . '&CMD=displayImport">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
-		$theOutput.= $this->doc->spacer(20);
+		$theOutput.= '<div style="padding-top: 20px;"></div>';
 		$theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_import'),$out, 1, 1, 0, TRUE);
 		return $theOutput;
 	}
@@ -546,7 +546,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		}
 
 		$theOutput = $this->doc->section($this->getLanguageService()->getLL('mailgroup_recip_from') . ' ' . $out,$mainC, 1, 1, 0, TRUE);
-		$theOutput .= $this->doc->spacer(20);
+		$theOutput .= '<div style="padding-top: 20px;"></div>';
 
 			// do the CSV export
 		$csvValue = GeneralUtility::_GP('csv');
@@ -562,15 +562,15 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			case 'listall':
 				if (is_array($idLists['tt_address'])) {
 					$theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_address'),DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'],'tt_address'), 'tt_address', $this->id));
-					$theOutput.= $this->doc->spacer(20);
+					$theOutput.= '<div style="padding-top: 20px;"></div>';
 				}
 				if (is_array($idLists['fe_users'])) {
 					$theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_fe_users'),DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'],'fe_users'), 'fe_users', $this->id));
-					$theOutput.= $this->doc->spacer(20);
+					$theOutput.= '<div style="padding-top: 20px;"></div>';
 				}
 				if (is_array($idLists['PLAINLIST'])) {
 					$theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_plain_list'),DirectMailUtility::getRecordList($idLists['PLAINLIST'],'default',$this->id));
-					$theOutput.= $this->doc->spacer(20);
+					$theOutput.= '<div style="padding-top: 20px;"></div>';
 				}
 				if (is_array($idLists[$this->userTable])) {
 					$theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_custom') . ' ' . $this->userTable,DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable],$this->userTable),$this->userTable,$this->id));
@@ -581,25 +581,25 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				if (is_array($idLists['tt_address']) && count($idLists['tt_address'])) {
 					$recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
 					$theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_address'), $recipContent);
-					$theOutput.= $this->doc->spacer(20);
+					$theOutput.= '<div style="padding-top: 20px;"></div>';
 				}
 
 				if (is_array($idLists['fe_users']) && count($idLists['fe_users'])) {
 					$recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
 					$theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_fe_users'), $recipContent);
-					$theOutput.= $this->doc->spacer(20);
+					$theOutput.= '<div style="padding-top: 20px;"></div>';
 				}
 
 				if (is_array($idLists['PLAINLIST']) && count($idLists['PLAINLIST'])) {
 					$recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
 					$theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_plain_list'), $recipContent);
-					$theOutput.= $this->doc->spacer(20);
+					$theOutput.= '<div style="padding-top: 20px;"></div>';
 				}
 
 				if (is_array($idLists[$this->userTable]) && count($idLists[$this->userTable])) {
 					$recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv' => $this->userTable)) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
 					$theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_custom'), $recipContent);
-					$theOutput.= $this->doc->spacer(20);
+					$theOutput.= '<div style="padding-top: 20px;"></div>';
 				}
 
 				if ($group['type'] == 3) {
@@ -681,7 +681,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$this->queryGenerator->queryConfig = unserialize($this->MOD_SETTINGS['queryConfig']);
 			$this->queryGenerator->extFieldLists['queryFields'] = 'uid';
 			$out .= $this->queryGenerator->getSelectQuery();
-			$out .= $this->doc->spacer(20);
+			$out .= '<div style="padding-top: 20px;"></div>';
 		}
 
 		$this->queryGenerator->setFormName($this->formname);
@@ -692,7 +692,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$tmpCode .= '<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_updateQuery') . '" />';
 		$out .= $this->doc->section($this->getLanguageService()->getLL('dmail_makeQuery'),$tmpCode);
 
-		$theOutput = $this->doc->spacer(20);
+		$theOutput = '<div style="padding-top: 20px;"></div>';
 		$theOutput .= $this->doc->section($this->getLanguageService()->getLL('dmail_query'),$out);
 
 		return $theOutput;
@@ -845,7 +845,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				'<input type="hidden" name="uid" value="' . $uid . '" />' .
 				'<input type="hidden" name="CMD" value="' . $this->CMD . '" />' .
 				'<br /><input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
-			$theOutput .= $this->doc->spacer(20);
+			$theOutput .= '<div style="padding-top: 20px;"></div>';
 			$theOutput .= $this->doc->section($this->getLanguageService()->getLL('subscriber_profile'), $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out);
 		}
 		return $theOutput;

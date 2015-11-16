@@ -204,10 +204,9 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\MediumDocumentTemplate');
 			$this->doc->backPath = $GLOBALS["BACK_PATH"];
 
-			$this->content.=$this->doc->startPage($this->getLanguageService()->getLL('title'));
-			$this->content.=$this->doc->header($this->getLanguageService()->getLL('title'));
-			$this->content.=$this->doc->spacer(5);
-			$this->content.=$this->doc->spacer(10);
+			$this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
+			$this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
+			$this->content .= '<div style="padding-top: 15px;"></div>';
 		}
 	}
 
@@ -349,9 +348,9 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		// Invoke engine
 		if ($enableTrigger) {
 			$out = '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br /><a class="t3-link" href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM5') . '&id=' . $this->id . '&invokeMailerEngine=1"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a></p>';
-			$invokeMessage .= $this->doc->spacer(20);
+			$invokeMessage .= '<div style="padding-top: 20px;"></div>';
 			$invokeMessage .= $this->doc->section(BackendUtility::cshItem($this->cshTable,'mailerengine_invoke',$GLOBALS["BACK_PATH"]) . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke'), $out, 1, 1, 0, TRUE);
-			$invokeMessage .= $this->doc->spacer(20);
+			$invokeMessage .= '<div style="padding-top: 20px;"></div>';
 		}
 
 		// Display mailer engine status

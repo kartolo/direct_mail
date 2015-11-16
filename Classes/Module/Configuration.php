@@ -283,8 +283,7 @@ class Configuration extends BaseScriptClass {
 
 			$this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
 			$this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
-			$this->content .= $this->doc->spacer(5);
-			$this->content .= $this->doc->spacer(10);
+			$this->content .= '<div style="padding-top: 15px;"></div>';
 		}
 	}
 

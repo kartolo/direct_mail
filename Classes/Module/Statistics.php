@@ -236,10 +236,9 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\MediumDocumentTemplate');
 			$this->doc->backPath = $GLOBALS["BACK_PATH"];
 
-			$this->content.=$this->doc->startPage($this->getLanguageService()->getLL('title'));
-			$this->content.=$this->doc->header($this->getLanguageService()->getLL('title'));
-			$this->content.=$this->doc->spacer(5);
-			$this->content.=$this->doc->spacer(10);
+			$this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
+			$this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
+			$this->content .= '<div style="padding-top: 15px;"></div>';
 		}
 	}
 
@@ -414,7 +413,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				'<input type="hidden" name="uid" value="' . $uid . '" />' .
 				'<input type="hidden" name="CMD" value="' . $this->CMD . '" /><br />' .
 				'<input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
-			$theOutput .= $this->doc->spacer(20);
+			$theOutput .= '<div style="padding-top: 20px;"></div>';
 			$theOutput .= $this->doc->section($this->getLanguageService()->getLL('subscriber_profile'), $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out);
 		}
 
@@ -491,7 +490,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		}
 
 		$theOutput = $this->doc->section($this->getLanguageService()->getLL('stats_overview_choose'), $out , 1, 1, 0, TRUE);
-		$theOutput .= $this->doc->spacer(20);
+		$theOutput .= '<div style="padding-top: 20px;"></div>';
 
 		return $theOutput;
 	}
@@ -1313,7 +1312,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$this->noView = 1;
 		// put all the stats tables in a section
 		$theOutput = $this->doc->section($this->getLanguageService()->getLL('stats_direct_mail'), $output, 1, 1, 0, TRUE);
-		$theOutput .= $this->doc->spacer(20);
+		$theOutput .= '<div style="padding-top: 20px;"></div>';
 
 		$link = '<p><a style="text-decoration: underline;" href="' . $thisurl . '">' . $this->getLanguageService()->getLL('stats_recalculate_stats') . '</a></p>';
 		$theOutput .= $this->doc->section($this->getLanguageService()->getLL('stats_recalculate_cached_data'), $link, 1, 1, 0, TRUE);
@@ -1765,7 +1764,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			'<td>' . $totalRecip . ' / ' . $sentRecip . '</td>' .
 			'<td>&nbsp;</td></tr>';
 		$out .= '</table>';
-		$out .= $this->doc->spacer(5);
+		$out .= '<div style="padding-top: 5px;"></div>';
 
 		return $out;
 	}
