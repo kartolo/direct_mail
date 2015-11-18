@@ -16,15 +16,15 @@ namespace DirectMailTeam\DirectMail\Module;
 
 
 use TYPO3\CMS\Backend\Module\BaseScriptClass;
-	use TYPO3\CMS\Core\Imaging\Icon;
-	use TYPO3\CMS\Core\Imaging\IconFactory;
-	use TYPO3\CMS\Core\Utility\DebugUtility;
-	use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Module Configuration for tx_directmail extension
@@ -76,13 +76,27 @@ class Configuration extends BaseScriptClass {
 	protected $iconFactory;
 
 	/**
+	 * The name of the module
+	 *
+	 * @var string
+	 */
+	protected $moduleName = 'DirectMailNavFrame_Configuration';
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->MCONF = array(
+				'name' => $this->moduleName
+		);
+	}
+
+	/**
 	 * Standard initialization
 	 *
 	 * @return	void
 	 */
 	public function init() {
-		$this->MCONF = $GLOBALS['MCONF'];
-
 		parent::init();
 
 		$temp = BackendUtility::getModTSconfig($this->id,'mod.web_modules.dmail');
@@ -130,6 +144,27 @@ class Configuration extends BaseScriptClass {
 	}
 
 	/**
+	 * Entrance from the backend module. This replace the _dispatch
+	 *
+	 * @param ServerRequestInterface $request The request object from the backend
+	 * @param ResponseInterface $response The reponse object sent to the backend
+	 *
+	 * @return ResponseInterface Return the response object
+	 */
+	public function mainAction(ServerRequestInterface $request, ResponseInterface $response) {
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
+
+		$this->init();
+
+		$this->main();
+		$this->printContent();
+
+		$response->getBody()->write($this->content);
+		return $response;
+	}
+
+	/**
 	 * The main function.
 	 *
 	 * @return	void
@@ -146,7 +181,7 @@ class Configuration extends BaseScriptClass {
 			// Draw the header.
 			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
 			$this->doc->backPath = $GLOBALS["BACK_PATH"];
-			$this->doc->setModuleTemplate('EXT:direct_mail/mod3/mod_template.html');
+			$this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
 			$this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
 			$this->doc->addStyleSheet('direct_mail', ExtensionManagementUtility::extRelPath('direct_mail') . '/Resources/Public/StyleSheets/modules.css');
@@ -294,7 +329,6 @@ class Configuration extends BaseScriptClass {
 	 */
 	function printContent() {
 		$this->content .= $this->doc->endPage();
-		echo $this->content;
 	}
 
 	/**

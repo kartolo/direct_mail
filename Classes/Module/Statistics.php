@@ -23,6 +23,8 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Module Statistics of tx_directmail extension
@@ -74,13 +76,27 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	protected $iconFactory;
 
 	/**
+	 * The name of the module
+	 *
+	 * @var string
+	 */
+	protected $moduleName = 'DirectMailNavFrame_Statistics';
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->MCONF = array(
+			'name' => $this->moduleName
+		);
+	}
+
+	/**
 	 * First initialization of global variables
 	 *
 	 * @return	void
 	 */
 	function init() {
-		$this->MCONF = $GLOBALS['MCONF'];
-
 		parent::init();
 
 		// initialize IconFactory
@@ -128,7 +144,27 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 */
 	function printContent() {
 		$this->content.=$this->doc->endPage();
-		echo $this->content;
+	}
+
+	/**
+	 * Entrance from the backend module. This replace the _dispatch
+	 *
+	 * @param ServerRequestInterface $request The request object from the backend
+	 * @param ResponseInterface $response The reponse object sent to the backend
+	 *
+	 * @return ResponseInterface Return the response object
+	 */
+	public function mainAction(ServerRequestInterface $request, ResponseInterface $response) {
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
+
+		$this->init();
+
+		$this->main();
+		$this->printContent();
+
+		$response->getBody()->write($this->content);
+		return $response;
 	}
 
 	/**
@@ -148,7 +184,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			// Draw the header.
 			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
 			$this->doc->backPath = $GLOBALS["BACK_PATH"];
-			$this->doc->setModuleTemplate('EXT:direct_mail/mod4/mod_template.html');
+			$this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
 			$this->doc->form='<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
 			// Add CSS
@@ -505,7 +541,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 * @return string wrapped string as a link
 	 */
 	function linkDMail_record($str,$uid,$aTitle='') {
-		return '<a title="' . htmlspecialchars($aTitle) . '" href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM4') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&SET[dmail_mode]=direct&CMD=stats">' . htmlspecialchars($str) . '</a>';
+		return '<a title="' . htmlspecialchars($aTitle) . '" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_Statistics') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&SET[dmail_mode]=direct&CMD=stats">' . htmlspecialchars($str) . '</a>';
 	}
 
 	/**
@@ -519,7 +555,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		if (GeneralUtility::_GP("recalcCache"))	{
 			$this->makeStatTempTableContent($row);
 		}
-		$thisurl = BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM4') . '&id=' . $this->id . '&sys_dmail_uid=' . $row['uid'] . '&CMD=' . $this->CMD . '&recalcCache=1';
+		$thisurl = BackendUtility::getModuleUrl('DirectMailNavFrame_Statistics') . '&id=' . $this->id . '&sys_dmail_uid=' . $row['uid'] . '&CMD=' . $this->CMD . '&recalcCache=1';
 		$output = $this->directMail_compactView($row);
 
 			// *****************************

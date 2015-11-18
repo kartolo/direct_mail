@@ -21,25 +21,25 @@ TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
 /**
  * Setting up the direct mail module
  */
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_sysdmail.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_group','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_sysdmailg.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_category','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_sysdmailcat.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM2','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_txdirectmailM2.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM3','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_txdirectmailM3.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM4','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_txdirectmailM4.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM5','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_txdirectmailM5.xml');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_txdirectmailM1_txdirectmailM6','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_txdirectmailM6.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_sysdmail.xlf');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_group','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_sysdmailg.xlf');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_category','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_sysdmailcat.xlf');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_DirectMailNavFrame_DirectMail','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_DirectMail.xlf');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_DirectMailNavFrame_RecipientList','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_RecipientList.xlf');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_DirectMailNavFrame_Statistics','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_Statistics.xlf');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_DirectMailNavFrame_MailerEngine','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_MailerEngine.xlf');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_DirectMailNavFrame_Configuration','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_Configuration.xlf');
 //old
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_web_txdirectmailM1','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_web_txdirectmail.xml');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_web_DirectMailNavFrame','EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_csh_web_txdirectmail.xlf');
 
 
 if (TYPO3_MODE == 'BE') {
 	// add module before 'Help'
-	if (!isset($TBE_MODULES['txdirectmailM1']))	{
+	if (!isset($TBE_MODULES['DirectMailNavFrame']))	{
 		$temp_TBE_MODULES = array();
 		foreach($TBE_MODULES as $key => $val) {
 			if ($key == 'help') {
-				$temp_TBE_MODULES['txdirectmailM1'] = '';
+				$temp_TBE_MODULES['DirectMailNavFrame'] = '';
 				$temp_TBE_MODULES[$key] = $val;
 			} else {
 				$temp_TBE_MODULES[$key] = $val;
@@ -49,112 +49,112 @@ if (TYPO3_MODE == 'BE') {
 		$TBE_MODULES = $temp_TBE_MODULES;
 	}
 
-	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', '', '', $extPath . 'mod1/',
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('DirectMailNavFrame', '', '', '',
 		array(
-			'script' => '_DISPATCH',
+			'routeTarget' => DirectMailTeam\DirectMail\Module\NavFrame::class . '::mainAction',
 			'access' => 'group,user',
-			'name' => 'txdirectmailM1',
+			'name' => 'DirectMailNavFrame',
 			'labels' => array(
 				'tabs_images' => array(
 					'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail.svg',
 				),
-			'll_ref' => 'LLL:EXT:direct_mail/mod1/locallang_mod.xml',
+			'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangNavFrame.xlf',
 			),
 		)
 	);
 
-	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', 'txdirectmailM2', 'bottom', $extPath . 'mod2/',
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('DirectMailNavFrame', 'DirectMail', 'bottom', '',
 		array(
-			'script' => '_DISPATCH',
+			'routeTarget' => DirectMailTeam\DirectMail\Module\Dmail::class . '::mainAction',
 			'access' => 'group,user',
-			'name' => 'txdirectmailM1_txdirectmailM2',
+			'name' => 'DirectMailNavFrame_DirectMail',
 			'workspaces' => 'online',
 			'labels' => array(
 				'tabs_images' => array(
 					'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-directmail.svg',
 				),
-				'll_ref' => 'LLL:EXT:direct_mail/mod2/locallang_mod.xml',
+				'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangDirectMail.xlf',
 			),
-			'navigationFrameModule' => 'txdirectmailM1',
-			'navigationFrameModuleParameters' => array('currentModule' => 'txdirectmailM1_txdirectmailM2'),
+			'navigationFrameModule' => 'DirectMailNavFrame',
+			'navigationFrameModuleParameters' => array('currentModule' => 'DirectMailNavFrame_DirectMail'),
 		)
 	);
 
-	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', 'txdirectmailM3', 'bottom', $extPath . 'mod3/',
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('DirectMailNavFrame', 'RecipientList', 'bottom', '',
 		array(
-			'script' => '_DISPATCH',
+			'routeTarget' => DirectMailTeam\DirectMail\Module\RecipientList::class . '::mainAction',
 			'access' => 'group,user',
-			'name' => 'txdirectmailM1_txdirectmailM3',
+			'name' => 'DirectMailNavFrame_RecipientList',
 			'workspaces' => 'online',
 			'labels' => array(
 				'tabs_images' => array(
 					'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-recipient-list.svg',
 				),
-				'll_ref' => 'LLL:EXT:direct_mail/mod3/locallang_mod.xml',
+				'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangRecipientList.xlf',
 			),
-			'navigationFrameModule' => 'txdirectmailM1',
-			'navigationFrameModuleParameters' => array('currentModule' => 'txdirectmailM1_txdirectmailM3'),
+			'navigationFrameModule' => 'DirectMailNavFrame',
+			'navigationFrameModuleParameters' => array('currentModule' => 'DirectMailNavFrame_RecipientList'),
 		)
 	);
 
-	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', 'txdirectmailM4', 'bottom', $extPath . 'mod4/',
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('DirectMailNavFrame', 'Statistics', 'bottom', '',
 		array(
-			'script' => '_DISPATCH',
+			'routeTarget' => DirectMailTeam\DirectMail\Module\Statistics::class . '::mainAction',
 			'access' => 'group,user',
-			'name' => 'txdirectmailM1_txdirectmailM4',
+			'name' => 'DirectMailNavFrame_Statistics',
 			'workspaces' => 'online',
 			'labels' => array(
 				'tabs_images' => array(
 					'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-statistics.svg',
 				),
-				'll_ref' => 'LLL:EXT:direct_mail/mod4/locallang_mod.xml',
+				'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangStatistics.xlf',
 			),
-			'navigationFrameModule' => 'txdirectmailM1',
-			'navigationFrameModuleParameters' => array('currentModule' => 'txdirectmailM1_txdirectmailM4'),
+			'navigationFrameModule' => 'DirectMailNavFrame',
+			'navigationFrameModuleParameters' => array('currentModule' => 'DirectMailNavFrame_Statistics'),
 		)
 	);
 
-	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', 'txdirectmailM5', 'bottom', $extPath . 'mod5/',
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('DirectMailNavFrame', 'MailerEngine', 'bottom', '',
 		array(
-			'script' => '_DISPATCH',
+			'routeTarget' => DirectMailTeam\DirectMail\Module\MailerEngine::class . '::mainAction',
 			'access' => 'group,user',
-			'name' => 'txdirectmailM1_txdirectmailM5',
+			'name' => 'DirectMailNavFrame_MailerEngine',
 			'workspaces' => 'online',
 			'labels' => array(
 				'tabs_images' => array(
 					'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-mailer-engine.svg',
 				),
-				'll_ref' => 'LLL:EXT:direct_mail/mod5/locallang_mod.xml',
+				'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangMailerEngine.xlf',
 			),
-			'navigationFrameModule' => 'txdirectmailM1',
-			'navigationFrameModuleParameters' => array('currentModule' => 'txdirectmailM1_txdirectmailM5'),
+			'navigationFrameModule' => 'DirectMailNavFrame',
+			'navigationFrameModuleParameters' => array('currentModule' => 'DirectMailNavFrame_MailerEngine'),
 		)
 	);
 
 
-	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('txdirectmailM1', 'txdirectmailM6', 'bottom', $extPath . 'mod6/',
+	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule('DirectMailNavFrame', 'Configuration', 'bottom', '',
 		array(
-			'script' => '_DISPATCH',
+			'routeTarget' => DirectMailTeam\DirectMail\Module\Configuration::class . '::mainAction',
 			'access' => 'group,user',
-			'name' => 'txdirectmailM1_txdirectmailM6',
+			'name' => 'DirectMailNavFrame_Configuration',
 			'workspaces' => 'online',
 			'labels' => array(
 				'tabs_images' => array(
 					'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-configuration.svg',
 				),
-				'll_ref' => 'LLL:EXT:direct_mail/mod6/locallang_mod.xml',
+				'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangConfiguration.xlf',
 			),
-			'navigationFrameModule' => 'txdirectmailM1',
-			'navigationFrameModuleParameters' => array('currentModule' => 'txdirectmailM1_txdirectmailM6'),
+			'navigationFrameModule' => 'DirectMailNavFrame',
+			'navigationFrameModuleParameters' => array('currentModule' => 'DirectMailNavFrame_Configuration'),
 		)
 	);
 }
 
-TYPO3\CMS\Backend\Sprite\SpriteManager::addTcaTypeIcon(
-	'pages',
-	'contains-dmail',
-	TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath($_EXTKEY) . 'res/gfx/ext_icon_dmail_folder.gif'
-);
+
+$GLOBALS['TBE_STYLES']['spritemanager']['singleIcons']['tcarecords-pages-contains-dmail'] = TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath($_EXTKEY) . 'res/gfx/ext_icon_dmail_folder.gif';
+if (is_array($GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'])) {
+	$GLOBALS['TCA']['pages']['ctrl']['typeicon_classes']['contains-dmail'] = 'tcarecords-pages-contains-dmail';
+}
 
 if (TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
 	include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY)."Configuration/TCA/Overrides/tt_address.php");

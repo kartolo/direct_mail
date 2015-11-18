@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2016-02-11T21:42:21Z">
+		<header>
+			<description>Context Sensitive Help for Direct Mail Categories</description>
+			<type>CSH</type>
+			<csh_table>sys_dmail_category</csh_table>
+			<fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmailcat.xml</fileId>
+			<authorName>Ivan Kartolo</authorName>
+			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
+			<generator>LFEditor</generator>
+		</header>
+		<body>
+		<trans-unit id=".description">
+			<source>Direct mail category</source>
+		</trans-unit>
+		<trans-unit id=".details" xml:space="preserve">
+			<source><![CDATA[Direct mail categories are used to classify content elements by subject so that direct mails may be personalized.
+
+Direct mail categories may be assigned to content elements in pages that are used to build direct mails.
+
+Subscribers may also subscribe to direct mail categories of interest to them.
+
+When sending direct mails, the Direct mail module uses this information to personalize the email message sent to each subscriber.]]></source>
+		</trans-unit>
+		<trans-unit id="_.seeAlso">
+			<source>sys_dmail, sys_dmail_group</source>
+		</trans-unit>
+		<trans-unit id="category.description">
+			<source>Direct mail categories are used to classify content elements.</source>
+		</trans-unit>
+		<trans-unit id="category.details">
+			<source>A category corresponds to a subject or topic. It is not recommended to use categories to distinguish between contents in various languages, or to distinguish between contents targeted at different audiences. Use the Language field of content elements or Website User Group records for such purposes.</source>
+		</trans-unit>
+		<trans-unit id="sys_language_uid.description">
+			<source>Select the language of the category.</source>
+		</trans-unit>
+		<trans-unit id="sys_language_uid.details" xml:space="preserve">
+			<source><![CDATA[This allows you to translate the title of the category in the selected language. This will enable frontend plugins to present the title of the category in the language of the frontend page.
+The available system languages are created by the administrator.]]></source>
+		</trans-unit>
+		</body>
+	</file>
+</xliff>

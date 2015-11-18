@@ -34,8 +34,8 @@ unset($MCONF);
 include ('conf.php');
 include ($BACK_PATH.'init.php');
 */
-$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xml');
-$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xml');
+$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
 
 // Make instance:
 /** @var $SOBE \DirectMailTeam\DirectMail\Module\NavFrame */

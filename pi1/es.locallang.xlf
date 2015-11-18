@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="es" datatype="plaintext" original="messages" date="2016-02-05T11:52:00Z">
+		<header>
+			<description>Labels for the Direct Mail plain text rendering plugin</description>
+			<authorName>Ivan Kartolo</authorName>
+			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
+			<generator>LFEditor</generator>
+		</header>
+		<body>
+		<trans-unit id="caption_header" approved="yes">
+			<source>CAPTION:</source>
+			<target>LEYENDA:</target>
+		</trans-unit>
+		<trans-unit id="header_date_prefix" approved="yes">
+			<source>Date:</source>
+			<target>Fecha:</target>
+		</trans-unit>
+		<trans-unit id="header_link_prefix" approved="yes">
+			<source>- Headerlink:</source>
+			<target>- Vínculo en el título:</target>
+		</trans-unit>
+		<trans-unit id="image_link_prefix" approved="yes">
+			<source>- Imagelink:</source>
+			<target>- Vínculo a la imagen:</target>
+		</trans-unit>
+		<trans-unit id="images_header" approved="yes">
+			<source>IMAGES:</source>
+			<target>IMÁGENES:</target>
+		</trans-unit>
+		<trans-unit id="link_prefix" approved="yes">
+			<source>Link:</source>
+			<target>Vínculo:</target>
+		</trans-unit>
+		<trans-unit id="tt_news_author_date_prefix" approved="yes">
+			<source>Date:</source>
+			<target>Fecha:</target>
+		</trans-unit>
+		<trans-unit id="tt_news_author_email_prefix" approved="yes">
+			<source>- Email address:</source>
+			<target>- Correo electrónico:</target>
+		</trans-unit>
+		<trans-unit id="tt_news_author_prefix" approved="yes">
+			<source>AUTHOR:</source>
+			<target>AUTOR:</target>
+		</trans-unit>
+		<trans-unit id="tt_news_bodytext_header" approved="yes">
+			<source>FULL TEXT:</source>
+			<target>TEXTO COMPLETO:</target>
+		</trans-unit>
+		<trans-unit id="tt_news_short_header" approved="yes">
+			<source>SUMMARY:</source>
+			<target>RESUMEN:</target>
+		</trans-unit>
+		<trans-unit id="unrendered_content" approved="yes">
+			<source>Unrendered Content Element:</source>
+			<target>Elemento de contenido no presentado:</target>
+		</trans-unit>
+		<trans-unit id="uploads_header" approved="yes">
+			<source>DOWNLOADS:</source>
+			<target>DESCARGAS:</target>
+		</trans-unit>
+		</body>
+	</file>
+</xliff>

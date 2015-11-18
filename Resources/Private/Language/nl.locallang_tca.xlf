@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="nl" datatype="plaintext" original="messages" date="2016-02-05T12:03:27Z">
+		<header>
+			<description>Labels for the Direct Mail tables</description>
+			<type>database</type>
+			<fileId>EXT:direct_mail/Resources/Private/Language/locallang_tca.xml</fileId>
+			<labelContext></labelContext>
+			<authorName>Ivan Kartolo</authorName>
+			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
+			<generator>LFEditor</generator>
+		</header>
+		<body>
+		<trans-unit id="sys_dmail" approved="yes">
+			<source>Direct mails</source>
+			<target>Direct mails</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.HTMLParams" approved="yes">
+			<source>Parameters, HTML:</source>
+			<target>Parameters, HTML:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.HTMLParams.ALT.1" approved="yes">
+			<source>URL for HTML content:</source>
+			<target>URL voor HMTL-inhoud:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.attachment" approved="yes">
+			<source>Attachments:</source>
+			<target>Bijlage:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.from_email" approved="yes">
+			<source>Sender email:</source>
+			<target>Emailadres van afzender:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.from_name" approved="yes">
+			<source>Sender name:</source>
+			<target>Naam van afzender:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.issent" approved="yes">
+			<source>Is sent:</source>
+			<target>Is verzonden:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.long_link_mode" approved="yes">
+			<source>Redirect not only links longer than 76 characters but ALL links:</source>
+			<target>Niet alleen links langer dan 76 karackters, maar ALLE links:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.long_link_rdct_url" approved="yes">
+			<source>Long links redirection url:</source>
+			<target>Lange link RDCT url:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.organisation" approved="yes">
+			<source>Organization:</source>
+			<target>Organisatie:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.page" approved="yes">
+			<source>Mail page:</source>
+			<target>Email pagina:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.plainParams" approved="yes">
+			<source>Parameters, Plain text:</source>
+			<target>Parameters, Plain tekst:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.plainParams.ALT.1" approved="yes">
+			<source>URL for plain text content:</source>
+			<target>URL voor platte tekst:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.priority" approved="yes">
+			<source>Priority:</source>
+			<target>Prioriteit:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.priority.I.0" approved="yes">
+			<source>Low</source>
+			<target>Laag</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.priority.I.2" approved="yes">
+			<source>High</source>
+			<target>Hoog</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.renderedsize" approved="yes">
+			<source>Compiled size:</source>
+			<target>Gecompileerde grootte:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.replyto_email" approved="yes">
+			<source>Reply email:</source>
+			<target>Antwoord email:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.replyto_name" approved="yes">
+			<source>Reply name:</source>
+			<target>Antwoord naam:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.return_path" approved="yes">
+			<source>Return Path:</source>
+			<target>Retour Pad:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.scheduled" approved="yes">
+			<source>Scheduled time:</source>
+			<target>Gepland</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.scheduled_begin" approved="yes">
+			<source>Delivery start:</source>
+			<target>Aflevering begonnen</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.scheduled_end" approved="yes">
+			<source>Delivery end:</source>
+			<target>Aflevering beëindigd</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.sendOptions" approved="yes">
+			<source>Format of mail content:</source>
+			<target>Inclusief:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.sendOptions.I.0" approved="yes">
+			<source>Plain text</source>
+			<target>Plain tekst</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.sendOptions.I.1" approved="yes">
+			<source>HTML</source>
+			<target>HTML</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.subject" approved="yes">
+			<source>Subject:</source>
+			<target>Onderwerp:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.type.I.0" approved="yes">
+			<source>TYPO3 Page</source>
+			<target>TYPO3 pagina</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail.type.I.1" approved="yes">
+			<source>External URL</source>
+			<target>Externe URL</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group" approved="yes">
+			<source>Recipient list</source>
+			<target>Direct mail groep</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.csv.I.0" approved="yes">
+			<source>Separate emails by space/comma/linebreak</source>
+			<target>Scheid emailadressen door spatie/komma/harde return</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.csv.I.1" approved="yes">
+			<source>CSV [name],[email]</source>
+			<target>CSV [naam],[emailadres]</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.list" approved="yes">
+			<source>Recipients:</source>
+			<target>Ontvangers:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.mail_groups" approved="yes">
+			<source>Other recipient lists:</source>
+			<target>Andere Mail Groepen:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories" approved="yes">
+			<source>Must subscribe to one of the categories:</source>
+			<target>Moet in de volgende categorien vallen:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories.I.0" approved="yes">
+			<source></source>
+			<target>Cat 0</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories.I.1" approved="yes">
+			<source></source>
+			<target>Cat 1</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories.I.2" approved="yes">
+			<source></source>
+			<target>Cat 2</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories.I.3" approved="yes">
+			<source></source>
+			<target>Cat 3</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories.I.4" approved="yes">
+			<source></source>
+			<target>Cat 4</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories.I.5" approved="yes">
+			<source></source>
+			<target>Cat 5</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories.I.6" approved="yes">
+			<source></source>
+			<target>Cat 6</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories.I.7" approved="yes">
+			<source></source>
+			<target>Cat 7</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories.I.8" approved="yes">
+			<source></source>
+			<target>Cat 8</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories.I.9" approved="yes">
+			<source></source>
+			<target>Cat 9</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.static_list" approved="yes">
+			<source>Recipients:</source>
+			<target>Ontvangers:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.type.I.0" approved="yes">
+			<source>From pages</source>
+			<target>Van pagina's</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.type.I.1" approved="yes">
+			<source>Plain list</source>
+			<target>Standaard lijst</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.type.I.2" approved="yes">
+			<source>Static list</source>
+			<target>Statische groep</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.type.I.3" approved="yes">
+			<source>Special query</source>
+			<target>Speciale zoekopdracht</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.type.I.4" approved="yes">
+			<source>From other recipient lists</source>
+			<target>Andere Mail Groepen</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.whichtables" approved="yes">
+			<source>Types of records:</source>
+			<target>Tabellen:</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.whichtables.I.0" approved="yes">
+			<source>Address</source>
+			<target>Adres</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.whichtables.I.1" approved="yes">
+			<source>Website user</source>
+			<target>Webpagina gebruiker</target>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.whichtables.I.2" approved="yes">
+			<source>From custom-defined table</source>
+			<target>Gebruiker Gedefinieerde Tabel</target>
+		</trans-unit>
+		</body>
+	</file>
+</xliff>

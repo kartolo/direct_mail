@@ -6,7 +6,7 @@ if (!defined('TYPO3_MODE')) {
 // tt_content modified
 $ttContentCols = array(
 	'module_sys_dmail_category' => array(
-		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_category.category',
+		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category.category',
 		'exclude' => '1',
 		'l10n_mode' => 'exclude',
 		'config' => array(

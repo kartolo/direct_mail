@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:03:27Z">
+		<header>
+			<description>Labels for the Direct Mail tables</description>
+			<type>database</type>
+			<fileId>EXT:direct_mail/Resources/Private/Language/locallang_tca.xml</fileId>
+			<labelContext></labelContext>
+			<authorName>Ivan Kartolo</authorName>
+			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
+			<generator>LFEditor</generator>
+		</header>
+		<body>
+		<trans-unit id="module_sys_dmail_group.category">
+			<source>Subscribe to categories</source>
+		</trans-unit>
+		<trans-unit id="module_sys_dmail_group.htmlemail">
+			<source>Recieve e-mails as HTML?</source>
+		</trans-unit>
+		<trans-unit id="module_sys_dmail_group.newsletter">
+			<source>Activate Newsletter</source>
+		</trans-unit>
+		<trans-unit id="pages.module.I.5">
+			<source>Direct Mail</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail">
+			<source>Direct mails</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.HTMLParams">
+			<source>Parameters, HTML:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.HTMLParams.ALT.1">
+			<source>URL for HTML content:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.attachment">
+			<source>Attachments:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.authcode_fieldList">
+			<source>Fields used in the computation of authentication codes:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.charset">
+			<source>Message text character set:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.flowedFormat">
+			<source>Use flowing text format in plain text content:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.from_email">
+			<source>Sender email:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.from_name">
+			<source>Sender name:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.includeMedia">
+			<source>Include images and other media in HTML content:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.issent">
+			<source>Is sent:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.long_link_mode">
+			<source>Redirect not only links longer than 76 characters but ALL links:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.long_link_rdct_url">
+			<source>Long links redirection url:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.organisation">
+			<source>Organization:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.page">
+			<source>Mail page:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.plainParams">
+			<source>Parameters, Plain text:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.plainParams.ALT.1">
+			<source>URL for plain text content:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.priority">
+			<source>Priority:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.priority.I.0">
+			<source>Low</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.priority.I.1">
+			<source>Normal</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.priority.I.2">
+			<source>High</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.renderedsize">
+			<source>Compiled size:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.replyto_email">
+			<source>Reply email:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.replyto_name">
+			<source>Reply name:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.return_path">
+			<source>Return Path:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.scheduled">
+			<source>Scheduled time:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.scheduled_begin">
+			<source>Delivery start:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.scheduled_end">
+			<source>Delivery end:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.sendOptions">
+			<source>Format of mail content:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.sendOptions.I.0">
+			<source>Plain text</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.sendOptions.I.1">
+			<source>HTML</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.subject">
+			<source>Subject:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.tab1">
+			<source>Composition</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.tab2">
+			<source>Mail headers</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.tab3">
+			<source>Send options</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.transfer_encoding">
+			<source>Content transfer encoding:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.type.I.0">
+			<source>TYPO3 Page</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.type.I.1">
+			<source>External URL</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.use_domain">
+			<source>Domain of internal links:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail.use_rdct">
+			<source>Redirect links longer than 76 characters:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_category">
+			<source>Direct Mail Category</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_category.category">
+			<source>Category:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_category.old_cat_number">
+			<source>Old category number:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group">
+			<source>Recipient list</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.advanced">
+			<source>Configuration</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.csv">
+			<source>List format:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.csv.I.0">
+			<source>Separate emails by space/comma/linebreak</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.csv.I.1">
+			<source>CSV [name],[email]</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.list">
+			<source>Recipients:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.mail_groups">
+			<source>Other recipient lists:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.recursive">
+			<source>Include page subtree:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.select_categories">
+			<source>Must subscribe to one of the categories:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.static_list">
+			<source>Recipients:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.type.I.0">
+			<source>From pages</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.type.I.1">
+			<source>Plain list</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.type.I.2">
+			<source>Static list</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.type.I.3">
+			<source>Special query</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.type.I.4">
+			<source>From other recipient lists</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.whichtables">
+			<source>Types of records:</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.whichtables.I.0">
+			<source>Address</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.whichtables.I.1">
+			<source>Website user</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.whichtables.I.2">
+			<source>From custom-defined table</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.whichtables.I.3">
+			<source>Website User Group</source>
+		</trans-unit>
+		</body>
+	</file>
+</xliff>

@@ -6,7 +6,7 @@ if (!defined('TYPO3_MODE')) {
 // tt_address modified
 $ttAddressCols = array(
 	'module_sys_dmail_category' => array(
-		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:module_sys_dmail_group.category',
+		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:module_sys_dmail_group.category',
 		'exclude' => '1',
 		'config' => array(
 			'type' => 'select',
@@ -25,7 +25,7 @@ $ttAddressCols = array(
 		)
 	),
 	'module_sys_dmail_html' => array(
-		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:module_sys_dmail_group.htmlemail',
+		'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:module_sys_dmail_group.htmlemail',
 		'exclude' => '1',
 		'config' => array(
 			'type' => 'check'

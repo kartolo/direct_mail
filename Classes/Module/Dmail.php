@@ -15,13 +15,14 @@ namespace DirectMailTeam\DirectMail\Module;
  */
 
 use DirectMailTeam\DirectMail\Dmailer;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Module\BaseScriptClass;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -76,13 +77,27 @@ class Dmail extends BaseScriptClass {
 	protected $currentStep = 1;
 
 	/**
+	 * The name of the module
+	 *
+	 * @var string
+	 */
+	protected $moduleName = 'DirectMailNavFrame_DirectMail';
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->MCONF = array(
+				'name' => $this->moduleName
+		);
+	}
+
+	/**
 	 * First initialization of global variables
 	 *
 	 * @return	void
 	 */
 	function init() {
-		$this->MCONF = $GLOBALS['MCONF'];
-
 		parent::init();
 
 		// initialize IconFactory
@@ -148,7 +163,27 @@ class Dmail extends BaseScriptClass {
 	 */
 	function printContent() {
 		$this->content .= $this->doc->endPage();
-		echo $this->content;
+	}
+
+	/**
+	 * Entrance from the backend module. This replace the _dispatch
+	 *
+	 * @param ServerRequestInterface $request The request object from the backend
+	 * @param ResponseInterface $response The reponse object sent to the backend
+	 *
+	 * @return ResponseInterface Return the response object
+	 */
+	public function mainAction(ServerRequestInterface $request, ResponseInterface $response) {
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
+
+		$this->init();
+
+		$this->main();
+		$this->printContent();
+
+		$response->getBody()->write($this->content);
+		return $response;
 	}
 
 	/**
@@ -172,7 +207,7 @@ class Dmail extends BaseScriptClass {
 			// Draw the header.
 			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
 			$this->doc->backPath = $GLOBALS['BACK_PATH'];
-			$this->doc->setModuleTemplate('EXT:direct_mail/mod2/mod_template.html');
+			$this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/ModuleDirectMail.html');
 			$this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
 				// Add CSS
@@ -1132,7 +1167,7 @@ class Dmail extends BaseScriptClass {
 				);
 			$msg = $this->getLanguageService()->getLL('testmail_mailgroup_msg') . '<br /><br />';
 			while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-				$msg .='<a href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM2') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&sys_dmail_group_uid[]=' . $row['uid'] . '">' .
+				$msg .='<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&sys_dmail_group_uid[]=' . $row['uid'] . '">' .
 					$this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL) .
 					htmlspecialchars($row['title']) . '</a><br />';
 					// Members:
@@ -1221,7 +1256,7 @@ class Dmail extends BaseScriptClass {
 					}
 
 					if ($testMailLink) {
-						$testLink = '<a href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM2') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&tt_address_uid=' . $row['uid'] . '">' . htmlspecialchars($row['email']) . '</a>';
+						$testLink = '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&tt_address_uid=' . $row['uid'] . '">' . htmlspecialchars($row['email']) . '</a>';
 					} else {
 						$testLink = htmlspecialchars($row['email']);
 					}
@@ -1782,7 +1817,7 @@ class Dmail extends BaseScriptClass {
 						$iconPreview = $iconPreviewHtml . '&nbsp;&nbsp;' . $iconPreviewText;
 				}
 
-				$createDmailLink = BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM2') . '&id=' . $this->id . '&createMailFrom_UID=' . $row['uid'] . '&fetchAtOnce=1&CMD=info';
+				$createDmailLink = BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&createMailFrom_UID=' . $row['uid'] . '&fetchAtOnce=1&CMD=info';
 				$pageIcon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
 
 				$outLines[] = array(
@@ -1809,7 +1844,7 @@ class Dmail extends BaseScriptClass {
 	 * @return string the link
 	 */
 	function linkDMail_record($str,$uid) {
-		return '<a class="t3-link" href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM2') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&CMD=info&fetchAtOnce=1">' . htmlspecialchars($str) . '</a>';
+		return '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&CMD=info&fetchAtOnce=1">' . htmlspecialchars($str) . '</a>';
 	}
 
 
@@ -1868,7 +1903,7 @@ class Dmail extends BaseScriptClass {
 		$icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
 		$dmail = BackendUtility::getRecord('sys_dmail', $uid);
 		if (!$dmail['scheduled_begin']) {
-			return '<a href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM2') . '&id=' . $this->id . '&CMD=delete&uid=' . $uid . '">' . $icon . '</a>';
+			return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&CMD=delete&uid=' . $uid . '">' . $icon . '</a>';
 		}
 
 		return '';

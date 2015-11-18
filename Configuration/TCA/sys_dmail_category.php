@@ -2,7 +2,7 @@
 
 return array(
 	'ctrl' => array(
-		'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_category',
+		'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category',
 		'label' => 'category',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -23,20 +23,20 @@ return array(
 	'feInterface' => $TCA['sys_dmail_category']['feInterface'],
 	'columns' => array(
 		'sys_language_uid' => array(
-			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.language',
+			'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.language',
 			'config' => array(
 				'type' => 'select',
 				'foreign_table' => 'sys_language',
 				'foreign_table_where' => 'ORDER BY sys_language.title',
 				'items' => array(
-					array('LLL:EXT:lang/locallang_general.xml:LGL.allLanguages', -1),
-					array('LLL:EXT:lang/locallang_general.xml:LGL.default_value', 0)
+					array('LLL:EXT:lang/locallang_general.xlf:LGL.allLanguages', -1),
+					array('LLL:EXT:lang/locallang_general.xlf:LGL.default_value', 0)
 				)
 			)
 		),
 		'l18n_parent' => array(
 			'displayCond' => 'FIELD:sys_language_uid:>:0',
-			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.l18n_parent',
+			'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.l18n_parent',
 			'config' => array(
 				'type' => 'select',
 				'items' => array(
@@ -52,21 +52,21 @@ return array(
 			)
 		),
 		'hidden' => array(
-			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+			'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.hidden',
 			'config' => array(
 				'type' => 'check',
 				'default' => '0'
 			)
 		),
 		'category' => array(
-			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_category.category',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category.category',
 			'config' => array(
 				'type' => 'input',
 				'size' => '30',
 			)
 		),
 		'old_cat_number' => array(
-			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_category.old_cat_number',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category.old_cat_number',
 			'l10n_mode' => 'exclude',
 			'config' => array(
 				'type' => 'input',

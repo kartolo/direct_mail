@@ -44,7 +44,7 @@ class ext_update  {
 	 */
 	function main()	{
 
-		$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xml');
+		$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
 
 		$content = $this->displayWarning();
 		if (!GeneralUtility::_GP('do_update')) {
@@ -118,9 +118,9 @@ class ext_update  {
 		$out = '
 			<div style="padding:15px 15px 20px 0;">
 				<div class="typo3-message message-warning">
-						<div class="message-header">' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xml:update_warningHeader') . '</div>
+						<div class="message-header">' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:update_warningHeader') . '</div>
 						<div class="message-body">
-						' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xml:update_warningMsg') . '
+						' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:update_warningMsg') . '
 					</div>
 				</div>
 			</div>';

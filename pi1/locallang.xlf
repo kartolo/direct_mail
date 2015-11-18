@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T11:52:00Z">
+		<header>
+			<description>Labels for the Direct Mail plain text rendering plugin</description>
+			<authorName>Ivan Kartolo</authorName>
+			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
+			<generator>LFEditor</generator>
+		</header>
+		<body>
+		<trans-unit id="caption_header">
+			<source>CAPTION:</source>
+		</trans-unit>
+		<trans-unit id="header_date_prefix">
+			<source>Date:</source>
+		</trans-unit>
+		<trans-unit id="header_link_prefix">
+			<source>- Headerlink:</source>
+		</trans-unit>
+		<trans-unit id="image_link_prefix">
+			<source>- Imagelink:</source>
+		</trans-unit>
+		<trans-unit id="images_header">
+			<source>IMAGES:</source>
+		</trans-unit>
+		<trans-unit id="link_prefix">
+			<source>Link:</source>
+		</trans-unit>
+		<trans-unit id="tt_news_author_date_prefix">
+			<source>Date:</source>
+		</trans-unit>
+		<trans-unit id="tt_news_author_email_prefix">
+			<source>- Email address:</source>
+		</trans-unit>
+		<trans-unit id="tt_news_author_prefix">
+			<source>AUTHOR:</source>
+		</trans-unit>
+		<trans-unit id="tt_news_bodytext_header">
+			<source>FULL TEXT:</source>
+		</trans-unit>
+		<trans-unit id="tt_news_short_header">
+			<source>SUMMARY:</source>
+		</trans-unit>
+		<trans-unit id="unrendered_content">
+			<source>Unrendered Content Element:</source>
+		</trans-unit>
+		<trans-unit id="uploads_header">
+			<source>DOWNLOADS:</source>
+		</trans-unit>
+		</body>
+	</file>
+</xliff>

@@ -5,8 +5,8 @@ return array(
 		'label' => 'title',
 		'default_sortby' => 'ORDER BY title',
 		'tstamp' => 'tstamp',
-		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.xml:LGL.prependAtCopy',
-		'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group',
+		'prependAtCopy' => 'LLL:EXT:lang/locallang_general.xlf:LGL.prependAtCopy',
+		'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group',
 		'delete' => 'deleted',
 		'iconfile' => TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('direct_mail') . 'res/gfx/mailgroup.gif',
 		'type' => 'type',
@@ -16,7 +16,7 @@ return array(
 	),
 	'columns' => array(
 		'title' => array(
-			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.title',
+			'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.title',
 			'config' => array(
 				'type' => 'input',
 				'size' => '30',
@@ -25,7 +25,7 @@ return array(
 			)
 		),
 		'description' => array(
-			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.description',
+			'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.description',
 			'config' => array(
 				'type' => 'text',
 				'cols' => '40',
@@ -33,21 +33,21 @@ return array(
 			)
 		),
 		'type' => array(
-			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.type',
+			'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.type',
 			'config' => array(
 				'type' => 'select',
 				'items' => array(
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.type.I.0', '0'),
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.type.I.1', '1'),
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.type.I.2', '2'),
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.type.I.3', '3'),
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.type.I.4', '4')
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.type.I.0', '0'),
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.type.I.1', '1'),
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.type.I.2', '2'),
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.type.I.3', '3'),
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.type.I.4', '4')
 				),
 				'default' => '0'
 			)
 		),
 		'static_list' => array(
-			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.static_list',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.static_list',
 			'config' => array(
 				'type' => 'group',
 				'internal_type' => 'db',
@@ -65,7 +65,7 @@ return array(
 			)
 		),
 		'pages' => array(
-			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.startingpoint',
+			'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.startingpoint',
 			'config' => array(
 				'type' => 'group',
 				'internal_type' => 'db',
@@ -82,7 +82,7 @@ return array(
 			)
 		),
 		'mail_groups' => array(
-			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.mail_groups',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.mail_groups',
 			'config' => array(
 				'type' => 'group',
 				'internal_type' => 'db',
@@ -99,27 +99,27 @@ return array(
 			)
 		),
 		'recursive' => array(
-			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.recursive',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.recursive',
 			'config' => array(
 				'type' => 'check'
 			)
 		),
 		'whichtables' => array(
-			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.whichtables',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.whichtables',
 			'config' => array(
 				'type' => 'check',
 				'items' => array(
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.whichtables.I.0', ''),
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.whichtables.I.1', ''),
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.whichtables.I.2', ''),
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.whichtables.I.3', ''),
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.whichtables.I.0', ''),
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.whichtables.I.1', ''),
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.whichtables.I.2', ''),
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.whichtables.I.3', ''),
 				),
 				'cols' => 2,
 				'default' => 1
 			)
 		),
 		'list' => array(
-			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.list',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.list',
 			'config' => array(
 				'type' => 'text',
 				'cols' => '48',
@@ -127,18 +127,18 @@ return array(
 			)
 		),
 		'csv' => array(
-			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.csv',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.csv',
 			'config' => array(
 				'type' => 'select',
 				'items' => array(
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.csv.I.0', '0'),
-					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.csv.I.1', '1')
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.csv.I.0', '0'),
+					array('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.csv.I.1', '1')
 				),
 				'default' => '0'
 			)
 		),
 		'select_categories' => array(
-			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.select_categories',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.select_categories',
 			'config' => array(
 				'type' => 'select',
 				'foreign_table' => 'sys_dmail_category',
@@ -156,7 +156,7 @@ return array(
 			)
 		),
 		'query' => array(
-			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.query',
+			'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.query',
 			'config' => array(
 				'type' => 'text',
 				'cols' => '48',
@@ -165,10 +165,10 @@ return array(
 		)
 	),
 	'types' => array(
-		'0' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.advanced,pages;;;;5-5-5,recursive,whichtables,select_categories'),
-		'1' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.advanced,list;;;;5-5-5,csv'),
-		'2' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.advanced,static_list;;;;5-5-5'),
+		'0' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,pages;;;;5-5-5,recursive,whichtables,select_categories'),
+		'1' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,list;;;;5-5-5,csv'),
+		'2' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,static_list;;;;5-5-5'),
 		'3' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description'),
-		'4' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xml:sys_dmail_group.advanced,mail_groups;;;;5-5-5')
+		'4' => array('showitem' => 'type;;;;1-1-1, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,mail_groups;;;;5-5-5')
 	)
 );

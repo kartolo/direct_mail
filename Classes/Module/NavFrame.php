@@ -14,6 +14,8 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -53,6 +55,22 @@ class NavFrame {
 	var $pageinfo;
 
 	/**
+	 * The name of the module
+	 *
+	 * @var string
+	 */
+	protected $moduleName = 'DirectMailNavFrame';
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->MCONF = array(
+			'name' => $this->moduleName
+		);
+	}
+
+	/**
 	 * First initialization of the global variables. Set some JS-code
 	 *
 	 * @return	void
@@ -61,7 +79,7 @@ class NavFrame {
 		global $BE_USER, $BACK_PATH;
 
 		$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
-		$this->doc->setModuleTemplate('EXT:direct_mail/mod1/mod_template.html');
+		$this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/NavFrame.html');
 		$this->doc->showFlashMessages = FALSE;
 
 		$currentModule = GeneralUtility::_GP('currentModule');
@@ -85,7 +103,7 @@ class NavFrame {
 				} else {
 					parent.list_frame.document.location=theUrl;
 				}
-				' . ($this->doHighlight ? 'hilight_row("row"+top.fsMod.recentIds["txdirectmailM1"],highLightID);' : '') . '
+				' . ($this->doHighlight ? 'hilight_row("row"+top.fsMod.recentIds["DirectMailNavFrame"],highLightID);' : '') . '
 				' . (!$GLOBALS['CLIENT']['FORMSTYLE'] ? '' : 'if (linkObj) {linkObj.blur();}') . '
 				return false;
 			}
@@ -113,11 +131,29 @@ class NavFrame {
 					// Set new:
 				top.fsMod.navFrameHighlightedID[frameSetModule] = highLightID;
 				theObj = document.getElementById(highLightID);
-				if (theObj)	{
-					theObj.style.backgroundColor="' . GeneralUtility::modifyHTMLColor($this->doc->bgColor, -5, -5, -5) . '";
-				}
 			}
 		');
+	}
+
+	/**
+	 * Entrance from the backend module. This replace the _dispatch
+	 *
+	 * @param ServerRequestInterface $request The request object from the backend
+	 * @param ResponseInterface $response The reponse object sent to the backend
+	 *
+	 * @return ResponseInterface Return the response object
+	 */
+	public function mainAction(ServerRequestInterface $request, ResponseInterface $response) {
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
+
+		$this->init();
+
+		$this->main();
+		$this->printContent();
+
+		$response->getBody()->write($this->content);
+		return $response;
 	}
 
 	/**
@@ -141,9 +177,9 @@ class NavFrame {
 			if(BackendUtility::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){
 				$icon = $iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL)->render();
 
-				$out .= '<tr onmouseover="this.style.backgroundColor=\'' . GeneralUtility::modifyHTMLColorAll($this->doc->bgColor,-5) . '\'" onmouseout="this.style.backgroundColor=\'\'">' .
+				$out .= '<tr>' .
 					'<td id="dmail_' . $row['uid'] . '" >
-						<a href="#" onclick="top.fsMod.recentIds[\'txdirectmailM1\']=' . $row['uid'] . ';jumpTo(\'id=' . $row['uid'] . '\',this,\'dmail_' . $row['uid'] . '\');">' .
+						<a href="#" onclick="top.fsMod.recentIds[\'DirectMailNavFrame\']=' . $row['uid'] . ';jumpTo(\'id=' . $row['uid'] . '\',this,\'dmail_' . $row['uid'] . '\');">' .
 					$icon .
 					'&nbsp;' . htmlspecialchars($row['title']) . '</a></td></tr>';
 			}
@@ -158,7 +194,7 @@ class NavFrame {
 
 
 		$docHeaderButtons = array(
-			'CSH' => BackendUtility::cshItem('_MOD_txdirectmailM1', 'folders', $GLOBALS['BACK_PATH'], TRUE),
+			'CSH' => BackendUtility::cshItem('_MOD_DirectMailNavFrame', 'folders', $GLOBALS['BACK_PATH'], TRUE),
 			'REFRESH' => '<a href="' . htmlspecialchars(GeneralUtility::linkThisScript(array('unique' => uniqid('directmail_navframe')))) . '">' .
 				$iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL) . '</a>'
 		);
@@ -183,7 +219,6 @@ class NavFrame {
 	function printContent()	{
 		$this->content.= $this->doc->endPage();
 		$this->content = $this->doc->insertStylesAndJS($this->content);
-		echo $this->content;
 	}
 
 	/**

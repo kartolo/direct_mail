@@ -21,6 +21,8 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Module Mailer-Engine for tx_directmail extension
@@ -60,13 +62,27 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	protected $iconFactory;
 
 	/**
+	 * The name of the module
+	 *
+	 * @var string
+	 */
+	protected $moduleName = 'DirectMailNavFrame_MailerEngine';
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->MCONF = array(
+				'name' => $this->moduleName
+		);
+	}
+
+	/**
 	 * Initializing global variables
 	 *
 	 * @return	void
 	 */
 	function init() {
-		$this->MCONF = $GLOBALS['MCONF'];
-
 		parent::init();
 
 		// initialize IconFactory
@@ -107,6 +123,27 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
+	 * Entrance from the backend module. This replace the _dispatch
+	 *
+	 * @param ServerRequestInterface $request The request object from the backend
+	 * @param ResponseInterface $response The reponse object sent to the backend
+	 *
+	 * @return ResponseInterface Return the response object
+	 */
+	public function mainAction(ServerRequestInterface $request, ResponseInterface $response) {
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
+
+		$this->init();
+
+		$this->main();
+		$this->printContent();
+
+		$response->getBody()->write($this->content);
+		return $response;
+	}
+
+	/**
 	 * The main function.
 	 *
 	 * @return	void
@@ -122,7 +159,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			// Draw the header.
 			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
 			$this->doc->backPath = $GLOBALS["BACK_PATH"];
-			$this->doc->setModuleTemplate('EXT:direct_mail/mod3/mod_template.html');
+			$this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
 			$this->doc->form='<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
 			// JavaScript
@@ -217,7 +254,6 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 */
 	function printContent() {
 		$this->content.=$this->doc->endPage();
-		echo $this->content;
 	}
 
 	/**
@@ -347,7 +383,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 		// Invoke engine
 		if ($enableTrigger) {
-			$out = '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br /><a class="t3-link" href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM5') . '&id=' . $this->id . '&invokeMailerEngine=1"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a></p>';
+			$out = '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br /><a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&invokeMailerEngine=1"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a></p>';
 			$invokeMessage .= '<div style="padding-top: 20px;"></div>';
 			$invokeMessage .= $this->doc->section(BackendUtility::cshItem($this->cshTable,'mailerengine_invoke',$GLOBALS["BACK_PATH"]) . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke'), $out, 1, 1, 0, TRUE);
 			$invokeMessage .= '<div style="padding-top: 20px;"></div>';
@@ -409,7 +445,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
 		$dmail = BackendUtility::getRecord('sys_dmail', $uid);
 		if (!$dmail['scheduled_begin']) {
-			return '<a href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM5') . '&id=' . $this->id . '&cmd=delete&uid=' . $uid . '">' . $icon . '</a>';
+			return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&cmd=delete&uid=' . $uid . '">' . $icon . '</a>';
 		}
 		return "";
 	}

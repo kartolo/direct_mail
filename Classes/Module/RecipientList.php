@@ -15,13 +15,13 @@ namespace DirectMailTeam\DirectMail\Module;
  */
 
 use TYPO3\CMS\Core\Imaging\Icon;
-	use TYPO3\CMS\Core\Imaging\IconFactory;
-	use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Backend\Utility\IconUtility;
-use DirectMailTeam\DirectMail\MailSelect;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 
 /**
@@ -76,13 +76,27 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	protected $iconFactory;
 
 	/**
+	 * The name of the module
+	 *
+	 * @var string
+	 */
+	protected $moduleName = 'DirectMailNavFrame_RecipientList';
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->MCONF = array(
+				'name' => $this->moduleName
+		);
+	}
+
+	/**
 	 * First initialization of global variables
 	 *
 	 * @return	void
 	 */
 	function init() {
-		$this->MCONF = $GLOBALS['MCONF'];
-
 		parent::init();
 
 		// initialize IconFactory
@@ -127,6 +141,27 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	}
 
 	/**
+	 * Entrance from the backend module. This replace the _dispatch
+	 *
+	 * @param ServerRequestInterface $request The request object from the backend
+	 * @param ResponseInterface $response The reponse object sent to the backend
+	 *
+	 * @return ResponseInterface Return the response object
+	 */
+	public function mainAction(ServerRequestInterface $request, ResponseInterface $response) {
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
+
+		$this->init();
+
+		$this->main();
+		$this->printContent();
+
+		$response->getBody()->write($this->content);
+		return $response;
+	}
+
+	/**
 	 * The main function.
 	 *
 	 * @return	void
@@ -143,7 +178,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 			// Draw the header.
 			$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
 			$this->doc->backPath = $GLOBALS['BACK_PATH'];
-			$this->doc->setModuleTemplate('EXT:direct_mail/mod3/mod_template.html');
+			$this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
 			$this->doc->form='<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
 			// CSS
@@ -239,7 +274,6 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 */
 	function printContent()	{
 		$this->content .= $this->doc->endPage();
-		echo $this->content;
 	}
 
 	/**
@@ -324,7 +358,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$theOutput .= $this->doc->section(BackendUtility::cshItem($this->cshTable,'create_mailgroup',$GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('recip_create_mailgroup'),$out, 1, 0, FALSE, TRUE, FALSE, TRUE);
 
 			// Import
-		$out = '<a class="t3-link" href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM3') . '&id=' . $this->id . '&CMD=displayImport">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
+		$out = '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_RecipientList') . '&id=' . $this->id . '&CMD=displayImport">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
 		$theOutput.= '<div style="padding-top: 20px;"></div>';
 		$theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_import'),$out, 1, 1, 0, TRUE);
 		return $theOutput;
@@ -362,7 +396,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 	 * @return string The link
 	 */
 	function linkRecip_record($str,$uid) {
-		return '<a href="' . BackendUtility::getModuleUrl('txdirectmailM1_txdirectmailM3') . '&id=' . $this->id . '&CMD=displayMailGroup&group_uid=' . $uid . '&SET[dmail_mode]=recip">' . $str . '</a>';
+		return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_RecipientList') . '&id=' . $this->id . '&CMD=displayMailGroup&group_uid=' . $uid . '&SET[dmail_mode]=recip">' . $str . '</a>';
 	}
 
 	/**

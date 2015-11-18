@@ -771,7 +771,7 @@ class Dmailer {
 		}
 
 		// always include locallang file
-		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xml');
+		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
 
 		$pt = GeneralUtility::milliseconds();
 
