@@ -1,0 +1,36 @@
+{
+  "name": "directmailteam/direct-mail",
+  "type": "typo3-cms-extension",
+  "description": "Advanced Direct Mail/Newsletter mailer system with sophisticated options for personalization of emails including response statistics.",
+  "keywords": [
+    "TYPO3",
+    "extension",
+    "directmail",
+    "newsletter"
+  ],
+  "homepage": "https://github.com/kartolo/direct_mail",
+  "authors": [
+    {
+      "name": "Ivan Kartolo",
+      "role": "Developer"
+    }
+  ],
+  "license": [
+    "GPL-2.0+"
+  ],
+  "support": {
+    "issues": "https://forge.typo3.org/projects/extension-direct_mail"
+  },
+  "require": {
+    "typo3/cms-core": ">=7.6.2,<8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "DirectMailTeam\\DirectMail\\": "Classes"
+    }
+  },
+  "replace": {
+    "direct_mail": "self.version",
+    "typo3-ter/direct_mail": "self.version"
+  }
+}
