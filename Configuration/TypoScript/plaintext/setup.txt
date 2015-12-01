@@ -5,8 +5,9 @@
 ##
 
 plugin.tx_directmail_pi1 = USER
-plugin.tx_directmail_pi1.userFunc = tx_directmail_pi1->main
 plugin.tx_directmail_pi1 {
+  includeLibs = typo3conf/ext/direct_mail/pi1/class.tx_directmail_pi1.php
+  userFunc = tx_directmail_pi1->main
 
   siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
   flowedFormat = {$plugin.tx_directmail_pi1.flowedFormat}

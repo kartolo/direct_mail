@@ -31,7 +31,9 @@ foreach ($icons as $identifier => $options) {
 
 
 	// Register jumpurl processing hook
-$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:' . $_EXTKEY . '/Classes/Checkjumpurl.php:&DirectMailTeam\DirectMail\Checkjumpurl';
+	// TODO: move hook to this one
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/index_ts.php']['preprocessRequest']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\\JumpurlController->preprocessRequest';
+//$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:' . $_EXTKEY . '/Classes/Checkjumpurl.php:&DirectMailTeam\DirectMail\Checkjumpurl';
 
 // Register hook for simulating a user group
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['determineId-PreProcessing']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\TypoScriptFrontendController->simulateUsergroup';

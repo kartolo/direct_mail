@@ -15,8 +15,8 @@ namespace DirectMailTeam\DirectMail\Module;
  */
 
 use TYPO3\CMS\Core\Imaging\Icon;
-	use TYPO3\CMS\Core\Imaging\IconFactory;
-	use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -568,7 +568,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		$tblLines[] = array($this->getLanguageService()->getLL('stats_unique_responses'),$this->showWithPercent($uniqueHtmlResponses+$uniquePlainResponses,$totalSent),$this->showWithPercent($uniqueHtmlResponses,$htmlSent),$this->showWithPercent($uniquePlainResponses,$plainSent?$plainSent:$htmlSent));
 
 		$output.='<br /><h2>' . $this->getLanguageService()->getLL('stats_general_information') . '</h2>';
-		$output.= DirectMailUtility::formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1, array());
+		$output.= DirectMailUtility::formatTable($tblLines,array('nowrap','nowrap','nowrap','nowrap'),1, array());
 
 			// ******************
 			// Links:
@@ -659,7 +659,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 		);
 
 		$output.='<br /><h2>' . $this->getLanguageService()->getLL('stats_response') . '</h2>';
-		$output.=DirectMailUtility::formatTable($tblLines,array('nowrap','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(0,0,0,0));
+		$output.=DirectMailUtility::formatTable($tblLines,array('nowrap','nowrap','nowrap','nowrap'),1,array(0,0,0,0));
 
 		arsort($urlCounter['total']);
 		arsort($urlCounter['html']);
@@ -743,7 +743,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 			$label = $this->getLinkLabel($url, $urlstr, FALSE, $htmlLinks[$id]['label']);
 
-			$img = '<a href="' . $urlstr . '" target="_blank"><img ' . IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . htmlspecialchars($label) . '" /></a>';
+			$img = '<a href="' . $urlstr . '" target="_blank">' . $this->iconFactory->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL) . '</a>';
 
 			if (isset($urlCounter['html'][$id]['plainId']))	{
 				$tblLines[] = array(
@@ -779,7 +779,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 				$urlstr = $this->getUrlStr($uParts);
 
 				$label = $htmlLinks[$id]['label'] . ' (' . ($urlstr ? $urlstr : '/') . ')';
-				$img = '<a href="' . htmlspecialchars($link) . '" target="_blank"><img ' . IconUtility::skinImg($GLOBALS["BACK_PATH"], 'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . htmlspecialchars($link) . '" /></a>';
+				$img = '<a href="' . htmlspecialchars($link) . '" target="_blank">' . $this->iconFactory->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL) . '</a>';
 				$tblLines[] = array(
 					$label,
 					($html ? $id : '-'),
@@ -794,7 +794,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass {
 
 		if ($urlCounter['total']) {
 			$output .= '<br /><h2>' . $this->getLanguageService()->getLL('stats_response_link') . '</h2>';
-			$output .= DirectMailUtility::formatTable($tblLines, array('nowrap','nowrap width="100"','nowrap width="100"','nowrap align="right"','nowrap align="right"','nowrap align="right"','nowrap align="right"'),1,array(1,0,0,0,0,0,1));
+			$output .= DirectMailUtility::formatTable($tblLines, array('nowrap','nowrap width="100"','nowrap width="100"','nowrap','nowrap','nowrap','nowrap'),1,array(1,0,0,0,0,0,1));
 		}
 
 

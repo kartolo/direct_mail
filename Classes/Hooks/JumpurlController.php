@@ -1,5 +1,5 @@
 <?php
-namespace DirectMailTeam\DirectMail;
+namespace DirectMailTeam\DirectMail\Hooks;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -16,37 +16,35 @@ namespace DirectMailTeam\DirectMail;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
- * JumpUrl processing hook on class.tslib_fe.php
+ * JumpUrl processing hook on TYPO3\CMS\Frontend\Http\RequestHandler
  *
- * @author		Kasper Sk�rh�j <kasperYYYY>@typo3.com>
- * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @author		Ivan Kartolo <ivan.kartolo@gmail.com>
  *
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
-class Checkjumpurl {
+class JumpurlController {
 
 	/**
 	 * Get the url to jump to as set by Direct Mail
 	 *
-	 * @param TypoScriptFrontendController $feObj reference to invoking instance
-	 *
 	 * @return	void
 	 * @throws \Exception
 	 */
-	function checkDataSubmission (TypoScriptFrontendController &$feObj) {
+	function preprocessRequest ($parameter, $parentObject) {
+
+		$db = $this->getDatabaseConnection();
+
 		$jumpUrlVariables = GeneralUtility::_GET();
 
 		$mid = $jumpUrlVariables['mid'];
 		$rid = $jumpUrlVariables['rid'];
 		$aC  = $jumpUrlVariables['aC'];
 
-		$jumpurl = $feObj->jumpurl;
 		$responseType = 0;
-		if ($mid && is_array($GLOBALS['TCA']['sys_dmail'])) {
+		if ($mid) {
 				// overwrite the jumpUrl with the one from the &jumpurl= get parameter
 			$jumpurl = $jumpUrlVariables['jumpurl'];
 
@@ -58,24 +56,23 @@ class Checkjumpurl {
 				list($recipientTable, $recipientUid) = explode('_', $rid);
 			}
 
-
 			$urlId = 0;
-			$isInt = MathUtility::canBeInterpretedAsInteger($jumpurl);
 
-			if ($isInt) {
+			if (MathUtility::canBeInterpretedAsInteger($jumpurl)) {
 
 					// fetch the direct mail record where the mailing was sent (for this message)
-				$resMailing = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				$resMailing = $db->exec_SELECTquery(
 					'mailContent, page, authcode_fieldList',
 					'sys_dmail',
 					'uid = ' . intval($mid)
 				);
 
-				if (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resMailing))) {
+				if (($row = $db->sql_fetch_assoc($resMailing))) {
+
 					$mailContent = unserialize(base64_decode($row['mailContent']));
 					$urlId = $jumpurl;
 					if ($jumpurl >= 0) {
-							// Link (number)
+						// Link (number)
 						$responseType = 1;
 						$jumpurl = $mailContent['html']['hrefs'][$urlId]['absRef'];
 					} else {
@@ -84,6 +81,7 @@ class Checkjumpurl {
 						$jumpurl = $mailContent['plain']['link_ids'][abs($urlId)];
 					}
 					$jumpurl = htmlspecialchars_decode(urldecode($jumpurl));
+
 					switch ($recipientTable) {
 						case 't':
 							$theTable = 'tt_address';
@@ -96,7 +94,7 @@ class Checkjumpurl {
 					}
 
 					if ($theTable) {
-						$recipRow = $feObj->sys_page->getRawRecord($theTable, $recipientUid);
+						$recipRow = $this->getRawRecord($theTable, $recipientUid);
 						if (is_array($recipRow)) {
 							$authCode = GeneralUtility::stdAuthCode($recipRow, ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid'));
 
@@ -135,7 +133,7 @@ class Checkjumpurl {
 						}
 					}
 				}
-				$GLOBALS['TYPO3_DB']->sql_free_result($resMailing);
+				$db->sql_free_result($resMailing);
 				if (!$jumpurl) {
 					die('Error: No further link. Please report error to the mail sender.');
 				} else {
@@ -181,14 +179,49 @@ class Checkjumpurl {
 					'rid'			=> $recipientUid
 				);
 
-				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+				$db->exec_INSERTquery('sys_dmail_maillog', $insertFields);
 			}
 		}
 
 		// finally set the jumpURL to the TSFE object
-		$feObj->jumpurl = $jumpurl;
+		GeneralUtility::_GETset($jumpurl, 'jumpurl');
 	}
 
+	/**
+	 * Returns record no matter what - except if record is deleted
+	 *
+	 * @param string $table The table name to search
+	 * @param int $uid The uid to look up in $table
+	 * @param string $fields The fields to select, default is "*"
+	 *
+	 * @return mixed Returns array (the record) if found, otherwise blank/0 (zero)
+	 * @see getPage_noCheck()
+	 */
+	public function getRawRecord($table, $uid, $fields = '*')
+	{
+		$uid = (int)$uid;
+		if ($uid > 0) {
+			$res = $this->getDatabaseConnection()->exec_SELECTquery($fields, $table, 'uid = ' . $uid . ' AND deleted = 0');
+			$row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
+			$this->getDatabaseConnection()->sql_free_result($res);
+			if ($row) {
+				if (is_array($row)) {
+					return $row;
+				}
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Get the DB global object
+	 *
+	 * @return \TYPO3\CMS\Core\Database\DatabaseConnection
+	 */
+	protected function getDatabaseConnection()
+	{
+		return $GLOBALS['TYPO3_DB'];
+	}
 }
 
 ?>
