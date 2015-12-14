@@ -939,7 +939,7 @@ class Dmailer {
 	 *
 	 * @return	bool True if there is recipient and content, otherwise false
 	 */
-	function sendTheMail(array $recipient) {
+	function sendTheMail($recipient) {
 		// init the swiftmailer object
 		/* @var $mailer \TYPO3\CMS\Core\Mail\MailMessage */
 		$mailer = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Mail\\MailMessage');
