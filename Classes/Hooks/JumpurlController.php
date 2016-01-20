@@ -184,7 +184,9 @@ class JumpurlController {
 		}
 
 		// finally set the jumpURL to the TSFE object
-		GeneralUtility::_GETset($jumpurl, 'jumpurl');
+		if (!empty($jumpurl)) {
+			GeneralUtility::_GETset($jumpurl, 'jumpurl');
+		}
 	}
 
 	/**
