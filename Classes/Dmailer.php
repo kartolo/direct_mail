@@ -935,11 +935,11 @@ class Dmailer {
 	/**
 	 * Send of the email using php mail function.
 	 *
-	 * @var	array	$recipient The recipient array. array($name => $mail)
+	 * @param	string/array	$recipient The recipient array. array($name => $mail)
 	 *
-	 * @return	bool True if there is recipient and content, otherwise false
+	 * @return	void
 	 */
-	function sendTheMail(array $recipient) {
+	function sendTheMail($recipient) {
 		// init the swiftmailer object
 		/* @var $mailer \TYPO3\CMS\Core\Mail\MailMessage */
 		$mailer = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Mail\\MailMessage');
