@@ -84,6 +84,22 @@ mailMarkersHook
          how marker in the mail should be replaced.
 
 
+.. _hooks_mailHeadersHook:
+mailHeadersHook
+''''''''''''''''''''
+
+.. container:: table-row
+
+   Property
+         ``$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook']``
+
+   Method
+         userFunc
+
+   Description
+         With this hook, you can add or edit the headers of the e-mail for each recipient
+
+
 .. _hooks_cmd_displayImport:
 cmd_displayImport
 '''''''''''''''''

@@ -334,7 +334,7 @@ class Dmailer {
 
 
 			if ($returnCode && !empty($recipient)) {
-				$this->sendTheMail($recipient);
+				$this->sendTheMail($recipient, $recipRow);
 			}
 		}
 		return $returnCode;
@@ -936,10 +936,11 @@ class Dmailer {
 	 * Send of the email using php mail function.
 	 *
 	 * @param	string/array	$recipient The recipient array. array($name => $mail)
+	 * @param   array           $recipRow  Recipient's data array
 	 *
 	 * @return	void
 	 */
-	function sendTheMail($recipient) {
+	function sendTheMail($recipient, $recipRow = null) {
 		// init the swiftmailer object
 		/* @var $mailer \TYPO3\CMS\Core\Mail\MailMessage */
 		$mailer = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Mail\\MailMessage');
@@ -960,6 +961,21 @@ class Dmailer {
 
 		if ($this->organisation) {
 			$header->addTextHeader('Organization', $this->organisation);
+		}
+		
+			// Hook to edit or add the mail headers
+		if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'])) {
+			$mailHeadersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'];
+			if (is_array($mailHeadersHook)) {
+				$hookParameters = array(
+					'row'     => &$recipRow,
+					'header' => &$header,
+				);
+				$hookReference = &$this;
+				foreach ($mailHeadersHook as $hookFunction)	{
+					GeneralUtility::callUserFunction($hookFunction, $hookParameters, $hookReference);
+				}
+			}
 		}
 
 		if (GeneralUtility::validEmail($this->dmailer['sys_dmail_rec']['return_path'])) {
