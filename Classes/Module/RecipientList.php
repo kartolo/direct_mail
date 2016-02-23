@@ -117,8 +117,6 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         }
         $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
 
-        #DirectMailTeam\DirectMail\MailSelect::
-
             // initialize the query generator
         $this->queryGenerator = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\MailSelect');
 
@@ -734,7 +732,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $this->queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
 
         if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
-            $this->queryGenerator->queryConfig = unserialize($this->MOD_SETTINGS['queryConfig']);
+            $this->queryGenerator->queryConfig = $this->queryGenerator->cleanUpQueryConfig(unserialize($this->MOD_SETTINGS['queryConfig']));
             $this->queryGenerator->extFieldLists['queryFields'] = 'uid';
             $out .= $this->queryGenerator->getSelectQuery();
             $out .= '<div style="padding-top: 20px;"></div>';

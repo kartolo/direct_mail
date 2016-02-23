@@ -418,8 +418,8 @@ class DirectMailUtility
     {
         $outArr = array();
         if ($group['query']) {
-            $queryGenerator->init('dmail_queryConfig', $table, 'uid');
-            $queryGenerator->queryConfig = unserialize($group['query']);
+            $queryGenerator->init('dmail_queryConfig', $table);
+            $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
             $whereClause = $queryGenerator->getQuery($queryGenerator->queryConfig) . BackendUtility::deleteClause($table);
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                 $table . '.uid',
