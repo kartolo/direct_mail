@@ -23,23 +23,24 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
  * @package TYPO3
  * @subpackage direct_mail
  */
-class TsParserExt {
+class TsParserExt
+{
 
-	/**
-	 * Displaying a message to click the update in the extension config
-	 *
-	 * @return string    $out: the html message
-	 */
-	static public function displayMessage() {
+    /**
+     * Displaying a message to click the update in the extension config
+     *
+     * @return string    $out: the html message
+     */
+    public static function displayMessage()
+    {
+        $parameters = array(
+            'tx_extensionmanager_tools_extensionmanagerextensionmanager[extensionKey]' => 'direct_mail',
+            'tx_extensionmanager_tools_extensionmanagerextensionmanager[action]' => 'show',
+            'tx_extensionmanager_tools_extensionmanagerextensionmanager[controller]' => 'UpdateScript',
+        );
+        $link = BackendUtility::getModuleUrl('tools_ExtensionmanagerExtensionmanager', $parameters);
 
-		$parameters = array(
-			'tx_extensionmanager_tools_extensionmanagerextensionmanager[extensionKey]' => 'direct_mail',
-			'tx_extensionmanager_tools_extensionmanagerextensionmanager[action]' => 'show',
-			'tx_extensionmanager_tools_extensionmanagerextensionmanager[controller]' => 'UpdateScript',
-		);
-		$link = BackendUtility::getModuleUrl('tools_ExtensionmanagerExtensionmanager', $parameters);
-
-		$out = "
+        $out = "
 		<div style=\"position:absolute;top:10px;right:10px; width:300px;\">
 			<div class=\"typo3-message message-information\">
 					<div class=\"message-header\">" . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:update_optionHeader') . "</div>
@@ -52,8 +53,6 @@ class TsParserExt {
 			</div>
 			";
 
-		return $out;
-	}
+        return $out;
+    }
 }
-
-?>

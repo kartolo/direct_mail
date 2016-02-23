@@ -23,22 +23,21 @@ use TYPO3\CMS\Core\Utility;
 * @package TYPO3
 * @subpackage	tx_directmail
 */
-class DirectmailScheduler extends \TYPO3\CMS\Scheduler\Task\AbstractTask {
+class DirectmailScheduler extends \TYPO3\CMS\Scheduler\Task\AbstractTask
+{
 
-	/**
-	 * Function executed from scheduler.
-	 * Send the newsletter
-	 *
-	 * @return	bool
-	 */
-	function execute() {
-		/* @var $htmlmail \DirectMailTeam\DirectMail\Dmailer */
-		$htmlmail = Utility\GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
-		$htmlmail->start();
-		$htmlmail->runcron();
-		return TRUE;
-	}
-
+    /**
+     * Function executed from scheduler.
+     * Send the newsletter
+     *
+     * @return	bool
+     */
+    public function execute()
+    {
+        /* @var $htmlmail \DirectMailTeam\DirectMail\Dmailer */
+        $htmlmail = Utility\GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
+        $htmlmail->start();
+        $htmlmail->runcron();
+        return true;
+    }
 }
-
-?>

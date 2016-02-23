@@ -35,87 +35,91 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
-class ext_update  {
+class ext_update
+{
 
-	/**
-	 * Main function, returning the HTML content of the module
-	 *
-	 * @return	string		HTML
-	 */
-	function main()	{
+    /**
+     * Main function, returning the HTML content of the module
+     *
+     * @return	string		HTML
+     */
+    public function main()
+    {
+        $GLOBALS['LANG']->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
 
-		$GLOBALS['LANG']->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
-
-		$content = $this->displayWarning();
-		if (!GeneralUtility::_GP('do_update')) {
-			$onClick = "document.location='" . GeneralUtility::linkThisScript(array('do_update' => 1)) . "'; return false;";
-			$content .= htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_now')) . '
+        $content = $this->displayWarning();
+        if (!GeneralUtility::_GP('do_update')) {
+            $onClick = "document.location='" . GeneralUtility::linkThisScript(array('do_update' => 1)) . "'; return false;";
+            $content .= htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_now')) . '
 				<br /><br />
 				<form action=""><input type="submit" value="' . htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_do_it_now')) . '" onclick="' . htmlspecialchars($onClick) . '"></form>
 			';
-		} else {
-			$updated = $this->convertTable();
-			$content .= sprintf($GLOBALS['LANG']->getLL('update_convert_result'), $updated);
-		}
+        } else {
+            $updated = $this->convertTable();
+            $content .= sprintf($GLOBALS['LANG']->getLL('update_convert_result'), $updated);
+        }
 
-		return $content;
-	}
+        return $content;
+    }
 
-	/**
-	 * Convert the mailcontent data to base64 coded
-	 * @return	int	$i: the counter
-	 */
-	function convertTable() {
-		$dmailRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'uid',
-			'sys_dmail',
-			'1=1'
-		);
+    /**
+     * Convert the mailcontent data to base64 coded
+     * @return	int	$i: the counter
+     */
+    public function convertTable()
+    {
+        $dmailRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+            'uid',
+            'sys_dmail',
+            '1=1'
+        );
 
-		$i = 0;
-		foreach($dmailRows as $row) {
-			// get the mailContent
-			$mailContent = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-				'mailContent',
-				'sys_dmail',
-				'uid = ' . $row['uid']
-			);
+        $i = 0;
+        foreach ($dmailRows as $row) {
+            // get the mailContent
+            $mailContent = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+                'mailContent',
+                'sys_dmail',
+                'uid = ' . $row['uid']
+            );
 
-			if (is_array(unserialize($mailContent[0]['mailContent']))) {
-				// update the table
-				$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-					'sys_dmail',
-					'uid = ' . $row['uid'],
-					array('mailContent' => base64_encode($mailContent[0]['mailContent']))
-				);
+            if (is_array(unserialize($mailContent[0]['mailContent']))) {
+                // update the table
+                $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+                    'sys_dmail',
+                    'uid = ' . $row['uid'],
+                    array('mailContent' => base64_encode($mailContent[0]['mailContent']))
+                );
 
-				// add the counter
-				$i++;
-			}
-		}
+                // add the counter
+                $i++;
+            }
+        }
 
-		return $i;
-	}
-	/**
-	 * Checks how many rows are found and returns true if there are any
-	 *
-	 * @return	bool		true if user have access, otherwise false
-	 */
-	function access() {
-			// We cannot update before the extension is installed: required tables are not yet in TCA
-		if (ExtensionManagementUtility::isLoaded('direct_mail')) {
-			return TRUE;
-		} else {
-			return FALSE;
-		}
-	}
+        return $i;
+    }
+    /**
+     * Checks how many rows are found and returns true if there are any
+     *
+     * @return	bool		true if user have access, otherwise false
+     */
+    public function access()
+    {
+        // We cannot update before the extension is installed: required tables are not yet in TCA
+        if (ExtensionManagementUtility::isLoaded('direct_mail')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	/**
-	 * Enter description here ...
-	 * @return string
-	 */
-	function displayWarning() {
-		$out = '
+    /**
+     * Enter description here ...
+     * @return string
+     */
+    public function displayWarning()
+    {
+        $out = '
 			<div style="padding:15px 15px 20px 0;">
 				<div class="typo3-message message-warning">
 						<div class="message-header">' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:update_warningHeader') . '</div>
@@ -125,6 +129,6 @@ class ext_update  {
 				</div>
 			</div>';
 
-		return $out;
-	}
+        return $out;
+    }
 }

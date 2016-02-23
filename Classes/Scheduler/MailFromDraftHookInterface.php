@@ -25,32 +25,31 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  * @package		TYPO3
  * @subpackage		tx_directmail
  */
-interface MailFromDraftHookInterface {
+interface MailFromDraftHookInterface
+{
 
-	/**
-	 * Gets called before a copy of the direct mail draft record gets inserted into the database.
-	 *
-	 * The draft record is passed via reference by the key 'draftRecord' in the $hookParams argument.
-	 *
-	 * @param	array $hookParams Parameters to the hook. All passed by reference
-	 * @param	object $parentObject A reference to the calling object instance
-	 *
-	 * @return	void
-	 */
-	public function postInsertClone(array $hookParams, &$parentObject);
+    /**
+     * Gets called before a copy of the direct mail draft record gets inserted into the database.
+     *
+     * The draft record is passed via reference by the key 'draftRecord' in the $hookParams argument.
+     *
+     * @param	array $hookParams Parameters to the hook. All passed by reference
+     * @param	object $parentObject A reference to the calling object instance
+     *
+     * @return	void
+     */
+    public function postInsertClone(array $hookParams, &$parentObject);
 
-	/**
-	 * Gets called when the content of the mail has already been fetched and the direct mail record is ready to get sent by the direct mail engine upon next invocation.
-	 *
-	 * The values 'scheduled' and 'issent' in the hook parameter key 'updateData' are
-	 * responsible for marking the direct mail as "to be sent".
-	 *
-	 * @param	array		$hookParams Parameters to the hook. All passed by reference
-	 * @param	object		$parentObject A reference to the calling object instance
-	 *
-	 * @return	void
-	 */
-	public function enqueueClonedDmail(array $hookParams, &$parentObject);
-
+    /**
+     * Gets called when the content of the mail has already been fetched and the direct mail record is ready to get sent by the direct mail engine upon next invocation.
+     *
+     * The values 'scheduled' and 'issent' in the hook parameter key 'updateData' are
+     * responsible for marking the direct mail as "to be sent".
+     *
+     * @param	array		$hookParams Parameters to the hook. All passed by reference
+     * @param	object		$parentObject A reference to the calling object instance
+     *
+     * @return	void
+     */
+    public function enqueueClonedDmail(array $hookParams, &$parentObject);
 }
-

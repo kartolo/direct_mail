@@ -25,31 +25,33 @@ use TYPO3\CMS\Core\Database\QueryGenerator;
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
-class MailSelect extends QueryGenerator {
+class MailSelect extends QueryGenerator
+{
 
-	var $allowedTables = array('tt_address','fe_users');
+    public $allowedTables = array('tt_address','fe_users');
 
-	/**
-	 * Build a dropdown box. override function from parent class. Limit only to 2 tables.
-	 *
-	 * @param	string		$name Name of the select-field
-	 * @param	string		$cur Table name, which is currently selected
-	 *
-	 * @return	string		HTML select-field
-	 * @see t3lib_queryGenerator::mkTableSelect()
-	 */
-	function mkTableSelect($name, $cur) {
-		$out = '<select name="' . $name . '" onChange="submit();">';
-		$out .= '<option value=""></option>';
-		reset($GLOBALS["TCA"]);
-		foreach ($GLOBALS["TCA"] as $tN => $_) {
-			if ($GLOBALS["BE_USER"]->check('tables_select',$tN) && in_array($tN, $this->allowedTables))	{
-				$out .='<option value="' . $tN . '"' . ($tN == $cur ? ' selected':'') . '>' .
-					$GLOBALS["LANG"]->sl($GLOBALS["TCA"][$tN]['ctrl']['title']) .
-					'</option>';
-			}
-		}
-		$out.='</select>';
-		return $out;
-	}
+    /**
+     * Build a dropdown box. override function from parent class. Limit only to 2 tables.
+     *
+     * @param	string		$name Name of the select-field
+     * @param	string		$cur Table name, which is currently selected
+     *
+     * @return	string		HTML select-field
+     * @see t3lib_queryGenerator::mkTableSelect()
+     */
+    public function mkTableSelect($name, $cur)
+    {
+        $out = '<select name="' . $name . '" onChange="submit();">';
+        $out .= '<option value=""></option>';
+        reset($GLOBALS["TCA"]);
+        foreach ($GLOBALS["TCA"] as $tN => $_) {
+            if ($GLOBALS["BE_USER"]->check('tables_select', $tN) && in_array($tN, $this->allowedTables)) {
+                $out .='<option value="' . $tN . '"' . ($tN == $cur ? ' selected':'') . '>' .
+                    $GLOBALS["LANG"]->sl($GLOBALS["TCA"][$tN]['ctrl']['title']) .
+                    '</option>';
+            }
+        }
+        $out.='</select>';
+        return $out;
+    }
 }

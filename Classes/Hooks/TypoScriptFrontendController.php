@@ -23,30 +23,31 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Class TypoScriptFrontendController
  * @package DirectMailTeam\DirectMail\Hooks
  */
-class TypoScriptFrontendController {
+class TypoScriptFrontendController
+{
 
-	/**
-	 * If a backend user is logged in and
-	 * a frontend usergroup is specified in the GET parameters, use this
-	 * group to simulate access to an access protected page with content to be sent
-	 *
-	 * @param $parameters
-	 * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $typoScriptFrontendController
-	 *
-	 * @return void
-	 */
-	public function simulateUsergroup($parameters, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $typoScriptFrontendController) {
-		$directMailFeGroup = (int)GeneralUtility::_GET('dmail_fe_group');
-		$accessToken = GeneralUtility::_GET('access_token');
-		if ($directMailFeGroup > 0 && DirectMailUtility::validateAndRemoveAccessToken($accessToken)) {
-			if ($typoScriptFrontendController->fe_user->user) {
-				$typoScriptFrontendController->fe_user->user[$this->$typoScriptFrontendController->usergroup_column] = $directMailFeGroup;
-			} else {
-				$typoScriptFrontendController->fe_user->user = array(
-					$typoScriptFrontendController->fe_user->usergroup_column => $directMailFeGroup
-				);
-			}
-		}
-	}
-
+    /**
+     * If a backend user is logged in and
+     * a frontend usergroup is specified in the GET parameters, use this
+     * group to simulate access to an access protected page with content to be sent
+     *
+     * @param $parameters
+     * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $typoScriptFrontendController
+     *
+     * @return void
+     */
+    public function simulateUsergroup($parameters, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $typoScriptFrontendController)
+    {
+        $directMailFeGroup = (int)GeneralUtility::_GET('dmail_fe_group');
+        $accessToken = GeneralUtility::_GET('access_token');
+        if ($directMailFeGroup > 0 && DirectMailUtility::validateAndRemoveAccessToken($accessToken)) {
+            if ($typoScriptFrontendController->fe_user->user) {
+                $typoScriptFrontendController->fe_user->user[$this->$typoScriptFrontendController->usergroup_column] = $directMailFeGroup;
+            } else {
+                $typoScriptFrontendController->fe_user->user = array(
+                    $typoScriptFrontendController->fe_user->usergroup_column => $directMailFeGroup
+                );
+            }
+        }
+    }
 }

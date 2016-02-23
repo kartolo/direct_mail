@@ -26,65 +26,65 @@ use DirectMailTeam\DirectMail;
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
-class SelectCategories {
-	var $sys_language_uid = 0;
-	var $collate_locale = 'C';
+class SelectCategories
+{
+    public $sys_language_uid = 0;
+    public $collate_locale = 'C';
 
-	/**
-	 * Get the localization of the select field items (right-hand part of form)
-	 * Referenced by TCA
-	 *
-	 * @param	array $params Array of searched translation
-	 *
-	 * @return	void
-	 */
-	function get_localized_categories(array $params) {
-		global $LANG;
+    /**
+     * Get the localization of the select field items (right-hand part of form)
+     * Referenced by TCA
+     *
+     * @param	array $params Array of searched translation
+     *
+     * @return	void
+     */
+    public function get_localized_categories(array $params)
+    {
+        global $LANG;
 
 /*
-		$params['items'] = &$items;
-		$params['config'] = $config;
-		$params['TSconfig'] = $iArray;
-		$params['table'] = $table;
-		$params['row'] = $row;
-		$params['field'] = $field;
+        $params['items'] = &$items;
+        $params['config'] = $config;
+        $params['TSconfig'] = $iArray;
+        $params['table'] = $table;
+        $params['row'] = $row;
+        $params['field'] = $field;
 */
-		$config = $params['config'];
-		$table = $config['itemsProcFunc_config']['table'];
+        $config = $params['config'];
+        $table = $config['itemsProcFunc_config']['table'];
 
-			// initialize backend user language
-		if ($LANG->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-			$sysPage = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Page\PageRepository');
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-				'sys_language.uid',
-				'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode = static_languages.uid',
-				'static_languages.lg_typo3 = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($LANG->lang,'static_languages') .
-					$sysPage->enableFields('sys_language') .
-					$sysPage->enableFields('static_languages')
-				);
-			while(($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-				$this->sys_language_uid = $row['uid'];
-				$this->collate_locale = $row['lg_collate_locale'];
-			}
-			$GLOBALS['TYPO3_DB']->sql_free_result($res);
-		}
+            // initialize backend user language
+        if ($LANG->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
+            $sysPage = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Page\PageRepository');
+            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+                'sys_language.uid',
+                'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode = static_languages.uid',
+                'static_languages.lg_typo3 = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($LANG->lang, 'static_languages') .
+                    $sysPage->enableFields('sys_language') .
+                    $sysPage->enableFields('static_languages')
+                );
+            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+                $this->sys_language_uid = $row['uid'];
+                $this->collate_locale = $row['lg_collate_locale'];
+            }
+            $GLOBALS['TYPO3_DB']->sql_free_result($res);
+        }
 
-		if (is_array($params['items']) && !empty($params['items'])) {
-			foreach ($params['items'] as $k => $item ) {
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-					'*',
-					$table,
-					'uid=' . intval($item[1])
-				);
-				while(($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-					if(($localizedRowCat = DirectMailUtility::getRecordOverlay($table,$rowCat,$this->sys_language_uid,''))) {
-						$params['items'][$k][0] = $localizedRowCat['category'];
-					}
-				}
-				$GLOBALS['TYPO3_DB']->sql_free_result($res);
-			}
-		}
-	}
+        if (is_array($params['items']) && !empty($params['items'])) {
+            foreach ($params['items'] as $k => $item) {
+                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+                    '*',
+                    $table,
+                    'uid=' . intval($item[1])
+                );
+                while (($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+                    if (($localizedRowCat = DirectMailUtility::getRecordOverlay($table, $rowCat, $this->sys_language_uid, ''))) {
+                        $params['items'][$k][0] = $localizedRowCat['category'];
+                    }
+                }
+                $GLOBALS['TYPO3_DB']->sql_free_result($res);
+            }
+        }
+    }
 }
-
-?>

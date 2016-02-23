@@ -32,68 +32,71 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
  * @version 	$Id: index.php 30331 2010-02-22 22:27:07Z ivankartolo $
  */
 
-class NavFrame {
+class NavFrame
+{
 
-	/**
-	 * The template object
-	 * @var \TYPO3\CMS\Backend\Template\DocumentTemplate
-	 */
-	public $doc;
+    /**
+     * The template object
+     * @var \TYPO3\CMS\Backend\Template\DocumentTemplate
+     */
+    public $doc;
 
-	/**
-	 * Set highlight
-	 * @var	string
-	 */
-	protected $doHighlight;
+    /**
+     * Set highlight
+     * @var	string
+     */
+    protected $doHighlight;
 
-	/**
-	 * HTML output
-	 * @var string
-	 */
-	protected $content;
+    /**
+     * HTML output
+     * @var string
+     */
+    protected $content;
 
-	var $pageinfo;
+    public $pageinfo;
 
-	/**
-	 * The name of the module
-	 *
-	 * @var string
-	 */
-	protected $moduleName = 'DirectMailNavFrame';
+    /**
+     * The name of the module
+     *
+     * @var string
+     */
+    protected $moduleName = 'DirectMailNavFrame';
 
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		$this->MCONF = array(
-			'name' => $this->moduleName
-		);
-	}
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->MCONF = array(
+            'name' => $this->moduleName
+        );
+    }
 
-	/**
-	 * First initialization of the global variables. Set some JS-code
-	 *
-	 * @return	void
-	 */
-	function init() {
-		global $BE_USER, $BACK_PATH;
+    /**
+     * First initialization of the global variables. Set some JS-code
+     *
+     * @return	void
+     */
+    public function init()
+    {
+        global $BE_USER, $BACK_PATH;
 
-		$this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
-		$this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/NavFrame.html');
-		$this->doc->showFlashMessages = FALSE;
+        $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+        $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/NavFrame.html');
+        $this->doc->showFlashMessages = false;
 
-		$currentModule = GeneralUtility::_GP('currentModule');
-		$currentSubScript = BackendUtility::getModuleUrl($currentModule);
+        $currentModule = GeneralUtility::_GP('currentModule');
+        $currentSubScript = BackendUtility::getModuleUrl($currentModule);
 
-		// Setting highlight mode:
-		$this->doHighlight = !$BE_USER->getTSConfigVal('options.pageTree.disableTitleHighlight');
+        // Setting highlight mode:
+        $this->doHighlight = !$BE_USER->getTSConfigVal('options.pageTree.disableTitleHighlight');
 
-		$this->doc->inDocStylesArray[] = '#typo3-docheader-row2 { line-height: 14px !important; }
+        $this->doc->inDocStylesArray[] = '#typo3-docheader-row2 { line-height: 14px !important; }
 		#typo3-docheader-row2 span { font-weight: bold; margin-top: -3px; color: #000; margin-top: 0; padding-left: 20px; }';
 
-		// Setting JavaScript for menu.
-		$this->doc->JScode = $this->doc->wrapScriptTags(
-			($currentModule ? 'top.currentSubScript=unescape("' . rawurlencode($currentSubScript) . '");' : '') . '
+        // Setting JavaScript for menu.
+        $this->doc->JScode = $this->doc->wrapScriptTags(
+            ($currentModule ? 'top.currentSubScript=unescape("' . rawurlencode($currentSubScript) . '");' : '') . '
 
 			function jumpTo(params,linkObj,highLightID)	{ //
 				var theUrl = top.currentSubScript+"&"+params;
@@ -133,100 +136,103 @@ class NavFrame {
 				theObj = document.getElementById(highLightID);
 			}
 		');
-	}
+    }
 
-	/**
-	 * Entrance from the backend module. This replace the _dispatch
-	 *
-	 * @param ServerRequestInterface $request The request object from the backend
-	 * @param ResponseInterface $response The reponse object sent to the backend
-	 *
-	 * @return ResponseInterface Return the response object
-	 */
-	public function mainAction(ServerRequestInterface $request, ResponseInterface $response) {
-		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
-		$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
+    /**
+     * Entrance from the backend module. This replace the _dispatch
+     *
+     * @param ServerRequestInterface $request The request object from the backend
+     * @param ResponseInterface $response The reponse object sent to the backend
+     *
+     * @return ResponseInterface Return the response object
+     */
+    public function mainAction(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
 
-		$this->init();
+        $this->init();
 
-		$this->main();
-		$this->printContent();
+        $this->main();
+        $this->printContent();
 
-		$response->getBody()->write($this->content);
-		return $response;
-	}
+        $response->getBody()->write($this->content);
+        return $response;
+    }
 
-	/**
-	 * Main function, rendering the browsable page tree
-	 *
-	 * @return	void
-	 */
-	public function main() {
-		$iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+    /**
+     * Main function, rendering the browsable page tree
+     *
+     * @return	void
+     */
+    public function main()
+    {
+        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-			'*',
-			'pages',
-			'doktype = 254 AND module in (\'dmail\')' . BackendUtility::deleteClause('pages'),
-			'',
-			'title'
-		);
-		$out = '';
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+            '*',
+            'pages',
+            'doktype = 254 AND module in (\'dmail\')' . BackendUtility::deleteClause('pages'),
+            '',
+            'title'
+        );
+        $out = '';
 
-		while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-			if(BackendUtility::readPageAccess($row['uid'],$GLOBALS['BE_USER']->getPagePermsClause(1))){
-				$icon = $iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL)->render();
+        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            if (BackendUtility::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1))) {
+                $icon = $iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL)->render();
 
-				$out .= '<tr>' .
-					'<td id="dmail_' . $row['uid'] . '" >
+                $out .= '<tr>' .
+                    '<td id="dmail_' . $row['uid'] . '" >
 						<a href="#" onclick="top.fsMod.recentIds[\'DirectMailNavFrame\']=' . $row['uid'] . ';jumpTo(\'id=' . $row['uid'] . '\',this,\'dmail_' . $row['uid'] . '\');">' .
-					$icon .
-					'&nbsp;' . htmlspecialchars($row['title']) . '</a></td></tr>';
-			}
-		}
-		$GLOBALS['TYPO3_DB']->sql_free_result($res);
-		$content = '<table cellspacing="0" cellpadding="0" border="0" width="100%">' . $out . '</table>';
+                    $icon .
+                    '&nbsp;' . htmlspecialchars($row['title']) . '</a></td></tr>';
+            }
+        }
+        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+        $content = '<table cellspacing="0" cellpadding="0" border="0" width="100%">' . $out . '</table>';
 
-		// Adding highlight - JavaScript
-		if ($this->doHighlight)	$content .=$this->doc->wrapScriptTags('
+        // Adding highlight - JavaScript
+        if ($this->doHighlight) {
+            $content .=$this->doc->wrapScriptTags('
 			hilight_row("",top.fsMod.navFrameHighlightedID["web"]);
 		');
+        }
 
 
-		$docHeaderButtons = array(
-			'CSH' => BackendUtility::cshItem('_MOD_DirectMailNavFrame', 'folders', $GLOBALS['BACK_PATH'], TRUE),
-			'REFRESH' => '<a href="' . htmlspecialchars(GeneralUtility::linkThisScript(array('unique' => uniqid('directmail_navframe')))) . '">' .
-				$iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL) . '</a>'
-		);
+        $docHeaderButtons = array(
+            'CSH' => BackendUtility::cshItem('_MOD_DirectMailNavFrame', 'folders', $GLOBALS['BACK_PATH'], true),
+            'REFRESH' => '<a href="' . htmlspecialchars(GeneralUtility::linkThisScript(array('unique' => uniqid('directmail_navframe')))) . '">' .
+                $iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL) . '</a>'
+        );
 
-		$markers = array(
-			'HEADLINE' => '',
-			'CONTENT' => $this->getLanguageService()->getLL('dmail_folders') . $content
-		);
-		// Build the <body> for the module
-		$this->content = $this->doc->startPage('TYPO3 Direct Mail Navigation');
-		$this->content .= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers);
+        $markers = array(
+            'HEADLINE' => '',
+            'CONTENT' => $this->getLanguageService()->getLL('dmail_folders') . $content
+        );
+        // Build the <body> for the module
+        $this->content = $this->doc->startPage('TYPO3 Direct Mail Navigation');
+        $this->content .= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers);
+    }
 
+    /**
+     * Outputting the accumulated content to screen
+     *
+     * @return	void
+     */
+    public function printContent()
+    {
+        $this->content.= $this->doc->endPage();
+        $this->content = $this->doc->insertStylesAndJS($this->content);
+    }
 
-
-	}
-
-	/**
-	 * Outputting the accumulated content to screen
-	 *
-	 * @return	void
-	 */
-	function printContent()	{
-		$this->content.= $this->doc->endPage();
-		$this->content = $this->doc->insertStylesAndJS($this->content);
-	}
-
-	/**
-	 * Returns LanguageService
-	 *
-	 * @return \TYPO3\CMS\Lang\LanguageService
-	 */
-	protected function getLanguageService() {
-		return $GLOBALS['LANG'];
-	}
+    /**
+     * Returns LanguageService
+     *
+     * @return \TYPO3\CMS\Lang\LanguageService
+     */
+    protected function getLanguageService()
+    {
+        return $GLOBALS['LANG'];
+    }
 }
