@@ -1882,7 +1882,7 @@ class Dmail extends BaseScriptClass
         if (!$row['issent']) {
             if ($GLOBALS['BE_USER']->check('tables_modify', 'sys_dmail')) {
                 // $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
-                $requestUri = GeneralUtility::getIndpEnv('REQUEST_URI') . '&CMD=info&sys_dmail_uid=' . $row['uid'] . '&fetchAtOnce=1';
+                $requestUri = BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&CMD=info&sys_dmail_uid=' . $row['uid'] . '&fetchAtOnce=1';
 
                 $editParams = BackendUtility::editOnClick('&edit[sys_dmail][' . $row['uid'] . ']=edit', $GLOBALS['BACK_PATH'], $requestUri);
 
