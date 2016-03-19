@@ -1,1 +1,16 @@
-Changelog
+########################
+#
+# Ignore temporary files (left by editors)
+*~
+*.bak
+*.swp
+#
+# Ignore by common IDEs used directories/files
+nbproject
+*.idea
+*.project
+.buildpath
+.project
+.settings
+.TemporaryItems
+.webprj
