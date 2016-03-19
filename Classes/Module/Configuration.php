@@ -317,7 +317,7 @@ class Configuration extends BaseScriptClass
         } else {
             // If no access or if ID == zero
 
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\MediumDocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
             $this->doc->backPath = $GLOBALS["BACK_PATH"];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
@@ -517,7 +517,7 @@ class Configuration extends BaseScriptClass
      * @return void
      */
     public function updatePageTS()
-    {
+    {   
         if ($GLOBALS["BE_USER"]->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
             $pageTypoScript= GeneralUtility::_GP('pageTS');
             if (is_array($pageTypoScript)) {

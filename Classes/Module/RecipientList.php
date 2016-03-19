@@ -260,7 +260,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         } else {
             // If no access or if ID == zero
 
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\MediumDocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content.=$this->doc->startPage($this->getLanguageService()->getLL('title'));
