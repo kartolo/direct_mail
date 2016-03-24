@@ -852,14 +852,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         // The icons:
         $listIcons = $this->iconFactory->getIcon('actions-system-list-open', Icon::SIZE_SMALL);
         $csvIcons = $this->iconFactory->getIcon('actions-document-export-csv', Icon::SIZE_SMALL);
-        if (ExtensionManagementUtility::isLoaded('tt_address')) {
-            $iconPath = ExtensionManagementUtility::extRelPath('tt_address') . 'ext_icon__h.gif';
-            $iconParam = 'width="18" height="16"' ;
-        } else {
-            $iconPath = 'gfx/button_hide.gif';
-            $iconParam = 'width="11" height="10"';
-        }
-        $hideIcons = '<img ' . IconUtility::skinImg($GLOBALS["BACK_PATH"], $iconPath, $iconParam . ' alt=""') . ' />';
+        $hideIcons = $this->iconFactory->getIcon('actions-lock', Icon::SIZE_SMALL);
 
         // Icons mails returned
         $iconsMailReturned[] = '<a href="' . $thisurl . '&returnList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned') . '"> ' . $listIcons . '</span></a>';
