@@ -54,7 +54,7 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['sendPerCycle'] = $extConf['sendPerCycle']
 /**
  * Default recipient field list:
  */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['defaultRecipFields'] = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,firstname';
+$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['defaultRecipFields'] = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,firstname,first_name,last_name';
 
 /**
  * Additional DB fields of the recipient:
