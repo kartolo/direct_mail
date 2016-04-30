@@ -1,0 +1,18 @@
+conf.py:
+  copyright: 2002-2015
+  project: Direct mail system
+  version: 5.0
+  release: 5.0.1
+  html_theme_options:
+      github_repository: kartolo/direct_mail
+      github_branch: master
+  latex_documents:
+  - - Index
+    - direct_mail.tex
+    - Direct mail system
+    - Ivan Kartolo
+    - manual
+  latex_elements:
+    papersize: a4paper
+    pointsize: 10pt
+    preamble: \usepackage{typo3}

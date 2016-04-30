@@ -22,16 +22,17 @@ EXT: Direct Mail
       Ivan Kartolo
 
 :Created:
-      2002-11-01 32::0:0:
+      2002-11-01
 
 :Changed by:
       Ivan Kartolo
 
 :Changed:
+      2016-04-30
 
 
 :Email:
-      ivan.kartolo@dkd.de
+      ivan.kartolo@gmail.com
 
 
 EXT: Direct Mail
