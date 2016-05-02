@@ -55,7 +55,6 @@ class Readmail
 
     public $serverGMToffsetMinutes = 60;
 
-
     /**
      * Returns special TYPO3 Message ID (MID) from input TO header
      * (the return address of the sent mail from Dmailer)
@@ -91,8 +90,8 @@ class Readmail
      */
     public function find_XTypo3MID($content)
     {
-        if (strstr($content, "X-TYPO3MID:")) {
-            $p = explode("X-TYPO3MID:", $content, 2);
+        if (strstr($content, 'X-TYPO3MID:')) {
+            $p = explode('X-TYPO3MID:', $content, 2);
             $l = explode(LF, $p[1], 2);
             list($mid, $hash) = GeneralUtility::trimExplode('-', $l[0]);
             if (md5($mid) == $hash) {
@@ -105,7 +104,7 @@ class Readmail
                 return($out);
             }
         }
-        return "";
+        return '';
     }
 
     /**

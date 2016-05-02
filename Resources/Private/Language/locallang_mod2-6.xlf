@@ -1021,6 +1021,45 @@ By clicking on the "Import" button below, all data will be written in tt_address
 		<trans-unit id="yes">
 			<source>Yes</source>
 		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.server">
+			<source>Server URL/IP</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.csh.server">
+			<source>URL or IP of the mail server</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.port">
+			<source>Port number</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.csh.port">
+			<source>Port number of the mail server</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.user">
+			<source>Username</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.csh.user">
+			<source>Username to authenticate</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.password">
+			<source>Password</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.csh.password">
+			<source>Password of the user</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.service">
+			<source>Type of mailserver</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.csh.service">
+			<source>IMAP or POP3</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.maxProcessed">
+			<source>Number of bounce mail to be processed</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.csh.maxProcessed">
+			<source>Maximum number of bounce mail to be processed on one scheduler cycle</source>
+		</trans-unit>
+		<trans-unit id="scheduler.bounceMail.dataVerification">
+			<source><![CDATA[Connection using the given data is failed. Error message: ]]></source>
+		</trans-unit>
 		</body>
 	</file>
 </xliff>

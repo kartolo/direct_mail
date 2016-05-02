@@ -105,6 +105,14 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\
     'additionalFields'    => 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraftAdditionalFields'
 );
 
+// bounce mail per scheduler
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMail'] = array(
+    'extension' => $_EXTKEY,
+    'title' => 'Direct Mail: Analyze bounce mail',
+    'description' => 'This task will get bounce mail from the configured mailbox',
+    'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields'
+);
+
 
 /**
  * Added CLI
