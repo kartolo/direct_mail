@@ -1421,8 +1421,13 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             }
         }
 
+            // Fallback to url
+        if ($label === '') {
+            $label = $url;
+        }
+
         if (isset($this->params['maxLabelLength']) && ($this->params['maxLabelLength'] > 0)) {
-            $label =  GeneralUtility::fixed_lgd_cs($label, $this->params['maxLabelLength']);
+            $label = GeneralUtility::fixed_lgd_cs($label, $this->params['maxLabelLength']);
         }
 
         return $label;
