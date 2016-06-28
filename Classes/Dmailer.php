@@ -1408,19 +1408,21 @@ class Dmailer
 
             $dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
             // Fetches the attributes for the tag
-            $attributes = $this->get_tag_attributes($reg[0]);
+            $attributes = $this->get_tag_attributes($reg[0], false);
             $hrefData = array();
             $hrefData['ref'] = $attributes['href'] ?: $attributes['action'];
+            $quotes = (substr($hrefData['ref'], 0, 1) === '"') ? '"' : '';
+            $hrefData['ref'] = trim($hrefData['ref'], '"');
             if ($hrefData['ref']) {
                 // Finds out if the value had quotes around it
-                $hrefData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $hrefData["ref"]) - 1, 1) == '"') ? '"' : '';
-                // subst_str is the string to look for, when substituting lateron
-                $hrefData['subst_str'] = $hrefData['quotes'] . $hrefData['ref'] . $hrefData['quotes'];
+                $hrefData['quotes'] = $quotes;
+                // subst_str is the string to look for when substituting later on
+                $hrefData['subst_str'] = $quotes . $hrefData['ref'] . $quotes;
                 if ($hrefData['ref'] && substr(trim($hrefData['ref']), 0, 1) != "#" && !strstr($linkList, "|" . $hrefData['subst_str'] . "|")) {
                     $linkList .= "|" . $hrefData['subst_str'] . "|";
                     $hrefData['absRef'] = $this->absRef($hrefData['ref']);
                     $hrefData['tag'] = $tag;
-                    $hrefData['no_jumpurl'] = intval($attributes['no_jumpurl']) ? 1 : 0;
+                    $hrefData['no_jumpurl'] = intval(trim($attributes['no_jumpurl'], '"')) ? 1 : 0;
                     $this->theParts['html']['hrefs'][] = $hrefData;
                 }
             }
@@ -1509,10 +1511,11 @@ class Dmailer
      *
      * @param string $tag Tag is either like this "<TAG OPTION ATTRIB=VALUE>" or
      *				 this " OPTION ATTRIB=VALUE>" which means you can omit the tag-name
+     * @param boolean $removeQuotes When TRUE (default) quotes around a value will get removed
      *
      * @return array array with attributes as keys in lower-case
      */
-    public function get_tag_attributes($tag)
+    public function get_tag_attributes($tag, $removeQuotes = true)
     {
         $attributes = array();
         $tag = ltrim(preg_replace('/^<[^ ]*/', '', trim($tag)));
@@ -1525,9 +1528,9 @@ class Dmailer
             $attrib = $reg[0];
 
             $tag = ltrim(substr($tag, strlen($attrib), $tagLen));
-            if (substr($tag, 0, 1) == '=') {
+            if (substr($tag, 0, 1) === '=') {
                 $tag = ltrim(substr($tag, 1, $tagLen));
-                if (substr($tag, 0, 1) == '"') {
+                if (substr($tag, 0, 1) === '"' && $removeQuotes) {
                     // Quotes around the value
                     $reg = explode('"', substr($tag, 1, $tagLen), 2);
                     $tag = ltrim($reg[1]);
@@ -1537,7 +1540,7 @@ class Dmailer
                     preg_match('/^([^[:space:]>]*)(.*)/', $tag, $reg);
                     $value = trim($reg[1]);
                     $tag = ltrim($reg[2]);
-                    if (substr($tag, 0, 1) == '>') {
+                    if (substr($tag, 0, 1) === '>') {
                         $tag = '';
                     }
                 }
