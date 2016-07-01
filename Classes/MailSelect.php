@@ -43,6 +43,12 @@ class MailSelect extends QueryGenerator
         $this->compSQL[76] = 'uid IN (SELECT fe.uid FROM fe_users fe LEFT JOIN sys_dmail_feuser_category_mm mm ON fe.uid = mm.uid_local WHERE mm.uid_foreign = #VALUE#)';
         $this->lang['comparison']['77_'] = 'Direct Mail Category fe_users';
         $this->compSQL[77] = 'uid NOT IN (SELECT fe.uid FROM fe_users fe LEFT JOIN sys_dmail_feuser_category_mm mm ON fe.uid = mm.uid_local WHERE mm.uid_foreign = #VALUE#)';
+        
+        // selecting tt_content by MM categories
+        $this->lang['comparison']['78_'] = 'Direct Mail Category tt_content';
+        $this->compSQL[78] = 'uid IN (SELECT tt.uid FROM tt_content tt LEFT JOIN sys_dmail_ttcontent_category_mm mm ON tt.uid = mm.uid_local WHERE mm.uid_foreign = #VALUE#)';
+        $this->lang['comparison']['79_'] = 'Direct Mail Category tt_content';
+        $this->compSQL[79] = 'uid NOT IN (SELECT tt.uid FROM tt_content tt LEFT JOIN sys_dmail_ttcontent_category_mm mm ON tt.uid = mm.uid_local WHERE mm.uid_foreign = #VALUE#)';
     }
 
     /**
