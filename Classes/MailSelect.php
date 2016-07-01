@@ -29,6 +29,21 @@ class MailSelect extends QueryGenerator
 {
 
     public $allowedTables = array('tt_address','fe_users');
+    
+    public function __construct()
+    {
+        // selecting tt_address by MM categories
+        $this->lang['comparison']['74_'] = 'Direct Mail Category tt_address';
+        $this->compSQL[74] = 'uid IN (SELECT tt.uid FROM tt_address tt LEFT JOIN sys_dmail_ttaddress_category_mm mm ON tt.uid = mm.uid_local WHERE mm.uid_foreign = #VALUE#)';
+        $this->lang['comparison']['75_'] = 'Direct Mail Category tt_address';
+        $this->compSQL[75] = 'uid NOT IN (SELECT tt.uid FROM tt_address tt LEFT JOIN sys_dmail_ttaddress_category_mm mm ON tt.uid = mm.uid_local WHERE mm.uid_foreign = #VALUE#)';
+
+        // selecting fe_users by MM categories
+        $this->lang['comparison']['76_'] = 'Direct Mail Category fe_users';
+        $this->compSQL[76] = 'uid IN (SELECT fe.uid FROM fe_users fe LEFT JOIN sys_dmail_feuser_category_mm mm ON fe.uid = mm.uid_local WHERE mm.uid_foreign = #VALUE#)';
+        $this->lang['comparison']['77_'] = 'Direct Mail Category fe_users';
+        $this->compSQL[77] = 'uid NOT IN (SELECT fe.uid FROM fe_users fe LEFT JOIN sys_dmail_feuser_category_mm mm ON fe.uid = mm.uid_local WHERE mm.uid_foreign = #VALUE#)';
+    }
 
     /**
      * Build a dropdown box. override function from parent class. Limit only to 2 tables.
