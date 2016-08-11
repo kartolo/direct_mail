@@ -17,6 +17,7 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\Dmailer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Module\BaseScriptClass;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -619,7 +620,10 @@ class Dmail extends BaseScriptClass
 
                     // internal page
                 if ($createMailFromInternalPage && !$quickmail['send']) {
-                    $newUid = DirectMailUtility::createDirectMailRecordFromPage($createMailFromInternalPage, $this->params);
+
+                    $createMailFromInternalPageLang = (int)GeneralUtility::_GP('createMailFrom_LANG');
+                    $newUid = DirectMailUtility::createDirectMailRecordFromPage($createMailFromInternalPage, $this->params, $createMailFromInternalPageLang);
+
                     if (is_numeric($newUid)) {
                         $this->sys_dmail_uid = $newUid;
                             // Read new record (necessary because TCEmain sets default field values)
@@ -774,7 +778,7 @@ class Dmail extends BaseScriptClass
                 }
                 // send mass, show calendar
                 $theOutput .= '<div id="box-1" class="toggleBox">';
-                $theOutput .= $this->cmd_finalmail();
+                $theOutput .= $this->cmd_finalmail($row);
                 $theOutput .= '</div>';
 
                 $theOutput = $this->doc->section($this->getLanguageService()->getLL('dmail_wiz5_sendmass'), $theOutput, 1, 1, 0, true);
@@ -836,9 +840,10 @@ class Dmail extends BaseScriptClass
     /**
      * Shows the final steps of the process. Show recipient list and calendar library
      *
+     * @param array $direct_mail_row
      * @return	string		HTML
      */
-    public function cmd_finalmail()
+    public function cmd_finalmail($direct_mail_row)
     {
         /**
          * Hook for cmd_finalmail
@@ -864,14 +869,16 @@ class Dmail extends BaseScriptClass
             'uid,pid,title',
             'sys_dmail_group',
             'pid=' . intval($this->id) .
+            ' AND sys_language_uid IN (-1, ' . $direct_mail_row['sys_language_uid'] . ')' .
                 BackendUtility::deleteClause('sys_dmail_group'),
             '',
             $GLOBALS['TYPO3_DB']->stripOrderBy($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
         );
 
         $opt = array();
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-            $result = $this->cmd_compileMailGroup(array($row['uid']));
+        $lastGroup = null;
+        while (($group = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            $result = $this->cmd_compileMailGroup(array($group['uid']));
             $count = 0;
             $idLists = $result['queryInfo']['id_lists'];
             if (is_array($idLists['tt_address'])) {
@@ -886,19 +893,38 @@ class Dmail extends BaseScriptClass
             if (is_array($idLists[$this->userTable])) {
                 $count += count($idLists[$this->userTable]);
             }
-            $opt[] = '<option value="' . $row['uid'] . '">' . htmlspecialchars($row['title'] . ' (#' . $count . ')') . '</option>';
+            $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
+            $lastGroup = $group;
         }
         $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
         // added disabled. see hook
-        $select = '<select multiple="multiple" name="mailgroup_uid[]" ' . ($hookSelectDisabled ? 'disabled' : '') . '>' . implode(LF, $opt) . '</select>';
-
+        if (count($opt) === 0) {
+            /** @var $flashMessage FlashMessage */
+            $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                'No recipient groups found',
+                '',
+                FlashMessage::ERROR //severity
+            );
+            $groupInput = $flashMessage->render();
+        } elseif (count($opt) === 1) {
+            $groupInput = '';
+            if (!$hookSelectDisabled) {
+                $groupInput .= '<input type="hidden" name="mailgroup_uid[]" value="' . $lastGroup['uid'] . '" />';
+            }
+            $groupInput .= '* ' . htmlentities($lastGroup['title']);
+            if ($hookSelectDisabled) {
+                $groupInput .= '<em>disabled</em>';
+            }
+        } else {
+            $groupInput = '<select multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
+        }
             // Set up form:
         $msg = "";
         $msg .= '<input type="hidden" name="id" value="' . $this->id . '" />';
         $msg .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '" />';
         $msg .= '<input type="hidden" name="CMD" value="send_mail_final" />';
-        $msg .= $this->getLanguageService()->getLL('schedule_mailgroup') . '<br />' . $select . '<br /><br />';
+        $msg .= $this->getLanguageService()->getLL('schedule_mailgroup') . '<br />' . $groupInput . '<br /><br />';
 
         // put content from hook
         $msg .= $hookContents;
@@ -1818,35 +1844,52 @@ class Dmail extends BaseScriptClass
         } else {
             $outLines = array();
             while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                $iconPreviewHtml = '<a href="#" onClick="' . BackendUtility::viewOnClick($row['uid'], $GLOBALS['BACK_PATH'], BackendUtility::BEgetRootLine($row['uid']), '', '', $this->implodedParams['HTMLParams']) . '" title="' . $this->getLanguageService()->getLL('nl_viewPage_HTML') . '">' .
-                    $this->iconFactory->getIcon('directmail-dmail-preview-html', Icon::SIZE_SMALL) .
-                    '</a>';
-                $iconPreviewText = '<a href="#" onClick="' . BackendUtility::viewOnClick($row['uid'], $GLOBALS['BACK_PATH'], BackendUtility::BEgetRootLine($row['uid']), '', '', $this->implodedParams['plainParams']) . '" title="' . $this->getLanguageService()->getLL('nl_viewPage_TXT') . '">' .
-                    $this->iconFactory->getIcon('directmail-dmail-preview-text', Icon::SIZE_SMALL) .
-                    '</a>';
-
-                switch ($this->params['sendOptions']) {
-                    case 1:
-                        $iconPreview = $iconPreviewText;
-                        break;
-                    case 2:
-                        $iconPreview = $iconPreviewHtml;
-                        break;
-                    case 3:
-                        // also as default
-                    default:
-                        $iconPreview = $iconPreviewHtml . '&nbsp;&nbsp;' . $iconPreviewText;
-                }
+                $languages = $this->getAvailablePageLanguages($row['uid']);
 
                 $createDmailLink = BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&createMailFrom_UID=' . $row['uid'] . '&fetchAtOnce=1&CMD=info';
                 $pageIcon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
 
-                $outLines[] = array(
-                    '<a href="' . $createDmailLink . '">' . $pageIcon . '</a>',
-                    '<a href="' . $createDmailLink . '" title="' . $this->getLanguageService()->getLL("nl_create") . '">' . $this->iconFactory->getIcon('directmail-dmail-new', Icon::SIZE_SMALL) . '</a>',
-                    '<a onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[pages][' . $row['uid'] . ']=edit', $this->doc->backPath)) . '" href="#">' . $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
-                    $iconPreview
-                    );
+                $previewHTMLLink = $previewTextLink = $createLink = '';
+                foreach ($languages as $languageUid => $lang) {
+                    $langParam = DirectMailUtility::getLanguageParam($languageUid, $this->params);
+                    $createLangParam = ($languageUid ? '&createMailFrom_LANG=' . $languageUid : '');
+                    $langIconOverlay = (count($languages) > 1 ? $lang['flagIcon'] : null);
+                    $langTitle = (count($languages) > 1 ? ' - ' . $lang['title'] : '');
+                    $plainParams = $this->implodedParams['plainParams'] . $langParam;
+
+                    $htmlParams = $this->implodedParams['HTMLParams'] . $langParam;
+                    $htmlIcon = $this->iconFactory->getIcon('direct_mail_preview_html', Icon::SIZE_SMALL, $langIconOverlay);
+                    $plainIcon = $this->iconFactory->getIcon('direct_mail_preview_plain', Icon::SIZE_SMALL, $langIconOverlay);
+                    $createIcon = $this->iconFactory->getIcon('direct_mail_newmail', Icon::SIZE_SMALL, $langIconOverlay);
+
+                    $previewHTMLLink .= '<a href="#" onClick="' . BackendUtility::viewOnClick($row['uid'],
+                            $GLOBALS['BACK_PATH'], BackendUtility::BEgetRootLine($row['uid']), '', '',
+                            $htmlParams) . '" title="' . htmlentities($GLOBALS['LANG']->getLL('nl_viewPage_HTML') . $langTitle) . '">' . $htmlIcon . '</a>';
+                    $previewTextLink .= '<a href="#" onClick="' . BackendUtility::viewOnClick($row['uid'],
+                            $GLOBALS['BACK_PATH'], BackendUtility::BEgetRootLine($row['uid']), '', '',
+                            $plainParams) . '" title="' . htmlentities($GLOBALS['LANG']->getLL('nl_viewPage_TXT') . $langTitle) . '">' . $plainIcon . '</a>';
+                    $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($GLOBALS['LANG']->getLL("nl_create") . $langTitle) . '">' . $createIcon . '</a>';
+                }
+
+                switch ($this->params['sendOptions']) {
+                    case 1:
+                        $previewLink = $previewTextLink;
+                        break;
+                    case 2:
+                        $previewLink = $previewHTMLLink;
+                        break;
+                    case 3:
+                        // also as default
+                    default:
+                        $previewLink = $previewHTMLLink . '&nbsp;&nbsp;' . $previewTextLink;
+                }
+
+                $outLines[] = [
+                    (count($languages) > 1 ? $pageIcon : '<a href="' . $createDmailLink . '">' . $pageIcon . '</a>'),
+                    $createLink,
+                    '<a onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[pages][' . $row['uid'] . ']=edit', $this->doc->backPath)) . '" href="#" title="' . $GLOBALS['LANG']->getLL("nl_editPage") . '">' . $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
+                    $previewLink
+                ];
             }
             $out = DirectMailUtility::formatTable($outLines, array(), 0, array(1, 1, 1, 1));
             $theOutput = $this->doc->section($this->getLanguageService()->getLL('dmail_dovsk_crFromNL') . BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH']), $out, 1, 1, 0, true);
@@ -1854,6 +1897,44 @@ class Dmail extends BaseScriptClass
         $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
         return $theOutput;
+    }
+
+    /**
+     * Get available languages for a page
+     *
+     * @param $pageUid
+     * @return array
+     */
+    protected function getAvailablePageLanguages($pageUid) {
+        static $languages;
+        $languageUids = [];
+        if ($languages === NULL) {
+            $languages = GeneralUtility::makeInstance(TranslationConfigurationProvider::class)->getSystemLanguages();
+        }
+        // loop trough all sys languages and check if there is matching page translation
+        foreach ($languages as $lang) {
+            // we skip -1
+            if ((int)$lang['uid'] < 0) {
+                continue;
+            }
+            // 0 is always present so only for > 0
+            if ((int)$lang['uid'] > 0) {
+                $langRow = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow(
+                    'uid',
+                    'pages_language_overlay',
+                    'pid=' . (int)$pageUid .
+                    ' AND sys_language_uid=' . (int)$lang['uid'] .
+                    BackendUtility::BEenableFields('pages_language_overlay') .
+                    BackendUtility::deleteClause('pages_language_overlay')
+                );
+                if (!is_array($langRow)) {
+                    continue;
+                }
+            }
+            $languageUids[(int)$lang['uid']] = $lang;
+        }
+
+        return $languageUids;
     }
 
     /**
@@ -1901,7 +1982,7 @@ class Dmail extends BaseScriptClass
 			<th style="text-align: right;">' . $content . '</th>
 		</thead>';
 
-        $nameArr = explode(',', 'from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,attachment,type,page,sendOptions,includeMedia,flowedFormat,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
+        $nameArr = explode(',', 'from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,attachment,type,page,sendOptions,includeMedia,flowedFormat,sys_language_uid,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
         foreach ($nameArr as $name) {
             $content .= '
 			<tr class="db_list_normal">

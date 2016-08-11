@@ -85,6 +85,7 @@ CREATE TABLE sys_dmail (
   long_link_mode tinyint(4) unsigned DEFAULT '0' NOT NULL,
   authcode_fieldList varchar(80) DEFAULT '' NOT NULL,
   recipientGroups varchar(80) DEFAULT '' NOT NULL,
+  sys_language_uid int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (uid)
 );
 
@@ -108,6 +109,7 @@ CREATE TABLE sys_dmail_group (
   recursive tinyint(4) DEFAULT '0' NOT NULL,
   mail_groups tinyblob NOT NULL,
   select_categories int(11) DEFAULT '0' NOT NULL,
+  sys_language_uid int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (uid),
   KEY parent (pid)
 );

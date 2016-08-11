@@ -944,9 +944,10 @@ class DirectMailUtility
      * @param int $pageUid The page ID
      * @param array $parameters The dmail Parameter
      *
-     * @return string Error or warning message produced during the process
+     * @param int $sysLanguageUid
+     * @return int|bool new record uid or FALSE if failed
      */
-    public static function createDirectMailRecordFromPage($pageUid, array $parameters)
+    public static function createDirectMailRecordFromPage($pageUid, array $parameters, $sysLanguageUid = 0)
     {
         $result = false;
 
@@ -965,8 +966,15 @@ class DirectMailUtility
             'organisation'            => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain'])
+            'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain']),
+            'sys_language_uid' => (int)$sysLanguageUid
         );
+
+        if ($newRecord['sys_language_uid'] > 0) {
+            $langParam = self::getLanguageParam($newRecord['sys_language_uid'], $parameters);
+            $parameters['plainParams'] .= $langParam;
+            $parameters['HTMLParams'] .= $langParam;
+        }
 
 
             // If params set, set default values:
@@ -981,6 +989,20 @@ class DirectMailUtility
         }
 
         $pageRecord = BackendUtility::getRecord('pages', $pageUid);
+        // Fetch page title from pages_language_overlay
+        if ($newRecord['sys_language_uid'] > 0) {
+            $pageRecordOverlay = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow(
+                'title',
+                'pages_language_overlay',
+                'pid=' . (int)$pageUid .
+                ' AND sys_language_uid=' . $newRecord['sys_language_uid'] .
+                BackendUtility::BEenableFields('pages_language_overlay') .
+                BackendUtility::deleteClause('pages_language_overlay')
+            );
+            if (is_array($pageRecordOverlay)) {
+                $pageRecord['title'] = $pageRecordOverlay['title'];
+            }
+        }
         if (GeneralUtility::inList($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'], $pageRecord['doktype'])) {
             $newRecord['subject'] = $pageRecord['title'];
             $newRecord['page']    = $pageRecord['uid'];
@@ -1005,6 +1027,26 @@ class DirectMailUtility
             $result = false;
         }
         return $result;
+    }
+
+    /**
+     * Get language param
+     *
+     * @param string $sysLanguageUid
+     * @param array $params direct_mail settings
+     * @return string
+     */
+    public static function getLanguageParam($sysLanguageUid, array $params)
+    {
+        if (isset($params['langParams.'][$sysLanguageUid])) {
+            $param = $params['langParams.'][$sysLanguageUid];
+
+            // fallback: L == sys_language_uid
+        } else {
+            $param = "&L=" . $sysLanguageUid;
+        }
+
+        return $param;
     }
 
 

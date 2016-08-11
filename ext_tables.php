@@ -159,3 +159,26 @@ if (is_array($GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'])) {
 if (TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
     include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY)."Configuration/TCA/Overrides/tt_address.php");
 }
+
+/** @var \TYPO3\CMS\Core\Imaging\IconRegistry $iconRegistry */
+$iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+    \TYPO3\CMS\Core\Imaging\IconRegistry::class
+);
+
+$iconRegistry->registerIcon(
+    'direct_mail_newmail',
+    \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
+    ['source' => 'EXT:' . $_EXTKEY . '/res/gfx/newmail.gif']
+);
+
+$iconRegistry->registerIcon(
+    'direct_mail_preview_html',
+    \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
+    ['source' => 'EXT:' . $_EXTKEY . '/res/gfx/preview_html.gif']
+);
+
+$iconRegistry->registerIcon(
+    'direct_mail_preview_plain',
+    \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
+    ['source' => 'EXT:' . $_EXTKEY . '/res/gfx/preview_txt.gif']
+);
