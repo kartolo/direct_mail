@@ -125,7 +125,6 @@ class JumpurlController
                                     $_POST['pass'] = $recipRow['password'];
                                     $_POST['pid']  = $recipRow['pid'];
                                     $_POST['logintype'] = 'login';
-                                    $GLOBALS['TSFE']->initFEuser();
                                 }
                             } else {
                                 throw new \Exception('authCode: Calculated authCode did not match the submitted authCode.', 1376899631);
