@@ -277,9 +277,11 @@ class tx_directmail_pi1 extends AbstractPlugin
     public function getImagesFromDam(array &$imagesArray)
     {
         $sql = 'SELECT tx_dam.* FROM tx_dam_mm_ref,tx_dam WHERE tx_dam_mm_ref.tablenames="tt_content" AND tx_dam_mm_ref.ident="tx_damttcontent_files" AND tx_dam_mm_ref.uid_foreign="' . $this->cObj->data['uid'] . '" AND tx_dam_mm_ref.uid_local=tx_dam.uid AND tx_dam.deleted=0 ORDER BY sorting_foreign';
-        $res = mysql_query($sql);
-        if (mysql_num_rows($res)>0) {
-            while (($row = mysql_fetch_assoc($res))) {
+        /* @var \TYPO3\CMS\Core\Database\DatabaseConnection $db */
+        $db = $GLOBALS['TYPO3_DB'];
+        $res = $db->sql_query($sql);
+        if ($db->sql_num_rows($res) > 0) {
+            while ($row = $db->sql_fetch_assoc($res)) {
                 $imagesArray[] = $this->siteUrl . $row['file_path'] . $row['file_name'];
             }
         }
