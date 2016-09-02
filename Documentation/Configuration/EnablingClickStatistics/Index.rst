@@ -41,7 +41,7 @@ Example:
 
 ::
 
-   <img src="typo3conf/ext/direct_mail/res/gfx/dmailerping.gif" width="1" height="1" dmailerping="1" />
+   <img src="typo3conf/ext/direct_mail/Resources/Public/Icons/dmailerping.gif" width="1" height="1" dmailerping="1" />
 
 Note that the result of the jumpurl setting on the above HTML line is
 that the src attribute will be replaced by one that refers to the
