@@ -42,8 +42,12 @@ if (php_sapi_name() !== 'cli') {
     die('Not called from a command line interface (e.g. a shell or scheduler).' . LF);
 }
 
-# Using TYPO3 7.x core bootstrap
+
 use TYPO3\CMS\Core\Core\Bootstrap;
+#use TYPO3\CMS\Core\SingletonInterface;
+#use TYPO3\CMS\Core\TimeTracker\NullTimeTracker;
+#use TYPO3\CMS\Core\Utility\GeneralUtility;
+#use TYPO3\CMS\Backend\Utility\BackendUtility;
 
 require_once __DIR__ . '/../../../../../typo3/sysext/core/Classes/Core/ApplicationContext.php';
 require_once __DIR__ . '/../../../../../typo3/sysext/core/Classes/Core/Bootstrap.php';
@@ -70,6 +74,17 @@ $bootstrapObj->setFinalCachingFrameworkCacheConfiguration();
 $bootstrapObj->defineLoggingAndExceptionConstants();
 $bootstrapObj->unsetReservedGlobalVariables();
 $bootstrapObj->initializeTypo3DbGlobal();
+#### TYPO3 7.6 NEW ###
+
+#### OLD DOES NOT WORK ###
+#require __DIR__ . '/../../../../../typo3/sysext/core/Classes/Core/Bootstrap.php';
+#\TYPO3\CMS\Core\Core\Bootstrap::getInstance()
+#	->baseSetup('typo3conf/ext/direct_mail/res/scripts/')
+#	->loadConfigurationAndInitialize()
+#	->loadTypo3LoadedExtAndExtLocalconf(TRUE)
+#	->applyAdditionalConfigurationSettings()
+#	->initializeTypo3DbGlobal();
+#### OLD DOES NOT WORK ###
 
 
 // MAIL CONTENT
