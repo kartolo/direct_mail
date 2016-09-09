@@ -14,10 +14,10 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  * The TYPO3 project - inspiring people to share!
  */
 
-use \TYPO3\CMS\Backend\Utility\BackendUtility;
-use \TYPO3\CMS\Core\Utility\GeneralUtility;
-use \TYPO3\CMS\Scheduler\Task\AbstractTask;
-use \DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\DirectMailUtility;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
 /**
  * Class tx_directmail_Scheduler_MailFromDraft
@@ -71,6 +71,11 @@ class MailFromDraft extends AbstractTask
             // set the right type (3 => 1, 2 => 0)
             $draftRecord['type'] -= 2;
 
+                // check if domain record is set
+            if ((TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI) && (int)$draftRecord['type'] !== 1 && empty($draftRecord['use_domain'])) {
+                throw new \Exception('No domain record set!');
+            }
+
                 // Insert the new dmail record into the DB
             $GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail', $draftRecord);
             $this->dmailUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
@@ -85,7 +90,12 @@ class MailFromDraft extends AbstractTask
                 // fetch the cloned record
             $mailRecord = BackendUtility::getRecord('sys_dmail', $this->dmailUid);
 
-            DirectMailUtility::fetchUrlContentsForDirectMailRecord($mailRecord, $defaultParams);
+                // fetch mail content
+            $result = DirectMailUtility::fetchUrlContentsForDirectMailRecord($mailRecord, $defaultParams, TRUE);
+
+            if ($result['errors'] !== array()) {
+                throw new \Exception('Failed to fetch contents: ' . implode(', ', $result['errors']));
+            }
 
             $mailRecord = BackendUtility::getRecord('sys_dmail', $this->dmailUid);
             if ($mailRecord['mailContent'] && $mailRecord['renderedsize'] > 0) {

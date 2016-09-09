@@ -15,11 +15,11 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
@@ -1097,10 +1097,11 @@ class DirectMailUtility
      *
      * @param array $row Directmail DB record
      * @param array $params Any default parameters (usually the ones from pageTSconfig)
+     * @param bool $returnArray Return error or warning message as array instead of string
      *
      * @return string Error or warning message during fetching the content
      */
-    public static function fetchUrlContentsForDirectMailRecord(array $row, array $params)
+    public static function fetchUrlContentsForDirectMailRecord(array $row, array $params, $returnArray = false)
     {
         $theOutput = '';
         $errorMsg = array();
@@ -1207,8 +1208,11 @@ class DirectMailUtility
             );
             $theOutput .= $flashMessage->render();
         }
-
-        return $theOutput;
+        if ($returnArray) {
+            return array('errors' => $errorMsg, 'warnings' => $warningMsg);
+        } else {
+            return $theOutput;
+        }
     }
 
 
