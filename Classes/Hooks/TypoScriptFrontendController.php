@@ -42,7 +42,7 @@ class TypoScriptFrontendController
         $accessToken = GeneralUtility::_GET('access_token');
         if ($directMailFeGroup > 0 && DirectMailUtility::validateAndRemoveAccessToken($accessToken)) {
             if ($typoScriptFrontendController->fe_user->user) {
-                $typoScriptFrontendController->fe_user->user[$this->$typoScriptFrontendController->usergroup_column] = $directMailFeGroup;
+                $typoScriptFrontendController->fe_user->user[$typoScriptFrontendController->usergroup_column] = $directMailFeGroup;
             } else {
                 $typoScriptFrontendController->fe_user->user = array(
                     $typoScriptFrontendController->fe_user->usergroup_column => $directMailFeGroup
