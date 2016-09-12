@@ -10,18 +10,18 @@ $iconProviderClassName = \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider
 
 $iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconRegistry::class);
 $icons = array(
-    'directmail-attachment' => array('source' => 'EXT:direct_mail/res/gfx/attach.gif'),
-    'directmail-dmail' => array('source' => 'EXT:direct_mail/res/gfx/dmail.gif'),
-    'directmail-dmail-list' => array('source' => 'EXT:direct_mail/res/gfx/dmail_list.gif'),
-    'directmail-folder' => array('source' => 'EXT:direct_mail/res/gfx/ext_icon_dmail_folder.gif'),
-    'directmail-category' => array('source' => 'EXT:direct_mail/res/gfx/icon_tx_directmail_category.gif'),
-    'directmail-mail' => array('source' => 'EXT:direct_mail/res/gfx/mail.gif'),
-    'directmail-mailgroup' => array('source' => 'EXT:direct_mail/res/gfx/mailgroup.gif'),
-    'directmail-page-modules-dmail' => array('source' => 'EXT:direct_mail/res/gfx/modules_dmail.gif'),
-    'directmail-page-modules-dmail-inactive' => array('source' => 'EXT:direct_mail/res/gfx/modules_dmail__h.gif'),
-    'directmail-dmail-new' => array('source' => 'EXT:direct_mail/res/gfx/newmail.gif'),
-    'directmail-dmail-preview-html' => array('source' => 'EXT:direct_mail/res/gfx/preview_html.gif'),
-    'directmail-dmail-preview-text' => array('source' => 'EXT:direct_mail/res/gfx/preview_txt.gif'),
+    'directmail-attachment' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/attach.gif'),
+    'directmail-dmail' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/dmail.gif'),
+    'directmail-dmail-list' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/dmail_list.gif'),
+    'directmail-folder' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/ext_icon_dmail_folder.gif'),
+    'directmail-category' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/icon_tx_directmail_category.gif'),
+    'directmail-mail' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/mail.gif'),
+    'directmail-mailgroup' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/mailgroup.gif'),
+    'directmail-page-modules-dmail' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/modules_dmail.gif'),
+    'directmail-page-modules-dmail-inactive' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/modules_dmail__h.gif'),
+    'directmail-dmail-new' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/newmail.gif'),
+    'directmail-dmail-preview-html' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/preview_html.gif'),
+    'directmail-dmail-preview-text' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/preview_txt.gif'),
 );
 
 
