@@ -168,17 +168,17 @@ $iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
 $iconRegistry->registerIcon(
     'direct_mail_newmail',
     \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
-    ['source' => 'EXT:' . $_EXTKEY . '/res/gfx/newmail.gif']
+    ['source' => 'EXT:' . $_EXTKEY . '/Resources/Public/Icons/newmail.gif']
 );
 
 $iconRegistry->registerIcon(
     'direct_mail_preview_html',
     \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
-    ['source' => 'EXT:' . $_EXTKEY . '/res/gfx/preview_html.gif']
+    ['source' => 'EXT:' . $_EXTKEY . '/Resources/Public/Icons/preview_html.gif']
 );
 
 $iconRegistry->registerIcon(
     'direct_mail_preview_plain',
     \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
-    ['source' => 'EXT:' . $_EXTKEY . '/res/gfx/preview_txt.gif']
+    ['source' => 'EXT:' . $_EXTKEY . '/Resources/Public/Icons/preview_txt.gif']
 );
