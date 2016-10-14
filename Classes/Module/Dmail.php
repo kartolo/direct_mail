@@ -902,7 +902,7 @@ class Dmail extends BaseScriptClass
         if (count($opt) === 0) {
             /** @var $flashMessage FlashMessage */
             $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                'No recipient groups found',
+                $this->getLanguageService()->getLL('error.no_recipient_groups_found'),
                 '',
                 FlashMessage::ERROR //severity
             );
