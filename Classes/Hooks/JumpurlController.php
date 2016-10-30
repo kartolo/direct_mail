@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Hooks;
 
 /*
@@ -18,20 +19,15 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
- * JumpUrl processing hook on TYPO3\CMS\Frontend\Http\RequestHandler
+ * JumpUrl processing hook on TYPO3\CMS\Frontend\Http\RequestHandler.
  *
  * @author		Ivan Kartolo <ivan.kartolo@gmail.com>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class JumpurlController
 {
-
     /**
-     * Get the url to jump to as set by Direct Mail
+     * Get the url to jump to as set by Direct Mail.
      *
-     * @return	void
      * @throws \Exception
      */
     public function preprocessRequest($parameter, $parentObject)
@@ -42,7 +38,7 @@ class JumpurlController
 
         $mid = $jumpUrlVariables['mid'];
         $rid = $jumpUrlVariables['rid'];
-        $aC  = $jumpUrlVariables['aC'];
+        $aC = $jumpUrlVariables['aC'];
 
         $responseType = 0;
         if ($mid) {
@@ -65,7 +61,7 @@ class JumpurlController
                 $resMailing = $db->exec_SELECTquery(
                     'mailContent, page, authcode_fieldList',
                     'sys_dmail',
-                    'uid = ' . intval($mid)
+                    'uid = '.intval($mid)
                 );
 
                 if (($row = $db->sql_fetch_assoc($resMailing))) {
@@ -107,7 +103,7 @@ class JumpurlController
 
                                 reset($rowFieldsArray);
                                 foreach ($rowFieldsArray as $substField) {
-                                    $jumpurl = str_replace('###USER_' . $substField . '###', $recipRow[$substField], $jumpurl);
+                                    $jumpurl = str_replace('###USER_'.$substField.'###', $recipRow[$substField], $jumpurl);
                                 }
                                 // Put in the tablename of the userinformation
                                 $jumpurl = str_replace('###SYS_TABLE_NAME###', substr($theTable, 0, 1), $jumpurl);
@@ -123,7 +119,7 @@ class JumpurlController
                                 if ($theTable == 'fe_users' && $aC != '' && $aC == $authCode && GeneralUtility::inList($row['authcode_fieldList'], 'password')) {
                                     $_POST['user'] = $recipRow['username'];
                                     $_POST['pass'] = $recipRow['password'];
-                                    $_POST['pid']  = $recipRow['pid'];
+                                    $_POST['pid'] = $recipRow['pid'];
                                     $_POST['logintype'] = 'login';
                                 }
                             } else {
@@ -148,7 +144,7 @@ class JumpurlController
                     // Check if jumpurl is a valid link to a "dmailerping.gif"
                     // Make $checkPath an absolute path pointing to dmailerping.gif so it can get checked via ::isAllowedAbsPath()
                     // and remove an eventual "/" at beginning of $jumpurl (because PATH_site already contains "/" at the end)
-                $checkPath = PATH_site . preg_replace('#^/#', '', $jumpurl);
+                $checkPath = PATH_site.preg_replace('#^/#', '', $jumpurl);
 
                     // Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
                 if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && GeneralUtility::isAllowedAbsPath($checkPath)) {
@@ -168,13 +164,13 @@ class JumpurlController
             if ($responseType != 0) {
                 $insertFields = array(
                     // the message ID
-                    'mid'           => intval($mid),
-                    'tstamp'        => time(),
-                    'url'           => $jumpurl,
+                    'mid' => intval($mid),
+                    'tstamp' => time(),
+                    'url' => $jumpurl,
                     'response_type' => intval($responseType),
-                    'url_id'        => intval($urlId),
-                    'rtbl'            => $recipientTable,
-                    'rid'            => $recipientUid
+                    'url_id' => intval($urlId),
+                    'rtbl' => $recipientTable,
+                    'rid' => $recipientUid,
                 );
 
                 $db->exec_INSERTquery('sys_dmail_maillog', $insertFields);
@@ -188,20 +184,21 @@ class JumpurlController
     }
 
     /**
-     * Returns record no matter what - except if record is deleted
+     * Returns record no matter what - except if record is deleted.
      *
-     * @param string $table The table name to search
-     * @param int $uid The uid to look up in $table
+     * @param string $table  The table name to search
+     * @param int    $uid    The uid to look up in $table
      * @param string $fields The fields to select, default is "*"
      *
      * @return mixed Returns array (the record) if found, otherwise blank/0 (zero)
+     *
      * @see getPage_noCheck()
      */
     public function getRawRecord($table, $uid, $fields = '*')
     {
-        $uid = (int)$uid;
+        $uid = (int) $uid;
         if ($uid > 0) {
-            $res = $this->getDatabaseConnection()->exec_SELECTquery($fields, $table, 'uid = ' . $uid . ' AND deleted = 0');
+            $res = $this->getDatabaseConnection()->exec_SELECTquery($fields, $table, 'uid = '.$uid.' AND deleted = 0');
             $row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
             $this->getDatabaseConnection()->sql_free_result($res);
             if ($row) {
@@ -210,11 +207,12 @@ class JumpurlController
                 }
             }
         }
+
         return 0;
     }
 
     /**
-     * Get the DB global object
+     * Get the DB global object.
      *
      * @return \TYPO3\CMS\Core\Database\DatabaseConnection
      */

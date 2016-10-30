@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
@@ -23,7 +24,7 @@ $ttContentCols = array(
             'maxitems' => 60,
             'renderMode' => 'checkbox',
             'MM' => 'sys_dmail_ttcontent_category_mm',
-        )
+        ),
     ),
 );
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_content', $ttContentCols);

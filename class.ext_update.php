@@ -29,19 +29,16 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 /**
- * Class for updating Direct Mail to version 3
+ * Class for updating Direct Mail to version 3.
  *
  * @author		Ivan Kartolo <ivan at kartolo dot de>
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class ext_update
 {
-
     /**
-     * Main function, returning the HTML content of the module
+     * Main function, returning the HTML content of the module.
      *
-     * @return	string		HTML
+     * @return string HTML
      */
     public function main()
     {
@@ -49,10 +46,10 @@ class ext_update
 
         $content = $this->displayWarning();
         if (!GeneralUtility::_GP('do_update')) {
-            $onClick = "document.location='" . GeneralUtility::linkThisScript(array('do_update' => 1)) . "'; return false;";
-            $content .= htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_now')) . '
+            $onClick = "document.location='".GeneralUtility::linkThisScript(array('do_update' => 1))."'; return false;";
+            $content .= htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_now')).'
 				<br /><br />
-				<form action=""><input type="submit" value="' . htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_do_it_now')) . '" onclick="' . htmlspecialchars($onClick) . '"></form>
+				<form action=""><input type="submit" value="' .htmlspecialchars($GLOBALS['LANG']->getLL('update_convert_do_it_now')).'" onclick="'.htmlspecialchars($onClick).'"></form>
 			';
         } else {
             $updated = $this->convertTable();
@@ -63,8 +60,9 @@ class ext_update
     }
 
     /**
-     * Convert the mailcontent data to base64 coded
-     * @return	int	$i: the counter
+     * Convert the mailcontent data to base64 coded.
+     *
+     * @return int $i: the counter
      */
     public function convertTable()
     {
@@ -80,28 +78,28 @@ class ext_update
             $mailContent = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
                 'mailContent',
                 'sys_dmail',
-                'uid = ' . $row['uid']
+                'uid = '.$row['uid']
             );
 
             if (is_array(unserialize($mailContent[0]['mailContent']))) {
                 // update the table
                 $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
                     'sys_dmail',
-                    'uid = ' . $row['uid'],
+                    'uid = '.$row['uid'],
                     array('mailContent' => base64_encode($mailContent[0]['mailContent']))
                 );
 
                 // add the counter
-                $i++;
+                ++$i;
             }
         }
 
         return $i;
     }
     /**
-     * Checks how many rows are found and returns true if there are any
+     * Checks how many rows are found and returns true if there are any.
      *
-     * @return	bool		true if user have access, otherwise false
+     * @return bool true if user have access, otherwise false
      */
     public function access()
     {
@@ -115,6 +113,7 @@ class ext_update
 
     /**
      * Enter description here ...
+     *
      * @return string
      */
     public function displayWarning()
@@ -122,9 +121,9 @@ class ext_update
         $out = '
 			<div style="padding:15px 15px 20px 0;">
 				<div class="typo3-message message-warning">
-						<div class="message-header">' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:update_warningHeader') . '</div>
+						<div class="message-header">' .$GLOBALS['LANG']->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:update_warningHeader').'</div>
 						<div class="message-body">
-						' . $GLOBALS['LANG']->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:update_warningMsg') . '
+						' .$GLOBALS['LANG']->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:update_warningMsg').'
 					</div>
 				</div>
 			</div>';

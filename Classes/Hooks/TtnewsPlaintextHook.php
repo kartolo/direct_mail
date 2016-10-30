@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Hooks;
 
 /*
@@ -17,16 +18,13 @@ namespace DirectMailTeam\DirectMail\Hooks;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
-require_once(ExtensionManagementUtility::extPath('direct_mail').'pi1/class.tx_directmail_pi1.php');
+require_once ExtensionManagementUtility::extPath('direct_mail').'pi1/class.tx_directmail_pi1.php';
 
 /**
  * Generating plain text content of tt_news records for Direct Mails
- * Implements hook $TYPO3_CONF_VARS['EXTCONF']['tt_news']['extraCodesHook']
+ * Implements hook $TYPO3_CONF_VARS['EXTCONF']['tt_news']['extraCodesHook'].
  *
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class TtnewsPlaintextHook
 {
@@ -36,7 +34,8 @@ class TtnewsPlaintextHook
     public $cObj;
 
     /**
-     * ts array
+     * ts array.
+     *
      * @var array
      */
     public $conf = array();
@@ -76,8 +75,9 @@ class TtnewsPlaintextHook
      * A content object that renders "tt_content" records. See the comment to this class for TypoScript example of how to trigger it.
      * This detects the CType of the current content element and renders it accordingly. Only wellknown types are rendered.
      *
-     * @param	\TYPO3\CMS\Frontend\Plugin\AbstractPlugin	$invokingObj the tt_news object
-     * @return	string			Plain text content
+     * @param \TYPO3\CMS\Frontend\Plugin\AbstractPlugin $invokingObj the tt_news object
+     *
+     * @return string Plain text content
      */
     public function extraCodesProcessor(&$invokingObj)
     {
@@ -98,8 +98,8 @@ class TtnewsPlaintextHook
             $this->renderPlainText->labelsList = 'tt_news_author_prefix,tt_news_author_date_prefix,tt_news_author_email_prefix,tt_news_short_header,tt_news_bodytext_header';
 
             $lines = array();
-            $singleWhere = 'tt_news.uid=' . intval($this->tt_news_uid);
-            $singleWhere .= ' AND type=0' . $this->enableFields; // type=0->only real news.
+            $singleWhere = 'tt_news.uid='.intval($this->tt_news_uid);
+            $singleWhere .= ' AND type=0'.$this->enableFields; // type=0->only real news.
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                 '*',
                 'tt_news',
@@ -109,7 +109,7 @@ class TtnewsPlaintextHook
             $GLOBALS['TYPO3_DB']->sql_free_result($res);
                 // get the translated record if the content language is not the default language
             if ($GLOBALS['TSFE']->sys_language_content) {
-                $OLmode = ($this->sys_language_mode == 'strict'?'hideNonTranslated':'');
+                $OLmode = ($this->sys_language_mode == 'strict' ? 'hideNonTranslated' : '');
                 $row = $GLOBALS['TSFE']->sys_page->getRecordOverlay('tt_news', $row, $GLOBALS['TSFE']->sys_language_content, $OLmode);
             }
             if (is_array($row)) {
@@ -151,26 +151,29 @@ class TtnewsPlaintextHook
     }
 
     /**
-     * Get images found in the "image" field of "tt_news"
+     * Get images found in the "image" field of "tt_news".
      *
-     * @param	array	$row: tt_news record
-     * @return	string	Content
+     * @param array $row: tt_news record
+     *
+     * @return string Content
      */
     public function getImages($row)
     {
         $images_arr = explode(',', $row['image']);
         $images = $this->renderPlainText->renderImages($images_arr, '', $row['imagecaption']);
+
         return $images;
     }
 
     /**
-     * Renders the author and date columns of the tt_news record
+     * Renders the author and date columns of the tt_news record.
      *
-     * @param	string	$row: The tt_news record
-     * @param	int		$type:
-     * @return	string	Content
+     * @param string $row:  The tt_news record
+     * @param int    $type:
+     *
+     * @return string Content
      */
-    public function renderAuthor($row, $type=0)
+    public function renderAuthor($row, $type = 0)
     {
         if ($row['author']) {
             $hConf = $this->renderPlainText->conf['tt_news_author.'];
@@ -189,14 +192,14 @@ class TtnewsPlaintextHook
 
                 $blanks = DirectMailUtility::intInRangeWrapper($tConf['preBlanks'], 0, 1000);
                 if ($blanks) {
-                    $lines[] = str_pad('', $blanks-1, LF);
+                    $lines[] = str_pad('', $blanks - 1, LF);
                 }
 
                 $lines = $this->renderPlainText->pad($lines, $tConf['preLineChar'], $tConf['preLineLen']);
 
                 $blanks = DirectMailUtility::intInRangeWrapper($tConf['preLineBlanks'], 0, 1000);
                 if ($blanks) {
-                    $lines[] = str_pad('', $blanks-1, LF);
+                    $lines[] = str_pad('', $blanks - 1, LF);
                 }
 
                 if ($row['datetime']) {
@@ -207,22 +210,24 @@ class TtnewsPlaintextHook
                         $this->cObj->stdWrap($row['datetime'], $lConf['time_stdWrap.']);
                 }
 
-                $lines[]=$this->cObj->stdWrap($str, $tConf['stdWrap.']);
+                $lines[] = $this->cObj->stdWrap($str, $tConf['stdWrap.']);
 
                 $blanks = DirectMailUtility::intInRangeWrapper($tConf['postLineBlanks'], 0, 1000);
                 if ($blanks) {
-                    $lines[]=str_pad('', $blanks-1, LF);
+                    $lines[] = str_pad('', $blanks - 1, LF);
                 }
 
                 $lines = $this->renderPlainText->pad($lines, $tConf['postLineChar'], $tConf['postLineLen']);
 
                 $blanks = DirectMailUtility::intInRangeWrapper($tConf['postBlanks'], 0, 1000);
                 if ($blanks) {
-                    $lines[]=str_pad('', $blanks-1, LF);
+                    $lines[] = str_pad('', $blanks - 1, LF);
                 }
+
                 return implode(LF, $lines);
             }
         }
-        return "";
+
+        return '';
     }
 }

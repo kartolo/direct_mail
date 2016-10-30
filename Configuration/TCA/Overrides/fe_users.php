@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
@@ -9,8 +10,8 @@ $feUsersCols = array(
         'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:module_sys_dmail_group.newsletter',
         'exclude' => '1',
         'config' => array(
-            'type' => 'check'
-        )
+            'type' => 'check',
+        ),
     ),
     'module_sys_dmail_category' => array(
         'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:module_sys_dmail_group.category',
@@ -29,15 +30,15 @@ $feUsersCols = array(
             'maxitems' => 60,
             'renderMode' => 'checkbox',
             'MM' => 'sys_dmail_feuser_category_mm',
-        )
+        ),
     ),
     'module_sys_dmail_html' => array(
         'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:module_sys_dmail_group.htmlemail',
         'exclude' => '1',
         'config' => array(
-            'type' => 'check'
-        )
-    )
+            'type' => 'check',
+        ),
+    ),
 );
 
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('fe_users', $feUsersCols);

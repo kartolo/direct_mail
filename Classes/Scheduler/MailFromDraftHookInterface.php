@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Scheduler;
 
 /*
@@ -15,28 +16,22 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  */
 
 /**
- * Interface for classes which hook into tx_directmail_Scheduler_MailFromDraft
+ * Interface for classes which hook into tx_directmail_Scheduler_MailFromDraft.
  *
  * The mentioned class is responsible for automatically sending direct mail
  * newsletters via a scheduler task.
  *
  * @author		Bernhard Kraft <kraft@webconsulting.at>
- *
- * @package		TYPO3
- * @subpackage		tx_directmail
  */
 interface MailFromDraftHookInterface
 {
-
     /**
      * Gets called before a copy of the direct mail draft record gets inserted into the database.
      *
      * The draft record is passed via reference by the key 'draftRecord' in the $hookParams argument.
      *
-     * @param	array $hookParams Parameters to the hook. All passed by reference
-     * @param	object $parentObject A reference to the calling object instance
-     *
-     * @return	void
+     * @param array  $hookParams   Parameters to the hook. All passed by reference
+     * @param object $parentObject A reference to the calling object instance
      */
     public function postInsertClone(array $hookParams, &$parentObject);
 
@@ -46,10 +41,8 @@ interface MailFromDraftHookInterface
      * The values 'scheduled' and 'issent' in the hook parameter key 'updateData' are
      * responsible for marking the direct mail as "to be sent".
      *
-     * @param	array		$hookParams Parameters to the hook. All passed by reference
-     * @param	object		$parentObject A reference to the calling object instance
-     *
-     * @return	void
+     * @param array  $hookParams   Parameters to the hook. All passed by reference
+     * @param object $parentObject A reference to the calling object instance
      */
     public function enqueueClonedDmail(array $hookParams, &$parentObject);
 }

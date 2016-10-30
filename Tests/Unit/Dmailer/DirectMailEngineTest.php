@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Tests\Unit\Mailer;
 
 /*
@@ -15,16 +16,12 @@ namespace DirectMailTeam\DirectMail\Tests\Unit\Mailer;
  */
 
 /**
- * Testcase for class "DirectMailTeam\DirectMail\Dmailer"
+ * Testcase for class "DirectMailTeam\DirectMail\Dmailer".
  *
  * @author Bernhard Kraft <kraft@webconsulting.at>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
 {
-
     /**
      * @test
      * @dataProvider extractHyperLinksDataProvider
@@ -50,7 +47,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
     }
 
     /**
-     * Data provider for test_extractHyperLinks
+     * Data provider for test_extractHyperLinks.
      *
      * @return array
      */
@@ -71,7 +68,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                         'tag' => 'a',
                         'no_jumpurl' => 0,
                     ),
-                )
+                ),
             ),
             'absolute url (fails currently, #54459)' => array('
 				This is a <a title="Browse to http://google.com for more information" href="http://google.com">simple</a> test',
@@ -85,7 +82,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                         'tag' => 'a',
                         'no_jumpurl' => 0,
                     ),
-                )
+                ),
             ),
             'relative link #1' => array('
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
@@ -99,7 +96,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                         'tag' => 'a',
                         'no_jumpurl' => 0,
                     ),
-                )
+                ),
             ),
             'relative link #2' => array('
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
@@ -113,7 +110,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                         'tag' => 'a',
                         'no_jumpurl' => 0,
                     ),
-                )
+                ),
             ),
             'relative link #3' => array('
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
@@ -127,7 +124,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                         'tag' => 'a',
                         'no_jumpurl' => 0,
                     ),
-                )
+                ),
             ),
             'relative link #4' => array('
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
@@ -141,7 +138,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                         'tag' => 'a',
                         'no_jumpurl' => 0,
                     ),
-                )
+                ),
             ),
             'absolute link #1' => array('
 				This is a <a name="link" href="/fileadmin/simple.pdf">simple</a> test',
@@ -155,7 +152,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                         'tag' => 'a',
                         'no_jumpurl' => 0,
                     ),
-                )
+                ),
             ),
             'absolute link #2' => array('
 				This is a <a name="link" href="/fileadmin/simple.pdf">simple</a> test',
@@ -169,7 +166,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                         'tag' => 'a',
                         'no_jumpurl' => 0,
                     ),
-                )
+                ),
             ),
             'absolute link #3 (no_jumpurl)' => array('
 				This is a <a name="link" href="image.png" no_jumpurl="1">simple</a> test',
@@ -183,7 +180,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                         'tag' => 'a',
                         'no_jumpurl' => 1,
                     ),
-                )
+                ),
             ),
             'form action #1' => array('
 				Hello.<br />
@@ -202,7 +199,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                         'tag' => 'form',
                         'no_jumpurl' => 1,
                     ),
-                )
+                ),
             ),
         );
     }

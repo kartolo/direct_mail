@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
@@ -22,15 +23,15 @@ $ttAddressCols = array(
             'maxitems' => 60,
             'renderMode' => 'checkbox',
             'MM' => 'sys_dmail_ttaddress_category_mm',
-        )
+        ),
     ),
     'module_sys_dmail_html' => array(
         'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:module_sys_dmail_group.htmlemail',
         'exclude' => '1',
         'config' => array(
-            'type' => 'check'
-        )
-    )
+            'type' => 'check',
+        ),
+    ),
 );
 
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_address', $ttAddressCols);

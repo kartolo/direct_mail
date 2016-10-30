@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -18,17 +19,13 @@ use TYPO3\CMS\Core\Utility\MailUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
- * Container class for auxilliary functions of tx_directmail
+ * Container class for auxilliary functions of tx_directmail.
  *
  * @author		Kasper Sk�rh�j <kasperYYYY>@typo3.com>
  * @author		Thorsten Kahler <thorsten.kahler@dkd.de>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class Container
 {
-
     public $boundaryStartWrap = '<!--DMAILER_SECTION_BOUNDARY_ | -->';
     public $boundaryEnd = '<!--DMAILER_SECTION_BOUNDARY_END-->';
 
@@ -42,10 +39,10 @@ class Container
      * The comments contain the uids of assigned direct mail categories.
      * It is called as "USER_FUNC" from TS.
      *
-     * @param    string $content Incoming HTML code which will be wrapped
-     * @param    array|null $conf Pointer to the conf array (TS)
+     * @param string     $content Incoming HTML code which will be wrapped
+     * @param array|null $conf    Pointer to the conf array (TS)
      *
-     * @return    string        content of the email with dmail boundaries
+     * @return string content of the email with dmail boundaries
      */
     public function insert_dMailer_boundaries($content, $conf = array())
     {
@@ -71,7 +68,7 @@ class Container
                     $localTableUidList = intval($this->cObj->data['uid']);
                     $mmTable = 'sys_dmail_ttcontent_category_mm';
                     $whereClause = '';
-                    $orderBy = $foreignTable . '.uid';
+                    $orderBy = $foreignTable.'.uid';
                     $res = $this->cObj->exec_mm_query_uidList(
                         $select,
                         $localTableUidList,
@@ -83,21 +80,22 @@ class Container
 
                     if ($GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
                         while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                            $categoryList .= $row['uid'] . ',';
+                            $categoryList .= $row['uid'].',';
                         }
                         $GLOBALS['TYPO3_DB']->sql_free_result($res);
-                        $categoryList = rtrim($categoryList, ",");
+                        $categoryList = rtrim($categoryList, ',');
                     }
                 }
                 // wrap boundaries around content
-                $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . $content . $this->boundaryEnd;
+                $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap).$content.$this->boundaryEnd;
             }
         }
+
         return $content;
     }
 
     /**
-     * Remove boundaries from TYPO3 content
+     * Remove boundaries from TYPO3 content.
      *
      * @param string $content the content with boundaries in comment
      *
@@ -107,23 +105,25 @@ class Container
     {
         // only dummy code at the moment
         $searchString = $this->cObj->wrap('[\d,]*', $this->boundaryStartWrap);
-        $content = preg_replace('/' . $searchString . '/', '', $content);
-        $content = preg_replace('/' . $this->boundaryEnd . '/', '', $content);
+        $content = preg_replace('/'.$searchString.'/', '', $content);
+        $content = preg_replace('/'.$this->boundaryEnd.'/', '', $content);
+
         return $content;
     }
 
     /**
-     * Breaking lines into fixed length lines, using GeneralUtility::breakLinesForEmail()
+     * Breaking lines into fixed length lines, using GeneralUtility::breakLinesForEmail().
      *
      * @param string $content The string to break
-     * @param array $conf Configuration options: linebreak, charWidth; stdWrap enabled
+     * @param array  $conf    Configuration options: linebreak, charWidth; stdWrap enabled
      *
      * @return string Processed string
+     *
      * @see GeneralUtility::breakLinesForEmail()
      */
     public function breakLines($content, array $conf)
     {
-        $linebreak = $GLOBALS['TSFE']->cObj->stdWrap(($conf['linebreak'] ? $conf['linebreak'] : chr(32) . LF), $conf['linebreak.']);
+        $linebreak = $GLOBALS['TSFE']->cObj->stdWrap(($conf['linebreak'] ? $conf['linebreak'] : chr(32).LF), $conf['linebreak.']);
         $charWidth = $GLOBALS['TSFE']->cObj->stdWrap(($conf['charWidth'] ? intval($conf['charWidth']) : 76), $conf['charWidth.']);
 
         return MailUtility::breakLinesForEmail($content, $linebreak, $charWidth);
@@ -133,7 +133,7 @@ class Container
      * Inserting boundaries for each sitemap point.
      *
      * @param string $content The content string
-     * @param array $conf The TS conf
+     * @param array  $conf    The TS conf
      *
      * @return string $content: the string wrapped with boundaries
      */
@@ -142,13 +142,13 @@ class Container
         $uid = $this->cObj->data['uid'];
         $content = '';
 
-        $categories = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_dmail_ttcontent_category_mm', 'uid_local=' . (int)$uid, '', 'sorting');
+        $categories = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_dmail_ttcontent_category_mm', 'uid_local='.(int) $uid, '', 'sorting');
         if (count($categories) > 0) {
             $categoryList = array();
             foreach ($categories as $category) {
                 $categoryList[] = $category['uid_foreign'];
             }
-            $content = '<!--DMAILER_SECTION_BOUNDARY_' . implode(',', $categoryList) . '-->|<!--DMAILER_SECTION_BOUNDARY_END-->';
+            $content = '<!--DMAILER_SECTION_BOUNDARY_'.implode(',', $categoryList).'-->|<!--DMAILER_SECTION_BOUNDARY_END-->';
         }
 
         return $content;
