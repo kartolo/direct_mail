@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -20,42 +21,38 @@ use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 
 /**
- * Recipient list module for tx_directmail extension
+ * Recipient list module for tx_directmail extension.
  *
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
- *
- * @package 	TYPO3
- * @subpackage	tx_directmail
  */
 class Importer
 {
     /**
-     * The GET-Data
+     * The GET-Data.
+     *
      * @var array
      */
     public $indata = array();
     public $params = array();
 
     /**
-     * Parent object
+     * Parent object.
      *
      * @var \DirectMailTeam\DirectMail\Module\RecipientList
      */
     public $parent;
 
     /**
-     * File Processor FAL
+     * File Processor FAL.
      *
      * @var \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility
      */
     public $fileProcessor;
 
     /**
-     * Init the class
+     * Init the class.
      *
      * @param $pObj $pObj The parent object
-     *
-     * @return void
      */
     public function init(&$pObj)
     {
@@ -67,9 +64,9 @@ class Importer
     }
 
     /**
-     * Import CSV-Data in step-by-step mode
+     * Import CSV-Data in step-by-step mode.
      *
-     * @return	string		HTML form
+     * @return string HTML form
      */
     public function cmd_displayImport()
     {
@@ -80,7 +77,7 @@ class Importer
             'first_fieldname' => 0,
             'valid_email' => 0,
             'remove_dublette' => 0,
-            'update_unique' => 0
+            'update_unique' => 0,
         );
 
         if (GeneralUtility::_GP('CSV_IMPORT')) {
@@ -112,10 +109,10 @@ class Importer
             // TYPO3 6.0 returns an object...
             if (is_object($this->indata['newFile'][0])) {
                 $storageConfig = $this->indata['newFile'][0]->getStorage()->getConfiguration();
-                $this->indata['newFile'] = $storageConfig['basePath'] . ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
+                $this->indata['newFile'] = $storageConfig['basePath'].ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
             }
         } elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
-            if (((strpos($currentFileInfo['file'], 'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt')) {
+            if (((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt')) {
                 // do nothing
             } else {
                 unset($this->indata['newFile']);
@@ -146,7 +143,7 @@ class Importer
             // check noMap
             $newMap = ArrayUtility::removeArrayEntryByValue(array_unique($map), 'noMap');
             if (empty($newMap)) {
-                $error[]='noMap';
+                $error[] = 'noMap';
             } elseif (!ArrayUtility::inArray($map, 'email')) {
                 $error[] = 'email';
             }
@@ -156,7 +153,7 @@ class Importer
             }
         }
 
-        $out = "";
+        $out = '';
         switch ($stepCurrent) {
             case 'conf':
                 // get list of sysfolder
@@ -164,106 +161,106 @@ class Importer
                 $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                     'uid,title',
                     'pages',
-                    'doktype = 254 AND ' . $GLOBALS['BE_USER']->getPagePermsClause(3) .
-                        BackendUtility::deleteClause('pages') . BackendUtility::BEenableFields('pages'),
+                    'doktype = 254 AND '.$GLOBALS['BE_USER']->getPagePermsClause(3).
+                        BackendUtility::deleteClause('pages').BackendUtility::BEenableFields('pages'),
                     '',
                     'uid'
                 );
                 $optStorage = array();
                 while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
                     if (BackendUtility::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1))) {
-                        $optStorage[] = array($row['uid'],$row['title'] . ' [uid:' . $row['uid'] . ']');
+                        $optStorage[] = array($row['uid'], $row['title'].' [uid:'.$row['uid'].']');
                     }
                 }
                 $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
-                $optDelimiter=array(
-                    array('comma',$this->getLanguageService()->getLL('mailgroup_import_separator_comma')),
-                    array('semicolon',$this->getLanguageService()->getLL('mailgroup_import_separator_semicolon')),
-                    array('colon',$this->getLanguageService()->getLL('mailgroup_import_separator_colon')),
-                    array('tab',$this->getLanguageService()->getLL('mailgroup_import_separator_tab'))
+                $optDelimiter = array(
+                    array('comma', $this->getLanguageService()->getLL('mailgroup_import_separator_comma')),
+                    array('semicolon', $this->getLanguageService()->getLL('mailgroup_import_separator_semicolon')),
+                    array('colon', $this->getLanguageService()->getLL('mailgroup_import_separator_colon')),
+                    array('tab', $this->getLanguageService()->getLL('mailgroup_import_separator_tab')),
                 );
 
                 $optEncap = array(
-                    array('doubleQuote',' " '),
-                    array('singleQuote'," ' "),
+                    array('doubleQuote', ' " '),
+                    array('singleQuote', " ' "),
                 );
 
                 // TODO: make it variable?
                 $optUnique = array(
-                    array('email','email'),
-                    array('name','name')
+                    array('email', 'email'),
+                    array('name', 'name'),
                 );
 
                 ($this->params['inputDisable'] == 1) ? $disableInput = 'disabled="disabled"' : $disableInput = '';
 
                 // show configuration
-                $out = '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_header_conf') . '</h3>';
+                $out = '<hr /><h3>'.$this->getLanguageService()->getLL('mailgroup_import_header_conf').'</h3>';
                 $tblLines = array();
 
                 // get the all sysfolder
                 $tblLines[] = array(
                     $this->getLanguageService()->getLL('mailgroup_import_storage'),
-                    $this->makeDropdown('CSV_IMPORT[storage]', $optStorage, $this->indata['storage'])
+                    $this->makeDropdown('CSV_IMPORT[storage]', $optStorage, $this->indata['storage']),
                 );
 
                 // remove existing option
                 $tblLines[] = array(
                     $this->getLanguageService()->getLL('mailgroup_import_remove_existing'),
-                    '<input type="checkbox" name="CSV_IMPORT[remove_existing]" value="1"' . (!$this->indata['remove_existing']?'':' checked="checked"') . ' ' . $disableInput . '/> '
+                    '<input type="checkbox" name="CSV_IMPORT[remove_existing]" value="1"'.(!$this->indata['remove_existing'] ? '' : ' checked="checked"').' '.$disableInput.'/> ',
                 );
 
                 // first line in csv is to be ignored
                 $tblLines[] = array(
                     $this->getLanguageService()->getLL('mailgroup_import_first_fieldnames'),
-                    '<input type="checkbox" name="CSV_IMPORT[first_fieldname]" value="1"' . (!$this->indata['first_fieldname']?'':' checked="checked"') . ' ' . $disableInput . '/> '
+                    '<input type="checkbox" name="CSV_IMPORT[first_fieldname]" value="1"'.(!$this->indata['first_fieldname'] ? '' : ' checked="checked"').' '.$disableInput.'/> ',
                 );
 
                 // csv separator
                 $tblLines[] = array(
                     $this->getLanguageService()->getLL('mailgroup_import_separator'),
-                    $this->makeDropdown('CSV_IMPORT[delimiter]', $optDelimiter, $this->indata['delimiter'], $disableInput)
+                    $this->makeDropdown('CSV_IMPORT[delimiter]', $optDelimiter, $this->indata['delimiter'], $disableInput),
                 );
 
                 // csv encapsulation
                 $tblLines[] = array(
                     $this->getLanguageService()->getLL('mailgroup_import_encapsulation'),
-                    $this->makeDropdown('CSV_IMPORT[encapsulation]', $optEncap, $this->indata['encapsulation'], $disableInput)
+                    $this->makeDropdown('CSV_IMPORT[encapsulation]', $optEncap, $this->indata['encapsulation'], $disableInput),
                 );
 
                 // import only valid email
                 $tblLines[] = array(
                     $this->getLanguageService()->getLL('mailgroup_import_csv_validemail-description'),
-                    '<input type="checkbox" name="CSV_IMPORT[valid_email]" value="1"' . (!$this->indata['valid_email']?'':' checked="checked"') . ' ' . $disableInput . '/> '
+                    '<input type="checkbox" name="CSV_IMPORT[valid_email]" value="1"'.(!$this->indata['valid_email'] ? '' : ' checked="checked"').' '.$disableInput.'/> ',
                 );
 
                 // only import distinct records
                 $tblLines[] = array(
                     $this->getLanguageService()->getLL('mailgroup_import_csv_dublette-description'),
-                    '<input type="checkbox" name="CSV_IMPORT[remove_dublette]" value="1"' . (!$this->indata['remove_dublette']?'':' checked="checked"') . ' ' . $disableInput . '/> '
+                    '<input type="checkbox" name="CSV_IMPORT[remove_dublette]" value="1"'.(!$this->indata['remove_dublette'] ? '' : ' checked="checked"').' '.$disableInput.'/> ',
                 );
 
                 // update the record instead renaming the new one
                 $tblLines[] = array(
                     $this->getLanguageService()->getLL('mailgroup_import_update_unique'),
-                    '<input type="checkbox" name="CSV_IMPORT[update_unique]" value="1"' . (!$this->indata['update_unique']?'':' checked="checked"') . ' ' . $disableInput . '/>'
+                    '<input type="checkbox" name="CSV_IMPORT[update_unique]" value="1"'.(!$this->indata['update_unique'] ? '' : ' checked="checked"').' '.$disableInput.'/>',
                 );
 
                 // which field should be use to show uniqueness of the records
                 $tblLines[] = array(
                     $this->getLanguageService()->getLL('mailgroup_import_record_unique'),
-                    $this->makeDropdown('CSV_IMPORT[record_unique]', $optUnique, $this->indata['record_unique'], $disableInput)
+                    $this->makeDropdown('CSV_IMPORT[record_unique]', $optUnique, $this->indata['record_unique'], $disableInput),
                 );
 
                 $out .= $this->formatTable($tblLines, array('width=300', 'nowrap'), 0, array(0, 1));
                 $out .= '<br /><br />';
-                $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '" />
-						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_next') . '" />' .
+                $out .= '<input type="submit" name="CSV_IMPORT[back]" value="'.$this->getLanguageService()->getLL('mailgroup_import_back').'" />
+						<input type="submit" name="CSV_IMPORT[next]" value="' .$this->getLanguageService()->getLL('mailgroup_import_next').'" />'.
                         $this->makeHidden(array(
                             'CMD' => 'displayImport',
                             'importStep[next]' => 'mapping',
                             'importStep[back]' => 'upload',
-                            'CSV_IMPORT[newFile]' => $this->indata['newFile']));
+                            'CSV_IMPORT[newFile]' => $this->indata['newFile'], ));
                 break;
 
             case 'mapping':
@@ -271,21 +268,21 @@ class Importer
                 $cs = array_unique(array_values($this->getLanguageService()->csConvObj->synonyms));
                 $charSets = array();
                 foreach ($cs as $charset) {
-                    $charSets[] = array($charset,$charset);
+                    $charSets[] = array($charset, $charset);
                 }
 
                 if (!isset($this->indata['charset'])) {
                     $this->indata['charset'] = 'iso-8859-1';
                 }
-                $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_charset') . '</h3>';
+                $out .= '<hr /><h3>'.$this->getLanguageService()->getLL('mailgroup_import_mapping_charset').'</h3>';
                 $tblLines = array();
                 $tblLines[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_charset_choose'), $this->makeDropdown('CSV_IMPORT[charset]', $charSets, $this->indata['charset']));
                 $out .= $this->formatTable($tblLines, array('nowrap', 'nowrap'), 0, array(1, 1), 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
-                $out .= '<input type="submit" name="CSV_IMPORT[update]" value="' . $this->getLanguageService()->getLL('mailgroup_import_update') . '"/>';
+                $out .= '<input type="submit" name="CSV_IMPORT[update]" value="'.$this->getLanguageService()->getLL('mailgroup_import_update').'"/>';
                 unset($tblLines);
 
                 // show mapping form
-                $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_conf') . '</h3>';
+                $out .= '<hr /><h3>'.$this->getLanguageService()->getLL('mailgroup_import_mapping_conf').'</h3>';
 
                 if ($this->indata['first_fieldname']) {
                     // read csv
@@ -297,8 +294,8 @@ class Importer
                     $csvData = $this->readExampleCSV(3);
                     $fieldsAmount = count($csvData[0]);
                     $csv_firstRow = array();
-                    for ($i=0; $i<$fieldsAmount; $i++) {
-                        $csv_firstRow[] = 'field_' . $i;
+                    for ($i = 0; $i < $fieldsAmount; ++$i) {
+                        $csv_firstRow[] = 'field_'.$i;
                     }
                 }
 
@@ -314,50 +311,50 @@ class Importer
                 }
                 // add 'no value'
                 array_unshift($mapFields, array('noMap', $this->getLanguageService()->getLL('mailgroup_import_mapping_mapTo')));
-                $mapFields[] = array('cats',$this->getLanguageService()->getLL('mailgroup_import_mapping_categories'));
+                $mapFields[] = array('cats', $this->getLanguageService()->getLL('mailgroup_import_mapping_categories'));
                 reset($csv_firstRow);
                 reset($csvData);
 
                 $tblLines = array();
-                $tblLines[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_number'),$this->getLanguageService()->getLL('mailgroup_import_mapping_description'),$this->getLanguageService()->getLL('mailgroup_import_mapping_mapping'),$this->getLanguageService()->getLL('mailgroup_import_mapping_value'));
-                for ($i=0; $i<(count($csv_firstRow)); $i++) {
+                $tblLines[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_number'), $this->getLanguageService()->getLL('mailgroup_import_mapping_description'), $this->getLanguageService()->getLL('mailgroup_import_mapping_mapping'), $this->getLanguageService()->getLL('mailgroup_import_mapping_value'));
+                for ($i = 0; $i < (count($csv_firstRow)); ++$i) {
                     // example CSV
                     $exampleLines = array();
-                    for ($j=0;$j<(count($csvData));$j++) {
+                    for ($j = 0; $j < (count($csvData)); ++$j) {
                         $exampleLines[] = array($csvData[$j][$i]);
                     }
-                    $tblLines[] = array($i+1,$csv_firstRow[$i],$this->makeDropdown('CSV_IMPORT[map][' . ($i) . ']', $mapFields, $this->indata['map'][$i]), $this->formatTable($exampleLines, array('nowrap'), 0, array(0), 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover" style="width:100%; border:0px; margin:0px;"'));
+                    $tblLines[] = array($i + 1, $csv_firstRow[$i], $this->makeDropdown('CSV_IMPORT[map]['.($i).']', $mapFields, $this->indata['map'][$i]), $this->formatTable($exampleLines, array('nowrap'), 0, array(0), 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover" style="width:100%; border:0px; margin:0px;"'));
                 }
 
                 if ($error) {
-                    $out .= '<h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_error') . '</h3>';
-                    $out .= $this->getLanguageService()->getLL('mailgroup_import_mapping_error_detail') . '<br /><ul>';
+                    $out .= '<h3>'.$this->getLanguageService()->getLL('mailgroup_import_mapping_error').'</h3>';
+                    $out .= $this->getLanguageService()->getLL('mailgroup_import_mapping_error_detail').'<br /><ul>';
                     foreach ($error as $errorDetail) {
-                        $out .= '<li>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_error_' . $errorDetail) . '</li>';
+                        $out .= '<li>'.$this->getLanguageService()->getLL('mailgroup_import_mapping_error_'.$errorDetail).'</li>';
                     }
-                    $out.= '</ul>';
+                    $out .= '</ul>';
                 }
 
                 // additional options
                 $tblLinesAdd = array();
 
                 // header
-                $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"' . (!$this->indata['all_html']?'':' checked="checked"') . '/> ');
+                $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"'.(!$this->indata['all_html'] ? '' : ' checked="checked"').'/> ');
                 // get categories
                 $temp = BackendUtility::getModTSconfig($this->parent->id, 'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
                 if (is_numeric($temp['value'])) {
                     $rowCat = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
                         '*',
                         'sys_dmail_category',
-                        'pid IN (' . $temp['value'] . ')' . BackendUtility::deleteClause('sys_dmail_category') . BackendUtility::BEenableFields('sys_dmail_category')
+                        'pid IN ('.$temp['value'].')'.BackendUtility::deleteClause('sys_dmail_category').BackendUtility::BEenableFields('sys_dmail_category')
                     );
                     if (!empty($rowCat)) {
                         $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_cats'), '');
                         if ($this->indata['update_unique']) {
-                            $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_cats_add'), '<input type="checkbox" name="CSV_IMPORT[add_cat]" value="1"' . ($this->indata['add_cat']?' checked="checked"':'') . '/> ');
+                            $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_cats_add'), '<input type="checkbox" name="CSV_IMPORT[add_cat]" value="1"'.($this->indata['add_cat'] ? ' checked="checked"' : '').'/> ');
                         }
                         foreach ($rowCat as $k => $v) {
-                            $tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;' . htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat][' . $k . ']" value="' . $v['uid'] . '"' . (($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"') . '/> ');
+                            $tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;'.htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat]['.$k.']" value="'.$v['uid'].'"'.(($this->indata['cat'][$k] != $v['uid']) ? '' : ' checked="checked"').'/> ');
                         }
                     }
                 }
@@ -365,11 +362,11 @@ class Importer
                 $out .= $this->formatTable($tblLines, array('nowrap', 'nowrap', 'nowrap', 'nowrap'), 1, array(0, 0, 1, 1), 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
                 $out .= '<br /><br />';
                 // additional options
-                $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_conf_add') . '</h3>';
+                $out .= '<hr /><h3>'.$this->getLanguageService()->getLL('mailgroup_import_mapping_conf_add').'</h3>';
                 $out .= $this->formatTable($tblLinesAdd, array('nowrap', 'nowrap'), 0, array(1, 1), 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
                 $out .= '<br /><br />';
-                $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '"/>
-						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_next') . '"/>' .
+                $out .= '<input type="submit" name="CSV_IMPORT[back]" value="'.$this->getLanguageService()->getLL('mailgroup_import_back').'"/>
+						<input type="submit" name="CSV_IMPORT[next]" value="' .$this->getLanguageService()->getLL('mailgroup_import_next').'"/>'.
                         $this->makeHidden(array(
                             'CMD' => 'displayImport',
                             'importStep[next]' => 'import',
@@ -389,11 +386,11 @@ class Importer
 
             case 'import':
                 // show import messages
-                $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_ready_import') . '</h3>';
-                $out .= $this->getLanguageService()->getLL('mailgroup_import_ready_import_label') . '<br /><br />';
+                $out .= '<hr /><h3>'.$this->getLanguageService()->getLL('mailgroup_import_ready_import').'</h3>';
+                $out .= $this->getLanguageService()->getLL('mailgroup_import_ready_import_label').'<br /><br />';
 
-                $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '" />
-						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_import') . '" />' .
+                $out .= '<input type="submit" name="CSV_IMPORT[back]" value="'.$this->getLanguageService()->getLL('mailgroup_import_back').'" />
+						<input type="submit" name="CSV_IMPORT[next]" value="' .$this->getLanguageService()->getLL('mailgroup_import_import').'" />'.
                         $this->makeHidden(array(
                             'CMD' => 'displayImport',
                             'importStep[next]' => 'startImport',
@@ -414,14 +411,14 @@ class Importer
                         ));
                 $hiddenMapped = array();
                 foreach ($this->indata['map'] as $fieldNr => $fieldMapped) {
-                    $hiddenMapped[]    = $this->makeHidden('CSV_IMPORT[map][' . $fieldNr . ']', $fieldMapped);
+                    $hiddenMapped[] = $this->makeHidden('CSV_IMPORT[map]['.$fieldNr.']', $fieldMapped);
                 }
                 if (is_array($this->indata['cat'])) {
                     foreach ($this->indata['cat'] as $k => $catUid) {
-                        $hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat][' . $k . ']', $catUid);
+                        $hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat]['.$k.']', $catUid);
                     }
                 }
-                $out.=implode('', $hiddenMapped);
+                $out .= implode('', $hiddenMapped);
                 break;
 
             case 'startImport':
@@ -438,9 +435,9 @@ class Importer
 
                 // show not imported record and reasons,
                 $result = $this->doImport($csvData);
-                $out = '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_done') . '</h3>';
+                $out = '<hr /><h3>'.$this->getLanguageService()->getLL('mailgroup_import_done').'</h3>';
 
-                $defaultOrder = array('new','update','invalid_email','double');
+                $defaultOrder = array('new', 'update', 'invalid_email', 'double');
 
                 if (!empty($this->params['resultOrder'])) {
                     $resultOrder = GeneralUtility::trimExplode(',', $this->params['resultOrder']);
@@ -453,11 +450,11 @@ class Importer
 
                 foreach ($endOrder as $order) {
                     $tblLines = array();
-                    $tblLines[] = array($this->getLanguageService()->getLL('mailgroup_import_report_' . $order));
+                    $tblLines[] = array($this->getLanguageService()->getLL('mailgroup_import_report_'.$order));
                     if (is_array($result[$order])) {
                         foreach ($result[$order] as $k => $v) {
                             $mapKeys = array_keys($v);
-                            $tblLines[]= array($k+1, $v[$mapKeys[0]], $v['email']);
+                            $tblLines[] = array($k + 1, $v[$mapKeys[0]], $v['email']);
                         }
                     }
                     $out .= $this->formatTable($tblLines, array('nowrap', 'first' => 'colspan="3"'), 1, array(1));
@@ -482,52 +479,52 @@ class Importer
                         ));
                 $hiddenMapped = array();
                 foreach ($this->indata['map'] as $fieldNr => $fieldMapped) {
-                    $hiddenMapped[]    = $this->makeHidden('CSV_IMPORT[map][' . $fieldNr . ']', $fieldMapped);
+                    $hiddenMapped[] = $this->makeHidden('CSV_IMPORT[map]['.$fieldNr.']', $fieldMapped);
                 }
                 if (is_array($this->indata['cat'])) {
                     foreach ($this->indata['cat'] as $k => $catUid) {
-                        $hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat][' . $k . ']', $catUid);
+                        $hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat]['.$k.']', $catUid);
                     }
                 }
-                $out .=implode('', $hiddenMapped);
+                $out .= implode('', $hiddenMapped);
                 break;
 
             case 'upload':
             default:
                 // show upload file form
-                $out = '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_header_upload') . '</h3>';
+                $out = '<hr /><h3>'.$this->getLanguageService()->getLL('mailgroup_import_header_upload').'</h3>';
                 $tempDir = $this->userTempFolder();
 
-                $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_upload_file') . '<input type="file" name="upload_1" size="30" />';
-                if (($this->indata['mode'] == 'file') && !(((strpos($currentFileInfo['file'], 'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt'))) {
-                    $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_current_file') . '<b>' . $currentFileMessage . '</b>';
+                $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_upload_file').'<input type="file" name="upload_1" size="30" />';
+                if (($this->indata['mode'] == 'file') && !(((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt'))) {
+                    $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_current_file').'<b>'.$currentFileMessage.'</b>';
                 }
 
-                if (((strpos($currentFileInfo['file'], 'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt')) {
+                if (((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt')) {
                     $handleCsv = fopen($this->indata['newFile'], 'r');
                     $this->indata['csv'] = fread($handleCsv, filesize($this->indata['newFile']));
                     fclose($handleCsv);
                 }
 
                 $tblLines[] = '';
-                $tblLines[] = '<b>' . $this->getLanguageService()->getLL('mailgroup_import_or') . '</b>';
+                $tblLines[] = '<b>'.$this->getLanguageService()->getLL('mailgroup_import_or').'</b>';
                 $tblLines[] = '';
                 $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_paste_csv');
-                $tblLines[] = '<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"' . $this->parent->doc->formWidth(48) . '>' . LF . htmlspecialchars($this->indata['csv']) . '</textarea>';
-                $tblLines[] = '<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_next') . '" />';
+                $tblLines[] = '<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"'.$this->parent->doc->formWidth(48).'>'.LF.htmlspecialchars($this->indata['csv']).'</textarea>';
+                $tblLines[] = '<input type="submit" name="CSV_IMPORT[next]" value="'.$this->getLanguageService()->getLL('mailgroup_import_next').'" />';
 
                 $out .= implode('<br />', $tblLines);
 
                 $out .= '<input type="hidden" name="CMD" value="displayImport" />
 						<input type="hidden" name="importStep[next]" value="conf" />
-						<input type="hidden" name="file[upload][1][target]" value="' . htmlspecialchars($tempDir) . '" ' . (GeneralUtility::_POST('importNow') ? 'disabled' : '') . '/>
+						<input type="hidden" name="file[upload][1][target]" value="' .htmlspecialchars($tempDir).'" '.(GeneralUtility::_POST('importNow') ? 'disabled' : '').'/>
 						<input type="hidden" name="file[upload][1][data]" value="1" />
-						<input type="hidden" name="CSV_IMPORT[newFile]" value ="' . $this->indata['newFile'] . '">';
+						<input type="hidden" name="CSV_IMPORT[newFile]" value ="' .$this->indata['newFile'].'">';
         }
 
-        $theOutput = $this->parent->doc->section($this->getLanguageService()->getLL('mailgroup_import') . BackendUtility::cshItem($this->cshTable, 'mailgroup_import', $GLOBALS['BACK_PATH']), $out, 1, 1, 0, true);
+        $theOutput = $this->parent->doc->section($this->getLanguageService()->getLL('mailgroup_import').BackendUtility::cshItem($this->cshTable, 'mailgroup_import', $GLOBALS['BACK_PATH']), $out, 1, 1, 0, true);
 
-        /**
+        /*
          *  Hook for cmd_displayImport
          *  use it to manipulate the steps in the import process
          */
@@ -554,7 +551,7 @@ class Importer
      *****/
 
     /**
-     * Filter doublette from input csv data
+     * Filter doublette from input csv data.
      *
      * @param array $mappedCsv Mapped csv
      *
@@ -569,16 +566,16 @@ class Importer
 
         foreach ($mappedCsv as $k => $csvData) {
             if (!in_array($k, $remove)) {
-                $found=0;
-                foreach ($cmpCsv as $kk =>$cmpData) {
+                $found = 0;
+                foreach ($cmpCsv as $kk => $cmpData) {
                     if ($k != $kk) {
                         if ($csvData[$this->indata['record_unique']] == $cmpData[$this->indata['record_unique']]) {
                             $double[] = $mappedCsv[$kk];
                             if (!$found) {
                                 $filtered[] = $csvData;
                             }
-                            $remove[]=$kk;
-                            $found=1;
+                            $remove[] = $kk;
+                            $found = 1;
                         }
                     }
                 }
@@ -594,7 +591,7 @@ class Importer
     }
 
     /**
-     * Start importing users
+     * Start importing users.
      *
      * @param array $csvData The csv raw data
      *
@@ -607,7 +604,7 @@ class Importer
 
         //empty table if flag is set
         if ($this->indata['remove_existing']) {
-            $GLOBALS['TYPO3_DB']->exec_DELETEquery('tt_address', 'pid = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($this->indata['storage'], 'tt_address'));
+            $GLOBALS['TYPO3_DB']->exec_DELETEquery('tt_address', 'pid = '.$GLOBALS['TYPO3_DB']->fullQuoteStr($this->indata['storage'], 'tt_address'));
         }
 
         $mappedCSV = array();
@@ -618,7 +615,7 @@ class Importer
             foreach ($dataArray as $kk => $fieldData) {
                 if ($this->indata['map'][$kk] !== 'noMap') {
                     if (($this->indata['valid_email']) && ($this->indata['map'][$kk] === 'email')) {
-                        $invalidEmail = GeneralUtility::validEmail(trim($fieldData))?0:1;
+                        $invalidEmail = GeneralUtility::validEmail(trim($fieldData)) ? 0 : 1;
                         $tempData[$this->indata['map'][$kk]] = trim($fieldData);
                     } else {
                         if ($this->indata['map'][$kk] !== 'cats') {
@@ -635,7 +632,7 @@ class Importer
             if ($invalidEmail) {
                 $invalidEmailCSV[] = $tempData;
             } else {
-                $mappedCSV[]=$tempData;
+                $mappedCSV[] = $tempData;
             }
         }
 
@@ -652,9 +649,9 @@ class Importer
             $user = array();
             $userID = array();
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'uid,' . $this->indata['record_unique'],
+                'uid,'.$this->indata['record_unique'],
                 'tt_address',
-                'pid = ' . $this->indata['storage'] . BackendUtility::deleteClause('tt_address')
+                'pid = '.$this->indata['storage'].BackendUtility::deleteClause('tt_address')
             );
             while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_row($res))) {
                 $user[] = $row[1];
@@ -667,7 +664,7 @@ class Importer
                 $foundUser = array_keys($user, $dataArray[$this->indata['record_unique']]);
                 if (is_array($foundUser) && !empty($foundUser)) {
                     if (count($foundUser) == 1) {
-                        $data['tt_address'][$userID[$foundUser[0]]] =  $dataArray;
+                        $data['tt_address'][$userID[$foundUser[0]]] = $dataArray;
                         $data['tt_address'][$userID[$foundUser[0]]]['pid'] = $this->indata['storage'];
                         if ($this->indata['all_html']) {
                             $data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_html'] = $this->indata['all_html'];
@@ -678,7 +675,7 @@ class Importer
                                 $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                                     'uid_local,uid_foreign',
                                     'sys_dmail_ttaddress_category_mm',
-                                    'uid_local=' . $userID[$foundUser[0]],
+                                    'uid_local='.$userID[$foundUser[0]],
                                     '',
                                     'sorting'
                                 );
@@ -691,35 +688,35 @@ class Importer
                                 $data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][] = $v;
                             }
                         }
-                        $resultImport['update'][]=$dataArray;
+                        $resultImport['update'][] = $dataArray;
                     } else {
                         // which one to update? all?
                         foreach ($foundUser as $kk => $_) {
-                            $data['tt_address'][$userID[$foundUser[$kk]]]= $dataArray;
+                            $data['tt_address'][$userID[$foundUser[$kk]]] = $dataArray;
                             $data['tt_address'][$userID[$foundUser[$kk]]]['pid'] = $this->indata['storage'];
                         }
-                        $resultImport['update'][]=$dataArray;
+                        $resultImport['update'][] = $dataArray;
                     }
                 } else {
                     // write new user
-                    $this->addDataArray($data, 'NEW' . $c, $dataArray);
+                    $this->addDataArray($data, 'NEW'.$c, $dataArray);
                     $resultImport['new'][] = $dataArray;
                     // counter
-                    $c++;
+                    ++$c;
                 }
             }
         } else {
             // no update, import all
             $c = 1;
             foreach ($mappedCSV as $dataArray) {
-                $this->addDataArray($data, 'NEW' . $c, $dataArray);
+                $this->addDataArray($data, 'NEW'.$c, $dataArray);
                 $resultImport['new'][] = $dataArray;
-                $c++;
+                ++$c;
             }
         }
 
         $resultImport['invalid_email'] = $invalidEmailCSV;
-        $resultImport['double'] = (is_array($filteredCSV['double']))?$filteredCSV['double']: array();
+        $resultImport['double'] = (is_array($filteredCSV['double'])) ? $filteredCSV['double'] : array();
 
         // start importing
         /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
@@ -729,7 +726,7 @@ class Importer
         $tce->start($data, array());
         $tce->process_datamap();
 
-        /**
+        /*
          * Hook for doImport Mail
          * will be called every time a record is inserted
          */
@@ -750,13 +747,11 @@ class Importer
     }
 
     /**
-     * Prepare insert array for the TCE
+     * Prepare insert array for the TCE.
      *
-     * @param array $data Array for the TCE
-     * @param string $id Record ID
-     * @param array $dataArray The data to be imported
-     *
-     * @return void
+     * @param array  $data      Array for the TCE
+     * @param string $id        Record ID
+     * @param array  $dataArray The data to be imported
      */
     public function addDataArray(array &$data, $id, array $dataArray)
     {
@@ -773,48 +768,49 @@ class Importer
     }
 
     /**
-     * Make dropdown menu
+     * Make dropdown menu.
      *
-     * @param string $name Name of the dropdown
-     * @param array $option Array of array (v,k)
-     * @param string $selected Set selected flag
+     * @param string $name         Name of the dropdown
+     * @param array  $option       Array of array (v,k)
+     * @param string $selected     Set selected flag
      * @param string $disableInput Flag to disable the input field
      *
-     * @return	string	HTML code of the dropdown
+     * @return string HTML code of the dropdown
      */
-    public function makeDropdown($name, array $option, $selected, $disableInput='')
+    public function makeDropdown($name, array $option, $selected, $disableInput = '')
     {
         $opt = array();
         foreach ($option as $v) {
             if (is_array($v)) {
-                $opt[] = '<option value="' . htmlspecialchars($v[0]) . '" ' . ($selected==$v[0]?' selected="selected"':'') . '>' .
-                    htmlspecialchars($v[1]) .
+                $opt[] = '<option value="'.htmlspecialchars($v[0]).'" '.($selected == $v[0] ? ' selected="selected"' : '').'>'.
+                    htmlspecialchars($v[1]).
                     '</option>';
             }
         }
 
-        $dropdown = '<select name="' . $name . '" ' . $disableInput . '>' . implode('', $opt) . '</select>';
+        $dropdown = '<select name="'.$name.'" '.$disableInput.'>'.implode('', $opt).'</select>';
+
         return $dropdown;
     }
 
     /**
-     * Make hidden field
+     * Make hidden field.
      *
-     * @param mixed $name Name of the hidden field (string) or name => value (array)
+     * @param mixed  $name  Name of the hidden field (string) or name => value (array)
      * @param string $value Value of the hidden field
      *
-     * @return	string		HTML code
+     * @return string HTML code
      */
-    public function makeHidden($name, $value="")
+    public function makeHidden($name, $value = '')
     {
         if (is_array($name)) {
             $hiddenFields = array();
-            foreach ($name as $n=>$v) {
-                $hiddenFields[] = '<input type="hidden" name="' . htmlspecialchars($n) . '" value="' . htmlspecialchars($v) . '" />';
+            foreach ($name as $n => $v) {
+                $hiddenFields[] = '<input type="hidden" name="'.htmlspecialchars($n).'" value="'.htmlspecialchars($v).'" />';
             }
             $inputFields = implode('', $hiddenFields);
         } else {
-            $inputFields = '<input type="hidden" name="' . htmlspecialchars($name) . '" value="' . htmlspecialchars($value) . '" />';
+            $inputFields = '<input type="hidden" name="'.htmlspecialchars($name).'" value="'.htmlspecialchars($value).'" />';
         }
 
         return $inputFields;
@@ -824,13 +820,13 @@ class Importer
      * Read in the given CSV file. The function is used during the final file import.
      * Removes first the first data row if the CSV has fieldnames.
      *
-     * @return	array		file content in array
+     * @return array file content in array
      */
     public function readCSV()
     {
         ini_set('auto_detect_line_endings', true);
         $mydata = array();
-        $handle = fopen($this->indata['newFile'], "r");
+        $handle = fopen($this->indata['newFile'], 'r');
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
         $delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
@@ -849,6 +845,7 @@ class Importer
         reset($mydata);
         $mydata = $this->convCharset($mydata);
         ini_set('auto_detect_line_endings', false);
+
         return $mydata;
     }
 
@@ -856,20 +853,20 @@ class Importer
      * Read in the given CSV file. Only showed a couple of the CSV values as example
      * Removes first the first data row if the CSV has fieldnames.
      *
-     * @param	int $records Number of example values
+     * @param int $records Number of example values
      *
-     * @return	array File content in array
+     * @return array File content in array
      */
-    public function readExampleCSV($records=3)
+    public function readExampleCSV($records = 3)
     {
         ini_set('auto_detect_line_endings', true);
 
         $mydata = array();
         // TYPO3 6.0 works with relative path, we need absolute here
         if (!is_file($this->indata['newFile']) && (strpos($this->indata['newFile'], PATH_site) === false)) {
-            $this->indata['newFile'] = PATH_site . $this->indata['newFile'];
+            $this->indata['newFile'] = PATH_site.$this->indata['newFile'];
         }
-        $handle = fopen($this->indata['newFile'], "r");
+        $handle = fopen($this->indata['newFile'], 'r');
         $i = 0;
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
@@ -883,8 +880,8 @@ class Importer
             // remove empty line in csv
             if ((count($data) >= 1)) {
                 $mydata[] = $data;
-                $i++;
-                if ($i>=$records) {
+                ++$i;
+                if ($i >= $records) {
                     break;
                 }
             }
@@ -893,15 +890,17 @@ class Importer
         reset($mydata);
         $mydata = $this->convCharset($mydata);
         ini_set('auto_detect_line_endings', false);
+
         return $mydata;
     }
 
     /**
-     * Convert charset if necessary
+     * Convert charset if necessary.
      *
      * @param array $data Contains values to convert
      *
-     * @return	array	array of charset-converted values
+     * @return array array of charset-converted values
+     *
      * @see \TYPO3\CMS\Core\Charset\CharsetConverter::convArray()
      */
     public function convCharset(array $data)
@@ -910,35 +909,35 @@ class Importer
         if ($dbCharset != $this->indata['charset']) {
             $this->getLanguageService()->csConvObj->convArray($data, $this->indata['charset'], $dbCharset);
         }
+
         return $data;
     }
 
-
     /**
-     * Formating the given array in to HTML table
+     * Formating the given array in to HTML table.
      *
-     * @param array $tableLines Array of table row -> array of cells
-     * @param array $cellParams Cells' parameter
-     * @param bool $header First tableLines is table header
-     * @param array $cellcmd Escaped cells' value
+     * @param array  $tableLines  Array of table row -> array of cells
+     * @param array  $cellParams  Cells' parameter
+     * @param bool   $header      First tableLines is table header
+     * @param array  $cellcmd     Escaped cells' value
      * @param string $tableParams Table's parameter
      *
-     * @return	string		HTML the table
+     * @return string HTML the table
      */
-    public function formatTable(array $tableLines, array $cellParams, $header, array $cellcmd = array(), $tableParams='border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"')
+    public function formatTable(array $tableLines, array $cellParams, $header, array $cellcmd = array(), $tableParams = 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"')
     {
         $lines = array();
-        $first = $header?1:0;
+        $first = $header ? 1 : 0;
         $c = 0;
 
         reset($tableLines);
         foreach ($tableLines as $r) {
             $rowA = array();
-            for ($k = 0; $k < count($r); $k++) {
+            for ($k = 0; $k < count($r); ++$k) {
                 $v = $r[$k];
-                $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : "&nbsp;";
+                $v = strlen($v) ? ($cellcmd[$k] ? $v : htmlspecialchars($v)) : '&nbsp;';
                 if ($first) {
-                    $v = '<B>' . $v . '</B>';
+                    $v = '<B>'.$v.'</B>';
                 }
 
                 $cellParam = array();
@@ -949,21 +948,22 @@ class Importer
                 if ($first && isset($cellParams['first'])) {
                     $cellParam[] = $cellParams['first'];
                 }
-                $rowA[] = '<td ' . implode(' ', $cellParam) . '>' . $v . '</td>';
+                $rowA[] = '<td '.implode(' ', $cellParam).'>'.$v.'</td>';
             }
 
-            $lines[] = '<tr class="' . ($first?'t3-row-header':'db_list_normal') . '">' . implode('', $rowA) . '</tr>';
+            $lines[] = '<tr class="'.($first ? 't3-row-header' : 'db_list_normal').'">'.implode('', $rowA).'</tr>';
             $first = 0;
-            $c++;
+            ++$c;
         }
-        $table = '<table ' . $tableParams . '>' . implode('', $lines) . '</table>';
+        $table = '<table '.$tableParams.'>'.implode('', $lines).'</table>';
+
         return $table;
     }
 
     /**
-     * Returns first temporary folder of the user account (from $FILEMOUNTS)
+     * Returns first temporary folder of the user account (from $FILEMOUNTS).
      *
-     * @return	string Absolute path to first "_temp_" folder of the current user, otherwise blank.
+     * @return string Absolute path to first "_temp_" folder of the current user, otherwise blank
      */
     public function userTempFolder()
     {
@@ -971,13 +971,13 @@ class Importer
     }
 
     /**
-     * Write CSV Data to a temporary file and will be used for the import
+     * Write CSV Data to a temporary file and will be used for the import.
      *
-     * @return	string		path of the temp file
+     * @return string path of the temp file
      */
     public function writeTempFile()
     {
-        $newfile = "";
+        $newfile = '';
         $userPermissions = $GLOBALS['BE_USER']->getFilePermissions();
 
         unset($this->fileProcessor);
@@ -986,7 +986,7 @@ class Importer
         $GLOBALS['FILEMOUNTS']['tx_directmail'] = array(
             'name' => 'direct_mail',
             'path' => GeneralUtility::getFileAbsFileName('uploads/tx_directmail/'),
-            'type'
+            'type',
         );
 
         // Initializing:
@@ -1015,8 +1015,8 @@ class Importer
 
         if (empty($this->indata['newFile'])) {
             // new file
-            $file['newfile']['1']['target']=$this->userTempFolder();
-            $file['newfile']['1']['data']='import_' . $GLOBALS['EXEC_TIME'] . '.txt';
+            $file['newfile']['1']['target'] = $this->userTempFolder();
+            $file['newfile']['1']['data'] = 'import_'.$GLOBALS['EXEC_TIME'].'.txt';
             if ($httpHost != $refInfo['host'] && $this->vC != $GLOBALS['BE_USER']->veriCode() && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
                 $this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', array($refInfo['host'], $httpHost));
             } else {
@@ -1025,7 +1025,7 @@ class Importer
                 // in TYPO3 6.0 func_newfile returns an object, but we need the path to the new file name later on!
                 if (is_object($newfileObj)) {
                     $storageConfig = $newfileObj->getStorage()->getConfiguration();
-                    $newfile = $storageConfig['basePath'] . ltrim($newfileObj->getIdentifier(), '/');
+                    $newfile = $storageConfig['basePath'].ltrim($newfileObj->getIdentifier(), '/');
                 }
             }
         } else {
@@ -1037,13 +1037,14 @@ class Importer
             $csvFile['target'] = $newfile;
             $write = $this->fileProcessor->func_edit($csvFile);
         }
+
         return $newfile;
     }
 
     /**
      * Checks if a file has been uploaded and returns the complete physical fileinfo if so.
      *
-     * @return	string		the complete physical file name, including path info.
+     * @return string the complete physical file name, including path info
      */
     public function checkUpload()
     {
@@ -1054,8 +1055,8 @@ class Importer
         $fm = array(
             $GLOBALS['EXEC_TIME'] => array(
                 'path' => $tempFolder,
-                'name' => array_pop(explode('/', trim($tempFolder, '/'))) .  '/',
-            )
+                'name' => array_pop(explode('/', trim($tempFolder, '/'))).'/',
+            ),
         );
 
         // Initializing:
@@ -1075,11 +1076,12 @@ class Importer
             $this->fileProcessor->start($file);
             $newfile = $this->fileProcessor->func_upload($file['upload']['1']);
         }
+
         return $newfile;
     }
 
     /**
-     * Returns LanguageService
+     * Returns LanguageService.
      *
      * @return \TYPO3\CMS\Lang\LanguageService
      */

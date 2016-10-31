@@ -9,10 +9,9 @@ use \TYPO3\CMS\Core\Controller\CommandLineController;
 
 class direct_mail_cli extends CommandLineController
 {
-
     /**
-     * Constructor
-     */
+         * Constructor.
+         */
         public function direct_mail_cli()
         {
 
@@ -29,15 +28,13 @@ class direct_mail_cli extends CommandLineController
         }
 
         /**
-         * CLI engine
-         *
-         * @return    void
+         * CLI engine.
          */
         public function cli_main()
         {
 
             // get task (function)
-                $task = (string)$this->cli_args['_DEFAULT'][1];
+                $task = (string) $this->cli_args['_DEFAULT'][1];
 
             if (!$task) {
                 $this->cli_validateArgs();
@@ -49,7 +46,7 @@ class direct_mail_cli extends CommandLineController
                 $this->massSend();
             }
 
-                /**
+                /*
                  * Or other tasks
                  * Which task shoud be called can you define in the shell command
                  * /www/typo3/cli_dispatch.phpsh cli_example otherTask
@@ -60,31 +57,30 @@ class direct_mail_cli extends CommandLineController
         }
 
     /**
-     * Start sending the newsletter
-     *
-     * @return void
+     * Start sending the newsletter.
      */
     public function massSend()
     {
 
         // Check if cronjob is already running:
-        if (@file_exists(PATH_site . 'typo3temp/tx_directmail_cron.lock')) {
+        if (@file_exists(PATH_site.'typo3temp/tx_directmail_cron.lock')) {
             // If the lock is not older than 1 day, skip index creation:
-            if (filemtime(PATH_site . 'typo3temp/tx_directmail_cron.lock') > (time() - (60 * 60 * 24))) {
-                die('TYPO3 Direct Mail Cron: Aborting, another process is already running!' . LF);
+            if (filemtime(PATH_site.'typo3temp/tx_directmail_cron.lock') > (time() - (60 * 60 * 24))) {
+                die('TYPO3 Direct Mail Cron: Aborting, another process is already running!'.LF);
             } else {
-                echo('TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...' . LF);
+                echo 'TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...'.LF;
             }
         }
 
-        $lockfile = PATH_site . 'typo3temp/tx_directmail_cron.lock';
+        $lockfile = PATH_site.'typo3temp/tx_directmail_cron.lock';
         touch($lockfile);
         // Fixing filepermissions
         \TYPO3\CMS\Core\Utility\GeneralUtility::fixPermissions($lockfile);
 
         /**
-         * The direct_mail engine
-         * @var $htmlmail \DirectMailTeam\DirectMail\Dmailer
+         * The direct_mail engine.
+         *
+         * @var \DirectMailTeam\DirectMail\Dmailer
          */
         $htmlmail = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
         $htmlmail->start();
@@ -96,8 +92,9 @@ class direct_mail_cli extends CommandLineController
 
 // Call the functionality
 /**
- * Initializing the CLI class
- * @var $mailerObj direct_mail_cli
+ * Initializing the CLI class.
+ *
+ * @var direct_mail_cli
  */
 $mailerObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('direct_mail_cli');
 $mailerObj->cli_main($_SERVER['argv']);

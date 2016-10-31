@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Scheduler;
 
 /*
@@ -22,25 +23,20 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
 /**
  * Class tx_directmail_Scheduler_MailFromDraft
  * takes a specific draft and compiles it again, and then creates another
- * directmail record that is ready for sending right away
+ * directmail record that is ready for sending right away.
  *
  * @author	Benjamin Mack <benni@typo3.org>
- * @package TYPO3
- * @subpackage	tx_directmail
  */
 class MailFromDraft extends AbstractTask
 {
-
     public $draftUid = null;
 
     protected $hookObjects = array();
 
     /**
-     * Setter function to set the draft ID that the task should use
+     * Setter function to set the draft ID that the task should use.
      *
      * @param int $draftUid The UID of the sys_dmail record (needs to be of type=3 or type=4)
-     *
-     * @return void
      */
     public function setDraft($draftUid)
     {
@@ -49,9 +45,9 @@ class MailFromDraft extends AbstractTask
 
     /**
      * Function executed from scheduler.
-     * Creates a new newsletter record, and sets the scheduled time to "now"
+     * Creates a new newsletter record, and sets the scheduled time to "now".
      *
-     * @return	bool
+     * @return bool
      */
     public function execute()
     {
@@ -72,7 +68,7 @@ class MailFromDraft extends AbstractTask
             $draftRecord['type'] -= 2;
 
                 // check if domain record is set
-            if ((TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI) && (int)$draftRecord['type'] !== 1 && empty($draftRecord['use_domain'])) {
+            if ((TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI) && (int) $draftRecord['type'] !== 1 && empty($draftRecord['use_domain'])) {
                 throw new \Exception('No domain record set!');
             }
 
@@ -91,17 +87,17 @@ class MailFromDraft extends AbstractTask
             $mailRecord = BackendUtility::getRecord('sys_dmail', $this->dmailUid);
 
                 // fetch mail content
-            $result = DirectMailUtility::fetchUrlContentsForDirectMailRecord($mailRecord, $defaultParams, TRUE);
+            $result = DirectMailUtility::fetchUrlContentsForDirectMailRecord($mailRecord, $defaultParams, true);
 
             if ($result['errors'] !== array()) {
-                throw new \Exception('Failed to fetch contents: ' . implode(', ', $result['errors']));
+                throw new \Exception('Failed to fetch contents: '.implode(', ', $result['errors']));
             }
 
             $mailRecord = BackendUtility::getRecord('sys_dmail', $this->dmailUid);
             if ($mailRecord['mailContent'] && $mailRecord['renderedsize'] > 0) {
                 $updateData = array(
                     'scheduled' => time(),
-                    'issent'    => 1
+                    'issent' => 1,
                 );
                     // Call a hook before enqueuing the cloned dmail record into
                     // the direct mail delivery queue
@@ -110,19 +106,18 @@ class MailFromDraft extends AbstractTask
                 $this->callHooks('enqueueClonedDmail', $hookParams);
                     // Update the cloned dmail so it will get sent upon next
                     // invocation of the mailer engine
-                $GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail', 'uid = ' . intval($this->dmailUid), $updateData);
+                $GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail', 'uid = '.intval($this->dmailUid), $updateData);
             }
         }
+
         return true;
     }
 
     /**
-     * Calls the passed hook method of all configured hook object instances
+     * Calls the passed hook method of all configured hook object instances.
      *
      * @param string $hookMethod The hook method name
-     * @param array $hookParams The hook params
-     *
-     * @return    void
+     * @param array  $hookParams The hook params
      */
     public function callHooks($hookMethod, array $hookParams)
     {
@@ -132,9 +127,8 @@ class MailFromDraft extends AbstractTask
     }
 
     /**
-     * Initializes hook objects for this class
+     * Initializes hook objects for this class.
      *
-     * @return void
      * @throws \Exception
      */
     public function initializeHookObjects()

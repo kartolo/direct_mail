@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Tests\Unit\Cli;
 
 /***************************************************************
@@ -25,22 +26,21 @@ namespace DirectMailTeam\DirectMail\Tests\Unit\Cli;
  ***************************************************************/
 
 /**
- * Testcase for cli script
+ * Testcase for cli script.
  *
  * @author Bernhard Kraft <kraft@webconsulting.at>
  */
 class CliScriptTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
 {
-
     /**
      * @test
      */
     public function test_canIncludeCliScript()
     {
-        $path = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail') . 'cli/cli_direct_mail.php';
+        $path = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail').'cli/cli_direct_mail.php';
         $_SERVER['argv'] = array('direct_mail', 'otherTask');
         define('TYPO3_cliMode', '1');
-        require_once($path);
+        require_once $path;
         // If the test reaches this point the file file could get included
         $this->assertTrue(true);
     }

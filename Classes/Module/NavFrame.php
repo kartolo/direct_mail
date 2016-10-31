@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Module;
 
 /*
@@ -22,33 +23,32 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 
 /**
- * Class to producing navigation frame of the tx_directmail extension
+ * Class to producing navigation frame of the tx_directmail extension.
  *
  * @author		Kasper Skårhøj <kasper@typo3.com>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
  *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  * @version 	$Id: index.php 30331 2010-02-22 22:27:07Z ivankartolo $
  */
-
 class NavFrame
 {
-
     /**
-     * The template object
+     * The template object.
+     *
      * @var \TYPO3\CMS\Backend\Template\DocumentTemplate
      */
     public $doc;
 
     /**
-     * Set highlight
-     * @var	string
+     * Set highlight.
+     *
+     * @var string
      */
     protected $doHighlight;
 
     /**
-     * HTML output
+     * HTML output.
+     *
      * @var string
      */
     protected $content;
@@ -56,26 +56,24 @@ class NavFrame
     public $pageinfo;
 
     /**
-     * The name of the module
+     * The name of the module.
      *
      * @var string
      */
     protected $moduleName = 'DirectMailNavFrame';
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct()
     {
         $this->MCONF = array(
-            'name' => $this->moduleName
+            'name' => $this->moduleName,
         );
     }
 
     /**
-     * First initialization of the global variables. Set some JS-code
-     *
-     * @return	void
+     * First initialization of the global variables. Set some JS-code.
      */
     public function init()
     {
@@ -96,7 +94,7 @@ class NavFrame
 
         // Setting JavaScript for menu.
         $this->doc->JScode = $this->doc->wrapScriptTags(
-            ($currentModule ? 'top.currentSubScript=unescape("' . rawurlencode($currentSubScript) . '");' : '') . '
+            ($currentModule ? 'top.currentSubScript=unescape("'.rawurlencode($currentSubScript).'");' : '').'
 
 			function jumpTo(params,linkObj,highLightID)	{ //
 				var theUrl = top.currentSubScript+"&"+params;
@@ -106,8 +104,8 @@ class NavFrame
 				} else {
 					parent.list_frame.document.location=theUrl;
 				}
-				' . ($this->doHighlight ? 'hilight_row("row"+top.fsMod.recentIds["DirectMailNavFrame"],highLightID);' : '') . '
-				' . (!$GLOBALS['CLIENT']['FORMSTYLE'] ? '' : 'if (linkObj) {linkObj.blur();}') . '
+				' .($this->doHighlight ? 'hilight_row("row"+top.fsMod.recentIds["DirectMailNavFrame"],highLightID);' : '').'
+				' .(!$GLOBALS['CLIENT']['FORMSTYLE'] ? '' : 'if (linkObj) {linkObj.blur();}').'
 				return false;
 			}
 
@@ -120,7 +118,7 @@ class NavFrame
 
 
 			function _refresh_nav()	{ //
-				document.location="' . htmlspecialchars(GeneralUtility::getIndpEnv('SCRIPT_NAME') . '?unique=' . time()) . '";
+				document.location="' .htmlspecialchars(GeneralUtility::getIndpEnv('SCRIPT_NAME').'?unique='.time()).'";
 			}
 
 				// Highlighting rows in the page tree:
@@ -139,10 +137,10 @@ class NavFrame
     }
 
     /**
-     * Entrance from the backend module. This replace the _dispatch
+     * Entrance from the backend module. This replace the _dispatch.
      *
-     * @param ServerRequestInterface $request The request object from the backend
-     * @param ResponseInterface $response The reponse object sent to the backend
+     * @param ServerRequestInterface $request  The request object from the backend
+     * @param ResponseInterface      $response The reponse object sent to the backend
      *
      * @return ResponseInterface Return the response object
      */
@@ -157,13 +155,12 @@ class NavFrame
         $this->printContent();
 
         $response->getBody()->write($this->content);
+
         return $response;
     }
 
     /**
-     * Main function, rendering the browsable page tree
-     *
-     * @return	void
+     * Main function, rendering the browsable page tree.
      */
     public function main()
     {
@@ -172,7 +169,7 @@ class NavFrame
         $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
             '*',
             'pages',
-            'doktype = 254 AND module in (\'dmail\')' . BackendUtility::deleteClause('pages'),
+            'doktype = 254 AND module in (\'dmail\')'.BackendUtility::deleteClause('pages'),
             '',
             'title'
         );
@@ -182,33 +179,32 @@ class NavFrame
             if (BackendUtility::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1))) {
                 $icon = $iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL)->render();
 
-                $out .= '<tr>' .
-                    '<td id="dmail_' . $row['uid'] . '" >
-						<a href="#" onclick="top.fsMod.recentIds[\'DirectMailNavFrame\']=' . $row['uid'] . ';jumpTo(\'id=' . $row['uid'] . '\',this,\'dmail_' . $row['uid'] . '\');">' .
-                    $icon .
-                    '&nbsp;' . htmlspecialchars($row['title']) . '</a></td></tr>';
+                $out .= '<tr>'.
+                    '<td id="dmail_'.$row['uid'].'" >
+						<a href="#" onclick="top.fsMod.recentIds[\'DirectMailNavFrame\']=' .$row['uid'].';jumpTo(\'id='.$row['uid'].'\',this,\'dmail_'.$row['uid'].'\');">'.
+                    $icon.
+                    '&nbsp;'.htmlspecialchars($row['title']).'</a></td></tr>';
             }
         }
         $GLOBALS['TYPO3_DB']->sql_free_result($res);
-        $content = '<table cellspacing="0" cellpadding="0" border="0" width="100%">' . $out . '</table>';
+        $content = '<table cellspacing="0" cellpadding="0" border="0" width="100%">'.$out.'</table>';
 
         // Adding highlight - JavaScript
         if ($this->doHighlight) {
-            $content .=$this->doc->wrapScriptTags('
+            $content .= $this->doc->wrapScriptTags('
 			hilight_row("",top.fsMod.navFrameHighlightedID["web"]);
 		');
         }
 
-
         $docHeaderButtons = array(
             'CSH' => BackendUtility::cshItem('_MOD_DirectMailNavFrame', 'folders', $GLOBALS['BACK_PATH'], true),
-            'REFRESH' => '<a href="' . htmlspecialchars(GeneralUtility::linkThisScript(array('unique' => uniqid('directmail_navframe')))) . '">' .
-                $iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL) . '</a>'
+            'REFRESH' => '<a href="'.htmlspecialchars(GeneralUtility::linkThisScript(array('unique' => uniqid('directmail_navframe')))).'">'.
+                $iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL).'</a>',
         );
 
         $markers = array(
             'HEADLINE' => '',
-            'CONTENT' => $this->getLanguageService()->getLL('dmail_folders') . $content
+            'CONTENT' => $this->getLanguageService()->getLL('dmail_folders').$content,
         );
         // Build the <body> for the module
         $this->content = $this->doc->startPage('TYPO3 Direct Mail Navigation');
@@ -216,18 +212,16 @@ class NavFrame
     }
 
     /**
-     * Outputting the accumulated content to screen
-     *
-     * @return	void
+     * Outputting the accumulated content to screen.
      */
     public function printContent()
     {
-        $this->content.= $this->doc->endPage();
+        $this->content .= $this->doc->endPage();
         $this->content = $this->doc->insertStylesAndJS($this->content);
     }
 
     /**
-     * Returns LanguageService
+     * Returns LanguageService.
      *
      * @return \TYPO3\CMS\Lang\LanguageService
      */

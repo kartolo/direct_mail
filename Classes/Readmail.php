@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -24,18 +25,15 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @author		Kasper Sk�rh�j <kasper@typo3.com>
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  * @version		$Id: class.readmail.php 6012 2007-07-23 12:54:25Z ivankartolo $
  */
 class Readmail
 {
-
     protected $reason_text = array(
         '550' => 'no mailbox|account does not exist|user unknown|user is unknown|unknown user|unknown local part|unrouteable address|does not have an account here|no such user|user not listed|account has been disabled or discontinued|user disabled|unknown recipient|invalid recipient|recipient problem|recipient name is not recognized|mailbox unavailable|550 5\.1\.1 recipient|status: 5\.1\.1|delivery failed 550|550 requested action not taken|receiver not found|unknown or illegal alias|is unknown at host|is not a valid mailbox|no mailbox here by that name|we do not relay|5\.7\.1 unable to relay|cuenta no activa|inactive user|user is inactive|mailaddress is administratively disabled|not found in directory|not listed in public name & address book|destination addresses were unknown|rejected address|not listed in domino directory|domino directory entry does not|550-5\.1.1 The email account that you tried to reach does not exist',
         '551' => 'over quota|quota exceeded|mailbox full|mailbox is full|not enough space on the disk|mailfolder is over the allowed quota|recipient reached disk quota|temporalmente sobre utilizada|recipient storage full|mailbox lleno|user mailbox exceeds allowed size',
         '552' => 't find any host named|unrouteable mail domain|not reached for any host after a long failure period|domain invalid|host lookup did not complete: retry timeout exceeded|no es posible conectar correctamente',
-        '554' => 'error in header|header error|invalid message|invalid structure|header line format error'
+        '554' => 'error in header|header error|invalid message|invalid structure|header line format error',
     );
 
     public $dateAbbrevs = array(
@@ -50,49 +48,49 @@ class Readmail
         'SEP' => 9,
         'OCT' => 10,
         'NOV' => 11,
-        'DEC' => 12
+        'DEC' => 12,
     );
 
     public $serverGMToffsetMinutes = 60;
 
-
     /**
      * Returns special TYPO3 Message ID (MID) from input TO header
-     * (the return address of the sent mail from Dmailer)
+     * (the return address of the sent mail from Dmailer).
      *
-     * @param	string		$to Email address, return address string
+     * @param string $to Email address, return address string
      *
-     * @return	array		array with 'mid', 'rtbl' and 'rid' keys are returned.
+     * @return array array with 'mid', 'rtbl' and 'rid' keys are returned
      */
     public function find_MIDfromReturnPath($to)
     {
         $parts = explode('mid', strtolower($to));
-        $moreParts=explode('_', $parts[1]);
-        $out=array(
+        $moreParts = explode('_', $parts[1]);
+        $out = array(
             'mid' => $moreParts[0],
             'rtbl' => substr($moreParts[1], 0, 1),
-            'rid' => intval(substr($moreParts[1], 1))
+            'rid' => intval(substr($moreParts[1], 1)),
         );
-        if ($out['rtbl']=='p') {
-            $out['rtbl']='P';
+        if ($out['rtbl'] == 'p') {
+            $out['rtbl'] = 'P';
         }
 
-        return($out);
+        return $out;
     }
 
     /**
-     * Returns special TYPO3 Message ID (MID) from input mail content
+     * Returns special TYPO3 Message ID (MID) from input mail content.
      *
-     * @param	string		$content Mail (header) content
+     * @param string $content Mail (header) content
      *
-     * @return	mixed		If "X-Typo3MID" header is found and integrity is OK,
-     * 	then an array with 'mid', 'rtbl' and 'rid' keys are returned. Otherwise void.
+     * @return mixed If "X-Typo3MID" header is found and integrity is OK,
+     *               then an array with 'mid', 'rtbl' and 'rid' keys are returned. Otherwise void
+     *
      * @internal
      */
     public function find_XTypo3MID($content)
     {
-        if (strstr($content, "X-TYPO3MID:")) {
-            $p = explode("X-TYPO3MID:", $content, 2);
+        if (strstr($content, 'X-TYPO3MID:')) {
+            $p = explode('X-TYPO3MID:', $content, 2);
             $l = explode(LF, $p[1], 2);
             list($mid, $hash) = GeneralUtility::trimExplode('-', $l[0]);
             if (md5($mid) == $hash) {
@@ -100,22 +98,24 @@ class Readmail
                 $out = array(
                     'mid' => $moreParts[0],
                     'rtbl' => substr($moreParts[1], 0, 1),
-                    'rid' => substr($moreParts[1], 1)
+                    'rid' => substr($moreParts[1], 1),
                 );
-                return($out);
+
+                return $out;
             }
         }
-        return "";
+
+        return '';
     }
 
     /**
      * Returns the text content of a mail which has previously been parsed by eg. extractMailHeader()
      * Probably obsolete since the function fullParse() is more advanced and safer to use.
-     * The getMessage method is modified to avoid breaking the message when it contains a Content-Type: message/delivery-status
+     * The getMessage method is modified to avoid breaking the message when it contains a Content-Type: message/delivery-status.
      *
      * @param array $mailParts Output from extractMailHeader()
      *
-     * @return	string		only the content part
+     * @return string only the content part
      */
     public function getMessage(array $mailParts)
     {
@@ -128,14 +128,15 @@ class Readmail
                 $parts = $this->getMailBoundaryParts($cType['boundary'], $mailParts['CONTENT']);
                 $c = $this->getTextContent($parts[0]);
             } else {
-                $c=$this->getTextContent(
-                    'Content-Type: ' . $mailParts['content-type'] . '
-					' . $mailParts['CONTENT']
+                $c = $this->getTextContent(
+                    'Content-Type: '.$mailParts['content-type'].'
+					' .$mailParts['CONTENT']
                 );
             }
         } else {
             $c = $mailParts['CONTENT'];
         }
+
         return $c;
     }
 
@@ -157,16 +158,16 @@ class Readmail
 
     /**
      * Splits the body of a mail into parts based on the boundary string given.
-     * Obsolete, use fullParse()
+     * Obsolete, use fullParse().
      *
-     * @param string $boundary Boundary string used to split the content.
-     * @param string $content BODY section of a mail
+     * @param string $boundary Boundary string used to split the content
+     * @param string $content  BODY section of a mail
      *
      * @return array Parts of the mail based on this
      */
     public function getMailBoundaryParts($boundary, $content)
     {
-        $mParts = explode('--' . $boundary, $content);
+        $mParts = explode('--'.$boundary, $content);
         unset($mParts[0]);
         $new = array();
         foreach ($mParts as $val) {
@@ -175,12 +176,13 @@ class Readmail
             }
             $new[] = ltrim($val);
         }
+
         return $new;
     }
 
     /**
      * Returns Content Type plus more.
-     * Obsolete, use fullParse()
+     * Obsolete, use fullParse().
      *
      * @param string $str ContentType string with more
      *
@@ -201,6 +203,7 @@ class Readmail
                 $cTypes[] = $ppstr;
             }
         }
+
         return $cTypes;
     }
 
@@ -209,17 +212,17 @@ class Readmail
      * used to find what reason there was for rejecting the mail
      * Used by the Dmailer, but not exclusively.
      *
-     * @param	string		$c Message Body/text
+     * @param string $c Message Body/text
      *
-     * @return	array		key/value pairs with analysis result.
-     * 	Eg. "reason", "content", "reason_text", "mailserver" etc.
+     * @return array key/value pairs with analysis result.
+     *               Eg. "reason", "content", "reason_text", "mailserver" etc
      */
     public function analyseReturnError($c)
     {
         $cp = array();
         // QMAIL
-        if (preg_match('/' . preg_quote('--- Below this line is a copy of the message.') . '|' . preg_quote('------ This is a copy of the message, including all the headers.') . '/i', $c)) {
-            if (preg_match('/' . preg_quote('--- Below this line is a copy of the message.') . '/i', $c)) {
+        if (preg_match('/'.preg_quote('--- Below this line is a copy of the message.').'|'.preg_quote('------ This is a copy of the message, including all the headers.').'/i', $c)) {
+            if (preg_match('/'.preg_quote('--- Below this line is a copy of the message.').'/i', $c)) {
                 // Splits by the QMAIL divider
                 $parts = explode('-- Below this line is a copy of the message.', $c, 2);
             } else {
@@ -228,7 +231,7 @@ class Readmail
             }
             $cp['content'] = trim($parts[0]);
             $parts = explode('>:', $cp['content'], 2);
-            $cp['reason_text'] = trim($parts[1])?trim($parts[1]):$cp['content'];
+            $cp['reason_text'] = trim($parts[1]) ? trim($parts[1]) : $cp['content'];
             $cp['mailserver'] = 'Qmail';
             $cp['reason'] = $this->extractReason($cp['reason_text']);
         } elseif (strstr($c, 'The Postfix program')) {
@@ -256,15 +259,15 @@ class Readmail
             // whoever this is...
             $cp['content'] = trim($c);
             $cp['reason_text'] = trim(strstr($cp['content'], 'Your message cannot be delivered to the following recipients:'));
-            $cp['reason_text']=trim(substr($cp['reason_text'], 0, 500));
-            $cp['mailserver']='unknown';
+            $cp['reason_text'] = trim(substr($cp['reason_text'], 0, 500));
+            $cp['mailserver'] = 'unknown';
             $cp['reason'] = $this->extractReason($cp['reason_text']);
         } elseif (strstr($c, 'Diagnostic-Code: X-Notes')) {
             // Lotus Notes
             $cp['content'] = trim($c);
             $cp['reason_text'] = trim(strstr($cp['content'], 'Diagnostic-Code: X-Notes'));
             $cp['reason_text'] = trim(substr($cp['reason_text'], 0, 200));
-            $cp['mailserver']='Notes';
+            $cp['mailserver'] = 'Notes';
             $cp['reason'] = $this->extractReason($cp['reason_text']);
         } else {
             // No-named:
@@ -279,20 +282,21 @@ class Readmail
 
     /**
      * Try to match reason found in the returned email
-     * with the defined reasons (see $reason_text)
+     * with the defined reasons (see $reason_text).
      *
-     * @param	string		$text Content of the returned email
+     * @param string $text Content of the returned email
      *
-     * @return	int		The error code.
+     * @return int The error code
      */
     public function extractReason($text)
     {
         $reason = -1;
         foreach ($this->reason_text as $case => $value) {
-            if (preg_match('/' . $value . '/i', $text)) {
+            if (preg_match('/'.$value.'/i', $text)) {
                 return intval($case);
             }
         }
+
         return $reason;
     }
 
@@ -300,9 +304,9 @@ class Readmail
      * Decodes a header-string with the =?....?= syntax
      * including base64/quoted-printable encoding.
      *
-     * @param string $str A string (encoded or not) from a mail header, like sender name etc.
+     * @param string $str A string (encoded or not) from a mail header, like sender name etc
      *
-     * @return string The input string, but with the parts in =?....?= decoded.
+     * @return string The input string, but with the parts in =?....?= decoded
      */
     public function decodeHeaderString($str)
     {
@@ -322,8 +326,9 @@ class Readmail
                 default:
             }
             // Calls decodeHeaderString recursively for any subsequent encoded section.
-            $parts[1] = $encContent . $this->decodeHeaderString($subparts[1]);
+            $parts[1] = $encContent.$this->decodeHeaderString($subparts[1]);
         }
+
         return implode('', $parts);
     }
 
@@ -331,10 +336,10 @@ class Readmail
      * Extracts name/email parts from a header field
      * (like 'To:' or 'From:' with name/email mixed up.
      *
-     * @param string $str Value from a header field containing name/email values.
+     * @param string $str Value from a header field containing name/email values
      *
      * @return array Array with the name and email in.
-     * 	Email is validated, otherwise not set.
+     *               Email is validated, otherwise not set
      */
     public function extractNameEmail($str)
     {
@@ -358,16 +363,17 @@ class Readmail
                 }
             }
         }
+
         return $outArr;
     }
 
     /**
      * Returns the data from the 'content-type' field.
-     * That is the boundary, charset and mime-type
+     * That is the boundary, charset and mime-type.
      *
      * @param string $contentTypeStr Content-type-string
      *
-     * @return array key/value pairs with the result.
+     * @return array key/value pairs with the result
      */
     public function getContentTypeData($contentTypeStr)
     {
@@ -378,20 +384,21 @@ class Readmail
         $outValue['_MIME_TYPE'] = $cTypeParts[0];
         reset($cTypeParts);
         next($cTypeParts);
-        while (list(, $v) = Each($cTypeParts)) {
+        while (list(, $v) = each($cTypeParts)) {
             $reg = '';
             preg_match('/([^=]*)="(.*)"/i', $v, $reg);
             if (trim($reg[1]) && trim($reg[2])) {
                 $outValue[strtolower($reg[1])] = $reg[2];
             }
         }
+
         return $outValue;
     }
 
     /**
      * Makes a UNIX-date based on the timestamp in the 'Date' header field.
      *
-     * @param string $dateStr String with a timestamp according to email standards.
+     * @param string $dateStr String with a timestamp according to email standards
      *
      * @return int The timestamp converted to unix-time in seconds and compensated for GMT/CET ($this->serverGMToffsetMinutes);
      */
@@ -406,37 +413,38 @@ class Readmail
         $offset = $this->getGMToffset($spaceParts[4]);
         // Compensates for GMT by subtracting the number of seconds which the date is offset from serverTime
         $timeStamp -= $offset * 60;
+
         return $timeStamp;
     }
 
     /**
      * Parsing the GMT offset value from a mail timestamp.
      *
-     * @param string $GMT A string like "+0100" or so.
+     * @param string $GMT A string like "+0100" or so
      *
      * @return int Minutes to offset the timestamp
-     * @access private
      */
     public function getGMToffset($GMT)
     {
         $GMToffset = intval(substr($GMT, 1, 2)) * 60 + intval(substr($GMT, 3, 2));
         $GMToffset *= substr($GMT, 0, 1) == '+' ? 1 : -1;
         $GMToffset -= $this->serverGMToffsetMinutes;
+
         return $GMToffset;
     }
 
     /**
      * This returns the mail header items in an array with
-     * associative keys and the mail body part in another CONTENT field
+     * associative keys and the mail body part in another CONTENT field.
      *
      * @param string $content Raw mail content
-     * @param int $limit A safety limit that will put a upper length
-     * 	to how many header chars will be processed.
-     *  Set to zero means that there is no limit.
-     *	(Uses a simple substr() to limit the amount of mail data to process to avoid run-away)
+     * @param int    $limit   A safety limit that will put a upper length
+     *                        to how many header chars will be processed.
+     *                        Set to zero means that there is no limit.
+     *                        (Uses a simple substr() to limit the amount of mail data to process to avoid run-away)
      *
      * @return array An array where each key/value pair is a header-key/value pair.
-     * The mail BODY is returned in the key 'CONTENT' if $limit is not set!
+     *               The mail BODY is returned in the key 'CONTENT' if $limit is not set!
      */
     public function extractMailHeader($content, $limit = 0)
     {
@@ -455,18 +463,19 @@ class Readmail
             if ($parts[0] && substr($parts[0], -1) == ':') {
                 $p = strtolower(substr($parts[0], 0, -1));
                 if (isset($headers[$p])) {
-                    $headers[$p . '.'][] = $headers[$p];
+                    $headers[$p.'.'][] = $headers[$p];
                     $headers[$p] = '';
                 }
                 $headers[$p] = trim($parts[1]);
             } else {
-                $headers[$p] .= ' ' . trim($str);
+                $headers[$p] .= ' '.trim($str);
             }
             unset($lines[$k]);
         }
         if (!$limit) {
             $headers['CONTENT'] = ltrim(implode(LF, $lines));
         }
+
         return $headers;
     }
 
@@ -475,9 +484,9 @@ class Readmail
      * which will also parse all the content body into an array and
      * further process the header fields and decode content etc. Returns every part of the mail ready to go.
      *
-     * @param string $content Raw email input.
+     * @param string $content Raw email input
      *
-     * @return array Multidimensional array with all parts of the message organized nicely.
+     * @return array Multidimensional array with all parts of the message organized nicely
      */
     public function fullParse($content)
     {
@@ -497,7 +506,7 @@ class Readmail
         $list = explode(',', 'from,to,reply-to,sender,return-path');
         foreach ($list as $headerType) {
             if (isset($mailParts[$headerType])) {
-                $mailParts['_' . strtoupper($headerType)] = $this->extractNameEmail($mailParts[$headerType]);
+                $mailParts['_'.strtoupper($headerType)] = $this->extractNameEmail($mailParts[$headerType]);
             }
         }
         // Decode date from human-readable format to unix-time (includes compensation for GMT CET)
@@ -524,7 +533,7 @@ class Readmail
         switch ($cType) {
             case 'multipart':
                 if ($mailParts['_CONTENT_TYPE_DAT']['boundary']) {
-                    $contentSectionParts = GeneralUtility::trimExplode('--' . $mailParts['_CONTENT_TYPE_DAT']['boundary'], $mailParts['CONTENT'], 1);
+                    $contentSectionParts = GeneralUtility::trimExplode('--'.$mailParts['_CONTENT_TYPE_DAT']['boundary'], $mailParts['CONTENT'], 1);
                     $contentSectionParts_proc = array();
                     foreach ($contentSectionParts as $k => $v) {
                         if (substr($v, 0, 2) == '--') {
@@ -542,6 +551,7 @@ class Readmail
                     $mailParts['CONTENT'] = utf8_decode($mailParts['CONTENT']);
                 }
         }
+
         return $mailParts;
     }
 }

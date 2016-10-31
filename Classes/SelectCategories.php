@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -16,15 +17,11 @@ namespace DirectMailTeam\DirectMail;
 
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use DirectMailTeam\DirectMail;
 
 /**
- * Localize categories for backend forms
+ * Localize categories for backend forms.
  *
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class SelectCategories
 {
@@ -33,11 +30,9 @@ class SelectCategories
 
     /**
      * Get the localization of the select field items (right-hand part of form)
-     * Referenced by TCA
+     * Referenced by TCA.
      *
-     * @param	array $params Array of searched translation
-     *
-     * @return	void
+     * @param array $params Array of searched translation
      */
     public function get_localized_categories(array $params)
     {
@@ -60,8 +55,8 @@ class SelectCategories
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                 'sys_language.uid',
                 'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode = static_languages.uid',
-                'static_languages.lg_typo3 = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($LANG->lang, 'static_languages') .
-                    $sysPage->enableFields('sys_language') .
+                'static_languages.lg_typo3 = '.$GLOBALS['TYPO3_DB']->fullQuoteStr($LANG->lang, 'static_languages').
+                    $sysPage->enableFields('sys_language').
                     $sysPage->enableFields('static_languages')
                 );
             while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
@@ -76,7 +71,7 @@ class SelectCategories
                 $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                     '*',
                     $table,
-                    'uid=' . intval($item[1])
+                    'uid='.intval($item[1])
                 );
                 while (($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
                     if (($localizedRowCat = DirectMailUtility::getRecordOverlay($table, $rowCat, $this->sys_language_uid, ''))) {
