@@ -863,7 +863,7 @@ class DirectMailUtility
      *
      * @return array The all id of fe_groups
      */
-    public function getFEgroupSubgroups($groupId)
+    public static function getFEgroupSubgroups($groupId)
     {
         // get all subgroups of this fe_group
         // fe_groups having this id in their subgroup field
