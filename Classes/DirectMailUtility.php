@@ -1219,6 +1219,10 @@ class DirectMailUtility
             // Update the record:
             $htmlmail->theParts['messageid'] = $htmlmail->messageid;
             $mailContent = base64_encode(serialize($htmlmail->theParts));
+
+            // !ian save last dmail source in tmp for debug
+            file_put_contents('/tmp/dmail.php', var_export($htmlmail->theParts, true));
+
             $updateData = array(
                 'issent'             => 0,
                 'charset'            => $htmlmail->charset,
