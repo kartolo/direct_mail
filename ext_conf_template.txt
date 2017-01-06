@@ -25,3 +25,5 @@ UseHttpToFetch = 0
 	# cat=basic/dev/1000; type=user[DirectMailTeam\DirectMail\Utility\TsParserExt->displayMessage]; label=LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:update_option
 updateMessage=0
 
+  # cat=basic/enable; type=boolean; label=Use FAL when rendering images in Text format
+useFal=0

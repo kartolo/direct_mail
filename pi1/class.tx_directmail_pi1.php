@@ -239,11 +239,20 @@ class tx_directmail_pi1 extends AbstractPlugin
      */
     public function getImages()
     {
+    		global $TYPO3_CONF_VARS;
+
         $imagesArray = array();
-        $this->getImagesStandard($imagesArray);
-        if (ExtensionManagementUtility::isLoaded('dam')) {
+
+        if ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['useFal']) {
+					$this->getImagesFromFal($imagesArray);
+
+				} else {
+        	$this->getImagesStandard($imagesArray);
+
+        	if (ExtensionManagementUtility::isLoaded('dam')) {
             $this->getImagesFromDam($imagesArray);
-        }
+        	}
+				}
 
         $images = $this->renderImages($imagesArray, !$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'', $this->cObj->data['imagecaption']);
 
@@ -267,6 +276,21 @@ class tx_directmail_pi1 extends AbstractPlugin
             }
         }
     }
+
+    /**
+		 * Get images from FAL and store them in $imagesArray
+		 *
+	   * @param array $imagesArray
+	   */
+    public function getImagesFromFal(array &$imagesArray)
+		{
+			$fileRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Resource\FileRepository::class);
+			$fileObjects = $fileRepository->findByRelation('tt_content', 'image', $this->cObj->data['uid']);
+
+			foreach ($fileObjects as $fileObject) {
+				$imagesArray[] = $this->siteUrl . $fileObject->getPublicUrl();
+			}
+		}
 
     /**
      * Get images from DAM and store this images to $images_arr

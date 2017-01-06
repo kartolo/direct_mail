@@ -82,6 +82,11 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['cronInt'] = $extConf['cronInt'];
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseHttpToFetch'] = $extConf['UseHttpToFetch'];
 
 /**
+ * Use FAL when rendering images in plain text format
+ */
+$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['useFal'] = $extConf['useFal'];
+
+/**
  * Enable the use of News plain text rendering hook:
  */
 if ($extConf['enablePlainTextNews']) {
