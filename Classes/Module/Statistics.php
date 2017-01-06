@@ -839,7 +839,24 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         if ($urlCounter['total']) {
             $output .= '<br /><h2>' . $this->getLanguageService()->getLL('stats_response_link') . '</h2>';
-            $output .= DirectMailUtility::formatTable($tblLines, array('nowrap', 'nowrap width="100"', 'nowrap width="100"', 'nowrap', 'nowrap', 'nowrap', 'nowrap'), 1, array(1, 0, 0, 0, 0, 0, 1));
+
+            /**
+             * Hook for cmd_stats_linkResponses
+             */
+            if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'])) {
+                $hookObjectsArr = array();
+                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'] as $classRef) {
+                    $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                }
+
+                foreach($hookObjectsArr as $hookObj) {
+                    if (method_exists($hookObj, 'cmd_stats_linkResponses')) {
+                        $output .= $hookObj->cmd_stats_linkResponses($tblLines, $this);
+                    }
+                }
+            } else {
+                $output .= DirectMailUtility::formatTable($tblLines, array('nowrap', 'nowrap width="100"', 'nowrap width="100"', 'nowrap', 'nowrap', 'nowrap', 'nowrap'), 1, array(1, 0, 0, 0, 0, 0, 1));         
+            }
         }
 
 

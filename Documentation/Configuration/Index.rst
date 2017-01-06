@@ -33,6 +33,7 @@ Configuration
    ConfiguringPlainTextRendering/Index
    ConfiguringPlainTextRenderingOfNewsRecords/Index
    ConfiguringTheUseOfCategories/Index
+   ConfiguringMultilanguage/Index
    EnablingClickStatistics/Index
    AutomaticallyInvokeTheMailerEngine/Index
    ConfiguringTheAnalysisOfReturnedMails/Index

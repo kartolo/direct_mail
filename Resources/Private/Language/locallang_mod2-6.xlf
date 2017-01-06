@@ -1059,6 +1059,9 @@ By clicking on the "Import" button below, all data will be written in tt_address
 		</trans-unit>
 		<trans-unit id="scheduler.bounceMail.dataVerification">
 			<source><![CDATA[Connection using the given data is failed. Error message: ]]></source>
+    </trans-unit>
+		<trans-unit id="error.no_recipient_groups_found">
+			<source>No recipient groups found</source>
 		</trans-unit>
 		</body>
 	</file>
