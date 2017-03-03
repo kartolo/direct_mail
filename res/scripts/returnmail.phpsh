@@ -36,24 +36,61 @@
  *
  */
 
+
+# Check if call by cli environment
+if (php_sapi_name() !== 'cli') {
+    die('Not called from a command line interface (e.g. a shell or scheduler).' . LF);
+}
+
+
+use TYPO3\CMS\Core\Core\Bootstrap;
+#use TYPO3\CMS\Core\SingletonInterface;
+#use TYPO3\CMS\Core\TimeTracker\NullTimeTracker;
+#use TYPO3\CMS\Core\Utility\GeneralUtility;
+#use TYPO3\CMS\Backend\Utility\BackendUtility;
+
+require_once __DIR__ . '/../../../../../typo3/sysext/core/Classes/Core/ApplicationContext.php';
+require_once __DIR__ . '/../../../../../typo3/sysext/core/Classes/Core/Bootstrap.php';
+require_once __DIR__ . '/../../../../../typo3/sysext/core/Classes/SingletonInterface.php';
+
+// TYPO3 BE Mode & Path
 define('TYPO3_MODE', 'BE');
-define('TYPO3_cliMode', TRUE);
+define('PATH_site', __DIR__ . '/../../../../../');
 
-require __DIR__ . '/../../../../../typo3/sysext/core/Classes/Core/CliBootstrap.php';
-\TYPO3\CMS\Core\Core\CliBootstrap::checkEnvironmentOrDie();
+// configure TYPO3 (e.g. paths, variables and classLoader)
+$bootstrapObj = Bootstrap::getInstance();
 
-require __DIR__ . '/../../../../../typo3/sysext/core/Classes/Core/Bootstrap.php';
-\TYPO3\CMS\Core\Core\Bootstrap::getInstance()
-	->baseSetup('typo3conf/ext/direct_mail/res/scripts/')
-	->loadConfigurationAndInitialize()
-	->loadTypo3LoadedExtAndExtLocalconf(TRUE)
-	->applyAdditionalConfigurationSettings()
-	->initializeTypo3DbGlobal();
+// Class Loader init
+$classLoader = require PATH_site . 'typo3_src/vendor/autoload.php';
+
+$bootstrapObj->initializeClassLoader($classLoader);
+
+$bootstrapObj->baseSetup('/typo3/');
+$bootstrapObj->startOutputBuffering();
+$bootstrapObj->loadConfigurationAndInitialize();
+
+// configure TYPO3 (Database and further settings)
+$bootstrapObj->setFinalCachingFrameworkCacheConfiguration();
+$bootstrapObj->defineLoggingAndExceptionConstants();
+$bootstrapObj->unsetReservedGlobalVariables();
+$bootstrapObj->initializeTypo3DbGlobal();
+#### TYPO3 7.6 NEW ###
+
+#### OLD DOES NOT WORK ###
+#require __DIR__ . '/../../../../../typo3/sysext/core/Classes/Core/Bootstrap.php';
+#\TYPO3\CMS\Core\Core\Bootstrap::getInstance()
+#	->baseSetup('typo3conf/ext/direct_mail/res/scripts/')
+#	->loadConfigurationAndInitialize()
+#	->loadTypo3LoadedExtAndExtLocalconf(TRUE)
+#	->applyAdditionalConfigurationSettings()
+#	->initializeTypo3DbGlobal();
+#### OLD DOES NOT WORK ###
+
 
 // MAIL CONTENT
 $filename = 'php://stdin';
-
 $content = \TYPO3\CMS\Core\Utility\GeneralUtility::getUrl($filename);
+
 if (trim($content))	{
 	$readMail = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Readmail');
 
