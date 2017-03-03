@@ -1021,6 +1021,9 @@ By clicking on the "Import" button below, all data will be written in tt_address
 		<trans-unit id="yes">
 			<source>Yes</source>
 		</trans-unit>
+		<trans-unit id="error.no_recipient_groups_found">
+			<source>No recipient groups found</source>
+		</trans-unit>
 		</body>
 	</file>
 </xliff>

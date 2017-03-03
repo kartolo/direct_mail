@@ -51,6 +51,21 @@ cmd_stats
    Description
          This hook can be used to influence the output of the overall statistic output
 
+.. _hooks_cmd_stats_linkResponses:
+cmd_stats_linkResponses
+'''''''''
+
+.. container:: table-row
+
+   Property
+         ``$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses']``
+
+   Method
+         ``cmd_stats_linkResponses``
+
+   Description
+         This hook can be used to influence the output of the statistics section "link responses" 
+
 .. _hooks_renderCType:
 renderCType
 '''''''''''
