@@ -36,7 +36,7 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
      * In this case, it adds an email field
      *
      * @param array $taskInfo reference to the array containing the info used in the add/edit form
-     * @param object $task when editing, reference to the current task object. Null when adding.
+     * @param AnalyzeBounceMail $task when editing, reference to the current task object. Null when adding.
      * @param SchedulerModuleController $schedulerModule reference to the calling object (Scheduler's BE module)
      *
      * @return array Array containg all the information pertaining to the additional fields
@@ -61,8 +61,6 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
             '<option value="pop3" ' . ($task->getService == 'pop3'? 'selected="selected"' : '') . '>POP3</option>' .
             '</select>';
 
-// TODO: add check SSL
-
         $additionalFields = array();
         $additionalFields['server'] = $this->createAdditionalFields('server', $serverHTML);
         $additionalFields['port'] = $this->createAdditionalFields('port', $portHTML);
@@ -78,7 +76,7 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
      * Takes care of saving the additional fields' values in the task's object
      *
      * @param array $submittedData An array containing the data submitted by the add/edit task form
-     * @param AbstractTask $task Reference to the scheduler backend module
+     * @param AnalyzeBounceMail $task Reference to the scheduler backend module
      * @return void
      */
     public function saveAdditionalFields(array $submittedData, AbstractTask $task)
@@ -100,24 +98,33 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
      */
     public function validateAdditionalFields(array &$submittedData, SchedulerModuleController $schedulerModule)
     {
-        // check if we can connect using the given data
-        /** @var Server $mailServer */
-        $mailServer = GeneralUtility::makeInstance(
-            'Fetch\\Server',
-            $submittedData['bounceServer'],
-            (int)$submittedData['bouncePort'],
-            $submittedData['bounceService']
-        );
+        // check if PHP IMAP is installed
+        if (extension_loaded('imap')) {
+            // check if we can connect using the given data
+            /** @var Server $mailServer */
+            $mailServer = GeneralUtility::makeInstance(
+                \Fetch\Server::class,
+                $submittedData['bounceServer'],
+                (int)$submittedData['bouncePort'],
+                $submittedData['bounceService']
+            );
 
-        $mailServer->setAuthentication($submittedData['bounceUser'], $submittedData['bouncePassword']);
+            $mailServer->setAuthentication($submittedData['bounceUser'], $submittedData['bouncePassword']);
 
-        try {
-            $imapStream = $mailServer->getImapStream();
-            $return = true;
-        } catch (\Exception $e) {
+            try {
+                $imapStream = $mailServer->getImapStream();
+                $return = true;
+            } catch (\Exception $e) {
+                $schedulerModule->addMessage(
+                    $this->getLanguangeService()->getLL('scheduler.bounceMail.dataVerification') .
+                    $e->getMessage(),
+                    FlashMessage::ERROR
+                );
+                $return = false;
+            }
+        } else {
             $schedulerModule->addMessage(
-                $this->getLanguangeService()->getLL('scheduler.bounceMail.dataVerification') .
-                $e->getMessage(),
+                $this->getLanguangeService()->getLL('scheduler.bounceMail.phpImapError'),
                 FlashMessage::ERROR
             );
             $return = false;

@@ -21,12 +21,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Analysis of return mail reason is enhanced by checking more possible reason texts.
  * Tested on mailing list of approx. 1500 members with most domains in M�xico and reason text in English or Spanish.
  *
- * @author		Kasper Sk�rh�j <kasper@typo3.com>
- * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @author  Kasper Sk�rh�j <kasper@typo3.com>
+ * @author  Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
- * @version		$Id: class.readmail.php 6012 2007-07-23 12:54:25Z ivankartolo $
+ * @package  TYPO3
+ * @subpackage  tx_directmail
+ * @version  $Id: class.readmail.php 6012 2007-07-23 12:54:25Z ivankartolo $
  */
 class Readmail
 {
@@ -59,9 +59,9 @@ class Readmail
      * Returns special TYPO3 Message ID (MID) from input TO header
      * (the return address of the sent mail from Dmailer)
      *
-     * @param	string		$to Email address, return address string
+     * @param string  $to Email address, return address string
      *
-     * @return	array		array with 'mid', 'rtbl' and 'rid' keys are returned.
+     * @return array  array with 'mid', 'rtbl' and 'rid' keys are returned.
      */
     public function find_MIDfromReturnPath($to)
     {
@@ -82,11 +82,10 @@ class Readmail
     /**
      * Returns special TYPO3 Message ID (MID) from input mail content
      *
-     * @param	string		$content Mail (header) content
+     * @param string  $content Mail (header) content
      *
-     * @return	mixed		If "X-Typo3MID" header is found and integrity is OK,
-     * 	then an array with 'mid', 'rtbl' and 'rid' keys are returned. Otherwise void.
-     * @internal
+     * @return mixed  If "X-Typo3MID" header is found and integrity is OK,
+     *  then an array with 'mid', 'rtbl' and 'rid' keys are returned. Otherwise void.
      */
     public function find_XTypo3MID($content)
     {
@@ -114,7 +113,7 @@ class Readmail
      *
      * @param array $mailParts Output from extractMailHeader()
      *
-     * @return	string		only the content part
+     * @return string  only the content part
      */
     public function getMessage(array $mailParts)
     {
@@ -129,7 +128,7 @@ class Readmail
             } else {
                 $c=$this->getTextContent(
                     'Content-Type: ' . $mailParts['content-type'] . '
-					' . $mailParts['CONTENT']
+     ' . $mailParts['CONTENT']
                 );
             }
         } else {
@@ -208,10 +207,10 @@ class Readmail
      * used to find what reason there was for rejecting the mail
      * Used by the Dmailer, but not exclusively.
      *
-     * @param	string		$c Message Body/text
+     * @param string  $c Message Body/text
      *
-     * @return	array		key/value pairs with analysis result.
-     * 	Eg. "reason", "content", "reason_text", "mailserver" etc.
+     * @return array  key/value pairs with analysis result.
+     *  Eg. "reason", "content", "reason_text", "mailserver" etc.
      */
     public function analyseReturnError($c)
     {
@@ -280,9 +279,9 @@ class Readmail
      * Try to match reason found in the returned email
      * with the defined reasons (see $reason_text)
      *
-     * @param	string		$text Content of the returned email
+     * @param string  $text Content of the returned email
      *
-     * @return	int		The error code.
+     * @return int  The error code.
      */
     public function extractReason($text)
     {
@@ -333,7 +332,7 @@ class Readmail
      * @param string $str Value from a header field containing name/email values.
      *
      * @return array Array with the name and email in.
-     * 	Email is validated, otherwise not set.
+     *  Email is validated, otherwise not set.
      */
     public function extractNameEmail($str)
     {
@@ -430,9 +429,9 @@ class Readmail
      *
      * @param string $content Raw mail content
      * @param int $limit A safety limit that will put a upper length
-     * 	to how many header chars will be processed.
+     *  to how many header chars will be processed.
      *  Set to zero means that there is no limit.
-     *	(Uses a simple substr() to limit the amount of mail data to process to avoid run-away)
+     * (Uses a simple substr() to limit the amount of mail data to process to avoid run-away)
      *
      * @return array An array where each key/value pair is a header-key/value pair.
      * The mail BODY is returned in the key 'CONTENT' if $limit is not set!

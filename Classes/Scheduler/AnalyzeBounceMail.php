@@ -164,15 +164,16 @@ class AnalyzeBounceMail extends AbstractTask
         $mailServer = $this->connectMailServer();
         if ($mailServer instanceof Server) {
             // we are connected to mail server
-            // get mails
-            // TODO: how to get only unread mail
-            $messages = $mailServer->getMessages($this->maxProcessed);
+            // get unread mails
+            $messages = $mailServer->search('UNSEEN', $this->maxProcessed);
             /** @var Message $message The message object */
             foreach ($messages as $i => $message) {
                 // process the mail
                 if ($this->processBounceMail($message)) {
                     // set delete
                     //$message->delete();
+                } else {
+                    $message->setFlag('SEEN');
                 }
             }
 
@@ -192,51 +193,50 @@ class AnalyzeBounceMail extends AbstractTask
     private function processBounceMail($message)
     {
         /** @var Readmail $readMail */
-        $readMail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Readmail');
+        $readMail = GeneralUtility::makeInstance(Readmail::class);
 
         // get attachment
         $attachmentArray = $message->getAttachments();
         $midArray = array();
-        foreach ($attachmentArray as $v => $attachment) {
-            //Todo: check attachment mimeType $attachment->mimeType?
-            $bouncedMail = $attachment->getData();
-            // Find mail id
-            $midArray = $readMail->find_XTypo3MID($bouncedMail);
-            if (is_array($midArray)) {
-                // if mid, rid and rtbl are found, then continue
-                break;
+        if (is_array($attachmentArray)) {
+            foreach ($attachmentArray as $v => $attachment) {
+                $bouncedMail = $attachment->getData();
+                // Find mail id
+                $midArray = $readMail->find_XTypo3MID($bouncedMail);
+                if (is_array($midArray)) {
+                    // if mid, rid and rtbl are found, then continue
+                    break;
+                }
             }
-        }
+            // Extract text content
+            $cp = $readMail->analyseReturnError($message->getMessageBody());
 
-        // Extract text content
-        $cp = $readMail->analyseReturnError($message->getMessageBody());
-
-        $res = $this->getDatabaseConnection()->exec_SELECTquery(
-            'uid,email',
-            'sys_dmail_maillog',
-            'rid=' . intval($midArray['rid']) . ' AND rtbl="' .
-            $this->getDatabaseConnection()->quoteStr($midArray['rtbl'], 'sys_dmail_maillog') . '"' .
-            ' AND mid=' . intval($midArray['mid']) . ' AND response_type=0'
-        );
-
-        // only write to log table, if we found a corresponding recipient record
-        if ($this->getDatabaseConnection()->sql_num_rows($res)) {
-            $row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
-            $midArray['email'] = $row['email'];
-            $insertFields = array(
-                'tstamp' => time(),
-                'response_type' => -127,
-                'mid' => intval($midArray['mid']),
-                'rid' => intval($midArray['rid']),
-                'email' => $midArray['email'],
-                'rtbl' => $midArray['rtbl'],
-                'return_content' => serialize($cp),
-                'return_code' => intval($cp['reason'])
+            $res = $this->getDatabaseConnection()->exec_SELECTquery(
+                'uid,email',
+                'sys_dmail_maillog',
+                'rid=' . intval($midArray['rid']) . ' AND rtbl="' .
+                $this->getDatabaseConnection()->quoteStr($midArray['rtbl'], 'sys_dmail_maillog') . '"' .
+                ' AND mid=' . intval($midArray['mid']) . ' AND response_type=0'
             );
-            DebugUtility::debug($insertFields);
-            return $this->getDatabaseConnection()->exec_INSERTquery('sys_dmail_maillog', $insertFields);
-        } else {
-            return false;
+
+            // only write to log table, if we found a corresponding recipient record
+            if ($this->getDatabaseConnection()->sql_num_rows($res)) {
+                $row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
+                $midArray['email'] = $row['email'];
+                $insertFields = array(
+                    'tstamp' => time(),
+                    'response_type' => -127,
+                    'mid' => intval($midArray['mid']),
+                    'rid' => intval($midArray['rid']),
+                    'email' => $midArray['email'],
+                    'rtbl' => $midArray['rtbl'],
+                    'return_content' => serialize($cp),
+                    'return_code' => intval($cp['reason'])
+                );
+                return $this->getDatabaseConnection()->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+            } else {
+                return false;
+            }
         }
     }
 
