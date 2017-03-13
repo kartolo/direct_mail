@@ -18,14 +18,12 @@
 Configuring the analysis of returned mails
 ------------------------------------------
 
-There are probably many ways to configure analysis of returned mails.
-We propose an approach based on open Source program fetchmail. For
-more information about fetchmail, see `The fetchmail home page
-<http://catb.org/~esr/fetchmail/>`_ .
+The analysis of the return mails can now be set in the scheduler job.
+It needs the `PHP-IMAP <http://nl3.php.net/manual/en/book.imap.php>`_
+extension.
 
-#. Create a mailbox (popbox) for the returned mails, for example:
-   “bounce@pophost.org”. This mailbox should be located on the same
-   machine as the TYPO3 installation.
+#. Create a mailbox (IMAP or POP) for the returned mails, for example:
+   “bounce@domain.tld”.
 
 #. Use the Module Configuration function of the Direct mail module to
    configure this same address in the 'Return Path' field in Page TS
@@ -33,49 +31,22 @@ more information about fetchmail, see `The fetchmail home page
 
    |img-17|
 
-#. fetchmail can read a mailbox and then do something with these mails.
-   We are going to use fetchmail to “pipe” the returned mails to the
-   “returnmail.phpsh” script. fetchmail uses a configuration file that
-   should be outside the web accessible folder. For examble, it may be
-   positionned on the root: /root/.fetchmailrc. ls -l of this file may
-   look like this:
+#. Now create a task **Analyze bounce mail** in the scheduler module.
 
-   ::
+#. There you can set following parameter:
 
-      -rwx--x---  1 root root 208 Jun 20 12:50 /root/.fetchmailrc
+   ======================================    ====================================
+   Parameter                                 Description
+   ======================================    ====================================
+   Server URL/IP                             The URL or IP of the mail server
+   Port number                               Port of the mail server
+   Username                                  Bounce mail address
+   Password                                  Password of the bounce mail account
+   Type of mailserver                        IMAP or POP
+   Number of bounce mail to be processed     How many mail to be fetch in a cycle
+   ======================================    ====================================
 
-#. Insert the following line in file .fetchmailrc, substituting variables
-   my.pophost.org with the name of your mailserver, and username-of-
-   popbox and password-of-popbox with the name and password of your
-   bounce mailbox:
-
-   ::
-
-      poll my.pophost.org timeout 40 username "username-of-popbox" password "password-of-popbox" flush mda "/path/to/your/TYPO3/installation/typo3conf/ext/direct_mail/res/scripts/returnmail.phpsh"
-
-#. Note that the absolute path to the script must be specified. If the
-   extension is installed as a global extension, substitute typo3conf
-   with typo3 in the above path. Make sure that script returnmail.phpsh
-   has sufficient permissions to be run by the server. Note also that
-   returnmail.phpsh is a shell script and requires the availability of a
-   PHP binary, "/usr/bin/php”. Depending on your server configuration,
-   you may have to edit the first line of the script to refer to the
-   location of the PHP binary.
-
-#. If you have configured multiple Direct Mail folders each with its own
-   return mailbox, you will need a similar line for each mailbox.
-
-#. Use the command “crontab -e” (as root), or cPanel tool, to add the
-   following cron task. You need only one, even if you have configured
-   multiple folders of Direct Mail. This example setting will run the
-   cron task every 10 minutes:
-
-   ::
-
-      */10 * * * * fetchmail> /dev/null
-
-#. Use the Direct Mail module to send a newsletter to a bouncing address.
-   Use the Statistics function of the module to verify that the bounced
-   mail is accounted for in the displayed statistics.
+#. If you have more than one bounce account, you have to create a new scheduler
+   task for every bounce mail account.
 
 
