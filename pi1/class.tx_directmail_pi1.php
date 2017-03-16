@@ -254,18 +254,16 @@ class tx_directmail_pi1 extends AbstractPlugin
      * Get images from image field and store this images to $images_arr
      *
      * @param array $imagesArray The image array
-     * @param string $upload_path The upload path
      *
      * @return	void
      */
-    public function getImagesStandard(array &$imagesArray, $uploadPath='uploads/pics/')
+    public function getImagesStandard(array &$imagesArray)
     {
-        $images = explode(',', $this->cObj->data['image']);
-        foreach ($images as $file) {
-            if (strlen(trim($file)) > 0) {
-                $imagesArray[] = $this->siteUrl . $uploadPath . $file;
-            }
-        }
+		$fileRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Resource\FileRepository::class);
+		$fileObjects = $fileRepository->findByRelation('tt_content', 'image', $this->cObj->data['uid']);
+		foreach ($fileObjects as $fileObject) {
+			$imagesArray[] = $this->siteUrl . $fileObject->getPublicUrl();
+		}
     }
 
     /**
