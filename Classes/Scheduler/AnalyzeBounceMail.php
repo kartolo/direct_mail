@@ -1,16 +1,22 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dkd-kartolo
- * Date: 30/04/16
- * Time: 22:56
- */
 namespace DirectMailTeam\DirectMail\Scheduler;
+
+/*
+ * This file is part of the TYPO3 CMS project.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
+ */
 
 use DirectMailTeam\DirectMail\Readmail;
 use Fetch\Message;
 use Fetch\Server;
-use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
@@ -224,7 +230,7 @@ class AnalyzeBounceMail extends AbstractTask
                 $row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
                 $midArray['email'] = $row['email'];
                 $insertFields = array(
-                    'tstamp' => time(),
+                    'tstamp' => $GLOBALS['EXEC_TIME'],
                     'response_type' => -127,
                     'mid' => intval($midArray['mid']),
                     'rid' => intval($midArray['rid']),
@@ -251,7 +257,7 @@ class AnalyzeBounceMail extends AbstractTask
         // check if we can connect using the given data
         /** @var Server $mailServer */
         $mailServer = GeneralUtility::makeInstance(
-            'Fetch\\Server',
+            Server::class,
             $this->server,
             (int) $this->port,
             $this->service

@@ -19,7 +19,7 @@ Configuring the analysis of returned mails
 ------------------------------------------
 
 The analysis of the return mails can now be set in the scheduler job.
-It needs the `PHP-IMAP <http://nl3.php.net/manual/en/book.imap.php>`_
+It needs the `PHP-IMAP <http://php.net/manual/en/book.imap.php>`_
 extension.
 
 #. Create a mailbox (IMAP or POP) for the returned mails, for example:
