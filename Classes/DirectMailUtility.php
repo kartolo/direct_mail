@@ -1275,6 +1275,9 @@ class DirectMailUtility
         if ($user && $pass && substr($url, 0, 7) == 'http://') {
             $url = 'http://' . $user . ':' . $pass . '@' . substr($url, 7);
         }
+        if ($user && $pass && substr($url, 0, 8) == 'https://') {
+            $url = 'https://' . $user . ':' . $pass . '@' . substr($url, 8);
+        }
         if ($params['simulate_usergroup'] && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
             $url = $url . '&dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' . self::createAndGetAccessToken();
         }
