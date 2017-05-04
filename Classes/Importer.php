@@ -967,7 +967,9 @@ class Importer
      */
     public function userTempFolder()
     {
-        return $tempFolder = 'fileadmin/_temp_/';
+        /** @var \TYPO3\CMS\Core\Resource\Folder $folder */
+        $folder = $GLOBALS['BE_USER']->getDefaultUploadTemporaryFolder();
+        return $folder->getPublicUrl();
     }
 
     /**
