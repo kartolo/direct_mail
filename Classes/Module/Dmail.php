@@ -25,6 +25,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -76,6 +77,10 @@ class Dmail extends BaseScriptClass
      */
     protected $iconFactory;
 
+    /** @var FlashMessageService $flashMessageService */
+    protected $flashMessageService;
+    protected $defaultFlashMessageQueue;
+
     protected $currentStep = 1;
 
     /**
@@ -106,6 +111,10 @@ class Dmail extends BaseScriptClass
 
         // initialize IconFactory
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+
+        // initialize FlashMessageService
+        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+        $this->defaultFlashMessageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
 
         // get the config from pageTS
         $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
@@ -338,15 +347,18 @@ class Dmail extends BaseScriptClass
                         $this->getLanguageService()->getLL('dmail_newsletters'),
                         FlashMessage::WARNING
                     );
-                    $markers['FLASHMESSAGES'] = $flashMessage->render();
+                    $this->defaultFlashMessageQueue->enqueue($flashMessage);
+                    $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
                 }
             } else {
+                /* @var $flashMessage FlashMessage */
                 $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                     $this->getLanguageService()->getLL('select_folder'),
                     $this->getLanguageService()->getLL('header_directmail'),
                     FlashMessage::WARNING
                 );
-                $markers['FLASHMESSAGES'] = $flashMessage->render();
+                $this->defaultFlashMessageQueue->enqueue($flashMessage);
+                $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('title'));
@@ -423,7 +435,7 @@ class Dmail extends BaseScriptClass
             // link in the mail
             $message = '<!--DMAILER_SECTION_BOUNDARY_-->' . $indata['message'] . '<!--DMAILER_SECTION_BOUNDARY_END-->';
             if (trim($this->params['use_rdct'])) {
-                $message = GeneralUtility::substUrlsInPlainText($message, $this->params['long_link_mode']?'all':'76',
+                $message = DirectMailUtility::substUrlsInPlainText($message, $this->params['long_link_mode']?'all':'76',
                     DirectMailUtility::getUrlBase($this->params['use_domain']));
             }
             if ($indata['breakLines']) {
@@ -702,7 +714,8 @@ class Dmail extends BaseScriptClass
                         $this->getLanguageService()->getLL('dmail_wiz2_fetch_success'),
                         FlashMessage::OK
                     );
-                    $markers['FLASHMESSAGES'] = $flashMessage->render();
+                    $this->defaultFlashMessageQueue->enqueue($flashMessage);
+                    $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
                 }
 
                 if (is_array($row)) {
@@ -906,7 +919,8 @@ class Dmail extends BaseScriptClass
                 '',
                 FlashMessage::ERROR //severity
             );
-            $groupInput = $flashMessage->render();
+            $this->defaultFlashMessageQueue->enqueue($flashMessage);
+            $groupInput = $this->defaultFlashMessageQueue->renderFlashMessages();
         } elseif (count($opt) === 1) {
             $groupInput = '';
             if (!$hookSelectDisabled) {
@@ -1121,7 +1135,8 @@ class Dmail extends BaseScriptClass
             );
         }
 
-        return $flashMessage->render();
+        $this->defaultFlashMessageQueue->enqueue($flashMessage);
+        return $this->defaultFlashMessageQueue->renderFlashMessages();
     }
 
     /**

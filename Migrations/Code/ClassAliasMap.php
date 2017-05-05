@@ -1,5 +1,6 @@
 <?php
 return array(
+    'tx_directmail_pi1' => 'DirectMailTeam\\DirectMail\\Plugin\\DirectMail',
     'tx_directmail_checkjumpurl' => 'DirectMailTeam\\DirectMail\\Checkjumpurl',
     'tx_directmail_container' => 'DirectMailTeam\\DirectMail\\Container',
     'tx_directmail_static' => 'DirectMailTeam\\DirectMail\\DirectMailUtility',
