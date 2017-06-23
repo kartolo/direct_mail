@@ -967,7 +967,8 @@ class DirectMailUtility
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
             'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain']),
-            'sys_language_uid' => (int)$sysLanguageUid
+            'sys_language_uid' => (int)$sysLanguageUid,
+            'attachment' => ''
         );
 
         if ($newRecord['sys_language_uid'] > 0) {
