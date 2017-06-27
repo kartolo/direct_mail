@@ -533,7 +533,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 }
 
                 $out.='<tr class="db_list_normal">
-					<td>' . $this->iconFactory->getIconForRecord('sys_dmail', $row)->render() . '</td>
+					<td>' . $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '</td>
 					<td>' . $this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'], 30) . '  ', $row['uid'], $row['subject']) . '&nbsp;&nbsp;</td>
 					<td>' . BackendUtility::datetime($row["scheduled"]) . '</td>
 					<td>' . ($row["scheduled_begin"]?BackendUtility::datetime($row["scheduled_begin"]):'&nbsp;') . '</td>
@@ -866,7 +866,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                     }
                 }
             } else {
-                $output .= DirectMailUtility::formatTable($tblLines, array('nowrap', 'nowrap width="100"', 'nowrap width="100"', 'nowrap', 'nowrap', 'nowrap', 'nowrap'), 1, array(1, 0, 0, 0, 0, 0, 1));         
+                $output .= DirectMailUtility::formatTable($tblLines, array('nowrap', 'nowrap width="100"', 'nowrap width="100"', 'nowrap', 'nowrap', 'nowrap', 'nowrap'), 1, array(1, 0, 0, 0, 0, 0, 1));
             }
         }
 
@@ -1827,7 +1827,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'sys_dmail_maillog', 'mid=' . $row['uid'] . ' AND response_type = 0', '', 'rid ASC'));
 
         $out = '<table class="table table-striped table-hover">';
-        $out .= '<tr class="t3-row-header"><td colspan="3">' . $this->iconFactory->getIconForRecord('sys_dmail', $row)->render() . htmlspecialchars($row['subject']) . '</td></tr>';
+        $out .= '<tr class="t3-row-header"><td colspan="3">' . $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . htmlspecialchars($row['subject']) . '</td></tr>';
         $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_from') . '</td>' .
             '<td>' . htmlspecialchars($row['from_name'] . ' <' . htmlspecialchars($row['from_email']) . '>') . '</td>' .
             '<td>' . $fromInfo . '</td></tr>';

@@ -53,6 +53,9 @@ $EM_CONF[$_EXTKEY] = array(
     'suggests' => array(
     ),
     'autoload' => array(
-        'classmap' => array('Classes')
+        'psr-4' => array(
+            'DirectMailTeam\\DirectMail\\' => 'Classes/',
+            'Fetch\\' => 'Resources/Private/Php/Fetch/src/Fetch/'
+        )
     ),
 );

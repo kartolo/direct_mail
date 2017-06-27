@@ -28,7 +28,8 @@
   },
   "autoload": {
     "psr-4": {
-      "DirectMailTeam\\DirectMail\\": "Classes"
+      "DirectMailTeam\\DirectMail\\": "Classes",
+      "Fetch\\": "Resources/Private/Php/Fetch/src/Fetch"
     }
   },
   "replace": {
