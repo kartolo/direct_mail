@@ -1182,7 +1182,7 @@ class DirectMailUtility
         $htmlmail->includeMedia = $row['includeMedia'];
 
         if ($plainTextUrl) {
-            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));
+            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params), 0, array('User-Agent: Direct Mail'));
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
                 $errorMsg[] = $GLOBALS["LANG"]->getLL('dmail_no_plain_content');
