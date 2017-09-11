@@ -969,7 +969,8 @@ class DirectMailUtility
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
             'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain']),
             'sys_language_uid' => (int)$sysLanguageUid,
-            'attachment' => ''
+            'attachment' => '',
+            'mailContent' => ''
         );
 
         if ($newRecord['sys_language_uid'] > 0) {
@@ -1182,7 +1183,7 @@ class DirectMailUtility
         $htmlmail->includeMedia = $row['includeMedia'];
 
         if ($plainTextUrl) {
-            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));
+            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params), 0, array('User-Agent: Direct Mail'));
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
                 $errorMsg[] = $GLOBALS["LANG"]->getLL('dmail_no_plain_content');
