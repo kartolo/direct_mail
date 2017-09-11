@@ -185,6 +185,7 @@ class AnalyzeBounceMail extends AbstractTask
 
             // expunge to delete permanently
             $mailServer->expunge();
+            imap_close($mailServer->getImapStream());
             return true;
         } else {
             return false;
