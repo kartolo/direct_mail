@@ -20,7 +20,7 @@ return array(
     'interface' => array(
         'showRecordFieldList' => 'hidden,category'
     ),
-    'feInterface' => $TCA['sys_dmail_category']['feInterface'],
+    'feInterface' => $GLOBALS['TCA']['sys_dmail_category']['feInterface'],
     'columns' => array(
         'sys_language_uid' => array(
             'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.language',

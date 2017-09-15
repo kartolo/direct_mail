@@ -15,9 +15,10 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Html\HtmlParser;
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use DirectMailTeam\DirectMail\DirectMailUtility;
 
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
@@ -111,6 +112,11 @@ class Dmailer
      * @var integer Usergroup that is simulated when fetching the mail content
      */
     public $simulateUsergroup;
+
+    /**
+     * @var MarkerBasedTemplateService
+     */
+    protected $templateService;
 
     /**
      * Preparing the Email. Headers are set in global variables
@@ -249,7 +255,9 @@ class Dmailer
             }
         }
 
-        return HtmlParser::substituteMarkerArray($content, $markers);
+        // initialize Marker Support
+        $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
+        return $this->templateService->substituteMarkerArray($content, $markers);
     }
 
 
@@ -310,7 +318,7 @@ class Dmailer
                 if ($this->mailHasContent) {
                     $tempContent_Plain = $this->replaceMailMarkers($tempContent_Plain, $recipRow, $additionalMarkers);
                     if (trim($this->dmailer['sys_dmail_rec']['use_rdct']) || trim($this->dmailer['sys_dmail_rec']['long_link_mode'])) {
-                        $tempContent_Plain = GeneralUtility::substUrlsInPlainText($tempContent_Plain, $this->dmailer['sys_dmail_rec']['long_link_mode']?'all':'76', $this->dmailer['sys_dmail_rec']['long_link_rdct_url']);
+                        $tempContent_Plain = DirectMailUtility::substUrlsInPlainText($tempContent_Plain, $this->dmailer['sys_dmail_rec']['long_link_mode']?'all':'76', $this->dmailer['sys_dmail_rec']['long_link_rdct_url']);
                     }
                     $this->theParts['plain']['content'] = $this->encodeMsg($tempContent_Plain);
                     $returnCode|=2;

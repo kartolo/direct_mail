@@ -18,6 +18,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 
 /**
  * Recipient list module for tx_directmail extension
@@ -994,7 +995,6 @@ class Importer
         // Initializing:
         /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
         $this->fileProcessor = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Utility\\File\\ExtendedFileUtility');
-        $this->fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
         $this->fileProcessor->setActionPermissions($userPermissions);
         $this->fileProcessor->dontCheckForUnique = 1;
 
@@ -1063,7 +1063,6 @@ class Importer
         // Initializing:
         /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
         $this->fileProcessor = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Utility\\File\\ExtendedFileUtility');
-        $this->fileProcessor->init($fm, $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
         $this->fileProcessor->setActionPermissions();
         $this->fileProcessor->dontCheckForUnique = 1;
 
@@ -1075,6 +1074,7 @@ class Importer
             $this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', array($refInfo['host'], $httpHost));
         } else {
             $this->fileProcessor->start($file);
+            $this->fileProcessor->setExistingFilesConflictMode(DuplicationBehavior::cast(DuplicationBehavior::REPLACE));
             $newfile = $this->fileProcessor->func_upload($file['upload']['1']);
         }
         return $newfile;

@@ -6,10 +6,6 @@ if (!defined('TYPO3_MODE')) {
 
 $extPath = TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY);
 
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'Configuration/TypoScript/boundaries/', 'Direct Mail Content Boundaries');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'Configuration/TypoScript/plaintext/', 'Direct Mail Plain text');
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'Configuration/TypoScript/tt_news_plaintext/', 'Direct Mail News Plain text');
-
     // Category field disabled by default in backend forms.
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
 	TCEFORM.tt_content.module_sys_dmail_category.disabled = 1
@@ -152,9 +148,6 @@ if (TYPO3_MODE == 'BE') {
 
 
 $GLOBALS['TBE_STYLES']['spritemanager']['singleIcons']['tcarecords-pages-contains-dmail'] = TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath($_EXTKEY) . 'Resources/Public/Icons/ext_icon_dmail_folder.gif';
-if (is_array($GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'])) {
-    $GLOBALS['TCA']['pages']['ctrl']['typeicon_classes']['contains-dmail'] = 'tcarecords-pages-contains-dmail';
-}
 
 if (TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
     include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY)."Configuration/TCA/Overrides/tt_address.php");

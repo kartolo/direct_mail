@@ -19,6 +19,7 @@ use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -1217,10 +1218,18 @@ class DirectMailUtility
             }
         }
 
+        /** @var FlashMessageService $flashMessageService */
+        $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+        $defaultFlashMessageQueue = $flashMessageService->getMessageQueueByIdentifier();
+
         if (!count($errorMsg)) {
             // Update the record:
             $htmlmail->theParts['messageid'] = $htmlmail->messageid;
             $mailContent = base64_encode(serialize($htmlmail->theParts));
+
+            // !ian save last dmail source in tmp for debug
+            file_put_contents('/tmp/dmail.php', var_export($htmlmail->theParts, true));
+
             $updateData = array(
                 'issent'             => 0,
                 'charset'            => $htmlmail->charset,
@@ -1241,7 +1250,8 @@ class DirectMailUtility
                     $GLOBALS['LANG']->getLL('dmail_warning'),
                     FlashMessage::WARNING
                 );
-                $theOutput .= $flashMessage->render();
+                $defaultFlashMessageQueue->enqueue($flashMessage);
+                $theOutput .= $defaultFlashMessageQueue->renderFlashMessages();
             }
         } else {
             /* @var $flashMessage FlashMessage */
@@ -1250,7 +1260,8 @@ class DirectMailUtility
                 $GLOBALS['LANG']->getLL('dmail_error'),
                 FlashMessage::ERROR
             );
-            $theOutput .= $flashMessage->render();
+            $defaultFlashMessageQueue->enqueue($flashMessage);
+            $theOutput .= $defaultFlashMessageQueue->renderFlashMessages();
         }
         if ($returnArray) {
             return array('errors' => $errorMsg, 'warnings' => $warningMsg);
@@ -1568,5 +1579,45 @@ class DirectMailUtility
             }
         }
         return $implodeParams;
+    }
+
+    /**
+     * Takes a clear-text message body for a plain text email, finds all 'http://' links and if they are longer than 76 chars they are converted to a shorter URL with a hash parameter. The real parameter is stored in the database and the hash-parameter/URL will be redirected to the real parameter when the link is clicked.
+     * This function is about preserving long links in messages.
+     *
+     * @param string $message Message content
+     * @param string $urlmode URL mode; "76" or "all
+     * @param string $index_script_url URL of index script (see makeRedirectUrl())
+     * @return string Processed message content
+     * @see makeRedirectUrl()
+     * @deprecated since TYPO3 CMS 7, will be removed in TYPO3 CMS 8. Use mailer API instead
+     */
+    public static function substUrlsInPlainText($message, $urlmode = '76', $index_script_url = '')
+    {
+        switch ((string)$urlmode) {
+            case '':
+                $lengthLimit = false;
+                break;
+            case 'all':
+                $lengthLimit = 0;
+                break;
+            case '76':
+
+            default:
+                $lengthLimit = (int)$urlmode;
+        }
+        if ($lengthLimit === false) {
+            // No processing
+            $messageSubstituted = $message;
+        } else {
+            $messageSubstituted = preg_replace_callback(
+                '/(http|https):\\/\\/.+(?=[\\]\\.\\?]*([\\! \'"()<>]+|$))/iU',
+                function (array $matches) use ($lengthLimit, $index_script_url) {
+                    return GeneralUtility::makeRedirectUrl($matches[0], $lengthLimit, $index_script_url);
+                },
+                $message
+            );
+        }
+        return $messageSubstituted;
     }
 }

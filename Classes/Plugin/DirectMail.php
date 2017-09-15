@@ -1,4 +1,6 @@
 <?php
+namespace DirectMailTeam\DirectMail\Plugin;
+
 /***************************************************************
 *  Copyright notice
 *
@@ -49,7 +51,7 @@ use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
  *
  * @author Ivan Kartolo <ivan.kartolo@gmail.com>
  */
-class tx_directmail_pi1 extends AbstractPlugin
+class DirectMail extends AbstractPlugin
 {
 
     /**
