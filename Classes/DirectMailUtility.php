@@ -228,7 +228,7 @@ class DirectMailUtility
                         BackendUtility::BEenableFields($table) .
                         BackendUtility::deleteClause($table) .
                         $addWhere,
-                    $switchTable . '.email'
+                    $switchTable . '.uid, ' . $switchTable . '.email'
                 );
             } else {
                 $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -239,7 +239,7 @@ class DirectMailUtility
                         BackendUtility::BEenableFields($switchTable) .
                         BackendUtility::deleteClause($switchTable) .
                         $addWhere,
-                    $switchTable . '.email'
+                    $switchTable . '.uid, ' . $switchTable . '.email'
                 );
             }
         } else {
@@ -259,7 +259,7 @@ class DirectMailUtility
                         BackendUtility::deleteClause($table) .
                         BackendUtility::deleteClause('sys_dmail_group') .
                         $addWhere,
-                    $switchTable . '.email'
+                    $switchTable . '.uid, ' . $switchTable . '.email'
                 );
             } else {
                 $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -274,7 +274,7 @@ class DirectMailUtility
                         BackendUtility::deleteClause($switchTable) .
                         BackendUtility::deleteClause('sys_dmail_group') .
                         $addWhere,
-                    $switchTable . '.email'
+                    $switchTable . '.uid, ' . $switchTable . '.email'
                 );
             }
         }
@@ -333,7 +333,7 @@ class DirectMailUtility
                     BackendUtility::deleteClause($table) .
                     BackendUtility::deleteClause('sys_dmail_group') .
                     $addWhere,
-                $switchTable . '.email'
+                $switchTable . '.uid, ' . $switchTable . '.email'
             );
         } else {
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -347,7 +347,7 @@ class DirectMailUtility
                     BackendUtility::deleteClause($switchTable) .
                     BackendUtility::deleteClause('sys_dmail_group') .
                     $addWhere,
-                $switchTable . '.email'
+                $switchTable . '.uid, ' . $switchTable . '.email'
             );
         }
 
@@ -367,7 +367,7 @@ class DirectMailUtility
                     ' AND sys_dmail_group_mm.tablenames=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($table, $table) .
                     BackendUtility::BEenableFields($table) .
                     BackendUtility::deleteClause($table)
-                );
+            );
             list($groupId) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
             $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
@@ -391,8 +391,8 @@ class DirectMailUtility
                         BackendUtility::deleteClause($switchTable) .
                         BackendUtility::BEenableFields($table) .
                         BackendUtility::deleteClause($table) .
-                        $addWhere,
-                        $switchTable . '.email'
+                    $addWhere,
+                    $switchTable . '.uid, ' . $switchTable . '.email'
                 );
 
                 while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {

@@ -19,6 +19,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Module\BaseScriptClass;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -79,6 +80,8 @@ class Dmail extends BaseScriptClass
 
     /** @var FlashMessageService $flashMessageService */
     protected $flashMessageService;
+
+    /** @var  FlashMessageQueue $defaultFlashMessageQueue */
     protected $defaultFlashMessageQueue;
 
     protected $currentStep = 1;
@@ -114,6 +117,7 @@ class Dmail extends BaseScriptClass
 
         // initialize FlashMessageService
         $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+        /** @var FlashMessageQueue defaultFlashMessageQueue */
         $this->defaultFlashMessageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
 
         // get the config from pageTS
@@ -476,9 +480,9 @@ class Dmail extends BaseScriptClass
         $htmlmail->addPlain($message);
 
         if (!$message || !$htmlmail->theParts['plain']['content']) {
-            $errorMsg .= '<br /><strong>' . $this->getLanguageService()->getLL('dmail_no_plain_content') . '</strong>';
+            $errorMsg .= '&nbsp;<strong>' . $this->getLanguageService()->getLL('dmail_no_plain_content') . '</strong>';
         } elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']), '<!--DMAILER_SECTION_BOUNDARY')) {
-            $warningMsg .= '<br /><strong>' . $this->getLanguageService()->getLL('dmail_no_plain_boundaries') . '</strong>';
+            $warningMsg .= '&nbsp;<strong>' . $this->getLanguageService()->getLL('dmail_no_plain_boundaries') . '</strong>';
         }
 
         // add attachment is removed. since it will be add during sending
@@ -1012,10 +1016,10 @@ class Dmail extends BaseScriptClass
                 $sentFlag = true;
 
                 /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $this->getLanguageService()->getLL('send_was_sent') .
-                        '<br /><br />' .
-                        $this->getLanguageService()->getLL('send_recipients') . '<br />' . htmlspecialchars($addressList),
+                $flashMessage = GeneralUtility::makeInstance(
+                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                    $this->getLanguageService()->getLL('send_was_sent') . '&nbsp;' .
+                        $this->getLanguageService()->getLL('send_recipients') . '&nbsp;' . htmlspecialchars($addressList),
                     $this->getLanguageService()->getLL('send_sending'),
                     FlashMessage::OK
                 );
@@ -1037,7 +1041,7 @@ class Dmail extends BaseScriptClass
                         BackendUtility::deleteClause('pages') .
                         BackendUtility::BEenableFields('tt_address') .
                         BackendUtility::deleteClause('tt_address')
-                    );
+                );
                 if (($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
                     $recipRow = Dmailer::convertFields($recipRow);
                     $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address', $recipRow['uid']);
@@ -1045,7 +1049,8 @@ class Dmail extends BaseScriptClass
                     $sentFlag=true;
 
                     /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                    $flashMessage = GeneralUtility::makeInstance(
+                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                         sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), htmlspecialchars($recipRow['name']) . htmlspecialchars(' <' . $recipRow['email'] . '>')),
                         $this->getLanguageService()->getLL('send_sending'),
                         FlashMessage::OK
@@ -1064,7 +1069,8 @@ class Dmail extends BaseScriptClass
                 $sendFlag += $this->sendTestMailToTable($idLists, $this->userTable, $htmlmail);
 
                 /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                $flashMessage = GeneralUtility::makeInstance(
+                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                     sprintf($this->getLanguageService()->getLL('send_was_sent_to_number'), $sendFlag),
                     $this->getLanguageService()->getLL('send_sending'),
                     FlashMessage::OK
@@ -1118,7 +1124,8 @@ class Dmail extends BaseScriptClass
                 );
 
                 /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                $flashMessage = GeneralUtility::makeInstance(
+                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                     $sectionTitle . '<br /><br />' . $content,
                     $this->getLanguageService()->getLL('dmail_wiz5_sendmass'),
                     FlashMessage::OK
