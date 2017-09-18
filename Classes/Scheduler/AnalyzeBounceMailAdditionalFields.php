@@ -31,7 +31,6 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  */
 class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterface
 {
-
     public function __construct()
     {
         // add locallang file

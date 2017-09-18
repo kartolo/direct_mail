@@ -135,7 +135,8 @@ class NavFrame
 				top.fsMod.navFrameHighlightedID[frameSetModule] = highLightID;
 				theObj = document.getElementById(highLightID);
 			}
-		');
+		'
+        );
     }
 
     /**
