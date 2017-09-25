@@ -931,7 +931,7 @@ class Dmail extends BaseScriptClass
                 $groupInput .= '<em>disabled</em>';
             }
         } else {
-            $groupInput = '<select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
+            $groupInput = '<select multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
         }
             // Set up form:
         $msg = "";
