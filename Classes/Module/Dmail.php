@@ -1080,7 +1080,7 @@ class Dmail extends BaseScriptClass
                 $result = $this->cmd_compileMailGroup($recipientGroups);
                 $queryInfo = $result['queryInfo'];
 
-                $distributionTime = intval(GeneralUtility::_GP('send_mail_datetime'));
+                $distributionTime = strtotime(GeneralUtility::_GP('send_mail_datetime'));
                 if ($distributionTime < time()) {
                     $distributionTime = time();
                 }
