@@ -16,7 +16,6 @@ namespace DirectMailTeam\DirectMail;
 
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use DirectMailTeam\DirectMail;
 
 /**
  * Localize categories for backend forms
