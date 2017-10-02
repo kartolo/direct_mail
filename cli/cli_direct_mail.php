@@ -13,51 +13,51 @@ class direct_mail_cli extends CommandLineController
     /**
      * Constructor
      */
-        public function direct_mail_cli()
-        {
+    public function direct_mail_cli()
+    {
 
             // Running parent class constructor
-            parent::__construct();
+        parent::__construct();
 
-            // Setting help texts:
-            $this->cli_help['name'] = 'direct_mail';
-            $this->cli_help['synopsis'] = '###OPTIONS###';
-            $this->cli_help['description'] = 'Invoke direct_mail e-mail distribution engine';
-            $this->cli_help['examples'] = '/.../cli_dispatch.phpsh direct_mail [masssend]';
-            $this->cli_help['author'] = 'Ivan Kartolo, (c) 2008';
-            $this->cli_options[] = array('masssend', 'Invoke sending of mails!');
+        // Setting help texts:
+        $this->cli_help['name'] = 'direct_mail';
+        $this->cli_help['synopsis'] = '###OPTIONS###';
+        $this->cli_help['description'] = 'Invoke direct_mail e-mail distribution engine';
+        $this->cli_help['examples'] = '/.../cli_dispatch.phpsh direct_mail [masssend]';
+        $this->cli_help['author'] = 'Ivan Kartolo, (c) 2008';
+        $this->cli_options[] = array('masssend', 'Invoke sending of mails!');
+    }
+
+    /**
+     * CLI engine
+     *
+     * @return    void
+     */
+    public function cli_main()
+    {
+
+            // get task (function)
+        $task = (string)$this->cli_args['_DEFAULT'][1];
+
+        if (!$task) {
+            $this->cli_validateArgs();
+            $this->cli_help();
+            exit;
+        }
+
+        if ($task == 'masssend') {
+            $this->massSend();
         }
 
         /**
-         * CLI engine
-         *
-         * @return    void
+         * Or other tasks
+         * Which task shoud be called can you define in the shell command
+         * /www/typo3/cli_dispatch.phpsh cli_example otherTask
          */
-        public function cli_main()
-        {
-
-            // get task (function)
-                $task = (string)$this->cli_args['_DEFAULT'][1];
-
-            if (!$task) {
-                $this->cli_validateArgs();
-                $this->cli_help();
-                exit;
-            }
-
-            if ($task == 'masssend') {
-                $this->massSend();
-            }
-
-                /**
-                 * Or other tasks
-                 * Which task shoud be called can you define in the shell command
-                 * /www/typo3/cli_dispatch.phpsh cli_example otherTask
-                 */
-                if ($task == 'otherTask') {
-                    // ...
-                }
+        if ($task == 'otherTask') {
+            // ...
         }
+    }
 
     /**
      * Start sending the newsletter

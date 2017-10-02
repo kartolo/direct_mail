@@ -143,14 +143,14 @@ class JumpurlController
                 }
             } else {
                 // jumpUrl is not an integer -- then this is a URL, that means that the "dmailerping"
-                    // functionality was used to count the number of "opened mails" received (url, dmailerping)
+                // functionality was used to count the number of "opened mails" received (url, dmailerping)
 
-                    // Check if jumpurl is a valid link to a "dmailerping.gif"
-                    // Make $checkPath an absolute path pointing to dmailerping.gif so it can get checked via ::isAllowedAbsPath()
-                    // and remove an eventual "/" at beginning of $jumpurl (because PATH_site already contains "/" at the end)
+                // Check if jumpurl is a valid link to a "dmailerping.gif"
+                // Make $checkPath an absolute path pointing to dmailerping.gif so it can get checked via ::isAllowedAbsPath()
+                // and remove an eventual "/" at beginning of $jumpurl (because PATH_site already contains "/" at the end)
                 $checkPath = PATH_site . preg_replace('#^/#', '', $jumpurl);
 
-                    // Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
+                // Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
                 if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && GeneralUtility::isAllowedAbsPath($checkPath)) {
                     // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
                     GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
