@@ -13,7 +13,8 @@ namespace DirectMailTeam\DirectMail;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -72,22 +73,23 @@ class Container
                     $mmTable = 'sys_dmail_ttcontent_category_mm';
                     $whereClause = '';
                     $orderBy = $foreignTable . '.uid';
-                    $res = $this->cObj->exec_mm_query_uidList(
-                        $select,
-                        $localTableUidList,
-                        $mmTable,
-                        $foreignTable,
-                        $whereClause,
-                        '',
-                        $orderBy);
+					$queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($mmTable);
+					$res =  $queryBuilder->select($select)
+						->from($mmTable)
+						->from($foreignTable)
+						->where($mmTable.'.uid_local IN (' . $localTableUidList . ')'
+							. ($foreignTable ? ' AND ' . $foreignTable . '.uid=' . $mmTable . '.uid_foreign' : '')
+							. $whereClause)
+						->orderBy($orderBy)
+						->execute()
+						->fetchAll();
 
-                    if ($GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
-                        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                            $categoryList .= $row['uid'] . ',';
-                        }
-                        $GLOBALS['TYPO3_DB']->sql_free_result($res);
-                        $categoryList = rtrim($categoryList, ",");
-                    }
+					if (is_array($res)) {
+						foreach ($res as $row) {
+							$categoryList .= $row['uid'] . ',';
+						}
+						$categoryList = rtrim($categoryList, ",");
+					}
                 }
                 // wrap boundaries around content
                 $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . $content . $this->boundaryEnd;
