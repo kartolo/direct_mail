@@ -27,7 +27,6 @@ use TYPO3\CMS\Core\Database\QueryGenerator;
  */
 class MailSelect extends QueryGenerator
 {
-
     public $allowedTables = array('tt_address','fe_users');
 
     /**
@@ -43,11 +42,11 @@ class MailSelect extends QueryGenerator
     {
         $out = '<select name="' . $name . '" onChange="submit();">';
         $out .= '<option value=""></option>';
-        reset($GLOBALS["TCA"]);
-        foreach ($GLOBALS["TCA"] as $tN => $_) {
-            if ($GLOBALS["BE_USER"]->check('tables_select', $tN) && in_array($tN, $this->allowedTables)) {
+        reset($GLOBALS['TCA']);
+        foreach ($GLOBALS['TCA'] as $tN => $_) {
+            if ($GLOBALS['BE_USER']->check('tables_select', $tN) && in_array($tN, $this->allowedTables)) {
                 $out .='<option value="' . $tN . '"' . ($tN == $cur ? ' selected':'') . '>' .
-                    $GLOBALS["LANG"]->sl($GLOBALS["TCA"][$tN]['ctrl']['title']) .
+                    $GLOBALS['LANG']->sl($GLOBALS['TCA'][$tN]['ctrl']['title']) .
                     '</option>';
             }
         }

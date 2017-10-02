@@ -116,7 +116,7 @@ class Configuration extends BaseScriptClass
         }
         $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
 
-            // initialize the page selector
+        // initialize the page selector
         $this->sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
         $this->sys_page->init(true);
 
@@ -138,9 +138,9 @@ class Configuration extends BaseScriptClass
             }
             $GLOBALS['TYPO3_DB']->sql_free_result($res);
         }
-            // load contextual help
+        // load contextual help
         $this->cshTable = '_MOD_' . $this->MCONF['name'];
-        if ($GLOBALS["BE_USER"]->uc['edit_showFieldHelp']) {
+        if ($GLOBALS['BE_USER']->uc['edit_showFieldHelp']) {
             $this->getLanguageService()->loadSingleTableDescription($this->cshTable);
         }
 
@@ -182,11 +182,11 @@ class Configuration extends BaseScriptClass
         $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
         $access = is_array($this->pageinfo) ? 1 : 0;
 
-        if (($this->id && $access) || ($GLOBALS["BE_USER"]->user['admin'] && !$this->id)) {
+        if (($this->id && $access) || ($GLOBALS['BE_USER']->user['admin'] && !$this->id)) {
 
             // Draw the header.
             $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
-            $this->doc->backPath = $GLOBALS["BACK_PATH"];
+            $this->doc->backPath = $GLOBALS['BACK_PATH'];
             $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
             $this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
@@ -274,10 +274,10 @@ class Configuration extends BaseScriptClass
                 'PAGEPATH' => $this->getLanguageService()->sL('LLL:EXT:lang/locallang_core.php:labels.path') . ': ' .
                     GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => '',
-                'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS["BACK_PATH"])
+                'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS['BACK_PATH'])
             );
-                // shortcut icon
-            if ($GLOBALS["BE_USER"]->mayMakeShortcut()) {
+            // shortcut icon
+            if ($GLOBALS['BE_USER']->mayMakeShortcut()) {
                 $docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
             }
 
@@ -294,7 +294,8 @@ class Configuration extends BaseScriptClass
                         $this->moduleContent();
                 } elseif ($this->id != 0) {
                     /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                    $flashMessage = GeneralUtility::makeInstance(
+                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                         $this->getLanguageService()->getLL('dmail_noRegular'),
                         $this->getLanguageService()->getLL('dmail_newsletters'),
                         FlashMessage::WARNING
@@ -302,7 +303,8 @@ class Configuration extends BaseScriptClass
                     $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
                 }
             } else {
-                $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                $flashMessage = GeneralUtility::makeInstance(
+                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                     $this->getLanguageService()->getLL('select_folder'),
                     $this->getLanguageService()->getLL('header_conf'),
                     FlashMessage::WARNING
@@ -317,7 +319,7 @@ class Configuration extends BaseScriptClass
             // If no access or if ID == zero
 
             $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
-            $this->doc->backPath = $GLOBALS["BACK_PATH"];
+            $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
             $this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
@@ -392,7 +394,7 @@ class Configuration extends BaseScriptClass
             'testmail' => array('short', $this->getLanguageService()->getLL('configure_testmail'), $this->getLanguageService()->getLL('configure_testmail_description'))
         );
 
-            // Set default values
+        // Set default values
         if (!isset($this->implodedParams['plainParams'])) {
             $this->implodedParams['plainParams'] = '&type=99';
         }
@@ -403,7 +405,7 @@ class Configuration extends BaseScriptClass
             $this->implodedParams['direct_mail_charset'] = 'iso-8859-1';
         }
 
-            // Set domain selection list
+        // Set domain selection list
         $rootline = $this->sys_page->getRootLine($this->id);
         $rootlineId = array();
         foreach ($rootline as $rArr) {
@@ -419,7 +421,7 @@ class Configuration extends BaseScriptClass
         while (($row_domain = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_domain))) {
             $configArray[3]['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];
         }
-        $GLOBALS["TYPO3_DB"]->sql_free_result($res_domain);
+        $GLOBALS['TYPO3_DB']->sql_free_result($res_domain);
 
         $this->configArray_length = count($configArray);
         $form ='';
@@ -455,7 +457,7 @@ class Configuration extends BaseScriptClass
                 if (is_array($config)) {
                     $lines[$fname] = '<strong>' . htmlspecialchars($config[1]) . '</strong>';
                     $lines[$fname] .= $wrapHelp1 . $config[2] . $wrapHelp2 . '<br />';
-                    $formEl = "";
+                    $formEl = '';
                     switch ($config[0]) {
                         case 'string':
                             // do as short
@@ -516,8 +518,8 @@ class Configuration extends BaseScriptClass
      * @return void
      */
     public function updatePageTS()
-    {   
-        if ($GLOBALS["BE_USER"]->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
+    {
+        if ($GLOBALS['BE_USER']->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
             $pageTypoScript= GeneralUtility::_GP('pageTS');
             if (is_array($pageTypoScript)) {
                 DirectMailUtility::updatePagesTSconfig($this->id, $pageTypoScript, $this->TSconfPrefix);

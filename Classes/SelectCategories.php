@@ -42,18 +42,18 @@ class SelectCategories
     {
         global $LANG;
 
-/*
-        $params['items'] = &$items;
-        $params['config'] = $config;
-        $params['TSconfig'] = $iArray;
-        $params['table'] = $table;
-        $params['row'] = $row;
-        $params['field'] = $field;
-*/
+        /*
+                $params['items'] = &$items;
+                $params['config'] = $config;
+                $params['TSconfig'] = $iArray;
+                $params['table'] = $table;
+                $params['row'] = $row;
+                $params['field'] = $field;
+        */
         $config = $params['config'];
         $table = $config['itemsProcFunc_config']['table'];
 
-            // initialize backend user language
+        // initialize backend user language
         if ($LANG->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
             $sysPage = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Page\PageRepository');
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(

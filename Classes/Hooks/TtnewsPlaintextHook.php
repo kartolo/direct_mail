@@ -107,7 +107,7 @@ class TtnewsPlaintextHook
                 );
             $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
             $GLOBALS['TYPO3_DB']->sql_free_result($res);
-                // get the translated record if the content language is not the default language
+            // get the translated record if the content language is not the default language
             if ($GLOBALS['TSFE']->sys_language_content) {
                 $OLmode = ($this->sys_language_mode == 'strict'?'hideNonTranslated':'');
                 $row = $GLOBALS['TSFE']->sys_page->getRecordOverlay('tt_news', $row, $GLOBALS['TSFE']->sys_language_content, $OLmode);
@@ -116,19 +116,19 @@ class TtnewsPlaintextHook
                 // Render the title
                 $lines[] = $this->renderPlainText->renderHeader($row['title']);
 
-                    // Render author of the tt_news record
+                // Render author of the tt_news record
                 $lines[] = $this->renderAuthor($row);
 
-                    // Render the short version of the tt_news record
+                // Render the short version of the tt_news record
                 $lines[] = $this->renderPlainText->breakContent(strip_tags($this->renderPlainText->parseBody($row['short'], 'tt_news_short')));
 
-                    // Render the main text of the tt_news record
+                // Render the main text of the tt_news record
                 $lines[] = $this->renderPlainText->breakContent(strip_tags($this->renderPlainText->parseBody($row['bodytext'], 'tt_news_bodytext')));
 
-                    // Render the images of the tt_news record.
+                // Render the images of the tt_news record.
                 $lines[] = $this->getImages($row);
 
-                    // Render the downloads of the tt_news record.
+                // Render the downloads of the tt_news record.
                 $lines[] = $this->renderPlainText->renderUploads($row['news_files']);
             } elseif ($this->sys_language_mode == 'strict' && $this->tt_news_uid) {
                 $noTranslMsg = $this->cObj->stdWrap($invokingObj->pi_getLL('noTranslMsg', 'Sorry, there is no translation for this news-article'), $this->conf['noNewsIdMsg_stdWrap.']);
@@ -139,7 +139,7 @@ class TtnewsPlaintextHook
                 $content = implode(LF, $lines).$content;
             }
 
-                // Substitute labels
+            // Substitute labels
             if (!empty($content)) {
                 $markerArray = array();
                 $markerArray = $this->renderPlainText->addLabelsMarkers($markerArray);
@@ -223,6 +223,6 @@ class TtnewsPlaintextHook
                 return implode(LF, $lines);
             }
         }
-        return "";
+        return '';
     }
 }
