@@ -22,8 +22,8 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 
 /**
  * Recipient list module for tx_directmail extension
@@ -77,10 +77,6 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     protected $iconFactory;
 
-    /** @var FlashMessageService $flashMessageService */
-    protected $flashMessageService;
-    protected $defaultFlashMessageQueue;
-
     /**
      * The name of the module
      *
@@ -109,10 +105,6 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // initialize IconFactory
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-
-        // initialize FlashMessageService
-        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        $this->defaultFlashMessageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
 
         $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
         if (!is_array($temp['properties'])) {
@@ -253,8 +245,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                         $this->getLanguageService()->getLL('dmail_newsletters'),
                         FlashMessage::WARNING
                     );
-                    $this->defaultFlashMessageQueue->enqueue($flashMessage);
-                    $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
                 }
             } else {
                 /* @var $flashMessage FlashMessage */
@@ -264,8 +255,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                     $this->getLanguageService()->getLL('header_recip'),
                     FlashMessage::WARNING
                 );
-                $this->defaultFlashMessageQueue->enqueue($flashMessage);
-                $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('mailgroup_header'));

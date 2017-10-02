@@ -14,14 +14,14 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
-use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -63,10 +63,6 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     protected $iconFactory;
 
-    /** @var FlashMessageService $flashMessageService */
-    protected $flashMessageService;
-    protected $defaultFlashMessageQueue;
-
     /**
      * The name of the module
      *
@@ -95,10 +91,6 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // initialize IconFactory
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-
-        // initialize FlashMessageService
-        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        $this->defaultFlashMessageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
 
         $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
         if (!is_array($temp['properties'])) {
@@ -234,18 +226,17 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                         $this->getLanguageService()->getLL('dmail_newsletters'),
                         FlashMessage::WARNING
                     );
-                    $this->defaultFlashMessageQueue->enqueue($flashMessage);
-                    $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
                 }
             } else {
+                /* @var $flashMessage FlashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
                     'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                     $this->getLanguageService()->getLL('select_folder'),
                     $this->getLanguageService()->getLL('header_mailer'),
                     FlashMessage::WARNING
                 );
-                $this->defaultFlashMessageQueue->enqueue($flashMessage);
-                $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('title'));
@@ -378,8 +369,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 break;
             default:
         }
-        $this->defaultFlashMessageQueue->enqueue($flashMessage);
-        return $this->defaultFlashMessageQueue->renderFlashMessages();
+        return GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
     }
 
     /**
@@ -398,12 +388,11 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             /* @var $flashMessage FlashMessage */
             $flashMessage = GeneralUtility::makeInstance(
                 'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                '<strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_log') . '</strong><br />' . nl2br($this->invokeMEngine()),
+                $this->getLanguageService()->getLL('dmail_mailerengine_log') . ' ' . $this->invokeMEngine() . '. ',
                 $this->getLanguageService()->getLL('dmail_mailerengine_invoked'),
                 FlashMessage::INFO
             );
-            $this->defaultFlashMessageQueue->enqueue($flashMessage);
-            $invokeMessage = $this->defaultFlashMessageQueue->renderFlashMessages();
+            $invokeMessage = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
         }
 
         // Invoke engine

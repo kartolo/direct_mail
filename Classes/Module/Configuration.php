@@ -22,8 +22,8 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -77,10 +77,6 @@ class Configuration extends BaseScriptClass
      */
     protected $iconFactory;
 
-    /** @var FlashMessageService $flashMessageService */
-    protected $flashMessageService;
-    protected $defaultFlashMessageQueue;
-
     /**
      * The name of the module
      *
@@ -127,11 +123,7 @@ class Configuration extends BaseScriptClass
         // initialize IconFactory
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
-        // initialize FlashMessageService
-        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        $this->defaultFlashMessageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
-
-        // initialize backend user language
+            // initialize backend user language
         if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                 'sys_language.uid',
@@ -295,28 +287,20 @@ class Configuration extends BaseScriptClass
                 $module=$pidrec['module'];
             }
 
-            /** @var FlashMessageService $flashMessageService */
-            $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-            $defaultFlashMessageQueue = $flashMessageService->getMessageQueueByIdentifier();
-
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] == 254) && ($this->pageinfo['module'] == 'dmail')) {
                     $markers['CONTENT'] = '<h1>' . $this->getLanguageService()->getLL('header_conf') . '</h1>' .
                         $this->moduleContent();
                 } elseif ($this->id != 0) {
-                    /**
-                     * Generate flash message
-                     * @var \TYPO3\CMS\Core\Messaging\FlashMessage
-                     */
+                    /* @var $flashMessage FlashMessage */
                     $flashMessage = GeneralUtility::makeInstance(
                         'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                         $this->getLanguageService()->getLL('dmail_noRegular'),
                         $this->getLanguageService()->getLL('dmail_newsletters'),
                         FlashMessage::WARNING
                     );
-                    $this->defaultFlashMessageQueue->enqueue($flashMessage);
-                    $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
                 }
             } else {
                 $flashMessage = GeneralUtility::makeInstance(
@@ -325,8 +309,7 @@ class Configuration extends BaseScriptClass
                     $this->getLanguageService()->getLL('header_conf'),
                     FlashMessage::WARNING
                 );
-                $this->defaultFlashMessageQueue->enqueue($flashMessage);
-                $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
             }
 
 

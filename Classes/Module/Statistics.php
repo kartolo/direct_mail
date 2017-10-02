@@ -21,9 +21,9 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -77,10 +77,6 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     protected $iconFactory;
 
-    /** @var FlashMessageService $flashMessageService */
-    protected $flashMessageService;
-    protected $defaultFlashMessageQueue;
-
     /**
      * The name of the module
      *
@@ -109,10 +105,6 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // initialize IconFactory
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-
-        // initialize FlashMessageService
-        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        $this->defaultFlashMessageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
 
         // get TS Params
         $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
@@ -267,8 +259,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                         $this->getLanguageService()->getLL('dmail_newsletters'),
                         FlashMessage::WARNING
                     );
-                    $this->defaultFlashMessageQueue->enqueue($flashMessage);
-                    $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
                 }
             } else {
                 $flashMessage = GeneralUtility::makeInstance(
@@ -277,8 +268,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                     $this->getLanguageService()->getLL('header_stat'),
                     FlashMessage::WARNING
                 );
-                $this->defaultFlashMessageQueue->enqueue($flashMessage);
-                $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
 
                 $markers['CONTENT'] = '<h2>' . $this->getLanguageService()->getLL('stats_overview_header') . '</h2>';
             }

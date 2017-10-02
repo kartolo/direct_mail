@@ -14,12 +14,12 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -1218,10 +1218,6 @@ class DirectMailUtility
             }
         }
 
-        /** @var FlashMessageService $flashMessageService */
-        $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        $defaultFlashMessageQueue = $flashMessageService->getMessageQueueByIdentifier();
-
         if (!count($errorMsg)) {
             // Update the record:
             $htmlmail->theParts['messageid'] = $htmlmail->messageid;
@@ -1251,8 +1247,7 @@ class DirectMailUtility
                     $GLOBALS['LANG']->getLL('dmail_warning'),
                     FlashMessage::WARNING
                 );
-                $defaultFlashMessageQueue->enqueue($flashMessage);
-                $theOutput .= $defaultFlashMessageQueue->renderFlashMessages();
+                $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
             }
         } else {
             /* @var $flashMessage FlashMessage */
@@ -1262,8 +1257,7 @@ class DirectMailUtility
                 $GLOBALS['LANG']->getLL('dmail_error'),
                 FlashMessage::ERROR
             );
-            $defaultFlashMessageQueue->enqueue($flashMessage);
-            $theOutput .= $defaultFlashMessageQueue->renderFlashMessages();
+            $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
         }
         if ($returnArray) {
             return array('errors' => $errorMsg, 'warnings' => $warningMsg);
