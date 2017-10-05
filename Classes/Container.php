@@ -29,7 +29,6 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  */
 class Container
 {
-
     public $boundaryStartWrap = '<!--DMAILER_SECTION_BOUNDARY_ | -->';
     public $boundaryEnd = '<!--DMAILER_SECTION_BOUNDARY_END-->';
 
@@ -73,23 +72,25 @@ class Container
                     $mmTable = 'sys_dmail_ttcontent_category_mm';
                     $whereClause = '';
                     $orderBy = $foreignTable . '.uid';
-					$queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($mmTable);
-					$res =  $queryBuilder->select($select)
-						->from($mmTable)
-						->from($foreignTable)
-						->where($mmTable.'.uid_local IN (' . $localTableUidList . ')'
-							. ($foreignTable ? ' AND ' . $foreignTable . '.uid=' . $mmTable . '.uid_foreign' : '')
-							. $whereClause)
-						->orderBy($orderBy)
-						->execute()
-						->fetchAll();
 
-					if (is_array($res)) {
-						foreach ($res as $row) {
-							$categoryList .= $row['uid'] . ',';
-						}
-						$categoryList = rtrim($categoryList, ",");
-					}
+                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($mmTable);
+                    $res =  $queryBuilder->select($select)
+                      ->from($mmTable)
+                      ->from($foreignTable)
+                      ->where($mmTable.'.uid_local IN (' . $localTableUidList . ')'
+                        . ($foreignTable ? ' AND ' . $foreignTable . '.uid=' . $mmTable . '.uid_foreign' : '')
+                        . $whereClause)
+                      ->orderBy($orderBy)
+                      ->execute()
+                      ->fetchAll();
+
+                    if (is_array($res)) {
+                      foreach ($res as $row) {
+                        $categoryList .= $row['uid'] . ',';
+                      }
+                      $categoryList = rtrim($categoryList, ",");
+                    }
+
                 }
                 // wrap boundaries around content
                 $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . $content . $this->boundaryEnd;

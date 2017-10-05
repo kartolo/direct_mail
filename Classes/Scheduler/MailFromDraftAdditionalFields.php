@@ -70,7 +70,7 @@ class MailFromDraftAdditionalFields implements AdditionalFieldProviderInterface
             $drafts = array_merge($drafts, $draftsExternal);
         }
 
-            // Create the input field
+        // Create the input field
         $fieldID = 'task_selecteddraft';
         $fieldHtml = '';
 

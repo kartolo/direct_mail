@@ -22,8 +22,8 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 
 /**
  * Recipient list module for tx_directmail extension
@@ -77,10 +77,6 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     protected $iconFactory;
 
-    /** @var FlashMessageService $flashMessageService */
-    protected $flashMessageService;
-    protected $defaultFlashMessageQueue;
-
     /**
      * The name of the module
      *
@@ -110,10 +106,6 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         // initialize IconFactory
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
-        // initialize FlashMessageService
-        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        $this->defaultFlashMessageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
-
         $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
         if (!is_array($temp['properties'])) {
             $temp['properties'] = array();
@@ -126,10 +118,10 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         }
         $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
 
-            // initialize the query generator
+        // initialize the query generator
         $this->queryGenerator = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\MailSelect');
 
-            // initialize backend user language
+        // initialize backend user language
         if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                 'sys_language.uid',
@@ -143,7 +135,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 $this->sys_language_uid = $row['uid'];
             }
         }
-            // load contextual help
+        // load contextual help
         $this->cshTable = '_MOD_' . $this->MCONF['name'];
         if ($GLOBALS['BE_USER']->uc['edit_showFieldHelp']) {
             $this->getLanguageService()->loadSingleTableDescription($this->cshTable);
@@ -227,7 +219,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 'SHORTCUT' => '',
                 'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS['BACK_PATH'])
             );
-                // shortcut icon
+            // shortcut icon
             if ($GLOBALS['BE_USER']->mayMakeShortcut()) {
                 $docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
             }
@@ -239,7 +231,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 $module = $pidrec['module'];
             }
 
-                // Render content:
+            // Render content:
             if ($module == 'dmail') {
                 // Direct mail module
                 if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail') {
@@ -247,23 +239,23 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                         $this->moduleContent();
                 } elseif ($this->id != 0) {
                     /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                    $flashMessage = GeneralUtility::makeInstance(
+                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                         $this->getLanguageService()->getLL('dmail_noRegular'),
                         $this->getLanguageService()->getLL('dmail_newsletters'),
                         FlashMessage::WARNING
                     );
-                    $this->defaultFlashMessageQueue->enqueue($flashMessage);
-                    $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
                 }
             } else {
                 /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                $flashMessage = GeneralUtility::makeInstance(
+                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                     $this->getLanguageService()->getLL('select_folder'),
                     $this->getLanguageService()->getLL('header_recip'),
                     FlashMessage::WARNING
                 );
-                $this->defaultFlashMessageQueue->enqueue($flashMessage);
-                $markers['FLASHMESSAGES'] = $this->defaultFlashMessageQueue->renderFlashMessages();
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('mailgroup_header'));
@@ -373,14 +365,14 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $out =' <table class="table table-striped table-hover">' . $out . '</table>';
         $theOutput = $this->doc->section(BackendUtility::cshItem($this->cshTable, 'select_mailgroup', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('recip_select_mailgroup'), $out, 1, 1, 0, true);
 
-            // New:
+        // New:
         $out = '<a href="#" class="t3-link" onClick="' . BackendUtility::editOnClick('&edit[sys_dmail_group][' . $this->id . ']=new', $GLOBALS['BACK_PATH'], '') . '">' .
             $this->iconFactory->getIconForRecord('sys_dmail_group', array(), Icon::SIZE_SMALL) .
             $this->getLanguageService()->getLL('recip_create_mailgroup_msg') . '</a>';
         $theOutput .= '<div style="padding-top: 20px;"></div>';
         $theOutput .= $this->doc->section(BackendUtility::cshItem($this->cshTable, 'create_mailgroup', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('recip_create_mailgroup'), $out, 1, 0, false, true, false, true);
 
-            // Import
+        // Import
         $out = '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_RecipientList') . '&id=' . $this->id . '&CMD=displayImport">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
         $theOutput.= '<div style="padding-top: 20px;"></div>';
         $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_import'), $out, 1, 1, 0, true);
@@ -398,12 +390,12 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     public function editLink($table, $uid)
     {
-        $str = "";
+        $str = '';
 
         // check if the user has the right to modify the table
-        if ($GLOBALS["BE_USER"]->check('tables_modify', $table)) {
+        if ($GLOBALS['BE_USER']->check('tables_modify', $table)) {
             $params = '&edit[' . $table . '][' . $uid . ']=edit';
-            $str = '<a href="#" onClick="' . BackendUtility::editOnClick($params, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL("dmail_edit") . '">' .
+            $str = '<a href="#" onClick="' . BackendUtility::editOnClick($params, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                 $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                 '</a>';
         }
@@ -611,7 +603,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $theOutput = $this->doc->section($this->getLanguageService()->getLL('mailgroup_recip_from') . ' ' . $out, $mainC, 1, 1, 0, true);
         $theOutput .= '<div style="padding-top: 20px;"></div>';
 
-            // do the CSV export
+        // do the CSV export
         $csvValue = GeneralUtility::_GP('csv');
         if ($csvValue) {
             if ($csvValue == 'PLAINLIST') {
@@ -666,7 +658,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 }
 
                 if ($group['type'] == 3) {
-                    if ($GLOBALS["BE_USER"]->check('tables_modify', 'sys_dmail_group')) {
+                    if ($GLOBALS['BE_USER']->check('tables_modify', 'sys_dmail_group')) {
                         $theOutput .= $this->cmd_specialQuery($group);
                     }
                 }
@@ -739,7 +731,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     public function cmd_specialQuery($mailGroup)
     {
-        $out = "";
+        $out = '';
         $this->queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
 
         if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
@@ -883,13 +875,13 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             while (($rowCat=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat))) {
                 $categoriesArray[] = $rowCat['uid_foreign'];
             }
-            $categories = implode($categoriesArray, ",");
+            $categories = implode($categoriesArray, ',');
 
             $editParams = '&edit[' . $table . '][' . $row['uid'] . ']=edit';
 
             $out = '';
             $out .=  $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name']) . htmlspecialchars(' <' . $row['email'] . '>');
-            $out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParams, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL("dmail_edit") . '">' .
+            $out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParams, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                 $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                 '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
             $theOutput = $this->doc->section($this->getLanguageService()->getLL('subscriber_info'), $out);

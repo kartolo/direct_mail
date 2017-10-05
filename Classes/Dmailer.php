@@ -18,7 +18,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use DirectMailTeam\DirectMail\DirectMailUtility;
 
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
@@ -135,7 +134,7 @@ class Dmailer
         }
         if ($row['charset']) {
             if ($row['type'] == 0) {
-                $this->charset = "utf-8";
+                $this->charset = 'utf-8';
             } else {
                 $this->charset = $row['charset'];
             }
@@ -171,12 +170,12 @@ class Dmailer
         foreach ($this->dmailer['boundaryParts_html'] as $bKey => $bContent) {
             $this->dmailer['boundaryParts_html'][$bKey] = explode('-->', $bContent, 2);
 
-                // Remove useless HTML comments
+            // Remove useless HTML comments
             if (substr($this->dmailer['boundaryParts_html'][$bKey][0], 1) == 'END') {
                 $this->dmailer['boundaryParts_html'][$bKey][1] = $this->removeHTMLComments($this->dmailer['boundaryParts_html'][$bKey][1]);
             }
 
-                // Now, analyzing which media files are used in this part of the mail:
+            // Now, analyzing which media files are used in this part of the mail:
             $mediaParts = explode('cid:part', $this->dmailer['boundaryParts_html'][$bKey][1]);
             reset($mediaParts);
             next($mediaParts);
@@ -233,14 +232,14 @@ class Dmailer
             $markers['###USER_' . $substField . '###'] = $subst;
         }
 
-            // uppercase fields with uppercased values
+        // uppercase fields with uppercased values
         $uppercaseFieldsArray = array('name', 'firstname');
         foreach ($uppercaseFieldsArray as $substField) {
             $subst = $this->getLanguageService()->csConvObj->conv($recipRow[$substField], $this->getLanguageService()->charSet, $this->charset);
             $markers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
         }
 
-            // Hook allows to manipulate the markers to add salutation etc.
+        // Hook allows to manipulate the markers to add salutation etc.
         if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'])) {
             $mailMarkersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'];
             if (is_array($mailMarkersHook)) {
@@ -311,7 +310,7 @@ class Dmailer
                 }
             }
 
-                // Plain
+            // Plain
             $this->theParts['plain']['content'] = '';
             if ($this->flag_plain) {
                 $tempContent_Plain = $this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipRow['sys_dmail_categories_list']);
@@ -373,7 +372,7 @@ class Dmailer
             $this->theParts['plain']['content'] = '';
         }
 
-        $recipients = explode(",", $addressList);
+        $recipients = explode(',', $addressList);
         foreach ($recipients as $recipient) {
             $this->sendTheMail($recipient);
         }
@@ -409,7 +408,7 @@ class Dmailer
             } elseif ($key == 'END') {
                 $returnVal .= $cP[1];
                 $this->mediaList .= $cP['mediaList'];
-                    // There is content and it is not just the header and footer content, or it is the only content because we have no direct mail boundaries.
+                // There is content and it is not just the header and footer content, or it is the only content because we have no direct mail boundaries.
                 if (($cP[1] && !($bKey == 0 || $bKey == $boundaryMax)) || count($cArray) == 1) {
                     $this->mailHasContent = true;
                 }
@@ -480,7 +479,7 @@ class Dmailer
             foreach ($query_info['id_lists'] as $table => $listArr) {
                 if (is_array($listArr)) {
                     $ct = 0;
-                        // Find tKey
+                    // Find tKey
                     if ($table=='tt_address' || $table=='fe_users') {
                         $tKey = substr($table, 0, 1);
                     } elseif ($table=='PLAINLIST') {
@@ -489,7 +488,7 @@ class Dmailer
                         $tKey='u';
                     }
 
-                        // Send mails
+                    // Send mails
                     $sendIds = $this->dmailer_getSentMails($mid, $tKey);
                     if ($table == 'PLAINLIST') {
                         $sendIdsArr = explode(',', $sendIds);
@@ -528,7 +527,7 @@ class Dmailer
                                     $returnVal = false;
                                     break;
                                 }
-                                    // We are NOT finished!
+                                // We are NOT finished!
                                 $this->shipOfMail($mid, $recipRow, $tKey);
                                 $ct++;
                                 $c++;
@@ -611,7 +610,7 @@ class Dmailer
             $recipRow['phone'] = $recipRow['telephone'];
         }
 
-            // Firstname must be more that 1 character
+        // Firstname must be more that 1 character
         $recipRow['firstname'] = trim(strtok(trim($recipRow['name']), ' '));
         if (strlen($recipRow['firstname']) < 2 || preg_match('|[^[:alnum:]]$|', $recipRow['firstname'])) {
             $recipRow['firstname'] = $recipRow['name'];
@@ -644,11 +643,11 @@ class Dmailer
         switch ($key) {
             case 'begin':
                 $subject = $this->getLanguageService()->getLL('dmailer_mid') . ' ' . $mid . ' ' . $this->getLanguageService()->getLL('dmailer_job_begin');
-                $message = $this->getLanguageService()->getLL('dmailer_job_begin') . ': ' . date("d-m-y h:i:s");
+                $message = $this->getLanguageService()->getLL('dmailer_job_begin') . ': ' . date('d-m-y h:i:s');
                 break;
             case 'end':
                 $subject = $this->getLanguageService()->getLL('dmailer_mid') . ' ' . $mid . ' ' . $this->getLanguageService()->getLL('dmailer_job_end');
-                $message = $this->getLanguageService()->getLL('dmailer_job_end') . ': ' . date("d-m-y h:i:s");
+                $message = $this->getLanguageService()->getLL('dmailer_job_end') . ': ' . date('d-m-y h:i:s');
                 break;
             default:
                 // do nothing
@@ -877,7 +876,7 @@ class Dmailer
             $this->linebreak = CRLF;
         }
 
-            // Mailer engine parameters
+        // Mailer engine parameters
         $this->sendPerCycle = $user_dmailer_sendPerCycle;
         $this->user_dmailerLang = $user_dmailer_lang;
         if (!$this->nonCron) {
@@ -948,9 +947,9 @@ class Dmailer
         // set the attachment from $this->dmailer['sys_dmail_rec']['attachment']
         // comma separated files
         if (!empty($this->dmailer['sys_dmail_rec']['attachment'])) {
-            $files = explode(",", $this->dmailer['sys_dmail_rec']['attachment']);
+            $files = explode(',', $this->dmailer['sys_dmail_rec']['attachment']);
             foreach ($files as $file) {
-                $mailer->attach(\Swift_Attachment::fromPath(PATH_site . "uploads/tx_directmail/" . $file));
+                $mailer->attach(\Swift_Attachment::fromPath(PATH_site . 'uploads/tx_directmail/' . $file));
             }
         }
     }
@@ -987,7 +986,7 @@ class Dmailer
             $header->addTextHeader('Organization', $this->organisation);
         }
         
-            // Hook to edit or add the mail headers
+        // Hook to edit or add the mail headers
         if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'])) {
             $mailHeadersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'];
             if (is_array($mailHeadersHook)) {
@@ -1054,11 +1053,11 @@ class Dmailer
             return false;
         }
         if ($this->extractFramesInfo()) {
-            return "Document was a frameset. Stopped";
+            return 'Document was a frameset. Stopped';
         }
         $this->extractHyperLinks();
         $this->substHREFsInHTML();
-        $this->setHTML($this->encodeMsg($this->theParts["html"]["content"]));
+        $this->setHTML($this->encodeMsg($this->theParts['html']['content']));
         return true;
     }
 
@@ -1160,7 +1159,8 @@ class Dmailer
             $this->theParts['html']['content'] = str_replace(
                 $val['subst_str'],
                 $val['quotes'] . $substVal . $val['quotes'],
-                $this->theParts['html']['content']);
+                $this->theParts['html']['content']
+            );
         }
     }
 
@@ -1212,7 +1212,7 @@ class Dmailer
             return $content;
         }
 
-        $textpieces = explode("http://", $content);
+        $textpieces = explode('http://', $content);
         $pieces = count($textpieces);
         $textstr = $textpieces[0];
         for ($i = 1; $i < $pieces; $i++) {
@@ -1224,7 +1224,7 @@ class Dmailer
                 }
 
                 $parts = array();
-                $parts[0] = "http://" . substr($textpieces[$i], 0, $len);
+                $parts[0] = 'http://' . substr($textpieces[$i], 0, $len);
                 $parts[1] = substr($textpieces[$i], $len);
 
                 if (strpos($parts[0], '&no_jumpurl=1') !== false) {
@@ -1326,8 +1326,8 @@ class Dmailer
                 $imageData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $imageData['ref']) - 1, 1) == '"') ? '"' : '';
                 // subst_str is the string to look for, when substituting lateron
                 $imageData['subst_str'] = $imageData['quotes'] . $imageData['ref'] . $imageData['quotes'];
-                if ($imageData['ref'] && !strstr($imageList, "|" . $imageData["subst_str"] . "|")) {
-                    $imageList .= "|" . $imageData['subst_str'] . "|";
+                if ($imageData['ref'] && !strstr($imageList, '|' . $imageData['subst_str'] . '|')) {
+                    $imageList .= '|' . $imageData['subst_str'] . '|';
                     $imageData['absRef'] = $this->absRef($imageData['ref']);
                     $imageData['tag'] = $tag;
                     $imageData['use_jumpurl'] = $attributes['dmailerping'] ? 1 : 0;
@@ -1354,9 +1354,9 @@ class Dmailer
                 $imageData['quotes'] = (substr($codepieces[$i], strpos($codepieces[$i], $imageData['ref']) - 1, 1) == '"') ? '"' : '';
                 // subst_str is the string to look for, when substituting lateron
                 $imageData['subst_str'] = $imageData['quotes'] . $imageData['ref'] . $imageData['quotes'];
-                if ($imageData['ref'] && !strstr($imageList, "|" . $imageData["subst_str"] . "|")) {
-                    $imageList .= "|" . $imageData["subst_str"] . "|";
-                    $imageData['absRef'] = $this->absRef($imageData["ref"]);
+                if ($imageData['ref'] && !strstr($imageList, '|' . $imageData['subst_str'] . '|')) {
+                    $imageList .= '|' . $imageData['subst_str'] . '|';
+                    $imageData['absRef'] = $this->absRef($imageData['ref']);
                     $this->theParts['html']['media'][] = $imageData;
                 }
             }
@@ -1382,8 +1382,8 @@ class Dmailer
                 case 'jpeg':
                     // do like jpg
                 case 'jpg':
-                    if ($imageData['ref'] && !strstr($imageList, "|" . $imageData["subst_str"] . "|")) {
-                        $imageList .= "|" . $imageData['subst_str'] . "|";
+                    if ($imageData['ref'] && !strstr($imageList, '|' . $imageData['subst_str'] . '|')) {
+                        $imageList .= '|' . $imageData['subst_str'] . '|';
                         $imageData['absRef'] = $this->absRef($imageData['ref']);
                         $this->theParts['html']['media'][] = $imageData;
                     }
@@ -1411,7 +1411,7 @@ class Dmailer
         $len = strlen($codepieces[0]);
         $pieces = count($codepieces);
         for ($i = 1; $i < $pieces; $i++) {
-            $tag = strtolower(strtok(substr($htmlContent, $len + 1, 10), " "));
+            $tag = strtolower(strtok(substr($htmlContent, $len + 1, 10), ' '));
             $len += strlen($tag) + strlen($codepieces[$i]) + 2;
 
             $dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
@@ -1426,8 +1426,8 @@ class Dmailer
                 $hrefData['quotes'] = $quotes;
                 // subst_str is the string to look for when substituting later on
                 $hrefData['subst_str'] = $quotes . $hrefData['ref'] . $quotes;
-                if ($hrefData['ref'] && substr(trim($hrefData['ref']), 0, 1) != "#" && !strstr($linkList, "|" . $hrefData['subst_str'] . "|")) {
-                    $linkList .= "|" . $hrefData['subst_str'] . "|";
+                if ($hrefData['ref'] && substr(trim($hrefData['ref']), 0, 1) != '#' && !strstr($linkList, '|' . $hrefData['subst_str'] . '|')) {
+                    $linkList .= '|' . $hrefData['subst_str'] . '|';
                     $hrefData['absRef'] = $this->absRef($hrefData['ref']);
                     $hrefData['tag'] = $tag;
                     $hrefData['no_jumpurl'] = intval(trim($attributes['no_jumpurl'], '"')) ? 1 : 0;
@@ -1445,8 +1445,8 @@ class Dmailer
                 $hrefData['quotes'] = "'";
                 // subst_str is the string to look for, when substituting lateron
                 $hrefData['subst_str'] = $hrefData['quotes'] . $hrefData['ref'] . $hrefData['quotes'];
-                if ($hrefData['ref'] && !strstr($linkList, "|" . $hrefData['subst_str'] . "|")) {
-                    $linkList .= "|" . $hrefData['subst_str'] . "|";
+                if ($hrefData['ref'] && !strstr($linkList, '|' . $hrefData['subst_str'] . '|')) {
+                    $linkList .= '|' . $hrefData['subst_str'] . '|';
                     $hrefData['absRef'] = $this->absRef($hrefData['ref']);
                     $this->theParts['html']['hrefs'][] = $hrefData;
                 }
@@ -1584,7 +1584,7 @@ class Dmailer
         } else {
             // If the reference is relative, the path is added,
             // in order for us to fetch the content
-            if (substr($this->theParts['html']['path'], -1) == "/") {
+            if (substr($this->theParts['html']['path'], -1) == '/') {
                 // if the last char is a /, then prepend the ref
                 $ref = $this->theParts['html']['path'] . $ref;
             } else {
