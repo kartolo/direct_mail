@@ -12,6 +12,7 @@ return array(
         'type' => 'type',
         'useColumnsForDefaultValues' => 'from_email,from_name,replyto_email,replyto_name,organisation,priority,encoding,charset,sendOptions,type',
         'dividers2tabs' => true,
+        'languageField' => 'sys_language_uid'
     ),
     'interface' => array(
         'showRecordFieldList' => 'sys_language_uid,type,plainParams,HTMLParams,subject,from_name,from_email,replyto_name,replyto_email,return_path,organisation,attachment,priority,encoding,charset,sendOptions,includeMedia,flowedFormat,issent,renderedsize,use_domain,use_rdct,long_link_mode,authcode_fieldList'
@@ -21,6 +22,7 @@ return array(
             'exclude' => 1,
             'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.language',
             'config' => array(
+                'default' => '0',
                 'type' => 'select',
                 'foreign_table' => 'sys_language',
                 'foreign_table_where' => 'ORDER BY sys_language.title',

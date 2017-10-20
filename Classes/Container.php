@@ -28,7 +28,6 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  */
 class Container
 {
-
     public $boundaryStartWrap = '<!--DMAILER_SECTION_BOUNDARY_ | -->';
     public $boundaryEnd = '<!--DMAILER_SECTION_BOUNDARY_END-->';
 
@@ -79,14 +78,15 @@ class Container
                         $foreignTable,
                         $whereClause,
                         '',
-                        $orderBy);
+                        $orderBy
+                    );
 
                     if ($GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
                         while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
                             $categoryList .= $row['uid'] . ',';
                         }
                         $GLOBALS['TYPO3_DB']->sql_free_result($res);
-                        $categoryList = rtrim($categoryList, ",");
+                        $categoryList = rtrim($categoryList, ',');
                     }
                 }
                 // wrap boundaries around content

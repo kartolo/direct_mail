@@ -22,8 +22,9 @@
     "issues": "https://forge.typo3.org/projects/extension-direct_mail"
   },
   "require": {
-    "typo3/cms-core": ">=7.6,<8.0",
-    "typo3-ter/jumpurl": ">=7.6"
+    "typo3/cms-core": ">=7.6,<9.0",
+    "friendsoftypo3/jumpurl": ">=7.6",
+    "friendsoftypo3/tt-address": ">=4.0"
   },
   "autoload": {
     "psr-4": {

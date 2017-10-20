@@ -1,4 +1,6 @@
 <?php
+namespace DirectMailTeam\DirectMail\Plugin;
+
 /***************************************************************
 *  Copyright notice
 *
@@ -49,7 +51,7 @@ use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
  *
  * @author Ivan Kartolo <ivan.kartolo@gmail.com>
  */
-class tx_directmail_pi1 extends AbstractPlugin
+class DirectMail extends AbstractPlugin
 {
 
     /**
@@ -152,12 +154,12 @@ class tx_directmail_pi1 extends AbstractPlugin
         $lines[] = '';
         $content = implode(LF, $lines);
 
-            // Substitute labels
+        // Substitute labels
         $markerArray = array();
         $markerArray = $this->addLabelsMarkers($markerArray);
         $content = $this->cObj->substituteMarkerArray($content, $markerArray);
 
-            // User processing:
+        // User processing:
         $content = $this->userProcess('userProc', $content);
         return $content;
     }
@@ -177,7 +179,7 @@ class tx_directmail_pi1 extends AbstractPlugin
         $this->pi_loadLL();
         $this->siteUrl = $this->conf['siteUrl'];
 
-            // Default linebreak;
+        // Default linebreak;
         if ($this->conf['flowedFormat']) {
             $this->linebreak = chr(32) . LF;
         }
@@ -300,11 +302,11 @@ class tx_directmail_pi1 extends AbstractPlugin
         if ($this->conf[$altConf . '.']['doubleLF']) {
             $str = preg_replace("/\n/", "\n\n", $str);
         }
-            // Regular parsing:
+        // Regular parsing:
         $str = preg_replace('/<br\s*\/?>/i', LF, $str);
         $str = $this->cObj->stdWrap($str, $this->conf[$altConf . '.']['stdWrap.']);
 
-            // Then all a-tags:
+        // Then all a-tags:
         $aConf = array();
         $aConf['parseFunc.']['tags.']['a'] = 'USER';
         $aConf['parseFunc.']['tags.']['a.']['userFunc'] = 'tx_directmail_pi1->atag_to_http';
@@ -418,7 +420,7 @@ class tx_directmail_pi1 extends AbstractPlugin
             }
         }
 
-        return "";
+        return '';
     }
 
     /**
@@ -454,7 +456,7 @@ class tx_directmail_pi1 extends AbstractPlugin
         $cParts = explode(LF, $str);
         $lines = array();
         foreach ($cParts as $substrs) {
-            $lines[] = $this->breakLines($substrs, "");
+            $lines[] = $this->breakLines($substrs, '');
         }
         return implode(LF, $lines);
     }

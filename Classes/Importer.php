@@ -18,6 +18,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 
 /**
  * Recipient list module for tx_directmail extension
@@ -102,10 +103,10 @@ class Importer
         // merge it with inData, but inData has priority.
         $this->indata = $this->indata + $this->params;
 
-//		$currentFileInfo = BasicFileUtility::getTotalFileInfo($this->indata['newFile']);
-//		$currentFileName = $currentFileInfo['file'];
-//		$currentFileSize = GeneralUtility::formatSize($currentFileInfo['size']);
-//		$currentFileMessage = $currentFileName . ' (' . $currentFileSize . ')';
+        //		$currentFileInfo = BasicFileUtility::getTotalFileInfo($this->indata['newFile']);
+        //		$currentFileName = $currentFileInfo['file'];
+        //		$currentFileSize = GeneralUtility::formatSize($currentFileInfo['size']);
+        //		$currentFileMessage = $currentFileName . ' (' . $currentFileSize . ')';
 
         if (empty($this->indata['csv']) && !empty($_FILES['upload_1']['name'])) {
             $this->indata['newFile'] = $this->checkUpload();
@@ -156,7 +157,7 @@ class Importer
             }
         }
 
-        $out = "";
+        $out = '';
         switch ($stepCurrent) {
             case 'conf':
                 // get list of sysfolder
@@ -646,7 +647,7 @@ class Importer
             $mappedCSV = $filteredCSV['clean'];
         }
 
-            // array for the process_datamap();
+        // array for the process_datamap();
         $data = array();
         if ($this->indata['update_unique']) {
             $user = array();
@@ -805,7 +806,7 @@ class Importer
      *
      * @return	string		HTML code
      */
-    public function makeHidden($name, $value="")
+    public function makeHidden($name, $value='')
     {
         if (is_array($name)) {
             $hiddenFields = array();
@@ -830,7 +831,7 @@ class Importer
     {
         ini_set('auto_detect_line_endings', true);
         $mydata = array();
-        $handle = fopen($this->indata['newFile'], "r");
+        $handle = fopen($this->indata['newFile'], 'r');
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
         $delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
@@ -869,7 +870,7 @@ class Importer
         if (!is_file($this->indata['newFile']) && (strpos($this->indata['newFile'], PATH_site) === false)) {
             $this->indata['newFile'] = PATH_site . $this->indata['newFile'];
         }
-        $handle = fopen($this->indata['newFile'], "r");
+        $handle = fopen($this->indata['newFile'], 'r');
         $i = 0;
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
@@ -936,7 +937,7 @@ class Importer
             $rowA = array();
             for ($k = 0; $k < count($r); $k++) {
                 $v = $r[$k];
-                $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : "&nbsp;";
+                $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : '&nbsp;';
                 if ($first) {
                     $v = '<B>' . $v . '</B>';
                 }
@@ -979,7 +980,7 @@ class Importer
      */
     public function writeTempFile()
     {
-        $newfile = "";
+        $newfile = '';
         $userPermissions = $GLOBALS['BE_USER']->getFilePermissions();
 
         unset($this->fileProcessor);
@@ -994,7 +995,9 @@ class Importer
         // Initializing:
         /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
         $this->fileProcessor = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Utility\\File\\ExtendedFileUtility');
-        $this->fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
+        if (version_compare(TYPO3_branch, '8.3', '<')) {
+            $this->fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
+        }
         $this->fileProcessor->setActionPermissions($userPermissions);
         $this->fileProcessor->dontCheckForUnique = 1;
 
@@ -1063,7 +1066,9 @@ class Importer
         // Initializing:
         /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
         $this->fileProcessor = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Utility\\File\\ExtendedFileUtility');
-        $this->fileProcessor->init($fm, $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
+        if (version_compare(TYPO3_branch, '8.3', '<')) {
+            $this->fileProcessor->init($fm, $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
+        }
         $this->fileProcessor->setActionPermissions();
         $this->fileProcessor->dontCheckForUnique = 1;
 
@@ -1075,6 +1080,7 @@ class Importer
             $this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', array($refInfo['host'], $httpHost));
         } else {
             $this->fileProcessor->start($file);
+            $this->fileProcessor->setExistingFilesConflictMode(DuplicationBehavior::cast(DuplicationBehavior::REPLACE));
             $newfile = $this->fileProcessor->func_upload($file['upload']['1']);
         }
         return $newfile;

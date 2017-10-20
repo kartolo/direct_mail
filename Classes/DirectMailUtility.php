@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -111,7 +112,7 @@ class DirectMailUtility
          *
          * );
          */
-        $plainlist = array_map("unserialize", array_unique(array_map("serialize", $plainlist)));
+        $plainlist = array_map('unserialize', array_unique(array_map('serialize', $plainlist)));
 
         return $plainlist;
     }
@@ -203,16 +204,16 @@ class DirectMailUtility
         // Direct Mail needs an email address!
         $emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('', $switchTable);
 
-            // fe user group uid should be in list of fe users list of user groups
-//		$field = $switchTable.'.usergroup';
-//		$command = $table.'.uid';
+        // fe user group uid should be in list of fe users list of user groups
+        //		$field = $switchTable.'.usergroup';
+        //		$command = $table.'.uid';
         // This approach, using standard SQL, does not work,
         // even when fe_users.usergroup is defined as varchar(255) instead of tinyblob
         // $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
         // The following will work but INSTR and CONCAT are available only in mySQL
         $usergroupInList = ' AND INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )';
 
-        $mmTable = $GLOBALS["TCA"][$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
+        $mmTable = $GLOBALS['TCA'][$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
         $cat = intval($cat);
         if ($cat < 1) {
             if ($table == 'fe_groups') {
@@ -227,7 +228,7 @@ class DirectMailUtility
                         BackendUtility::BEenableFields($table) .
                         BackendUtility::deleteClause($table) .
                         $addWhere,
-                    $switchTable . '.email'
+                    $switchTable . '.uid, ' . $switchTable . '.email'
                 );
             } else {
                 $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -238,7 +239,7 @@ class DirectMailUtility
                         BackendUtility::BEenableFields($switchTable) .
                         BackendUtility::deleteClause($switchTable) .
                         $addWhere,
-                    $switchTable . '.email'
+                    $switchTable . '.uid, ' . $switchTable . '.email'
                 );
             }
         } else {
@@ -258,7 +259,7 @@ class DirectMailUtility
                         BackendUtility::deleteClause($table) .
                         BackendUtility::deleteClause('sys_dmail_group') .
                         $addWhere,
-                    $switchTable . '.email'
+                    $switchTable . '.uid, ' . $switchTable . '.email'
                 );
             } else {
                 $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -273,7 +274,7 @@ class DirectMailUtility
                         BackendUtility::deleteClause($switchTable) .
                         BackendUtility::deleteClause('sys_dmail_group') .
                         $addWhere,
-                    $switchTable . '.email'
+                    $switchTable . '.uid, ' . $switchTable . '.email'
                 );
             }
         }
@@ -281,7 +282,7 @@ class DirectMailUtility
         while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
             $outArr[] = $row['uid'];
         }
-        $GLOBALS["TYPO3_DB"]->sql_free_result($res);
+        $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
         return $outArr;
     }
@@ -311,8 +312,8 @@ class DirectMailUtility
         // $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
 
         // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
-        if ($switchTable == "fe_users") {
-            $addWhere = ' AND ' . $switchTable . ".module_sys_dmail_newsletter = 1";
+        if ($switchTable == 'fe_users') {
+            $addWhere = ' AND ' . $switchTable . '.module_sys_dmail_newsletter = 1';
         }
 
         $usergroupInList = ' AND INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )';
@@ -332,7 +333,7 @@ class DirectMailUtility
                     BackendUtility::deleteClause($table) .
                     BackendUtility::deleteClause('sys_dmail_group') .
                     $addWhere,
-                $switchTable . '.email'
+                $switchTable . '.uid, ' . $switchTable . '.email'
             );
         } else {
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -346,7 +347,7 @@ class DirectMailUtility
                     BackendUtility::deleteClause($switchTable) .
                     BackendUtility::deleteClause('sys_dmail_group') .
                     $addWhere,
-                $switchTable . '.email'
+                $switchTable . '.uid, ' . $switchTable . '.email'
             );
         }
 
@@ -366,7 +367,7 @@ class DirectMailUtility
                     ' AND sys_dmail_group_mm.tablenames=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($table, $table) .
                     BackendUtility::BEenableFields($table) .
                     BackendUtility::deleteClause($table)
-                );
+            );
             list($groupId) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
             $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
@@ -390,8 +391,8 @@ class DirectMailUtility
                         BackendUtility::deleteClause($switchTable) .
                         BackendUtility::BEenableFields($table) .
                         BackendUtility::deleteClause($table) .
-                        $addWhere,
-                        $switchTable . '.email'
+                    $addWhere,
+                    $switchTable . '.uid, ' . $switchTable . '.email'
                 );
 
                 while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
@@ -446,7 +447,7 @@ class DirectMailUtility
      */
     public static function getMailGroups($list, array $parsedGroups, $perms_clause)
     {
-        $groupIdList = GeneralUtility::intExplode(",", $list);
+        $groupIdList = GeneralUtility::intExplode(',', $list);
         $groups = array();
 
         $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -498,8 +499,8 @@ class DirectMailUtility
             // overrides any existing value in the field
             $first = $lines[0];
             $fieldListArr = explode(',', $fieldList);
-            if ($GLOBALS["TYPO3_CONF_VARS"]['EXTCONF']['direct_mail']['addRecipFields']) {
-                $fieldListArr = array_merge($fieldListArr, explode(',', $GLOBALS["TYPO3_CONF_VARS"]['EXTCONF']['direct_mail']['addRecipFields']));
+            if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
+                $fieldListArr = array_merge($fieldListArr, explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
             }
             $fieldName = 1;
             $fieldOrder = array();
@@ -514,11 +515,11 @@ class DirectMailUtility
                     break;
                 }
             }
-                // If not field list, then:
+            // If not field list, then:
             if (!$fieldName) {
                 $fieldOrder = array(array('name'),array('email'));
             }
-                // Re-map values
+            // Re-map values
             reset($lines);
             if ($fieldName) {
                 // Advance pointer if the first line was field names
@@ -601,7 +602,7 @@ class DirectMailUtility
                 $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                     '*',
                     'sys_dmail_category',
-                    'sys_dmail_category.pid IN (' . str_replace(",", "','", $GLOBALS['TYPO3_DB']->fullQuoteStr($pidList, 'sys_dmail_category')) . ')' .
+                    'sys_dmail_category.pid IN (' . str_replace(',', "','", $GLOBALS['TYPO3_DB']->fullQuoteStr($pidList, 'sys_dmail_category')) . ')' .
                         ' AND l18n_parent=0' .
                         BackendUtility::BEenableFields('sys_dmail_category') .
                         BackendUtility::deleteClause('sys_dmail_category')
@@ -611,7 +612,7 @@ class DirectMailUtility
                         $categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
                     }
                 }
-                $GLOBALS["TYPO3_DB"]->sql_free_result($res);
+                $GLOBALS['TYPO3_DB']->sql_free_result($res);
             }
         }
         return $categories;
@@ -632,20 +633,20 @@ class DirectMailUtility
     public static function getRecordOverlay($table, array $row, $sys_language_content, $OLmode = '')
     {
         if ($row['uid']>0 && $row['pid']>0) {
-            if ($GLOBALS["TCA"][$table] && $GLOBALS["TCA"][$table]['ctrl']['languageField'] && $GLOBALS["TCA"][$table]['ctrl']['transOrigPointerField']) {
-                if (!$GLOBALS["TCA"][$table]['ctrl']['transOrigPointerTable']) {
+            if ($GLOBALS['TCA'][$table] && $GLOBALS['TCA'][$table]['ctrl']['languageField'] && $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']) {
+                if (!$GLOBALS['TCA'][$table]['ctrl']['transOrigPointerTable']) {
                     // Will try to overlay a record only
                     // if the sys_language_content value is larger that zero.
                     if ($sys_language_content > 0) {
                         // Must be default language or [All], otherwise no overlaying:
-                        if ($row[$GLOBALS["TCA"][$table]['ctrl']['languageField']]<=0) {
+                        if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]<=0) {
                             // Select overlay record:
                             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                                 '*',
                                 $table,
                                 'pid=' . intval($row['pid']) .
-                                    ' AND ' . $GLOBALS["TCA"][$table]['ctrl']['languageField'] . '=' . intval($sys_language_content) .
-                                    ' AND ' . $GLOBALS["TCA"][$table]['ctrl']['transOrigPointerField'] . '=' . intval($row['uid']) .
+                                    ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . intval($sys_language_content) .
+                                    ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . intval($row['uid']) .
                                     BackendUtility::BEenableFields($table) .
                                     BackendUtility::deleteClause($table),
                                 '',
@@ -653,18 +654,18 @@ class DirectMailUtility
                                 '1'
                                 );
                             $olrow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-                            $GLOBALS["TYPO3_DB"]->sql_free_result($res);
+                            $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
-                                // Merge record content by traversing all fields:
+                            // Merge record content by traversing all fields:
                             if (is_array($olrow)) {
                                 foreach ($row as $fN => $fV) {
                                     if ($fN!='uid' && $fN!='pid' && isset($olrow[$fN])) {
-                                        if ($GLOBALS["TCA"][$table]['l10n_mode'][$fN]!='exclude' && ($GLOBALS["TCA"][$table]['l10n_mode'][$fN]!='mergeIfNotBlank' || strcmp(trim($olrow[$fN]), ''))) {
+                                        if ($GLOBALS['TCA'][$table]['l10n_mode'][$fN]!='exclude' && ($GLOBALS['TCA'][$table]['l10n_mode'][$fN]!='mergeIfNotBlank' || strcmp(trim($olrow[$fN]), ''))) {
                                             $row[$fN] = $olrow[$fN];
                                         }
                                     }
                                 }
-                            } elseif ($OLmode === 'hideNonTranslated' && $row[$GLOBALS["TCA"][$table]['ctrl']['languageField']] == 0) {
+                            } elseif ($OLmode === 'hideNonTranslated' && $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] == 0) {
                                 // Unset, if non-translated records should be hidden.
                                 // ONLY done if the source record really is default language and not [All] in which case it is allowed.
                                 unset($row);
@@ -672,13 +673,13 @@ class DirectMailUtility
 
                             // Otherwise, check if sys_language_content is different from the value of the record
                             // that means a japanese site might try to display french content.
-                        } elseif ($sys_language_content!=$row[$GLOBALS["TCA"][$table]['ctrl']['languageField']]) {
+                        } elseif ($sys_language_content!=$row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]) {
                             unset($row);
                         }
                     } else {
                         // When default language is displayed,
                         // we never want to return a record carrying another language!:
-                        if ($row[$GLOBALS["TCA"][$table]['ctrl']['languageField']]>0) {
+                        if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]>0) {
                             unset($row);
                         }
                     }
@@ -713,11 +714,11 @@ class DirectMailUtility
             $rowA = array();
             for ($k=0; $k<$cols; $k++) {
                 $v = $r[$k];
-                $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : "&nbsp;";
+                $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : '&nbsp;';
                 if ($first) {
                     $rowA[] = '<td>' . $v . '</td>';
                 } else {
-                    $rowA[] = '<td' . ($cellParams[$k]?" " . $cellParams[$k]:"") . '>' . $v . '</td>';
+                    $rowA[] = '<td' . ($cellParams[$k]?' ' . $cellParams[$k]:'') . '>' . $v . '</td>';
                 }
             }
             $lines[] = '<tr class="' . ($first ? 't3-row-header' : 'db_list_normal') . '">' . implode('', $rowA) . '</tr>';
@@ -835,7 +836,7 @@ class DirectMailUtility
                             ],
                             'returnUrl' => $returnUrl
                         ];
-                        $editLink = '<td><a class="t3-link" href="' . BackendUtility::getModuleUrl('record_edit', $urlParameters) . '" title="' . $GLOBALS['LANG']->getLL("dmail_edit") . '">' .
+                        $editLink = '<td><a class="t3-link" href="' . BackendUtility::getModuleUrl('record_edit', $urlParameters) . '" title="' . $GLOBALS['LANG']->getLL('dmail_edit') . '">' .
                             $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                             '</a></td>';
                     }
@@ -850,7 +851,7 @@ class DirectMailUtility
             }
         }
         if (count($lines)) {
-            $out = $GLOBALS["LANG"]->getLL('dmail_number_records') . '<strong> ' . $count . '</strong><br />';
+            $out = $GLOBALS['LANG']->getLL('dmail_number_records') . '<strong> ' . $count . '</strong><br />';
             $out .= '<table class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
         }
         return $out;
@@ -867,11 +868,11 @@ class DirectMailUtility
     {
         // get all subgroups of this fe_group
         // fe_groups having this id in their subgroup field
-        $res = $GLOBALS["TYPO3_DB"]->exec_SELECT_mm_query(
-            "DISTINCT fe_groups.uid",
-            "fe_groups",
-            "sys_dmail_group_mm",
-            "sys_dmail_group",
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+            'DISTINCT fe_groups.uid',
+            'fe_groups',
+            'sys_dmail_group_mm',
+            'sys_dmail_group',
             ' AND INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . intval($groupId) . ',\' )' .
                 BackendUtility::BEenableFields('fe_groups') .
                 BackendUtility::deleteClause('fe_groups')
@@ -967,7 +968,9 @@ class DirectMailUtility
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
             'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain']),
-            'sys_language_uid' => (int)$sysLanguageUid
+            'sys_language_uid' => (int)$sysLanguageUid,
+            'attachment' => '',
+            'mailContent' => ''
         );
 
         if ($newRecord['sys_language_uid'] > 0) {
@@ -977,7 +980,7 @@ class DirectMailUtility
         }
 
 
-            // If params set, set default values:
+        // If params set, set default values:
         $paramsToOverride = array('sendOptions', 'includeMedia', 'flowedFormat', 'HTMLParams', 'plainParams');
         foreach ($paramsToOverride as $param) {
             if (isset($parameters[$param])) {
@@ -1009,7 +1012,7 @@ class DirectMailUtility
             $newRecord['charset'] = self::getCharacterSetOfPage($pageRecord['uid']);
         }
 
-            // save to database
+        // save to database
         if ($newRecord['page'] && $newRecord['sendOptions']) {
             $tcemainData = array(
                 'sys_dmail' => array(
@@ -1043,7 +1046,7 @@ class DirectMailUtility
 
             // fallback: L == sys_language_uid
         } else {
-            $param = "&L=" . $sysLanguageUid;
+            $param = '&L=' . $sysLanguageUid;
         }
 
         return $param;
@@ -1085,7 +1088,7 @@ class DirectMailUtility
         );
 
 
-            // If params set, set default values:
+        // If params set, set default values:
         $paramsToOverride = array('sendOptions', 'includeMedia', 'flowedFormat', 'HTMLParams', 'plainParams');
         foreach ($paramsToOverride as $param) {
             if (isset($parameters[$param])) {
@@ -1097,7 +1100,7 @@ class DirectMailUtility
         }
 
         $urlParts = @parse_url($externalUrlPlain);
-            // No plain text url
+        // No plain text url
         if (!$externalUrlPlain || $urlParts === false || !$urlParts['host']) {
             $newRecord['plainParams'] = '';
             $newRecord['sendOptions']&=254;
@@ -1105,7 +1108,7 @@ class DirectMailUtility
             $newRecord['plainParams'] = $externalUrlPlain;
         }
 
-            // No html url
+        // No html url
         $urlParts = @parse_url($externalUrlHtml);
         if (!$externalUrlHtml || $urlParts === false || !$urlParts['host']) {
             $newRecord['sendOptions']&=253;
@@ -1113,7 +1116,7 @@ class DirectMailUtility
             $newRecord['HTMLParams'] = $externalUrlHtml;
         }
 
-            // save to database
+        // save to database
         if ($newRecord['pid'] && $newRecord['sendOptions']) {
             $tcemainData = array(
                 'sys_dmail' => array(
@@ -1153,10 +1156,10 @@ class DirectMailUtility
         $htmlUrl = $urls['htmlUrl'];
         $urlBase = $urls['baseUrl'];
 
-            // Make sure long_link_rdct_url is consistent with use_domain.
+        // Make sure long_link_rdct_url is consistent with use_domain.
         $row['long_link_rdct_url'] = $urlBase;
 
-            // Compile the mail
+        // Compile the mail
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
         if ($params['enable_jump_url']) {
@@ -1180,20 +1183,20 @@ class DirectMailUtility
         $htmlmail->includeMedia = $row['includeMedia'];
 
         if ($plainTextUrl) {
-            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));
+            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params), 0, array('User-Agent: Direct Mail'));
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
-                $errorMsg[] = $GLOBALS["LANG"]->getLL('dmail_no_plain_content');
+                $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_no_plain_content');
             } elseif (!strstr($htmlmail->theParts['plain']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
-                $warningMsg[] = $GLOBALS["LANG"]->getLL('dmail_no_plain_boundaries');
+                $warningMsg[] = $GLOBALS['LANG']->getLL('dmail_no_plain_boundaries');
             }
         }
 
-            // fetch the HTML url
+        // fetch the HTML url
         if ($htmlUrl) {
             // Username and password is added in htmlmail object
             $success = $htmlmail->addHTML(self::addUserPass($htmlUrl, $params));
-                // If type = 1, we have an external page.
+            // If type = 1, we have an external page.
             if ($row['type'] == 1) {
                 // Try to auto-detect the charset of the message
                 $matches = array();
@@ -1201,17 +1204,17 @@ class DirectMailUtility
                 if ($res == 1) {
                     $htmlmail->charset = $matches[1];
                 } elseif (isset($params['direct_mail_charset'])) {
-                    $htmlmail->charset = $GLOBALS["LANG"]->csConvObj->parse_charset($params['direct_mail_charset']);
+                    $htmlmail->charset = $GLOBALS['LANG']->csConvObj->parse_charset($params['direct_mail_charset']);
                 } else {
                     $htmlmail->charset = 'iso-8859-1';
                 }
             }
             if ($htmlmail->extractFramesInfo()) {
-                $errorMsg[] = $GLOBALS["LANG"]->getLL('dmail_frames_not allowed');
+                $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_frames_not allowed');
             } elseif (!$success || !$htmlmail->theParts['html']['content']) {
-                $errorMsg[] = $GLOBALS["LANG"]->getLL('dmail_no_html_content');
+                $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_no_html_content');
             } elseif (!strstr($htmlmail->theParts['html']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
-                $warningMsg[] = $GLOBALS["LANG"]->getLL('dmail_no_html_boundaries');
+                $warningMsg[] = $GLOBALS['LANG']->getLL('dmail_no_html_boundaries');
             }
         }
 
@@ -1219,6 +1222,10 @@ class DirectMailUtility
             // Update the record:
             $htmlmail->theParts['messageid'] = $htmlmail->messageid;
             $mailContent = base64_encode(serialize($htmlmail->theParts));
+
+            // !ian save last dmail source in tmp for debug
+            file_put_contents('/tmp/dmail.php', var_export($htmlmail->theParts, true));
+
             $updateData = array(
                 'issent'             => 0,
                 'charset'            => $htmlmail->charset,
@@ -1234,21 +1241,23 @@ class DirectMailUtility
 
             if (count($warningMsg)) {
                 /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                $flashMessage = GeneralUtility::makeInstance(
+                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                     implode('<br />', $warningMsg),
                     $GLOBALS['LANG']->getLL('dmail_warning'),
                     FlashMessage::WARNING
                 );
-                $theOutput .= $flashMessage->render();
+                $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
             }
         } else {
             /* @var $flashMessage FlashMessage */
-            $flashMessage = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+            $flashMessage = GeneralUtility::makeInstance(
+                'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
                 implode('<br />', $errorMsg),
                 $GLOBALS['LANG']->getLL('dmail_error'),
                 FlashMessage::ERROR
             );
-            $theOutput .= $flashMessage->render();
+            $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
         }
         if ($returnArray) {
             return array('errors' => $errorMsg, 'warnings' => $warningMsg);
@@ -1335,7 +1344,7 @@ class DirectMailUtility
             'plainTextUrl' => ''
         );
 
-            // Finding the url to fetch content from
+        // Finding the url to fetch content from
         switch ((string) $row['type']) {
             case 1:
                 $result['htmlUrl'] = $row['HTMLParams'];
@@ -1346,7 +1355,7 @@ class DirectMailUtility
                 $result['plainTextUrl'] = $result['baseUrl'] . '?id=' . $row['page'] . $row['plainParams'];
         }
 
-            // plain
+        // plain
         if ($result['plainTextUrl']) {
             if (!($row['sendOptions']&1)) {
                 $result['plainTextUrl'] = '';
@@ -1357,7 +1366,7 @@ class DirectMailUtility
                 }
             }
         }
-            // html
+        // html
         if ($result['htmlUrl']) {
             if (!($row['sendOptions']&2)) {
                 $result['htmlUrl'] = '';
@@ -1566,5 +1575,45 @@ class DirectMailUtility
             }
         }
         return $implodeParams;
+    }
+
+    /**
+     * Takes a clear-text message body for a plain text email, finds all 'http://' links and if they are longer than 76 chars they are converted to a shorter URL with a hash parameter. The real parameter is stored in the database and the hash-parameter/URL will be redirected to the real parameter when the link is clicked.
+     * This function is about preserving long links in messages.
+     *
+     * @param string $message Message content
+     * @param string $urlmode URL mode; "76" or "all
+     * @param string $index_script_url URL of index script (see makeRedirectUrl())
+     * @return string Processed message content
+     * @see makeRedirectUrl()
+     * @deprecated since TYPO3 CMS 7, will be removed in TYPO3 CMS 8. Use mailer API instead
+     */
+    public static function substUrlsInPlainText($message, $urlmode = '76', $index_script_url = '')
+    {
+        switch ((string)$urlmode) {
+            case '':
+                $lengthLimit = false;
+                break;
+            case 'all':
+                $lengthLimit = 0;
+                break;
+            case '76':
+
+            default:
+                $lengthLimit = (int)$urlmode;
+        }
+        if ($lengthLimit === false) {
+            // No processing
+            $messageSubstituted = $message;
+        } else {
+            $messageSubstituted = preg_replace_callback(
+                '/(http|https):\\/\\/.+(?=[\\]\\.\\?]*([\\! \'"()<>]+|$))/iU',
+                function (array $matches) use ($lengthLimit, $index_script_url) {
+                    return GeneralUtility::makeRedirectUrl($matches[0], $lengthLimit, $index_script_url);
+                },
+                $message
+            );
+        }
+        return $messageSubstituted;
     }
 }

@@ -177,14 +177,15 @@ class AnalyzeBounceMail extends AbstractTask
                 // process the mail
                 if ($this->processBounceMail($message)) {
                     // set delete
-                    //$message->delete();
+                    $message->delete();
                 } else {
                     $message->setFlag('SEEN');
                 }
             }
 
             // expunge to delete permanently
-            //$mailServer->expunge();
+            $mailServer->expunge();
+            imap_close($mailServer->getImapStream());
             return true;
         } else {
             return false;
