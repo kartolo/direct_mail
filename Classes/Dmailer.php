@@ -203,7 +203,7 @@ class Dmailer
     public function removeHTMLComments($content)
     {
         $content = preg_replace('/\/\*<!\[CDATA\[\*\/[\t\v\n\r\f]*<!--/', '/*<![CDATA[*/', $content);
-        $content = preg_replace('/[\t\v\n\r\f]*<!(?:--[^\[][\s\S]*?--\s*)?>[\t\v\n\r\f]*/', '', $content);
+        $content = preg_replace('/[\t\v\n\r\f]*<!(?:--[^\[\<\>][\s\S]*?--\s*)?>[\t\v\n\r\f]*/', '', $content);
         return preg_replace('/\/\*<!\[CDATA\[\*\//', '/*<![CDATA[*/<!--', $content);
     }
 
