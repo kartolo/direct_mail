@@ -63,8 +63,8 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
         $passwordHTML = '<input type="password" name="tx_scheduler[bouncePassword]" value="' . ($task ? $task->getPassword() : '') . '"/>';
         $maxProcessedHTML = '<input type="text" name="tx_scheduler[bounceProcessed]" value="' . ($task ? $task->getMaxProcessed() : '') . '"/>';
         $serviceHTML = '<select name="tx_scheduler[bounceService]" id="bounceService">' .
-            '<option value="imap" ' . ($task->getService == 'imap'? 'selected="selected"' : '') . '>IMAP</option>' .
-            '<option value="pop3" ' . ($task->getService == 'pop3'? 'selected="selected"' : '') . '>POP3</option>' .
+            '<option value="imap" ' . ($task->getService() === 'imap'? 'selected="selected"' : '') . '>IMAP</option>' .
+            '<option value="pop3" ' . ($task->getService() === 'pop3'? 'selected="selected"' : '') . '>POP3</option>' .
             '</select>';
 
         $additionalFields = array();
