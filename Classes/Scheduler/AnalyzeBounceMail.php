@@ -232,9 +232,9 @@ class AnalyzeBounceMail extends AbstractTask
         $res = $this->getDatabaseConnection()->exec_SELECTquery(
             'uid,email',
             'sys_dmail_maillog',
-            'rid=' . intval($midArray['rid']) . ' AND rtbl="' .
+            'rid=' . (int)$midArray['rid'] . ' AND rtbl="' .
             $this->getDatabaseConnection()->quoteStr($midArray['rtbl'], 'sys_dmail_maillog') . '"' .
-            ' AND mid=' . intval($midArray['mid']) . ' AND response_type=0'
+            ' AND mid=' . (int)$midArray['mid'] . ' AND response_type=0'
         );
 
         // only write to log table, if we found a corresponding recipient record
@@ -244,12 +244,12 @@ class AnalyzeBounceMail extends AbstractTask
             $insertFields = array(
                 'tstamp' => $GLOBALS['EXEC_TIME'],
                 'response_type' => -127,
-                'mid' => intval($midArray['mid']),
-                'rid' => intval($midArray['rid']),
+                'mid' => (int)$midArray['mid'],
+                'rid' => (int)$midArray['rid'],
                 'email' => $midArray['email'],
                 'rtbl' => $midArray['rtbl'],
                 'return_content' => serialize($cp),
-                'return_code' => intval($cp['reason'])
+                'return_code' => (int)$cp['reason']
             );
             return $this->getDatabaseConnection()->exec_INSERTquery('sys_dmail_maillog', $insertFields);
         } else {
