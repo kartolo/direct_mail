@@ -206,6 +206,7 @@ class AnalyzeBounceMail extends AbstractTask
         $attachmentArray = $message->getAttachments();
         $midArray = array();
         if (is_array($attachmentArray)) {
+            // search in attachment
             foreach ($attachmentArray as $v => $attachment) {
                 $bouncedMail = $attachment->getData();
                 // Find mail id
@@ -215,36 +216,41 @@ class AnalyzeBounceMail extends AbstractTask
                     break;
                 }
             }
-            // Extract text content
-            $cp = $readMail->analyseReturnError($message->getMessageBody());
-
-            $res = $this->getDatabaseConnection()->exec_SELECTquery(
-                'uid,email',
-                'sys_dmail_maillog',
-                'rid=' . intval($midArray['rid']) . ' AND rtbl="' .
-                $this->getDatabaseConnection()->quoteStr($midArray['rtbl'], 'sys_dmail_maillog') . '"' .
-                ' AND mid=' . intval($midArray['mid']) . ' AND response_type=0'
-            );
-
-            // only write to log table, if we found a corresponding recipient record
-            if ($this->getDatabaseConnection()->sql_num_rows($res)) {
-                $row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
-                $midArray['email'] = $row['email'];
-                $insertFields = array(
-                    'tstamp' => $GLOBALS['EXEC_TIME'],
-                    'response_type' => -127,
-                    'mid' => intval($midArray['mid']),
-                    'rid' => intval($midArray['rid']),
-                    'email' => $midArray['email'],
-                    'rtbl' => $midArray['rtbl'],
-                    'return_content' => serialize($cp),
-                    'return_code' => intval($cp['reason'])
-                );
-                return $this->getDatabaseConnection()->exec_INSERTquery('sys_dmail_maillog', $insertFields);
-            } else {
-                return false;
-            }
+        } else {
+            // search in MessageBody (see rfc822-headers as Attachments placed )
+            $midArray = $readMail->find_XTypo3MID($message->getMessageBody());
         }
+
+        // Extract text content
+        $cp = $readMail->analyseReturnError($message->getMessageBody());
+
+        $res = $this->getDatabaseConnection()->exec_SELECTquery(
+            'uid,email',
+            'sys_dmail_maillog',
+            'rid=' . intval($midArray['rid']) . ' AND rtbl="' .
+            $this->getDatabaseConnection()->quoteStr($midArray['rtbl'], 'sys_dmail_maillog') . '"' .
+            ' AND mid=' . intval($midArray['mid']) . ' AND response_type=0'
+        );
+
+        // only write to log table, if we found a corresponding recipient record
+        if ($this->getDatabaseConnection()->sql_num_rows($res)) {
+            $row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
+            $midArray['email'] = $row['email'];
+            $insertFields = array(
+                'tstamp' => $GLOBALS['EXEC_TIME'],
+                'response_type' => -127,
+                'mid' => intval($midArray['mid']),
+                'rid' => intval($midArray['rid']),
+                'email' => $midArray['email'],
+                'rtbl' => $midArray['rtbl'],
+                'return_content' => serialize($cp),
+                'return_code' => intval($cp['reason'])
+            );
+            return $this->getDatabaseConnection()->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+        } else {
+            return false;
+        }
+
     }
 
     /**
