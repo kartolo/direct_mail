@@ -211,14 +211,19 @@ class AnalyzeBounceMail extends AbstractTask
                 $bouncedMail = $attachment->getData();
                 // Find mail id
                 $midArray = $readMail->find_XTypo3MID($bouncedMail);
-                if (is_array($midArray)) {
-                    // if mid, rid and rtbl are found, then continue
+                if (false === empty($midArray)) {
+                    // if mid, rid and rtbl are found, then stop looping
                     break;
                 }
             }
         } else {
             // search in MessageBody (see rfc822-headers as Attachments placed )
             $midArray = $readMail->find_XTypo3MID($message->getMessageBody());
+        }
+
+        if (empty($midArray)) {
+            // no mid, rid and rtbl found - exit
+            return false;
         }
 
         // Extract text content
