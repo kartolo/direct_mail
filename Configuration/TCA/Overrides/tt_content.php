@@ -27,4 +27,4 @@ $ttContentCols = array(
     ),
 );
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_content', $ttContentCols);
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCATypes('tt_content', 'module_sys_dmail_category;;;;1-1-1');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCATypes('tt_content', 'module_sys_dmail_category');
