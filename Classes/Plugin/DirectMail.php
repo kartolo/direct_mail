@@ -37,10 +37,13 @@ namespace DirectMailTeam\DirectMail\Plugin;
  *
  */
 
+use Bitmotion\SecureDownloads\Service\SecureDownloadService;
+use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use TYPO3\CMS\Frontend\DataProcessing\FilesProcessor;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 /**
@@ -242,12 +245,15 @@ class DirectMail extends AbstractPlugin
     public function getImages()
     {
         $imagesArray = array();
-        $this->getImagesStandard($imagesArray);
+        /*$this->getImagesStandard($imagesArray); // PR: removed old file handling by strings and added FAL
         if (ExtensionManagementUtility::isLoaded('dam')) {
             $this->getImagesFromDam($imagesArray);
-        }
+        }*/
+        $this->getImagesFal($imagesArray);
 
-        $images = $this->renderImages($imagesArray, !$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'', $this->cObj->data['imagecaption']);
+        if (is_array($imagesArray) && !empty($imagesArray)) {
+            $images = $this->renderImages($imagesArray, !$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'', $this->cObj->data['imagecaption']);
+        }
 
         return $images;
     }
@@ -268,6 +274,24 @@ class DirectMail extends AbstractPlugin
                 $imagesArray[] = $this->siteUrl . $uploadPath . $file;
             }
         }
+    }
+
+    public function getImagesFal(&$imagesArray) {
+        $filesProcessor = GeneralUtility::makeInstance(FilesProcessor::class);
+        $processedFiles = array();
+
+        $processedFiles = $filesProcessor->process(
+            $this->cObj,
+            $this->conf,
+            array(
+                'references.' => array(
+                    'table' => 'tt_content',
+                    'fieldName' => 'image'
+                )
+            ),
+            $processedFiles
+        );
+        $imagesArray = $processedFiles['files'];
     }
 
     /**
@@ -621,6 +645,28 @@ class DirectMail extends AbstractPlugin
         foreach ($imagesArray as $k => $file) {
             if (strlen(trim($file)) > 0) {
                 $lines[] = $file;
+                if ($links && count($linksArr) > 1) {
+                    if (isset($linksArr[$k])) {
+                        $ll = $linksArr[$k];
+                    } else {
+                        $ll = $linksArr[0];
+                    }
+
+                    $theLink = $this->getLink($ll);
+                    if ($theLink) {
+                        $lines[] = $this->getString($this->conf['images.']['linkPrefix']) . $theLink;
+                    }
+                }
+                $imageExists = true;
+            } else if ($file instanceof FileReference) { // PR: added handling for FAL, secure_downloads and absolute links
+                $extMmg = GeneralUtility::makeInstance(ExtensionManagementUtility::class);
+                $domain = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != "off") ? "https" : "http") . '://' . $_SERVER['SERVER_NAME'];
+                if ($extMmg::isLoaded('secure_downloads')) {
+                    $secureDownloads = GeneralUtility::makeInstance(SecureDownloadService::class);
+                    $lines[] = $domain . $secureDownloads->makeSecure($file->getPublicUrl());
+                } else {
+                    $lines[] = $domain . $file->getPublicUrl();
+                }
                 if ($links && count($linksArr) > 1) {
                     if (isset($linksArr[$k])) {
                         $ll = $linksArr[$k];
