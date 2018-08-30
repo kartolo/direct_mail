@@ -822,6 +822,20 @@ class Dmailer
             $query_info = unserialize($row['query_info']);
 
             if (!$row['scheduled_begin']) {
+                // Hook to alter the list of recipients
+                if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['queryInfoHook'])) {
+                    $queryInfoHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['queryInfoHook'];
+                    if (is_array($queryInfoHook)) {
+                        $hookParameters = array(
+                            'row'    => $row,
+                            'query_info' => &$query_info,
+                        );
+                        $hookReference = &$this;
+                        foreach ($queryInfoHook as $hookFunction) {
+                            GeneralUtility::callUserFunction($hookFunction, $hookParameters, $hookReference);
+                        }
+                    }
+                }
                 $this->dmailer_setBeginEnd($row['uid'], 'begin');
             }
 
