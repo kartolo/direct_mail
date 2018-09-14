@@ -136,6 +136,7 @@ class JumpurlController
                 if (!$jumpurl) {
                     die('Error: No further link. Please report error to the mail sender.');
                 } else {
+                    $jumpurl = str_replace('#', '%23', $jumpurl);
                     // jumpurl has been validated by lookup of id in direct_mail tables
                     // for this reason it is save to set the juHash
                     // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
