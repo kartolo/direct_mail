@@ -178,10 +178,10 @@ return array(
         )
     ),
     'types' => array(
-        '0' => array('showitem' => 'type;;;;1-1-1, sys_language_uid, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,pages;;;;5-5-5,recursive,whichtables,select_categories'),
-        '1' => array('showitem' => 'type;;;;1-1-1, sys_language_uid, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,list;;;;5-5-5,csv'),
-        '2' => array('showitem' => 'type;;;;1-1-1, sys_language_uid, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,static_list;;;;5-5-5'),
-        '3' => array('showitem' => 'type;;;;1-1-1, sys_language_uid, title;;;;3-3-3, description'),
-        '4' => array('showitem' => 'type;;;;1-1-1, sys_language_uid, title;;;;3-3-3, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,mail_groups;;;;5-5-5')
+        '0' => array('showitem' => 'type, sys_language_uid, title, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,pages,recursive,whichtables,select_categories'),
+        '1' => array('showitem' => 'type, sys_language_uid, title, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,list,csv'),
+        '2' => array('showitem' => 'type, sys_language_uid, title, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,static_list'),
+        '3' => array('showitem' => 'type, sys_language_uid, title, description'),
+        '4' => array('showitem' => 'type, sys_language_uid, title, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,mail_groups')
     )
 );

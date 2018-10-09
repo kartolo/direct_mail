@@ -42,4 +42,4 @@ $feUsersCols = array(
 
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('fe_users', $feUsersCols);
 $GLOBALS['TCA']['fe_users']['feInterface']['fe_admin_fieldList'] .= ',module_sys_dmail_newsletter,module_sys_dmail_category,module_sys_dmail_html';
-TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCATypes('fe_users', '--div--;Direct mail,module_sys_dmail_newsletter;;;;1-1-1,module_sys_dmail_category,module_sys_dmail_html');
+TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCATypes('fe_users', '--div--;Direct mail,module_sys_dmail_newsletter,module_sys_dmail_category,module_sys_dmail_html');
