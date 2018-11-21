@@ -1568,7 +1568,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             );
 
         $currentRec = '';
-        $recRec = '';
+        $recRec = array();
 
         while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
             $thisRecPointer = $row['rtbl'] . $row['rid'];
