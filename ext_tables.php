@@ -171,7 +171,7 @@ if (TYPO3_MODE == 'BE') {
 }
 
 
-$GLOBALS['TBE_STYLES']['spritemanager']['singleIcons']['tcarecords-pages-contains-dmail'] = TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath($_EXTKEY) . 'Resources/Public/Icons/ext_icon_dmail_folder.gif';
+$GLOBALS['TBE_STYLES']['spritemanager']['singleIcons']['tcarecords-pages-contains-dmail'] = TYPO3\CMS\Core\Utility\ExtensionManagementUtility::siteRelPath($_EXTKEY) . 'Resources/Public/Icons/ext_icon_dmail_folder.gif';
 
 if (TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
     include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY).'Configuration/TCA/Overrides/tt_address.php');

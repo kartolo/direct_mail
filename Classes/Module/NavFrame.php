@@ -16,6 +16,8 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -95,7 +97,7 @@ class NavFrame
 		#typo3-docheader-row2 span { font-weight: bold; margin-top: -3px; color: #000; margin-top: 0; padding-left: 20px; }';
 
         // Setting JavaScript for menu.
-        $this->doc->JScode = $this->doc->wrapScriptTags(
+        $this->doc->JScode = GeneralUtility::wrapJS(
             ($currentModule ? 'top.currentSubScript=unescape("' . rawurlencode($currentSubScript) . '");' : '') . '
 
 			function jumpTo(params,linkObj,highLightID)	{ //
@@ -170,16 +172,33 @@ class NavFrame
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            '*',
-            'pages',
-            'doktype = 254 AND module in (\'dmail\')' . BackendUtility::deleteClause('pages'),
-            '',
-            'title'
-        );
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
+        $statement = $queryBuilder
+            ->select('*')
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'doktype',
+                    '254'
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->in(
+                    'module',
+                    'dmail'
+                )
+            )
+            ->orderBy('title')
+            ->execute();
+
         $out = '';
 
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+        while (($row = $statement->fetch())) {
             if (BackendUtility::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1))) {
                 $icon = $iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL)->render();
 
@@ -190,14 +209,12 @@ class NavFrame
                     '&nbsp;' . htmlspecialchars($row['title']) . '</a></td></tr>';
             }
         }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
         $content = '<table cellspacing="0" cellpadding="0" border="0" width="100%">' . $out . '</table>';
 
         // Adding highlight - JavaScript
         if ($this->doHighlight) {
-            $content .=$this->doc->wrapScriptTags('
-			hilight_row("",top.fsMod.navFrameHighlightedID["web"]);
-		');
+            $content .= GeneralUtility::wrapJS('hilight_row("",top.fsMod.navFrameHighlightedID["web"]);');
         }
 
 

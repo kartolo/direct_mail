@@ -1583,7 +1583,6 @@ class DirectMailUtility
      * @param string $index_script_url URL of index script (see makeRedirectUrl())
      * @return string Processed message content
      * @see makeRedirectUrl()
-     * @deprecated since TYPO3 CMS 7, will be removed in TYPO3 CMS 8. Use mailer API instead
      */
     public static function substUrlsInPlainText($message, $urlmode = '76', $index_script_url = '')
     {
