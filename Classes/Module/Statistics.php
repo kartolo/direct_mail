@@ -26,6 +26,8 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 
 /**
  * Module Statistics of tx_directmail extension
@@ -122,15 +124,24 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // initialize backend user language
         if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'sys_language.uid',
-                'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-                'static_languages.lg_typo3=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($this->getLanguageService()->lang, 'static_languages') .
-                    BackendUtility::BEenableFields('sys_language') .
-                    BackendUtility::deleteClause('sys_language') .
-                    BackendUtility::deleteClause('static_languages')
-                );
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_language');
+            $res = $queryBuilder
+                ->select('sys_language.uid')
+                ->from('sys_language')
+                ->leftJoin(
+                    'sys_language',
+                    'static_languages',
+                    'static_languages',
+                    $queryBuilder->expr()->eq('sys_language.static_lang_isocode', $queryBuilder->quoteIdentifier('static_languages.uid'))
+                )
+                ->where(
+                    $queryBuilder->expr()->eq('static_languages.lg_typo3', $queryBuilder->createNamedParameter($this->getLanguageService()->lang))
+                )
+                ->execute()
+                ->fetchAll();
+            foreach ($res as $row) {
                 $this->sys_language_uid = $row['uid'];
             }
         }
@@ -475,25 +486,31 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     public function cmd_displayPageInfo()
     {
         // Here the dmail list is rendered:
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            '*',
-            'sys_dmail',
-            'pid=' . intval($this->id) .
-                ' AND type IN (0,1)' .
-                ' AND issent = 1' .
-                BackendUtility::deleteClause('sys_dmail'),
-            '',
-            'scheduled DESC, scheduled_begin DESC'
-            );
 
-        if ($GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
-            $onClick = ' onClick="return confirm(' . GeneralUtility::quoteJSvalue(sprintf($this->getLanguageService()->getLL('nl_l_warning'), $GLOBALS['TYPO3_DB']->sql_num_rows($res))) . ');"';
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $res = $queryBuilder
+            ->select('*')
+            ->from('sys_dmail')
+            ->add('where','pid=' . intval($this->id) .
+                ' AND type IN (0,1)' .
+                ' AND issent = 1')
+            ->orderBy('scheduled','DESC')
+            ->addOrderBy('scheduled_begin','DESC')
+            ->execute();
+
+        if ($res) {
+            $onClick = ' onClick="return confirm(' . GeneralUtility::quoteJSvalue(sprintf($this->getLanguageService()->getLL('nl_l_warning'), $res->fetchColumn(0))) . ');"';
         } else {
             $onClick = '';
         }
         $out = '';
 
-        if ($GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
+
+        if ($res) {
             $out .='<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">';
             $out .='<thead>
 					<th>&nbsp;</th>
@@ -504,15 +521,19 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 					<th nowrap="nowrap"><b>' . $this->getLanguageService()->getLL('stats_overview_total_sent') . '</b></th>
 					<th><b>' . $this->getLanguageService()->getLL('stats_overview_status') . '</b></th>
 				</thead>';
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                $countRes = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'count(*)',
-                    'sys_dmail_maillog',
-                    'mid = ' . $row['uid'] .
+
+            while ($row = $res->fetch()) {
+
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+                $countRes = $queryBuilder
+                    ->count('*')
+                    ->from('sys_dmail_maillog')
+                    ->add('where','mid = ' . $row['uid'] .
                         ' AND response_type=0' .
                         ' AND html_sent>0'
-                );
-                list($count) = $GLOBALS['TYPO3_DB']->sql_fetch_row($countRes);
+                    )
+                    ->execute();
+                list($count) = $countRes ->fetchColumn(0);
 
                 if (!empty($row['scheduled_begin'])) {
                     if (!empty($row['scheduled_end'])) {
@@ -537,7 +558,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $out.='</table>';
         }
 
-        $theOutput = $this->doc->section($this->getLanguageService()->getLL('stats_overview_choose'), $out, 1, 1, 0, true);
+        $theOutput = $this->doc->render($this->getLanguageService()->getLL('stats_overview_choose'), $out);
         $theOutput .= '<div style="padding-top: 20px;"></div>';
 
         return $theOutput;

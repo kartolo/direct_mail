@@ -17,6 +17,7 @@ namespace DirectMailTeam\DirectMail\Module;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -190,7 +191,10 @@ class NavFrame
             ->andWhere(
                 $queryBuilder->expr()->in(
                     'module',
-                    'dmail'
+                    $queryBuilder->createNamedParameter(
+                        ['dmail'],
+                        Connection::PARAM_STR_ARRAY
+                    )
                 )
             )
             ->orderBy('title')

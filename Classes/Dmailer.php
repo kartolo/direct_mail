@@ -578,7 +578,7 @@ class Dmailer
                             }
                         }
                     }
-                    if (TYPO3_DLOG) {
+                    if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
                         GeneralUtility::devLog($LANG->getLL('dmailer_sending') . ' ' . $ct . ' ' . $LANG->getLL('dmailer_sending_to_table') . ' ' . $table, 'direct_mail');
                     }
                     $this->logArray[] = $LANG->getLL('dmailer_sending') . ' ' . $ct . ' ' . $LANG->getLL('dmailer_sending_to_table') . ' ' . $table;
@@ -633,14 +633,14 @@ class Dmailer
                     ->execute();
 
                 if (!$ok) {
-                    if (TYPO3_DLOG) {
+                    if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
                         GeneralUtility::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')', 'direct_mail', 3);
                     }
                     die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')');
                 }
             } else {
                 // stop the script if dummy log can't be made
-                if (TYPO3_DLOG) {
+                if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']) {
                     GeneralUtility::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')', 'direct_mail', 3);
                 }
                 die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')');
@@ -716,7 +716,8 @@ class Dmailer
                 // do nothing
         }
 
-        if (TYPO3_DLOG) {
+        //
+        if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
             GeneralUtility::devLog($subject . ': ' . $message, 'direct_mail');
         }
         $this->logArray[] = $subject . ': ' . $message;
@@ -969,13 +970,13 @@ class Dmailer
             ->orderBy('scheduled')
             ->execute();
 
-        if (TYPO3_DLOG) {
+        if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
             GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'), 'direct_mail');
         }
         $this->logArray[] = $this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y');
 
         if (($row = $statement->fetch())) {
-            if (TYPO3_DLOG) {
+            if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
                 GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed'), 'direct_mail');
             }
             $this->logArray[] = $this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed');
@@ -992,15 +993,17 @@ class Dmailer
                 $this->dmailer_setBeginEnd($row['uid'], 'end');
             }
         } else {
-            if (TYPO3_DLOG) {
+            if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
                 GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_nothing_to_do'), 'direct_mail');
             }
             $this->logArray[] = $this->getLanguageService()->getLL('dmailer_nothing_to_do');
         }
 
+        // closing DB connection
+        $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
         $parsetime = GeneralUtility::milliseconds()-$pt;
-        if (TYPO3_DLOG) {
+        if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
             GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms', 'direct_mail');
         }
         $this->logArray[] = $this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms';
@@ -1039,7 +1042,7 @@ class Dmailer
         $this->sendPerCycle = $user_dmailer_sendPerCycle;
         $this->user_dmailerLang = $user_dmailer_lang;
         if (!$this->nonCron) {
-            if (TYPO3_DLOG) {
+            if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){
                 GeneralUtility::devLog('Starting directmail cronjob', 'direct_mail');
             }
             // write this temp file for checking the engine in the status module

@@ -22,7 +22,7 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-
+use TYPO3\CMS\Core\Database\ConnectionPool;
 /**
  * Static class.
  * Functions in this class are used by more than one modules.
@@ -962,8 +962,8 @@ class DirectMailUtility
             'return_path'            => $parameters['return_path'],
             'priority'                => $parameters['priority'],
             'use_domain'            => $parameters['use_domain'],
-            'use_rdct'                => $parameters['use_rdct'],
-            'long_link_mode'        => $parameters['long_link_mode'],
+            'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0), /*$parameters['use_rdct'],*/
+            'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode']:0),//$parameters['long_link_mode'],
             'organisation'            => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
@@ -1006,7 +1006,8 @@ class DirectMailUtility
                 $pageRecord['title'] = $pageRecordOverlay['title'];
             }
         }
-        if (GeneralUtility::inList($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'], $pageRecord['doktype'])) {
+        /*if (GeneralUtility::inList($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'], $pageRecord['doktype'])) {*/
+        if ($pageRecord['doktype']) {
             $newRecord['subject'] = $pageRecord['title'];
             $newRecord['page']    = $pageRecord['uid'];
             $newRecord['charset'] = self::getCharacterSetOfPage($pageRecord['uid']);
@@ -1079,7 +1080,7 @@ class DirectMailUtility
             'return_path'            => $parameters['return_path'],
             'priority'                => $parameters['priority'],
             'use_domain'            => $parameters['use_domain'],
-            'use_rdct'                => $parameters['use_rdct'],
+            'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0),
             'long_link_mode'        => $parameters['long_link_mode'],
             'organisation'            => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
@@ -1230,10 +1231,15 @@ class DirectMailUtility
                 'renderedSize'       => strlen($mailContent),
                 'long_link_rdct_url' => $urlBase
             );
-            $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                'sys_dmail',
-                'uid=' . intval($row['uid']),
-                $updateData
+
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $connection = $connectionPool->getConnectionForTable('sys_dmail');
+
+
+            $connection->update(
+                'sys_dmail', // table
+                $updateData, // value array
+                [ 'uid' => intval($row['uid']) ] // where
             );
 
             if (count($warningMsg)) {
@@ -1412,7 +1418,8 @@ class DirectMailUtility
             $GLOBALS['TSFE']->gr_list = $pageRecord['fe_group'];
 
             $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Page\PageRepository');
-            $GLOBALS['TSFE']->getPageAndRootline();
+            $GLOBALS['TSFE']->getPageAndRootlineWithDomain($pageId);
+
 
             // restore gr_list
             $GLOBALS['TSFE']->gr_list = $groupListBackup;
@@ -1583,6 +1590,7 @@ class DirectMailUtility
      * @param string $index_script_url URL of index script (see makeRedirectUrl())
      * @return string Processed message content
      * @see makeRedirectUrl()
+     * @deprecated since TYPO3 CMS 7, will be removed in TYPO3 CMS 8. Use mailer API instead
      */
     public static function substUrlsInPlainText($message, $urlmode = '76', $index_script_url = '')
     {
