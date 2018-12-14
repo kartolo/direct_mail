@@ -376,7 +376,7 @@ class Dmail extends BaseScriptClass
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
+            $this->content .= '<h1 class="t3js-title-inlineedit">' . htmlspecialchars($this->getLanguageService()->getLL('title')) . '</h1>'; //$this->doc->header
             $this->content .= '<div style="padding-top: 15px;"></div>';
         }
     }
@@ -892,7 +892,7 @@ class Dmail extends BaseScriptClass
         // Mail groups
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
         $statement = $queryBuilder
-            ->select('uid,pid,title')
+            ->select('uid','pid','title')
             ->from('sys_dmail_group')
             ->where(
                 $queryBuilder->expr()->eq(

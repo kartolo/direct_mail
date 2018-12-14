@@ -110,6 +110,9 @@ class Dmailer
 
     public $tempFileList = array();
 
+    //in TYPO3 9 LanguageService->charset has been removed because backend charset is always utf-8
+    protected $backendCharset= 'utf-8';
+
     /*
      * @var integer Usergroup that is simulated when fetching the mail content
      */
@@ -164,15 +167,15 @@ class Dmailer
         $this->theParts  = unserialize(base64_decode($row['mailContent']));
         $this->messageid = $this->theParts['messageid'];
 
-        $this->subject = $this->charsetConverter->conv($row['subject'], $this->getLanguageService()->charSet, $this->charset);
+        $this->subject = $this->getCharsetConverter()->conv($row['subject'], $this->backendCharset, $this->charset);
 
         $this->from_email = $row['from_email'];
-        $this->from_name = ($row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'], $this->getLanguageService()->charSet, $this->charset) : '');
+        $this->from_name = ($row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'], $this->backendCharset, $this->charset) : '');
 
         $this->replyto_email = ($row['replyto_email'] ? $row['replyto_email'] : '');
-        $this->replyto_name  = ($row['replyto_name'] ? $this->getCharsetConverter()->conv($row['replyto_name'], $this->getLanguageService()->charSet, $this->charset) : '');
+        $this->replyto_name  = ($row['replyto_name'] ? $this->getCharsetConverter()->conv($row['replyto_name'], $this->backendCharset, $this->charset) : '');
 
-        $this->organisation  = ($row['organisation'] ? $this->getCharsetConverter()->conv($row['organisation'], $this->getLanguageService()->charSet, $this->charset) : '');
+        $this->organisation  = ($row['organisation'] ? $this->getCharsetConverter()->conv($row['organisation'], $this->backendCharset, $this->charset) : '');
 
         $this->priority      = DirectMailUtility::intInRangeWrapper($row['priority'], 1, 5);
         $this->mailer        = 'TYPO3 Direct Mail module';
@@ -247,14 +250,14 @@ class Dmailer
         }
 
         foreach ($rowFieldsArray as $substField) {
-            $subst = $this->getCharsetConverter()->conv($recipRow[$substField], $this->getLanguageService()->charSet, $this->charset);
+            $subst = $this->getCharsetConverter()->conv($recipRow[$substField], $this->backendCharset, $this->charset);
             $markers['###USER_' . $substField . '###'] = $subst;
         }
 
         // uppercase fields with uppercased values
         $uppercaseFieldsArray = array('name', 'firstname');
         foreach ($uppercaseFieldsArray as $substField) {
-            $subst = $this->getCharsetConverter()->conv($recipRow[$substField], $this->getLanguageService()->charSet, $this->charset);
+            $subst = $this->getCharsetConverter()->conv($recipRow[$substField], $this->backendCharset, $this->charset);
             $markers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
         }
 
@@ -353,7 +356,7 @@ class Dmailer
                 if (!empty($recipRow['name'])) {
                     // if there's a name
                     $recipient = array(
-                        $recipRow['email'] => $this->getCharsetConverter()->conv($recipRow['name'], $this->getLanguageService()->charSet, $this->charset),
+                        $recipRow['email'] => $this->getCharsetConverter()->conv($recipRow['name'], $this->backendCharset, $this->charset),
                     );
                 } else {
                     // if only email is given
@@ -726,7 +729,7 @@ class Dmailer
         if ($this->notificationJob) {
             $from_name = '';
             if ($this->from_name) {
-                $from_name = $this->getCharsetConverter()->conv($this->from_name, $this->charset, $this->getLanguageService()->charSet);
+                $from_name = $this->getCharsetConverter()->conv($this->from_name, $this->charset, $this->backendCharset);
             }
 
             /* @var $mail \TYPO3\CMS\Core\Mail\MailMessage */
@@ -999,8 +1002,7 @@ class Dmailer
             $this->logArray[] = $this->getLanguageService()->getLL('dmailer_nothing_to_do');
         }
 
-        // closing DB connection
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
 
         $parsetime = GeneralUtility::milliseconds()-$pt;
         if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG']){

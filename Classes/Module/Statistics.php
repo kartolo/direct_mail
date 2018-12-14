@@ -293,7 +293,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
+            $this->content .= '<h1 class="t3js-title-inlineedit">' . htmlspecialchars($this->getLanguageService()->getLL('title')) . '</h1>'; // $this->doc->header
             $this->content .= '<div style="padding-top: 15px;"></div>';
         }
     }
