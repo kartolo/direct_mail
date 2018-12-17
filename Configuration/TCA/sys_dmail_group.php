@@ -5,7 +5,7 @@ return array(
         'label' => 'title',
         'default_sortby' => 'ORDER BY title',
         'tstamp' => 'tstamp',
-        'prependAtCopy' => 'LLL:EXT:lang/locallang_general.xlf:LGL.prependAtCopy',
+        'prependAtCopy' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.prependAtCopy',
         'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group',
         'delete' => 'deleted',
         'iconfile' => TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail') . 'Resources/Public/Icons/mailgroup.gif',
@@ -17,19 +17,19 @@ return array(
     'columns' => array(
         'sys_language_uid' => array(
             'exclude' => 1,
-            'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.language',
+            'label' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.language',
             'config' => array(
                 'type' => 'select',
                 'foreign_table' => 'sys_language',
                 'foreign_table_where' => 'ORDER BY sys_language.title',
                 'items' => array(
-                    array('LLL:EXT:lang/locallang_general.xlf:LGL.allLanguages', -1),
-                    array('LLL:EXT:lang/locallang_general.xlf:LGL.default_value', 0)
+                    array('LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.allLanguages', -1),
+                    array('LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.default_value', 0)
                 ),
             ),
         ),
         'title' => array(
-            'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.title',
+            'label' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.title',
             'config' => array(
                 'type' => 'input',
                 'size' => '30',
@@ -38,7 +38,7 @@ return array(
             )
         ),
         'description' => array(
-            'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.description',
+            'label' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.description',
             'config' => array(
                 'type' => 'text',
                 'cols' => '40',
@@ -46,7 +46,7 @@ return array(
             )
         ),
         'type' => array(
-            'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.type',
+            'label' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.type',
             'config' => array(
                 'type' => 'select',
                 'items' => array(
@@ -78,7 +78,7 @@ return array(
             )
         ),
         'pages' => array(
-            'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.startingpoint',
+            'label' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.startingpoint',
             'config' => array(
                 'type' => 'group',
                 'internal_type' => 'db',
