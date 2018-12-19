@@ -55,17 +55,24 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
      */
     public function getAdditionalFields(array &$taskInfo, $task, SchedulerModuleController $schedulerModule)
     {
-        // TODO: Implement getAdditionalFields() method.
-        // fields: server, port, user, pw, service (imap, pop3)
         $serverHTML = '<input type="text" name="tx_scheduler[bounceServer]" value="' . ($task ? $task->getServer() : '') . '"/>';
         $portHTML = '<input type="text" name="tx_scheduler[bouncePort]" value="' . ($task ? $task->getPort() : '') . '"/>';
         $userHTML = '<input type="text" name="tx_scheduler[bounceUser]" value="' . ($task ? $task->getUser() : '') . '"/>';
         $passwordHTML = '<input type="password" name="tx_scheduler[bouncePassword]" value="' . ($task ? $task->getPassword() : '') . '"/>';
         $maxProcessedHTML = '<input type="text" name="tx_scheduler[bounceProcessed]" value="' . ($task ? $task->getMaxProcessed() : '') . '"/>';
-        $serviceHTML = '<select name="tx_scheduler[bounceService]" id="bounceService">' .
-            '<option value="imap" ' . ($task->getService() === 'imap'? 'selected="selected"' : '') . '>IMAP</option>' .
-            '<option value="pop3" ' . ($task->getService() === 'pop3'? 'selected="selected"' : '') . '>POP3</option>' .
-            '</select>';
+
+        if($task){
+            $serviceHTML = '<select name="tx_scheduler[bounceService]" id="bounceService">' .
+                '<option value="imap" ' . ($task->getService() === 'imap'? 'selected="selected"' : '') . '>IMAP</option>' .
+                '<option value="pop3" ' . ($task->getService() === 'pop3'? 'selected="selected"' : '') . '>POP3</option>' .
+                '</select>';
+
+        } else {
+            $serviceHTML = '<select name="tx_scheduler[bounceService]" id="bounceService">' .
+                '<option value="imap" >IMAP</option>' .
+                '<option value="pop3" >POP3</option>' .
+                '</select>';
+        }
 
         $additionalFields = array();
         $additionalFields['server'] = $this->createAdditionalFields('server', $serverHTML);
