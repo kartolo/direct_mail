@@ -1683,7 +1683,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     {
         // Remove old:
 
-        GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('tt_content')
+        GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('cache_sys_dmail_stat')
             ->delete(
                 'cache_sys_dmail_stat', // from
                 [ 'mid' => intval($mrow['uid']) ] // where
@@ -1732,6 +1732,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                     break;
                 case '1':
                     // treat html links like plain text
+                    break;
                 case '2':
                     // plain text link response
                     $recRec[($row['response_type']==1?'html_links':'plain_links')][] = $row['tstamp'];
@@ -1971,7 +1972,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         foreach ($idLists['id_lists'] as $idArray) {
             $totalRecip += count($idArray);
         }
-       
+
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
         $res = $queryBuilder->select('*')
             ->from('sys_dmail_maillog')

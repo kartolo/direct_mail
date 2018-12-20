@@ -218,7 +218,7 @@ class DirectMailUtility
         }
 
         // Direct Mail needs an email address!
-        $emailIsNotNull =  $queryBuilder->expr()->neq( $switchTable . '.email ' , $queryBuilder->createNamedParameter(''));
+        $emailIsNotNull =  $queryBuilder->expr()->neq( $switchTable . '.email' , $queryBuilder->createNamedParameter(''));
 
         // fe user group uid should be in list of fe users list of user groups
         //		$field = $switchTable.'.usergroup';
@@ -236,7 +236,7 @@ class DirectMailUtility
             if ($table == 'fe_groups') {
 
                 $res = $queryBuilder
-                    ->select( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                    ->selectLiteral( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                     ->from($switchTable,$switchTable)
                     ->innerJoin(
                         $switchTable,
@@ -256,11 +256,11 @@ class DirectMailUtility
             } else {
 
                 $res = $queryBuilder
-                    ->select( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                    ->selectLiteral( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                     ->from($switchTable)
                     ->andWhere(
                         $queryBuilder->expr()->andx()
-                            ->add($queryBuilder->expr()->in($switchTable . '.pid' , $queryBuilder->createNamedParameter($pidList,Connection::PARAM_INT_ARRAY)))
+                            ->add($queryBuilder->expr()->in($switchTable . '.pid' , $queryBuilder->createNamedParameter($pidList)))
                             ->add($emailIsNotNull)
                             ->add($addWhere)
                     )
@@ -272,7 +272,7 @@ class DirectMailUtility
             if ($table == 'fe_groups') {
 
                $res = $queryBuilder
-                    ->select( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                    ->selectLiteral( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                     ->from('sys_dmail_group','sys_dmail_group')
                     ->innerJoin(
                         'sys_dmail_group',
@@ -311,7 +311,7 @@ class DirectMailUtility
                     ->execute();
             } else {
                 $res = $queryBuilder
-                    ->select( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                    ->selectLiteral( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                     ->from('sys_dmail_group','sys_dmail_group')
                     ->innerJoin(
                         'sys_dmail_group',
@@ -391,7 +391,7 @@ class DirectMailUtility
         if ($table == 'fe_groups') {
 
             $res = $queryBuilder
-                ->select( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                ->selectLiteral( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                 ->from($switchTable,$switchTable)
                 ->innerJoin(
                     $switchTable,
@@ -425,7 +425,7 @@ class DirectMailUtility
 
         } else {
             $res = $queryBuilder
-                ->select( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                ->selectLiteral( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                 ->from('sys_dmail_group','sys_dmail_group')
                 ->innerJoin(
                     'sys_dmail_group',
@@ -462,7 +462,7 @@ class DirectMailUtility
         if ($table == 'fe_groups') {
             // get the uid of the current fe_group
             $res = $queryBuilder
-                ->select( 'DISTINCT ' . $table . '.uid')
+                ->selectLiteral( 'DISTINCT ' . $table . '.uid')
                 ->from($table,$table)
                 ->innerJoin(
                     $table,
@@ -502,7 +502,7 @@ class DirectMailUtility
 
                 // fetch all fe_users from these subgroups
                 $res = $queryBuilder
-                    ->select( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                    ->selectLiteral( 'DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                     ->from($table,$table)
                     ->innerJoin(
                         $table,
@@ -1005,7 +1005,7 @@ class DirectMailUtility
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_groups');
 
-        $res = $queryBuilder->select('DISTINCT fe_groups.uid')
+        $res = $queryBuilder->selectLiteral('DISTINCT fe_groups.uid')
             ->from('fe_groups', 'fe_groups')
             ->innerJoin(
                 'fe_groups',
@@ -1756,7 +1756,8 @@ class DirectMailUtility
             $messageSubstituted = preg_replace_callback(
                 '/(http|https):\\/\\/.+(?=[\\]\\.\\?]*([\\! \'"()<>]+|$))/iU',
                 function (array $matches) use ($lengthLimit, $index_script_url) {
-                    return GeneralUtility::makeRedirectUrl($matches[0], $lengthLimit, $index_script_url);
+                    $redirects = GeneralUtility::makeInstance( \FoT3\Rdct\Redirects::class);
+                    return $redirects->makeRedirectUrl($matches[0], $lengthLimit, $index_script_url);
                 },
                 $message
             );

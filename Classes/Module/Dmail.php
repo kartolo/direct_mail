@@ -906,12 +906,12 @@ class Dmail extends BaseScriptClass
                     '-1, ' . $direct_mail_row['sys_language_uid']
                 )
             )
-            /*->orderBy(
+            ->orderBy(
                 preg_replace(
                     '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
                     trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
                 )
-            )*/
+            )
             ->execute();
 
 
@@ -1846,6 +1846,21 @@ class Dmail extends BaseScriptClass
     public function makeListDMail($boxId, $totalBox, $open=false)
     {
 
+        $sOrder = preg_replace(
+            '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
+            trim($GLOBALS['TCA']['sys_dmail']['ctrl']['default_sortby'])
+        );
+        if (!empty($sOrder)){
+            if (substr_count($sOrder, 'ASC') > 0 ){
+                $sOrder = trim(str_replace('ASC','',$sOrder));
+                $ascDesc = 'ASC';
+            }else{
+                $sOrder = trim(str_replace('DESC','',$sOrder));
+                $ascDesc = 'DESC';
+            }
+
+        }
+
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
         $queryBuilder
         ->getRestrictions()
@@ -1855,12 +1870,7 @@ class Dmail extends BaseScriptClass
             ->from('sys_dmail')
             ->add('where','pid = ' . intval($this->id) .
                 ' AND scheduled=0 AND issent=0')
-     /*  ->orderBy(
-           preg_replace(
-               '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
-               trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
-           )
-       )*/
+       ->orderBy($sOrder,$ascDesc)
        ->execute()
        ->fetchAll();
 
