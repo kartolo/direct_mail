@@ -458,7 +458,8 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                     ' AND response_type=0' .
                     ' AND html_sent>0')
                 ->execute();
-            list($count) = $countres->fetchColumn(0);
+
+            foreach($countres as $cRow) $count = $cRow['COUNT(*)'];
 
             $out .='<tr class="db_list_normal">
 						<td>' . $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '</td>
@@ -486,7 +487,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     {
         $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
-        if (!$dmail['scheduled_begin']) {
+        if (!empty($dmail['scheduled_begin'])) {
             return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&cmd=delete&uid=' . $uid . '">' . $icon . '</a>';
         }
         return '';

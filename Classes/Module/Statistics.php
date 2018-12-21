@@ -548,8 +548,9 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                         ' AND response_type=0' .
                         ' AND html_sent>0'
                     )
-                    ->execute();
-                list($count) = $countRes ->fetchColumn(0);
+                    ->execute()
+                    ->fetchAll();
+               foreach($countRes as $cRow) $count = $cRow['COUNT(*)'];
 
                 if (!empty($row['scheduled_begin'])) {
                     if (!empty($row['scheduled_end'])) {
