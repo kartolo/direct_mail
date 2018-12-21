@@ -131,7 +131,18 @@ class Dmail extends BaseScriptClass
                 $parts = parse_url(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'));
                 if (BackendUtility::getDomainStartPage($parts['host'], $parts['path'])) {
                     $temporaryPreUrl = BackendUtility::firstDomainRecord($rootLine);
-                    $domain = BackendUtility::getRecordsByField('sys_domain', 'domainName', $temporaryPreUrl, ' AND hidden=0', '', 'sorting');
+                    //$domain = BackendUtility::getRecordsByField('sys_domain', 'domainName', $temporaryPreUrl, ' AND hidden=0', '', 'sorting');
+                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                        ->getQueryBuilderForTable('sys_domain');
+                    $domain = $queryBuilder
+                        ->select('sys_domain.uid')
+                        ->from('sys_domain')
+                        ->where(
+                            $queryBuilder->expr()->eq('domainName', $queryBuilder->createNamedParameter($temporaryPreUrl))
+                        )
+                        ->execute()
+                        ->fetchAll();
+
                     if (is_array($domain)) {
                         reset($domain);
                         $dom = current($domain);
