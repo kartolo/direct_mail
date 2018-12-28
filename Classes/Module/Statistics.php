@@ -2018,6 +2018,11 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     }
 
 
+	/**
+	 * Switch the key of an array
+	 *
+	 * @return $array
+	 */
     private function changekeyname($array, $newkey, $oldkey)
     {
         foreach ($array as $key => $value)
@@ -2028,7 +2033,6 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             {
                 $array[$newkey] =  $array[$oldkey];
             }
-
         }
         unset($array[$oldkey]);
         return $array;
