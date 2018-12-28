@@ -16,6 +16,7 @@ namespace DirectMailTeam\DirectMail\Scheduler;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
 use TYPO3\CMS\Scheduler\Controller\SchedulerModuleController;
 
@@ -61,8 +62,27 @@ class MailFromDraftAdditionalFields implements AdditionalFieldProviderInterface
 
         // fetch all available drafts
         $drafts = array();
-        $draftsInternal = BackendUtility::getRecordsByField('sys_dmail', 'type', 2);
-        $draftsExternal = BackendUtility::getRecordsByField('sys_dmail', 'type', 3);
+
+        $queryBuilder =  \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)
+            ->getQueryBuilderForTable('sys_dmail');
+        $draftsInternal = $queryBuilder
+            ->select('*')
+            ->from('sys_dmail')
+            ->where(
+                $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(2))
+            )
+            ->execute()
+            ->fetchAll();
+
+        $draftsExternal = $queryBuilder
+            ->select('*')
+            ->from('sys_dmail')
+            ->where(
+                $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(3))
+            )
+            ->execute()
+            ->fetchAll();
+
         if (is_array($draftsInternal)) {
             $drafts = array_merge($drafts, $draftsInternal);
         }
@@ -114,6 +134,21 @@ class MailFromDraftAdditionalFields implements AdditionalFieldProviderInterface
         $draftUid = $submittedData['selecteddraft'] = intval($submittedData['selecteddraft']);
         if ($draftUid > 0) {
             $draftRecord = BackendUtility::getRecord('sys_dmail', $draftUid);
+
+            $queryBuilder =  \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_dmail');
+            $draftsInternal = $queryBuilder
+                ->select('*')
+                ->from('sys_dmail')
+                ->where(
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($draftUid))
+                )
+                ->execute()
+                ->fetchAll();
+
+
+
+
             if ($draftRecord['type'] == 2 || $draftRecord['type'] == 3) {
                 $result = true;
             } else {

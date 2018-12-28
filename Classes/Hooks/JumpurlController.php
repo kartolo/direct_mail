@@ -16,6 +16,7 @@ namespace DirectMailTeam\DirectMail\Hooks;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
  * JumpUrl processing hook on TYPO3\CMS\Frontend\Http\RequestHandler
@@ -36,8 +37,6 @@ class JumpurlController
      */
     public function preprocessRequest($parameter, $parentObject)
     {
-        $db = $this->getDatabaseConnection();
-
         $jumpUrlVariables = GeneralUtility::_GET();
 
         $mid = $jumpUrlVariables['mid'];
@@ -61,14 +60,17 @@ class JumpurlController
 
             if (MathUtility::canBeInterpretedAsInteger($jumpurl)) {
 
-                    // fetch the direct mail record where the mailing was sent (for this message)
-                $resMailing = $db->exec_SELECTquery(
-                    'mailContent, page, authcode_fieldList',
-                    'sys_dmail',
-                    'uid = ' . intval($mid)
-                );
 
-                if (($row = $db->sql_fetch_assoc($resMailing))) {
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+                $resMailing = $queryBuilder->select('mailContent','page','authcode_fieldList')
+                    ->from('sys_dmail')
+                    ->where(
+                        $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT))
+                    )
+                    ->execute()
+                    ->fetchAll();
+
+                foreach ($resMailing as  $row) {
                     $mailContent = unserialize(base64_decode($row['mailContent']));
                     $urlId = $jumpurl;
                     if ($jumpurl >= 0) {
@@ -132,7 +134,6 @@ class JumpurlController
                         }
                     }
                 }
-                $db->sql_free_result($resMailing);
                 if (!$jumpurl) {
                     die('Error: No further link. Please report error to the mail sender.');
                 } else {
@@ -167,18 +168,21 @@ class JumpurlController
             }
 
             if ($responseType != 0) {
-                $insertFields = array(
-                    // the message ID
-                    'mid'           => intval($mid),
-                    'tstamp'        => time(),
-                    'url'           => $jumpurl,
-                    'response_type' => intval($responseType),
-                    'url_id'        => intval($urlId),
-                    'rtbl'            => $recipientTable,
-                    'rid'            => $recipientUid
-                );
 
-                $db->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+                $databaseConnectionSysDamilMaillog = $connectionPool->getConnectionForTable('sys_dmail_maillog');
+                $databaseConnectionSysDamilMaillog->insert(
+                    'sys_dmail_maillog',
+                    [
+                        'mid'           => intval($mid),
+                        'tstamp'        => time(),
+                        'url'           => $jumpurl,
+                        'response_type' => intval($responseType),
+                        'url_id'        => intval($urlId),
+                        'rtbl'            => $recipientTable,
+                        'rid'            => $recipientUid
+                    ]
+                );
             }
         }
 
@@ -202,9 +206,17 @@ class JumpurlController
     {
         $uid = (int)$uid;
         if ($uid > 0) {
-            $res = $this->getDatabaseConnection()->exec_SELECTquery($fields, $table, 'uid = ' . $uid . ' AND deleted = 0');
-            $row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
-            $this->getDatabaseConnection()->sql_free_result($res);
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+            $res = $queryBuilder->select($fields)
+                ->from($table)
+                ->where(
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)),
+                    $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
+                )
+                ->execute();
+
+            $row = $res->fetchAll();
+
             if ($row) {
                 if (is_array($row)) {
                     return $row;
@@ -214,13 +226,5 @@ class JumpurlController
         return 0;
     }
 
-    /**
-     * Get the DB global object
-     *
-     * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-     */
-    protected function getDatabaseConnection()
-    {
-        return $GLOBALS['TYPO3_DB'];
-    }
+
 }

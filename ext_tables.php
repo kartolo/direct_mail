@@ -54,11 +54,9 @@ if (TYPO3_MODE == 'BE') {
             'routeTarget' => DirectMailTeam\DirectMail\Module\NavFrame::class . '::mainAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame',
+            'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail.svg',
             'labels' => array(
-                'tabs_images' => array(
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail.svg',
-                ),
-            'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangNavFrame.xlf',
+                'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangNavFrame.xlf',
             ),
         )
     );
@@ -73,10 +71,8 @@ if (TYPO3_MODE == 'BE') {
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_DirectMail',
             'workspaces' => 'online',
+            'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-directmail.svg',
             'labels' => array(
-                'tabs_images' => array(
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-directmail.svg',
-                ),
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangDirectMail.xlf',
             ),
             'navigationFrameModule' => 'DirectMailNavFrame',
@@ -94,10 +90,8 @@ if (TYPO3_MODE == 'BE') {
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_RecipientList',
             'workspaces' => 'online',
+            'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-recipient-list.svg',
             'labels' => array(
-                'tabs_images' => array(
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-recipient-list.svg',
-                ),
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangRecipientList.xlf',
             ),
             'navigationFrameModule' => 'DirectMailNavFrame',
@@ -115,10 +109,8 @@ if (TYPO3_MODE == 'BE') {
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_Statistics',
             'workspaces' => 'online',
+            'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-statistics.svg',
             'labels' => array(
-                'tabs_images' => array(
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-statistics.svg',
-                ),
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangStatistics.xlf',
             ),
             'navigationFrameModule' => 'DirectMailNavFrame',
@@ -136,10 +128,8 @@ if (TYPO3_MODE == 'BE') {
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_MailerEngine',
             'workspaces' => 'online',
+            'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-mailer-engine.svg',
             'labels' => array(
-                'tabs_images' => array(
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-mailer-engine.svg',
-                ),
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangMailerEngine.xlf',
             ),
             'navigationFrameModule' => 'DirectMailNavFrame',
@@ -158,10 +148,8 @@ if (TYPO3_MODE == 'BE') {
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_Configuration',
             'workspaces' => 'online',
+            'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-configuration.svg',
             'labels' => array(
-                'tabs_images' => array(
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-configuration.svg',
-                ),
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangConfiguration.xlf',
             ),
             'navigationFrameModule' => 'DirectMailNavFrame',

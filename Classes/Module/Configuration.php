@@ -26,6 +26,8 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 
 /**
  * Module Configuration for tx_directmail extension
@@ -125,18 +127,26 @@ class Configuration extends BaseScriptClass
 
             // initialize backend user language
         if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'sys_language.uid',
-                'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-                'static_languages.lg_typo3=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($this->getLanguageService()->lang, 'static_languages') .
-                    BackendUtility::BEenableFields('sys_language') .
-                    BackendUtility::deleteClause('sys_language') .
-                    BackendUtility::deleteClause('static_languages')
-                );
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_language');
+            $res = $queryBuilder
+                ->select('sys_language.uid')
+                ->from('sys_language')
+                ->leftJoin(
+                    'sys_language',
+                    'static_languages',
+                    'static_languages',
+                    $queryBuilder->expr()->eq('sys_language.static_lang_isocode', $queryBuilder->quoteIdentifier('static_languages.uid'))
+                )
+                ->where(
+                    $queryBuilder->expr()->eq('static_languages.lg_typo3', $queryBuilder->createNamedParameter($this->getLanguageService()->lang))
+                )
+                ->execute()
+                ->fetchAll();
+            foreach ($res as $row)  {
                 $this->sys_language_uid = $row['uid'];
             }
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
         }
         // load contextual help
         $this->cshTable = '_MOD_' . $this->MCONF['name'];
@@ -190,7 +200,7 @@ class Configuration extends BaseScriptClass
             $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
             $this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
-            $this->doc->addStyleSheet('direct_mail', ExtensionManagementUtility::siteRelPath('direct_mail') . '/Resources/Public/StyleSheets/modules.css');
+            $this->doc->addStyleSheet('direct_mail', ExtensionManagementUtility::extPath('direct_mail') .'Resources/Public/StyleSheets/modules.css');
 
             // Add CSS
             $this->doc->inDocStylesArray['dmail'] = '.toggleTitle { width: 70%; }';
@@ -322,7 +332,7 @@ class Configuration extends BaseScriptClass
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
+            $this->content .= '<h1 class="t3js-title-inlineedit">' . htmlspecialchars($this->getLanguageService()->getLL('title')) . '</h1>'; //$this->doc->header
             $this->content .= '<div style="padding-top: 15px;"></div>';
         }
     }
@@ -412,16 +422,23 @@ class Configuration extends BaseScriptClass
             $rootlineId[] = $rArr['uid'];
         }
 
-        $res_domain = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'uid,domainName',
-            'sys_domain',
-            'sys_domain.pid in (' . implode(',', $rootlineId) . ')' .
-                BackendUtility::deleteClause('sys_domain')
-        );
-        while (($row_domain = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_domain))) {
-            $configArray[3]['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];
-        }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res_domain);
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_domain');
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $res_domain = $queryBuilder->select('uid','domainName')
+            ->from('sys_domain')
+            ->where(
+                $queryBuilder->expr()->in('sys_domain.pid', $queryBuilder->createNamedParameter( implode(',', $rootlineId) ))
+            )
+            ->execute()
+            ->fetchAll();
+        foreach ($res_domain as $row_domain) {
+            $configArray[3]['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];        }
+
+
 
         $this->configArray_length = count($configArray);
         $form ='';

@@ -24,6 +24,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use DirectMailTeam\DirectMail\Utility\FunctionString;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Utility\CsvUtility;
 
 /**
  * Recipient list module for tx_directmail extension
@@ -123,17 +127,27 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // initialize backend user language
         if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'sys_language.uid',
-                'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-                'static_languages.lg_typo3='.$GLOBALS['TYPO3_DB']->fullQuoteStr($this->getLanguageService()->lang, 'static_languages') .
-                    BackendUtility::BEenableFields('sys_language') .
-                    BackendUtility::deleteClause('sys_language') .
-                    BackendUtility::deleteClause('static_languages')
-                );
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_language');
+            $res = $queryBuilder
+                ->select('sys_language.uid')
+                ->from('sys_language')
+                ->leftJoin(
+                    'sys_language',
+                    'static_languages',
+                    'static_languages',
+                    $queryBuilder->expr()->eq('sys_language.static_lang_isocode', $queryBuilder->quoteIdentifier('static_languages.uid'))
+                )
+                ->where(
+                    $queryBuilder->expr()->eq('static_languages.lg_typo3', $queryBuilder->createNamedParameter($this->getLanguageService()->lang))
+                )
+                ->execute()
+                ->fetchAll();
+
+            foreach ($res as $row) {
                 $this->sys_language_uid = $row['uid'];
             }
+
         }
         // load contextual help
         $this->cshTable = '_MOD_' . $this->MCONF['name'];
@@ -267,7 +281,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content.=$this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content.=$this->doc->header($this->getLanguageService()->getLL('title'));
+            $this->content .= '<h1 class="t3js-title-inlineedit">' . htmlspecialchars($this->getLanguageService()->getLL('title')) . '</h1>'; //$this->doc->header
         }
     }
 
@@ -326,16 +340,26 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 					<th>' . $this->getLanguageService()->getLL('recip_group_amount') . '</th>
 				</thead>';
 
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'uid,pid,title,description,type',
-            'sys_dmail_group',
-            'pid = ' . intval($this->id) .
-                BackendUtility::deleteClause('sys_dmail_group'),
-            '',
-            $GLOBALS['TYPO3_DB']->stripOrderBy($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
-        );
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $res = $queryBuilder->select('uid','pid','title','description','type')
+            ->from('sys_dmail_group')
+            ->where(
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->id,\PDO::PARAM_INT))
+            )
+            ->orderBy(
+                preg_replace(
+                    '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
+                    trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
+                )
+            )
+            ->execute()
+            ->fetchAll();
 
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+        foreach($res as $row) {
             $result = $this->cmd_compileMailGroup(intval($row['uid']));
             $count = 0;
             $idLists = $result['queryInfo']['id_lists'];
@@ -363,19 +387,19 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         }
 
         $out =' <table class="table table-striped table-hover">' . $out . '</table>';
-        $theOutput = $this->doc->section(BackendUtility::cshItem($this->cshTable, 'select_mailgroup', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('recip_select_mailgroup'), $out, 1, 1, 0, true);
+        $theOutput = $this->doc->render(BackendUtility::cshItem($this->cshTable, 'select_mailgroup', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('recip_select_mailgroup'), $out);
 
         // New:
         $out = '<a href="#" class="t3-link" onClick="' . BackendUtility::editOnClick('&edit[sys_dmail_group][' . $this->id . ']=new', $GLOBALS['BACK_PATH'], '') . '">' .
             $this->iconFactory->getIconForRecord('sys_dmail_group', array(), Icon::SIZE_SMALL) .
             $this->getLanguageService()->getLL('recip_create_mailgroup_msg') . '</a>';
         $theOutput .= '<div style="padding-top: 20px;"></div>';
-        $theOutput .= $this->doc->section(BackendUtility::cshItem($this->cshTable, 'create_mailgroup', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('recip_create_mailgroup'), $out, 1, 0, false, true, false, true);
+        $theOutput .= $this->doc->render(BackendUtility::cshItem($this->cshTable, 'select_mailgroup', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('recip_select_mailgroup'), $out);
 
         // Import
         $out = '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_RecipientList') . '&id=' . $this->id . '&CMD=displayImport">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
         $theOutput.= '<div style="padding-top: 20px;"></div>';
-        $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_import'), $out, 1, 1, 0, true);
+        $theOutput.= $this->doc->render($this->getLanguageService()->getLL('mailgroup_import'), $out);
         return $theOutput;
     }
 
@@ -600,7 +624,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $mainC.= '<br /><br /><strong><a class="t3-link" href="' . GeneralUtility::linkThisScript(array('lCmd'=>'listall')) . '">' . $this->getLanguageService()->getLL('mailgroup_list_all') . '</a></strong>';
         }
 
-        $theOutput = $this->doc->section($this->getLanguageService()->getLL('mailgroup_recip_from') . ' ' . $out, $mainC, 1, 1, 0, true);
+        $theOutput = $this->doc->render($this->getLanguageService()->getLL('mailgroup_recip_from') . ' ' . $out, $mainC);
         $theOutput .= '<div style="padding-top: 20px;"></div>';
 
         // do the CSV export
@@ -616,44 +640,44 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         switch ($lCmd) {
             case 'listall':
                 if (is_array($idLists['tt_address'])) {
-                    $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_address'), DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id));
+                    $theOutput.= $this->doc->render($this->getLanguageService()->getLL('mailgroup_table_address'), DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id));
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
                 if (is_array($idLists['fe_users'])) {
-                    $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_fe_users'), DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id));
+                   $theOutput.= $this->doc->render($this->getLanguageService()->getLL('mailgroup_table_fe_users'), DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id));
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
                 if (is_array($idLists['PLAINLIST'])) {
-                    $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_plain_list'), DirectMailUtility::getRecordList($idLists['PLAINLIST'], 'default', $this->id));
+                    $theOutput.= $this->doc->render($this->getLanguageService()->getLL('mailgroup_plain_list'), DirectMailUtility::getRecordList($idLists['PLAINLIST'], 'default', $this->id));
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
                 if (is_array($idLists[$this->userTable])) {
-                    $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_custom') . ' ' . $this->userTable, DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable], $this->userTable), $this->userTable, $this->id));
+                    $theOutput.= $this->doc->render($this->getLanguageService()->getLL('mailgroup_table_custom') . ' ' . $this->userTable, DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable], $this->userTable), $this->userTable, $this->id));
                 }
                 break;
             default:
 
                 if (is_array($idLists['tt_address']) && count($idLists['tt_address'])) {
                     $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
-                    $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_address'), $recipContent);
+                    $theOutput.= $this->doc->render($this->getLanguageService()->getLL('mailgroup_table_address'), $recipContent);
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
 
                 if (is_array($idLists['fe_users']) && count($idLists['fe_users'])) {
                     $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
-                    $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_fe_users'), $recipContent);
+                    $theOutput.= $this->doc->render($this->getLanguageService()->getLL('mailgroup_table_fe_users'), $recipContent);
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
 
                 if (is_array($idLists['PLAINLIST']) && count($idLists['PLAINLIST'])) {
                     $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
-                    $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_plain_list'), $recipContent);
+                    $theOutput.= $this->doc->render($this->getLanguageService()->getLL('mailgroup_plain_list'), $recipContent);
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
 
                 if (is_array($idLists[$this->userTable]) && count($idLists[$this->userTable])) {
                     $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv' => $this->userTable)) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
-                    $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_custom'), $recipContent);
+                    $theOutput.= $this->doc->render($this->getLanguageService()->getLL('mailgroup_table_custom'), $recipContent);
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
 
@@ -712,11 +736,15 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 'query' => $this->MOD_SETTINGS['queryConfig']
             );
 
-            $res_update = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                'sys_dmail_group',
-                'uid=' . intval($mailGroup['uid']),
-                $updateFields
-                );
+
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $connection = $connectionPool->getConnectionForTable('sys_dmail_group');
+
+            $connection->update(
+                'sys_dmail_group', // table
+                $updateFields,
+                [ 'uid' => intval($mailGroup['uid']) ] // where
+            );
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
         }
         return $mailGroup;
@@ -747,10 +775,10 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $tmpCode = $this->queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
         $tmpCode .= '<input type="hidden" name="CMD" value="displayMailGroup" /><input type="hidden" name="group_uid" value="' . $mailGroup['uid'] . '" />';
         $tmpCode .= '<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_updateQuery') . '" />';
-        $out .= $this->doc->section($this->getLanguageService()->getLL('dmail_makeQuery'), $tmpCode);
+        $out .= $this->doc->render($this->getLanguageService()->getLL('dmail_makeQuery'), $tmpCode);
 
         $theOutput = '<div style="padding-top: 20px;"></div>';
-        $theOutput .= $this->doc->section($this->getLanguageService()->getLL('dmail_query'), $out);
+        $theOutput .= $this->doc->render($this->getLanguageService()->getLL('dmail_query'), $out);
 
         return $theOutput;
     }
@@ -767,11 +795,11 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $lines = array();
         if (is_array($idArr) && count($idArr)) {
             reset($idArr);
-            $lines[] = GeneralUtility::csvValues(array_keys(current($idArr)), ',', '');
+            $lines[] = CsvUtility::csvValues(array_keys(current($idArr)), ',', '');
 
             reset($idArr);
             foreach ($idArr as $rec) {
-                $lines[] = GeneralUtility::csvValues($rec);
+                $lines[] = CsvUtility::csvValues($rec);
             }
         }
 
@@ -836,28 +864,41 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         switch ($table) {
             case 'tt_address':
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'tt_address.*',
-                    'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
-                    'tt_address.uid=' . intval($uid) .
-                        ' AND ' . $this->perms_clause .
-                        BackendUtility::deleteClause('pages') .
-                        BackendUtility::BEenableFields('tt_address') .
-                        BackendUtility::deleteClause('tt_address')
-                    );
-                $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                    ->getQueryBuilderForTable('tt_address');
+                $res = $queryBuilder
+                    ->select('tt_address.*')
+                    ->from('tt_address')
+                    ->leftJoin(
+                        'tt_address',
+                        'pages',
+                        'pages',
+                        $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('tt_address.pid'))
+                    )
+                    ->add('where','tt_address.uid=' . intval($uid) .
+                        ' AND ' . $this->perms_clause )
+                    ->execute()
+                    ->fetchAll();
+
+
                 break;
             case 'fe_users':
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'fe_users.*',
-                    'fe_users LEFT JOIN pages ON pages.uid=fe_users.pid',
-                    'fe_users.uid=' . intval($uid) .
-                        ' AND ' . $this->perms_clause .
-                        BackendUtility::deleteClause('pages') .
-                        BackendUtility::BEenableFields('fe_users') .
-                        BackendUtility::deleteClause('fe_users')
-                    );
-                $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                    ->getQueryBuilderForTable('fe_users');
+                $res = $queryBuilder
+                    ->select('fe_users.*')
+                    ->from('fe_users')
+                    ->leftJoin(
+                        'fe_users',
+                        'pages',
+                        'pages',
+                        $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('fe_users.pid'))
+                    )
+                    ->add('where','fe_users.uid=' . intval($uid) .
+                        ' AND ' . $this->perms_clause )
+                    ->execute()
+                    ->fetchAll();
+
                 break;
             default:
                 // do nothing
@@ -865,47 +906,53 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         $theOutput = '';
 
-        if (is_array($row)) {
-            $resCat = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'uid_foreign',
-                $mmTable,
-                'uid_local=' . $row['uid']
-                );
+        if (is_array($res)) {
+            foreach($res as $row){
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                    ->getQueryBuilderForTable($mmTable);
+                $resCat = $queryBuilder
+                    ->select('uid_foreign')
+                    ->from($mmTable)
+                    ->where($queryBuilder->expr()->eq('uid_local', $queryBuilder->createNamedParameter($row['uid'])))
+                    ->execute()
+                    ->fetchAll();
 
-            while (($rowCat=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat))) {
-                $categoriesArray[] = $rowCat['uid_foreign'];
+                foreach ($resCat as $rowCat) {
+                    $categoriesArray[] = $rowCat['uid_foreign'];
+                }
+
+                $categories = implode($categoriesArray, ',');
+
+                $editParams = '&edit[' . $table . '][' . $row['uid'] . ']=edit';
+
+                $out = '';
+                $out .= $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name']) . htmlspecialchars(' <' . $row['email'] . '>');
+                $out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParams, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+                    $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
+                    '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
+                $theOutput = $this->doc->render($this->getLanguageService()->getLL('subscriber_info'), $out);
+
+                $out = '';
+                $outCheckBox = '';
+
+                $this->categories = DirectMailUtility::makeCategories($table, $row, $this->sys_language_uid);
+
+                reset($this->categories);
+                foreach ($this->categories as $pKey => $pVal) {
+                    $outCheckBox .= '<input type="hidden" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="0" />' .
+                        '<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categories, $pKey) ? ' checked="checked"' : '') . ' /> ' . htmlspecialchars($pVal) . '<br />';
+                }
+                $outCheckBox .= '<br /><br /><input type="checkbox" name="indata[html]" value="1"' . ($row['module_sys_dmail_html'] ? ' checked="checked"' : '') . ' /> ';
+                $outCheckBox .= $this->getLanguageService()->getLL('subscriber_profile_htmlemail') . '<br />';
+                $out .= $outCheckBox;
+
+                $out .= '<input type="hidden" name="table" value="' . $table . '" />' .
+                    '<input type="hidden" name="uid" value="' . $uid . '" />' .
+                    '<input type="hidden" name="CMD" value="' . $this->CMD . '" />' .
+                    '<br /><input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
+                $theOutput .= '<div style="padding-top: 20px;"></div>';
+                $theOutput .= $this->doc->render($this->getLanguageService()->getLL('subscriber_profile'), $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out);
             }
-            $categories = implode($categoriesArray, ',');
-
-            $editParams = '&edit[' . $table . '][' . $row['uid'] . ']=edit';
-
-            $out = '';
-            $out .=  $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name']) . htmlspecialchars(' <' . $row['email'] . '>');
-            $out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParams, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
-                '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
-            $theOutput = $this->doc->section($this->getLanguageService()->getLL('subscriber_info'), $out);
-
-            $out = '';
-            $outCheckBox = '';
-
-            $this->categories = DirectMailUtility::makeCategories($table, $row, $this->sys_language_uid);
-
-            reset($this->categories);
-            foreach ($this->categories as $pKey => $pVal) {
-                $outCheckBox .='<input type="hidden" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="0" />' .
-                '<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categories, $pKey)?' checked="checked"':'') . ' /> ' . htmlspecialchars($pVal) . '<br />';
-            }
-            $outCheckBox .='<br /><br /><input type="checkbox" name="indata[html]" value="1"' . ($row['module_sys_dmail_html']?' checked="checked"':'') . ' /> ';
-            $outCheckBox.=$this->getLanguageService()->getLL('subscriber_profile_htmlemail') . '<br />';
-            $out.=$outCheckBox;
-
-            $out .= '<input type="hidden" name="table" value="' . $table . '" />' .
-                '<input type="hidden" name="uid" value="' . $uid . '" />' .
-                '<input type="hidden" name="CMD" value="' . $this->CMD . '" />' .
-                '<br /><input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
-            $theOutput .= '<div style="padding-top: 20px;"></div>';
-            $theOutput .= $this->doc->section($this->getLanguageService()->getLL('subscriber_profile'), $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out);
         }
         return $theOutput;
     }
