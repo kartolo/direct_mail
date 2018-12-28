@@ -637,7 +637,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             ->execute()
             ->fetchAll();
 
-        /*questa funzione viene chiamata per cambiare la key 'COUNT(*)' in 'counter'*/
+        /* this function is called to change the key from 'COUNT(*)' to 'counter' */
         $res = $this->changekeyname($res,'counter','COUNT(*)');
 
 
