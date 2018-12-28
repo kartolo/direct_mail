@@ -170,7 +170,7 @@ class Importer
 
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
                 $statement = $queryBuilder
-                    ->select('uid','title')
+                    ->select('uid', 'title')
                     ->from('pages')
                     ->where(
                         $GLOBALS['BE_USER']->getPagePermsClause(3),
