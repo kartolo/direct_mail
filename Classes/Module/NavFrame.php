@@ -82,8 +82,6 @@ class NavFrame
      */
     public function init()
     {
-        global $BE_USER, $BACK_PATH;
-
         $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
         $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/NavFrame.html');
         $this->doc->showFlashMessages = false;
@@ -92,7 +90,7 @@ class NavFrame
         $currentSubScript = BackendUtility::getModuleUrl($currentModule);
 
         // Setting highlight mode:
-        $this->doHighlight = !$BE_USER->getTSConfigVal('options.pageTree.disableTitleHighlight');
+        $this->doHighlight = !$GLOBALS['BE_USER']->getTSConfigVal('options.pageTree.disableTitleHighlight');
 
         $this->doc->inDocStylesArray[] = '#typo3-docheader-row2 { line-height: 14px !important; }
 		#typo3-docheader-row2 span { font-weight: bold; margin-top: -3px; color: #000; margin-top: 0; padding-left: 20px; }';
