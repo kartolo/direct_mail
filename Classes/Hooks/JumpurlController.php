@@ -37,8 +37,6 @@ class JumpurlController
      */
     public function preprocessRequest($parameter, $parentObject)
     {
-        //$db = $this->getDatabaseConnection();
-
         $jumpUrlVariables = GeneralUtility::_GET();
 
         $mid = $jumpUrlVariables['mid'];
@@ -136,7 +134,6 @@ class JumpurlController
                         }
                     }
                 }
-                //$db->sql_free_result($resMailing);
                 if (!$jumpurl) {
                     die('Error: No further link. Please report error to the mail sender.');
                 } else {
