@@ -505,13 +505,22 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             ->removeAll()
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         $res = $queryBuilder
-            ->select('*')
-            ->from('sys_dmail')
-            ->add('where','pid=' . intval($this->id) .
-                ' AND type IN (0,1)' .
-                ' AND issent = 1')
-            ->orderBy('scheduled','DESC')
-            ->addOrderBy('scheduled_begin','DESC')
+            ->selectLiteral('sys_dmail.uid', 'sys_dmail.subject', 'sys_dmail.scheduled', 'sys_dmail.scheduled_begin', 'sys_dmail.scheduled_end', 'COUNT(sys_dmail_maillog.mid) AS count')
+            ->from('sys_dmail','sys_dmail')
+            ->leftJoin(
+                'sys_dmail',
+                'sys_dmail_maillog',
+                'sys_dmail_maillog',
+                $queryBuilder->expr()->eq('sys_dmail.uid', $queryBuilder->quoteIdentifier('sys_dmail_maillog.mid'))
+            )
+            ->add('where','sys_dmail.pid=' . intval($this->id) .
+                ' AND sys_dmail.type IN (0,1)' .
+                ' AND sys_dmail.issent = 1'.
+                ' AND sys_dmail_maillog.response_type=0'.
+                ' AND sys_dmail_maillog.html_sent>0')
+            ->groupBy('sys_dmail_maillog.mid')
+            ->orderBy('sys_dmail.scheduled','DESC')
+            ->addOrderBy('sys_dmail.scheduled_begin','DESC')
             ->execute()
         ->fetchAll();
 
@@ -540,18 +549,6 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
             foreach ($res as $row)  {
 
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
-                $countRes = $queryBuilder
-                    ->count('*')
-                    ->from('sys_dmail_maillog')
-                    ->add('where','mid = ' . $row['uid'] .
-                        ' AND response_type=0' .
-                        ' AND html_sent>0'
-                    )
-                    ->execute()
-                    ->fetchAll();
-               foreach($countRes as $cRow) $count = $cRow['COUNT(*)'];
-
                 if (!empty($row['scheduled_begin'])) {
                     if (!empty($row['scheduled_end'])) {
                         $sent = $this->getLanguageService()->getLL('stats_overview_sent');
@@ -568,7 +565,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 					<td>' . BackendUtility::datetime($row['scheduled']) . '</td>
 					<td>' . ($row['scheduled_begin']?BackendUtility::datetime($row['scheduled_begin']):'&nbsp;') . '</td>
 					<td>' . ($row['scheduled_end']?BackendUtility::datetime($row['scheduled_end']):'&nbsp;') . '</td>
-					<td>' . ($count?$count:'&nbsp;') . '</td>
+					<td>' . ($row['count']?$row['count']:'&nbsp;') . '</td>
 					<td>' . $sent . '</td>
 				</tr>';
             }
@@ -1733,7 +1730,6 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                     break;
                 case '1':
                     // treat html links like plain text
-                    break;
                 case '2':
                     // plain text link response
                     $recRec[($row['response_type']==1?'html_links':'plain_links')][] = $row['tstamp'];
@@ -2033,6 +2029,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             {
                 $array[$newkey] =  $array[$oldkey];
             }
+
         }
         unset($array[$oldkey]);
         return $array;
