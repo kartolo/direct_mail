@@ -170,11 +170,6 @@ class Dmailer
         foreach ($this->dmailer['boundaryParts_html'] as $bKey => $bContent) {
             $this->dmailer['boundaryParts_html'][$bKey] = explode('-->', $bContent, 2);
 
-            // Remove useless HTML comments
-            if (substr($this->dmailer['boundaryParts_html'][$bKey][0], 1) == 'END') {
-                $this->dmailer['boundaryParts_html'][$bKey][1] = $this->removeHTMLComments($this->dmailer['boundaryParts_html'][$bKey][1]);
-            }
-
             // Now, analyzing which media files are used in this part of the mail:
             $mediaParts = explode('cid:part', $this->dmailer['boundaryParts_html'][$bKey][1]);
             reset($mediaParts);
