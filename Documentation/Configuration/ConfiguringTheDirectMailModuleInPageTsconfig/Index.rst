@@ -437,27 +437,11 @@ processed.
          boolean
 
    Description
-         If set, the rendered jump URL won't have UID of the recipient records.
-
-         Default: 0
-
-.. _jumpurl_tracking_privacy:
-jumpurl_tracking_privacy
-''''
-
-.. container:: table-row
-
-   Property
-         jumpurl\_tracking\_privacy
-
-   Data type
-         boolean
-
-   Description
          If set, the use of jump URL's will be enabled so that click statistics
          can be produced.
 
          Default: 0
+
 
 .. container:: table-row
 
