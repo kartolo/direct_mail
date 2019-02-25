@@ -63,7 +63,7 @@ class JumpurlController
 
                     // fetch the direct mail record where the mailing was sent (for this message)
                 $resMailing = $db->exec_SELECTquery(
-                    'mailContent, page, authcode_fieldList',
+                    'mailContent, page, authcode_fieldList, query_info',
                     'sys_dmail',
                     'uid = ' . intval($mid)
                 );
@@ -91,6 +91,21 @@ class JumpurlController
                             break;
                         default:
                             $theTable = '';
+
+                            /**
+                             * Get custom-defined table name.
+                             */
+                            $queryInfo = unserialize($row['query_info']);
+                            foreach ($queryInfo['id_lists'] as $table => $recipientList) {
+                                if (in_array($recipientUid, $recipientList) ) {
+                                    // Check if table exists.
+                                    $recipRow = $this->getRawRecord($table, $recipientUid);
+                                    if (is_array($recipRow)) {
+                                        $theTable = $table;
+                                    }
+                                    break;
+                                }
+                            }
                     }
 
                     if ($theTable) {
