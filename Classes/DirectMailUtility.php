@@ -22,6 +22,9 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Database\Connection;
 
 /**
  * Static class.
@@ -52,17 +55,39 @@ class DirectMailUtility
         $outListArr = array();
         if (is_array($listArr) && count($listArr)) {
             $idlist = implode(',', $listArr);
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                $fields,
-                $table,
-                'uid IN (' . $idlist . ')' .
-                    BackendUtility::deleteClause($table)
-                );
 
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+            $queryBuilder
+                ->getRestrictions()
+                ->removeAll()
+                ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
+            $fieldArray = explode(',', $fields);
+
+            // handle selecting multiple fields
+            foreach ($fieldArray as $i => $field) {
+                if ($i) {
+                    $queryBuilder->addSelect($field);
+                } else {
+                    $queryBuilder->select($field);
+                }
+            }
+
+            $res = $queryBuilder->from($table)
+                ->where(
+                    $queryBuilder->expr()->in(
+                        'uid',
+                        $queryBuilder->createNamedParameter(
+                            GeneralUtility::intExplode(',', $idlist),
+                            Connection::PARAM_INT_ARRAY
+                        )
+                    )
+                )
+                ->execute();
+
+            while ($row = $res->fetch()) {
                 $outListArr[$row['uid']] = $row;
             }
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
         }
         return $outListArr;
     }
@@ -163,11 +188,16 @@ class DirectMailUtility
                 'whichtables' => intval($whichTables),
                 'query' => $this->MOD_SETTINGS['queryConfig']
             );
-            $res_update = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                'sys_dmail_group',
-                'uid=' . intval($mailGroup['uid']),
-                $updateFields
-                );
+
+
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $res_update = $connectionPool->getConnectionForTable('sys_dmail_group');
+            $res_update->update(
+                'sys_dmail_group', // table
+                $updateFields,  // value array
+                [ 'uid' => intval($mailGroup['uid']) ] // where
+            );
+
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
         }
         return $mailGroup;
@@ -197,12 +227,17 @@ class DirectMailUtility
             $switchTable = $table;
         }
 
-        if ($switchTable == 'fe_users') {
-            $addWhere = ' AND fe_users.module_sys_dmail_newsletter = 1';
-        }
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable($table);
+        $queryBuilder = $connection->createQueryBuilder();
 
-        // Direct Mail needs an email address!
-        $emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('', $switchTable);
+        if ($switchTable == 'fe_users') {
+            //$addWhere = ' AND fe_users.module_sys_dmail_newsletter = 1';
+            $addWhere =  $queryBuilder->expr()->eq(
+                'fe_users.module_sys_dmail_newsletter',
+                1
+            );
+        }
 
         // fe user group uid should be in list of fe users list of user groups
         //		$field = $switchTable.'.usergroup';
@@ -211,79 +246,106 @@ class DirectMailUtility
         // even when fe_users.usergroup is defined as varchar(255) instead of tinyblob
         // $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
         // The following will work but INSTR and CONCAT are available only in mySQL
-        $usergroupInList = ' AND INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )';
+
+
 
         $mmTable = $GLOBALS['TCA'][$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
         $cat = intval($cat);
         if ($cat < 1) {
             if ($table == 'fe_groups') {
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
-                    $switchTable . ',' . $table,
-                    'fe_groups.pid IN(' . $pidList . ')' .
-                        $usergroupInList .
-                        $emailIsNotNull .
-                        BackendUtility::BEenableFields($switchTable) .
-                        BackendUtility::deleteClause($switchTable) .
-                        BackendUtility::BEenableFields($table) .
-                        BackendUtility::deleteClause($table) .
-                        $addWhere,
-                    $switchTable . '.uid, ' . $switchTable . '.email'
-                );
+                $res = $queryBuilder
+                    ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                    ->from($switchTable, $switchTable)
+                    ->from($table, $table)
+                    ->andWhere(
+                        $queryBuilder->expr()->andX()
+                            ->add($queryBuilder->expr()->in('fe_groups.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
+                            ->add(
+                                $queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter(''))
+                            )
+                            ->add($addWhere)
+                    )
+                    ->orderBy($switchTable . '.uid')
+                    ->addOrderBy($switchTable . '.email')
+                    ->execute();
             } else {
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
-                    $switchTable,
-                    $switchTable . '.pid IN(' . $pidList . ')' .
-                        $emailIsNotNull .
-                        BackendUtility::BEenableFields($switchTable) .
-                        BackendUtility::deleteClause($switchTable) .
-                        $addWhere,
-                    $switchTable . '.uid, ' . $switchTable . '.email'
-                );
+                $res = $queryBuilder
+                    ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                    ->from($switchTable)
+                    ->andWhere(
+                        $queryBuilder->expr()->andX()
+                            ->add($queryBuilder->expr()->in($switchTable . '.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add(
+                                $queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter(''))
+                            )
+                            ->add($addWhere)
+                    )
+                    ->orderBy($switchTable . '.uid')
+                    ->addOrderBy($switchTable . '.email')
+                    ->execute();
             }
         } else {
             if ($table == 'fe_groups') {
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
-                    'sys_dmail_group, sys_dmail_group_category_mm as g_mm, fe_groups, ' . $mmTable . ' as mm_1 LEFT JOIN ' . $switchTable . ' ON ' . $switchTable . '.uid = mm_1.uid_local',
-                    'fe_groups.pid IN (' . $pidList . ')' .
-                        $usergroupInList .
-                        ' AND mm_1.uid_foreign=g_mm.uid_foreign' .
-                        ' AND sys_dmail_group.uid=g_mm.uid_local' .
-                        ' AND sys_dmail_group.uid=' . intval($groupUid) .
-                        $emailIsNotNull .
-                        BackendUtility::BEenableFields($switchTable) .
-                        BackendUtility::deleteClause($switchTable) .
-                        BackendUtility::BEenableFields($table) .
-                        BackendUtility::deleteClause($table) .
-                        BackendUtility::deleteClause('sys_dmail_group') .
-                        $addWhere,
-                    $switchTable . '.uid, ' . $switchTable . '.email'
-                );
+                $res = $queryBuilder
+                    ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                    ->from('sys_dmail_group', 'sys_dmail_group')
+                    ->from('sys_dmail_group_category_mm', 'g_mm')
+                    ->from('fe_groups', 'fe_groups')
+                    ->from($mmTable, 'mm_1')
+                    ->leftJoin(
+                        'mm_1',
+                        $switchTable,
+                        $switchTable,
+                        $queryBuilder->expr()->eq($switchTable .'.uid', $queryBuilder->quoteIdentifier('mm_1.uid_local'))
+                    )
+                    ->andWhere(
+                        $queryBuilder->expr()->andX()
+                            ->add($queryBuilder->expr()->in('fe_groups.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
+                            ->add($queryBuilder->expr()->eq('mm_1.uid_foreign', $queryBuilder->quoteIdentifier('g_mm.uid_foreign')))
+                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->quoteIdentifier('g_mm.uid_local')))
+                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)))
+                            ->add(
+                                $queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter(''))
+                            )
+                            ->add($addWhere)
+                    )
+                    ->orderBy($switchTable . '.uid')
+                    ->addOrderBy($switchTable . '.email')
+                    ->execute();
             } else {
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
-                    'sys_dmail_group, sys_dmail_group_category_mm as g_mm, ' . $mmTable . ' as mm_1 LEFT JOIN ' . $table . ' ON ' . $table . '.uid = mm_1.uid_local',
-                    $switchTable . '.pid IN(' . $pidList . ')' .
-                        ' AND mm_1.uid_foreign=g_mm.uid_foreign' .
-                        ' AND sys_dmail_group.uid=g_mm.uid_local' .
-                        ' AND sys_dmail_group.uid=' . intval($groupUid) .
-                        $emailIsNotNull .
-                        BackendUtility::BEenableFields($switchTable) .
-                        BackendUtility::deleteClause($switchTable) .
-                        BackendUtility::deleteClause('sys_dmail_group') .
-                        $addWhere,
-                    $switchTable . '.uid, ' . $switchTable . '.email'
-                );
+                $res = $queryBuilder
+                    ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                    ->from('sys_dmail_group', 'sys_dmail_group')
+                    ->from('sys_dmail_group_category_mm', 'g_mm')
+                    ->from($mmTable, 'mm_1')
+                    ->leftJoin(
+                        'mm_1',
+                        $table,
+                        $table,
+                        $queryBuilder->expr()->eq($table .'.uid', $queryBuilder->quoteIdentifier('mm_1.uid_local'))
+                    )
+                    ->andWhere(
+                        $queryBuilder->expr()->andX()
+                            ->add($queryBuilder->expr()->in($switchTable . '.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add($queryBuilder->expr()->eq('mm_1.uid_foreign', $queryBuilder->quoteIdentifier('g_mm.uid_foreign')))
+                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->quoteIdentifier('g_mm.uid_local')))
+                            ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)))
+                            ->add(
+                                $queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter(''))
+                            )
+                            ->add($addWhere)
+                    )
+                    ->orderBy($switchTable . '.uid')
+                    ->addOrderBy($switchTable . '.email')
+                    ->execute();
             }
         }
         $outArr = array();
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+        while (($row = $res->fetch())) {
             $outArr[] = $row['uid'];
         }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
-
         return $outArr;
     }
 
@@ -302,7 +364,10 @@ class DirectMailUtility
         } else {
             $switchTable = $table;
         }
-        $emailIsNotNull = ' AND ' . $switchTable . '.email !=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('', $switchTable);
+
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable($table);
+        $queryBuilder = $connection->createQueryBuilder();
 
         // fe user group uid should be in list of fe users list of user groups
         // $field = $switchTable.'.usergroup';
@@ -313,63 +378,108 @@ class DirectMailUtility
 
         // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
         if ($switchTable == 'fe_users') {
-            $addWhere = ' AND ' . $switchTable . '.module_sys_dmail_newsletter = 1';
+            $addWhere =  $queryBuilder->expr()->eq(
+                $switchTable . '.module_sys_dmail_newsletter',
+                1
+            );
         }
 
-        $usergroupInList = ' AND INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )';
-
         if ($table == 'fe_groups') {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
-                $switchTable . ',' . $table . ',sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
-                'sys_dmail_group.uid=' . intval($uid) .
-                    ' AND fe_groups.uid=sys_dmail_group_mm.uid_foreign' .
-                    ' AND sys_dmail_group_mm.tablenames=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($table, $table) .
-                    $usergroupInList .
-                    $emailIsNotNull .
-                    BackendUtility::BEenableFields($switchTable) .
-                    BackendUtility::deleteClause($switchTable) .
-                    BackendUtility::BEenableFields($table) .
-                    BackendUtility::deleteClause($table) .
-                    BackendUtility::deleteClause('sys_dmail_group') .
-                    $addWhere,
-                $switchTable . '.uid, ' . $switchTable . '.email'
-            );
+            $res = $queryBuilder
+                ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                ->from($switchTable, $switchTable)
+                ->innerJoin(
+                    $switchTable,
+                    $table,
+                    $table,
+                    $queryBuilder->expr()->in($table.'.uid', $queryBuilder->quoteIdentifier($switchTable.'.usergroup'))
+                )
+                ->innerJoin(
+                    $table,
+                    'sys_dmail_group',
+                    'sys_dmail_group',
+                    $queryBuilder->expr()->eq('sys_dmail_group.static_list', $queryBuilder->quoteIdentifier($table . '.uid'))
+                )
+                ->leftJoin(
+                    'sys_dmail_group',
+                    'sys_dmail_group_mm',
+                    'sys_dmail_group_mm',
+                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
+                )
+                ->andWhere(
+                    $queryBuilder->expr()->andX()
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+                        ->add($queryBuilder->expr()->eq('fe_groups.uid', $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
+                        ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
+                        ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
+                        ->add($addWhere)
+                )
+                ->orderBy($switchTable . '.uid')
+                ->addOrderBy($switchTable . '.email')
+                ->execute();
         } else {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
-                'sys_dmail_group,' . $switchTable . ' LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_foreign=' . $switchTable . '.uid',
-                'sys_dmail_group.uid = ' . intval($uid) .
-                    ' AND sys_dmail_group_mm.uid_local=sys_dmail_group.uid' .
-                    ' AND sys_dmail_group_mm.tablenames=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($switchTable, $switchTable) .
-                    $emailIsNotNull .
-                    BackendUtility::BEenableFields($switchTable) .
-                    BackendUtility::deleteClause($switchTable) .
-                    BackendUtility::deleteClause('sys_dmail_group') .
-                    $addWhere,
-                $switchTable . '.uid, ' . $switchTable . '.email'
-            );
+            $res = $queryBuilder
+                ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                ->from('sys_dmail_group', 'sys_dmail_group')
+                ->innerJoin(
+                    'sys_dmail_group',
+                    $switchTable,
+                    $switchTable,
+                    $queryBuilder->expr()->eq('sys_dmail_group.static_list', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
+                )
+                ->leftJoin(
+                    $switchTable,
+                    'sys_dmail_group_mm',
+                    'sys_dmail_group_mm',
+                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
+                )
+                ->andWhere(
+                    $queryBuilder->expr()->andX()
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($switchTable)))
+                        ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
+                        ->add($addWhere)
+                )
+                ->orderBy($switchTable . '.uid')
+                ->addOrderBy($switchTable . '.email')
+                ->execute();
         }
 
         $outArr = array();
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+
+        while (($row = $res->fetch())) {
             $outArr[] = $row['uid'];
         }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
         if ($table == 'fe_groups') {
             // get the uid of the current fe_group
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'DISTINCT ' . $table . '.uid',
-                $table . ', sys_dmail_group LEFT JOIN sys_dmail_group_mm ON sys_dmail_group_mm.uid_local=sys_dmail_group.uid',
-                'sys_dmail_group.uid=' . intval($uid) .
-                    ' AND fe_groups.uid=sys_dmail_group_mm.uid_foreign' .
-                    ' AND sys_dmail_group_mm.tablenames=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($table, $table) .
-                    BackendUtility::BEenableFields($table) .
-                    BackendUtility::deleteClause($table)
-            );
-            list($groupId) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
+            $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getConnectionForTable($table);
+            $queryBuilder = $connection->createQueryBuilder();
+
+            $res = $queryBuilder
+                ->selectLiteral('DISTINCT ' . $table . '.uid')
+                ->from($table, $table)
+                ->from('sys_dmail_group', 'sys_dmail_group')
+                ->leftJoin(
+                    'sys_dmail_group',
+                    'sys_dmail_group_mm',
+                    'sys_dmail_group_mm',
+                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
+                )
+                ->andWhere(
+                    $queryBuilder->expr()->andX()
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+                        ->add($queryBuilder->expr()->eq('fe_groups.uid', $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
+                )
+                ->execute();
+
+            list($groupId) = $res->fetchAll();
 
             // recursively get all subgroups of this fe_group
             $subgroups = self::getFEgroupSubgroups($groupId);
@@ -382,23 +492,38 @@ class DirectMailUtility
                 $usergroupInList = '(' . $usergroupInList . ')';
 
                 // fetch all fe_users from these subgroups
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'DISTINCT ' . $switchTable . '.uid,' . $switchTable . '.email',
-                    $switchTable . ',' . $table . '',
-                    $usergroupInList .
-                        $emailIsNotNull .
-                        BackendUtility::BEenableFields($switchTable) .
-                        BackendUtility::deleteClause($switchTable) .
-                        BackendUtility::BEenableFields($table) .
-                        BackendUtility::deleteClause($table) .
-                    $addWhere,
-                    $switchTable . '.uid, ' . $switchTable . '.email'
-                );
+                $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+                    ->getConnectionForTable($table);
+                $queryBuilder = $connection->createQueryBuilder();
+                // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
+                if ($switchTable == 'fe_users') {
+                    $addWhere =  $queryBuilder->expr()->eq(
+                        $switchTable . '.module_sys_dmail_newsletter',
+                        1
+                    );
+                }
 
-                while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+                $res = $queryBuilder
+                    ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                    ->from($table, $table)
+                    ->innerJoin(
+                        $table,
+                        $switchTable,
+                        $switchTable
+                    )
+                    ->orWhere($usergroupInList)
+                    ->andWhere(
+                        $queryBuilder->expr()->andX()
+                            ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
+                            ->add($addWhere)
+                    )
+                    ->orderBy($switchTable . '.uid')
+                    ->addOrderBy($switchTable . '.email')
+                    ->execute();
+
+                while ($row = $res->fetch()) {
                     $outArr[]=$row['uid'];
                 }
-                $GLOBALS['TYPO3_DB']->sql_free_result($res);
             }
         }
 
@@ -421,17 +546,21 @@ class DirectMailUtility
         if ($group['query']) {
             $queryGenerator->init('dmail_queryConfig', $table);
             $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
-            $whereClause = $queryGenerator->getQuery($queryGenerator->queryConfig) . BackendUtility::deleteClause($table);
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                $table . '.uid',
-                $table,
-                $whereClause
-            );
+            $whereClause = $queryGenerator->getQuery($queryGenerator->queryConfig);
 
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+            $queryBuilder
+                ->getRestrictions()
+                ->removeAll()
+                ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+            $res = $queryBuilder->select($table . '.uid')
+                ->from($table)
+                ->add('where', $whereClause)
+                ->execute();
+
+            while ($row = $res->fetch()) {
                 $outArr[] = $row['uid'];
             }
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
         }
         return $outArr;
     }
@@ -450,16 +579,24 @@ class DirectMailUtility
         $groupIdList = GeneralUtility::intExplode(',', $list);
         $groups = array();
 
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'sys_dmail_group.*',
-            'sys_dmail_group LEFT JOIN pages ON pages.uid=sys_dmail_group.pid',
-            'sys_dmail_group.uid IN (' . implode(',', $groupIdList) . ')' .
-                ' AND ' . $perms_clause .
-                BackendUtility::deleteClause('pages') .
-                BackendUtility::deleteClause('sys_dmail_group')
-            );
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $res = $queryBuilder->select('sys_dmail_group.*')
+            ->from('sys_dmail_group', 'sys_dmail_group')
+            ->leftJoin(
+                'sys_dmail_group',
+                'pages',
+                'pages',
+                $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('sys_dmail_group.pid'))
+            )
+            ->add('where', 'sys_dmail_group.uid IN (' . implode(',', $groupIdList) . ')' .
+                ' AND ' . $perms_clause)
+            ->execute();
 
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+        while (($row=$res->fetch())) {
             if ($row['type'] == 4) {
                 // Other mail group...
                 if (!in_array($row['uid'], $parsedGroups)) {
@@ -471,8 +608,6 @@ class DirectMailUtility
                 $groups[] = $row['uid'];
             }
         }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
-
         return $groups;
     }
 
@@ -599,20 +734,17 @@ class DirectMailUtility
         if (is_array($pageTsConfig[$mmField])) {
             $pidList = $pageTsConfig[$mmField]['PAGE_TSCONFIG_IDLIST'];
             if ($pidList) {
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    '*',
-                    'sys_dmail_category',
-                    'sys_dmail_category.pid IN (' . str_replace(',', "','", $GLOBALS['TYPO3_DB']->fullQuoteStr($pidList, 'sys_dmail_category')) . ')' .
-                        ' AND l18n_parent=0' .
-                        BackendUtility::BEenableFields('sys_dmail_category') .
-                        BackendUtility::deleteClause('sys_dmail_category')
-                    );
-                while (($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
+                $res = $queryBuilder->select('*')
+                    ->from('sys_dmail_category')
+                    ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
+                        ' AND l18n_parent=0')
+                    ->execute();
+                while (($rowCat = $res->fetch())) {
                     if (($localizedRowCat = self::getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid, ''))) {
                         $categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
                     }
                 }
-                $GLOBALS['TYPO3_DB']->sql_free_result($res);
             }
         }
         return $categories;
@@ -641,20 +773,16 @@ class DirectMailUtility
                         // Must be default language or [All], otherwise no overlaying:
                         if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]<=0) {
                             // Select overlay record:
-                            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                                '*',
-                                $table,
-                                'pid=' . intval($row['pid']) .
+                            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+                            $res = $queryBuilder->select('*')
+                                ->from($table)
+                                ->add('where', 'pid=' . intval($row['pid']) .
                                     ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . intval($sys_language_content) .
-                                    ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . intval($row['uid']) .
-                                    BackendUtility::BEenableFields($table) .
-                                    BackendUtility::deleteClause($table),
-                                '',
-                                '',
-                                '1'
-                                );
-                            $olrow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-                            $GLOBALS['TYPO3_DB']->sql_free_result($res);
+                                    ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . intval($row['uid']))
+                                ->setMaxResults(1)/* LIMIT 1*/
+                                ->execute();
+
+                            $olrow = $res->fetch();
 
                             // Merge record content by traversing all fields:
                             if (is_array($olrow)) {
@@ -741,19 +869,22 @@ class DirectMailUtility
         $scheme = '';
         $port = '';
         if ($domainUid) {
-            $domainResult = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'domainName',
-                'sys_domain',
-                'uid=' . intval($domainUid) .
-                    BackendUtility::deleteClause('sys_domain')
-                );
-            if (($domain = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($domainResult))) {
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_domain');
+            $queryBuilder
+                ->getRestrictions()
+                ->removeAll()
+                ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+            $domainResult = $queryBuilder->select('domainName')
+                ->from('sys_domain')
+                ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter(intval($domainUid), \PDO::PARAM_INT)))
+                ->execute();
+
+            if (($domain = $domainResult->fetch())) {
                 $domainName = $domain['domainName'];
                 $urlParts = @parse_url(GeneralUtility::getIndpEnv('TYPO3_REQUEST_DIR'));
                 $scheme = $urlParts['scheme'];
                 $port = $urlParts['port'];
             }
-            $GLOBALS['TYPO3_DB']->sql_free_result($domainResult);
         }
         if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
             $scheme = 'http';
@@ -868,26 +999,43 @@ class DirectMailUtility
     {
         // get all subgroups of this fe_group
         // fe_groups having this id in their subgroup field
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-            'DISTINCT fe_groups.uid',
-            'fe_groups',
-            'sys_dmail_group_mm',
-            'sys_dmail_group',
-            ' AND INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . intval($groupId) . ',\' )' .
-                BackendUtility::BEenableFields('fe_groups') .
-                BackendUtility::deleteClause('fe_groups')
-        );
 
+        $table = 'fe_groups';
+        $mmTable = 'sys_dmail_group_mm';
+        $groupTable = 'sys_dmail_group';
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+
+        $res = $queryBuilder->selectLiteral('DISTINCT fe_groups.uid')
+            ->from($table, $table)
+            ->join(
+                $table,
+                $mmTable,
+                $mmTable,
+                $queryBuilder->expr()->eq(
+                    $mmTable . '.uid_local',
+                    $queryBuilder->quoteIdentifier($table . '.uid')
+                )
+            )
+            ->join(
+                $mmTable,
+                $groupTable,
+                $groupTable,
+                $queryBuilder->expr()->eq(
+                    $mmTable . '.uid_local',
+                    $queryBuilder->quoteIdentifier($groupTable . '.uid')
+                )
+            )
+            ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . intval($groupId) . ',\' )')
+            ->execute();
         $groupArr = array();
 
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+        while (($row = $res->fetch())) {
             $groupArr[] = $row['uid'];
 
             // add all subgroups recursively too
             $groupArr = array_merge($groupArr, self::getFEgroupSubgroups($row['uid']));
         }
-
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
         return $groupArr;
     }
@@ -962,8 +1110,8 @@ class DirectMailUtility
             'return_path'            => $parameters['return_path'],
             'priority'                => $parameters['priority'],
             'use_domain'            => $parameters['use_domain'],
-            'use_rdct'                => $parameters['use_rdct'],
-            'long_link_mode'        => $parameters['long_link_mode'],
+            'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0), /*$parameters['use_rdct'],*/
+            'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode']:0),//$parameters['long_link_mode'],
             'organisation'            => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
@@ -994,19 +1142,19 @@ class DirectMailUtility
         $pageRecord = BackendUtility::getRecord('pages', $pageUid);
         // Fetch page title from pages_language_overlay
         if ($newRecord['sys_language_uid'] > 0) {
-            $pageRecordOverlay = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow(
-                'title',
-                'pages_language_overlay',
-                'pid=' . (int)$pageUid .
-                ' AND sys_language_uid=' . $newRecord['sys_language_uid'] .
-                BackendUtility::BEenableFields('pages_language_overlay') .
-                BackendUtility::deleteClause('pages_language_overlay')
-            );
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages_language_overlay');
+            $pageRecordOverlay = $queryBuilder->select('title')
+                ->from('pages_language_overlay')
+                ->add('where', 'pid=' . (int)$pageUid .
+                    ' AND sys_language_uid=' . $newRecord['sys_language_uid'])
+                ->execute()
+                ->fetcth();
             if (is_array($pageRecordOverlay)) {
                 $pageRecord['title'] = $pageRecordOverlay['title'];
             }
         }
-        if (GeneralUtility::inList($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'], $pageRecord['doktype'])) {
+        /*if (GeneralUtility::inList($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'], $pageRecord['doktype'])) {*/
+        if ($pageRecord['doktype']) {
             $newRecord['subject'] = $pageRecord['title'];
             $newRecord['page']    = $pageRecord['uid'];
             $newRecord['charset'] = self::getCharacterSetOfPage($pageRecord['uid']);
@@ -1044,7 +1192,7 @@ class DirectMailUtility
         if (isset($params['langParams.'][$sysLanguageUid])) {
             $param = $params['langParams.'][$sysLanguageUid];
 
-            // fallback: L == sys_language_uid
+        // fallback: L == sys_language_uid
         } else {
             $param = '&L=' . $sysLanguageUid;
         }
@@ -1079,7 +1227,7 @@ class DirectMailUtility
             'return_path'            => $parameters['return_path'],
             'priority'                => $parameters['priority'],
             'use_domain'            => $parameters['use_domain'],
-            'use_rdct'                => $parameters['use_rdct'],
+            'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0),
             'long_link_mode'        => $parameters['long_link_mode'],
             'organisation'            => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
@@ -1230,10 +1378,13 @@ class DirectMailUtility
                 'renderedSize'       => strlen($mailContent),
                 'long_link_rdct_url' => $urlBase
             );
-            $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                'sys_dmail',
-                'uid=' . intval($row['uid']),
-                $updateData
+
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $connection = $connectionPool->getConnectionForTable('sys_dmail');
+            $connection->update(
+                'sys_dmail', // table
+                $updateData, // value array
+                [ 'uid' => intval($row['uid']) ] // where
             );
 
             if (count($warningMsg)) {
@@ -1412,7 +1563,8 @@ class DirectMailUtility
             $GLOBALS['TSFE']->gr_list = $pageRecord['fe_group'];
 
             $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Page\PageRepository');
-            $GLOBALS['TSFE']->getPageAndRootline();
+            $GLOBALS['TSFE']->getPageAndRootlineWithDomain($pageId);
+
 
             // restore gr_list
             $GLOBALS['TSFE']->gr_list = $groupListBackup;
@@ -1545,7 +1697,13 @@ class DirectMailUtility
                 // store those changes
                 $tsConf = implode(LF, $tsLines);
 
-                $GLOBALS['TYPO3_DB']->exec_UPDATEquery('pages', 'uid=' . intval($id), array('TSconfig' => $tsConf));
+                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+                $connection = $connectionPool->getConnectionForTable('pages');
+                $connection->update(
+                    'pages', // table
+                    [ 'TSconfig' => $tsConf ],  // value array
+                    [ 'uid' => intval($id) ] // where
+                );
             }
         }
     }
@@ -1606,7 +1764,8 @@ class DirectMailUtility
             $messageSubstituted = preg_replace_callback(
                 '/(http|https):\\/\\/.+(?=[\\]\\.\\?]*([\\! \'"()<>]+|$))/iU',
                 function (array $matches) use ($lengthLimit, $index_script_url) {
-                    return GeneralUtility::makeRedirectUrl($matches[0], $lengthLimit, $index_script_url);
+                    $redirects = GeneralUtility::makeInstance(\FoT3\Rdct\Redirects::class);
+                    return $redirects->makeRedirectUrl($matches[0], $lengthLimit, $index_script_url);
                 },
                 $message
             );

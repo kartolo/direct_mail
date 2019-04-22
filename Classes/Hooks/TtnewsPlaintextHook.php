@@ -16,8 +16,9 @@ namespace DirectMailTeam\DirectMail\Hooks;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
-require_once(ExtensionManagementUtility::extPath('direct_mail').'pi1/class.tx_directmail_pi1.php');
+require_once('EXT:direct_mail/pi1/class.tx_directmail_pi1.php');
 
 /**
  * Generating plain text content of tt_news records for Direct Mails
@@ -100,13 +101,19 @@ class TtnewsPlaintextHook
             $lines = array();
             $singleWhere = 'tt_news.uid=' . intval($this->tt_news_uid);
             $singleWhere .= ' AND type=0' . $this->enableFields; // type=0->only real news.
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                '*',
-                'tt_news',
-                $singleWhere
-                );
-            $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
+
+            $conn = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getConnectionForTable('tt_news');
+            $querybuilder = $conn->createQueryBuilder();
+
+
+            $res = $querybuilder->select('*')
+                ->from('tt_news')
+                ->add('where',$singleWhere)
+                ->execute();
+
+            $row = $res->fetchAll();
+
             // get the translated record if the content language is not the default language
             if ($GLOBALS['TSFE']->sys_language_content) {
                 $OLmode = ($this->sys_language_mode == 'strict'?'hideNonTranslated':'');
