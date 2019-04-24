@@ -1,7 +1,6 @@
 <?php
-if (!defined('TYPO3_MODE')) {
-    die('Access denied.');
-}
+defined('TYPO3_MODE') || die('Access denied.');
+
 
 // tt_address modified
 $ttAddressCols = array(

@@ -177,6 +177,12 @@ $iconRegistry->registerIcon(
 );
 
 $iconRegistry->registerIcon(
+    'direct_mail_folder',
+    \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
+    ['source' => 'EXT:' . $_EXTKEY . '/Resources/Public/Icons/dmail.gif']
+);
+
+$iconRegistry->registerIcon(
     'direct_mail_preview_html',
     \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
     ['source' => 'EXT:' . $_EXTKEY . '/Resources/Public/Icons/preview_html.gif']
