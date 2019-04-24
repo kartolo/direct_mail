@@ -22,7 +22,7 @@
     "issues": "https://forge.typo3.org/projects/extension-direct_mail"
   },
   "require": {
-    "typo3/cms-core": "^9.5",
+    "typo3/cms-core": "^8.7 || ^9.5",
     "friendsoftypo3/jumpurl": "dev-master",
     "friendsoftypo3/tt-address": "^4.1",
     "friendsoftypo3/rdct": "^1.0"
