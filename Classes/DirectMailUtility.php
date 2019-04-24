@@ -18,9 +18,13 @@ use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\Utility\IconUtility;
+use TYPO3\CMS\Core\Configuration\SiteConfiguration;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -861,35 +865,36 @@ class DirectMailUtility
      *
      * @param int $domainUid ID of a domain
      *
-     * @return string urlbase
+     * @return string|array urlbase
      */
-    public static function getUrlBase($domainUid)
+    public static function getUrlBase(int $rootPageId, bool $getFullUrl = false, int $pageUid = 0, string $htmlParams = '', string $plainParams = '')
     {
-        $domainName = '';
-        $scheme = '';
-        $port = '';
-        if ($domainUid) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_domain');
-            $queryBuilder
-                ->getRestrictions()
-                ->removeAll()
-                ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-            $domainResult = $queryBuilder->select('domainName')
-                ->from('sys_domain')
-                ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter(intval($domainUid), \PDO::PARAM_INT)))
-                ->execute();
+        $siteFinder = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByRootPageId($rootPageId);
+        $path = Environment::getConfigPath() . '/sites';
+        $siteConfiguration = GeneralUtility::makeInstance(SiteConfiguration::class, $path);
+        $configuration = $siteConfiguration->load($siteFinder->getIdentifier());
+        $site = GeneralUtility::makeInstance(Site::class, $siteFinder->getIdentifier(), $rootPageId, $configuration);
+        $base = $site->getBase();
 
-            if (($domain = $domainResult->fetch())) {
-                $domainName = $domain['domainName'];
-                $urlParts = @parse_url(GeneralUtility::getIndpEnv('TYPO3_REQUEST_DIR'));
-                $scheme = $urlParts['scheme'];
-                $port = $urlParts['port'];
+        $baseUrl = sprintf('%s://%s', $base->getScheme(), $base->getHost());
+        $htmlUrl = '';
+        $plainTextUrl = '';
+
+        if ($getFullUrl === true) {
+            $route = $site->getRouter()->generateUri($pageUid);
+            $htmlUrl = $route;
+            $plainTextUrl = $route;
+
+            if ($htmlParams !== '') {
+                $htmlUrl .= '?' . $htmlParams;
+            }
+
+            if ($plainParams !== '') {
+                $plainTextUrl .= '?' . $plainParams;
             }
         }
-        if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
-            $scheme = 'http';
-        }
-        return ($domainName ? (($scheme?$scheme:'http') . '://' . $domainName . ($port?':' . $port:'') . '/') : GeneralUtility::getIndpEnv('TYPO3_SITE_URL')) . 'index.php';
+
+        return $htmlUrl !== '' ? [ 'baseUrl' => $baseUrl, 'htmlUrl' => $htmlUrl, 'plainTextUrl' => $plainTextUrl] : $baseUrl;
     }
 
     /**
@@ -1115,7 +1120,7 @@ class DirectMailUtility
             'organisation'            => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain']),
+            'long_link_rdct_url'    => self::getUrlBase((int)$parameters['use_domain']),
             'sys_language_uid' => (int)$sysLanguageUid,
             'attachment' => '',
             'mailContent' => ''
@@ -1342,6 +1347,7 @@ class DirectMailUtility
 
         // fetch the HTML url
         if ($htmlUrl) {
+
             // Username and password is added in htmlmail object
             $success = $htmlmail->addHTML(self::addUserPass($htmlUrl, $params));
             // If type = 1, we have an external page.
@@ -1485,46 +1491,23 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row)
     {
-        $result = array(
-                // Finding the domain to use
-            'baseUrl' => self::getUrlBase($row['use_domain']),
-            'htmlUrl' => '',
-            'plainTextUrl' => ''
-        );
+        $result = self::getUrlBase($row['use_domain'], true, $row['page'], $row['HTMLParams'], $row['plainParams']);
 
-        // Finding the url to fetch content from
-        switch ((string) $row['type']) {
-            case 1:
-                $result['htmlUrl'] = $row['HTMLParams'];
-                $result['plainTextUrl'] = $row['plainParams'];
-                break;
-            default:
-                $result['htmlUrl'] = $result['baseUrl'] . '?id=' . $row['page'] . $row['HTMLParams'];
-                $result['plainTextUrl'] = $result['baseUrl'] . '?id=' . $row['page'] . $row['plainParams'];
+        if ((string)$row['type'] === '1') {
+            $result['htmlUrl'] = $row['HTMLParams'];
+            $result['plainTextUrl'] = $row['plainParams'];
         }
 
         // plain
-        if ($result['plainTextUrl']) {
-            if (!($row['sendOptions']&1)) {
-                $result['plainTextUrl'] = '';
-            } else {
-                $urlParts = @parse_url($result['plainTextUrl']);
-                if (!$urlParts['scheme']) {
-                    $result['plainTextUrl'] = 'http://' . $result['plainTextUrl'];
-                }
-            }
+        if ($result['plainTextUrl'] && !($row['sendOptions']&1)) {
+            $result['plainTextUrl'] = '';
         }
+
         // html
-        if ($result['htmlUrl']) {
-            if (!($row['sendOptions']&2)) {
-                $result['htmlUrl'] = '';
-            } else {
-                $urlParts = @parse_url($result['htmlUrl']);
-                if (!$urlParts['scheme']) {
-                    $result['htmlUrl'] = 'http://' . $result['htmlUrl'];
-                }
-            }
+        if ($result['htmlUrl'] && !($row['sendOptions']&2)) {
+            $result['htmlUrl'] = '';
         }
+
         return $result;
     }
 
