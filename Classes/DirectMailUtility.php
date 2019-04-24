@@ -15,21 +15,31 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Configuration\SiteConfiguration;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\UserAspect;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Crypto\Random;
+use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
+use TYPO3\CMS\Core\Http\ImmediateResponseException;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
  * Static class.
@@ -924,7 +934,7 @@ class DirectMailUtility
         fseek($fh, 0);
         $lines = array();
         if ($sep == 'tab') {
-            $sep = TAB;
+            $sep = "\t";
         }
         while (($data = fgetcsv($fh, 1000, $sep))) {
             $lines[] = $data;
@@ -949,7 +959,7 @@ class DirectMailUtility
     public static function getRecordList(array $listArr, $table, $pageId, $editLinkFlag = 1, $sys_dmail_uid = 0)
     {
         $count = 0;
-        $lines = array();
+        $lines = [];
         $out = '';
 
         // init iconFactory
@@ -962,7 +972,7 @@ class DirectMailUtility
                 $tableIcon = '';
                 $editLink = '';
                 if ($row['uid']) {
-                    $tableIcon = '<td>' . $iconFactory->getIconForRecord($table, array()) . '</td>';
+                    $tableIcon = sprintf('<td>%s</td>', $iconFactory->getIconForRecord($table, []));
                     if ($editLinkFlag) {
                         $urlParameters = [
                             'edit' => [
@@ -972,24 +982,31 @@ class DirectMailUtility
                             ],
                             'returnUrl' => $returnUrl
                         ];
-                        $editLink = '<td><a class="t3-link" href="' . BackendUtility::getModuleUrl('record_edit', $urlParameters) . '" title="' . $GLOBALS['LANG']->getLL('dmail_edit') . '">' .
-                            $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
-                            '</a></td>';
+
+                        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                        $editLink = sprintf(
+                            '<td><a class="t3-link" href="%s" title="%s">%s</a></td>',
+                            $uriBuilder->buildUriFromRoute('record_edit', $urlParameters),
+                            $GLOBALS['LANG']->getLL('dmail_edit'),
+                            $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL)
+                        );
                     }
                 }
 
-                $lines[]='<tr class="db_list_normal">
-				' . $tableIcon . '
-				' . $editLink . '
-				<td nowrap> ' . htmlspecialchars($row['email']) . ' </td>
-				<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>
-				</tr>';
+                $lines[] = sprintf(
+                    '<tr class="db_list_normal">%s%s<td class="nowrap">%s</td><td class="nowrap">%s</td></tr>',
+                    $tableIcon,
+                    $editLink,
+                    htmlspecialchars($row['email']),
+                    htmlspecialchars($row['name'])
+                );
             }
         }
         if (count($lines)) {
             $out = $GLOBALS['LANG']->getLL('dmail_number_records') . '<strong> ' . $count . '</strong><br />';
             $out .= '<table class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
         }
+
         return $out;
     }
 
@@ -1358,7 +1375,7 @@ class DirectMailUtility
                 if ($res == 1) {
                     $htmlmail->charset = $matches[1];
                 } elseif (isset($params['direct_mail_charset'])) {
-                    $htmlmail->charset = $GLOBALS['LANG']->csConvObj->parse_charset($params['direct_mail_charset']);
+                    $htmlmail->charset = $params['direct_mail_charset'];
                 } else {
                     $htmlmail->charset = 'iso-8859-1';
                 }
@@ -1449,15 +1466,13 @@ class DirectMailUtility
 
     /**
      * Create an access token and save it in the Registry
-     *
-     * @return string
      */
-    public static function createAndGetAccessToken()
+    public static function createAndGetAccessToken(): string
     {
-        /* @var \TYPO3\CMS\Core\Registry $registry */
-        $registry = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Registry');
-        $accessToken = GeneralUtility::getRandomHexString(32);
+        $registry = GeneralUtility::makeInstance(Registry::class);
+        $accessToken = GeneralUtility::makeInstance(Random::class)->generateRandomHexString(32);
         $registry->set('tx_directmail', 'accessToken', $accessToken);
+
         return $accessToken;
     }
 
@@ -1514,29 +1529,22 @@ class DirectMailUtility
     /**
      * Initializes the TSFE for a given page ID and language.
      *
-     * @param int $pageId The page id to initialize the TSFE for
-     * @param int $language System language uid, optional, defaults to 0
-     * @param bool $useCache Use cache to reuse TSFE
-     *
-     * @return	void
+     * @throws ServiceUnavailableException
+     * @throws ImmediateResponseException
      */
-    public static function initializeTsfe($pageId, $language = 0, $useCache = true)
+    public static function initializeTsfe(int $pageId, int $language = 0, bool $useCache = true): void
     {
-        static $tsfeCache = array();
-
         // resetting, a TSFE instance with data from a different page Id could be set already
         unset($GLOBALS['TSFE']);
 
         $cacheId = $pageId . '|' . $language;
 
-        if (!is_object($GLOBALS['TT'])) {
-            $GLOBALS['TT'] = GeneralUtility::makeInstance('TYPO3\CMS\Core\TimeTracker\TimeTracker');
+        if (!$GLOBALS['TT'] instanceof TimeTracker) {
+            $GLOBALS['TT'] = GeneralUtility::makeInstance(TimeTracker::class);
         }
 
         if (!isset($tsfeCache[$cacheId]) || !$useCache) {
-            GeneralUtility::_GETset($language, 'L');
-
-            $GLOBALS['TSFE'] = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController', $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
+            $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class, $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
 
             // for certain situations we need to trick TSFE into granting us
             // access to the page in any case to make getPageAndRootline() work
@@ -1545,14 +1553,13 @@ class DirectMailUtility
             $groupListBackup = $GLOBALS['TSFE']->gr_list;
             $GLOBALS['TSFE']->gr_list = $pageRecord['fe_group'];
 
-            $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Page\PageRepository');
+            $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
             $GLOBALS['TSFE']->getPageAndRootlineWithDomain($pageId);
 
 
             // restore gr_list
             $GLOBALS['TSFE']->gr_list = $groupListBackup;
 
-            $GLOBALS['TSFE']->initTemplate();
             $GLOBALS['TSFE']->forceTemplateParsing = true;
             $GLOBALS['TSFE']->initFEuser();
             $GLOBALS['TSFE']->initUserGroups();
@@ -1579,13 +1586,11 @@ class DirectMailUtility
     /**
      * Get the charset of a page
      *
-     * @param int $pageId ID of a page
-     *
-     * @return string The charset of a page
+     * @throws ImmediateResponseException
+     * @throws ServiceUnavailableException
      */
-    public static function getCharacterSetOfPage($pageId)
+    public static function getCharacterSetOfPage(int $pageId): string
     {
-
         // init a fake TSFE object
         self::initializeTsfe($pageId);
 
@@ -1600,22 +1605,15 @@ class DirectMailUtility
         // destroy it :)
         unset($GLOBALS['TSFE']);
 
-        return strtolower($characterSet);
+        return mb_strtolower($characterSet);
     }
 
     /**
      * Wrapper for the old t3lib_div::intInRange.
      * Forces the integer $theInt into the boundaries of $min and $max.
      * If the $theInt is 'FALSE' then the $zeroValue is applied.
-     *
-     * @param int $theInt Input value
-     * @param int $min Lower limit
-     * @param int $max Higher limit
-     * @param int $zeroValue Default value if input is FALSE.
-     *
-     * @return int The input value forced into the boundaries of $min and $max
      */
-    public static function intInRangeWrapper($theInt, $min, $max = 2000000000, $zeroValue = 0)
+    public static function intInRangeWrapper(int $theInt, int $min, int $max = 2000000000, int $zeroValue = 0): int
     {
         return MathUtility::forceIntegerInRange($theInt, $min, $max, $zeroValue);
     }
