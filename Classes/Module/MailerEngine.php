@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -312,7 +313,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $cronInterval = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronInt'] * 60;
         $lastCronjobShouldBeNewThan = (time() - $cronInterval);
 
-        $filename = PATH_site . 'typo3temp/tx_directmail_dmailer_log.txt';
+        $filename = Environment::getPublicPath() . '/typo3temp/tx_directmail_dmailer_log.txt';
         if (file_exists($filename)) {
             $logContent = file_get_contents($filename);
             $lastExecutionTime = substr($logContent, 0, 10);
@@ -326,7 +327,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
          */
 
         // cron running or error (die function in dmailer_log)
-        if (file_exists(PATH_site . 'typo3temp/tx_directmail_cron.lock')) {
+        if (file_exists(Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock')) {
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
                 ->getQueryBuilderForTable('sys_dmail_maillog');
             $res = $queryBuilder

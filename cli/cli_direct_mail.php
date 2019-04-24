@@ -6,6 +6,7 @@ if (!defined('TYPO3_cliMode')) {
 
 // Include basis cli class
 use \TYPO3\CMS\Core\Controller\CommandLineController;
+use TYPO3\CMS\Core\Core\Environment;
 
 class direct_mail_cli extends CommandLineController
 {
@@ -68,16 +69,16 @@ class direct_mail_cli extends CommandLineController
     {
 
         // Check if cronjob is already running:
-        if (@file_exists(PATH_site . 'typo3temp/tx_directmail_cron.lock')) {
+        if (@file_exists(Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock')) {
             // If the lock is not older than 1 day, skip index creation:
-            if (filemtime(PATH_site . 'typo3temp/tx_directmail_cron.lock') > (time() - (60 * 60 * 24))) {
+            if (filemtime(Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock') > (time() - (60 * 60 * 24))) {
                 die('TYPO3 Direct Mail Cron: Aborting, another process is already running!' . LF);
             } else {
                 echo('TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...' . LF);
             }
         }
 
-        $lockfile = PATH_site . 'typo3temp/tx_directmail_cron.lock';
+        $lockfile = Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock';
         touch($lockfile);
         // Fixing filepermissions
         \TYPO3\CMS\Core\Utility\GeneralUtility::fixPermissions($lockfile);

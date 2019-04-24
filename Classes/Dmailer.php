@@ -15,6 +15,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use TYPO3\CMS\Core\Charset\CharsetConverter;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -1076,7 +1077,7 @@ class Dmailer
                         // SwiftMailer depends on allow_url_fopen in PHP
                         // To work around this, download the files using t3lib::getURL() to a temporary location.
                         $fileContent = GeneralUtility::getUrl($media['absRef']);
-                        $tempFile = PATH_site . 'uploads/tx_directmail/' . basename($media['absRef']);
+                        $tempFile = Environment::getPublicPath() . '/uploads/tx_directmail/' . basename($media['absRef']);
                         GeneralUtility::writeFile($tempFile, $fileContent);
 
                         unset($fileContent);
@@ -1113,7 +1114,7 @@ class Dmailer
         if (!empty($this->dmailer['sys_dmail_rec']['attachment'])) {
             $files = explode(',', $this->dmailer['sys_dmail_rec']['attachment']);
             foreach ($files as $file) {
-                $mailer->attach(\Swift_Attachment::fromPath(PATH_site . 'uploads/tx_directmail/' . $file));
+                $mailer->attach(\Swift_Attachment::fromPath(Environment::getPublicPath() . '/uploads/tx_directmail/' . $file));
             }
         }
     }
@@ -1341,7 +1342,7 @@ class Dmailer
         $content = time() . ' => ' . $logMsg . LF;
         $logfilePath = 'typo3temp/tx_directmail_dmailer_log.txt';
 
-        $fp = fopen(PATH_site . $logfilePath, $writeMode);
+        $fp = fopen(Environment::getPublicPath() . '/' . $logfilePath, $writeMode);
         if ($fp) {
             fwrite($fp, $content);
             fclose($fp);

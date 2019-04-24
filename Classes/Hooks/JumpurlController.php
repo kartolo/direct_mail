@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail\Hooks;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -150,7 +151,7 @@ class JumpurlController
                 // Check if jumpurl is a valid link to a "dmailerping.gif"
                 // Make $checkPath an absolute path pointing to dmailerping.gif so it can get checked via ::isAllowedAbsPath()
                 // and remove an eventual "/" at beginning of $jumpurl (because PATH_site already contains "/" at the end)
-                $checkPath = PATH_site . preg_replace('#^/#', '', $jumpurl);
+                $checkPath = Environment::getPublicPath() . '/' . ltrim($jumpurl, '/');
 
                 // Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
                 if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && GeneralUtility::isAllowedAbsPath($checkPath)) {

@@ -15,6 +15,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use TYPO3\CMS\Core\Charset\CharsetConverter;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -925,8 +926,8 @@ class Importer
 
         $mydata = array();
         // TYPO3 6.0 works with relative path, we need absolute here
-        if (!is_file($this->indata['newFile']) && (strpos($this->indata['newFile'], PATH_site) === false)) {
-            $this->indata['newFile'] = PATH_site . $this->indata['newFile'];
+        if (!is_file($this->indata['newFile']) && (strpos($this->indata['newFile'], Environment::getPublicPath() , '/') === false)) {
+            $this->indata['newFile'] = Environment::getPublicPath() . '/' . $this->indata['newFile'];
         }
         $handle = fopen($this->indata['newFile'], 'r');
         $i = 0;
