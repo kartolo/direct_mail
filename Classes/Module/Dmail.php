@@ -2047,29 +2047,42 @@ class Dmail extends BaseScriptClass
     {
         static $languages;
         $languageUids = [];
+
         if ($languages === null) {
             $languages = GeneralUtility::makeInstance(TranslationConfigurationProvider::class)->getSystemLanguages();
         }
+
         // loop trough all sys languages and check if there is matching page translation
         foreach ($languages as $lang) {
             // we skip -1
             if ((int)$lang['uid'] < 0) {
                 continue;
             }
+
             // 0 is always present so only for > 0
             if ((int)$lang['uid'] > 0) {
+                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
 
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                    ->getQueryBuilderForTable('pages_language_overlay');
+                if (strpos(VersionNumberUtility::getNumericTypo3Version(), '9') === 0) {
+                    $queryBuilder = $connectionPool->getQueryBuilderForTable('pages');
+                    $queryBuilder
+                        ->select('sys_language_uid')
+                        ->from('pages')
+                        ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)));
+                } else {
+                    $queryBuilder = $connectionPool->getQueryBuilderForTable('pages_language_overlay');
+                    $queryBuilder
+                        ->select('uid')
+                        ->from('pages_language_overlay')
+                        ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)));
+                }
+
                 $langRow = $queryBuilder
-                    ->select('uid')
-                    ->from('pages_language_overlay')
-                    ->add('where','pid=' . (int)$pageUid .
-                        ' AND sys_language_uid=' . (int)$lang['uid'])
+                    ->andWhere($queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($lang['uid'], \PDO::PARAM_INT)))
                     ->execute()
                     ->fetchAll();
 
-                if (!is_array($langRow)) {
+                if (empty($langRow)) {
                     continue;
                 }
             }
