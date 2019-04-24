@@ -15,6 +15,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
+use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -62,7 +63,7 @@ class DirectMailUtility
                 ->removeAll()
                 ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
-            $fieldArray = explode(',', $fields);
+            $fieldArray = GeneralUtility::trimExplode(',', $fields);
 
             // handle selecting multiple fields
             foreach ($fieldArray as $i => $field) {
@@ -102,8 +103,7 @@ class DirectMailUtility
     public static function getRecursiveSelect($id, $perms_clause)
     {
         // Finding tree and offer setting of values recursively.
-        /* @var $tree \TYPO3\CMS\Backend\Tree\View\PageTreeView */
-        $tree = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Tree\\View\\PageTreeView');
+        $tree = GeneralUtility::makeInstance(PageTreeView::class);
         $tree->init('AND ' . $perms_clause);
         $tree->makeHTML = 0;
         $tree->setRecs = 0;
