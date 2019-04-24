@@ -25,11 +25,13 @@ use TYPO3\CMS\Core\Context\UserAspect;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Crypto\Random;
 use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\ImmediateResponseException;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Registry;
+use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\TimeTracker\TimeTracker;
@@ -154,67 +156,6 @@ class DirectMailUtility
         $plainlist = array_map('unserialize', array_unique(array_map('serialize', $plainlist)));
 
         return $plainlist;
-    }
-
-    /**
-     * Update the mailgroup DB record
-     * Todo: where does it used?? recip list?
-     *
-     * @param array $mailGroup Mailgroup DB record
-     *
-     * @return array Mailgroup DB record after updated
-     */
-    public function update_specialQuery($mailGroup)
-    {
-        $set = GeneralUtility::_GP('SET');
-        $queryTable = $set['queryTable'];
-        $queryConfig = GeneralUtility::_GP('dmail_queryConfig');
-        $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
-
-        $whichTables = intval($mailGroup['whichtables']);
-        $table = '';
-        if ($whichTables&1) {
-            $table = 'tt_address';
-        } elseif ($whichTables&2) {
-            $table = 'fe_users';
-        } elseif ($this->userTable && ($whichTables&4)) {
-            $table = $this->userTable;
-        }
-
-        $this->MOD_SETTINGS['queryTable'] = $queryTable ? $queryTable : $table;
-        $this->MOD_SETTINGS['queryConfig'] = $queryConfig ? serialize($queryConfig) : $mailGroup['query'];
-        $this->MOD_SETTINGS['search_query_smallparts'] = 1;
-
-        if ($this->MOD_SETTINGS['queryTable'] != $table) {
-            $this->MOD_SETTINGS['queryConfig'] = '';
-        }
-
-        if ($this->MOD_SETTINGS['queryTable'] != $table || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query']) {
-            $whichTables = 0;
-            if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
-                $whichTables = 1;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
-                $whichTables = 2;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
-                $whichTables = 4;
-            }
-            $updateFields = array(
-                'whichtables' => intval($whichTables),
-                'query' => $this->MOD_SETTINGS['queryConfig']
-            );
-
-
-            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $res_update = $connectionPool->getConnectionForTable('sys_dmail_group');
-            $res_update->update(
-                'sys_dmail_group', // table
-                $updateFields,  // value array
-                [ 'uid' => intval($mailGroup['uid']) ] // where
-            );
-
-            $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
-        }
-        return $mailGroup;
     }
 
     /**
@@ -552,9 +493,9 @@ class DirectMailUtility
      * @param string $table The table to select from
      * @param array $group The direct_mail group record
      *
-     * @return string The resulting query.
+     * @return array The resulting query.
      */
-    public static function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group)
+    public static function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group): array
     {
         $outArr = array();
         if ($group['query']) {
@@ -873,9 +814,8 @@ class DirectMailUtility
     /**
      * Get the base URL
      *
-     * @param int $domainUid ID of a domain
-     *
-     * @return string|array urlbase
+     * @throws SiteNotFoundException
+     * @throws InvalidRouteArgumentsException
      */
     public static function getUrlBase(int $rootPageId, bool $getFullUrl = false, int $pageUid = 0, string $htmlParams = '', string $plainParams = '')
     {
@@ -1061,52 +1001,6 @@ class DirectMailUtility
 
         return $groupArr;
     }
-
-    /**
-     * Copied from t3lib_parsehtml, since 4.1 doesn't have it.
-     *
-     * Traverses the input $markContentArray array and for each key the marker
-     * by the same name (possibly wrapped and in upper case)
-     * will be substituted with the keys value in the array.
-     * This is very useful if you have a data-record to substitute in some content.
-     * In particular when you use the $wrap and $uppercase values to pre-process the markers.
-     * Eg. a key name like "myfield" could effectively be represented
-     * by the marker "###MYFIELD###" if the wrap value was "###|###" and the $uppercase boolean true.
-     *
-     * @param string $content The content stream, typically HTML template content.
-     * @param array $markContentArray The array of key/value pairs being marker/content values used in the substitution. For each element in this array the function will substitute a marker in the content stream with the content.
-     * @param string $wrap A wrap value
-     * @param bool|int $uppercase If set, all marker string substitution is done with upper-case markers.
-     * @param bool|int $deleteUnused If set, all unused marker are deleted.
-     *
-     * @return	string		The processed output stream
-     * @see substituteMarker(), substituteMarkerInObject(), TEMPLATE()
-     */
-    public static function substituteMarkerArray($content, array $markContentArray, $wrap = '', $uppercase = 0, $deleteUnused = 0)
-    {
-        if (is_array($markContentArray)) {
-            $wrapArr = GeneralUtility::trimExplode('|', $wrap);
-            foreach ($markContentArray as $marker => $markContent) {
-                if ($uppercase) {
-                    // use strtr instead of strtoupper to avoid locale problems with Turkish
-                    $marker = strtr($marker, 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-                }
-                if (count($wrapArr) > 0) {
-                    $marker = $wrapArr[0] . $marker . $wrapArr[1];
-                }
-                $content = str_replace($marker, $markContent, $content);
-            }
-
-            if ($deleteUnused) {
-                if (empty($wrap)) {
-                    $wrapArr = array('###', '###');
-                }
-                $content = preg_replace('/' . preg_quote($wrapArr[0]) . '([A-Z0-9_-|]*)' . preg_quote($wrapArr[1]) . '/is', '', $content);
-            }
-        }
-        return $content;
-    }
-
 
     /**
      * Creates a directmail entry in th DB.
