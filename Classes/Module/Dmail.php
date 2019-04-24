@@ -34,6 +34,8 @@ use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
+
 /**
  * Direct mail Module of the tx_directmail extension for sending newsletter
  *
