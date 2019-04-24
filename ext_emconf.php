@@ -34,12 +34,10 @@ $EM_CONF[$_EXTKEY] = array(
     'CGLcompliance_note' => '',
     'constraints' => array(
         'depends' => array(
-            'cms' => '',
             'tt_address' => '',
-            'php' => '5.5.0',
-            'typo3' => '7.6.0-8.99.99',
-            'jumpurl' => '7.6.0-7.7.99',
-            'rdct' =>'1.0.0-1.0.0'
+            'php' => '7.2.0',
+            'typo3' => '9.5.0-9.5.99',
+            'rdct' => '1.0.0',
         ),
         'conflicts' => array(
             'sr_direct_mail_ext' => '',
