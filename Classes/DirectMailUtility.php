@@ -1428,12 +1428,9 @@ class DirectMailUtility
     {
         $user = $params['http_username'];
         $pass = $params['http_password'];
-
-        if ($user && $pass && substr($url, 0, 7) == 'http://') {
-            $url = 'http://' . $user . ':' . $pass . '@' . substr($url, 7);
-        }
-        if ($user && $pass && substr($url, 0, 8) == 'https://') {
-            $url = 'https://' . $user . ':' . $pass . '@' . substr($url, 8);
+	$matches = array();
+        if ($user && $pass && preg_match('/^(?:http)s?:\/\//', $url, $matches)) {
+            $url = $matches[0] . $user . ':' . $pass . '@' . substr($url, strlen($matches[0]));
         }
         if ($params['simulate_usergroup'] && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
             $url = $url . '&dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' . self::createAndGetAccessToken();
