@@ -218,8 +218,8 @@ class JumpurlController
             $row = $res->fetchAll();
 
             if ($row) {
-                if (is_array($row)) {
-                    return $row;
+                if (is_array($row[0])) {
+                    return $row[0];
                 }
             }
         }
