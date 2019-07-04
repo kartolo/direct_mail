@@ -82,6 +82,11 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['cronInt'] = $extConf['cronInt'];
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseHttpToFetch'] = $extConf['UseHttpToFetch'];
 
 /**
+ * Do NOT use PORT from which your are accessing your TYPO3 Backend to fetch contents from one of your Frontends, but use implicit port instead (e.g. no explicit port in URL)
+ */
+$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseImplicitPortToFetch'] = $extConf['UseImplicitPortToFetch'];
+
+/**
  * Enable the use of News plain text rendering hook:
  */
 if ($extConf['enablePlainTextNews']) {
