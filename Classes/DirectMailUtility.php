@@ -1473,6 +1473,7 @@ class DirectMailUtility
             $GLOBALS['TSFE']->initUserGroups();
 
             $GLOBALS['TSFE']->no_cache = true;
+            $GLOBALS['TSFE']->initTemplate();
             $GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
             $GLOBALS['TSFE']->no_cache = false;
             $GLOBALS['TSFE']->getConfigArray();
