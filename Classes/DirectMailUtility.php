@@ -818,13 +818,13 @@ class DirectMailUtility
      * @throws SiteNotFoundException
      * @throws InvalidRouteArgumentsException
      */
-    public static function getUrlBase(int $rootPageId, bool $getFullUrl = false, int $pageUid = 0, string $htmlParams = '', string $plainParams = '')
+    public static function getUrlBase(int $pageId, bool $getFullUrl = false, string $htmlParams = '', string $plainParams = '')
     {
-        $siteFinder = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByRootPageId($rootPageId);
+        $siteFinder = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($pageId);
         $path = Environment::getConfigPath() . '/sites';
         $siteConfiguration = GeneralUtility::makeInstance(SiteConfiguration::class, $path);
         $configuration = $siteConfiguration->load($siteFinder->getIdentifier());
-        $site = GeneralUtility::makeInstance(Site::class, $siteFinder->getIdentifier(), $rootPageId, $configuration);
+        $site = GeneralUtility::makeInstance(Site::class, $siteFinder->getIdentifier(), $siteFinder->getRootPageId(), $configuration);
         $base = $site->getBase();
 
         $baseUrl = sprintf('%s://%s', $base->getScheme(), $base->getHost());
@@ -832,7 +832,7 @@ class DirectMailUtility
         $plainTextUrl = '';
 
         if ($getFullUrl === true) {
-            $route = $site->getRouter()->generateUri($pageUid);
+            $route = $site->getRouter()->generateUri($pageId);
             $htmlUrl = $route;
             $plainTextUrl = $route;
 
@@ -1032,7 +1032,7 @@ class DirectMailUtility
             'organisation'            => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => self::getUrlBase((int)$parameters['use_domain']),
+            'long_link_rdct_url'    => self::getUrlBase((int)$pageUid),
             'sys_language_uid' => (int)$sysLanguageUid,
             'attachment' => '',
             'mailContent' => ''
@@ -1414,7 +1414,7 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row)
     {
-        $result = self::getUrlBase($row['use_domain'], true, $row['page'], $row['HTMLParams'], $row['plainParams']);
+        $result = self::getUrlBase($row['page'], true, $row['HTMLParams'], $row['plainParams']);
 
         if ((string)$row['type'] === '1') {
             $result['htmlUrl'] = $row['HTMLParams'];
