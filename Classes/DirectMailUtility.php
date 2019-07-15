@@ -40,6 +40,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Frontend\Page\PageRepository;
 
@@ -1058,13 +1059,26 @@ class DirectMailUtility
         $pageRecord = BackendUtility::getRecord('pages', $pageUid);
         // Fetch page title from pages_language_overlay
         if ($newRecord['sys_language_uid'] > 0) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages_language_overlay');
-            $pageRecordOverlay = $queryBuilder->select('title')
-                ->from('pages_language_overlay')
-                ->add('where', 'pid=' . (int)$pageUid .
-                    ' AND sys_language_uid=' . $newRecord['sys_language_uid'])
-                ->execute()
-                ->fetcth();
+            if (strpos(VersionNumberUtility::getNumericTypo3Version(), '9') === 0) {
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+                $queryBuilder
+                    ->select('title')
+                    ->from('pages')
+                    ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)));
+            } else {
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages_language_overlay');
+                $queryBuilder->select('title')
+                    ->from('pages_language_overlay')
+                    ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)));
+            }
+
+            $pageRecordOverlay = $queryBuilder->andWhere(
+                $queryBuilder->expr()->eq(
+                    'sys_language_uid',
+                    $queryBuilder->createNamedParameter($newRecord['sys_language_uid'], \PDO::PARAM_INT)
+                )
+            )->execute()->fetchColumn(0);
+
             if (is_array($pageRecordOverlay)) {
                 $pageRecord['title'] = $pageRecordOverlay['title'];
             }
