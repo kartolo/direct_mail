@@ -470,15 +470,15 @@ class Dmailer implements LoggerAwareInterface
             return '';
         }
 
-        $mm_table = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
+        $relationTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         $statement = $queryBuilder
             ->select('uid_foreign')
-            ->from($mm_table)
-            ->leftJoin($table, $mm_table, $mm_table, $mm_table . '.uid_local = ' . $table . '.uid')
-            ->where($queryBuilder->expr()->eq($mm_table . '.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+            ->from($relationTable, $relationTable)
+            ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
+            ->where($queryBuilder->expr()->eq($relationTable . '.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
             ->execute();
 
         $list = '';
