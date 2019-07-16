@@ -25,6 +25,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
@@ -757,7 +758,7 @@ class Dmailer implements LoggerAwareInterface
      * Add action to sys_dmail_maillog table
      *
      * @param int $mid Newsletter ID
-     * @param int $rid Recipient ID
+     * @param string $rid Recipient ID
      * @param int $size Size of the sent email
      * @param int $parsetime Parse time of the email
      * @param int $html Set if HTML email is sent
@@ -765,7 +766,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return bool True on success or False on error
      */
-    public function dmailer_addToMailLog(int $mid, int $rid, int $size, int $parsetime, int $html, string $email): int
+    public function dmailer_addToMailLog(int $mid, string $rid, int $size, int $parsetime, int $html, string $email): int
     {
         list($rtbl, $rid) = explode('_', $rid);
 
@@ -775,13 +776,13 @@ class Dmailer implements LoggerAwareInterface
             ->values([
                 'mid' => $mid,
                 'rtbl' => $rtbl,
-                'rid' => (int)$rid,
+                'rid' => $rid,
                 'email' => $email,
                 'tstamp' => time(),
                 'url' => '',
                 'size' => $size,
                 'parsetime' => $parsetime,
-                'html_sent' => intval($html),
+                'html_sent' => (int)$html,
             ])
             ->execute();
 
