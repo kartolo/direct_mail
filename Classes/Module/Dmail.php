@@ -1069,19 +1069,13 @@ class Dmail extends BaseScriptClass
             if (GeneralUtility::_GP('tt_address_uid')) {
                 // personalized to tt_address
 
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                    ->getQueryBuilderForTable('tt_address');
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_address');
                 $res = $queryBuilder
-                    ->select('tt_address.*')
-                    ->from('tt_address')
-                    ->leftJoin(
-                        'tt_address',
-                        'pages',
-                        'pages',
-                        $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('tt_address.pid'))
-                    )
-                    ->add('where','tt_address.uid=' . intval(GeneralUtility::_GP('tt_address_uid')) .
-                        ' AND ' . $this->perms_clause)
+                    ->select('a.*')
+                    ->from('tt_address', 'a')
+                    ->leftJoin('a', 'pages', 'p', $queryBuilder->expr()->eq('p.uid', $queryBuilder->quoteIdentifier('a.pid')))
+                    ->where($queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter((int)GeneralUtility::_GP('a'), \PDO::PARAM_INT)))
+                    ->andWhere($this->perms_clause)
                     ->execute()
                     ->fetchAll();
 
