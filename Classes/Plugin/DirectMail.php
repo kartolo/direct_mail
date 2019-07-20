@@ -40,8 +40,10 @@ namespace DirectMailTeam\DirectMail\Plugin;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
+use TYPO3\CMS\Core\Resource\FileReference;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
+use TYPO3\CMS\Frontend\DataProcessing\FilesProcessor;
 
 /**
  * Generating plain text rendering of content elements for inclusion as plain text content in Direct Mails
@@ -242,32 +244,45 @@ class DirectMail extends AbstractPlugin
     public function getImages()
     {
         $imagesArray = array();
-        $this->getImagesStandard($imagesArray);
+        $this->getImagesFal($imagesArray);
         if (ExtensionManagementUtility::isLoaded('dam')) {
             $this->getImagesFromDam($imagesArray);
         }
 
-        $images = $this->renderImages($imagesArray, !$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'', $this->cObj->data['imagecaption']);
+        if (is_array($imagesArray) && !empty($imagesArray)) {
+            $images = $this->renderImages(
+                $imagesArray,
+                !$this->cObj->data['image_zoom'] ? $this->cObj->data['image_link'] : '',
+                $this->cObj->data['imagecaption']
+            );
+        }
 
         return $images;
     }
 
     /**
-     * Get images from image field and store this images to $images_arr
+     * Get images from image field and store these images to $images_arr, loaded as FAL objects
      *
      * @param array $imagesArray The image array
-     * @param string $upload_path The upload path
      *
-     * @return	void
+     * @return void
      */
-    public function getImagesStandard(array &$imagesArray, $uploadPath='uploads/pics/')
-    {
-        $images = explode(',', $this->cObj->data['image']);
-        foreach ($images as $file) {
-            if (strlen(trim($file)) > 0) {
-                $imagesArray[] = $this->siteUrl . $uploadPath . $file;
-            }
-        }
+    public function getImagesFal(&$imagesArray) {
+        $filesProcessor = GeneralUtility::makeInstance(FilesProcessor::class);
+        $processedFiles = array();
+
+        $processedFiles = $filesProcessor->process(
+            $this->cObj,
+            $this->conf,
+            array(
+                'references.' => array(
+                    'table' => 'tt_content',
+                    'fieldName' => 'image'
+                )
+            ),
+            $processedFiles
+        );
+        $imagesArray = $processedFiles['files'];
     }
 
     /**
@@ -619,21 +634,31 @@ class DirectMail extends AbstractPlugin
         $imageExists = false;
 
         foreach ($imagesArray as $k => $file) {
-            if (strlen(trim($file)) > 0) {
+            if (strlen(trim($file)) > 0) { // when loaded via dam
                 $lines[] = $file;
-                if ($links && count($linksArr) > 1) {
-                    if (isset($linksArr[$k])) {
-                        $ll = $linksArr[$k];
-                    } else {
-                        $ll = $linksArr[0];
-                    }
-
-                    $theLink = $this->getLink($ll);
-                    if ($theLink) {
-                        $lines[] = $this->getString($this->conf['images.']['linkPrefix']) . $theLink;
-                    }
+                $imageExists = true;
+            } else if ($file instanceof FileReference) { // new default FAL images
+                $extMmg = GeneralUtility::makeInstance(ExtensionManagementUtility::class);
+                $domain = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != "off") ? "https" : "http") . '://' . $_SERVER['SERVER_NAME'];
+                if ($extMmg::isLoaded('secure_downloads')) { // optional - secure links via SecureDownloads extension
+                    $secureDownloads = GeneralUtility::makeInstance(\Bitmotion\SecureDownloads\Service\SecureDownloadService::class);
+                    $lines[] = $domain . $secureDownloads->makeSecure($file->getPublicUrl());
+                } else {
+                    $lines[] = $domain . $file->getPublicUrl();
                 }
                 $imageExists = true;
+            }
+            if ($imageExists && $links && count($linksArr) > 1) {
+                if (isset($linksArr[$k])) {
+                    $ll = $linksArr[$k];
+                } else {
+                    $ll = $linksArr[0];
+                }
+
+                $theLink = $this->getLink($ll);
+                if ($theLink) {
+                    $lines[] = $this->getString($this->conf['images.']['linkPrefix']) . $theLink;
+                }
             }
         }
         if ($this->conf['images.']['header'] && $imageExists) {
