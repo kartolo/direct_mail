@@ -8,7 +8,7 @@ return array(
         'prependAtCopy' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.prependAtCopy',
         'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group',
         'delete' => 'deleted',
-        'iconfile' => TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail') . 'Resources/Public/Icons/mailgroup.gif',
+        'iconfile' => 'EXT:direct_mail/Resources/Public/Icons/mailgroup.gif',
         'type' => 'type',
     ),
     'interface' => array(

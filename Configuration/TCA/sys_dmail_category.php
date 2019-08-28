@@ -15,7 +15,7 @@ return array(
         'enablecolumns' => array(
             'disabled' => 'hidden',
         ),
-        'iconfile' => TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail') . 'Resources/Public/Icons/icon_tx_directmail_category.gif',
+        'iconfile' => 'EXT:direct_mail/Resources/Public/Icons/icon_tx_directmail_category.gif',
     ),
     'interface' => array(
         'showRecordFieldList' => 'hidden,category'
