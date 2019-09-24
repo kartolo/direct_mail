@@ -820,6 +820,7 @@ class DirectMailUtility
      */
     public static function getUrlBase(int $pageId, bool $getFullUrl = false, string $htmlParams = '', string $plainParams = '')
     {
+        $pageInfo = BackendUtility::getRecord('pages', $pageId, '*');
         $siteFinder = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($pageId);
         $path = Environment::getConfigPath() . '/sites';
         $siteConfiguration = GeneralUtility::makeInstance(SiteConfiguration::class, $path);
@@ -832,7 +833,7 @@ class DirectMailUtility
         $plainTextUrl = '';
 
         if ($getFullUrl === true) {
-            $route = $site->getRouter()->generateUri($pageId);
+            $route = $site->getRouter()->generateUri($pageId, ['_language' => $pageInfo['sys_language_uid']]);
             $htmlUrl = $route;
             $plainTextUrl = $route;
 
