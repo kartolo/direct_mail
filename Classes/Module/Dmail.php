@@ -2018,7 +2018,7 @@ class Dmail extends BaseScriptClass
                 }
 
                 $outLines[] = [
-                    (count($languages) > 1 ? $pageIcon : '<a href="' . $createDmailLink . '">' . $pageIcon . '</a>'),
+                    '<a href="' . $createDmailLink . '">' . $pageIcon . '</a>',
                     $createLink,
                     '<a onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[pages][' . $row['uid'] . ']=edit', $this->doc->backPath)) . '" href="#" title="' . $GLOBALS['LANG']->getLL('nl_editPage') . '">' . $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
                     $previewLink
