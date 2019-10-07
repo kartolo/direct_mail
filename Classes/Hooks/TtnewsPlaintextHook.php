@@ -15,8 +15,10 @@ namespace DirectMailTeam\DirectMail\Hooks;
  */
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 require_once('EXT:direct_mail/pi1/class.tx_directmail_pi1.php');
 
@@ -35,6 +37,11 @@ class TtnewsPlaintextHook
      * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
      */
     public $cObj;
+
+    /**
+     * @var MarkerBasedTemplateService
+     */
+    protected $templateService;
 
     /**
      * ts array
@@ -150,7 +157,8 @@ class TtnewsPlaintextHook
             if (!empty($content)) {
                 $markerArray = array();
                 $markerArray = $this->renderPlainText->addLabelsMarkers($markerArray);
-                $content = $this->cObj->substituteMarkerArray($content, $markerArray);
+                $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
+                $content = $this->templateService->substituteMarkerArray($content, $markerArray);
             }
         }
 
