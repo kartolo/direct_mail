@@ -4,8 +4,6 @@ if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
 
-$extPath = TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY);
-
     // Category field disabled by default in backend forms.
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
 	TCEFORM.tt_content.module_sys_dmail_category.disabled = 1
