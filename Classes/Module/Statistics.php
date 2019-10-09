@@ -1787,15 +1787,15 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $recRec['links_last'] = intval(@max($recRec['links']));
             $recRec['links'] = count($recRec['links']);
 
-            $recRec['response_first'] = DirectMailUtility::intInRangeWrapper(intval(@min($recRec['response']))-$recRec['tstamp'], 0);
-            $recRec['response_last'] = DirectMailUtility::intInRangeWrapper(intval(@max($recRec['response']))-$recRec['tstamp'], 0);
+            $recRec['response_first'] = DirectMailUtility::intInRangeWrapper((int)((int)(@min($recRec['response']))-$recRec['tstamp']), 0);
+            $recRec['response_last'] = DirectMailUtility::intInRangeWrapper((int)((int)(@max($recRec['response']))-$recRec['tstamp']), 0);
             $recRec['response'] = count($recRec['response']);
 
-            $recRec['time_firstping'] = DirectMailUtility::intInRangeWrapper($recRec['pings_first']-$recRec['tstamp'], 0);
-            $recRec['time_lastping'] = DirectMailUtility::intInRangeWrapper($recRec['pings_last']-$recRec['tstamp'], 0);
+            $recRec['time_firstping'] = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_first']-$recRec['tstamp']), 0);
+            $recRec['time_lastping'] = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_last']-$recRec['tstamp']), 0);
 
-            $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper($recRec['links_first']-$recRec['tstamp'], 0);
-            $recRec['time_last_link'] = DirectMailUtility::intInRangeWrapper($recRec['links_last']-$recRec['tstamp'], 0);
+            $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_first']-$recRec['tstamp']), 0);
+            $recRec['time_last_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_last']-$recRec['tstamp']), 0);
 
 
 

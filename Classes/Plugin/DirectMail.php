@@ -363,8 +363,8 @@ class DirectMail extends AbstractPlugin
     {
         if ($str) {
             $hConf = $this->conf['header.'];
-            $defaultType = DirectMailUtility::intInRangeWrapper($hConf['defaultType'], 1, 5);
-            $type = DirectMailUtility::intInRangeWrapper($type, 0, 6);
+            $defaultType = DirectMailUtility::intInRangeWrapper((int)$hConf['defaultType'], 1, 5);
+            $type = DirectMailUtility::intInRangeWrapper((int)$type, 0, 6);
             if (!$type) {
                 $type = $defaultType;
             }
@@ -378,14 +378,14 @@ class DirectMail extends AbstractPlugin
 
                 $lines = array();
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['preBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
 
                 $lines = $this->pad($lines, $tConf['preLineChar'], $tConf['preLineLen']);
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['preLineBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preLineBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
@@ -411,14 +411,14 @@ class DirectMail extends AbstractPlugin
                     $lines[] = $this->getString($hConf['linkPrefix']) . $this->getLink($this->cObj->data['header_link']);
                 }
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['postLineBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postLineBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
 
                 $lines = $this->pad($lines, $tConf['postLineChar'], $tConf['postLineLen']);
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['postBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
@@ -441,7 +441,7 @@ class DirectMail extends AbstractPlugin
      */
     public function pad(array $lines, $preLineChar, $len)
     {
-        $strPad = DirectMailUtility::intInRangeWrapper($len, 0, 1000);
+        $strPad = DirectMailUtility::intInRangeWrapper((int)$len, 0, 1000);
         $strPadChar = $preLineChar?$preLineChar:'-';
         if ($strPad) {
             $lines[] = str_pad('', $strPad, $strPadChar);
@@ -477,7 +477,7 @@ class DirectMail extends AbstractPlugin
     public function breakBulletlist($str)
     {
         $type = $this->cObj->data['layout'];
-        $type = DirectMailUtility::intInRangeWrapper($type, 0, 3);
+        $type = DirectMailUtility::intInRangeWrapper((int)$type, 0, 3);
 
         $tConf = $this->conf['bulletlist.'][$type . '.'];
 
@@ -497,7 +497,7 @@ class DirectMail extends AbstractPlugin
 
             $lines[] = $bullet . $this->breakLines($substrs, LF . $secondRow, $this->charWidth-$bLen);
 
-            $blanks = DirectMailUtility::intInRangeWrapper($tConf['blanks'], 0, 1000);
+            $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['blanks'], 0, 1000);
             if ($blanks) {
                 $lines[] = str_pad('', $blanks-1, LF);
             }
