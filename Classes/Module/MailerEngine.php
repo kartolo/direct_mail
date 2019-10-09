@@ -406,10 +406,11 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         // enable manual invocation of mailer engine; enabled by default
         $enableTrigger = ! (isset($this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']) && $this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']);
         if ($enableTrigger && GeneralUtility::_GP('invokeMailerEngine')) {
+            $this->invokeMEngine();
             /* @var $flashMessage FlashMessage */
             $flashMessage = GeneralUtility::makeInstance(
                 'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                $this->getLanguageService()->getLL('dmail_mailerengine_log') . ' ' . $this->invokeMEngine() . '. ',
+                '',
                 $this->getLanguageService()->getLL('dmail_mailerengine_invoked'),
                 FlashMessage::INFO
             );
@@ -511,8 +512,8 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
     /**
      * Invoking the mail engine
+     * This method no longer returns logs in backend modul directly
      *
-     * @return	string Log from the mailer class
      * @see		Dmailer::start
      * @see		Dmailer::runcron
      */
@@ -524,7 +525,6 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $htmlmail->nonCron = 1;
         $htmlmail->start();
         $htmlmail->runcron();
-        return implode(LF, $htmlmail->logArray);
     }
 
     /**

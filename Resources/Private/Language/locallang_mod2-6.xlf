@@ -228,9 +228,6 @@
 			<trans-unit id="dmail_mailerengine_invoked">
 				<source>Mailer Engine Invoked!</source>
 			</trans-unit>
-			<trans-unit id="dmail_mailerengine_log">
-				<source>Log:</source>
-			</trans-unit>
 			<trans-unit id="dmail_mailerengine_manual_explain">
 				<source>If TYPO3 is not configured to automatically invoke the Mailer Engine, you can invoke it by clicking here:</source>
 			</trans-unit>
