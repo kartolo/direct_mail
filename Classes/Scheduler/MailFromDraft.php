@@ -71,8 +71,11 @@ class MailFromDraft extends AbstractTask
             $draftRecord['type'] -= 2;
 
             // check if domain record is set
-            if ((TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI) && (int)$draftRecord['type'] !== 1 && empty($draftRecord['use_domain'])) {
-                throw new \Exception('No domain record set!');
+            if ((TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI)
+                && (int)$draftRecord['type'] !== 1
+                && empty(DirectMailUtility::getUrlBase((int)$draftRecord['page']))
+            ) {
+                throw new \Exception('No site found in root line of page ' . $draftRecord['page'] . '!');
             }
 
             // Insert the new dmail record into the DB

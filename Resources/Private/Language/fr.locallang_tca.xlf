@@ -163,10 +163,6 @@
 			<source>External URL</source>
 			<target>URL externe</target>
 		</trans-unit>
-		<trans-unit id="sys_dmail.use_domain" approved="yes">
-			<source>Domain of internal links:</source>
-			<target>Domaine des liens internes:</target>
-		</trans-unit>
 		<trans-unit id="sys_dmail.use_rdct" approved="yes">
 			<source>Redirect links longer than 76 characters:</source>
 			<target>Rediriger les liens de plus de 76 caractères de longueur:</target>

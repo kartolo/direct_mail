@@ -126,34 +126,6 @@ class Dmail extends BaseScriptClass
             $this->allowedTables[] = $this->userTable;
         }
 
-        // check if the right domain shoud be set
-        if (!$this->params['use_domain']) {
-            $rootLine = BackendUtility::BEgetRootLine($this->id);
-            if ($rootLine) {
-                $parts = parse_url(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'));
-                if (BackendUtility::getDomainStartPage($parts['host'], $parts['path'])) {
-                    $temporaryPreUrl = BackendUtility::firstDomainRecord($rootLine);
-                    //$domain = BackendUtility::getRecordsByField('sys_domain', 'domainName', $temporaryPreUrl, ' AND hidden=0', '', 'sorting');
-                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                        ->getQueryBuilderForTable('sys_domain');
-                    $domain = $queryBuilder
-                        ->select('sys_domain.uid')
-                        ->from('sys_domain')
-                        ->where(
-                            $queryBuilder->expr()->eq('domainName', $queryBuilder->createNamedParameter($temporaryPreUrl))
-                        )
-                        ->execute()
-                        ->fetchAll();
-
-                    if (is_array($domain)) {
-                        reset($domain);
-                        $dom = current($domain);
-                        $this->params['use_domain'] = $dom['uid'];
-                    }
-                }
-            }
-        }
-
         $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
 
         // initialize backend user language
@@ -414,7 +386,6 @@ class Dmail extends BaseScriptClass
             'replyto_name'        => $this->params['replyto_name'],
             'return_path'        => $this->params['return_path'],
             'priority'            => $this->params['priority'],
-            'use_domain'        => $this->params['use_domain'],
             'use_rdct'            => $this->params['use_rdct'],
             'long_link_mode'    => $this->params['long_link_mode'],
             'organisation'        => $this->params['organisation'],

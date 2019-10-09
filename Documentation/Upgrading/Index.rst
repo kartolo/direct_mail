@@ -24,8 +24,8 @@ Upgrading
    :titlesonly:
    :glob:
 
+   UpgradingToVersion600/Index
    UpgradingToVersion300/Index
    UpgradingToVersion264/Index
    UpgradingToVersion250/Index
    UpgradingToVersion20+/Index
-

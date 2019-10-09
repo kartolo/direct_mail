@@ -1038,7 +1038,6 @@ class DirectMailUtility
             'replyto_name'            => $parameters['replyto_name'],
             'return_path'            => $parameters['return_path'],
             'priority'                => $parameters['priority'],
-            'use_domain'            => $parameters['use_domain'],
             'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0), /*$parameters['use_rdct'],*/
             'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode']:0),//$parameters['long_link_mode'],
             'organisation'            => $parameters['organisation'],
@@ -1168,7 +1167,6 @@ class DirectMailUtility
             'replyto_name'            => $parameters['replyto_name'],
             'return_path'            => $parameters['return_path'],
             'priority'                => $parameters['priority'],
-            'use_domain'            => $parameters['use_domain'],
             'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0),
             'long_link_mode'        => $parameters['long_link_mode'],
             'organisation'            => $parameters['organisation'],
@@ -1246,7 +1244,7 @@ class DirectMailUtility
         $htmlUrl = $urls['htmlUrl'];
         $urlBase = $urls['baseUrl'];
 
-        // Make sure long_link_rdct_url is consistent with use_domain.
+        // Make sure long_link_rdct_url is consistent with baseUrl.
         $row['long_link_rdct_url'] = $urlBase;
 
         // Compile the mail
