@@ -815,38 +815,49 @@ class DirectMailUtility
     /**
      * Get the base URL
      *
+     * @param int $pageId
+     * @param bool $getFullUrl
+     * @param string $htmlParams
+     * @param string $plainParams
+     * @return array|string Array returns if getFullUrl is true
      * @throws SiteNotFoundException
      * @throws InvalidRouteArgumentsException
      */
     public static function getUrlBase(int $pageId, bool $getFullUrl = false, string $htmlParams = '', string $plainParams = '')
     {
-        $pageInfo = BackendUtility::getRecord('pages', $pageId, '*');
-        $siteFinder = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($pageId);
-        $path = Environment::getConfigPath() . '/sites';
-        $siteConfiguration = GeneralUtility::makeInstance(SiteConfiguration::class, $path);
-        $configuration = $siteConfiguration->load($siteFinder->getIdentifier());
-        $site = GeneralUtility::makeInstance(Site::class, $siteFinder->getIdentifier(), $siteFinder->getRootPageId(), $configuration);
-        $base = $site->getBase();
+        if ($pageId > 0) {
+            $pageInfo = BackendUtility::getRecord('pages', $pageId, '*');
+            /** @var SiteFinder $siteFinder */
+            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+            if (!empty($siteFinder->getAllSites())) {
+                $site = $siteFinder->getSiteByPageId($pageId);
+                $base = $site->getBase();
 
-        $baseUrl = sprintf('%s://%s', $base->getScheme(), $base->getHost());
-        $htmlUrl = '';
-        $plainTextUrl = '';
-
-        if ($getFullUrl === true) {
-            $route = $site->getRouter()->generateUri($pageId, ['_language' => $pageInfo['sys_language_uid']]);
-            $htmlUrl = $route;
-            $plainTextUrl = $route;
-
-            if ($htmlParams !== '') {
-                $htmlUrl .= '?' . $htmlParams;
+                $baseUrl = sprintf('%s://%s', $base->getScheme(), $base->getHost());
+                $htmlUrl = '';
+                $plainTextUrl = '';
+    
+                if ($getFullUrl === true) {
+                    $route = $site->getRouter()->generateUri($pageId, ['_language' => $pageInfo['sys_language_uid']]);
+                    $htmlUrl = $route;
+                    $plainTextUrl = $route;
+    
+                    if ($htmlParams !== '') {
+                        $htmlUrl .= '?' . $htmlParams;
+                    }
+    
+                    if ($plainParams !== '') {
+                        $plainTextUrl .= '?' . $plainParams;
+                    }
+                }
+    
+                return $htmlUrl !== '' ? [ 'baseUrl' => $baseUrl, 'htmlUrl' => $htmlUrl, 'plainTextUrl' => $plainTextUrl] : $baseUrl;
+            } else {
+                return ''; // No site found in root line of pageId
             }
-
-            if ($plainParams !== '') {
-                $plainTextUrl .= '?' . $plainParams;
-            }
+        } else {
+            return ''; // No valid pageId
         }
-
-        return $htmlUrl !== '' ? [ 'baseUrl' => $baseUrl, 'htmlUrl' => $htmlUrl, 'plainTextUrl' => $plainTextUrl] : $baseUrl;
     }
 
     /**
