@@ -836,7 +836,7 @@ class DirectMailUtility
                 $baseUrl = sprintf('%s://%s', $base->getScheme(), $base->getHost());
                 $htmlUrl = '';
                 $plainTextUrl = '';
-    
+
                 if ($getFullUrl === true) {
                     $route = $site->getRouter()->generateUri($pageId, ['_language' => $pageInfo['sys_language_uid']]);
                     $htmlUrl = $route;
@@ -850,7 +850,7 @@ class DirectMailUtility
                         $plainTextUrl .= '?' . $plainParams;
                     }
                 }
-    
+
                 return $htmlUrl !== '' ? [ 'baseUrl' => $baseUrl, 'htmlUrl' => $htmlUrl, 'plainTextUrl' => $plainTextUrl] : $baseUrl;
             } else {
                 return ''; // No site found in root line of pageId
@@ -1427,6 +1427,7 @@ class DirectMailUtility
         $result = self::getUrlBase((int)$row['page'], true, $row['HTMLParams'], $row['plainParams']);
 
         if ((string)$row['type'] === '1') {
+            $result = []; // Reset to array, cause of external pages always results in empty string!
             $result['htmlUrl'] = $row['HTMLParams'];
             $result['plainTextUrl'] = $row['plainParams'];
         }
