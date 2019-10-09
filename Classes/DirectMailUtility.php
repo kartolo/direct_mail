@@ -841,13 +841,17 @@ class DirectMailUtility
                     $route = $site->getRouter()->generateUri($pageId, ['_language' => $pageInfo['sys_language_uid']]);
                     $htmlUrl = $route;
                     $plainTextUrl = $route;
-    
+                    // Parse htmlUrl as string \TYPO3\CMS\Core\Http\Uri::parseUri()
                     if ($htmlParams !== '') {
                         $htmlUrl .= '?' . $htmlParams;
+                    } else {
+                        $htmlUrl .= '';
                     }
-    
+                    // Parse plainTextUrl as string \TYPO3\CMS\Core\Http\Uri::parseUri()
                     if ($plainParams !== '') {
                         $plainTextUrl .= '?' . $plainParams;
+                    } else {
+                        $plainTextUrl .= '';
                     }
                 }
 
