@@ -9,6 +9,7 @@ $ttContentCols = [
         'l10n_mode' => 'exclude',
         'config' => [
             'type' => 'select',
+            'renderType' => 'selectCheckBox',
             'foreign_table' => 'sys_dmail_category',
             'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.sorting',
             'itemsProcFunc' => 'DirectMailTeam\\DirectMail\\SelectCategories->get_localized_categories',
@@ -19,7 +20,6 @@ $ttContentCols = [
             'size' => 5,
             'minitems' => 0,
             'maxitems' => 60,
-            'renderMode' => 'checkbox',
             'MM' => 'sys_dmail_ttcontent_category_mm',
         ],
     ],
