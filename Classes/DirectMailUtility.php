@@ -1174,7 +1174,7 @@ class DirectMailUtility
             'organisation'            => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain'])
+            'long_link_rdct_url'    => self::getUrlBase((int)$parameters['page'])
         );
 
 
@@ -1426,7 +1426,7 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row)
     {
-        $result = self::getUrlBase($row['page'], true, $row['HTMLParams'], $row['plainParams']);
+        $result = self::getUrlBase((int)$row['page'], true, $row['HTMLParams'], $row['plainParams']);
 
         if ((string)$row['type'] === '1') {
             $result['htmlUrl'] = $row['HTMLParams'];

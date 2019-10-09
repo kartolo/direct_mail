@@ -1886,7 +1886,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     public function setURLs(array $row)
     {
         // Finding the domain to use
-        $this->urlbase = DirectMailUtility::getUrlBase($row['use_domain']);
+        $this->urlbase = DirectMailUtility::getUrlBase((int)$row['page']);
 
         // Finding the url to fetch content from
         switch ((string)$row['type']) {
