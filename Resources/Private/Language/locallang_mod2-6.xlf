@@ -961,36 +961,6 @@
 			<trans-unit id="testmail_simple_msg">
 				<source>A simple testmail includes all mail elements regardless of category. But any USER_fields are not substituted with data. Enter an email-address for the testmail:</source>
 			</trans-unit>
-			<trans-unit id="update_convert_do_it_now">
-				<source>Do it now</source>
-			</trans-unit>
-			<trans-unit id="update_convert_now">
-				<source>The direct_mail data in the sys_dmail table need to be update. Please backup the sys_dmail table before clicking the following button. Convert the data?</source>
-			</trans-unit>
-			<trans-unit id="update_convert_result">
-				<source>%d records are converted</source>
-			</trans-unit>
-			<trans-unit id="update_option">
-				<source>Updater</source>
-			</trans-unit>
-			<trans-unit id="update_optionHeader">
-				<source>Important!</source>
-			</trans-unit>
-			<trans-unit id="update_optionLink">
-				<source>[Click here to open the updater]</source>
-			</trans-unit>
-			<trans-unit id="update_optionMsg">
-				<source>For the old data working with direct_mail version 3.0, data must be converted.</source>
-			</trans-unit>
-			<trans-unit id="update_warningHeader">
-				<source>Warning! Please read!</source>
-			</trans-unit>
-			<trans-unit id="update_warningMsg" xml:space="preserve">
-				<source><![CDATA[The updater manipulates your database.
-					So backup your database (at least the sys_dmail table) or do a t3d export of your site (direct_mail sysfolder)
-					<strong>BEFORE</strong> <br>
-					you click on the "Do it now" buttons.]]></source>
-			</trans-unit>
 			<trans-unit id="view_delivery_begin_end">
 				<source>Delivery begun/ended:</source>
 			</trans-unit>
