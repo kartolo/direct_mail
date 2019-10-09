@@ -1981,9 +1981,9 @@ class Dmail extends BaseScriptClass
                     $plainParams = $this->implodedParams['plainParams'] . $langParam;
 
                     $htmlParams = $this->implodedParams['HTMLParams'] . $langParam;
-                    $htmlIcon = $this->iconFactory->getIcon('direct_mail_preview_html', Icon::SIZE_SMALL, $langIconOverlay);
-                    $plainIcon = $this->iconFactory->getIcon('direct_mail_preview_plain', Icon::SIZE_SMALL, $langIconOverlay);
-                    $createIcon = $this->iconFactory->getIcon('direct_mail_newmail', Icon::SIZE_SMALL, $langIconOverlay);
+                    $htmlIcon = $this->iconFactory->getIcon('directmail-dmail-preview-html', Icon::SIZE_SMALL, $langIconOverlay);
+                    $plainIcon = $this->iconFactory->getIcon('directmail-dmail-preview-text', Icon::SIZE_SMALL, $langIconOverlay);
+                    $createIcon = $this->iconFactory->getIcon('directmail-dmail-new', Icon::SIZE_SMALL, $langIconOverlay);
 
                     $previewHTMLLink .= '<a href="#" onClick="' . BackendUtility::viewOnClick(
                         $row['uid'],
