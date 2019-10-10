@@ -99,7 +99,7 @@ class JumpurlController
                     if ($theTable) {
                         $recipRow = $this->getRawRecord($theTable, $recipientUid);
                         if (is_array($recipRow)) {
-                            $authCode = GeneralUtility::stdAuthCode($recipRow, ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid'));
+                            $authCode = GeneralUtility::stdAuthCode($recipRow[0], ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid'));
 
                             // check if supplied aC identical with counted authCode
                             if (($aC != '') && ($aC == $authCode)) {
@@ -110,7 +110,7 @@ class JumpurlController
 
                                 reset($rowFieldsArray);
                                 foreach ($rowFieldsArray as $substField) {
-                                    $jumpurl = str_replace('###USER_' . $substField . '###', $recipRow[$substField], $jumpurl);
+                                    $jumpurl = str_replace('###USER_' . $substField . '###', $recipRow[0][$substField], $jumpurl);
                                 }
                                 // Put in the tablename of the userinformation
                                 $jumpurl = str_replace('###SYS_TABLE_NAME###', substr($theTable, 0, 1), $jumpurl);
@@ -124,13 +124,13 @@ class JumpurlController
                                 // in the authcode_fieldlist the field "password" is computed in as well
                                 // TODO: add a switch in Direct Mail configuration to decide if this option should be enabled by default
                                 if ($theTable == 'fe_users' && $aC != '' && $aC == $authCode && GeneralUtility::inList($row['authcode_fieldList'], 'password')) {
-                                    $_POST['user'] = $recipRow['username'];
-                                    $_POST['pass'] = $recipRow['password'];
-                                    $_POST['pid']  = $recipRow['pid'];
+                                    $_POST['user'] = $recipRow[0]['username'];
+                                    $_POST['pass'] = $recipRow[0]['password'];
+                                    $_POST['pid']  = $recipRow[0]['pid'];
                                     $_POST['logintype'] = 'login';
                                 }
                             } else {
-                                throw new \Exception('authCode: Calculated authCode did not match the submitted authCode.', 1376899631);
+                                throw new \Exception('authCode: Calculated authCode did not match the submitted authCode. varDump = '.var_dump($recipRow).' $recipientUid = '.$recipientUid.' theTable = '.$theTable.' authcode_fieldList'.$row['authcode_fieldList'].' AC = '. $aC .' AuthCode = '. $authCode, 1376899631);
                             }
                         }
                     }
@@ -216,7 +216,7 @@ class JumpurlController
                 )
                 ->execute();
 
-            $row = $res->fetch();
+            $row = $res->fetchAll();
 
             if ($row) {
                 if (is_array($row)) {
