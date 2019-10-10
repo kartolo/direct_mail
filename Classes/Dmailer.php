@@ -1179,7 +1179,7 @@ class Dmailer implements LoggerAwareInterface
         $pieces = count($textpieces);
         $textstr = $textpieces[0];
         for ($i = 1; $i < $pieces; $i++) {
-            $len = strcspn($textpieces[$i], chr(32) . TAB . CRLF);
+            $len = strcspn($textpieces[$i], chr(32) . "\t" . CRLF);
             if (trim(substr($textstr, -1)) == '' && $len) {
                 $lastChar = substr($textpieces[$i], $len - 1, 1);
                 if (!preg_match('/[A-Za-z0-9\/#]/', $lastChar)) {
