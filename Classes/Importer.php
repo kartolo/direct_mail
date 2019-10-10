@@ -69,8 +69,7 @@ class Importer
         $this->parent = &$pObj;
 
         // get some importer default from pageTS
-        $temp = BackendUtility::getModTSconfig(intval(GeneralUtility::_GP('id')), 'mod.web_modules.dmail.importer');
-        $this->params = $temp['properties'];
+        $this->params = BackendUtility::getPagesTSconfig(GeneralUtility::_GP('id'))['mod.']['web_modules.']['dmail.']['importer.'] ?? [];
     }
 
     /**
@@ -357,8 +356,8 @@ class Importer
                 // header
                 $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"' . (!$this->indata['all_html']?'':' checked="checked"') . '/> ');
                 // get categories
-                $temp = BackendUtility::getModTSconfig($this->parent->id, 'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
-                if (is_numeric($temp['value'])) {
+                $temp = BackendUtility::getPagesTSconfig($this->parent->id)['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
+                if (is_numeric($temp)) {
                     $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
                     $rowCat = $queryBuilder
                         ->select('*')
@@ -366,7 +365,7 @@ class Importer
                         ->where(
                             $queryBuilder->expr()->in(
                                 'pid',
-                                $temp['value']
+                                $temp
                             )
                         )
                         ->execute()

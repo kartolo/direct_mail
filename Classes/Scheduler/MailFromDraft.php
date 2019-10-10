@@ -62,8 +62,7 @@ class MailFromDraft extends AbstractTask
             $draftRecord = BackendUtility::getRecord('sys_dmail', $this->draftUid);
 
             // get some parameters from tsConfig
-            $tsConfig = BackendUtility::getModTSconfig($draftRecord['pid'], 'mod.web_modules.dmail');
-            $defaultParams = $tsConfig['properties'];
+            $defaultParams = BackendUtility::getPagesTSconfig($draftRecord['pid'])['mod.']['web_modules.']['dmail.'] ?? [];
 
             // make a real record out of it
             unset($draftRecord['uid']);

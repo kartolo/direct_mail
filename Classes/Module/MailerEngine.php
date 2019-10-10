@@ -96,17 +96,13 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         // initialize IconFactory
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
-        $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
-        if (!is_array($temp['properties'])) {
-            $temp['properties'] = array();
-        }
-        $this->params = $temp['properties'];
+        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
         $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
         if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']])) {
             $this->userTable = $this->params['userTable'];
             $this->allowedTables[] = $this->userTable;
         }
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
+        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode'); //@todo Deprecation: #84993
 
         // initialize backend user language
         if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {

@@ -110,14 +110,10 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
         // get TS Params
-        $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
-        if (!is_array($temp['properties'])) {
-            $temp['properties'] = array();
-        }
-        $this->params = $temp['properties'];
+        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
         $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
 
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
+        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode'); //@todo Deprecation: #84993
 
         // initialize the page selector
         $this->sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
