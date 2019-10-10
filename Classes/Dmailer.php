@@ -862,7 +862,7 @@ class Dmailer implements LoggerAwareInterface
     {
 
         // Sets the message id
-        $host = GeneralUtility::getHostname();
+        $host = $this->getHostname();
         if (!$host || $host == '127.0.0.1' || $host == 'localhost' || $host == 'localhost.localdomain') {
             $host = ($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']) : 'localhost') . '.TYPO3';
         }
@@ -1547,6 +1547,45 @@ class Dmailer implements LoggerAwareInterface
         }
 
         return $ref;
+    }
+
+    /**
+     * Get the fully-qualified domain name of the host
+     * Copy from TYPO3 v9.5, will be removed in TYPO3 v10.0
+     *
+     * @param bool $requestHost Use request host (when not in CLI mode).
+     * @return string The fully-qualified host name.
+     */
+    protected static function getHostname($requestHost = true)
+    {
+        $host = '';
+        // If not called from the command-line, resolve on getIndpEnv()
+        if ($requestHost && !Environment::isCli()) {
+            $host = GeneralUtility::getIndpEnv('HTTP_HOST');
+        }
+        if (!$host) {
+            // will fail for PHP 4.1 and 4.2
+            $host = @php_uname('n');
+            // 'n' is ignored in broken installations
+            if (strpos($host, ' ')) {
+                $host = '';
+            }
+        }
+        // We have not found a FQDN yet
+        if ($host && strpos($host, '.') === false) {
+            $ip = gethostbyname($host);
+            // We got an IP address
+            if ($ip != $host) {
+                $fqdn = gethostbyaddr($ip);
+                if ($ip != $fqdn) {
+                    $host = $fqdn;
+                }
+            }
+        }
+        if (!$host) {
+            $host = 'localhost.localdomain';
+        }
+        return $host;
     }
 
     /**
