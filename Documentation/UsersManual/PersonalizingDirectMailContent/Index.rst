@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Personalizing direct mail content
@@ -69,5 +60,3 @@ be used according to the pattern above like ###USER\_<some field>###.
 Personalization only works for recipient lists of type "From pages"
 (and "From other recipient lists", if these contain "From pages"
 lists).
-
-

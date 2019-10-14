@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Configuring plain text rendering of News records
@@ -31,7 +22,7 @@ The “Direct Mail Plain Text” static template is as follows:
 Setup
 """""
 
-::
+.. code-block:: typoscript
 
    plugin.tx_directmail_pi1 {
      shortcut.0.conf.tt_news =< plugin.tt_news
@@ -70,4 +61,3 @@ Setup
      tt_news_bodytext < .bodytext
      tt_news_bodytext.header = |###TT_NEWS_BODYTEXT_HEADER### |
    }
-

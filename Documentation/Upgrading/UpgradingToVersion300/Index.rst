@@ -1,18 +1,9 @@
-﻿.. include:: Images.txt
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Upgrading to version 3.0.0
@@ -40,5 +31,3 @@ Following changes are made to the new version 3.0.0
       the “do it now” button, the changes are written in the database.
       
       |img-19|
-
-

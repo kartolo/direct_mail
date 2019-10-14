@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Mass mail is only delivered after sending another mail from same MAC OS X server
@@ -56,5 +47,3 @@ sudo chgrp smmsp /var/spool/postfix
 **Source:**
 
 http://bugs.typo3.org/view.php?id=2570
-
-

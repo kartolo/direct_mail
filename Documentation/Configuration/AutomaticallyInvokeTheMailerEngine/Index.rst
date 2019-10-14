@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Automatically invoke the mailer engine.
@@ -57,7 +48,7 @@ Before writing a cron task in your crontab, a BE-user with the name of
 administrator right. After creating the BE-user, you can write the
 following line in the crontab:
 
-::
+.. code-block:: shell
 
    */5 * * * * /ABS/PATH/TO/SITE/typo3/cli_dispatch.phpsh direct_mail masssend
 

@@ -1,42 +1,54 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: Includes.txt
 
-================
-EXT: Direct Mail
-================
+.. _start:
 
-:Author:
-      Ivan Kartolo
+==================
+Direct Mail System
+==================
 
-:Created:
-      2002-11-01
+.. only:: html
 
-:Changed by:
-      Ivan Kartolo
+    :Classification:
+        direct_mail
 
-:Changed:
-      2016-04-30
+    :Version:
+        |release|
 
+    :Language:
+        en
 
-:Email:
-      ivan.kartolo@gmail.com
+    :Description:
+        Advanced Direct Mail/Newsletter mailer system with sophisticated
+        options for personalization of emails including response statistics.
 
+    :Keywords:
+        extension, directmail, newsletter
 
-EXT: Direct Mail
+    :Copyright:
+        2002-2019
 
+    :Author:
+        Ivan Kartolo
+
+    :Email:
+        ivan.kartolo@dkd.de
+
+    :License:
+        This document is published under the Open Content License
+        available from http://www.opencontent.org/opl.shtml
+
+    :Rendered:
+        |today|
+
+The content of this document is related to TYPO3 CMS,
+a GNU/GPL CMS/Framework available from `www.typo3.org <https://typo3.org/>`_
+
+**Table of Contents**
 
 .. toctree::
    :maxdepth: 5
