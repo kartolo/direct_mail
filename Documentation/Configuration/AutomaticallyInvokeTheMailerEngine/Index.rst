@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Automatically invoke the mailer engine.
@@ -24,6 +15,8 @@ engine.
 #. Scheduler (recommended)
 
 #. The CLI script
+
+#. Using scheduled task with Gabriel (Ext: Gabriel)
 
 It's :underline:`recommended` to use the scheduler option to
 automatically invoking the mailer engine.
@@ -47,14 +40,28 @@ with checked “Save these settings as draft” checkbox.
 Configuring the CLI script
 """"""""""""""""""""""""""
 
-Send newsletters directly via CLI by invoking mailer engine is done by:
+Since TYPO3 4.x there is a CLI mode for TYPO3. The direct\_mail CLI
+script uses the new CLI-API, which is available since TYPO3 4.1.x.
+
+Before writing a cron task in your crontab, a BE-user with the name of
+“\_cli\_direct\_mail” has to be created. This user must have no
+administrator right. After creating the BE-user, you can write the
+following line in the crontab:
 
 .. code-block:: shell
 
-   /ABS/PATH/TO/BINARY/typo3 direct_mail:invokemailerengine
+   */5 * * * * /ABS/PATH/TO/SITE/typo3/cli_dispatch.phpsh direct_mail masssend
 
-For help and further information or options, execute following command:
+This will call the CLI-script with two parameters: the extension's key
+(direct\_mail) and a task (masssend).
 
-.. code-block:: shell
 
-   /ABS/PATH/TO/BINARY/ direct_mail:invokemailerengine --help
+Configuring direct\_mail on Gabriel
+"""""""""""""""""""""""""""""""""""
+
+This is also deprecated, since Gabriel extension is renamed Scheduler
+and since 4.5.x a system extension.
+
+Please refer to the documentation of Gabriel. The direct\_mail task
+will be shown in the list of task automatically.
+
