@@ -819,6 +819,10 @@ class DirectMailUtility
         // init iconFactory
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
+        $isAllowedDisplayTable = $GLOBALS['BE_USER']->check('tables_select', $table);
+        $isAllowedEditTable = $GLOBALS['BE_USER']->check('tables_modify', $table);
+        $notAllowedPlaceholder = $GLOBALS['LANG']->getLL('mailgroup_table_disallowed_placeholder');
+
         if (is_array($listArr)) {
             $count = count($listArr);
             $returnUrl = GeneralUtility::getIndpEnv('REQUEST_URI');
@@ -827,7 +831,7 @@ class DirectMailUtility
                 $editLink = '';
                 if ($row['uid']) {
                     $tableIcon = '<td>' . $iconFactory->getIconForRecord($table, array()) . '</td>';
-                    if ($editLinkFlag) {
+                    if ($editLinkFlag && $isAllowedEditTable) {
                         $urlParameters = [
                             'edit' => [
                                 $table => [
@@ -842,11 +846,17 @@ class DirectMailUtility
                     }
                 }
 
+                if ($isAllowedDisplayTable) {
+                    $exampleData = '<td nowrap> ' . htmlspecialchars($row['email']) . ' </td>
+				<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>';
+                } else {
+                    $exampleData = '<td nowrap>' . $notAllowedPlaceholder . '</td>';
+                }
+
                 $lines[]='<tr class="db_list_normal">
 				' . $tableIcon . '
 				' . $editLink . '
-				<td nowrap> ' . htmlspecialchars($row['email']) . ' </td>
-				<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>
+				' . $exampleData . '
 				</tr>';
             }
         }
