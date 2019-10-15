@@ -922,6 +922,10 @@ class DirectMailUtility
         // init iconFactory
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
+        $isAllowedDisplayTable = $GLOBALS['BE_USER']->check('tables_select', $table);
+        $isAllowedEditTable = $GLOBALS['BE_USER']->check('tables_modify', $table);
+        $notAllowedPlaceholder = $GLOBALS['LANG']->getLL('mailgroup_table_disallowed_placeholder');
+
         if (is_array($listArr)) {
             $count = count($listArr);
             $returnUrl = GeneralUtility::getIndpEnv('REQUEST_URI');
@@ -930,7 +934,7 @@ class DirectMailUtility
                 $editLink = '';
                 if ($row['uid']) {
                     $tableIcon = sprintf('<td>%s</td>', $iconFactory->getIconForRecord($table, []));
-                    if ($editLinkFlag) {
+                    if ($editLinkFlag && $isAllowedEditTable) {
                         $urlParameters = [
                             'edit' => [
                                 $table => [
@@ -950,12 +954,24 @@ class DirectMailUtility
                     }
                 }
 
+                if ($isAllowedDisplayTable) {
+                    $exampleData = [
+                        'email' => '<td nowrap> ' . htmlspecialchars($row['email']) . ' </td>',
+                        'name' => '<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>'
+                    ];
+                } else {
+                    $exampleData = [
+                        'email' => '<td nowrap>' . $notAllowedPlaceholder . '</td>',
+                        'name' => ''
+                    ];
+                }
+
                 $lines[] = sprintf(
                     '<tr class="db_list_normal">%s%s<td class="nowrap">%s</td><td class="nowrap">%s</td></tr>',
                     $tableIcon,
                     $editLink,
-                    htmlspecialchars($row['email']),
-                    htmlspecialchars($row['name'])
+                    $exampleData['email'],
+                    $exampleData['name']
                 );
             }
         }

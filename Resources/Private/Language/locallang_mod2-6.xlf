@@ -589,6 +589,9 @@
 			<trans-unit id="mailgroup_table_fe_users">
 				<source>Website User Table</source>
 			</trans-unit>
+			<trans-unit id="mailgroup_table_disallowed_placeholder">
+				<source>Missing permission to display data</source>
+			</trans-unit>
 			<trans-unit id="nl_cat">
 				<source>Assign categories to content elements</source>
 			</trans-unit>
