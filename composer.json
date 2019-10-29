@@ -16,7 +16,7 @@
     }
   ],
   "license": [
-    "GPL-2.0+"
+    "GPL-2.0-or-later"
   ],
   "support": {
     "issues": "https://forge.typo3.org/projects/extension-direct_mail"
@@ -33,7 +33,7 @@
     }
   },
   "replace": {
-    "direct_mail": "self.version",
+    "directmailteam/direct-mail": "self.version",
     "typo3-ter/direct-mail": "self.version"
   },
   "extra": {

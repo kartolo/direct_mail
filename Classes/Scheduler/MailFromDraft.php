@@ -76,8 +76,17 @@ class MailFromDraft extends AbstractTask
             }
 
             // Insert the new dmail record into the DB
-            $GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail', $draftRecord);
-            $this->dmailUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
+            //$GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail', $draftRecord);
+            //$this->dmailUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
+
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $databaseConnectionSysDamilMail = $connectionPool->getConnectionForTable('sys_dmail_maillog');
+            $databaseConnectionSysDamilMail->insert(
+                'sys_dmail',
+                $draftRecord
+            );
+            $this->dmailUid = (int)$databaseConnectionSysDamilMail->lastInsertId('sys_dmail');
+
 
             // Call a hook after insertion of the cloned dmail record
             // This hook can get used to modify fields of the direct mail.
@@ -109,7 +118,14 @@ class MailFromDraft extends AbstractTask
                 $this->callHooks('enqueueClonedDmail', $hookParams);
                 // Update the cloned dmail so it will get sent upon next
                 // invocation of the mailer engine
-                $GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail', 'uid = ' . intval($this->dmailUid), $updateData);
+                //$GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail', 'uid = ' . intval($this->dmailUid), $updateData);
+                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+                $connection = $connectionPool->getConnectionForTable('sys_dmail');
+                $connection->update(
+                    'sys_dmail', // table
+                    $updateData, // value array
+                    [ 'uid' => intval($this->dmailUid) ] // where
+                );
             }
         }
         return true;

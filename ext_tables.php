@@ -2,7 +2,6 @@
 
 defined('TYPO3_MODE') or die();
 
-$extPath = TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY);
 
     // Category field disabled by default in backend forms.
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
@@ -51,11 +50,9 @@ if (TYPO3_MODE == 'BE') {
             'routeTarget' => DirectMailTeam\DirectMail\Module\NavFrame::class . '::mainAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame',
+            'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail.svg',
             'labels' => [
-                'tabs_images' => [
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail.svg',
-                ],
-            'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangNavFrame.xlf',
+                'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangNavFrame.xlf',
             ],
         ]
     );
@@ -70,10 +67,8 @@ if (TYPO3_MODE == 'BE') {
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_DirectMail',
             'workspaces' => 'online',
+            'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-directmail.svg',
             'labels' => [
-                'tabs_images' => [
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-directmail.svg',
-                ],
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangDirectMail.xlf',
             ],
             'navigationFrameModule' => 'DirectMailNavFrame',
@@ -91,10 +86,8 @@ if (TYPO3_MODE == 'BE') {
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_RecipientList',
             'workspaces' => 'online',
+            'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-recipient-list.svg',
             'labels' => [
-                'tabs_images' => [
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-recipient-list.svg',
-                ],
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangRecipientList.xlf',
             ],
             'navigationFrameModule' => 'DirectMailNavFrame',
@@ -112,10 +105,8 @@ if (TYPO3_MODE == 'BE') {
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_Statistics',
             'workspaces' => 'online',
+            'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-statistics.svg',
             'labels' => [
-                'tabs_images' => [
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-statistics.svg',
-                ],
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangStatistics.xlf',
             ],
             'navigationFrameModule' => 'DirectMailNavFrame',
@@ -133,10 +124,8 @@ if (TYPO3_MODE == 'BE') {
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_MailerEngine',
             'workspaces' => 'online',
+            'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-mailer-engine.svg',
             'labels' => [
-                'tabs_images' => [
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-mailer-engine.svg',
-                ],
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangMailerEngine.xlf',
             ],
             'navigationFrameModule' => 'DirectMailNavFrame',
@@ -154,10 +143,8 @@ if (TYPO3_MODE == 'BE') {
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_Configuration',
             'workspaces' => 'online',
+            'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-configuration.svg',
             'labels' => [
-                'tabs_images' => [
-                    'tab' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-configuration.svg',
-                ],
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangConfiguration.xlf',
             ],
             'navigationFrameModule' => 'DirectMailNavFrame',
@@ -166,11 +153,9 @@ if (TYPO3_MODE == 'BE') {
     );
 }
 
-$GLOBALS['TBE_STYLES']['spritemanager']['singleIcons']['tcarecords-pages-contains-dmail'] = TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath($_EXTKEY) . 'Resources/Public/Icons/ext_icon_dmail_folder.gif';
-
-if (TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
-    include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY) . 'Configuration/TCA/Overrides/tt_address.php');
-}
+#if (TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
+#    include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY).'Configuration/TCA/Overrides/tt_address.php');
+#}
 
 /** @var \TYPO3\CMS\Core\Imaging\IconRegistry $iconRegistry */
 $iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
@@ -193,4 +178,10 @@ $iconRegistry->registerIcon(
     'direct_mail_preview_plain',
     \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
     ['source' => 'EXT:' . $_EXTKEY . '/Resources/Public/Icons/preview_txt.gif']
+);
+
+$iconRegistry->registerIcon(
+    'tcarecords-pages-contains-dmail',
+    \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
+    ['source' => 'EXT:' . $_EXTKEY . '/Resources/Public/Icons/ext_icon_dmail_folder.gif']
 );

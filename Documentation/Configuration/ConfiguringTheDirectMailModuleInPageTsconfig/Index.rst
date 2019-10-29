@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Configuring the Direct Mail module in Page TSConfig
@@ -437,27 +428,11 @@ processed.
          boolean
 
    Description
-         If set, the rendered jump URL won't have UID of the recipient records.
-
-         Default: 0
-
-.. _jumpurl_tracking_privacy:
-jumpurl_tracking_privacy
-''''
-
-.. container:: table-row
-
-   Property
-         jumpurl\_tracking\_privacy
-
-   Data type
-         boolean
-
-   Description
          If set, the use of jump URL's will be enabled so that click statistics
          can be produced.
 
          Default: 0
+
 
 .. container:: table-row
 
@@ -474,6 +449,7 @@ jumpurl_tracking_privacy
 
          Default: uid
 
+.. _pageTsconfig_jumpurl_tracking_privacy:
 
 .. container:: table-row
 
@@ -631,4 +607,3 @@ Following settings are for the statistics module
 
 
 .. ### BEGIN~OF~TABLE ###
-

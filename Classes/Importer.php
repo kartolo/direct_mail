@@ -14,7 +14,12 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Core\Charset\CharsetConverter;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\DebugUtility;
+use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -148,7 +153,7 @@ class Importer
             $newMap = ArrayUtility::removeArrayEntryByValue(array_unique($map), 'noMap');
             if (empty($newMap)) {
                 $error[]='noMap';
-            } elseif (!ArrayUtility::inArray($map, 'email')) {
+            } elseif (!in_array('email', $map)) {
                 $error[] = 'email';
             }
 
@@ -162,21 +167,27 @@ class Importer
             case 'conf':
                 // get list of sysfolder
                 // TODO: maybe only subtree von this->id??
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'uid,title',
-                    'pages',
-                    'doktype = 254 AND ' . $GLOBALS['BE_USER']->getPagePermsClause(3) .
-                        BackendUtility::deleteClause('pages') . BackendUtility::BEenableFields('pages'),
-                    '',
-                    'uid'
-                );
+
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+                $statement = $queryBuilder
+                    ->select('uid', 'title')
+                    ->from('pages')
+                    ->where(
+                        $GLOBALS['BE_USER']->getPagePermsClause(3),
+                        $queryBuilder->expr()->eq(
+                            'doktype',
+                            '254'
+                        )
+                    )
+                    ->orderBy('uid')
+                    ->execute();
+
                 $optStorage = array();
-                while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+                while (($row = $statement->fetch())) {
                     if (BackendUtility::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1))) {
                         $optStorage[] = array($row['uid'],$row['title'] . ' [uid:' . $row['uid'] . ']');
                     }
                 }
-                $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
                 $optDelimiter=array(
                     array('comma',$this->getLanguageService()->getLL('mailgroup_import_separator_comma')),
@@ -269,7 +280,7 @@ class Importer
 
             case 'mapping':
                 // show charset selector
-                $cs = array_unique(array_values($this->getLanguageService()->csConvObj->synonyms));
+                $cs = array_unique(array_values(GeneralUtility::makeInstance(CharsetConverter::class)->synonyms));
                 $charSets = array();
                 foreach ($cs as $charset) {
                     $charSets[] = array($charset,$charset);
@@ -347,11 +358,19 @@ class Importer
                 // get categories
                 $temp = BackendUtility::getModTSconfig($this->parent->id, 'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
                 if (is_numeric($temp['value'])) {
-                    $rowCat = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-                        '*',
-                        'sys_dmail_category',
-                        'pid IN (' . $temp['value'] . ')' . BackendUtility::deleteClause('sys_dmail_category') . BackendUtility::BEenableFields('sys_dmail_category')
-                    );
+                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
+                    $rowCat = $queryBuilder
+                        ->select('*')
+                        ->from('sys_dmail_category')
+                        ->where(
+                            $queryBuilder->expr()->in(
+                                'pid',
+                                $temp['value']
+                            )
+                        )
+                        ->execute()
+                        ->fetchAll();
+
                     if (!empty($rowCat)) {
                         $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_cats'), '');
                         if ($this->indata['update_unique']) {
@@ -526,7 +545,11 @@ class Importer
 						<input type="hidden" name="CSV_IMPORT[newFile]" value ="' . $this->indata['newFile'] . '">';
         }
 
-        $theOutput = $this->parent->doc->section($this->getLanguageService()->getLL('mailgroup_import') . BackendUtility::cshItem($this->cshTable, 'mailgroup_import', $GLOBALS['BACK_PATH']), $out, 1, 1, 0, true);
+        $theOutput = sprintf(
+            '<div><h2>%s</h2>%s</div>',
+            $this->getLanguageService()->getLL('mailgroup_import') . BackendUtility::cshItem($this->cshTable, 'mailgroup_import', $GLOBALS['BACK_PATH']),
+            $out
+        );
 
         /**
          *  Hook for cmd_displayImport
@@ -608,7 +631,16 @@ class Importer
 
         //empty table if flag is set
         if ($this->indata['remove_existing']) {
-            $GLOBALS['TYPO3_DB']->exec_DELETEquery('tt_address', 'pid = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($this->indata['storage'], 'tt_address'));
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_address');
+            $queryBuilder
+                ->delete('tt_address')
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'pid',
+                        $queryBuilder->createNamedParameter($this->indata['storage'])
+                    )
+                )
+                ->execute();
         }
 
         $mappedCSV = array();
@@ -652,12 +684,29 @@ class Importer
         if ($this->indata['update_unique']) {
             $user = array();
             $userID = array();
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'uid,' . $this->indata['record_unique'],
-                'tt_address',
-                'pid = ' . $this->indata['storage'] . BackendUtility::deleteClause('tt_address')
-            );
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_row($res))) {
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_address');
+            // only add deleteClause
+            $queryBuilder
+                ->getRestrictions()
+                ->removeAll()
+                ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
+            $statement = $queryBuilder
+                ->select(
+                    'uid',
+                    $this->indata['record_unique']
+                )
+                ->from('tt_address')
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'pid',
+                        $this->indata['storage']
+                    )
+                )
+                ->execute();
+
+            while (($row = $statement->fetch())) {
                 $user[] = $row[1];
                 $userID[] = $row[0];
             }
@@ -673,17 +722,26 @@ class Importer
                         if ($this->indata['all_html']) {
                             $data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_html'] = $this->indata['all_html'];
                         }
-                        if (is_array($this->indata['cat']) && !ArrayUtility::inArray($this->indata['map'], 'cats')) {
+                        if (is_array($this->indata['cat']) && !in_array('cats', $this->indata['map'])) {
                             if ($this->indata['add_cat']) {
                                 // Load already assigned categories
-                                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                                    'uid_local,uid_foreign',
-                                    'sys_dmail_ttaddress_category_mm',
-                                    'uid_local=' . $userID[$foundUser[0]],
-                                    '',
-                                    'sorting'
-                                );
-                                while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_row($res))) {
+                                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_ttaddress_category_mm');
+                                $statement = $queryBuilder
+                                    ->select(
+                                        'uid_local',
+                                        'uid_foreign'
+                                    )
+                                    ->from('sys_dmail_ttaddress_category_mm')
+                                    ->where(
+                                        $queryBuilder->expr()->eq(
+                                            'uid_local',
+                                            $userID[$foundUser[0]]
+                                        )
+                                    )
+                                    ->orderBy('sorting')
+                                    ->execute();
+
+                                while (($row = $statement->fetch())) {
                                     $data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][] = $row[1];
                                 }
                             }
@@ -766,7 +824,7 @@ class Importer
         if ($this->indata['all_html']) {
             $data['tt_address'][$id]['module_sys_dmail_html'] = $this->indata['all_html'];
         }
-        if (is_array($this->indata['cat']) && !ArrayUtility::inArray($this->indata['map'], 'cats')) {
+        if (is_array($this->indata['cat']) && !in_array('cats', $this->indata['map'])) {
             foreach ($this->indata['cat'] as $k => $v) {
                 $data['tt_address'][$id]['module_sys_dmail_category'][$k] = $v;
             }
@@ -909,7 +967,7 @@ class Importer
     {
         $dbCharset = 'utf-8';
         if ($dbCharset != $this->indata['charset']) {
-            $this->getLanguageService()->csConvObj->convArray($data, $this->indata['charset'], $dbCharset);
+            GeneralUtility::makeInstance(CharsetConverter::class)->convArray($data, $this->indata['charset'], $dbCharset);
         }
         return $data;
     }
@@ -994,7 +1052,7 @@ class Importer
 
         // Initializing:
         /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
-        $this->fileProcessor = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Utility\\File\\ExtendedFileUtility');
+        $this->fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
         if (version_compare(TYPO3_branch, '8.3', '<')) {
             $this->fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
         }
@@ -1022,7 +1080,7 @@ class Importer
             // new file
             $file['newfile']['1']['target']=$this->userTempFolder();
             $file['newfile']['1']['data']='import_' . $GLOBALS['EXEC_TIME'] . '.txt';
-            if ($httpHost != $refInfo['host'] && $this->vC != $GLOBALS['BE_USER']->veriCode() && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
+            if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
                 $this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', array($refInfo['host'], $httpHost));
             } else {
                 $this->fileProcessor->start($file);
@@ -1049,6 +1107,7 @@ class Importer
      * Checks if a file has been uploaded and returns the complete physical fileinfo if so.
      *
      * @return	string		the complete physical file name, including path info.
+     * @throws \Exception
      */
     public function checkUpload()
     {
@@ -1065,7 +1124,7 @@ class Importer
 
         // Initializing:
         /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
-        $this->fileProcessor = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Utility\\File\\ExtendedFileUtility');
+        $this->fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
         if (version_compare(TYPO3_branch, '8.3', '<')) {
             $this->fileProcessor->init($fm, $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
         }
@@ -1076,7 +1135,7 @@ class Importer
         $refInfo = parse_url(GeneralUtility::getIndpEnv('HTTP_REFERER'));
         $httpHost = GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY');
 
-        if ($httpHost != $refInfo['host'] && $this->vC != $GLOBALS['BE_USER']->veriCode() && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
+        if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
             $this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', array($refInfo['host'], $httpHost));
         } else {
             $this->fileProcessor->start($file);

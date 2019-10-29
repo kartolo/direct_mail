@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 What does it do?
@@ -28,5 +19,3 @@ intended to be use in conjunction with frontend subscription plugins
 such as Direct Mail Subscription (direct\_mail\_subscription), Front
 End User Registration (sr\_feuser\_register) and Email Address
 Subscription (sr\_email\_subscribe).
-
-

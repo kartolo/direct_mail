@@ -1,18 +1,9 @@
-﻿.. include:: Images.txt
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Enabling click statistics
@@ -39,7 +30,7 @@ the mail.
 
 Example:
 
-::
+.. code-block:: html
 
    <img src="typo3conf/ext/direct_mail/Resources/Public/Icons/dmailerping.gif" width="1" height="1" dmailerping="1" />
 
@@ -48,7 +39,7 @@ that the src attribute will be replaced by one that refers to the
 address of a script. Such attribute in HTML content of email messages
 may be disabled by SPAM filtering software.
 
-If the :ref:`jumpurl_tracking_privacy <jumpurl_tracking_privacy>` is enabled in the configuration, then you might
+If the :ref:`jumpurl_tracking_privacy <pageTsconfig_jumpurl_tracking_privacy>` is enabled in the configuration, then you might
 want to use ``&no_jumpurl=1`` for link, which should not be replaced by
 a jump URL.
 

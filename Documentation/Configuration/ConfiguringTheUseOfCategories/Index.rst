@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Configuring the use of categories
@@ -29,7 +20,7 @@ The static template ensures that content boundaries will be inserted
 in both HTML and plain text content. Insertion of boundaries is
 specified by setting TS setup property:
 
-::
+.. code-block:: typoscript
 
    config.insertDmailerBoundaries = 1
 
@@ -43,7 +34,7 @@ properties in the Page TsConfig of the Direct Mail folder and,
 perhaps, of any page whose subtree may contain records of the
 corresponding types and which may be used in Direct Mail operations:
 
-::
+.. code-block:: typoscript
 
    TCEFORM.tt_content.module_sys_dmail_category.PAGE_TSCONFIG_IDLIST = pid_list
    TCEFORM.tt_address.module_sys_dmail_category.PAGE_TSCONFIG_IDLIST = pid_list
@@ -58,7 +49,7 @@ its subtree, you may also want the categories assignment field to be
 displayed in backend forms. This is achieved by setting the following
 properties in Page TSConfig of the same pages:
 
-::
+.. code-block:: typoscript
 
    TCEFORM.tt_content.module_sys_dmail_category.disabled = 0
    TCEFORM.tt_address.module_sys_dmail_category.disabled = 0
@@ -71,22 +62,21 @@ The “Direct Mail Content Boundaries” static template is as follows:
 Setup
 """""
 
-::
+.. code-block:: typoscript
 
-      // Configuring the insertion of dmailer boundaries
+   // Configuring the insertion of dmailer boundaries
    includeLibs.tx_directmail_container = EXT:direct_mail/res/scripts/class.tx_directmail_container.php
 
-           // In html content
+   // In html content
    tt_content.stdWrap.postUserFunc = tx_directmail_container->insert_dMailer_boundaries
 
-           // In old plaintext content static tenmplate
+   // In old plaintext content static tenmplate
    lib.alt_plaintext.renderObj.userProc < tt_content.stdWrap.postUserFunc
    lib.alt_plaintext.renderObj.userProc.useParentCObj = 1
 
-           // In new direct mail plain text plugin
+   // In new direct mail plain text plugin
    plugin.tx_directmail_pi1.userProc < tt_content.stdWrap.postUserFunc
    plugin.tx_directmail_pi1.userProc.useParentCObj = 1
 
-           // Enable the insertion of content boundaries
+   // Enable the insertion of content boundaries
    config.insertDmailerBoundaries = 1
-

@@ -19,6 +19,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Module\BaseScriptClass;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\QueryHelper;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -30,7 +33,7 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\Icon;
-
+use TYPO3\CMS\Core\Utility\PathUtility;
 /**
  * Direct mail Module of the tx_directmail extension for sending newsletter
  *
@@ -128,7 +131,18 @@ class Dmail extends BaseScriptClass
                 $parts = parse_url(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'));
                 if (BackendUtility::getDomainStartPage($parts['host'], $parts['path'])) {
                     $temporaryPreUrl = BackendUtility::firstDomainRecord($rootLine);
-                    $domain = BackendUtility::getRecordsByField('sys_domain', 'domainName', $temporaryPreUrl, ' AND hidden=0', '', 'sorting');
+                    //$domain = BackendUtility::getRecordsByField('sys_domain', 'domainName', $temporaryPreUrl, ' AND hidden=0', '', 'sorting');
+                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                        ->getQueryBuilderForTable('sys_domain');
+                    $domain = $queryBuilder
+                        ->select('sys_domain.uid')
+                        ->from('sys_domain')
+                        ->where(
+                            $queryBuilder->expr()->eq('domainName', $queryBuilder->createNamedParameter($temporaryPreUrl))
+                        )
+                        ->execute()
+                        ->fetchAll();
+
                     if (is_array($domain)) {
                         reset($domain);
                         $dom = current($domain);
@@ -142,18 +156,28 @@ class Dmail extends BaseScriptClass
 
         // initialize backend user language
         if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'sys_language.uid',
-                'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-                'static_languages.lg_typo3=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($this->getLanguageService()->lang, 'static_languages') .
-                    BackendUtility::BEenableFields('sys_language') .
-                    BackendUtility::deleteClause('sys_language') .
-                    BackendUtility::deleteClause('static_languages')
-                );
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_language');
+
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_language');
+            $res = $queryBuilder
+                ->select('sys_language.uid')
+                ->from('sys_language')
+                ->leftJoin(
+                    'sys_language',
+                    'static_languages',
+                    'static_languages',
+                    $queryBuilder->expr()->eq('sys_language.static_lang_isocode', $queryBuilder->quoteIdentifier('static_languages.uid'))
+                )
+                ->where(
+                    $queryBuilder->expr()->eq('static_languages.lg_typo3', $queryBuilder->createNamedParameter($this->getLanguageService()->lang))
+                )
+                ->execute()
+                ->fetchAll();
+            foreach ($res as $row) {
                 $this->sys_language_uid = $row['uid'];
             }
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
         }
         // load contextual help
         $this->cshTable = '_MOD_' . $this->MCONF['name'];
@@ -220,7 +244,7 @@ class Dmail extends BaseScriptClass
             $this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
             // Add CSS
-            $this->getPageRenderer()->addCssFile(ExtensionManagementUtility::extRelPath('direct_mail') . 'Resources/Public/StyleSheets/modules.css', 'stylesheet', 'all', '', false, false);
+            $this->getPageRenderer()->addCssFile( ExtensionManagementUtility::extPath('direct_mail') . 'Resources/Public/StyleSheets/modules.css', 'stylesheet', 'all', '', false, false);
 
             // JavaScript
             if (GeneralUtility::inList('send_mail_final,send_mass', $this->CMD)) {
@@ -363,7 +387,7 @@ class Dmail extends BaseScriptClass
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
+            $this->content .= '<h1 class="t3js-title-inlineedit">' . htmlspecialchars($this->getLanguageService()->getLL('title')) . '</h1>'; //$this->doc->header
             $this->content .= '<div style="padding-top: 15px;"></div>';
         }
     }
@@ -483,21 +507,25 @@ class Dmail extends BaseScriptClass
             // Update the record:
             $htmlmail->theParts['messageid'] = $htmlmail->messageid;
             $mailContent = base64_encode(serialize($htmlmail->theParts));
-            $updateFields = array(
-                'issent' => 0,
-                'charset' => $htmlmail->charset,
-                'mailContent' => $mailContent,
-                'renderedSize' => strlen($mailContent),
-                'long_link_rdct_url' => $this->urlbase
-            );
-            $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                'sys_dmail',
-                'uid=' . intval($this->sys_dmail_uid),
-                $updateFields
-            );
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+            $queryBuilder
+                ->update('sys_dmail')
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'uid',
+                        intval($this->sys_dmail_uid)
+                    )
+                )
+                ->set('issent', 0)
+                ->set('charset', $htmlmail->charset)
+                ->set('mailContent', $mailContent)
+                ->set('renderedSize', strlen($mailContent))
+                ->set('long_link_rdct_url', $this->urlbase)
+                ->execute();
 
             if ($warningMsg) {
-                return $this->doc->section($this->getLanguageService()->getLL('dmail_warning'), $warningMsg . '<br /><br />');
+               return $this->doc->render($this->getLanguageService()->getLL('dmail_warning'), $warningMsg . '<br /><br />');
             }
         }
 
@@ -789,7 +817,7 @@ class Dmail extends BaseScriptClass
                 $theOutput .= $this->cmd_finalmail($row);
                 $theOutput .= '</div>';
 
-                $theOutput = $this->doc->section($this->getLanguageService()->getLL('dmail_wiz5_sendmass'), $theOutput, 1, 1, 0, true);
+                $theOutput = $this->doc->render($this->getLanguageService()->getLL('dmail_wiz5_sendmass'), $theOutput);
 
                 $theOutput .= '<input type="hidden" name="CMD" value="send_mail_final">';
                 $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
@@ -873,19 +901,34 @@ class Dmail extends BaseScriptClass
         }
 
         // Mail groups
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'uid,pid,title',
-            'sys_dmail_group',
-            'pid=' . intval($this->id) .
-            ' AND sys_language_uid IN (-1, ' . $direct_mail_row['sys_language_uid'] . ')' .
-                BackendUtility::deleteClause('sys_dmail_group'),
-            '',
-            $GLOBALS['TYPO3_DB']->stripOrderBy($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
-        );
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
+        $statement = $queryBuilder
+            ->select('uid','pid','title')
+            ->from('sys_dmail_group')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'pid',
+                    intval($this->id)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->in(
+                    'sys_language_uid',
+                    '-1, ' . $direct_mail_row['sys_language_uid']
+                )
+            )
+            ->orderBy(
+                preg_replace(
+                    '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
+                    trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
+                )
+            )
+            ->execute();
+
 
         $opt = array();
         $lastGroup = null;
-        while (($group = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+        while (($group = $statement->fetch())) {
             $result = $this->cmd_compileMailGroup(array($group['uid']));
             $count = 0;
             $idLists = $result['queryInfo']['id_lists'];
@@ -904,7 +947,6 @@ class Dmail extends BaseScriptClass
             $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
             $lastGroup = $group;
         }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
         // added disabled. see hook
         if (count($opt) === 0) {
@@ -950,7 +992,7 @@ class Dmail extends BaseScriptClass
         $msg .= '<br/><label for="tx-directmail-savedraft-check"><input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;' . $this->getLanguageService()->getLL('schedule_draft') . '</label>';
         $msg .= '<br /><br /><input class="btn btn-default" type="Submit" name="mailingMode_mailGroup" value="' . $this->getLanguageService()->getLL('schedule_send_all') . '" />';
 
-        $theOutput = $this->doc->section($this->getLanguageService()->getLL('schedule_select_mailgroup'), $msg, 1, 1, 0, true);
+        $theOutput = $this->doc->render($this->getLanguageService()->getLL('schedule_select_mailgroup'), $msg);
         $theOutput .= '<div style="padding-top: 20px;"></div>';
 
         $this->noView = 1;
@@ -1024,16 +1066,24 @@ class Dmail extends BaseScriptClass
 
             if (GeneralUtility::_GP('tt_address_uid')) {
                 // personalized to tt_address
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'tt_address.*',
-                    'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
-                    'tt_address.uid=' . intval(GeneralUtility::_GP('tt_address_uid')) .
-                        ' AND ' . $this->perms_clause .
-                        BackendUtility::deleteClause('pages') .
-                        BackendUtility::BEenableFields('tt_address') .
-                        BackendUtility::deleteClause('tt_address')
-                );
-                if (($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                    ->getQueryBuilderForTable('tt_address');
+                $res = $queryBuilder
+                    ->select('tt_address.*')
+                    ->from('tt_address')
+                    ->leftJoin(
+                        'tt_address',
+                        'pages',
+                        'pages',
+                        $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('tt_address.pid'))
+                    )
+                    ->add('where','tt_address.uid=' . intval(GeneralUtility::_GP('tt_address_uid')) .
+                        ' AND ' . $this->perms_clause)
+                    ->execute()
+                    ->fetchAll();
+
+                foreach ($res as $recipRow) {
                     $recipRow = Dmailer::convertFields($recipRow);
                     $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address', $recipRow['uid']);
                     $htmlmail->dmailer_sendAdvanced($recipRow, 't');
@@ -1047,7 +1097,7 @@ class Dmail extends BaseScriptClass
                         FlashMessage::OK
                     );
                 }
-                $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
             } elseif (is_array(GeneralUtility::_GP('sys_dmail_group_uid'))) {
                 // personalized to group
                 $result = $this->cmd_compileMailGroup(GeneralUtility::_GP('sys_dmail_group_uid'));
@@ -1108,11 +1158,15 @@ class Dmail extends BaseScriptClass
                     $sectionTitle = $this->getLanguageService()->getLL('send_was_scheduled');
                 }
                 $sentFlag = true;
-                $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                    'sys_dmail',
-                    'uid=' . intval($this->sys_dmail_uid),
-                    $updateFields
+                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+                $connection = $connectionPool->getConnectionForTable('sys_dmail');
+
+                $connection->update(
+                    'sys_dmail', // table
+                    $updateFields,
+                    [ 'uid' => intval($this->sys_dmail_uid) ] // where
                 );
+
 
                 /* @var $flashMessage FlashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
@@ -1126,11 +1180,16 @@ class Dmail extends BaseScriptClass
 
         // Setting flags and update the record:
         if ($sentFlag && $this->CMD == 'send_mail_final') {
-            $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                'sys_dmail',
-                'uid=' . intval($this->sys_dmail_uid),
-                array('issent' => 1)
+
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $connection = $connectionPool->getConnectionForTable('sys_dmail');
+
+            $connection->update(
+                'sys_dmail', // table
+                ['issent' => 1],
+                [ 'uid' => intval($this->sys_dmail_uid) ] // where
             );
+
         }
 
         return GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
@@ -1179,40 +1238,64 @@ class Dmail extends BaseScriptClass
 
         if ($this->params['test_tt_address_uids']) {
             $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_tt_address_uids']));
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'tt_address.*',
-                'tt_address LEFT JOIN pages ON tt_address.pid=pages.uid',
-                'tt_address.uid IN (' . $intList . ')' .
-                    ' AND ' . $this->perms_clause .
-                    BackendUtility::deleteClause('pages') .
-                    BackendUtility::BEenableFields('tt_address') .
-                    BackendUtility::deleteClause('tt_address')
-                );
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('tt_address');
+            $res = $queryBuilder
+                ->select('tt_address.*')
+                ->from('tt_address')
+                ->leftJoin(
+                    'tt_address',
+                    'pages',
+                    'pages',
+                    $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('tt_address.pid'))
+                )
+                ->add('where','tt_address.uid IN (' . $intList . ')' .
+                    ' AND ' . $this->perms_clause )
+                ->execute()
+                ->fetchAll();
+
             $msg = $this->getLanguageService()->getLL('testmail_individual_msg') . '<br /><br />';
 
             $ids = array();
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+
+           foreach ($res as $row) {
                 $ids[] = $row['uid'];
             }
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
             $msg .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids, 'tt_address'), 'tt_address', 1, 1);
 
-            $theOutput.= $this->doc->section($this->getLanguageService()->getLL('testmail_individual'), $msg, 1, 1, 0, true);
+            $theOutput.= $this->doc->render($this->getLanguageService()->getLL('testmail_individual'), $msg);
             $theOutput.= '<div style="padding-top: 20px;"></div>';
         }
 
         if ($this->params['test_dmail_group_uids']) {
             $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_dmail_group_uids']));
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'sys_dmail_group.*',
-                'sys_dmail_group LEFT JOIN pages ON sys_dmail_group.pid=pages.uid',
-                'sys_dmail_group.uid IN (' . $intList . ')' .
-                    ' AND ' . $this->perms_clause .
-                    BackendUtility::deleteClause('pages') .
-                    BackendUtility::deleteClause('sys_dmail_group')
-                );
+
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_dmail_group');
+            $queryBuilder
+                ->getRestrictions()
+                ->removeAll()
+                ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+            $res = $queryBuilder
+                ->select('sys_dmail_group.*')
+                ->from('sys_dmail_group')
+                ->leftJoin(
+                    'sys_dmail_group',
+                    'pages',
+                    'pages',
+                    $queryBuilder->expr()->eq('sys_dmail_group.pid', $queryBuilder->quoteIdentifier('pages.uid'))
+                )
+                ->add('where','sys_dmail_group.uid IN (' . $intList . ')' .
+                    ' AND ' . $this->perms_clause )
+                ->execute()
+                ->fetchAll();
+
             $msg = $this->getLanguageService()->getLL('testmail_mailgroup_msg') . '<br /><br />';
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+
+            foreach ($res as $row) {
                 $msg .='<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&sys_dmail_group_uid[]=' . $row['uid'] . '">' .
                     $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL) .
                     htmlspecialchars($row['title']) . '</a><br />';
@@ -1224,9 +1307,9 @@ class Dmail extends BaseScriptClass
 				</tr>
 				</table>';
             }
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
-            $theOutput.= $this->doc->section($this->getLanguageService()->getLL('testmail_mailgroup'), $msg, 1, 1, 0, true);
+
+            $theOutput.= $this->doc->render($this->getLanguageService()->getLL('testmail_mailgroup'), $msg);
             $theOutput.= '<div style="padding-top: 20px;"></div>';
         }
 
@@ -1239,7 +1322,7 @@ class Dmail extends BaseScriptClass
         $msg.= '<input type="hidden" name="CMD" value="send_mail_test" />';
         $msg.= '<input type="submit" name="mailingMode_simple" value="' . $this->getLanguageService()->getLL('dmail_send') . '" />';
 
-        $theOutput.= $this->doc->section($this->getLanguageService()->getLL('testmail_simple'), $msg, 1, 1, 0, true);
+        $theOutput.= $this->doc->render($this->getLanguageService()->getLL('testmail_simple'), $msg);
 
         $this->noView=1;
         return $theOutput;
@@ -1561,12 +1644,17 @@ class Dmail extends BaseScriptClass
                 'whichtables' => intval($whichTables),
                 'query' => $this->MOD_SETTINGS['queryConfig']
             );
-            $updateResult = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                'sys_dmail_group',
-                'uid = ' . intval($mailGroup['uid']),
-                $updateFields
+
+
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $connection = $connectionPool->getConnectionForTable('sys_dmail_group');
+
+            $connection->update(
+                'sys_dmail_group', // table
+                $updateFields,
+                [ 'uid' => intval($mailGroup['uid']) ] // where
             );
-            $GLOBALS['TYPO3_DB']->sql_free_result($updateResult);
+
 
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
         }
@@ -1608,32 +1696,37 @@ class Dmail extends BaseScriptClass
         }
 
         // Todo Perhaps we should here check if TV is installed and fetch content from that instead of the old Columns...
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'colPos, CType, uid, pid, header, bodytext, module_sys_dmail_category',
-            'tt_content',
-            'pid=' . intval($this->pages_uid) .
-                BackendUtility::deleteClause('tt_content') .
-                BackendUtility::BEenableFields('tt_content'),
-            '',
-            'colPos,sorting'
-        );
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('tt_content');
+        $res = $queryBuilder
+            ->select('colPos', 'CType', 'uid', 'pid', 'header', 'bodytext', 'module_sys_dmail_category')
+            ->from('tt_content')
+            ->add('where','pid=' . intval($this->pages_uid))
+            ->orderBy('colPos')
+            ->addOrderBy('sorting')
+            ->execute()
+            ->fetchAll();
 
-        if (!$GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
-            $theOutput = $this->doc->section($this->getLanguageService()->getLL('nl_cat'), $this->getLanguageService()->getLL('nl_cat_msg1'), 1, 1, 0, true);
+        if (empty($res)) {
+            $theOutput = $this->doc->render($this->getLanguageService()->getLL('nl_cat'), $this->getLanguageService()->getLL('nl_cat_msg1'));
         } else {
             $out = '';
             $colPosVal = 99;
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            foreach ($res as $row) {
                 $categoriesRow = '';
-                $resCat = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'uid_foreign',
-                    'sys_dmail_ttcontent_category_mm',
-                    'uid_local=' . $row['uid']
-                    );
-                while (($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat))) {
+
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                    ->getQueryBuilderForTable('sys_dmail_ttcontent_category_mm');
+                $resCat = $queryBuilder
+                    ->select('uid_foreign')
+                    ->from('sys_dmail_ttcontent_category_mm')
+                    ->add('where','uid_local=' . $row['uid'])
+                    ->execute()
+                    ->fetchAll();
+
+                foreach ($resCat as $rowCat) {
                     $categoriesRow .= $rowCat['uid_foreign'] . ',';
                 }
-                $GLOBALS['TYPO3_DB']->sql_free_result($resCat);
 
                 $categoriesRow = rtrim($categoriesRow, ',');
 
@@ -1663,14 +1756,14 @@ class Dmail extends BaseScriptClass
                 }
                 $out .= $checkBox . '</td></tr>';
             }
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
 
             $out = '<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">' . $out . '</table>';
             $out .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">' .
                 '<input type="hidden" name="CMD" value="' . $this->CMD . '"><br />' .
                 '<input type="submit" name="update_cats" value="' . $this->getLanguageService()->getLL('nl_l_update') . '">';
 
-            $theOutput = $this->doc->section($this->getLanguageService()->getLL('nl_cat') . BackendUtility::cshItem($this->cshTable, 'assign_categories', $GLOBALS['BACK_PATH']), $out, 1, 1, 0, true);
+            $theOutput = $this->doc->render($this->getLanguageService()->getLL('nl_cat') . BackendUtility::cshItem($this->cshTable, 'assign_categories', $GLOBALS['BACK_PATH']), $out);
         }
         return $theOutput;
     }
@@ -1692,7 +1785,7 @@ class Dmail extends BaseScriptClass
         $output .= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_internal_page') . '</a>';
         $output .= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
         $output .= $this->cmd_news();
-        $output .= '</div></div></div>';
+        $output .= '</div></div>';
         return $output;
     }
 
@@ -1763,14 +1856,34 @@ class Dmail extends BaseScriptClass
      */
     public function makeListDMail($boxId, $totalBox, $open=false)
     {
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'uid,pid,subject,tstamp,issent,renderedsize,attachment,type',
-            'sys_dmail',
-            'pid = ' . intval($this->id) .
-                ' AND scheduled=0 AND issent=0' . BackendUtility::deleteClause('sys_dmail'),
-            '',
-            $GLOBALS['TYPO3_DB']->stripOrderBy($GLOBALS['TCA']['sys_dmail']['ctrl']['default_sortby'])
+
+        $sOrder = preg_replace(
+            '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
+            trim($GLOBALS['TCA']['sys_dmail']['ctrl']['default_sortby'])
         );
+        if (!empty($sOrder)){
+            if (substr_count($sOrder, 'ASC') > 0 ){
+                $sOrder = trim(str_replace('ASC','',$sOrder));
+                $ascDesc = 'ASC';
+            }else{
+                $sOrder = trim(str_replace('DESC','',$sOrder));
+                $ascDesc = 'DESC';
+            }
+
+        }
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+        $queryBuilder
+        ->getRestrictions()
+        ->removeAll()
+        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $res = $queryBuilder->select('uid','pid','subject','tstamp','issent','renderedsize','attachment','type')
+            ->from('sys_dmail')
+            ->add('where','pid = ' . intval($this->id) .
+                ' AND scheduled=0 AND issent=0')
+       ->orderBy($sOrder,$ascDesc)
+       ->execute()
+       ->fetchAll();
 
         $tblLines = array();
         $tblLines[] = array(
@@ -1783,7 +1896,8 @@ class Dmail extends BaseScriptClass
             $this->getLanguageService()->getLL('nl_l_type'),
             ''
         );
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+
+        foreach ($res as $row) {
             $tblLines[] = array(
                 $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
                 $this->linkDMail_record($row['subject'], $row['uid']),
@@ -1795,7 +1909,7 @@ class Dmail extends BaseScriptClass
                 $this->deleteLink($row['uid'])
             );
         }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
 
         $imgSrc = $this->getNewsletterTabIcon($open);
 
@@ -1840,22 +1954,23 @@ class Dmail extends BaseScriptClass
     public function cmd_news()
     {
         // Here the list of subpages, news, is rendered
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'uid,doktype,title,abstract',
-            'pages',
-            'pid=' . intval($this->id) .
-                ' AND doktype IN (' . $GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'] . ')' .
-                ' AND ' . $this->perms_clause .
-                BackendUtility::BEenableFields('pages') .
-                BackendUtility::deleteClause('pages'),
-            '',
-            'sorting'
-            );
-        if (!$GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
-            $theOutput = $this->doc->section($this->getLanguageService()->getLL('nl_select'), $this->getLanguageService()->getLL('nl_select_msg1'), 0, 1);
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('pages');
+
+        $res = $queryBuilder
+            ->select('uid', 'doktype', 'title', 'abstract')
+            ->from('pages')
+            ->add('where','pid=' . intval($this->id) .
+                 ' AND ' . $this->perms_clause)
+            ->orderBy('sorting')
+            ->execute();
+
+        if (empty($res)) {
+            $theOutput = $this->doc->render($this->getLanguageService()->getLL('nl_select'), $this->getLanguageService()->getLL('nl_select_msg1'));
         } else {
             $outLines = array();
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            while (($row = $res->fetch())) {
                 $languages = $this->getAvailablePageLanguages($row['uid']);
 
                 $createDmailLink = BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&createMailFrom_UID=' . $row['uid'] . '&fetchAtOnce=1&CMD=info';
@@ -1914,9 +2029,10 @@ class Dmail extends BaseScriptClass
                 ];
             }
             $out = DirectMailUtility::formatTable($outLines, array(), 0, array(1, 1, 1, 1));
-            $theOutput = $this->doc->section($this->getLanguageService()->getLL('dmail_dovsk_crFromNL') . BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH']), $out, 1, 1, 0, true);
+             $theOutput = $this->doc->render($this->getLanguageService()->getLL('dmail_dovsk_crFromNL') . BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH']), $out);
+
         }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
 
         return $theOutput;
     }
@@ -1942,14 +2058,17 @@ class Dmail extends BaseScriptClass
             }
             // 0 is always present so only for > 0
             if ((int)$lang['uid'] > 0) {
-                $langRow = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow(
-                    'uid',
-                    'pages_language_overlay',
-                    'pid=' . (int)$pageUid .
-                    ' AND sys_language_uid=' . (int)$lang['uid'] .
-                    BackendUtility::BEenableFields('pages_language_overlay') .
-                    BackendUtility::deleteClause('pages_language_overlay')
-                );
+
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                    ->getQueryBuilderForTable('pages_language_overlay');
+                $langRow = $queryBuilder
+                    ->select('uid')
+                    ->from('pages_language_overlay')
+                    ->add('where','pid=' . (int)$pageUid .
+                        ' AND sys_language_uid=' . (int)$lang['uid'])
+                    ->execute()
+                    ->fetchAll();
+
                 if (!is_array($langRow)) {
                     continue;
                 }
@@ -2016,7 +2135,7 @@ class Dmail extends BaseScriptClass
         $content = '<table width="460" class="table table-striped table-hover">' . $content . '</table>';
 
         $sectionTitle = $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '&nbsp;' . htmlspecialchars($row['subject']);
-        return $this->doc->section($sectionTitle, $content, 1, 1, 0, true);
+        return $this->doc->render($sectionTitle, $content);
     }
 
     /**
@@ -2048,10 +2167,14 @@ class Dmail extends BaseScriptClass
     {
         $table = 'sys_dmail';
         if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
-            $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                $table,
-                'uid = ' . $uid,
-                array($GLOBALS['TCA'][$table]['ctrl']['delete'] => 1)
+
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $connection = $connectionPool->getConnectionForTable($table);
+
+            $connection->update(
+                $table, // table
+                [ $GLOBALS['TCA'][$table]['ctrl']['delete'] => 1 ],
+                [ 'uid' => $uid ] // where
             );
         }
 
