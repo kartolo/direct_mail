@@ -20,9 +20,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Module\BaseScriptClass;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\QueryHelper;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
-use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -33,7 +31,7 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Utility\PathUtility;
+
 /**
  * Direct mail Module of the tx_directmail extension for sending newsletter
  *
@@ -525,7 +523,7 @@ class Dmail extends BaseScriptClass
                 ->execute();
 
             if ($warningMsg) {
-               return $this->doc->render($this->getLanguageService()->getLL('dmail_warning'), $warningMsg . '<br /><br />');
+               return '<h3>' . $this->getLanguageService()->getLL('dmail_warning') . '</h3>' . $warningMsg . '<br /><br />';
             }
         }
 
@@ -817,7 +815,8 @@ class Dmail extends BaseScriptClass
                 $theOutput .= $this->cmd_finalmail($row);
                 $theOutput .= '</div>';
 
-                $theOutput = $this->doc->render($this->getLanguageService()->getLL('dmail_wiz5_sendmass'), $theOutput);
+                $theOutput = '<h3>' . $this->getLanguageService()->getLL('dmail_wiz5_sendmass') . '</h3>' .
+                    $theOutput;
 
                 $theOutput .= '<input type="hidden" name="CMD" value="send_mail_final">';
                 $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
@@ -992,7 +991,8 @@ class Dmail extends BaseScriptClass
         $msg .= '<br/><label for="tx-directmail-savedraft-check"><input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;' . $this->getLanguageService()->getLL('schedule_draft') . '</label>';
         $msg .= '<br /><br /><input class="btn btn-default" type="Submit" name="mailingMode_mailGroup" value="' . $this->getLanguageService()->getLL('schedule_send_all') . '" />';
 
-        $theOutput = $this->doc->render($this->getLanguageService()->getLL('schedule_select_mailgroup'), $msg);
+        $theOutput = '<h3>' . $this->getLanguageService()->getLL('schedule_select_mailgroup') . '</h3>' .
+            $msg;
         $theOutput .= '<div style="padding-top: 20px;"></div>';
 
         $this->noView = 1;
@@ -1092,7 +1092,7 @@ class Dmail extends BaseScriptClass
                     /* @var $flashMessage FlashMessage */
                     $flashMessage = GeneralUtility::makeInstance(
                         'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), htmlspecialchars($recipRow['name']) . htmlspecialchars(' <' . $recipRow['email'] . '>')),
+                        sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), $recipRow['name'] . ' <' . $recipRow['email'] . '>'),
                         $this->getLanguageService()->getLL('send_sending'),
                         FlashMessage::OK
                     );
@@ -1265,7 +1265,9 @@ class Dmail extends BaseScriptClass
 
             $msg .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids, 'tt_address'), 'tt_address', 1, 1);
 
-            $theOutput.= $this->doc->render($this->getLanguageService()->getLL('testmail_individual'), $msg);
+            $theOutput.= '<h3>' . $this->getLanguageService()->getLL('testmail_individual') . '</h3>' .
+                $msg;
+
             $theOutput.= '<div style="padding-top: 20px;"></div>';
         }
 
@@ -1309,11 +1311,12 @@ class Dmail extends BaseScriptClass
             }
 
 
-            $theOutput.= $this->doc->render($this->getLanguageService()->getLL('testmail_mailgroup'), $msg);
+            $theOutput.= '<h3>' . $this->getLanguageService()->getLL('testmail_mailgroup') . '</h3>' .
+                $msg;
             $theOutput.= '<div style="padding-top: 20px;"></div>';
         }
 
-        $msg='';
+        $msg = '';
         $msg.= $this->getLanguageService()->getLL('testmail_simple_msg') . '<br /><br />';
         $msg.= '<input' . $GLOBALS['TBE_TEMPLATE']->formWidth() . ' type="text" name="SET[dmail_test_email]" value="' . $this->MOD_SETTINGS['dmail_test_email'] . '" /><br /><br />';
 
@@ -1322,7 +1325,8 @@ class Dmail extends BaseScriptClass
         $msg.= '<input type="hidden" name="CMD" value="send_mail_test" />';
         $msg.= '<input type="submit" name="mailingMode_simple" value="' . $this->getLanguageService()->getLL('dmail_send') . '" />';
 
-        $theOutput.= $this->doc->render($this->getLanguageService()->getLL('testmail_simple'), $msg);
+        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('testmail_simple') . '</h3>' .
+            $msg;
 
         $this->noView=1;
         return $theOutput;
@@ -1701,14 +1705,23 @@ class Dmail extends BaseScriptClass
         $res = $queryBuilder
             ->select('colPos', 'CType', 'uid', 'pid', 'header', 'bodytext', 'module_sys_dmail_category')
             ->from('tt_content')
-            ->add('where','pid=' . intval($this->pages_uid))
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'pid',
+                    $queryBuilder->createNamedParameter($this->pages_uid, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'sys_language_uid',
+                    $queryBuilder->createNamedParameter($row['sys_language_uid'], \PDO::PARAM_INT)
+                )
+            )
             ->orderBy('colPos')
             ->addOrderBy('sorting')
             ->execute()
             ->fetchAll();
 
         if (empty($res)) {
-            $theOutput = $this->doc->render($this->getLanguageService()->getLL('nl_cat'), $this->getLanguageService()->getLL('nl_cat_msg1'));
+            $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_cat') . '</h3>' . $this->getLanguageService()->getLL('nl_cat_msg1');
         } else {
             $out = '';
             $colPosVal = 99;
@@ -1757,13 +1770,15 @@ class Dmail extends BaseScriptClass
                 $out .= $checkBox . '</td></tr>';
             }
 
-
             $out = '<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">' . $out . '</table>';
             $out .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">' .
                 '<input type="hidden" name="CMD" value="' . $this->CMD . '"><br />' .
                 '<input type="submit" name="update_cats" value="' . $this->getLanguageService()->getLL('nl_l_update') . '">';
 
-            $theOutput = $this->doc->render($this->getLanguageService()->getLL('nl_cat') . BackendUtility::cshItem($this->cshTable, 'assign_categories', $GLOBALS['BACK_PATH']), $out);
+            $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_cat') . '</h3>' .
+                BackendUtility::cshItem($this->cshTable, 'assign_categories', $GLOBALS['BACK_PATH']) .
+                $out;
+
         }
         return $theOutput;
     }
@@ -1961,13 +1976,22 @@ class Dmail extends BaseScriptClass
         $res = $queryBuilder
             ->select('uid', 'doktype', 'title', 'abstract')
             ->from('pages')
-            ->add('where','pid=' . intval($this->id) .
-                 ' AND ' . $this->perms_clause)
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'pid',
+                    $queryBuilder->createNamedParameter($this->id, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->in(
+                    'doktype',
+                    GeneralUtility::intExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
+                ),
+                $this->perms_clause
+            )
             ->orderBy('sorting')
             ->execute();
 
         if (empty($res)) {
-            $theOutput = $this->doc->render($this->getLanguageService()->getLL('nl_select'), $this->getLanguageService()->getLL('nl_select_msg1'));
+            $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_select') . '</h3>' . $this->getLanguageService()->getLL('nl_select_msg1');
         } else {
             $outLines = array();
             while (($row = $res->fetch())) {
@@ -2029,10 +2053,10 @@ class Dmail extends BaseScriptClass
                 ];
             }
             $out = DirectMailUtility::formatTable($outLines, array(), 0, array(1, 1, 1, 1));
-             $theOutput = $this->doc->render($this->getLanguageService()->getLL('dmail_dovsk_crFromNL') . BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH']), $out);
-
+            $theOutput = '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromNL') . '</h3>' .
+                BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH']) .
+                $out;
         }
-
 
         return $theOutput;
     }
@@ -2135,7 +2159,7 @@ class Dmail extends BaseScriptClass
         $content = '<table width="460" class="table table-striped table-hover">' . $content . '</table>';
 
         $sectionTitle = $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '&nbsp;' . htmlspecialchars($row['subject']);
-        return $this->doc->render($sectionTitle, $content);
+        return '<h3>' . $sectionTitle . '</h3>' . $content;
     }
 
     /**
