@@ -77,6 +77,11 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['cronInt'] = $extConf['cronInt'];
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseHttpToFetch'] = $extConf['UseHttpToFetch'];
 
 /**
+ * Use implicit port in URL for fetching Newsletter-Content: Even if your TYPO3 Backend is on a non-standard-port, the URL for fetching the newsletter contents from one of your Frontend-Domains will not use the PORT you are using to access your TYPO3 Backend, but use implicit port instead (e.g. no explicit port in URL)
+ */
+$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseImplicitPortToFetch'] = $extConf['UseImplicitPortToFetch'];
+
+/**
  * Enable the use of News plain text rendering hook:
  */
 if ($extConf['enablePlainTextNews']) {
