@@ -1,34 +1,29 @@
 <?php
 
-if (!defined('TYPO3_MODE')) {
-    die('Access denied.');
-}
+defined('TYPO3_MODE') or die();
 
 // registering icons
 $iconProviderClassName = \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class;
 
-
 $iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconRegistry::class);
-$icons = array(
-    'directmail-attachment' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/attach.gif'),
-    'directmail-dmail' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/dmail.gif'),
-    'directmail-dmail-list' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/dmail_list.gif'),
-    'directmail-folder' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/ext_icon_dmail_folder.gif'),
-    'directmail-category' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/icon_tx_directmail_category.gif'),
-    'directmail-mail' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/mail.gif'),
-    'directmail-mailgroup' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/mailgroup.gif'),
-    'directmail-page-modules-dmail' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/modules_dmail.gif'),
-    'directmail-page-modules-dmail-inactive' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/modules_dmail__h.gif'),
-    'directmail-dmail-new' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/newmail.gif'),
-    'directmail-dmail-preview-html' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/preview_html.gif'),
-    'directmail-dmail-preview-text' => array('source' => 'EXT:direct_mail/Resources/Public/Icons/preview_txt.gif'),
-);
-
+$icons = [
+    'directmail-attachment' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/attach.gif'],
+    'directmail-dmail' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/dmail.gif'],
+    'directmail-dmail-list' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/dmail_list.gif'],
+    'directmail-folder' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/ext_icon_dmail_folder.gif'],
+    'directmail-category' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/icon_tx_directmail_category.gif'],
+    'directmail-mail' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/mail.gif'],
+    'directmail-mailgroup' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/mailgroup.gif'],
+    'directmail-page-modules-dmail' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/modules_dmail.gif'],
+    'directmail-page-modules-dmail-inactive' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/modules_dmail__h.gif'],
+    'directmail-dmail-new' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/newmail.gif'],
+    'directmail-dmail-preview-html' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/preview_html.gif'],
+    'directmail-dmail-preview-text' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/preview_txt.gif'],
+];
 
 foreach ($icons as $identifier => $options) {
     $iconRegistry->registerIcon($identifier, $iconProviderClassName, $options);
 }
-
 
     // Register jumpurl processing hook
     // TODO: move hook to this one
@@ -92,29 +87,28 @@ if ($extConf['enablePlainTextNews']) {
 /**
  * Registering class to scheduler
  */
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\DirectmailScheduler'] = array(
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\DirectmailScheduler'] = [
     'extension' => $_EXTKEY,
     'title' => 'Direct Mail: Mailing Queue',
     'description' => 'This task invokes dmailer in order to process queued messages.',
-);
+];
 
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraft'] = array(
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraft'] = [
     'extension'            => $_EXTKEY,
     'title'                => 'Direct Mail: Create Mail from Draft',
     'description'        => 'This task allows you to select a DirectMail draft that gets copied and then sent to the. This allows automatic (periodic) sending of the same TYPO3 page.',
     'additionalFields'    => 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraftAdditionalFields'
-);
+];
 
 // bounce mail per scheduler
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMail'] = array(
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMail'] = [
     'extension' => $_EXTKEY,
     'title' => 'Direct Mail: Analyze bounce mail',
     'description' => 'This task will get bounce mail from the configured mailbox',
     'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields'
-);
-
+];
 
 /**
  * Added CLI
  */
-$TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['cliKeys']['direct_mail'] = array('EXT:direct_mail/cli/cli_direct_mail.php','_CLI_direct_mail');
+$TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['cliKeys']['direct_mail'] = ['EXT:direct_mail/cli/cli_direct_mail.php', '_CLI_direct_mail'];
