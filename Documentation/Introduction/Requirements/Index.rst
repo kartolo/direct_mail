@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Requirements
@@ -29,7 +20,5 @@ with TYPO3 4.5
 
 Extension Address list (tt\_address) is a prerequisite.
 
-Please read the `upgrading section <#5.Upgrading|outline>`_ , before
-you're upgrading your direct\_mail installation.
-
-
+Please read the upgrading section, before you're upgrading your
+direct\_mail installation.

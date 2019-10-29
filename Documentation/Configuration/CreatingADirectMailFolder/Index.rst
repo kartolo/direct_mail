@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Creating a Direct Mail folder
@@ -36,5 +27,3 @@ Once the Direct Mail folder is created, its title should appear in the
 list of available Direct Mail folders when using backend menu option
 Web > Direct Mail. Clicking on the folder title should display a page
 with the module drop-down function menu.
-
-

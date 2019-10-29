@@ -1,18 +1,9 @@
-﻿.. include:: Images.txt
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../Includes.txt
 
 
 Change Log
@@ -171,8 +162,5 @@ For a complete change log, please refer to the ChangeLog file.
 
 .. ###### END~OF~TABLE ######
 
-EXT: Direct Mail - 26
-
-|img-21|
-
-
+For later versions se `Github
+<https://github.com/kartolo/direct_mail>`_

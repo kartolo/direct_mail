@@ -1,3 +1,11 @@
+.. ==================================================
+.. FOR YOUR INFORMATION
+.. --------------------------------------------------
+.. -*- coding: utf-8 -*- with BOM.
+
+.. include:: ../../Includes.txt
+
+
 Usage/configuring multi language
 --------------------------------
 
@@ -16,14 +24,11 @@ Language mapping
 
 Mapping language params to the sys_language_uid can be done by tsConfig and with an automatic fallback to `&L=sys_language_uid`.
 
-Example tsConfig::
+Example tsConfig
+
+.. code-block:: typoscript
 
 mod.web_modules.dmail {
     langParams.0 =
     langParams.1 = &L=1
 }
-
-
-
-
-

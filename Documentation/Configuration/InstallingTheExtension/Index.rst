@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Installing the extension
@@ -67,5 +58,3 @@ additional entry may be presented in the function drop-down menu of
 the extension manager: UPDATE! This option provides a function to
 convert some tables of your database. You should read the section
 below about upgrading to version 2.0+.
-
-

@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Summary of the Direct Mail process
@@ -55,5 +46,3 @@ steps of the Direct mail process:
 At any point, you may, if needed, use the module context sensitive
 help. Backend forms for editing direct mails and recipient lists also
 provide context sensitive help on each field.
-
-
