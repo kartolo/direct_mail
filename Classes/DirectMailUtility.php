@@ -16,7 +16,7 @@ namespace DirectMailTeam\DirectMail;
 
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Backend\Utility\IconUtility;
+use TYPO3\CMS\Core\Crypto\Random;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
@@ -25,6 +25,8 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
  * Static class.
@@ -1470,7 +1472,7 @@ class DirectMailUtility
     {
         /* @var \TYPO3\CMS\Core\Registry $registry */
         $registry = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Registry');
-        $accessToken = GeneralUtility::getRandomHexString(32);
+        $accessToken = GeneralUtility::makeInstance(Random::class)->generateRandomHexString(32);
         $registry->set('tx_directmail', 'accessToken', $accessToken);
         return $accessToken;
     }
@@ -1566,14 +1568,10 @@ class DirectMailUtility
 
         $cacheId = $pageId . '|' . $language;
 
-        if (!is_object($GLOBALS['TT'])) {
-            $GLOBALS['TT'] = GeneralUtility::makeInstance('TYPO3\CMS\Core\TimeTracker\TimeTracker');
-        }
-
         if (!isset($tsfeCache[$cacheId]) || !$useCache) {
             GeneralUtility::_GETset($language, 'L');
 
-            $GLOBALS['TSFE'] = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController', $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
+            $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class, $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
 
             // for certain situations we need to trick TSFE into granting us
             // access to the page in any case to make getPageAndRootline() work
@@ -1582,7 +1580,7 @@ class DirectMailUtility
             $groupListBackup = $GLOBALS['TSFE']->gr_list;
             $GLOBALS['TSFE']->gr_list = $pageRecord['fe_group'];
 
-            $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Page\PageRepository');
+            $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
             $GLOBALS['TSFE']->getPageAndRootlineWithDomain($pageId);
 
 

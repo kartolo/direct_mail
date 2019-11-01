@@ -1069,6 +1069,9 @@
 			<trans-unit id="scheduler.bounceMail.phpImapError">
 				<source>Please install PHP IMAP extension</source>
 			</trans-unit>
+			<trans-unit id="labels.path">
+				<source>Path</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -17,6 +17,7 @@ namespace DirectMailTeam\DirectMail\Scheduler;
 use DirectMailTeam\DirectMail\Readmail;
 use Fetch\Message;
 use Fetch\Server;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
@@ -229,17 +230,22 @@ class AnalyzeBounceMail extends AbstractTask
         // Extract text content
         $cp = $readMail->analyseReturnError($message->getMessageBody());
 
-        $res = $this->getDatabaseConnection()->exec_SELECTquery(
-            'uid,email',
-            'sys_dmail_maillog',
-            'rid=' . (int)$midArray['rid'] . ' AND rtbl="' .
-            $this->getDatabaseConnection()->quoteStr($midArray['rtbl'], 'sys_dmail_maillog') . '"' .
-            ' AND mid=' . (int)$midArray['mid'] . ' AND response_type=0'
-        );
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('sys_dmail_maillog');
+        $res = $queryBuilder
+            ->select('uid', 'email')
+            ->from('sys_dmail_maillog')
+            ->where(
+                $queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($midArray['rid'], \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($midArray['rtbl'], \PDO::PARAM_STR)),
+                $queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($midArray['mid'], \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('response_type', '0')
+            )
+            ->execute();
 
         // only write to log table, if we found a corresponding recipient record
-        if ($this->getDatabaseConnection()->sql_num_rows($res)) {
-            $row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
+        if ($res->rowCount()) {
+            $row = $res->fetch();
             $midArray['email'] = $row['email'];
             $insertFields = array(
                 'tstamp' => $GLOBALS['EXEC_TIME'],
@@ -251,7 +257,13 @@ class AnalyzeBounceMail extends AbstractTask
                 'return_content' => serialize($cp),
                 'return_code' => (int)$cp['reason']
             );
-            return $this->getDatabaseConnection()->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+
+            return GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getConnectionForTable('sys_dmail_maillog')
+                ->insert(
+                    'sys_dmail_maillog',
+                    $insertFields
+                );
         } else {
             return false;
         }
@@ -284,15 +296,5 @@ class AnalyzeBounceMail extends AbstractTask
         } catch (\Exception $e) {
             return false;
         }
-    }
-
-    /**
-     * Get the DB global object
-     *
-     * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-     */
-    protected function getDatabaseConnection()
-    {
-        return $GLOBALS['TYPO3_DB'];
     }
 }

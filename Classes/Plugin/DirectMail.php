@@ -243,9 +243,6 @@ class DirectMail extends AbstractPlugin
     {
         $imagesArray = array();
         $this->getImagesStandard($imagesArray);
-        if (ExtensionManagementUtility::isLoaded('dam')) {
-            $this->getImagesFromDam($imagesArray);
-        }
 
         $images = $this->renderImages($imagesArray, !$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'', $this->cObj->data['imagecaption']);
 
@@ -266,25 +263,6 @@ class DirectMail extends AbstractPlugin
         foreach ($images as $file) {
             if (strlen(trim($file)) > 0) {
                 $imagesArray[] = $this->siteUrl . $uploadPath . $file;
-            }
-        }
-    }
-
-    /**
-     * Get images from DAM and store this images to $images_arr
-     * TODO: rewrite sql?
-     * @param array $imagesArray
-     * @return	string		Content
-     */
-    public function getImagesFromDam(array &$imagesArray)
-    {
-        $sql = 'SELECT tx_dam.* FROM tx_dam_mm_ref,tx_dam WHERE tx_dam_mm_ref.tablenames="tt_content" AND tx_dam_mm_ref.ident="tx_damttcontent_files" AND tx_dam_mm_ref.uid_foreign="' . $this->cObj->data['uid'] . '" AND tx_dam_mm_ref.uid_local=tx_dam.uid AND tx_dam.deleted=0 ORDER BY sorting_foreign';
-        /* @var \TYPO3\CMS\Core\Database\DatabaseConnection $db */
-        $db = $GLOBALS['TYPO3_DB'];
-        $res = $db->sql_query($sql);
-        if ($db->sql_num_rows($res) > 0) {
-            while ($row = $db->sql_fetch_assoc($res)) {
-                $imagesArray[] = $this->siteUrl . $row['file_path'] . $row['file_name'];
             }
         }
     }

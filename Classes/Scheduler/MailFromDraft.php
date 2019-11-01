@@ -16,6 +16,7 @@ namespace DirectMailTeam\DirectMail\Scheduler;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
@@ -80,12 +81,12 @@ class MailFromDraft extends AbstractTask
             //$this->dmailUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
 
             $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $databaseConnectionSysDamilMail = $connectionPool->getConnectionForTable('sys_dmail_maillog');
-            $databaseConnectionSysDamilMail->insert(
+            $databaseConnectionSysDmailMail = $connectionPool->getConnectionForTable('sys_dmail');
+            $databaseConnectionSysDmailMail->insert(
                 'sys_dmail',
                 $draftRecord
             );
-            $this->dmailUid = (int)$databaseConnectionSysDamilMail->lastInsertId('sys_dmail');
+            $this->dmailUid = (int)$databaseConnectionSysDmailMail->lastInsertId('sys_dmail');
 
 
             // Call a hook after insertion of the cloned dmail record
