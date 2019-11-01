@@ -20,6 +20,7 @@ return [
             'label' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.language',
             'config' => [
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'foreign_table' => 'sys_language',
                 'foreign_table_where' => 'ORDER BY sys_language.title',
                 'items' => [
@@ -49,6 +50,7 @@ return [
             'label' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.type',
             'config' => [
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'items' => [
                     ['LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.type.I.0', '0'],
                     ['LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.type.I.1', '1'],
@@ -68,13 +70,7 @@ return [
                 'MM' => 'sys_dmail_group_mm',
                 'size' => '20',
                 'maxitems' => '100000',
-                'minitems' => '0',
-                'show_thumbs' => '1',
-                'wizards' => [
-                    'suggest' => [
-                        'type' => 'suggest',
-                    ],
-                ],
+                'minitems' => '0'
             ]
         ],
         'pages' => [
@@ -85,13 +81,7 @@ return [
                 'allowed' => 'pages',
                 'size' => '3',
                 'maxitems' => '22',
-                'minitems' => '0',
-                'show_thumbs' => '1',
-                'wizards' => [
-                    'suggest' => [
-                        'type' => 'suggest',
-                    ],
-                ],
+                'minitems' => '0'
             ]
         ],
         'mail_groups' => [
@@ -102,13 +92,7 @@ return [
                 'allowed' => 'sys_dmail_group',
                 'size' => '3',
                 'maxitems' => '22',
-                'minitems' => '0',
-                'show_thumbs' => '1',
-                'wizards' => [
-                    'suggest' => [
-                        'type' => 'suggest',
-                    ],
-                ],
+                'minitems' => '0'
             ]
         ],
         'recursive' => [
@@ -143,6 +127,7 @@ return [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.csv',
             'config' => [
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'items' => [
                     ['LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.csv.I.0', '0'],
                     ['LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.csv.I.1', '1']
@@ -154,6 +139,8 @@ return [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.select_categories',
             'config' => [
                 'type' => 'select',
+                'renderType' => 'selectCheckBox',
+                'renderMode' => 'checkbox',
                 'foreign_table' => 'sys_dmail_category',
                 'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.sorting',
                 'itemsProcFunc' => 'DirectMailTeam\\DirectMail\\SelectCategories->get_localized_categories',
@@ -164,7 +151,6 @@ return [
                 'size' => 5,
                 'minitems' => 0,
                 'maxitems' => 60,
-                'renderMode' => 'checkbox',
                 'MM' => 'sys_dmail_group_category_mm',
             ]
         ],

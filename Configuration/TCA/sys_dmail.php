@@ -24,6 +24,7 @@ return [
             'config' => [
                 'default' => '0',
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'foreign_table' => 'sys_language',
                 'foreign_table_where' => 'ORDER BY sys_language.title',
                 'items' => [
@@ -50,11 +51,6 @@ return [
                 'size' => '1',
                 'maxitems' => 1,
                 'minitems' => 0,
-                'wizards' => [
-                    'suggest' => [
-                        'type' => 'suggest',
-                    ],
-                ],
             ]
         ],
         'from_email' => [
@@ -115,6 +111,7 @@ return [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.transfer_encoding',
             'config' => [
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'items' => [
                     ['quoted-printable', 'quoted-printable'],
                     ['base64', 'base64'],
@@ -137,6 +134,7 @@ return [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.priority',
             'config' => [
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'items' => [
                     ['LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.priority.I.0', '5'],
                     ['LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.priority.I.1', '3'],
@@ -231,6 +229,7 @@ return [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.use_domain',
             'config' => [
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'foreign_table' => 'sys_domain',
                 'items' => [
                     ['', 0]
@@ -289,7 +288,11 @@ return [
                 'disallowed' => 'php,php3',
                 'max_size' => '10000',
                 'uploadfolder' => 'uploads/tx_directmail',
-                'show_thumbs' => '0',
+                'fieldWizard' => [
+                    'fileThumbnails' => [
+                        'disabled' => 0
+                    ]
+                ],
                 'size' => '3',
                 'maxitems' => '5',
                 'minitems' => '0'
@@ -304,6 +307,7 @@ return [
             'label' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.type',
             'config' => [
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'items' => [
                     ['LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.type.I.0', '0'],
                     ['LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.type.I.1', '1'],

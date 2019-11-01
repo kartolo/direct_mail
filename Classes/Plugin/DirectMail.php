@@ -37,6 +37,7 @@ namespace DirectMailTeam\DirectMail\Plugin;
  *
  */
 
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
@@ -157,7 +158,9 @@ class DirectMail extends AbstractPlugin
         // Substitute labels
         $markerArray = array();
         $markerArray = $this->addLabelsMarkers($markerArray);
-        $content = $this->cObj->substituteMarkerArray($content, $markerArray);
+
+        $templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
+        $content = $templateService->substituteMarkerArray($content, $markerArray);
 
         // User processing:
         $content = $this->userProcess('userProc', $content);
