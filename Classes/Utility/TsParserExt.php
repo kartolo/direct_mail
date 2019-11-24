@@ -14,7 +14,9 @@ namespace DirectMailTeam\DirectMail\Utility;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use TYPO3\CMS\Backend\Utility\BackendUtility;
+
+use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class that renders fields for the extensionmanager configuration
@@ -38,7 +40,9 @@ class TsParserExt
             'tx_extensionmanager_tools_extensionmanagerextensionmanager[action]' => 'show',
             'tx_extensionmanager_tools_extensionmanagerextensionmanager[controller]' => 'UpdateScript',
         );
-        $link = BackendUtility::getModuleUrl('tools_ExtensionmanagerExtensionmanager', $parameters);
+
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $link = $uriBuilder->buildUriFromRoute('tools_ExtensionmanagerExtensionmanager', $parameters);
 
         $out = '
 		<div style="position:absolute;top:10px;right:10px; width:300px;">

@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -95,17 +96,12 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         // initialize IconFactory
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
-        $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
-        if (!is_array($temp['properties'])) {
-            $temp['properties'] = array();
-        }
-        $this->params = $temp['properties'];
+        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
         $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
         if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']])) {
             $this->userTable = $this->params['userTable'];
             $this->allowedTables[] = $this->userTable;
         }
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
 
         // initialize backend user language
         if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
@@ -417,9 +413,16 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // Invoke engine
         if ($enableTrigger) {
+            $urlParameters = [
+                'id' => $this->id,
+                'invokeMailerEngine' => '1'
+            ];
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            $link = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_MailerEngine', $urlParameters);
+
             $invokeMessage .= '<h3>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke') . '</h3>' .
                 '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br />' .
-                    '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&invokeMailerEngine=1"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a>'.
+                    '<a class="t3-link" href="' . $link . '"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a>'.
                 '</p>';
             $invokeMessage .= '<div style="padding-top: 20px;"></div>';
         }
@@ -487,8 +490,17 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     {
         $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
+
+        $urlParameters = [
+            'id' => $this->id,
+            'cmd' => 'delete',
+            'uid' => $uid
+        ];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $link = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_MailerEngine', $urlParameters);
+
         if (!empty($dmail['scheduled_begin'])) {
-            return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&cmd=delete&uid=' . $uid . '">' . $icon . '</a>';
+            return '<a href="' . $link . '">' . $icon . '</a>';
         }
         return '';
     }

@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -110,14 +111,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
         // get TS Params
-        $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
-        if (!is_array($temp['properties'])) {
-            $temp['properties'] = array();
-        }
-        $this->params = $temp['properties'];
+        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
         $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
-
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
 
         // initialize the page selector
         $this->sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
@@ -591,7 +586,16 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     public function linkDMail_record($str, $uid, $aTitle='')
     {
-        return '<a title="' . htmlspecialchars($aTitle) . '" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_Statistics') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&SET[dmail_mode]=direct&CMD=stats">' . htmlspecialchars($str) . '</a>';
+        $urlParameters = [
+            'id' => $this->id,
+            'sys_dmail_uid' => $uid,
+            'SET[dmail_mode]' => 'direct',
+            'CMD' => 'stats'
+        ];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $link = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_Statistics', $urlParameters);
+
+        return '<a title="' . htmlspecialchars($aTitle) . '" href="' . $link . '">' . htmlspecialchars($str) . '</a>';
     }
 
     /**
@@ -606,7 +610,16 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         if (GeneralUtility::_GP('recalcCache')) {
             $this->makeStatTempTableContent($row);
         }
-        $thisurl = BackendUtility::getModuleUrl('DirectMailNavFrame_Statistics') . '&id=' . $this->id . '&sys_dmail_uid=' . $row['uid'] . '&CMD=' . $this->CMD . '&recalcCache=1';
+
+        $urlParameters = [
+            'id' => $this->id,
+            'sys_dmail_uid' => $row['uid'],
+            'CMD' => $this->CMD,
+            'recalcCache' => '1'
+        ];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $thisurl = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_Statistics', $urlParameters);
+
         $output = $this->directMail_compactView($row);
 
         // *****************************
@@ -951,7 +964,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'])) {
                 $hookObjectsArr = array();
                 foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'] as $classRef) {
-                    $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                    $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
                 }
 
                 foreach ($hookObjectsArr as $hookObj) {
@@ -1477,7 +1490,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'])) {
             $hookObjectsArr = array();
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
 
             // assigned $output to class property to make it acesssible inside hook

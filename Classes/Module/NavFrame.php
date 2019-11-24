@@ -16,6 +16,7 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
@@ -87,7 +88,8 @@ class NavFrame
         $this->doc->showFlashMessages = false;
 
         $currentModule = GeneralUtility::_GP('currentModule');
-        $currentSubScript = BackendUtility::getModuleUrl($currentModule);
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $currentSubScript = $uriBuilder->buildUriFromRoute($currentModule);
 
         // Setting highlight mode:
         $this->doHighlight = !$GLOBALS['BE_USER']->getTSConfigVal('options.pageTree.disableTitleHighlight');

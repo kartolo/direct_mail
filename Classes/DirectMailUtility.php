@@ -15,6 +15,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Crypto\Random;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -979,7 +980,10 @@ class DirectMailUtility
                             ],
                             'returnUrl' => $returnUrl
                         ];
-                        $editLink = '<td><a class="t3-link" href="' . BackendUtility::getModuleUrl('record_edit', $urlParameters) . '" title="' . $GLOBALS['LANG']->getLL('dmail_edit') . '">' .
+                        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                        $link = $uriBuilder->buildUriFromRoute('record_edit', $urlParameters);
+
+                        $editLink = '<td><a class="t3-link" href="' . $link . '" title="' . $GLOBALS['LANG']->getLL('dmail_edit') . '">' .
                             $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                             '</a></td>';
                     }

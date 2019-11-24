@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\Icon;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -109,17 +110,12 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         // initialize IconFactory
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
-        $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
-        if (!is_array($temp['properties'])) {
-            $temp['properties'] = array();
-        }
-        $this->params = $temp['properties'];
+        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
         $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
         if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']])) {
             $this->userTable = $this->params['userTable'];
             $this->allowedTables[] = $this->userTable;
         }
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
 
         // initialize the query generator
         $this->queryGenerator = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\MailSelect');
@@ -398,7 +394,14 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $out;
 
         // Import
-        $out = '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_RecipientList') . '&id=' . $this->id . '&CMD=displayImport">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
+        $urlParameters = [
+            'id' => $this->id,
+            'CMD' => 'displayImport'
+        ];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $link = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_RecipientList', $urlParameters);
+
+        $out = '<a class="t3-link" href="' . $link . '">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
         $theOutput.= '<div style="padding-top: 20px;"></div>';
         $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_import') . '</h3>' . $out;
         return $theOutput;
@@ -438,7 +441,16 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     public function linkRecip_record($str, $uid)
     {
-        return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_RecipientList') . '&id=' . $this->id . '&CMD=displayMailGroup&group_uid=' . $uid . '&SET[dmail_mode]=recip">' . $str . '</a>';
+        $urlParameters = [
+            'id' => $this->id,
+            'CMD' => 'displayMailGroup',
+            'group_uid' => $uid,
+            'SET[dmail_mode]' => 'recip'
+        ];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $link = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_RecipientList', $urlParameters);
+
+        return '<a href="' . $link . '">' . $str . '</a>';
     }
 
     /**
@@ -573,7 +585,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $hookObjectsArr = array();
 
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
             foreach ($hookObjectsArr as $hookObj) {
                 if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {

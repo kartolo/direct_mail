@@ -68,8 +68,7 @@ class Importer
         $this->parent = &$pObj;
 
         // get some importer default from pageTS
-        $temp = BackendUtility::getModTSconfig(intval(GeneralUtility::_GP('id')), 'mod.web_modules.dmail.importer');
-        $this->params = $temp['properties'];
+        $this->params = BackendUtility::getPagesTSconfig(intval(GeneralUtility::_GP('id')))['mod.']['web_modules.']['dmail.']['importer'] ?? [];
     }
 
     /**
@@ -356,7 +355,7 @@ class Importer
                 // header
                 $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"' . (!$this->indata['all_html']?'':' checked="checked"') . '/> ');
                 // get categories
-                $temp = BackendUtility::getModTSconfig($this->parent->id, 'TCEFORM.sys_dmail_group.select_categories.PAGE_TSCONFIG_IDLIST');
+                $temp['value'] = BackendUtility::getPagesTSconfig($this->parent->id)['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
                 if (is_numeric($temp['value'])) {
                     $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
                     $rowCat = $queryBuilder
@@ -558,7 +557,7 @@ class Importer
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport'])) {
             $hookObjectsArr = array();
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
         }
         if (is_array($hookObjectsArr)) {
@@ -795,7 +794,7 @@ class Importer
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'])) {
             $hookObjectsArr = array();
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
 
             foreach ($hookObjectsArr as $hookObj) {

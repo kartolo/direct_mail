@@ -19,6 +19,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Module\BaseScriptClass;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -111,11 +112,7 @@ class Dmail extends BaseScriptClass
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
         // get the config from pageTS
-        $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
-        if (!is_array($temp['properties'])) {
-            $temp['properties'] = array();
-        }
-        $this->params = $temp['properties'];
+        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
         $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
         if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']])) {
             $this->userTable = $this->params['userTable'];
@@ -149,8 +146,6 @@ class Dmail extends BaseScriptClass
                 }
             }
         }
-
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
 
         // initialize backend user language
         if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
@@ -889,7 +884,7 @@ class Dmail extends BaseScriptClass
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_finalmail'])) {
             $hookObjectsArr = array();
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_finalmail'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
             foreach ($hookObjectsArr as $hookObj) {
                 if (method_exists($hookObj, 'cmd_finalmail')) {
@@ -1297,8 +1292,18 @@ class Dmail extends BaseScriptClass
 
             $msg = $this->getLanguageService()->getLL('testmail_mailgroup_msg') . '<br /><br />';
 
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+
             foreach ($res as $row) {
-                $msg .='<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&sys_dmail_group_uid[]=' . $row['uid'] . '">' .
+                $urlParameters = [
+                    'id' => $this->id,
+                    'sys_dmail_uid' => $this->sys_dmail_uid,
+                    'CMD' => 'send_mail_test',
+                    'sys_dmail_group_uid[]' => $row['uid']
+                ];
+                $link = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_DirectMail', $urlParameters);
+
+                $msg .='<a href="' . $link . '">' .
                     $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL) .
                     htmlspecialchars($row['title']) . '</a><br />';
                 // Members:
@@ -1376,6 +1381,7 @@ class Dmail extends BaseScriptClass
         $out = '';
         if (is_array($listArr)) {
             $count = count($listArr);
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
             foreach ($listArr as $row) {
                 $tableIcon = '';
                 $editLink = '';
@@ -1391,7 +1397,15 @@ class Dmail extends BaseScriptClass
                     }
 
                     if ($testMailLink) {
-                        $testLink = '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&tt_address_uid=' . $row['uid'] . '">' . htmlspecialchars($row['email']) . '</a>';
+                        $urlParameters = [
+                            'id' => $this->id,
+                            'sys_dmail_uid' => $this->sys_dmail_uid,
+                            'CMD' => 'send_mail_test',
+                            'tt_address_uid' => $row['uid']
+                        ];
+                        $link = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_DirectMail', $urlParameters);
+
+                        $testLink = '<a href="' . $link . '">' . htmlspecialchars($row['email']) . '</a>';
                     } else {
                         $testLink = htmlspecialchars($row['email']);
                     }
@@ -1469,7 +1483,7 @@ class Dmail extends BaseScriptClass
             $temporaryList = '';
 
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
             foreach ($hookObjectsArr as $hookObj) {
                 if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
@@ -1994,10 +2008,19 @@ class Dmail extends BaseScriptClass
             $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_select') . '</h3>' . $this->getLanguageService()->getLL('nl_select_msg1');
         } else {
             $outLines = array();
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+
             while (($row = $res->fetch())) {
                 $languages = $this->getAvailablePageLanguages($row['uid']);
 
-                $createDmailLink = BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&createMailFrom_UID=' . $row['uid'] . '&fetchAtOnce=1&CMD=info';
+                $urlParameters = [
+                    'id' => $this->id,
+                    'createMailFrom_UID' => $row['uid'],
+                    'fetchAtOnce' => '1',
+                    'CMD' => 'info'
+                ];
+                $createDmailLink = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_DirectMail', $urlParameters);
+
                 $pageIcon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
 
                 $previewHTMLLink = $previewTextLink = $createLink = '';
@@ -2114,7 +2137,16 @@ class Dmail extends BaseScriptClass
      */
     public function linkDMail_record($str, $uid)
     {
-        return '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&CMD=info&fetchAtOnce=1">' . htmlspecialchars($str) . '</a>';
+        $urlParameters = [
+            'id' => $this->id,
+            'sys_dmail_uid' => $uid,
+            'CMD' => 'info',
+            'fetchAtOnce' => '1'
+        ];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $link = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_DirectMail', $urlParameters);
+
+        return '<a class="t3-link" href="' . $link . '">' . htmlspecialchars($str) . '</a>';
     }
 
 
@@ -2129,8 +2161,14 @@ class Dmail extends BaseScriptClass
     {
         if (!$row['issent']) {
             if ($GLOBALS['BE_USER']->check('tables_modify', 'sys_dmail')) {
-                // $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
-                $requestUri = BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&CMD=info&sys_dmail_uid=' . $row['uid'] . '&fetchAtOnce=1';
+                $urlParameters = [
+                    'id' => $this->id,
+                    'CMD' => 'info',
+                    'sys_dmail_uid' => $row['uid'],
+                    'fetchAtOnce' => '1'
+                ];
+                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                $requestUri = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_DirectMail', $urlParameters);
 
                 $editParams = BackendUtility::editOnClick('&edit[sys_dmail][' . $row['uid'] . ']=edit', $GLOBALS['BACK_PATH'], $requestUri);
 
@@ -2174,8 +2212,17 @@ class Dmail extends BaseScriptClass
     {
         $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
+
+        $urlParameters = [
+            'id' => $this->id,
+            'CMD' => 'delete',
+            'uid' => $uid
+        ];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $link = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_DirectMail', $urlParameters);
+
         if (!$dmail['scheduled_begin']) {
-            return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&CMD=delete&uid=' . $uid . '">' . $icon . '</a>';
+            return '<a href="' . $link . '">' . $icon . '</a>';
         }
 
         return '';
