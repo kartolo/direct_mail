@@ -609,7 +609,19 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             if ($csvValue == 'PLAINLIST') {
                 $this->downloadCSV($idLists['PLAINLIST']);
             } elseif (GeneralUtility::inList('tt_address,fe_users,' . $this->userTable, $csvValue)) {
-                $this->downloadCSV(DirectMailUtility::fetchRecordsListValues($idLists[$csvValue], $csvValue, (($csvValue == 'fe_users') ? str_replace('phone', 'telephone', $this->fieldList) : $this->fieldList) . ',tstamp'));
+                if($GLOBALS['BE_USER']->check('tables_select', $csvValue)) {
+                    $this->downloadCSV(DirectMailUtility::fetchRecordsListValues($idLists[$csvValue], $csvValue, (($csvValue == 'fe_users') ? str_replace('phone', 'telephone', $this->fieldList) : $this->fieldList) . ',tstamp'));
+                } else {
+                    /* @var $flashMessage FlashMessage */
+                    $flashMessage = GeneralUtility::makeInstance(
+                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                        '',
+                        $this->getLanguageService()->getLL('mailgroup_table_disallowed_csv'),
+                        FlashMessage::ERROR
+                    );
+                    $csvError = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                }
+
             }
         }
 
@@ -634,25 +646,29 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             default:
 
                 if (is_array($idLists['tt_address']) && count($idLists['tt_address'])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_address'), $recipContent);
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
 
                 if (is_array($idLists['fe_users']) && count($idLists['fe_users'])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_fe_users'), $recipContent);
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
 
                 if (is_array($idLists['PLAINLIST']) && count($idLists['PLAINLIST'])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_plain_list'), $recipContent);
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
 
                 if (is_array($idLists[$this->userTable]) && count($idLists[$this->userTable])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv' => $this->userTable)) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv' => $this->userTable)) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= $this->doc->section($this->getLanguageService()->getLL('mailgroup_table_custom'), $recipContent);
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
