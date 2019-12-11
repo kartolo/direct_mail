@@ -23,8 +23,8 @@
   },
   "require": {
     "typo3/cms-core": "^9.5",
-    "friendsoftypo3/jumpurl": "dev-master",
-    "friendsoftypo3/tt-address": "^4.1",
+    "friendsoftypo3/jumpurl": "^7.8",
+    "friendsoftypo3/tt-address": "^4.3 || ^5.0",
     "friendsoftypo3/rdct": "^1.0"
   },
   "autoload": {
