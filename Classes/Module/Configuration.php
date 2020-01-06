@@ -195,7 +195,7 @@ class Configuration extends BaseScriptClass
             $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
             $this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
-            $this->doc->addStyleSheet('direct_mail', ExtensionManagementUtility::extPath('direct_mail') .'Resources/Public/StyleSheets/modules.css');
+            $this->getPageRenderer()->addCssFile( ExtensionManagementUtility::extPath('direct_mail') . 'Resources/Public/StyleSheets/modules.css', 'stylesheet', 'all', '', false, false);
 
             // Add CSS
             $this->doc->inDocStylesArray['dmail'] = '.toggleTitle { width: 70%; }';
