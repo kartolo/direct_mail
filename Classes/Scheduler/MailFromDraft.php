@@ -83,7 +83,7 @@ class MailFromDraft extends AbstractTask
             //$this->dmailUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
 
             $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $databaseConnectionSysDamilMail = $connectionPool->getConnectionForTable('sys_dmail_maillog');
+            $databaseConnectionSysDamilMail = $connectionPool->getConnectionForTable('sys_dmail');
             $databaseConnectionSysDamilMail->insert(
                 'sys_dmail',
                 $draftRecord

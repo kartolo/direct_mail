@@ -18,11 +18,6 @@ use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Backend\Utility\IconUtility;
-use TYPO3\CMS\Core\Configuration\SiteConfiguration;
-use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Context\UserAspect;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Crypto\Random;
 use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
@@ -32,7 +27,6 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
-use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -1484,10 +1478,6 @@ class DirectMailUtility
         unset($GLOBALS['TSFE']);
 
         $cacheId = $pageId . '|' . $language;
-
-        if (!$GLOBALS['TT'] instanceof TimeTracker) {
-            $GLOBALS['TT'] = GeneralUtility::makeInstance(TimeTracker::class);
-        }
 
         if (!isset($tsfeCache[$cacheId]) || !$useCache) {
             $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class, $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);

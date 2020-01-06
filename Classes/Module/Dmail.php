@@ -305,7 +305,7 @@ class Dmail extends BaseScriptClass
             );
 
             $docHeaderButtons = array(
-                'PAGEPATH' => $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
+                'PAGEPATH' => $this->getLanguageService()->getLL('labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => ''
             );
             // shortcut icon
@@ -2010,8 +2010,9 @@ class Dmail extends BaseScriptClass
                 ];
             }
             $out = DirectMailUtility::formatTable($outLines, array(), 0, array(1, 1, 1, 1));
-            $theOutput = '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromNL') . '</h3>' .
-                BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH']) .
+            $theOutput = '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromNL') .
+                    BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH']) .
+                '</h3>' .
                 $out;
         }
 
