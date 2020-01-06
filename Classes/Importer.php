@@ -925,7 +925,7 @@ class Importer
 
         $mydata = array();
         // TYPO3 6.0 works with relative path, we need absolute here
-        if (!is_file($this->indata['newFile']) && (strpos($this->indata['newFile'], Environment::getPublicPath() , '/') === false)) {
+        if (!is_file($this->indata['newFile']) && (strpos($this->indata['newFile'], Environment::getPublicPath() . '/') === false)) {
             $this->indata['newFile'] = Environment::getPublicPath() . '/' . $this->indata['newFile'];
         }
         $handle = fopen($this->indata['newFile'], 'r');
