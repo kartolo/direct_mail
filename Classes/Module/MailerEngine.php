@@ -415,10 +415,10 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // Invoke engine
         if ($enableTrigger) {
-            $out = '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br /><a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&invokeMailerEngine=1"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a></p>';
-            $invokeMessage .= '<div style="padding-top: 20px;"></div>';
-            //$invokeMessage .= $this->doc->section(BackendUtility::cshItem($this->cshTable, 'mailerengine_invoke', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke'), $out, 1, 1, 0, true);
-            $invokeMessage .= $this->doc->render(BackendUtility::cshItem($this->cshTable, 'mailerengine_invoke', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke'), $out);
+            $invokeMessage .= '<h3>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke') . '</h3>' .
+                '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br />' .
+                    '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&invokeMailerEngine=1"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a>'.
+                '</p>';
             $invokeMessage .= '<div style="padding-top: 20px;"></div>';
         }
 
@@ -471,7 +471,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         }
 
         $out = $invokeMessage . '<table class="table table-striped table-hover">' . $out . '</table>';
-        return $this->doc->render(BackendUtility::cshItem($this->cshTable, 'mailerengine_status', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('dmail_mailerengine_status'), $out);
+        return '<h3>' .  $this->getLanguageService()->getLL('dmail_mailerengine_status') .'</h3>' . $out;
     }
 
     /**

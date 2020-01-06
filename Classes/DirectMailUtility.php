@@ -182,7 +182,7 @@ class DirectMailUtility
         } else {
             $switchTable = $table;
         }
-		
+
 		$pidArray = GeneralUtility::intExplode(',', $pidList);
 
 		/** @var \TYPO3\CMS\Core\Database\Connection $connection */
@@ -278,7 +278,7 @@ class DirectMailUtility
                     ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                     ->from('sys_dmail_group', 'sys_dmail_group')
                     ->from('sys_dmail_group_category_mm', 'g_mm')
-                    ->from($mmTable, 'mm_1') 
+                    ->from($mmTable, 'mm_1')
                     ->leftJoin(
                         'mm_1',
                         $table,
@@ -1352,27 +1352,34 @@ class DirectMailUtility
             );
 
             if (count($warningMsg)) {
+                foreach ($warningMsg as $warning) {
+                    /* @var $flashMessage FlashMessage */
+                    $flashMessage = GeneralUtility::makeInstance(
+                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                        $warning,
+                        $GLOBALS['LANG']->getLL('dmail_warning'),
+                        FlashMessage::WARNING
+                    );
+                    $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                }
+            }
+        } else {
+            foreach ($errorMsg as $error) {
                 /* @var $flashMessage FlashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
                     'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    implode('<br />', $warningMsg),
-                    $GLOBALS['LANG']->getLL('dmail_warning'),
-                    FlashMessage::WARNING
+                    $error,
+                    $GLOBALS['LANG']->getLL('dmail_error'),
+                    FlashMessage::ERROR
                 );
                 $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
             }
-        } else {
-            /* @var $flashMessage FlashMessage */
-            $flashMessage = GeneralUtility::makeInstance(
-                'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                implode('<br />', $errorMsg),
-                $GLOBALS['LANG']->getLL('dmail_error'),
-                FlashMessage::ERROR
-            );
-            $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
         }
         if ($returnArray) {
-            return array('errors' => $errorMsg, 'warnings' => $warningMsg);
+            return [
+                'errors' => $errorMsg,
+                'warnings' => $warningMsg
+            ];
         } else {
             return $theOutput;
         }
@@ -1392,7 +1399,7 @@ class DirectMailUtility
     {
         $user = $params['http_username'];
         $pass = $params['http_password'];
-	$matches = array();
+        $matches = array();
         if ($user && $pass && preg_match('/^(?:http)s?:\/\//', $url, $matches)) {
             $url = $matches[0] . $user . ':' . $pass . '@' . substr($url, strlen($matches[0]));
         }

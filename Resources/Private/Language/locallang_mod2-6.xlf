@@ -731,10 +731,10 @@
 				<source>The mail was sent.</source>
 			</trans-unit>
 			<trans-unit id="send_was_sent_to_name">
-				<source>The mail was sent to &lt;strong&gt;%s&lt;/strong&gt;.</source>
+				<source>The mail was sent to %s.</source>
 			</trans-unit>
 			<trans-unit id="send_was_sent_to_number">
-				<source>The mail was sent to &lt;strong&gt;%s&lt;/strong&gt; recipients.</source>
+				<source>The mail was sent to %s recipients.</source>
 			</trans-unit>
 			<trans-unit id="stats_CSV_returned">
 				<source>CSV of returned recipients</source>
