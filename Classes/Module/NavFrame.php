@@ -222,7 +222,7 @@ class NavFrame
 
         $docHeaderButtons = array(
             'CSH' => BackendUtility::cshItem('_MOD_DirectMailNavFrame', 'folders', $GLOBALS['BACK_PATH'], true),
-            'REFRESH' => '<a href="' . htmlspecialchars(GeneralUtility::linkThisScript(array('unique' => uniqid('directmail_navframe')))) . '">' .
+            'REFRESH' => '<a class="btn btn-default btn-sm " href="' . htmlspecialchars(GeneralUtility::linkThisScript(array('unique' => uniqid('directmail_navframe')))) . '">' .
                 $iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL) . '</a>'
         );
 

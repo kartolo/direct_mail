@@ -239,7 +239,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             );
 
             $docHeaderButtons = array(
-                'PAGEPATH' => $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
+                'PAGEPATH' => $this->getLanguageService()->getLL('labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => '',
                 'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS['BACK_PATH'])
             );
@@ -461,7 +461,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParameters, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                 $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                 $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
-            $theOutput = $this->doc->render($this->getLanguageService()->getLL('subscriber_info'), $out);
+            $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' . $out;
 
             $out = '';
 
@@ -480,7 +480,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 '<input type="hidden" name="CMD" value="' . $this->CMD . '" /><br />' .
                 '<input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
             $theOutput .= '<div style="padding-top: 20px;"></div>';
-            $theOutput .= $this->doc->render($this->getLanguageService()->getLL('subscriber_profile'), $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out);
+            $theOutput .= '<h3>' . $this->getLanguageService()->getLL('subscriber_profile') . '</h3>' .
+                $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out;
         }
 
         return $theOutput;
@@ -568,7 +569,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $out.='</table>';
         }
 
-        $theOutput = $this->doc->render($this->getLanguageService()->getLL('stats_overview_choose'), $out);
+        $theOutput = '<h3>' . $this->getLanguageService()->getLL('stats_overview_choose') . '</h3>' .
+            $out;
         $theOutput .= '<div style="padding-top: 20px;"></div>';
 
         return $theOutput;
@@ -1489,11 +1491,11 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         $this->noView = 1;
         // put all the stats tables in a section
-        $theOutput = $this->doc->render($this->getLanguageService()->getLL('stats_direct_mail'), $output);
+        $theOutput = '<h3>' . $this->getLanguageService()->getLL('stats_direct_mail') .'</h3>' . $output;
         $theOutput .= '<div style="padding-top: 20px;"></div>';
 
-        $link = '<p><a style="text-decoration: underline;" href="' . $thisurl . '">' . $this->getLanguageService()->getLL('stats_recalculate_stats') . '</a></p>';
-        $theOutput .= $this->doc->render($this->getLanguageService()->getLL('stats_recalculate_cached_data'), $link);
+        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('stats_recalculate_cached_data') . '</h3>' .
+            '<p><a style="text-decoration: underline;" href="' . $thisurl . '">' . $this->getLanguageService()->getLL('stats_recalculate_stats') . '</a></p>';
         return $theOutput;
     }
 

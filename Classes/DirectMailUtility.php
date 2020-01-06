@@ -18,11 +18,6 @@ use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Backend\Utility\IconUtility;
-use TYPO3\CMS\Core\Configuration\SiteConfiguration;
-use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Context\UserAspect;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Crypto\Random;
 use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
@@ -32,7 +27,6 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
-use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -183,6 +177,9 @@ class DirectMailUtility
             $switchTable = $table;
         }
 
+		$pidArray = GeneralUtility::intExplode(',', $pidList);
+
+		/** @var \TYPO3\CMS\Core\Database\Connection $connection */
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable($table);
         $queryBuilder = $connection->createQueryBuilder();
@@ -215,7 +212,7 @@ class DirectMailUtility
                     ->from($table, $table)
                     ->andWhere(
                         $queryBuilder->expr()->andX()
-                            ->add($queryBuilder->expr()->in('fe_groups.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add($queryBuilder->expr()->in('fe_groups.pid', $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)))
                             ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
                             ->add(
                                 $queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter(''))
@@ -231,7 +228,7 @@ class DirectMailUtility
                     ->from($switchTable)
                     ->andWhere(
                         $queryBuilder->expr()->andX()
-                            ->add($queryBuilder->expr()->in($switchTable . '.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add($queryBuilder->expr()->in($switchTable . '.pid', $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)))
                             ->add(
                                 $queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter(''))
                             )
@@ -257,7 +254,7 @@ class DirectMailUtility
                     )
                     ->andWhere(
                         $queryBuilder->expr()->andX()
-                            ->add($queryBuilder->expr()->in('fe_groups.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add($queryBuilder->expr()->in('fe_groups.pid', $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)))
                             ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
                             ->add($queryBuilder->expr()->eq('mm_1.uid_foreign', $queryBuilder->quoteIdentifier('g_mm.uid_foreign')))
                             ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->quoteIdentifier('g_mm.uid_local')))
@@ -284,7 +281,7 @@ class DirectMailUtility
                     )
                     ->andWhere(
                         $queryBuilder->expr()->andX()
-                            ->add($queryBuilder->expr()->in($switchTable . '.pid', $queryBuilder->createNamedParameter($pidList)))
+                            ->add($queryBuilder->expr()->in($switchTable . '.pid', $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)))
                             ->add($queryBuilder->expr()->eq('mm_1.uid_foreign', $queryBuilder->quoteIdentifier('g_mm.uid_foreign')))
                             ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->quoteIdentifier('g_mm.uid_local')))
                             ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)))
@@ -1349,27 +1346,34 @@ class DirectMailUtility
             );
 
             if (count($warningMsg)) {
+                foreach ($warningMsg as $warning) {
+                    /* @var $flashMessage FlashMessage */
+                    $flashMessage = GeneralUtility::makeInstance(
+                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                        $warning,
+                        $GLOBALS['LANG']->getLL('dmail_warning'),
+                        FlashMessage::WARNING
+                    );
+                    $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                }
+            }
+        } else {
+            foreach ($errorMsg as $error) {
                 /* @var $flashMessage FlashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
                     'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    implode('<br />', $warningMsg),
-                    $GLOBALS['LANG']->getLL('dmail_warning'),
-                    FlashMessage::WARNING
+                    $error,
+                    $GLOBALS['LANG']->getLL('dmail_error'),
+                    FlashMessage::ERROR
                 );
                 $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
             }
-        } else {
-            /* @var $flashMessage FlashMessage */
-            $flashMessage = GeneralUtility::makeInstance(
-                'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                implode('<br />', $errorMsg),
-                $GLOBALS['LANG']->getLL('dmail_error'),
-                FlashMessage::ERROR
-            );
-            $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
         }
         if ($returnArray) {
-            return array('errors' => $errorMsg, 'warnings' => $warningMsg);
+            return [
+                'errors' => $errorMsg,
+                'warnings' => $warningMsg
+            ];
         } else {
             return $theOutput;
         }
@@ -1389,7 +1393,7 @@ class DirectMailUtility
     {
         $user = $params['http_username'];
         $pass = $params['http_password'];
-	$matches = array();
+        $matches = array();
         if ($user && $pass && preg_match('/^(?:http)s?:\/\//', $url, $matches)) {
             $url = $matches[0] . $user . ':' . $pass . '@' . substr($url, strlen($matches[0]));
         }
@@ -1474,10 +1478,6 @@ class DirectMailUtility
         unset($GLOBALS['TSFE']);
 
         $cacheId = $pageId . '|' . $language;
-
-        if (!$GLOBALS['TT'] instanceof TimeTracker) {
-            $GLOBALS['TT'] = GeneralUtility::makeInstance(TimeTracker::class);
-        }
 
         if (!isset($tsfeCache[$cacheId]) || !$useCache) {
             $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class, $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
