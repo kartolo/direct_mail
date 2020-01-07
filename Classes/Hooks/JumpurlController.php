@@ -155,10 +155,9 @@ class JumpurlController
                     // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
                     GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
                     $responseType = -1;
-                } elseif (GeneralUtility::isValidUrl($jumpurl) && preg_match('#^(http://|https://)#', $jumpurl)) {
-                    // Also allow jumpurl to be a valid URL
-                    GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
-                    $responseType = -1;
+                } elseif (GeneralUtility::isValidUrl($jumpurl)) {
+                    // if it's a valid URL, throw exception
+                    throw new \Exception('direct_mail: Invalid JumpURL parameter.', 1578347190);
                 }
 
                 // to count the dmailerping correctly, we need something unique
