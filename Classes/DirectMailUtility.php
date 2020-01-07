@@ -340,31 +340,29 @@ class DirectMailUtility
         if ($table == 'fe_groups') {
             $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
-                ->from($switchTable, $switchTable)
+                ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
                 ->innerJoin(
-                    $switchTable,
-                    $table,
-                    $table,
-                    $queryBuilder->expr()->in($table.'.uid', $queryBuilder->quoteIdentifier($switchTable.'.usergroup'))
-                )
-                ->innerJoin(
-                    $table,
-                    'sys_dmail_group',
-                    'sys_dmail_group',
-                    $queryBuilder->expr()->eq('sys_dmail_group.static_list', $queryBuilder->quoteIdentifier($table . '.uid'))
-                )
-                ->leftJoin(
-                    'sys_dmail_group',
                     'sys_dmail_group_mm',
-                    'sys_dmail_group_mm',
+                    'sys_dmail_group',
+                    'sys_dmail_group',
                     $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
+                )
+                ->innerJoin(
+                    'sys_dmail_group_mm',
+                    $table,
+                    $table,
+                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($table . '.uid'))
+                )
+                ->innerJoin(
+                    $table,
+                    $switchTable,
+                    $switchTable,
+                    $queryBuilder->expr()->inSet($switchTable.'.usergroup', $queryBuilder->quoteIdentifier($table.'.uid'))
                 )
                 ->andWhere(
                     $queryBuilder->expr()->andX()
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-                        ->add($queryBuilder->expr()->eq('fe_groups.uid', $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
                         ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
-                        ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
                         ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
                         ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
                         ->add($addWhere)
@@ -375,23 +373,22 @@ class DirectMailUtility
         } else {
             $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
-                ->from('sys_dmail_group', 'sys_dmail_group')
+                ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
                 ->innerJoin(
+                    'sys_dmail_group_mm',
                     'sys_dmail_group',
-                    $switchTable,
-                    $switchTable,
-                    $queryBuilder->expr()->eq('sys_dmail_group.static_list', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
+                    'sys_dmail_group',
+                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
                 )
-                ->leftJoin(
+                ->innerJoin(
+                    'sys_dmail_group_mm',
                     $switchTable,
-                    'sys_dmail_group_mm',
-                    'sys_dmail_group_mm',
+                    $switchTable,
                     $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
                 )
                 ->andWhere(
                     $queryBuilder->expr()->andX()
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
                         ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($switchTable)))
                         ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
                         ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
