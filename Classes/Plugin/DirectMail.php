@@ -143,7 +143,7 @@ class DirectMail extends AbstractPlugin
                     // Hook for processing other content types
                 if (is_array($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'])) {
                     foreach ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'] as $classRef) {
-                        $procObj = &GeneralUtility::getUserObj($classRef);
+                        $procObj = &GeneralUtility::makeInstance($classRef);
                         $lines = array_merge($lines, $procObj->renderPlainText($this, $content));
                     }
                 }

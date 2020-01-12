@@ -558,7 +558,7 @@ class Importer
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport'])) {
             $hookObjectsArr = array();
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = &GeneralUtility::makeInstance($classRef);
             }
         }
         if (is_array($hookObjectsArr)) {
@@ -795,7 +795,7 @@ class Importer
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'])) {
             $hookObjectsArr = array();
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['doImport'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = &GeneralUtility::makeInstance($classRef);
             }
 
             foreach ($hookObjectsArr as $hookObj) {

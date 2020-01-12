@@ -864,7 +864,7 @@ class Dmail extends BaseScriptClass
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_finalmail'])) {
             $hookObjectsArr = array();
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_finalmail'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = &GeneralUtility::makeInstance($classRef);
             }
             foreach ($hookObjectsArr as $hookObj) {
                 if (method_exists($hookObj, 'cmd_finalmail')) {
@@ -1434,7 +1434,7 @@ class Dmail extends BaseScriptClass
             $temporaryList = '';
 
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = &GeneralUtility::makeInstance($classRef);
             }
             foreach ($hookObjectsArr as $hookObj) {
                 if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {

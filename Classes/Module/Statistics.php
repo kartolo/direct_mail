@@ -955,7 +955,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'])) {
                 $hookObjectsArr = array();
                 foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'] as $classRef) {
-                    $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                    $hookObjectsArr[] = &GeneralUtility::makeInstance($classRef);
                 }
 
                 foreach ($hookObjectsArr as $hookObj) {
@@ -1481,7 +1481,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'])) {
             $hookObjectsArr = array();
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = &GeneralUtility::makeInstance($classRef);
             }
 
             // assigned $output to class property to make it acesssible inside hook

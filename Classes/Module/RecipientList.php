@@ -577,7 +577,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $hookObjectsArr = array();
 
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = &GeneralUtility::makeInstance($classRef);
             }
             foreach ($hookObjectsArr as $hookObj) {
                 if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
