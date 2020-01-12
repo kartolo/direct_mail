@@ -18,6 +18,8 @@ use DirectMailTeam\DirectMail\Dmailer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
@@ -1144,6 +1146,7 @@ class Dmail extends BaseScriptClass
      * Show the step of sending a test mail
      *
      * @return string the HTML form
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function cmd_testmail()
     {
@@ -1209,7 +1212,18 @@ class Dmail extends BaseScriptClass
             $msg = $this->getLanguageService()->getLL('testmail_mailgroup_msg') . '<br /><br />';
 
             foreach ($res as $row) {
-                $msg .='<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&sys_dmail_group_uid[]=' . $row['uid'] . '">' .
+                /** @var UriBuilder $uriBuilder */
+                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                $moduleUrl = $uriBuilder->buildUriFromRoute(
+                    $this->moduleName,
+                    [
+                        'id' => $this->id,
+                        'sys_dmail_uid' => $this->sys_dmail_uid,
+                        'CMD' => 'send_mail_test',
+                        'sys_dmail_group_uid[]' => $row['uid']
+                    ]
+                );
+                $msg .='<a href="' . $moduleUrl . '">' .
                     $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL) .
                     htmlspecialchars($row['title']) . '</a><br />';
                 // Members:
@@ -1277,6 +1291,7 @@ class Dmail extends BaseScriptClass
      * @param bool|int $testMailLink If set, send mail link is showed
      *
      * @return string HTML, the table showing the recipient's info
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function getRecordList(array $listArr, $table, $editLinkFlag=1, $testMailLink=0)
     {
@@ -1300,7 +1315,18 @@ class Dmail extends BaseScriptClass
                     }
 
                     if ($testMailLink) {
-                        $testLink = '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&sys_dmail_uid=' . $this->sys_dmail_uid . '&CMD=send_mail_test&tt_address_uid=' . $row['uid'] . '">' . htmlspecialchars($row['email']) . '</a>';
+                        /** @var UriBuilder $uriBuilder */
+                        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                        $moduleUrl = $uriBuilder->buildUriFromRoute(
+                            $this->moduleName,
+                            [
+                                'id' => $this->id,
+                                'sys_dmail_uid' => $this->sys_dmail_uid,
+                                'CMD' => 'send_mail_test',
+                                'tt_address_uid' => $row['uid']
+                            ]
+                        );
+                        $testLink = '<a href="' . $moduleUrl . '">' . htmlspecialchars($row['email']) . '</a>';
                     } else {
                         $testLink = htmlspecialchars($row['email']);
                     }
@@ -1874,6 +1900,7 @@ class Dmail extends BaseScriptClass
      * Show the list of existing directmail records, which haven't been sent
      *
      * @return	string		HTML
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function cmd_news()
     {
@@ -1924,7 +1951,17 @@ class Dmail extends BaseScriptClass
             foreach ($rows as $row) {
                 $languages = $this->getAvailablePageLanguages($row['uid']);
 
-                $createDmailLink = BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&createMailFrom_UID=' . $row['uid'] . '&fetchAtOnce=1&CMD=info';
+                /** @var UriBuilder $uriBuilder */
+                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                $createDmailLink = $uriBuilder->buildUriFromRoute(
+                    $this->moduleName,
+                    [
+                        'id' => $this->id,
+                        'createMailFrom_UID' => $row['uid'],
+                        'fetchAtOnce' => 1,
+                        'CMD' => 'info'
+                    ]
+                );
                 $pageIcon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
 
                 $previewHTMLLink = $previewTextLink = $createLink = '';
@@ -2041,10 +2078,22 @@ class Dmail extends BaseScriptClass
      * @param int $uid UID of the directmail record
      *
      * @return string the link
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function linkDMail_record($str, $uid)
     {
-        return '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&CMD=info&fetchAtOnce=1">' . htmlspecialchars($str) . '</a>';
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $moduleUrl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'sys_dmail_uid' => $uid,
+                'fetchAtOnce' => 1,
+                'CMD' => 'info'
+            ]
+        );
+        return '<a class="t3-link" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
     }
 
 
@@ -2054,13 +2103,24 @@ class Dmail extends BaseScriptClass
      * @param array $row DirectMail DB record
      *
      * @return string the HTML output
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     protected function renderRecordDetailsTable(array $row)
     {
         if (!$row['issent']) {
             if ($GLOBALS['BE_USER']->check('tables_modify', 'sys_dmail')) {
                 // $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
-                $requestUri = BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&CMD=info&sys_dmail_uid=' . $row['uid'] . '&fetchAtOnce=1';
+                /** @var UriBuilder $uriBuilder */
+                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                $requestUri = $uriBuilder->buildUriFromRoute(
+                    $this->moduleName,
+                    [
+                        'id' => $this->id,
+                        'sys_dmail_uid' => $row['uid'],
+                        'fetchAtOnce' => 1,
+                        'CMD' => 'info'
+                    ]
+                );
 
                 $editParams = BackendUtility::editOnClick('&edit[sys_dmail][' . $row['uid'] . ']=edit', $GLOBALS['BACK_PATH'], $requestUri);
 
@@ -2099,13 +2159,24 @@ class Dmail extends BaseScriptClass
      * @param int $uid Uid of the record
      *
      * @return string link with the trash icon
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function deleteLink($uid)
     {
         $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
         if (!$dmail['scheduled_begin']) {
-            return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&CMD=delete&uid=' . $uid . '">' . $icon . '</a>';
+            /** @var UriBuilder $uriBuilder */
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            $moduleUrl = $uriBuilder->buildUriFromRoute(
+                $this->moduleName,
+                [
+                    'id' => $this->id,
+                    'uid' => $uid,
+                    'CMD' => 'delete'
+                ]
+            );
+            return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
         }
 
         return '';

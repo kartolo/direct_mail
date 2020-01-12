@@ -14,6 +14,8 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -350,6 +352,7 @@ class MailerEngine extends BaseScriptClass
      * TODO: Should really only show some entries, or provide a browsing interface.
      *
      * @return	string		List of the mailing status
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function cmd_mailerengine()
     {
@@ -371,9 +374,18 @@ class MailerEngine extends BaseScriptClass
 
         // Invoke engine
         if ($enableTrigger) {
+            /** @var UriBuilder $uriBuilder */
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            $moduleUrl = $uriBuilder->buildUriFromRoute(
+                $this->moduleName,
+                [
+                    'id' => $this->id,
+                    'invokeMailerEngine' => 1
+                ]
+            );
             $invokeMessage .= '<h3>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke') . '</h3>' .
                 '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br />' .
-                    '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&invokeMailerEngine=1"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a>'.
+                    '<a class="t3-link" href="' . $moduleUrl . '"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a>'.
                 '</p>';
             $invokeMessage .= '<div style="padding-top: 20px;"></div>';
         }
@@ -436,13 +448,24 @@ class MailerEngine extends BaseScriptClass
      * @param int $uid Uid of the record
      *
      * @return string Link with the trash icon
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function deleteLink($uid)
     {
         $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
         if (!empty($dmail['scheduled_begin'])) {
-            return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&cmd=delete&uid=' . $uid . '">' . $icon . '</a>';
+            /** @var UriBuilder $uriBuilder */
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            $moduleUrl = $uriBuilder->buildUriFromRoute(
+                $this->moduleName,
+                [
+                    'id' => $this->id,
+                    'uid' => $uid,
+                    'CMD' => 'delete'
+                ]
+            );
+            return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
         }
         return '';
     }

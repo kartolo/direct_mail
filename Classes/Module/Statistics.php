@@ -14,6 +14,8 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -531,10 +533,22 @@ class Statistics extends BaseScriptClass
      * @param string $aTitle Title param of the link tag
      *
      * @return string wrapped string as a link
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function linkDMail_record($str, $uid, $aTitle='')
     {
-        return '<a title="' . htmlspecialchars($aTitle) . '" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_Statistics') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&SET[dmail_mode]=direct&CMD=stats">' . htmlspecialchars($str) . '</a>';
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $moduleUrl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'sys_dmail_uid' => $uid,
+                'CMD' => 'stats',
+                'SET[dmail_mode]' => 'direct'
+            ]
+        );
+        return '<a title="' . htmlspecialchars($aTitle) . '" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
     }
 
     /**
@@ -543,13 +557,24 @@ class Statistics extends BaseScriptClass
      * @param array $row DB record
      *
      * @return string Statistics of a mail
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function cmd_stats($row)
     {
         if (GeneralUtility::_GP('recalcCache')) {
             $this->makeStatTempTableContent($row);
         }
-        $thisurl = BackendUtility::getModuleUrl('DirectMailNavFrame_Statistics') . '&id=' . $this->id . '&sys_dmail_uid=' . $row['uid'] . '&CMD=' . $this->CMD . '&recalcCache=1';
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $thisurl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'sys_dmail_uid' => $row['uid'],
+                'CMD' => $this->CMD,
+                'recalcCache' => 1
+            ]
+        );
         $output = $this->directMail_compactView($row);
 
         // *****************************

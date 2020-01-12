@@ -16,6 +16,8 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
@@ -80,6 +82,7 @@ class NavFrame
      * First initialization of the global variables. Set some JS-code
      *
      * @return	void
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function init()
     {
@@ -88,7 +91,9 @@ class NavFrame
         $this->doc->showFlashMessages = false;
 
         $currentModule = GeneralUtility::_GP('currentModule');
-        $currentSubScript = BackendUtility::getModuleUrl($currentModule);
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $currentSubScript = $uriBuilder->buildUriFromRoute($currentModule);
 
         // Setting highlight mode:
         $this->doHighlight = (bool)($GLOBALS['BE_USER']->getTSConfig()['options.']['pageTree.']['disableTitleHighlight']) ? false : true;

@@ -15,6 +15,8 @@ namespace DirectMailTeam\DirectMail\Module;
  */
 
 use DirectMailTeam\DirectMail\MailSelect;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use Psr\Http\Message\ResponseInterface;
@@ -289,6 +291,7 @@ class RecipientList extends BaseScriptClass
      * Shows the existing recipient lists and shows link to create a new one or import a list
      *
      * @return string List of existing recipient list, link to create a new list and link to import
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function showExistingRecipientLists()
     {
@@ -359,7 +362,16 @@ class RecipientList extends BaseScriptClass
             $out;
 
         // Import
-        $out = '<a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_RecipientList') . '&id=' . $this->id . '&CMD=displayImport">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $moduleUrl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'CMD' => 'displayImport'
+            ]
+        );
+        $out = '<a class="t3-link" href="' . $moduleUrl . '">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
         $theOutput.= '<div style="padding-top: 20px;"></div>';
         $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_import') . '</h3>' . $out;
         return $theOutput;
@@ -396,10 +408,22 @@ class RecipientList extends BaseScriptClass
      * @param int $uid Uid of the recipient link
      *
      * @return string The link
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function linkRecip_record($str, $uid)
     {
-        return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_RecipientList') . '&id=' . $this->id . '&CMD=displayMailGroup&group_uid=' . $uid . '&SET[dmail_mode]=recip">' . $str . '</a>';
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $moduleUrl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'group_uid' => $uid,
+                'CMD' => 'displayMailGroup',
+                'SET[dmail_mode]' => 'recip'
+            ]
+        );
+        return '<a href="' . $moduleUrl . '">' . $str . '</a>';
     }
 
     /**
