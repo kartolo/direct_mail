@@ -60,3 +60,18 @@ Breaking Changes
 .. code-block:: shell
 
    /ABS/PATH/TO/BINARY/ direct_mail:invokemailerengine --help
+
+Deprecations
+""""""""""""
+
+#. Global configuration option "content_doktypes" removed in TYPO3 v9
+
+   See TYPO3 Breaking: #82803
+
+   The outdated global configuration
+   :php:`$GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes']`
+   filters Internal pages in the Direct Mail module to select a newsletter.
+   This configuration will be ignored in the future.
+
+   Doktypes of spacers (199), recyclers (255) or folders (254)
+   are excluded by default.

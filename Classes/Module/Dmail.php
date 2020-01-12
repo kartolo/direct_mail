@@ -1938,7 +1938,7 @@ class Dmail extends BaseScriptClass
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('pages');
 
-        $res = $queryBuilder
+        $queryBuilder
             ->select('uid', 'doktype', 'title', 'abstract')
             ->from('pages')
             ->where(
@@ -1946,20 +1946,38 @@ class Dmail extends BaseScriptClass
                     'pid',
                     $queryBuilder->createNamedParameter($this->id, \PDO::PARAM_INT)
                 ),
+                $this->perms_clause
+            );
+        /**
+         * Postbone Breaking: #82803 - Global configuration option "content_doktypes" removed in TYPO3 v9
+         * Regards custom configurations, otherwise ignores spacers (199), recyclers (255) and folders (254)
+         * 
+         * @deprecated since TYPO3 v9.
+         **/
+        if (isset($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
+            && !empty($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
+        ) {
+            $queryBuilder->andWhere(
                 $queryBuilder->expr()->in(
                     'doktype',
                     GeneralUtility::intExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
-                ),
-                $this->perms_clause
-            )
-            ->orderBy('sorting')
-            ->execute();
+                )
+            );
+        } else {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->notIn(
+                    'doktype',
+                    [199,254,255]
+                )
+            );
+        }
+        $rows = $queryBuilder->orderBy('sorting')->execute()->fetchAll();
 
-        if (empty($res)) {
+        if (empty($rows)) {
             $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_select') . '</h3>' . $this->getLanguageService()->getLL('nl_select_msg1');
         } else {
             $outLines = array();
-            while (($row = $res->fetch())) {
+            foreach ($rows as $row) {
                 $languages = $this->getAvailablePageLanguages($row['uid']);
 
                 $createDmailLink = BackendUtility::getModuleUrl('DirectMailNavFrame_DirectMail') . '&id=' . $this->id . '&createMailFrom_UID=' . $row['uid'] . '&fetchAtOnce=1&CMD=info';

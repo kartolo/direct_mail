@@ -1108,7 +1108,7 @@ class DirectMailUtility
                 $pageRecord['title'] = $pageRecordOverlay['title'];
             }
         }
-        /*if (GeneralUtility::inList($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'], $pageRecord['doktype'])) {*/
+
         if ($pageRecord['doktype']) {
             $newRecord['subject'] = $pageRecord['title'];
             $newRecord['page']    = $pageRecord['uid'];
