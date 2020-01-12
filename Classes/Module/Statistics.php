@@ -16,20 +16,16 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Backend\Utility\IconUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
-use TYPO3\CMS\Core\Database\Connection;
 
 /**
  * Module Statistics of tx_directmail extension
@@ -42,7 +38,7 @@ use TYPO3\CMS\Core\Database\Connection;
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
-class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
+class Statistics extends BaseScriptClass
 {
     public $extKey = 'direct_mail';
     public $fieldList = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
@@ -64,11 +60,6 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     public $MCONF;
     public $cshTable;
     public $formname = 'dmailform';
-
-    /*
-     * @var \TYPO3\CMS\Frontend\Page\PageRepository
-     */
-    public $sys_page;
 
     /*
      * @var array
@@ -93,61 +84,9 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     public function __construct()
     {
-        $this->MCONF = array(
+        $this->MCONF = [
             'name' => $this->moduleName
-        );
-    }
-
-    /**
-     * First initialization of global variables
-     *
-     * @return	void
-     */
-    public function init()
-    {
-        parent::init();
-
-        // initialize IconFactory
-        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-
-        // get TS Params
-        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
-        $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
-
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode'); //@todo Deprecation: #84993
-
-        // initialize the page selector
-        $this->sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
-        $this->sys_page->init(true);
-
-        // initialize backend user language
-        if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getQueryBuilderForTable('sys_language');
-            $res = $queryBuilder
-                ->select('sys_language.uid')
-                ->from('sys_language')
-                ->leftJoin(
-                    'sys_language',
-                    'static_languages',
-                    'static_languages',
-                    $queryBuilder->expr()->eq('sys_language.static_lang_isocode', $queryBuilder->quoteIdentifier('static_languages.uid'))
-                )
-                ->where(
-                    $queryBuilder->expr()->eq('static_languages.lg_typo3', $queryBuilder->createNamedParameter($this->getLanguageService()->lang))
-                )
-                ->execute()
-                ->fetchAll();
-            foreach ($res as $row) {
-                $this->sys_language_uid = $row['uid'];
-            }
-        }
-        // load contextual help
-        $this->cshTable = '_MOD_'.$this->MCONF['name'];
-        if ($GLOBALS['BE_USER']->uc['edit_showFieldHelp']) {
-            $this->getLanguageService()->loadSingleTableDescription($this->cshTable);
-        }
+        ];
     }
 
     /**
@@ -1600,13 +1539,16 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             // do we have an id?
             if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $urlParts['query'], $m)) {
                 $isInt = MathUtility::canBeInterpretedAsInteger($m[1]);
-
                 if ($isInt) {
                     $uid = intval($m[1]);
                 } else {
-                    $uid = $this->sys_page->getPageIdFromAlias($m[1]);
+                    // initialize the page selector
+                    /** @var \TYPO3\CMS\Frontend\Page\PageRepository $sys_page */
+                    $sys_page = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+                    $sys_page->init(true);
+                    $uid = $sys_page->getPageIdFromAlias($m[1]);
                 }
-                $rootLine = $this->sys_page->getRootLine($uid);
+                $rootLine = BackendUtility::BEgetRootLine($uid);
                 $pages = array_shift($rootLine);
                 // array_shift reverses the array (rootline has numeric index in the wrong order!)
                 $rootLine = array_reverse($rootLine);
