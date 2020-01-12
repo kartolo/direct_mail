@@ -209,7 +209,7 @@ class BaseScriptClass
             $this->allowedTables[] = $this->userTable;
         }
 
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode'); //@todo Deprecation: #84993
+        $this->MOD_MENU['dmail_mode'] = $this->unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
 
         // initialize backend user language
         if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
@@ -345,5 +345,36 @@ class BaseScriptClass
         }
 
         return $this->pageRenderer;
+    }
+
+    /**
+     * Removes menu items from $itemArray if they are configured to be removed by TSconfig for the module ($modTSconfig)
+     * Copy from TYPO3 9.5.13
+     *
+     * @param array $modTSconfig Module TS config array
+     * @param array $itemArray Array of items from which to remove items.
+     * @param string $TSref $TSref points to the "object string" in $modTSconfig
+     * @return array The modified $itemArray is returned.
+     */
+    protected function unsetMenuItems($modTSconfig, $itemArray, $TSref)
+    {
+        // Getting TS-config options for this module for the Backend User:
+        $conf = $this->getBackendUserAuthentication()->getTSConfig($TSref, $modTSconfig);
+        if (is_array($conf['properties'])) {
+            foreach ($conf['properties'] as $key => $val) {
+                if (!$val) {
+                    unset($itemArray[$key]);
+                }
+            }
+        }
+        return $itemArray;
+    }
+
+    /**
+     * @return BackendUserAuthentication
+     */
+    protected function getBackendUserAuthentication()
+    {
+        return $GLOBALS['BE_USER'];
     }
 }
