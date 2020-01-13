@@ -1354,7 +1354,7 @@ class Dmail extends BaseScriptClass
      *
      * @return array list of the recipient ID
      */
-    protected function cmd_compileMailGroup(array $groups)
+    public function cmd_compileMailGroup(array $groups)
     {
         // If supplied with an empty array, quit instantly as there is nothing to do
         if (!count($groups)) {
