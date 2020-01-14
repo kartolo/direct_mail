@@ -175,3 +175,91 @@ cmd_compileMailGroup
 
    Description
          Manipulate the generated ``id_list`` from various recipient lists.
+
+
+.. _hooks_queryInfoHook:
+queryInfoHook
+'''''''''''''
+
+.. container:: table-row
+
+   Property
+         ``$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['queryInfoHook']``
+
+   Data type
+         ``queryInfoHook``
+
+   Description
+         This hooks allows the list of recipients to be post-processed before the direct_mail mailer
+         starts sending the messages.
+
+
+Sample implementation for the business logic used by direct_mail_userfunc.
+
+.. code-block:: php
+
+    \Causal\LbCal\DirectMail\RecipientList::participants:
+    
+    public function participants(array &$params, $pObj)
+    {
+        // Custom business logic to populate $params['lists']['PLAINLIST']
+        //$params['lists']['PLAINLIST'] = ...
+        
+        /**
+         * Persist the configuration being used so that
+         * @see \Causal\LbCal\Hooks\DirectMail::updateRecipientsWhenSending()
+         * may do the job again.
+         *
+         * We could persist $params['groupUid'] instead of the current configuration but if
+         * the configuration is changed afterwards, this could have unexpected side-effects
+         * from the point of view of the user preparing the newsletter so it's better to
+         * persist the current (approved) configuration of the list of recipients.
+         *
+         * BEWARE: Known limitation at this time: we do not handle dynamically regenerating
+         *         a compound/aggregate list of recipients (sys_dmail_group|type = 4)
+         */
+        $params['lists']['tx_directmailuserfunc_itemsprocfunc'] = __CLASS__ . '->' . __FUNCTION__;
+        $params['lists']['tx_directmailuserfunc_params'] = $params['userParams'];
+    }
+
+Sample implementation of the proposed hook
+
+.. code-block:: php
+
+    public function updateRecipientsWhenSending(array $params, Dmailer $pObj) : void
+    {
+        $query_info =& $params['query_info'];
+        if (isset($query_info['id_lists']['tx_directmailuserfunc_itemsprocfunc'])) {
+            // The list of recipients is dynamic and should now be regenerated
+            $itemsProcFunc = $query_info['id_lists']['tx_directmailuserfunc_itemsprocfunc'];
+    
+            $itemsProcFuncParams = [
+                'groupUid' => null, // We don't have that information and know we won't use it anyway
+                'lists' => &$query_info['id_lists'],
+                'userParams' => $query_info['id_lists']['tx_directmailuserfunc_params'],
+            ];
+    
+            // Clear everything so that the list of recipients is generated from a clean state
+            $query_info['id_lists'] = [
+                'tt_address' => [],
+                'fe_users' => [],
+                'PLAINLIST' => [],
+            ];
+    
+            GeneralUtility::callUserFunction($itemsProcFunc, $itemsProcFuncParams, $this);
+    
+            // Unset information for this hook since it is not needed anymore
+            // and would be misinterpreted by Dmailer otherwise
+            unset($query_info['id_lists']['tx_directmailuserfunc_itemsprocfunc']);
+            unset($query_info['id_lists']['tx_directmailuserfunc_params']);
+    
+            // Persist final list of recipients to the database so that next run of the scheduler
+            // can work on the next chunk if needed
+            GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('sys_dmail')
+                ->update(
+                    'sys_dmail',
+                    [ 'query_info' => serialize($query_info) ],
+                    [ 'uid' => (int)$params['row']['uid'] ]
+                );
+        }
+    }
