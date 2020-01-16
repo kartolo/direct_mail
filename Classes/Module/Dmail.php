@@ -993,23 +993,33 @@ class Dmail extends BaseScriptClass
                     ->select('a.*')
                     ->from('tt_address', 'a')
                     ->leftJoin('a', 'pages', 'p', $queryBuilder->expr()->eq('p.uid', $queryBuilder->quoteIdentifier('a.pid')))
-                    ->where($queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter((int)GeneralUtility::_GP('a'), \PDO::PARAM_INT)))
+                    ->where($queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter((int)GeneralUtility::_GP('tt_address_uid'), \PDO::PARAM_INT)))
                     ->andWhere($this->perms_clause)
                     ->execute()
                     ->fetchAll();
 
-                foreach ($res as $recipRow) {
-                    $recipRow = Dmailer::convertFields($recipRow);
-                    $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address', $recipRow['uid']);
-                    $htmlmail->dmailer_sendAdvanced($recipRow, 't');
-                    $sentFlag=true;
+                if (!empty($res)) {
+                    foreach ($res as $recipRow) {
+                        $recipRow = Dmailer::convertFields($recipRow);
+                        $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address', $recipRow['uid']);
+                        $htmlmail->dmailer_sendAdvanced($recipRow, 't');
+                        $sentFlag=true;
 
+                        /* @var $flashMessage FlashMessage */
+                        $flashMessage = GeneralUtility::makeInstance(
+                            'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                            sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), htmlspecialchars($recipRow['name']) . htmlspecialchars(' <' . $recipRow['email'] . '>')),
+                            $this->getLanguageService()->getLL('send_sending'),
+                            FlashMessage::OK
+                        );
+                    }
+                } else {
                     /* @var $flashMessage FlashMessage */
                     $flashMessage = GeneralUtility::makeInstance(
                         'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), htmlspecialchars($recipRow['name']) . htmlspecialchars(' <' . $recipRow['email'] . '>')),
+                        'Error: No valid recipient found to send test mail to. #1579209279',
                         $this->getLanguageService()->getLL('send_sending'),
-                        FlashMessage::OK
+                        FlashMessage::ERROR
                     );
                 }
 
