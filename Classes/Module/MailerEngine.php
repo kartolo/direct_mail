@@ -175,7 +175,7 @@ class MailerEngine extends BaseScriptClass
             }
             // Render content:
             if ($module == 'dmail') {
-                if (GeneralUtility::_GP('cmd') == 'delete') {
+                if (GeneralUtility::_GP('CMD') == 'delete') {
                     $this->deleteDMail(GeneralUtility::_GP('uid'));
                 }
 
