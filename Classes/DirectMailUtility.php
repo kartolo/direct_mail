@@ -1442,22 +1442,61 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row)
     {
-        $result = self::getUrlBase((int)$row['page'], true, $row['HTMLParams'], $row['plainParams']);
+        $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
+        // Finding the domain to use
+        $result = [
+            'baseUrl' => $cObj->typolink_URL([
+                'parameter' => (int)$row['page'],
+                'forceAbsoluteUrl' => true,
+                'linkAccessRestrictedPages' => true
+            ]),
+            'htmlUrl' => '',
+            'plainTextUrl' => ''
+        ];
 
-        if ((string)$row['type'] === '1') {
-            $result = []; // Reset to array, cause of external pages always results in empty string!
-            $result['htmlUrl'] = $row['HTMLParams'];
-            $result['plainTextUrl'] = $row['plainParams'];
+        // Finding the url to fetch content from
+        switch ((string)$row['type']) {
+            case 1:
+                $result['htmlUrl'] = $row['HTMLParams'];
+                $result['plainTextUrl'] = $row['plainParams'];
+                break;
+            default:
+                $result['htmlUrl'] = $cObj->typolink_URL([
+                    'parameter' => (int)$row['page'],
+                    'forceAbsoluteUrl' => true,
+                    'linkAccessRestrictedPages' => true,
+                    'additionalParams' => $row['HTMLParams'],
+                ]);
+                $result['plainTextUrl'] = $cObj->typolink_URL([
+                    'parameter' => (int)$row['page'],
+                    'forceAbsoluteUrl' => true,
+                    'linkAccessRestrictedPages' => true,
+                    'additionalParams' => $row['plainParams'],
+                ]);
         }
 
         // plain
-        if ($result['plainTextUrl'] && !($row['sendOptions']&1)) {
-            $result['plainTextUrl'] = '';
+        if ($result['plainTextUrl']) {
+            if (!($row['sendOptions'] & 1)) {
+                $result['plainTextUrl'] = '';
+            } else {
+                $urlParts = @parse_url($result['plainTextUrl']);
+                if (!$urlParts['scheme']) {
+                    $result['plainTextUrl'] = 'http://' . $result['plainTextUrl'];
+                }
+            }
         }
 
         // html
-        if ($result['htmlUrl'] && !($row['sendOptions']&2)) {
-            $result['htmlUrl'] = '';
+        if ($result['htmlUrl']) {
+            if (!($row['sendOptions'] & 2)) {
+                $result['htmlUrl'] = '';
+            } else {
+                $urlParts = @parse_url($result['htmlUrl']);
+                if (!$urlParts['scheme']) {
+                    $result['htmlUrl'] = 'http://' . $result['htmlUrl'];
+                }
+            }
         }
 
         return $result;
