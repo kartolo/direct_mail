@@ -1927,6 +1927,7 @@ class Dmail extends BaseScriptClass
                     'pid',
                     $queryBuilder->createNamedParameter($this->id, \PDO::PARAM_INT)
                 ),
+                $queryBuilder->expr()->eq('l10n_parent', 0), // Exclude translated page records from list
                 $this->perms_clause
             );
         /**

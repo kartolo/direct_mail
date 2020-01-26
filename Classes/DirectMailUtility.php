@@ -1102,7 +1102,7 @@ class DirectMailUtility
                     'sys_language_uid',
                     $queryBuilder->createNamedParameter($newRecord['sys_language_uid'], \PDO::PARAM_INT)
                 )
-            )->execute()->fetchColumn(0);
+            )->execute()->fetch();
 
             if (is_array($pageRecordOverlay)) {
                 $pageRecord['title'] = $pageRecordOverlay['title'];
