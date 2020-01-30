@@ -162,6 +162,10 @@ class JumpurlController
                     // Also allow jumpurl to be a valid URL
                     GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
                     $responseType = -1;
+                } elseif (GeneralUtility::validEmail(substr($jumpurl,7)) && preg_match('#^(mailto:)#', $jumpurl)) {
+                    // Also allow jumpurl to be a valid mailto link
+                    GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
+                    $responseType = -1;
                 }
 
                 // to count the dmailerping correctly, we need something unique
