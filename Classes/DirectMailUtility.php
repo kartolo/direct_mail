@@ -1266,9 +1266,8 @@ class DirectMailUtility
         $htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
         if ($params['enable_jump_url']) {
             $htmlmail->jumperURL_prefix = $urlBase .
-                '?id=' . $row['page'] .
+                '?mid=###SYS_MAIL_ID###' .
                 (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
-                '&mid=###SYS_MAIL_ID###' .
                 '&aC=###SYS_AUTHCODE###' .
                 '&jumpurl=';
             $htmlmail->jumperURL_useId = 1;
