@@ -337,7 +337,7 @@ class Dmail extends BaseScriptClass
             'organisation'        => $this->params['organisation'],
             'authcode_fieldList'=> $this->params['authcode_fieldList'],
             'plainParams'        => ''
-            );
+        );
 
         // always plaintext
         $dmail['sys_dmail']['NEW']['sendOptions'] = 1;
@@ -444,7 +444,7 @@ class Dmail extends BaseScriptClass
                 ->execute();
 
             if ($warningMsg) {
-               return '<h3>' . $this->getLanguageService()->getLL('dmail_warning') . '</h3>' . $warningMsg . '<br /><br />';
+                return '<h3>' . $this->getLanguageService()->getLL('dmail_warning') . '</h3>' . $warningMsg . '<br /><br />';
             }
         }
 
@@ -498,7 +498,7 @@ class Dmail extends BaseScriptClass
 
         $hideCategoryStep = false;
         if (($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] &&
-            $GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] == 'cat') || $isExternalDirectMailRecord) {
+                $GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] == 'cat') || $isExternalDirectMailRecord) {
             $hideCategoryStep = true;
         }
 
@@ -558,7 +558,7 @@ class Dmail extends BaseScriptClass
             case 'info':
                 $fetchMessage = '';
 
-                    // step 2: create the Direct Mail record, or use existing
+                // step 2: create the Direct Mail record, or use existing
                 $this->currentStep = 2;
                 $markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz2_detail');
 
@@ -573,7 +573,7 @@ class Dmail extends BaseScriptClass
                 $createMailFromInternalPage = intval(GeneralUtility::_GP('createMailFrom_UID'));
                 $createMailFromExternalUrl = GeneralUtility::_GP('createMailFrom_URL');
 
-                    // internal page
+                // internal page
                 if ($createMailFromInternalPage && !$quickmail['send']) {
                     $createMailFromInternalPageLang = (int)GeneralUtility::_GP('createMailFrom_LANG');
                     $newUid = DirectMailUtility::createDirectMailRecordFromPage($createMailFromInternalPage, $this->params, $createMailFromInternalPageLang);
@@ -623,7 +623,7 @@ class Dmail extends BaseScriptClass
                 } elseif ($row) {
                     if ($row['type'] == '1' && ((empty($row['HTMLParams'])) || (empty($row['plainParams'])))) {
 
-                            // it's a quickmail
+                        // it's a quickmail
                         $fetchError = false;
                         $theOutput .= '<input type="hidden" name="CMD" value="send_test">';
 
@@ -692,7 +692,7 @@ class Dmail extends BaseScriptClass
             case 'send_test':
                 // Same as send_mail_test
             case 'send_mail_test':
-                    // send test mail
+                // send test mail
                 $this->currentStep = (4 - (5 - $totalSteps));
                 $markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz4_testmail');
 
@@ -972,8 +972,8 @@ class Dmail extends BaseScriptClass
                 /* @var $flashMessage FlashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
                     'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $this->getLanguageService()->getLL('send_was_sent') . '&nbsp;' .
-                        $this->getLanguageService()->getLL('send_recipients') . '&nbsp;' . htmlspecialchars($addressList),
+                    $this->getLanguageService()->getLL('send_was_sent') . ' ' .
+                    $this->getLanguageService()->getLL('send_recipients') . ' ' . htmlspecialchars($addressList),
                     $this->getLanguageService()->getLL('send_sending'),
                     FlashMessage::OK
                 );
@@ -1096,7 +1096,7 @@ class Dmail extends BaseScriptClass
                 /* @var $flashMessage FlashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
                     'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $sectionTitle . '<br /><br />' . $content,
+                    $sectionTitle . ' ' . $content,
                     $this->getLanguageService()->getLL('dmail_wiz5_sendmass'),
                     FlashMessage::OK
                 );
@@ -1185,7 +1185,7 @@ class Dmail extends BaseScriptClass
 
             $ids = array();
 
-           foreach ($res as $row) {
+            foreach ($res as $row) {
                 $ids[] = $row['uid'];
             }
 
@@ -1467,12 +1467,12 @@ class Dmail extends BaseScriptClass
                                 }
                             }
                         }
-                            // Remove any duplicates
+                        // Remove any duplicates
                         $pageIdArray = array_unique($pageIdArray);
                         $pidList = implode(',', $pageIdArray);
                         $info['recursive'] = $mailGroup['recursive'];
 
-                            // Make queries
+                        // Make queries
                         if ($pidList) {
                             $whichTables = intval($mailGroup['whichtables']);
                             if ($whichTables&1) {
@@ -1709,7 +1709,7 @@ class Dmail extends BaseScriptClass
                 reset($this->categories);
                 foreach ($this->categories as $pKey => $pVal) {
                     $checkBox .= '<input type="hidden" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="0">' .
-                    '<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categoriesRow, $pKey) ?' checked':'') . '> ' .
+                        '<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categoriesRow, $pKey) ?' checked':'') . '> ' .
                         htmlspecialchars($pVal) . '<br />';
                 }
                 $out .= $checkBox . '</td></tr>';
@@ -1769,12 +1769,12 @@ class Dmail extends BaseScriptClass
         // Create
         $out = $this->getLanguageService()->getLL('dmail_HTML_url') . '<br />
 				<input type="text" value="http://" name="createMailFrom_HTMLUrl"' . $GLOBALS['TBE_TEMPLATE']->formWidth(40) . ' /><br />' .
-                $this->getLanguageService()->getLL('dmail_plaintext_url') . '<br />
+            $this->getLanguageService()->getLL('dmail_plaintext_url') . '<br />
 				<input type="text" value="http://" name="createMailFrom_plainUrl"' . $GLOBALS['TBE_TEMPLATE']->formWidth(40) . ' /><br />' .
-                $this->getLanguageService()->getLL('dmail_subject') . '<br />' .
-                '<input type="text" value="' . $this->getLanguageService()->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';"' . $GLOBALS['TBE_TEMPLATE']->formWidth(40) . ' /><br />' .
-                (($this->error == 'no_valid_url')?('<br /><b>' . $this->getLanguageService()->getLL('dmail_no_valid_url') . '</b><br /><br />'):'') .
-                '<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_createMail') . '" />
+            $this->getLanguageService()->getLL('dmail_subject') . '<br />' .
+            '<input type="text" value="' . $this->getLanguageService()->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';"' . $GLOBALS['TBE_TEMPLATE']->formWidth(40) . ' /><br />' .
+            (($this->error == 'no_valid_url')?('<br /><b>' . $this->getLanguageService()->getLL('dmail_no_valid_url') . '</b><br /><br />'):'') .
+            '<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_createMail') . '" />
 				<input type="hidden" name="fetchAtOnce" value="1">';
         $output.= '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromUrl') . BackendUtility::cshItem($this->cshTable, 'create_directmail_from_url', $GLOBALS['BACK_PATH']) . '</h3>';
         $output.= $out;
@@ -1834,16 +1834,16 @@ class Dmail extends BaseScriptClass
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
         $queryBuilder
-        ->getRestrictions()
-        ->removeAll()
-        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         $res = $queryBuilder->select('uid','pid','subject','tstamp','issent','renderedsize','attachment','type')
             ->from('sys_dmail')
             ->add('where','pid = ' . intval($this->id) .
                 ' AND scheduled=0 AND issent=0')
-       ->orderBy($sOrder,$ascDesc)
-       ->execute()
-       ->fetchAll();
+            ->orderBy($sOrder,$ascDesc)
+            ->execute()
+            ->fetchAll();
 
         $tblLines = array();
         $tblLines[] = array(
@@ -1933,7 +1933,7 @@ class Dmail extends BaseScriptClass
         /**
          * Postbone Breaking: #82803 - Global configuration option "content_doktypes" removed in TYPO3 v9
          * Regards custom configurations, otherwise ignores spacers (199), recyclers (255) and folders (254)
-         * 
+         *
          * @deprecated since TYPO3 v9.
          **/
         if (isset($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
@@ -1989,21 +1989,21 @@ class Dmail extends BaseScriptClass
                     $createIcon = $this->iconFactory->getIcon('directmail-dmail-new', Icon::SIZE_SMALL, $langIconOverlay);
 
                     $previewHTMLLink .= '<a href="#" onClick="' . BackendUtility::viewOnClick(
-                        $row['uid'],
+                            $row['uid'],
                             $GLOBALS['BACK_PATH'],
-                        BackendUtility::BEgetRootLine($row['uid']),
-                        '',
-                        '',
+                            BackendUtility::BEgetRootLine($row['uid']),
+                            '',
+                            '',
                             $htmlParams
-                    ) . '" title="' . htmlentities($GLOBALS['LANG']->getLL('nl_viewPage_HTML') . $langTitle) . '">' . $htmlIcon . '</a>';
+                        ) . '" title="' . htmlentities($GLOBALS['LANG']->getLL('nl_viewPage_HTML') . $langTitle) . '">' . $htmlIcon . '</a>';
                     $previewTextLink .= '<a href="#" onClick="' . BackendUtility::viewOnClick(
-                        $row['uid'],
+                            $row['uid'],
                             $GLOBALS['BACK_PATH'],
-                        BackendUtility::BEgetRootLine($row['uid']),
-                        '',
-                        '',
+                            BackendUtility::BEgetRootLine($row['uid']),
+                            '',
+                            '',
                             $plainParams
-                    ) . '" title="' . htmlentities($GLOBALS['LANG']->getLL('nl_viewPage_TXT') . $langTitle) . '">' . $plainIcon . '</a>';
+                        ) . '" title="' . htmlentities($GLOBALS['LANG']->getLL('nl_viewPage_TXT') . $langTitle) . '">' . $plainIcon . '</a>';
                     $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($GLOBALS['LANG']->getLL('nl_create') . $langTitle) . '">' . $createIcon . '</a>';
                 }
 
@@ -2029,7 +2029,7 @@ class Dmail extends BaseScriptClass
             }
             $out = DirectMailUtility::formatTable($outLines, array(), 0, array(1, 1, 1, 1));
             $theOutput = '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromNL') .
-                    BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH']) .
+                BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH']) .
                 '</h3>' .
                 $out;
         }
