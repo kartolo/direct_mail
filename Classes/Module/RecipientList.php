@@ -653,7 +653,7 @@ class RecipientList extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 }
                 if (is_array($idLists['PLAINLIST'])) {
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_plain_list') .'</h3>' .
-                        DirectMailUtility::getRecordList($idLists['PLAINLIST'], 'default', $this->id);
+                        DirectMailUtility::getRecordList($idLists['PLAINLIST'], 'sys_dmail_group', $this->id);
                     $theOutput.= '<div style="padding-top: 20px;"></div>';
                 }
                 if (is_array($idLists[$this->userTable])) {
