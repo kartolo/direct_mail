@@ -165,6 +165,7 @@ class JumpurlController
             }
 
             if ($responseType != 0) {
+                $logTable = 'sys_dmail_maillog';
                 $insertFields = array(
                     // the message ID
                     'mid'           => intval($mid),
@@ -172,11 +173,31 @@ class JumpurlController
                     'url'           => $jumpurl,
                     'response_type' => intval($responseType),
                     'url_id'        => intval($urlId),
-                    'rtbl'            => $recipientTable,
-                    'rid'            => $recipientUid
+                    'rtbl'          => $recipientTable,
+                    'rid'           => $recipientUid
                 );
 
-                $db->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+                // check if entry exists in the last 10 seconds
+                $existingLog = $db->exec_SELECTcountRows(
+                    '*',
+                    $logTable,
+                    implode(' AND ',
+                        array(
+                            'mid = ' . $insertFields['mid'],
+                            'url = ' . $db->fullQuoteStr($insertFields['url'], $logTable),
+                            'response_type = ' . $insertFields['response_type'],
+                            'url_id = ' . $insertFields['url_id'],
+                            'rtbl = ' . $db->fullQuoteStr($insertFields['rtbl'], $logTable),
+                            'rid = ' . $db->fullQuoteStr($insertFields['rid'], $logTable),
+                            'tstamp <= ' . $insertFields['tstamp'],
+                            'tstamp >= ' . intval($insertFields['tstamp']-10),
+                        )
+                    )
+                );
+
+                if ($existingLog === 0) {
+                    $db->exec_INSERTquery($logTable, $insertFields);
+                }
             }
         }
 
