@@ -413,7 +413,7 @@ class DirectMailUtility
      * @param string $table The table to select from
      * @param array $group The direct_mail group record
      *
-     * @return string The resulting query.
+     * @return array The resulting query.
      */
     public static function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group)
     {
@@ -421,16 +421,17 @@ class DirectMailUtility
         if ($group['query']) {
             $queryGenerator->init('dmail_queryConfig', $table);
             $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
-            $whereClause = $queryGenerator->getQuery($queryGenerator->queryConfig) . BackendUtility::deleteClause($table);
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                $table . '.uid',
-                $table,
-                $whereClause
-            );
 
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                $outArr[] = $row['uid'];
+            $queryGenerator->extFieldLists['queryFields'] = 'uid';
+            $select = $queryGenerator->getSelectQuery();
+            $res = $GLOBALS['TYPO3_DB']->sql_query($select);
+
+            if ($GLOBALS['TYPO3_DB']->sql_num_rows($res) > 0) {
+                while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+                    $outArr[] = $row['uid'];
+                }
             }
+
             $GLOBALS['TYPO3_DB']->sql_free_result($res);
         }
         return $outArr;

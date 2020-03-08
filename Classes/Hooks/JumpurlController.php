@@ -155,10 +155,9 @@ class JumpurlController
                     // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
                     GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
                     $responseType = -1;
-                } elseif (GeneralUtility::isValidUrl($jumpurl) && preg_match('#^(http://|https://)#', $jumpurl)) {
-                    // Also allow jumpurl to be a valid URL
-                    GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
-                    $responseType = -1;
+                } elseif (GeneralUtility::isValidUrl($jumpurl)) {
+                    // if it's a valid URL, throw exception
+                    throw new \Exception('direct_mail: Invalid JumpURL parameter.', 1578347190);
                 }
 
                 // to count the dmailerping correctly, we need something unique
@@ -166,6 +165,7 @@ class JumpurlController
             }
 
             if ($responseType != 0) {
+                $logTable = 'sys_dmail_maillog';
                 $insertFields = array(
                     // the message ID
                     'mid'           => intval($mid),
@@ -173,11 +173,31 @@ class JumpurlController
                     'url'           => $jumpurl,
                     'response_type' => intval($responseType),
                     'url_id'        => intval($urlId),
-                    'rtbl'            => $recipientTable,
-                    'rid'            => $recipientUid
+                    'rtbl'          => $recipientTable,
+                    'rid'           => $recipientUid
                 );
 
-                $db->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+                // check if entry exists in the last 10 seconds
+                $existingLog = $db->exec_SELECTcountRows(
+                    '*',
+                    $logTable,
+                    implode(' AND ',
+                        array(
+                            'mid = ' . $insertFields['mid'],
+                            'url = ' . $db->fullQuoteStr($insertFields['url'], $logTable),
+                            'response_type = ' . $insertFields['response_type'],
+                            'url_id = ' . $insertFields['url_id'],
+                            'rtbl = ' . $db->fullQuoteStr($insertFields['rtbl'], $logTable),
+                            'rid = ' . $db->fullQuoteStr($insertFields['rid'], $logTable),
+                            'tstamp <= ' . $insertFields['tstamp'],
+                            'tstamp >= ' . intval($insertFields['tstamp']-10),
+                        )
+                    )
+                );
+
+                if ($existingLog === 0) {
+                    $db->exec_INSERTquery($logTable, $insertFields);
+                }
             }
         }
 
