@@ -28,7 +28,7 @@ foreach ($icons as $identifier => $options) {
     // Register jumpurl processing hook
     // TODO: move hook to this one
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/index_ts.php']['preprocessRequest']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\\JumpurlController->preprocessRequest';
-//$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:' . $_EXTKEY . '/Classes/Checkjumpurl.php:&DirectMailTeam\DirectMail\Checkjumpurl';
+//$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:direct_mail/Classes/Checkjumpurl.php:&DirectMailTeam\DirectMail\Checkjumpurl';
 
 // Register hook for simulating a user group
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['determineId-PreProcessing']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\TypoScriptFrontendController->simulateUsergroup';
@@ -39,42 +39,42 @@ $extConf = unserialize($_EXTCONF);
 /**
  * Language of the cron task:
  */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['cron_language'] = $extConf['cron_language'] ? $extConf['cron_language'] : 'en';
+$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cron_language'] = $extConf['cron_language'] ? $extConf['cron_language'] : 'en';
 
 /**
  * Number of messages sent per cycle of the cron task:
  */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['sendPerCycle'] = $extConf['sendPerCycle'] ? $extConf['sendPerCycle'] : 50;
+$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['sendPerCycle'] = $extConf['sendPerCycle'] ? $extConf['sendPerCycle'] : 50;
 
 /**
  * Default recipient field list:
  */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['defaultRecipFields'] = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,firstname,first_name,last_name';
+$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['defaultRecipFields'] = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,firstname,first_name,last_name';
 
 /**
  * Additional DB fields of the recipient:
  */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['addRecipFields'] = $extConf['addRecipFields'];
+$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields'] = $extConf['addRecipFields'];
 
 /**
  * Admin email for sending the cronjob error message
  */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['adminEmail'] = $extConf['adminEmail'];
+$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['adminEmail'] = $extConf['adminEmail'];
 
 /**
  * Direct Mail send a notification every time a job starts or ends
  */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['notificationJob'] = $extConf['notificationJob'];
+$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['notificationJob'] = $extConf['notificationJob'];
 
 /**
  * Interval of the cronjob
  */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['cronInt'] = $extConf['cronInt'];
+$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cronInt'] = $extConf['cronInt'];
 
 /**
  * Use HTTP to fetch contents
  */
-$TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseHttpToFetch'] = $extConf['UseHttpToFetch'];
+$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['UseHttpToFetch'] = $extConf['UseHttpToFetch'];
 
 /**
  * Use implicit port in URL for fetching Newsletter-Content: Even if your TYPO3 Backend is on a non-standard-port, the URL for fetching the newsletter contents from one of your Frontend-Domains will not use the PORT you are using to access your TYPO3 Backend, but use implicit port instead (e.g. no explicit port in URL)
@@ -93,13 +93,13 @@ if ($extConf['enablePlainTextNews']) {
  * Registering class to scheduler
  */
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\DirectmailScheduler'] = [
-    'extension' => $_EXTKEY,
+    'extension' => 'direct_mail',
     'title' => 'Direct Mail: Mailing Queue',
     'description' => 'This task invokes dmailer in order to process queued messages.',
 ];
 
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraft'] = [
-    'extension'            => $_EXTKEY,
+    'extension'            => 'direct_mail',
     'title'                => 'Direct Mail: Create Mail from Draft',
     'description'        => 'This task allows you to select a DirectMail draft that gets copied and then sent to the. This allows automatic (periodic) sending of the same TYPO3 page.',
     'additionalFields'    => 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraftAdditionalFields'
@@ -107,7 +107,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\
 
 // bounce mail per scheduler
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMail'] = [
-    'extension' => $_EXTKEY,
+    'extension' => 'direct_mail',
     'title' => 'Direct Mail: Analyze bounce mail',
     'description' => 'This task will get bounce mail from the configured mailbox',
     'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields'
