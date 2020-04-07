@@ -497,8 +497,8 @@ class Dmail extends BaseScriptClass
         }
 
         $hideCategoryStep = false;
-        if (($GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] &&
-                $GLOBALS['BE_USER']->userTS['tx_directmail.']['hideSteps'] == 'cat') || $isExternalDirectMailRecord) {
+        if (($GLOBALS['BE_USER']->getTSConfig()['tx_directmail.']['hideSteps'] &&
+                $GLOBALS['BE_USER']->getTSConfig()['tx_directmail.']['hideSteps'] === 'cat') || $isExternalDirectMailRecord) {
             $hideCategoryStep = true;
         }
 
@@ -751,20 +751,20 @@ class Dmail extends BaseScriptClass
                 $markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz1_new_newsletter') . ' - ' . $this->getLanguageService()->getLL('dmail_wiz1_select_nl_source');
 
                 $showTabs = array('int','ext','quick','dmail');
-                $hideTabs = GeneralUtility::trimExplode(',', $GLOBALS['BE_USER']->userTS['tx_directmail.']['hideTabs']);
+                $hideTabs = GeneralUtility::trimExplode(',', $GLOBALS['BE_USER']->getTSConfig()['tx_directmail.']['hideTabs']);
                 foreach ($hideTabs as $hideTab) {
                     $showTabs = ArrayUtility::removeArrayEntryByValue($showTabs, $hideTab);
                 }
 
-                if (!$GLOBALS['BE_USER']->userTS['tx_directmail.']['defaultTab']) {
-                    $GLOBALS['BE_USER']->userTS['tx_directmail.']['defaultTab'] = 'dmail';
+                if (!$GLOBALS['BE_USER']->getTSConfig()['tx_directmail.']['defaultTab']) {
+                    $GLOBALS['BE_USER']->getTSConfig()['tx_directmail.']['defaultTab'] = 'dmail';
                 }
 
                 $i = 1;
                 $countTabs = count($showTabs);
                 foreach ($showTabs as $showTab) {
                     $open = false;
-                    if ($GLOBALS['BE_USER']->userTS['tx_directmail.']['defaultTab'] == $showTab) {
+                    if ($GLOBALS['BE_USER']->getTSConfig()['tx_directmail.']['defaultTab'] == $showTab) {
                         $open = true;
                     }
                     switch ($showTab) {
@@ -1257,7 +1257,7 @@ class Dmail extends BaseScriptClass
 
         $msg = '';
         $msg.= $this->getLanguageService()->getLL('testmail_simple_msg') . '<br /><br />';
-        $msg.= '<input' . $GLOBALS['TBE_TEMPLATE']->formWidth() . ' type="text" name="SET[dmail_test_email]" value="' . $this->MOD_SETTINGS['dmail_test_email'] . '" /><br /><br />';
+        $msg.= '<input style="width: 460px;" type="text" name="SET[dmail_test_email]" value="' . $this->MOD_SETTINGS['dmail_test_email'] . '" /><br /><br />';
 
         $msg.= '<input type="hidden" name="id" value="' . $this->id . '" />';
         $msg.= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '" />';
@@ -1775,11 +1775,11 @@ class Dmail extends BaseScriptClass
 
         // Create
         $out = $this->getLanguageService()->getLL('dmail_HTML_url') . '<br />
-				<input type="text" value="http://" name="createMailFrom_HTMLUrl"' . $GLOBALS['TBE_TEMPLATE']->formWidth(40) . ' /><br />' .
+				<input type="text" value="http://" name="createMailFrom_HTMLUrl" style="width: 384px;" /><br />' .
             $this->getLanguageService()->getLL('dmail_plaintext_url') . '<br />
-				<input type="text" value="http://" name="createMailFrom_plainUrl"' . $GLOBALS['TBE_TEMPLATE']->formWidth(40) . ' /><br />' .
+				<input type="text" value="http://" name="createMailFrom_plainUrl" style="width: 384px;" /><br />' .
             $this->getLanguageService()->getLL('dmail_subject') . '<br />' .
-            '<input type="text" value="' . $this->getLanguageService()->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';"' . $GLOBALS['TBE_TEMPLATE']->formWidth(40) . ' /><br />' .
+            '<input type="text" value="' . $this->getLanguageService()->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';" style="width: 384px;" /><br />' .
             (($this->error == 'no_valid_url')?('<br /><b>' . $this->getLanguageService()->getLL('dmail_no_valid_url') . '</b><br /><br />'):'') .
             '<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_createMail') . '" />
 				<input type="hidden" name="fetchAtOnce" value="1">';
@@ -1903,10 +1903,10 @@ class Dmail extends BaseScriptClass
         $senderMail = ($indata['senderEmail']?$indata['senderEmail']:$GLOBALS['BE_USER']->user['email']);
         // Set up form:
         $theOutput.= '<input type="hidden" name="id" value="' . $this->id . '" />';
-        $theOutput.= $this->getLanguageService()->getLL('quickmail_sender_name') . '<br /><input type="text" name="quickmail[senderName]" value="' . htmlspecialchars($senderName) . '"' . $this->doc->formWidth() . ' /><br />';
-        $theOutput.= $this->getLanguageService()->getLL('quickmail_sender_email') . '<br /><input type="text" name="quickmail[senderEmail]" value="' . htmlspecialchars($senderMail) . '"' . $this->doc->formWidth() . ' /><br />';
-        $theOutput.= $this->getLanguageService()->getLL('dmail_subject') . '<br /><input type="text" name="quickmail[subject]" value="' . htmlspecialchars($indata['subject']) . '"' . $this->doc->formWidth() . ' /><br />';
-        $theOutput.= $this->getLanguageService()->getLL('quickmail_message') . '<br /><textarea rows="20" name="quickmail[message]"' . $this->doc->formWidth() . '>' . LF . htmlspecialchars($indata['message']) . '</textarea><br />';
+        $theOutput.= $this->getLanguageService()->getLL('quickmail_sender_name') . '<br /><input type="text" name="quickmail[senderName]" value="' . htmlspecialchars($senderName) . '" style="width: 460px;" /><br />';
+        $theOutput.= $this->getLanguageService()->getLL('quickmail_sender_email') . '<br /><input type="text" name="quickmail[senderEmail]" value="' . htmlspecialchars($senderMail) . '" style="width: 460px;" /><br />';
+        $theOutput.= $this->getLanguageService()->getLL('dmail_subject') . '<br /><input type="text" name="quickmail[subject]" value="' . htmlspecialchars($indata['subject']) . '" style="width: 460px;" /><br />';
+        $theOutput.= $this->getLanguageService()->getLL('quickmail_message') . '<br /><textarea rows="20" name="quickmail[message]" style="width: 460px;">' . LF . htmlspecialchars($indata['message']) . '</textarea><br />';
         $theOutput.= $this->getLanguageService()->getLL('quickmail_break_lines') . ' <input type="checkbox" name="quickmail[breakLines]" value="1"' . ($indata['breakLines']?' checked="checked"':'') . ' /><br /><br />';
         $theOutput.= '<input type="Submit" name="quickmail[send]" value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '" />';
 
