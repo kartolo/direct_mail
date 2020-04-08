@@ -103,7 +103,9 @@ tx_directmail_pi1.config {
 }
 tx_directmail_pi1.10 = TEMPLATE
 tx_directmail_pi1.10 {
-	template = FILE
+    # FLUIDTEMPLATE is a workaround to avoid template migration. As FILE
+    # was removed in TYPO3 10, this keeps the old templates alive for the time being
+	template = FLUIDTEMPLATE
 	template.file = EXT:direct_mail/pi1/tx_directmail_pi1_plaintext.tmpl
 	marks.CONTENT < styles.content.get
 	marks.CONTENT.renderObj = < plugin.tx_directmail_pi1
@@ -121,8 +123,3 @@ This page type is deprecated. Type 99 will show up correctly in your browser, to
 	typeNum=199
 	config.no_cache=1
 }
-
-// check the globalString if dam is loaded. If so then reference the media tag.
-[globalString = TYPO3_LOADED_EXT|dam|type = *]
-plugin.tx_directmail_pi1.bodytext.stdWrap.parseFunc.tags.media =< plugin.tx_dam_tsfemediatag
-[global]
