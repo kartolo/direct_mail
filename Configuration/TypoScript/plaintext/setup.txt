@@ -91,8 +91,6 @@ plugin.tx_directmail_pi1 {
   }
 }
 
-includeLibs.tx_directmail_pi1 = EXT:direct_mail/pi1/class.tx_directmail_pi1.php
-
 tx_directmail_pi1 >
 tx_directmail_pi1 = PAGE
 tx_directmail_pi1.typeNum = 99
@@ -112,14 +110,4 @@ tx_directmail_pi1.10 {
 	marks.DATE = TEXT
 	marks.DATE.data = date:U
 	marks.DATE.strftime = %e. %B %Y
-}
-
-tx_directmail_pi1_test = PAGE
-tx_directmail_pi1_test {
-	10 = TEXT
-	10.value (
-This page type is deprecated. Type 99 will show up correctly in your browser, too.
-	)
-	typeNum=199
-	config.no_cache=1
 }
