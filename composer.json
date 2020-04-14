@@ -26,6 +26,7 @@
   "require-dev": {
     "roave/security-advisories": "dev-master"
   },
+  "minimum-stability": "dev",
   "autoload": {
     "psr-4": {
       "DirectMailTeam\\DirectMail\\": "Classes",
