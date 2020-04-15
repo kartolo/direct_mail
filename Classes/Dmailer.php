@@ -908,26 +908,15 @@ class Dmailer implements LoggerAwareInterface
             // extract all media path from the mail message
             $this->extractMediaLinks();
             foreach ($this->theParts['html']['media'] as $media) {
-                if (($media['tag'] == 'img' || $media['tag'] == 'table' || $media['tag'] == 'tr' || $media['tag'] == 'td') && !$media['use_jumpurl'] && !$media['do_not_embed']) {
-                    if (ini_get('allow_url_fopen')) {
-                        // SwiftMailer depends on allow_url_fopen in PHP
-                        // todo: check if this is still needed with symfony mailer
-                        $cid = $mailer->embedFromPath($media['absRef']);
-                    } else {
-                        // SwiftMailer depends on allow_url_fopen in PHP
-                        // To work around this, download the files using t3lib::getURL() to a temporary location.
-                        $fileContent = GeneralUtility::getUrl($media['absRef']);
-                        $tempFile = Environment::getPublicPath() . '/uploads/tx_directmail/' . basename($media['absRef']);
-                        GeneralUtility::writeFile($tempFile, $fileContent);
+                // TODO: why are there table related tags here?
+                if (($media['tag'] === 'img' || $media['tag'] === 'table' || $media['tag'] === 'tr' || $media['tag'] === 'td') && !$media['use_jumpurl'] && !$media['do_not_embed']) {
+                    $fileContent = GeneralUtility::getUrl($media['absRef']);
 
-                        unset($fileContent);
-
-                        $cid = $mailer->embedFromPath($tempFile);
-                        // Temporary files will be removed again after the mail was sent!
-                        $this->tempFileList[] = $tempFile;
-                    }
-
+                    // embed images using base64 encoding
+                    $cid = 'data:' . mime_content_type(basename($media['absRef']))
+                        . ';base64,' . base64_encode($fileContent);
                     $this->theParts['html']['content'] = str_replace($media['subst_str'], $cid, $this->theParts['html']['content']);
+                    unset($fileContent);
                 }
             }
             // remove ` do_not_embed="1"` attributes
