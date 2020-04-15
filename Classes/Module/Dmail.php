@@ -23,6 +23,7 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -2157,7 +2158,7 @@ class Dmail extends BaseScriptClass
 			<th style="text-align: right;">' . $content . '</th>
 		</thead>';
 
-        $nameArr = explode(',', 'from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,attachment,type,page,sendOptions,includeMedia,flowedFormat,sys_language_uid,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
+        $nameArr = explode(',', 'from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,type,page,sendOptions,includeMedia,flowedFormat,sys_language_uid,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
         foreach ($nameArr as $name) {
             $content .= '
 			<tr class="db_list_normal">
@@ -2165,6 +2166,18 @@ class Dmail extends BaseScriptClass
 				<td>' . htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail', $name, $row[$name])) . '</td>
 			</tr>';
         }
+        // attachments need to be fetched manually as BackendUtility::getProcessedValue can't do that
+        $fileNames = [];
+        $attachments = DirectMailUtility::getAttachments($row['uid']);
+        /** @var FileReference $attachment */
+        foreach ($attachments as $attachment) {
+            $fileNames[] = $attachment->getName();
+        }
+        $content .= '
+			<tr class="db_list_normal">
+				<td>' . DirectMailUtility::fName('attachment') . '</td>
+				<td>' . implode(', ', $fileNames) . '</td>
+			</tr>';
         $content = '<table width="460" class="table table-striped table-hover">' . $content . '</table>';
 
         $sectionTitle = $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '&nbsp;' . htmlspecialchars($row['subject']);

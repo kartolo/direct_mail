@@ -22,6 +22,7 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Mail\MailMessage;
+use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 
@@ -942,12 +943,13 @@ class Dmailer implements LoggerAwareInterface
             $mailer->text($this->theParts['plain']['content']);
         }
 
-        // set the attachment from $this->dmailer['sys_dmail_rec']['attachment']
-        // comma separated files
-        if (!empty($this->dmailer['sys_dmail_rec']['attachment'])) {
-            $files = explode(',', $this->dmailer['sys_dmail_rec']['attachment']);
+        // handle FAL attachments
+        if ((int)$this->dmailer['sys_dmail_rec']['attachment'] > 0) {
+            $files = DirectMailUtility::getAttachments($this->dmailer['sys_dmail_rec']['uid']);
+            /** @var FileReference $file */
             foreach ($files as $file) {
-                $mailer->attachFromPath(Environment::getPublicPath() . '/uploads/tx_directmail/' . $file);
+                $filePath = Environment::getPublicPath() . '/' . $file->getPublicUrl();
+                $mailer->attachFromPath($filePath);
             }
         }
     }

@@ -26,6 +26,7 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Registry;
+use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -1725,5 +1726,20 @@ class DirectMailUtility
             );
         }
         return $messageSubstituted;
+    }
+
+    /**
+     * Fetches the attachment files referenced in the sys_dmail record.
+     *
+     * @param int $dmailUid The uid of the sys_dmail record to fetch the records for
+     * @return array An array of FileReferences
+     */
+    public static function getAttachments($dmailUid)
+    {
+        /** @var FileRepository $fileRepository */
+        $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
+        $fileObjects = $fileRepository->findByRelation('sys_dmail', 'attachment', $dmailUid);
+
+        return $fileObjects;
     }
 }
