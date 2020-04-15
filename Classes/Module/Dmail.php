@@ -169,9 +169,6 @@ class Dmail extends BaseScriptClass
 
             // JavaScript
             if (GeneralUtility::inList('send_mail_final,send_mass', $this->CMD)) {
-                // Load necessary extJS lib
-
-                $this->getPageRenderer()->loadJquery();
                 $this->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
 
                 // Define settings for Date Picker
