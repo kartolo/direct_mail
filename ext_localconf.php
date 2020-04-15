@@ -28,7 +28,7 @@ foreach ($icons as $identifier => $options) {
     // Register jumpurl processing hook
     // TODO: move hook to this one
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/index_ts.php']['preprocessRequest']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\\JumpurlController->preprocessRequest';
-//$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:direct_mail/Classes/Checkjumpurl.php:&DirectMailTeam\DirectMail\Checkjumpurl';
+//$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:direct_mail/Classes/Checkjumpurl.php:&DirectMailTeam\DirectMail\Checkjumpurl';
 
 // Register hook for simulating a user group
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['determineId-PreProcessing']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\TypoScriptFrontendController->simulateUsergroup';
@@ -39,42 +39,42 @@ $extConf = unserialize($_EXTCONF);
 /**
  * Language of the cron task:
  */
-$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cron_language'] = $extConf['cron_language'] ? $extConf['cron_language'] : 'en';
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] = $extConf['cron_language'] ? $extConf['cron_language'] : 'en';
 
 /**
  * Number of messages sent per cycle of the cron task:
  */
-$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['sendPerCycle'] = $extConf['sendPerCycle'] ? $extConf['sendPerCycle'] : 50;
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['sendPerCycle'] = $extConf['sendPerCycle'] ? $extConf['sendPerCycle'] : 50;
 
 /**
  * Default recipient field list:
  */
-$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['defaultRecipFields'] = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,firstname,first_name,last_name';
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields'] = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,firstname,first_name,last_name';
 
 /**
  * Additional DB fields of the recipient:
  */
-$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['addRecipFields'] = $extConf['addRecipFields'];
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields'] = $extConf['addRecipFields'];
 
 /**
  * Admin email for sending the cronjob error message
  */
-$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['adminEmail'] = $extConf['adminEmail'];
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['adminEmail'] = $extConf['adminEmail'];
 
 /**
  * Direct Mail send a notification every time a job starts or ends
  */
-$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['notificationJob'] = $extConf['notificationJob'];
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['notificationJob'] = $extConf['notificationJob'];
 
 /**
  * Interval of the cronjob
  */
-$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['cronInt'] = $extConf['cronInt'];
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronInt'] = $extConf['cronInt'];
 
 /**
  * Use HTTP to fetch contents
  */
-$TYPO3_CONF_VARS['EXTCONF']['direct_mail']['UseHttpToFetch'] = $extConf['UseHttpToFetch'];
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] = $extConf['UseHttpToFetch'];
 
 /**
  * Use implicit port in URL for fetching Newsletter-Content: Even if your TYPO3 Backend is on a non-standard-port, the URL for fetching the newsletter contents from one of your Frontend-Domains will not use the PORT you are using to access your TYPO3 Backend, but use implicit port instead (e.g. no explicit port in URL)
@@ -86,7 +86,7 @@ $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseImplicitPortToFetch'] = $extConf['UseI
  */
 if ($extConf['enablePlainTextNews']) {
     // Register tt_news plain text processing hook
-    $TYPO3_CONF_VARS['EXTCONF']['tt_news']['extraCodesHook'][] = 'DirectMailTeam\\DirectMail\\Hooks\\TtnewsPlaintextHook';
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['tt_news']['extraCodesHook'][] = 'DirectMailTeam\\DirectMail\\Hooks\\TtnewsPlaintextHook';
 }
 
 /**
