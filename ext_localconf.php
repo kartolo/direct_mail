@@ -25,11 +25,6 @@ foreach ($icons as $identifier => $options) {
     $iconRegistry->registerIcon($identifier, $iconProviderClassName, $options);
 }
 
-    // Register jumpurl processing hook
-    // TODO: move hook to this one
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/index_ts.php']['preprocessRequest']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\\JumpurlController->preprocessRequest';
-//$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][]='EXT:direct_mail/Classes/Checkjumpurl.php:&DirectMailTeam\DirectMail\Checkjumpurl';
-
 // Register hook for simulating a user group
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['determineId-PreProcessing']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\TypoScriptFrontendController->simulateUsergroup';
 
