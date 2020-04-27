@@ -20,6 +20,7 @@
   ],
   "require": {
     "typo3/cms-core": "^10.3",
+    "friendsoftypo3/jumpurl": "^8.0",
     "friendsoftypo3/tt-address": "^4.3 || ^5.0",
     "friendsoftypo3/rdct": "dev-pr/middleware"
   },
