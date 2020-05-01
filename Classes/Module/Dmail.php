@@ -404,10 +404,10 @@ class Dmail extends BaseScriptClass
             'replyto_email'        => $this->params['replyto_email'],
             'replyto_name'        => $this->params['replyto_name'],
             'return_path'        => $this->params['return_path'],
-            'priority'            => $this->params['priority'],
-            'use_domain'        => $this->params['use_domain'],
-            'use_rdct'            => $this->params['use_rdct'],
-            'long_link_mode'    => $this->params['long_link_mode'],
+            'priority'            => (int) $this->params['priority'],
+            'use_domain'        => (int) $this->params['use_domain'] ?: 0,
+            'use_rdct'            => (int) $this->params['use_rdct'],
+            'long_link_mode'    => (int) $this->params['long_link_mode'],
             'organisation'        => $this->params['organisation'],
             'authcode_fieldList'=> $this->params['authcode_fieldList'],
             'plainParams'        => ''
@@ -514,7 +514,7 @@ class Dmail extends BaseScriptClass
                 ->set('charset', $htmlmail->charset)
                 ->set('mailContent', $mailContent)
                 ->set('renderedSize', strlen($mailContent))
-                ->set('long_link_rdct_url', $this->urlbase)
+                ->set('long_link_rdct_url', DirectMailUtility::getUrlBase($row['use_domain']))
                 ->execute();
 
             if ($warningMsg) {
@@ -1995,9 +1995,9 @@ class Dmail extends BaseScriptClass
                     'pid',
                     $queryBuilder->createNamedParameter($this->id, \PDO::PARAM_INT)
                 ),
-                $queryBuilder->expr()->in(
+                $queryBuilder->expr()->eq(
                     'doktype',
-                    GeneralUtility::intExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
+                    '1'
                 ),
                 $this->perms_clause
             )
