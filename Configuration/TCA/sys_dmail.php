@@ -231,9 +231,6 @@ return [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
                 'foreign_table' => 'sys_domain',
-                'items' => [
-                    ['', 0]
-                ],
                 'size' => '1',
                 'maxitems' => 1,
                 'minitems' => 0
@@ -296,11 +293,6 @@ return [
                 'size' => '3',
                 'maxitems' => '5',
                 'minitems' => '0'
-            ]
-        ],
-        'type' => [
-            'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.type',
-            'config' => [
             ]
         ],
         'type' => [

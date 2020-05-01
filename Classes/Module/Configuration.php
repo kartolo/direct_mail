@@ -369,7 +369,7 @@ class Configuration extends BaseScriptClass
             'box-3' => $this->getLanguageService()->getLL('configure_default_fetching'),
             'HTMLParams' => array('short', DirectMailUtility::fName('HTMLParams'), $this->getLanguageService()->getLL('configure_HTMLParams_description') . '<br />' . $this->getLanguageService()->getLL('configure_HTMLParams_details')),
             'plainParams' => array('short', DirectMailUtility::fName('plainParams'), $this->getLanguageService()->getLL('configure_plainParams_description') . '<br />' . $this->getLanguageService()->getLL('configure_plainParams_details')),
-            'use_domain' => array('select', DirectMailUtility::fName('use_domain'), $this->getLanguageService()->getLL('use_domain.description') . '<br />' . $this->getLanguageService()->getLL('use_domain.details'), array(0 => '')),
+            'use_domain' => array('select', DirectMailUtility::fName('use_domain'), $this->getLanguageService()->getLL('use_domain.description') . '<br />' . $this->getLanguageService()->getLL('use_domain.details'), array()),
         );
         $configArray[4] = array(
             'box-4' => $this->getLanguageService()->getLL('configure_options_encoding'),
@@ -425,12 +425,13 @@ class Configuration extends BaseScriptClass
         $res_domain = $queryBuilder->select('uid','domainName')
             ->from('sys_domain')
             ->where(
-                $queryBuilder->expr()->in('sys_domain.pid', $queryBuilder->createNamedParameter( implode(',', $rootlineId) ))
+                $queryBuilder->expr()->in('sys_domain.pid', implode(',', $rootlineId))
             )
             ->execute()
             ->fetchAll();
         foreach ($res_domain as $row_domain) {
-            $configArray[3]['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];        }
+            $configArray[3]['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];
+        }
 
 
 
