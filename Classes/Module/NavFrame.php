@@ -92,7 +92,7 @@ class NavFrame
         $currentSubScript = $uriBuilder->buildUriFromRoute($currentModule);
 
         // Setting highlight mode:
-        $this->doHighlight = !$GLOBALS['BE_USER']->getTSConfigVal('options.pageTree.disableTitleHighlight');
+        $this->doHighlight = !$GLOBALS['BE_USER']->getTSConfig()['options.']['pageTree.']['disableTitleHighlight'];
 
         $this->doc->inDocStylesArray[] = '#typo3-docheader-row2 { line-height: 14px !important; }
 		#typo3-docheader-row2 span { font-weight: bold; margin-top: -3px; color: #000; margin-top: 0; padding-left: 20px; }';
