@@ -27,9 +27,10 @@ TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_web
 
 if (TYPO3_MODE == 'BE') {
     // add module before 'Help'
-    if (!isset($TBE_MODULES['DirectMailNavFrame'])) {
+    // TODO: is this still needed?
+    if (!isset($GLOBALS['TBE_MODULES']['DirectMailNavFrame'])) {
         $temp_TBE_MODULES = [];
-        foreach ($TBE_MODULES as $key => $val) {
+        foreach ($GLOBALS['TBE_MODULES']['DirectMailNavFrame'] as $key => $val) {
             if ($key == 'help') {
                 $temp_TBE_MODULES['DirectMailNavFrame'] = '';
                 $temp_TBE_MODULES[$key] = $val;
@@ -38,7 +39,7 @@ if (TYPO3_MODE == 'BE') {
             }
         }
 
-        $TBE_MODULES = $temp_TBE_MODULES;
+        $GLOBALS['TBE_MODULES']['DirectMailNavFrame'] = $temp_TBE_MODULES;
     }
 
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
