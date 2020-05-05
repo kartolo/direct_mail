@@ -30,7 +30,7 @@ if (TYPO3_MODE == 'BE') {
     // TODO: is this still needed?
     if (!isset($GLOBALS['TBE_MODULES']['DirectMailNavFrame'])) {
         $temp_TBE_MODULES = [];
-        foreach ($GLOBALS['TBE_MODULES']['DirectMailNavFrame'] as $key => $val) {
+        foreach ($GLOBALS['TBE_MODULES'] as $key => $val) {
             if ($key == 'help') {
                 $temp_TBE_MODULES['DirectMailNavFrame'] = '';
                 $temp_TBE_MODULES[$key] = $val;
