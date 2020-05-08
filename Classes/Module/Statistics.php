@@ -14,22 +14,20 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Backend\Utility\IconUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
-use TYPO3\CMS\Core\Database\Connection;
 
 /**
  * Module Statistics of tx_directmail extension
@@ -42,7 +40,7 @@ use TYPO3\CMS\Core\Database\Connection;
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
-class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
+class Statistics extends BaseScriptClass
 {
     public $extKey = 'direct_mail';
     public $fieldList = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
@@ -64,11 +62,6 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     public $MCONF;
     public $cshTable;
     public $formname = 'dmailform';
-
-    /*
-     * @var \TYPO3\CMS\Frontend\Page\PageRepository
-     */
-    public $sys_page;
 
     /*
      * @var array
@@ -93,59 +86,9 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     public function __construct()
     {
-        $this->MCONF = array(
+        $this->MCONF = [
             'name' => $this->moduleName
-        );
-    }
-
-    /**
-     * First initialization of global variables
-     *
-     * @return	void
-     */
-    public function init()
-    {
-        parent::init();
-
-        // initialize IconFactory
-        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-
-        // get TS Params
-        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
-        $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
-
-        // initialize the page selector
-        $this->sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
-        $this->sys_page->init(true);
-
-        // initialize backend user language
-        if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getQueryBuilderForTable('sys_language');
-            $res = $queryBuilder
-                ->select('sys_language.uid')
-                ->from('sys_language')
-                ->leftJoin(
-                    'sys_language',
-                    'static_languages',
-                    'static_languages',
-                    $queryBuilder->expr()->eq('sys_language.static_lang_isocode', $queryBuilder->quoteIdentifier('static_languages.uid'))
-                )
-                ->where(
-                    $queryBuilder->expr()->eq('static_languages.lg_typo3', $queryBuilder->createNamedParameter($this->getLanguageService()->lang))
-                )
-                ->execute()
-                ->fetchAll();
-            foreach ($res as $row) {
-                $this->sys_language_uid = $row['uid'];
-            }
-        }
-        // load contextual help
-        $this->cshTable = '_MOD_'.$this->MCONF['name'];
-        if ($GLOBALS['BE_USER']->uc['edit_showFieldHelp']) {
-            $this->getLanguageService()->loadSingleTableDescription($this->cshTable);
-        }
+        ];
     }
 
     /**
@@ -162,12 +105,14 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      * Entrance from the backend module. This replace the _dispatch
      *
      * @param ServerRequestInterface $request The request object from the backend
-     * @param ResponseInterface $response The reponse object sent to the backend
      *
      * @return ResponseInterface Return the response object
      */
-    public function mainAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function mainAction(ServerRequestInterface $request) : ResponseInterface
     {
+        /** @var ResponseInterface $response */
+        $response = func_num_args() === 2 ? func_get_arg(1) : null;
+
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
 
@@ -176,7 +121,12 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $this->main();
         $this->printContent();
 
-        $response->getBody()->write($this->content);
+        if ($response !== null) {
+            $response->getBody()->write($this->content);
+        } else {
+            // Behaviour in TYPO3 v9
+            $response = new HtmlResponse($this->content);
+        }
         return $response;
     }
 
@@ -583,19 +533,22 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      * @param string $aTitle Title param of the link tag
      *
      * @return string wrapped string as a link
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function linkDMail_record($str, $uid, $aTitle='')
     {
-        $urlParameters = [
-            'id' => $this->id,
-            'sys_dmail_uid' => $uid,
-            'SET[dmail_mode]' => 'direct',
-            'CMD' => 'stats'
-        ];
+        /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        $link = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_Statistics', $urlParameters);
-
-        return '<a title="' . htmlspecialchars($aTitle) . '" href="' . $link . '">' . htmlspecialchars($str) . '</a>';
+        $moduleUrl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'sys_dmail_uid' => $uid,
+                'CMD' => 'stats',
+                'SET[dmail_mode]' => 'direct'
+            ]
+        );
+        return '<a title="' . htmlspecialchars($aTitle) . '" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
     }
 
     /**
@@ -604,22 +557,24 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      * @param array $row DB record
      *
      * @return string Statistics of a mail
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function cmd_stats($row)
     {
         if (GeneralUtility::_GP('recalcCache')) {
             $this->makeStatTempTableContent($row);
         }
-
-        $urlParameters = [
-            'id' => $this->id,
-            'sys_dmail_uid' => $row['uid'],
-            'CMD' => $this->CMD,
-            'recalcCache' => '1'
-        ];
+        /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        $thisurl = $uriBuilder->buildUriFromRoute('DirectMailNavFrame_Statistics', $urlParameters);
-
+        $thisurl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'sys_dmail_uid' => $row['uid'],
+                'CMD' => $this->CMD,
+                'recalcCache' => 1
+            ]
+        );
         $output = $this->directMail_compactView($row);
 
         // *****************************
@@ -1609,13 +1564,16 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             // do we have an id?
             if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $urlParts['query'], $m)) {
                 $isInt = MathUtility::canBeInterpretedAsInteger($m[1]);
-
                 if ($isInt) {
                     $uid = intval($m[1]);
                 } else {
-                    $uid = $this->sys_page->getPageIdFromAlias($m[1]);
+                    // initialize the page selector
+                    /** @var \TYPO3\CMS\Frontend\Page\PageRepository $sys_page */
+                    $sys_page = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+                    $sys_page->init(true);
+                    $uid = $sys_page->getPageIdFromAlias($m[1]);
                 }
-                $rootLine = $this->sys_page->getRootLine($uid);
+                $rootLine = BackendUtility::BEgetRootLine($uid);
                 $pages = array_shift($rootLine);
                 // array_shift reverses the array (rootline has numeric index in the wrong order!)
                 $rootLine = array_reverse($rootLine);
@@ -1802,15 +1760,15 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $recRec['links_last'] = intval(@max($recRec['links']));
             $recRec['links'] = count($recRec['links']);
 
-            $recRec['response_first'] = DirectMailUtility::intInRangeWrapper(intval(@min($recRec['response']))-$recRec['tstamp'], 0);
-            $recRec['response_last'] = DirectMailUtility::intInRangeWrapper(intval(@max($recRec['response']))-$recRec['tstamp'], 0);
+            $recRec['response_first'] = DirectMailUtility::intInRangeWrapper((int)((int)(@min($recRec['response']))-$recRec['tstamp']), 0);
+            $recRec['response_last'] = DirectMailUtility::intInRangeWrapper((int)((int)(@max($recRec['response']))-$recRec['tstamp']), 0);
             $recRec['response'] = count($recRec['response']);
 
-            $recRec['time_firstping'] = DirectMailUtility::intInRangeWrapper($recRec['pings_first']-$recRec['tstamp'], 0);
-            $recRec['time_lastping'] = DirectMailUtility::intInRangeWrapper($recRec['pings_last']-$recRec['tstamp'], 0);
+            $recRec['time_firstping'] = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_first']-$recRec['tstamp']), 0);
+            $recRec['time_lastping'] = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_last']-$recRec['tstamp']), 0);
 
-            $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper($recRec['links_first']-$recRec['tstamp'], 0);
-            $recRec['time_last_link'] = DirectMailUtility::intInRangeWrapper($recRec['links_last']-$recRec['tstamp'], 0);
+            $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_first']-$recRec['tstamp']), 0);
+            $recRec['time_last_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_last']-$recRec['tstamp']), 0);
 
 
 
@@ -1901,7 +1859,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     public function setURLs(array $row)
     {
         // Finding the domain to use
-        $this->urlbase = DirectMailUtility::getUrlBase($row['use_domain']);
+        $this->urlbase = DirectMailUtility::getUrlBase((int)$row['page']);
 
         // Finding the url to fetch content from
         switch ((string)$row['type']) {

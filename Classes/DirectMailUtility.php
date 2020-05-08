@@ -16,16 +16,25 @@ namespace DirectMailTeam\DirectMail;
 
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Crypto\Random;
+use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
+use TYPO3\CMS\Core\Http\ImmediateResponseException;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Registry;
+use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
+use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Frontend\Page\PageRepository;
 
@@ -65,7 +74,7 @@ class DirectMailUtility
                 ->removeAll()
                 ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
-            $fieldArray = explode(',', $fields);
+            $fieldArray = GeneralUtility::trimExplode(',', $fields);
 
             // handle selecting multiple fields
             foreach ($fieldArray as $i => $field) {
@@ -105,8 +114,7 @@ class DirectMailUtility
     public static function getRecursiveSelect($id, $perms_clause)
     {
         // Finding tree and offer setting of values recursively.
-        /* @var $tree \TYPO3\CMS\Backend\Tree\View\PageTreeView */
-        $tree = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Tree\\View\\PageTreeView');
+        $tree = GeneralUtility::makeInstance(PageTreeView::class);
         $tree->init('AND ' . $perms_clause);
         $tree->makeHTML = 0;
         $tree->setRecs = 0;
@@ -143,67 +151,6 @@ class DirectMailUtility
         $plainlist = array_map('unserialize', array_unique(array_map('serialize', $plainlist)));
 
         return $plainlist;
-    }
-
-    /**
-     * Update the mailgroup DB record
-     * Todo: where does it used?? recip list?
-     *
-     * @param array $mailGroup Mailgroup DB record
-     *
-     * @return array Mailgroup DB record after updated
-     */
-    public function update_specialQuery($mailGroup)
-    {
-        $set = GeneralUtility::_GP('SET');
-        $queryTable = $set['queryTable'];
-        $queryConfig = GeneralUtility::_GP('dmail_queryConfig');
-        $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
-
-        $whichTables = intval($mailGroup['whichtables']);
-        $table = '';
-        if ($whichTables&1) {
-            $table = 'tt_address';
-        } elseif ($whichTables&2) {
-            $table = 'fe_users';
-        } elseif ($this->userTable && ($whichTables&4)) {
-            $table = $this->userTable;
-        }
-
-        $this->MOD_SETTINGS['queryTable'] = $queryTable ? $queryTable : $table;
-        $this->MOD_SETTINGS['queryConfig'] = $queryConfig ? serialize($queryConfig) : $mailGroup['query'];
-        $this->MOD_SETTINGS['search_query_smallparts'] = 1;
-
-        if ($this->MOD_SETTINGS['queryTable'] != $table) {
-            $this->MOD_SETTINGS['queryConfig'] = '';
-        }
-
-        if ($this->MOD_SETTINGS['queryTable'] != $table || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query']) {
-            $whichTables = 0;
-            if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
-                $whichTables = 1;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
-                $whichTables = 2;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
-                $whichTables = 4;
-            }
-            $updateFields = array(
-                'whichtables' => intval($whichTables),
-                'query' => $this->MOD_SETTINGS['queryConfig']
-            );
-
-
-            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $res_update = $connectionPool->getConnectionForTable('sys_dmail_group');
-            $res_update->update(
-                'sys_dmail_group', // table
-                $updateFields,  // value array
-                [ 'uid' => intval($mailGroup['uid']) ] // where
-            );
-
-            $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
-        }
-        return $mailGroup;
     }
 
     /**
@@ -393,31 +340,29 @@ class DirectMailUtility
         if ($table == 'fe_groups') {
             $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
-                ->from($switchTable, $switchTable)
+                ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
                 ->innerJoin(
-                    $switchTable,
-                    $table,
-                    $table,
-                    $queryBuilder->expr()->in($table.'.uid', $queryBuilder->quoteIdentifier($switchTable.'.usergroup'))
-                )
-                ->innerJoin(
-                    $table,
-                    'sys_dmail_group',
-                    'sys_dmail_group',
-                    $queryBuilder->expr()->eq('sys_dmail_group.static_list', $queryBuilder->quoteIdentifier($table . '.uid'))
-                )
-                ->leftJoin(
-                    'sys_dmail_group',
                     'sys_dmail_group_mm',
-                    'sys_dmail_group_mm',
+                    'sys_dmail_group',
+                    'sys_dmail_group',
                     $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
+                )
+                ->innerJoin(
+                    'sys_dmail_group_mm',
+                    $table,
+                    $table,
+                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($table . '.uid'))
+                )
+                ->innerJoin(
+                    $table,
+                    $switchTable,
+                    $switchTable,
+                    $queryBuilder->expr()->inSet($switchTable.'.usergroup', $queryBuilder->quoteIdentifier($table.'.uid'))
                 )
                 ->andWhere(
                     $queryBuilder->expr()->andX()
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-                        ->add($queryBuilder->expr()->eq('fe_groups.uid', $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
                         ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
-                        ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
                         ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
                         ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
                         ->add($addWhere)
@@ -428,23 +373,22 @@ class DirectMailUtility
         } else {
             $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
-                ->from('sys_dmail_group', 'sys_dmail_group')
+                ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
                 ->innerJoin(
+                    'sys_dmail_group_mm',
                     'sys_dmail_group',
-                    $switchTable,
-                    $switchTable,
-                    $queryBuilder->expr()->eq('sys_dmail_group.static_list', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
+                    'sys_dmail_group',
+                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
                 )
-                ->leftJoin(
+                ->innerJoin(
+                    'sys_dmail_group_mm',
                     $switchTable,
-                    'sys_dmail_group_mm',
-                    'sys_dmail_group_mm',
+                    $switchTable,
                     $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
                 )
                 ->andWhere(
                     $queryBuilder->expr()->andX()
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid')))
+                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
                         ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($switchTable)))
                         ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
                         ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
@@ -544,9 +488,9 @@ class DirectMailUtility
      * @param string $table The table to select from
      * @param array $group The direct_mail group record
      *
-     * @return string The resulting query.
+     * @return array The resulting query.
      */
-    public static function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group)
+    public static function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group): array
     {
         $outArr = array();
         if ($group['query']) {
@@ -838,7 +782,7 @@ class DirectMailUtility
     public static function formatTable(array $tableLines, array $cellParams, $header, array $cellcmd = array(), $tableParams = 'class="table table-striped table-hover"')
     {
         reset($tableLines);
-        $cols = count(current($tableLines));
+        $cols = empty($tableLines) ? 0 : count(current($tableLines));
 
         reset($tableLines);
         $lines = array();
@@ -865,40 +809,53 @@ class DirectMailUtility
     /**
      * Get the base URL
      *
-     * @param int $domainUid ID of a domain
-     *
-     * @return string urlbase
+     * @param int $pageId
+     * @param bool $getFullUrl
+     * @param string $htmlParams
+     * @param string $plainParams
+     * @return array|string Array returns if getFullUrl is true
+     * @throws SiteNotFoundException
+     * @throws InvalidRouteArgumentsException
      */
-    public static function getUrlBase($domainUid)
+    public static function getUrlBase(int $pageId, bool $getFullUrl = false, string $htmlParams = '', string $plainParams = '')
     {
-        $domainName = '';
-        $scheme = '';
-        $port = '';
-        if ($domainUid) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_domain');
-            $queryBuilder
-                ->getRestrictions()
-                ->removeAll()
-                ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-            $domainResult = $queryBuilder->select('domainName')
-                ->from('sys_domain')
-                ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter(intval($domainUid), \PDO::PARAM_INT)))
-                ->execute();
+        if ($pageId > 0) {
+            $pageInfo = BackendUtility::getRecord('pages', $pageId, '*');
+            /** @var SiteFinder $siteFinder */
+            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+            if (!empty($siteFinder->getAllSites())) {
+                $site = $siteFinder->getSiteByPageId($pageId);
+                $base = $site->getBase();
 
-            if (($domain = $domainResult->fetch())) {
-                $domainName = $domain['domainName'];
-                $urlParts = @parse_url(GeneralUtility::getIndpEnv('TYPO3_REQUEST_DIR'));
-                $scheme = $urlParts['scheme'];
-                $port = $urlParts['port'];
+                $baseUrl = sprintf('%s://%s', $base->getScheme(), $base->getHost());
+                $htmlUrl = '';
+                $plainTextUrl = '';
+
+                if ($getFullUrl === true) {
+                    $route = $site->getRouter()->generateUri($pageId, ['_language' => $pageInfo['sys_language_uid']]);
+                    $htmlUrl = $route;
+                    $plainTextUrl = $route;
+                    // Parse htmlUrl as string \TYPO3\CMS\Core\Http\Uri::parseUri()
+                    if ($htmlParams !== '') {
+                        $htmlUrl .= '?' . $htmlParams;
+                    } else {
+                        $htmlUrl .= '';
+                    }
+                    // Parse plainTextUrl as string \TYPO3\CMS\Core\Http\Uri::parseUri()
+                    if ($plainParams !== '') {
+                        $plainTextUrl .= '?' . $plainParams;
+                    } else {
+                        $plainTextUrl .= '';
+                    }
+                }
+
+                return $htmlUrl !== '' ? [ 'baseUrl' => $baseUrl, 'htmlUrl' => $htmlUrl, 'plainTextUrl' => $plainTextUrl] : $baseUrl;
+            } else {
+                return ''; // No site found in root line of pageId
             }
+        } else {
+            return ''; // No valid pageId
         }
-        if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
-            $scheme = 'http';
-        }
-        if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseImplicitPortToFetch'] == 1) {
-            $port = '';
-        }
-        return ($domainName ? (($scheme?$scheme:'http') . '://' . $domainName . ($port?':' . $port:'') . '/') : GeneralUtility::getIndpEnv('TYPO3_SITE_URL')) . 'index.php';
     }
 
     /**
@@ -928,7 +885,7 @@ class DirectMailUtility
         fseek($fh, 0);
         $lines = array();
         if ($sep == 'tab') {
-            $sep = TAB;
+            $sep = "\t";
         }
         while (($data = fgetcsv($fh, 1000, $sep))) {
             $lines[] = $data;
@@ -953,7 +910,7 @@ class DirectMailUtility
     public static function getRecordList(array $listArr, $table, $pageId, $editLinkFlag = 1, $sys_dmail_uid = 0)
     {
         $count = 0;
-        $lines = array();
+        $lines = [];
         $out = '';
 
         // init iconFactory
@@ -970,7 +927,7 @@ class DirectMailUtility
                 $tableIcon = '';
                 $editLink = '';
                 if ($row['uid']) {
-                    $tableIcon = '<td>' . $iconFactory->getIconForRecord($table, array()) . '</td>';
+                    $tableIcon = sprintf('<td>%s</td>', $iconFactory->getIconForRecord($table, []));
                     if ($editLinkFlag && $isAllowedEditTable) {
                         $urlParameters = [
                             'edit' => [
@@ -980,33 +937,43 @@ class DirectMailUtility
                             ],
                             'returnUrl' => $returnUrl
                         ];
-                        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-                        $link = $uriBuilder->buildUriFromRoute('record_edit', $urlParameters);
 
-                        $editLink = '<td><a class="t3-link" href="' . $link . '" title="' . $GLOBALS['LANG']->getLL('dmail_edit') . '">' .
-                            $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
-                            '</a></td>';
+                        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                        $editLink = sprintf(
+                            '<td><a class="t3-link" href="%s" title="%s">%s</a></td>',
+                            $uriBuilder->buildUriFromRoute('record_edit', $urlParameters),
+                            $GLOBALS['LANG']->getLL('dmail_edit'),
+                            $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL)
+                        );
                     }
                 }
 
                 if ($isAllowedDisplayTable) {
-                    $exampleData = '<td nowrap> ' . htmlspecialchars($row['email']) . ' </td>
-				<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>';
+                    $exampleData = [
+                        'email' => '<td nowrap> ' . htmlspecialchars($row['email']) . ' </td>',
+                        'name' => '<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>'
+                    ];
                 } else {
-                    $exampleData = '<td nowrap>' . $notAllowedPlaceholder . '</td>';
+                    $exampleData = [
+                        'email' => '<td nowrap>' . $notAllowedPlaceholder . '</td>',
+                        'name' => ''
+                    ];
                 }
 
-                $lines[]='<tr class="db_list_normal">
-				' . $tableIcon . '
-				' . $editLink . '
-				' . $exampleData . '
-				</tr>';
+                $lines[] = sprintf(
+                    '<tr class="db_list_normal">%s%s<td class="nowrap">%s</td><td class="nowrap">%s</td></tr>',
+                    $tableIcon,
+                    $editLink,
+                    $exampleData['email'],
+                    $exampleData['name']
+                );
             }
         }
         if (count($lines)) {
             $out = $GLOBALS['LANG']->getLL('dmail_number_records') . '<strong> ' . $count . '</strong><br />';
             $out .= '<table class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
         }
+
         return $out;
     }
 
@@ -1062,7 +1029,6 @@ class DirectMailUtility
         return $groupArr;
     }
 
-
     /**
      * Creates a directmail entry in th DB.
      * Used only for internal pages
@@ -1086,13 +1052,12 @@ class DirectMailUtility
             'replyto_name'            => $parameters['replyto_name'],
             'return_path'            => $parameters['return_path'],
             'priority'                => $parameters['priority'],
-            'use_domain'            => $parameters['use_domain'],
             'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0), /*$parameters['use_rdct'],*/
             'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode']:0),//$parameters['long_link_mode'],
             'organisation'            => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain']),
+            'long_link_rdct_url'    => self::getUrlBase((int)$pageUid),
             'sys_language_uid' => (int)$sysLanguageUid,
             'attachment' => '',
             'mailContent' => ''
@@ -1119,18 +1084,31 @@ class DirectMailUtility
         $pageRecord = BackendUtility::getRecord('pages', $pageUid);
         // Fetch page title from pages_language_overlay
         if ($newRecord['sys_language_uid'] > 0) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages_language_overlay');
-            $pageRecordOverlay = $queryBuilder->select('title')
-                ->from('pages_language_overlay')
-                ->add('where', 'pid=' . (int)$pageUid .
-                    ' AND sys_language_uid=' . $newRecord['sys_language_uid'])
-                ->execute()
-                ->fetcth();
+            if (strpos(VersionNumberUtility::getNumericTypo3Version(), '9') === 0) {
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+                $queryBuilder
+                    ->select('title')
+                    ->from('pages')
+                    ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)));
+            } else {
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages_language_overlay');
+                $queryBuilder->select('title')
+                    ->from('pages_language_overlay')
+                    ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)));
+            }
+
+            $pageRecordOverlay = $queryBuilder->andWhere(
+                $queryBuilder->expr()->eq(
+                    'sys_language_uid',
+                    $queryBuilder->createNamedParameter($newRecord['sys_language_uid'], \PDO::PARAM_INT)
+                )
+            )->execute()->fetch();
+
             if (is_array($pageRecordOverlay)) {
                 $pageRecord['title'] = $pageRecordOverlay['title'];
             }
         }
-        /*if (GeneralUtility::inList($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'], $pageRecord['doktype'])) {*/
+
         if ($pageRecord['doktype']) {
             $newRecord['subject'] = $pageRecord['title'];
             $newRecord['page']    = $pageRecord['uid'];
@@ -1203,13 +1181,12 @@ class DirectMailUtility
             'replyto_name'            => $parameters['replyto_name'],
             'return_path'            => $parameters['return_path'],
             'priority'                => $parameters['priority'],
-            'use_domain'            => $parameters['use_domain'],
             'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0),
             'long_link_mode'        => $parameters['long_link_mode'],
             'organisation'            => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
             'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => self::getUrlBase($parameters['use_domain'])
+            'long_link_rdct_url'    => self::getUrlBase((int)$parameters['page'])
         );
 
 
@@ -1281,7 +1258,7 @@ class DirectMailUtility
         $htmlUrl = $urls['htmlUrl'];
         $urlBase = $urls['baseUrl'];
 
-        // Make sure long_link_rdct_url is consistent with use_domain.
+        // Make sure long_link_rdct_url is consistent with baseUrl.
         $row['long_link_rdct_url'] = $urlBase;
 
         // Compile the mail
@@ -1289,9 +1266,8 @@ class DirectMailUtility
         $htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
         if ($params['enable_jump_url']) {
             $htmlmail->jumperURL_prefix = $urlBase .
-                '?id=' . $row['page'] .
+                '?mid=###SYS_MAIL_ID###' .
                 (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
-                '&mid=###SYS_MAIL_ID###' .
                 '&aC=###SYS_AUTHCODE###' .
                 '&jumpurl=';
             $htmlmail->jumperURL_useId = 1;
@@ -1319,6 +1295,7 @@ class DirectMailUtility
 
         // fetch the HTML url
         if ($htmlUrl) {
+
             // Username and password is added in htmlmail object
             $success = $htmlmail->addHTML(self::addUserPass($htmlUrl, $params));
             // If type = 1, we have an external page.
@@ -1329,7 +1306,7 @@ class DirectMailUtility
                 if ($res == 1) {
                     $htmlmail->charset = $matches[1];
                 } elseif (isset($params['direct_mail_charset'])) {
-                    $htmlmail->charset = $GLOBALS['LANG']->csConvObj->parse_charset($params['direct_mail_charset']);
+                    $htmlmail->charset = $params['direct_mail_charset'];
                 } else {
                     $htmlmail->charset = 'iso-8859-1';
                 }
@@ -1424,15 +1401,14 @@ class DirectMailUtility
 
     /**
      * Create an access token and save it in the Registry
-     *
-     * @return string
      */
-    public static function createAndGetAccessToken()
+    public static function createAndGetAccessToken(): string
     {
         /* @var \TYPO3\CMS\Core\Registry $registry */
-        $registry = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Registry');
+        $registry = GeneralUtility::makeInstance(Registry::class);
         $accessToken = GeneralUtility::makeInstance(Random::class)->generateRandomHexString(32);
         $registry->set('tx_directmail', 'accessToken', $accessToken);
+
         return $accessToken;
     }
 
@@ -1466,27 +1442,42 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row)
     {
-        $result = array(
-                // Finding the domain to use
-            'baseUrl' => self::getUrlBase($row['use_domain']),
+        $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
+        // Finding the domain to use
+        $result = [
+            'baseUrl' => $cObj->typolink_URL([
+                'parameter' => (int)$row['page'],
+                'forceAbsoluteUrl' => true,
+                'linkAccessRestrictedPages' => true
+            ]),
             'htmlUrl' => '',
             'plainTextUrl' => ''
-        );
+        ];
 
         // Finding the url to fetch content from
-        switch ((string) $row['type']) {
+        switch ((string)$row['type']) {
             case 1:
                 $result['htmlUrl'] = $row['HTMLParams'];
                 $result['plainTextUrl'] = $row['plainParams'];
                 break;
             default:
-                $result['htmlUrl'] = $result['baseUrl'] . '?id=' . $row['page'] . $row['HTMLParams'];
-                $result['plainTextUrl'] = $result['baseUrl'] . '?id=' . $row['page'] . $row['plainParams'];
+                $result['htmlUrl'] = $cObj->typolink_URL([
+                    'parameter' => (int)$row['page'],
+                    'forceAbsoluteUrl' => true,
+                    'linkAccessRestrictedPages' => true,
+                    'additionalParams' => $row['HTMLParams'],
+                ]);
+                $result['plainTextUrl'] = $cObj->typolink_URL([
+                    'parameter' => (int)$row['page'],
+                    'forceAbsoluteUrl' => true,
+                    'linkAccessRestrictedPages' => true,
+                    'additionalParams' => $row['plainParams'],
+                ]);
         }
 
         // plain
         if ($result['plainTextUrl']) {
-            if (!($row['sendOptions']&1)) {
+            if (!($row['sendOptions'] & 1)) {
                 $result['plainTextUrl'] = '';
             } else {
                 $urlParts = @parse_url($result['plainTextUrl']);
@@ -1495,9 +1486,10 @@ class DirectMailUtility
                 }
             }
         }
+
         // html
         if ($result['htmlUrl']) {
-            if (!($row['sendOptions']&2)) {
+            if (!($row['sendOptions'] & 2)) {
                 $result['htmlUrl'] = '';
             } else {
                 $urlParts = @parse_url($result['htmlUrl']);
@@ -1506,30 +1498,24 @@ class DirectMailUtility
                 }
             }
         }
+
         return $result;
     }
 
     /**
      * Initializes the TSFE for a given page ID and language.
      *
-     * @param int $pageId The page id to initialize the TSFE for
-     * @param int $language System language uid, optional, defaults to 0
-     * @param bool $useCache Use cache to reuse TSFE
-     *
-     * @return	void
+     * @throws ServiceUnavailableException
+     * @throws ImmediateResponseException
      */
-    public static function initializeTsfe($pageId, $language = 0, $useCache = true)
+    public static function initializeTsfe(int $pageId, int $language = 0, bool $useCache = true): void
     {
-        static $tsfeCache = array();
-
         // resetting, a TSFE instance with data from a different page Id could be set already
         unset($GLOBALS['TSFE']);
 
         $cacheId = $pageId . '|' . $language;
 
         if (!isset($tsfeCache[$cacheId]) || !$useCache) {
-            GeneralUtility::_GETset($language, 'L');
-
             $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class, $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
 
             // for certain situations we need to trick TSFE into granting us
@@ -1546,12 +1532,12 @@ class DirectMailUtility
             // restore gr_list
             $GLOBALS['TSFE']->gr_list = $groupListBackup;
 
-            $GLOBALS['TSFE']->initTemplate();
             $GLOBALS['TSFE']->forceTemplateParsing = true;
             $GLOBALS['TSFE']->initFEuser();
             $GLOBALS['TSFE']->initUserGroups();
 
             $GLOBALS['TSFE']->no_cache = true;
+            $GLOBALS['TSFE']->initTemplate();
             $GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
             $GLOBALS['TSFE']->no_cache = false;
             $GLOBALS['TSFE']->getConfigArray();
@@ -1573,13 +1559,11 @@ class DirectMailUtility
     /**
      * Get the charset of a page
      *
-     * @param int $pageId ID of a page
-     *
-     * @return string The charset of a page
+     * @throws ImmediateResponseException
+     * @throws ServiceUnavailableException
      */
-    public static function getCharacterSetOfPage($pageId)
+    public static function getCharacterSetOfPage(int $pageId): string
     {
-
         // init a fake TSFE object
         self::initializeTsfe($pageId);
 
@@ -1594,22 +1578,15 @@ class DirectMailUtility
         // destroy it :)
         unset($GLOBALS['TSFE']);
 
-        return strtolower($characterSet);
+        return mb_strtolower($characterSet);
     }
 
     /**
      * Wrapper for the old t3lib_div::intInRange.
      * Forces the integer $theInt into the boundaries of $min and $max.
      * If the $theInt is 'FALSE' then the $zeroValue is applied.
-     *
-     * @param int $theInt Input value
-     * @param int $min Lower limit
-     * @param int $max Higher limit
-     * @param int $zeroValue Default value if input is FALSE.
-     *
-     * @return int The input value forced into the boundaries of $min and $max
      */
-    public static function intInRangeWrapper($theInt, $min, $max = 2000000000, $zeroValue = 0)
+    public static function intInRangeWrapper(int $theInt, int $min, int $max = 2000000000, int $zeroValue = 0): int
     {
         return MathUtility::forceIntegerInRange($theInt, $min, $max, $zeroValue);
     }

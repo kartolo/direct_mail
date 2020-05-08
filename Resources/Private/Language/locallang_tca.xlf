@@ -137,9 +137,6 @@
 		<trans-unit id="sys_dmail.type.I.1">
 			<source>External URL</source>
 		</trans-unit>
-		<trans-unit id="sys_dmail.use_domain">
-			<source>Domain of internal links:</source>
-		</trans-unit>
 		<trans-unit id="sys_dmail.use_rdct">
 			<source>Redirect links longer than 76 characters:</source>
 		</trans-unit>

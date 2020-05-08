@@ -14,10 +14,8 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
-
-use TYPO3\CMS\Backend\Module\BaseScriptClass;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -26,8 +24,6 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 
 /**
  * Module Configuration for tx_directmail extension
@@ -68,12 +64,6 @@ class Configuration extends BaseScriptClass
     public $configArray_length;
 
     /**
-     * Page Repository
-     * @var \TYPO3\CMS\Frontend\Page\PageRepository
-     */
-    public $sys_page;
-
-    /**
      * IconFactory for skinning
      * @var \TYPO3\CMS\Core\Imaging\IconFactory
      */
@@ -91,63 +81,20 @@ class Configuration extends BaseScriptClass
      */
     public function __construct()
     {
-        $this->MCONF = array(
-                'name' => $this->moduleName
-        );
+        $this->MCONF = [
+            'name' => $this->moduleName
+        ];
     }
 
     /**
-     * Standard initialization
+     * Initialization
      *
      * @return	void
      */
     public function init()
     {
         parent::init();
-
-        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
-        $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
-        if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']])) {
-            $this->userTable = $this->params['userTable'];
-            $this->allowedTables[] = $this->userTable;
-        }
-
-        // initialize the page selector
-        $this->sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
-        $this->sys_page->init(true);
-
-        // initialize IconFactory
-        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-
-            // initialize backend user language
-        if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getQueryBuilderForTable('sys_language');
-            $res = $queryBuilder
-                ->select('sys_language.uid')
-                ->from('sys_language')
-                ->leftJoin(
-                    'sys_language',
-                    'static_languages',
-                    'static_languages',
-                    $queryBuilder->expr()->eq('sys_language.static_lang_isocode', $queryBuilder->quoteIdentifier('static_languages.uid'))
-                )
-                ->where(
-                    $queryBuilder->expr()->eq('static_languages.lg_typo3', $queryBuilder->createNamedParameter($this->getLanguageService()->lang))
-                )
-                ->execute()
-                ->fetchAll();
-            foreach ($res as $row)  {
-                $this->sys_language_uid = $row['uid'];
-            }
-        }
-        // load contextual help
-        $this->cshTable = '_MOD_' . $this->MCONF['name'];
-        if ($GLOBALS['BE_USER']->uc['edit_showFieldHelp']) {
-            $this->getLanguageService()->loadSingleTableDescription($this->cshTable);
-        }
-
+        // Update the pageTS
         $this->updatePageTS();
     }
 
@@ -155,12 +102,14 @@ class Configuration extends BaseScriptClass
      * Entrance from the backend module. This replace the _dispatch
      *
      * @param ServerRequestInterface $request The request object from the backend
-     * @param ResponseInterface $response The reponse object sent to the backend
      *
      * @return ResponseInterface Return the response object
      */
-    public function mainAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function mainAction(ServerRequestInterface $request) : ResponseInterface
     {
+        /** @var ResponseInterface $response */
+        $response = func_num_args() === 2 ? func_get_arg(1) : null;
+
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
 
@@ -169,7 +118,12 @@ class Configuration extends BaseScriptClass
         $this->main();
         $this->printContent();
 
-        $response->getBody()->write($this->content);
+        if ($response !== null) {
+            $response->getBody()->write($this->content);
+        } else {
+            // Behaviour in TYPO3 v9
+            $response = new HtmlResponse($this->content);
+        }
         return $response;
     }
 
@@ -369,7 +323,6 @@ class Configuration extends BaseScriptClass
             'box-3' => $this->getLanguageService()->getLL('configure_default_fetching'),
             'HTMLParams' => array('short', DirectMailUtility::fName('HTMLParams'), $this->getLanguageService()->getLL('configure_HTMLParams_description') . '<br />' . $this->getLanguageService()->getLL('configure_HTMLParams_details')),
             'plainParams' => array('short', DirectMailUtility::fName('plainParams'), $this->getLanguageService()->getLL('configure_plainParams_description') . '<br />' . $this->getLanguageService()->getLL('configure_plainParams_details')),
-            'use_domain' => array('select', DirectMailUtility::fName('use_domain'), $this->getLanguageService()->getLL('use_domain.description') . '<br />' . $this->getLanguageService()->getLL('use_domain.details'), array()),
         );
         $configArray[4] = array(
             'box-4' => $this->getLanguageService()->getLL('configure_options_encoding'),
@@ -408,32 +361,6 @@ class Configuration extends BaseScriptClass
         if (!isset($this->implodedParams['direct_mail_charset'])) {
             $this->implodedParams['direct_mail_charset'] = 'iso-8859-1';
         }
-
-        // Set domain selection list
-        $rootline = $this->sys_page->getRootLine($this->id);
-        $rootlineId = array();
-        foreach ($rootline as $rArr) {
-            $rootlineId[] = $rArr['uid'];
-        }
-
-
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_domain');
-        $queryBuilder
-            ->getRestrictions()
-            ->removeAll()
-            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        $res_domain = $queryBuilder->select('uid','domainName')
-            ->from('sys_domain')
-            ->where(
-                $queryBuilder->expr()->in('sys_domain.pid', implode(',', $rootlineId))
-            )
-            ->execute()
-            ->fetchAll();
-        foreach ($res_domain as $row_domain) {
-            $configArray[3]['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];
-        }
-
-
 
         $this->configArray_length = count($configArray);
         $form ='';

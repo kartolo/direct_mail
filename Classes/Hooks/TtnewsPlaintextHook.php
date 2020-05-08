@@ -39,6 +39,11 @@ class TtnewsPlaintextHook
     public $cObj;
 
     /**
+     * @var MarkerBasedTemplateService
+     */
+    protected $templateService;
+
+    /**
      * ts array
      * @var array
      */
@@ -186,8 +191,8 @@ class TtnewsPlaintextHook
         if ($row['author']) {
             $hConf = $this->renderPlainText->conf['tt_news_author.'];
             $str = $this->renderPlainText->getString($hConf['prefix']).$row['author'].$this->renderPlainText->getString($hConf['emailPrefix']).'<'.$row['author_email'].'>';
-            $defaultType = DirectMailUtility::intInRangeWrapper($hConf['defaultType'], 1, 5);
-            $type = DirectMailUtility::intInRangeWrapper($type, 0, 6);
+            $defaultType = DirectMailUtility::intInRangeWrapper((int)$hConf['defaultType'], 1, 5);
+            $type = DirectMailUtility::intInRangeWrapper((int)$type, 0, 6);
 
             if (!$type) {
                 $type = $defaultType;
@@ -198,14 +203,14 @@ class TtnewsPlaintextHook
 
                 $lines = array();
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['preBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
 
                 $lines = $this->renderPlainText->pad($lines, $tConf['preLineChar'], $tConf['preLineLen']);
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['preLineBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preLineBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
@@ -220,14 +225,14 @@ class TtnewsPlaintextHook
 
                 $lines[]=$this->cObj->stdWrap($str, $tConf['stdWrap.']);
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['postLineBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postLineBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[]=str_pad('', $blanks-1, LF);
                 }
 
                 $lines = $this->renderPlainText->pad($lines, $tConf['postLineChar'], $tConf['postLineLen']);
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['postBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[]=str_pad('', $blanks-1, LF);
                 }
