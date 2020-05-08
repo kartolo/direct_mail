@@ -157,14 +157,6 @@ Notez que si PHP est exécuté en mode sécuritaire (safe mode), le module d'Env
 			<source>The Direct mail may be compiled from a page extracted from the page tree of the TYPO3 site: 'TYPO3 Page', or from a page from another site: 'External URL'.</source>
 			<target>Le bulletin peut être contruit à partie d'une page tirée de l'arborescence des pages du site TYPO3: 'Page TYPO3', ou d'une page tirée d'un autre site: 'URL externe'.</target>
 		</trans-unit>
-		<trans-unit id="use_domain.description" approved="yes">
-			<source>Optionnally, select a domain that should be used for fetching content from internal TYPO3 pages.</source>
-			<target>Au besoin, sélectionnez un domaine qui doit être utilisé pour l'acquisition de contenu à partir de pages TYPO3.</target>
-		</trans-unit>
-		<trans-unit id="use_domain.details" approved="yes">
-			<source>If a domain is selected, it will also be used in all internal links contained in mail content. If no domain is selected, the domain in use in the backend when the direct mail is compiled will be used to fetch content.</source>
-			<target>Lorsqu'un domaine est spécifié sur un bulletin, il est utilisé pour l'acquisition de contenu interne ainsi que dans tous les liens internes contenu dans le bulletin. Lorsqu'aucun domaine n'est spécifié, le domaine en usage à l'arrière-plan de TYPO3 au moment où le bulletin est assemblé est utilisé pour l'acquisition de contenu à partir de pages TYPO3.</target>
-		</trans-unit>
 		<trans-unit id="use_rdct.description" approved="yes">
 			<source>Redirect long links found in plain text content.</source>
 			<target>Rediriger les liens longs repérés dans le contenu de format texte simple.</target>

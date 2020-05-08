@@ -117,12 +117,6 @@ Note that if PHP is executing in safe mode, the Direct mail module may not be ab
 		<trans-unit id="type.details">
 			<source>The Direct mail may be compiled from a page extracted from the page tree of the TYPO3 site: 'TYPO3 Page', or from a page from another site: 'External URL'.</source>
 		</trans-unit>
-		<trans-unit id="use_domain.description">
-			<source>Optionnally, select a domain that should be used for fetching content from internal TYPO3 pages.</source>
-		</trans-unit>
-		<trans-unit id="use_domain.details">
-			<source>If a domain is selected, it will also be used in all internal links contained in mail content. If no domain is selected, the domain in use in the backend when the direct mail is compiled will be used to fetch content.</source>
-		</trans-unit>
 		<trans-unit id="use_rdct.description">
 			<source>Redirect long links found in plain text content.</source>
 		</trans-unit>

@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail\Hooks;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -129,7 +130,7 @@ class JumpurlController
                                     $_POST['logintype'] = 'login';
                                 }
                             } else {
-                                throw new \Exception('authCode: Calculated authCode did not match the submitted authCode.', 1376899631);
+                                throw new \Exception('authCode: Calculated authCode did not match the submitted authCode. varDump = '.var_dump($recipRow).' $recipientUid = '.$recipientUid.' theTable = '.$theTable.' authcode_fieldList'.$row['authcode_fieldList'].' AC = '. $aC .' AuthCode = '. $authCode, 1376899631);
                             }
                         }
                     }
@@ -150,7 +151,7 @@ class JumpurlController
                 // Check if jumpurl is a valid link to a "dmailerping.gif"
                 // Make $checkPath an absolute path pointing to dmailerping.gif so it can get checked via ::isAllowedAbsPath()
                 // and remove an eventual "/" at beginning of $jumpurl (because PATH_site already contains "/" at the end)
-                $checkPath = PATH_site . preg_replace('#^/#', '', $jumpurl);
+                $checkPath = Environment::getPublicPath() . '/' . ltrim($jumpurl, '/');
 
                 // Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
                 if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && GeneralUtility::isAllowedAbsPath($checkPath)) {
@@ -159,6 +160,10 @@ class JumpurlController
                     $responseType = -1;
                 } elseif (GeneralUtility::isValidUrl($jumpurl) && preg_match('#^(http://|https://)#', $jumpurl)) {
                     // Also allow jumpurl to be a valid URL
+                    GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
+                    $responseType = -1;
+                } elseif (GeneralUtility::validEmail(substr($jumpurl,7)) && preg_match('#^(mailto:)#', $jumpurl)) {
+                    // Also allow jumpurl to be a valid mailto link
                     GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
                     $responseType = -1;
                 }

@@ -16,10 +16,12 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -80,6 +82,7 @@ class NavFrame
      * First initialization of the global variables. Set some JS-code
      *
      * @return	void
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function init()
     {
@@ -88,11 +91,12 @@ class NavFrame
         $this->doc->showFlashMessages = false;
 
         $currentModule = GeneralUtility::_GP('currentModule');
+        /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $currentSubScript = $uriBuilder->buildUriFromRoute($currentModule);
 
         // Setting highlight mode:
-        $this->doHighlight = !$GLOBALS['BE_USER']->getTSConfig()['options.']['pageTree.']['disableTitleHighlight'];
+        $this->doHighlight = (bool)($GLOBALS['BE_USER']->getTSConfig()['options.']['pageTree.']['disableTitleHighlight']) ? false : true;
 
         $this->doc->inDocStylesArray[] = '#typo3-docheader-row2 { line-height: 14px !important; }
 		#typo3-docheader-row2 span { font-weight: bold; margin-top: -3px; color: #000; margin-top: 0; padding-left: 20px; }';
@@ -146,12 +150,14 @@ class NavFrame
      * Entrance from the backend module. This replace the _dispatch
      *
      * @param ServerRequestInterface $request The request object from the backend
-     * @param ResponseInterface $response The reponse object sent to the backend
      *
      * @return ResponseInterface Return the response object
      */
-    public function mainAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function mainAction(ServerRequestInterface $request) : ResponseInterface
     {
+        /** @var ResponseInterface $response */
+        $response = func_num_args() === 2 ? func_get_arg(1) : null;
+
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
 
@@ -160,7 +166,12 @@ class NavFrame
         $this->main();
         $this->printContent();
 
-        $response->getBody()->write($this->content);
+        if ($response !== null) {
+            $response->getBody()->write($this->content);
+        } else {
+            // Behaviour in TYPO3 v9
+            $response = new HtmlResponse($this->content);
+        }
         return $response;
     }
 
