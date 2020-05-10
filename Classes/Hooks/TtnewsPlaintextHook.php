@@ -16,11 +16,11 @@ namespace DirectMailTeam\DirectMail\Hooks;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
+use DirectMailTeam\DirectMail\Plugin\DirectMail;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-require_once('EXT:direct_mail/pi1/class.tx_directmail_pi1.php');
 
 /**
  * Generating plain text content of tt_news records for Direct Mails
@@ -55,7 +55,7 @@ class TtnewsPlaintextHook
     public $config = array();
     public $charWidth = 76;
     /**
-     * @var tx_directmail_pi1
+     * @var DirectMail
      */
     public $renderPlainText;
 
@@ -100,7 +100,7 @@ class TtnewsPlaintextHook
             $this->sys_language_mode = $invokingObj->sys_language_mode;
             $this->templateCode = $invokingObj->templateCode;
 
-            $this->renderPlainText = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_directmail_pi1');
+            $this->renderPlainText = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(DirectMail::class);
             $this->renderPlainText->init($GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_directmail_pi1.']);
             $this->renderPlainText->cObj = $this->cObj;
             $this->renderPlainText->labelsList = 'tt_news_author_prefix,tt_news_author_date_prefix,tt_news_author_email_prefix,tt_news_short_header,tt_news_bodytext_header';
