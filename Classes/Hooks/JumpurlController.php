@@ -15,6 +15,8 @@ namespace DirectMailTeam\DirectMail\Hooks;
  */
 
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -158,14 +160,13 @@ class JumpurlController
                     // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
                     GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
                     $responseType = -1;
-                } elseif (GeneralUtility::isValidUrl($jumpurl) && preg_match('#^(http://|https://)#', $jumpurl)) {
-                    // Also allow jumpurl to be a valid URL
-                    GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
-                    $responseType = -1;
                 } elseif (GeneralUtility::validEmail(substr($jumpurl,7)) && preg_match('#^(mailto:)#', $jumpurl)) {
                     // Also allow jumpurl to be a valid mailto link
                     GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
                     $responseType = -1;
+                } else {
+                    // if it's a valid URL, throw exception
+                    throw new \Exception('direct_mail: Invalid JumpURL parameter.', 1578347190);
                 }
 
                 // to count the dmailerping correctly, we need something unique
@@ -174,20 +175,47 @@ class JumpurlController
 
             if ($responseType != 0) {
 
+                $logTable = 'sys_dmail_maillog';
+                $insertArray = [
+                    'mid'           => intval($mid),
+                    'tstamp'        => time(),
+                    'url'           => $jumpurl,
+                    'response_type' => intval($responseType),
+                    'url_id'        => intval($urlId),
+                    'rtbl'            => $recipientTable,
+                    'rid'            => $recipientUid
+                ];
+
+                /** @var ConnectionPool $connectionPool */
                 $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-                $databaseConnectionSysDamilMaillog = $connectionPool->getConnectionForTable('sys_dmail_maillog');
-                $databaseConnectionSysDamilMaillog->insert(
-                    'sys_dmail_maillog',
-                    [
-                        'mid'           => intval($mid),
-                        'tstamp'        => time(),
-                        'url'           => $jumpurl,
-                        'response_type' => intval($responseType),
-                        'url_id'        => intval($urlId),
-                        'rtbl'            => $recipientTable,
-                        'rid'            => $recipientUid
-                    ]
-                );
+                /** @var Connection $databaseConnectionSysDamilMaillog */
+                $databaseConnectionSysDamilMaillog = $connectionPool->getConnectionForTable($logTable);
+
+                // check if entry exists in the last 10 seconds
+                $queryBuilder = $connectionPool->getQueryBuilderForTable($logTable);
+                $queryBuilder->getRestrictions()->removeAll()
+                    ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+                $existingLog = $queryBuilder->select('uid')
+                    ->from($logTable)
+                    ->where(
+                        $queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($insertArray['mid'], \PDO::PARAM_INT)),
+                        $queryBuilder->expr()->eq('url', $queryBuilder->createNamedParameter($insertArray['url'])),
+                        $queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter($insertArray['response_type'], \PDO::PARAM_INT)),
+                        $queryBuilder->expr()->eq('url_id', $queryBuilder->createNamedParameter( $insertArray['url_id'], \PDO::PARAM_INT)),
+                        $queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($insertArray['rtbl'])),
+                        $queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($insertArray['rid'], \PDO::PARAM_INT)),
+                        $queryBuilder->expr()->lte('tstamp', $queryBuilder->createNamedParameter($insertArray['tstamp'], \PDO::PARAM_INT)),
+                        $queryBuilder->expr()->gte('tstamp', $queryBuilder->createNamedParameter($insertArray['tstamp']-10, \PDO::PARAM_INT))
+                    )
+                    ->execute()
+                    ->fetch();
+
+                if ($existingLog === false) {
+                    $databaseConnectionSysDamilMaillog->insert(
+                        $logTable,
+                        $insertArray
+                    );
+                }
             }
         }
 

@@ -28,7 +28,6 @@ use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\SiteFinder;
-use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -496,20 +495,15 @@ class DirectMailUtility
         if ($group['query']) {
             $queryGenerator->init('dmail_queryConfig', $table);
             $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
-            $whereClause = $queryGenerator->getQuery($queryGenerator->queryConfig);
 
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-            $queryBuilder
-                ->getRestrictions()
-                ->removeAll()
-                ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-            $res = $queryBuilder->select($table . '.uid')
-                ->from($table)
-                ->add('where', $whereClause)
-                ->execute();
+            $queryGenerator->extFieldLists['queryFields'] = 'uid';
+            $select = $queryGenerator->getSelectQuery();
+            /** @var Connection $connection */
+            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+            $recipients = $connection->executeQuery($select)->fetchAll();
 
-            while ($row = $res->fetch()) {
-                $outArr[] = $row['uid'];
+            foreach ($recipients as $recipient) {
+                $outArr[] = $recipient['uid'];
             }
         }
         return $outArr;
