@@ -1630,13 +1630,15 @@ class Statistics extends BaseScriptClass
                 $uidList = array_keys($arr);
                 $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
                 if (count($uidList)) {
-
-                    $connection->update(
-                        $table,
-                        $values,
-                        'uid IN (' . implode(',',array_map('intval',$uidList)) . ')'
+                    foreach ($uidList as $uid){
+                        $connection->update(
+                            $table,
+                            $values,
+                            [
+                                'uid' => $uid
+                            ]
                         );
-
+                    }
                 }
             }
         }
