@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
+use PDO;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -118,21 +119,20 @@ class JumpurlController implements MiddlewareInterface
             }
 
             if ($this->responseType !== 0) {
-
-                $connection = GeneralUtility::makeInstance(ConnectionPool::class)
-                                            ->getConnectionForTable('sys_dmail_maillog');
-                $connection->insert(
-                    'sys_dmail_maillog',
-                    [
-                        'mid'           => (int)$mailId,
-                        'tstamp'        => time(),
-                        'url'           => $jumpurl,
-                        'response_type' => $this->responseType,
-                        'url_id'        => $urlId,
-                        'rtbl'          => mb_substr($this->recipientTable, 0, 1),
-                        'rid'           => $recipientUid ?? $this->recipientRecord['uid']
-                    ]
-                );
+                $mailLogParams = [
+                    'mid'           => (int)$mailId,
+                    'tstamp'        => time(),
+                    'url'           => $jumpurl,
+                    'response_type' => $this->responseType,
+                    'url_id'        => (int)$urlId,
+                    'rtbl'          => mb_substr($this->recipientTable, 0, 1),
+                    'rid'           => (int)($recipientUid ?? $this->recipientRecord['uid'])
+                ];
+                if ($this->hasRecentLog($mailLogParams) === false) {
+                    GeneralUtility::makeInstance(ConnectionPool::class)
+                                  ->getConnectionForTable('sys_dmail_maillog')
+                                  ->insert('sys_dmail_maillog', $mailLogParams);
+                }
             }
         }
 
@@ -143,6 +143,36 @@ class JumpurlController implements MiddlewareInterface
         }
 
         return $handler->handle($request->withQueryParams($queryParamsToPass));
+    }
+
+    /**
+     * Check if an entry exists that is younger than 10 seconds
+     *
+     * @param array $mailLogParameters
+     * @return bool
+     */
+    protected function hasRecentLog($mailLogParameters)
+    {
+        $logTable = 'sys_dmail_maillog';
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($logTable);
+        $query = $queryBuilder
+            ->count('*')
+            ->from($logTable)
+            ->where(
+                $queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mailLogParameters['mid'], PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('url', $queryBuilder->createNamedParameter($mailLogParameters['url'], PDO::PARAM_STR)),
+                $queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter($mailLogParameters['response_type'], PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('url_id', $queryBuilder->createNamedParameter($mailLogParameters['url_id'], PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($mailLogParameters['rtbl'], PDO::PARAM_STR)),
+                $queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($mailLogParameters['rid'], PDO::PARAM_INT)),
+                $queryBuilder->expr()->lte('tstamp', $queryBuilder->createNamedParameter($mailLogParameters['tstamp'], PDO::PARAM_INT)),
+                $queryBuilder->expr()->gte('tstamp', $queryBuilder->createNamedParameter($mailLogParameters['tstamp']-10, PDO::PARAM_INT))
+            );
+
+        $existingLog = $query->execute()->fetchColumn();
+
+        return (int)$existingLog > 0;
     }
 
     /**
@@ -163,7 +193,7 @@ class JumpurlController implements MiddlewareInterface
             $res = $queryBuilder->select($fields)
                 ->from($table)
                 ->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)),
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT)),
                     $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
                 )
                 ->execute();
@@ -205,7 +235,7 @@ class JumpurlController implements MiddlewareInterface
             ->where(
                 $queryBuilder->expr()->eq(
                     'uid',
-                    $queryBuilder->createNamedParameter($mailId, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mailId, PDO::PARAM_INT)
                 )
             )
             ->execute()
