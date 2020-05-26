@@ -129,7 +129,7 @@ class JumpurlController implements MiddlewareInterface
                         'url'           => $jumpurl,
                         'response_type' => $this->responseType,
                         'url_id'        => $urlId,
-                        'rtbl'          => $this->recipientTable,
+                        'rtbl'          => mb_substr($this->recipientTable, 0, 1),
                         'rid'           => $recipientUid ?? $this->recipientRecord['uid']
                     ]
                 );
