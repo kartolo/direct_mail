@@ -438,6 +438,8 @@ class JumpurlController implements MiddlewareInterface
      *
      * @param string $target
      * @return bool
+     *
+     * @throws \Exception
      */
     protected function isAllowedJumpUrlTarget($target): bool
     {
@@ -451,12 +453,9 @@ class JumpurlController implements MiddlewareInterface
         if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && GeneralUtility::isAllowedAbsPath($checkPath)) {
             // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
             $allowed = true;
-        } elseif (preg_match('#^(http://|https://)#', $target) && GeneralUtility::isValidUrl($target)) {
-            // Also allow jumpurl to be a valid URL
-            $allowed = true;
-        } elseif (preg_match('#^(mailto:)#', $target) && GeneralUtility::validEmail(mb_substr($target,7))) {
-            // Also allow jumpurl to be a valid mailto link
-            $allowed = true;
+        } elseif (GeneralUtility::isValidUrl($target)) {
+            // if it's a valid URL, throw exception
+            throw new \Exception('direct_mail: Invalid target.', 1578347190);
         }
 
         return $allowed;
