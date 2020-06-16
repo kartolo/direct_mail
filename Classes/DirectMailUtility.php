@@ -1455,17 +1455,17 @@ class DirectMailUtility
                 $result['plainTextUrl'] = $row['plainParams'];
                 break;
             default:
+                $params = substr($row['HTMLParams'], 0, 1) == '&' ? substr($row['HTMLParams'], 1) : $row['HTMLParams'];
                 $result['htmlUrl'] = $cObj->typolink_URL([
-                    'parameter' => (int)$row['page'],
+                    'parameter' => 't3://page?uid=' . (int)$row['page'] . '&' . $params,
                     'forceAbsoluteUrl' => true,
-                    'linkAccessRestrictedPages' => true,
-                    'additionalParams' => $row['HTMLParams'],
+                    'linkAccessRestrictedPages' => true
                 ]);
+                $params = substr($row['plainParams'], 0, 1) == '&' ? substr($row['plainParams'], 1) : $row['plainParams'];
                 $result['plainTextUrl'] = $cObj->typolink_URL([
-                    'parameter' => (int)$row['page'],
+                    'parameter' => 't3://page?uid=' . (int)$row['page'] . '&' . $params,
                     'forceAbsoluteUrl' => true,
-                    'linkAccessRestrictedPages' => true,
-                    'additionalParams' => $row['plainParams'],
+                    'linkAccessRestrictedPages' => true
                 ]);
         }
 
