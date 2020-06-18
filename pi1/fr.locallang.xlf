@@ -24,6 +24,10 @@
 			<source>- Imagelink:</source>
 			<target>- Lien vers l'image:</target>
 		</trans-unit>
+		<trans-unit id="media_header" approved="yes">
+			<source>MEDIA:</source>
+			<target>MEDIA:</target>
+		</trans-unit>
 		<trans-unit id="images_header" approved="yes">
 			<source>IMAGES:</source>
 			<target>IMAGES:</target>

@@ -48,8 +48,12 @@ plugin.tx_directmail_pi1 {
   uploads.header = |###UPLOADS_HEADER###|
 
   images.header = |###IMAGES_HEADER###|
-  images.linkPrefix = | ###IMAGE_LINK_PREFIX### |
+  images.linkPrefix = |###IMAGE_LINK_PREFIX### |
   images.captionHeader = |###CAPTION_HEADER###|
+
+  textmedia.header = |###MEDIA_HEADER###|
+  textmedia.linkPrefix = |###IMAGE_LINK_PREFIX### |
+  textmedia.captionHeader = |###CAPTION_HEADER###|
 
   bulletlist.0.bullet = |*  |
   bulletlist.1.bullet = |#  |

@@ -37,11 +37,12 @@ namespace DirectMailTeam\DirectMail\Plugin;
  *
  */
 
+use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use TYPO3\CMS\Frontend\DataProcessing\FilesProcessor;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 /**
@@ -72,7 +73,7 @@ class DirectMail extends AbstractPlugin
     public $charWidth = 76;
     public $linebreak = LF;
     public $siteUrl;
-    public $labelsList = 'header_date_prefix,header_link_prefix,uploads_header,images_header,image_link_prefix,caption_header,unrendered_content,link_prefix';
+    public $labelsList = 'header_date_prefix,header_link_prefix,uploads_header,media_header,images_header,image_link_prefix,caption_header,unrendered_content,link_prefix';
 
     /**
      * Main function, called from TypoScript
@@ -112,6 +113,12 @@ class DirectMail extends AbstractPlugin
                     $lines[] = '';
                     $lines[] = $this->getImages();
                 }
+                break;
+            case 'textmedia':
+                $lines[] = $this->getHeader();
+                $lines[] = $this->breakContent(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
+                $lines[] = '';
+                $lines[] = $this->getImages('assets');
                 break;
             case 'image':
                 $lines[] = $this->getHeader();
@@ -243,33 +250,45 @@ class DirectMail extends AbstractPlugin
     /**
      * Get images found in the "image" field of "tt_content"
      *
-     * @return	string		Content
+     * @param   string  fieldname
+     * @return  string  Content
      */
-    public function getImages()
+    public function getImages($fieldname = 'image')
     {
-        $imagesArray = array();
-        $this->getImagesStandard($imagesArray);
-        $images = $this->renderImages($imagesArray, !$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'', $this->cObj->data['imagecaption']);
+        $configuration = [
+            '10' => 'TYPO3\CMS\Frontend\DataProcessing\FilesProcessor',
+            '10.' => [
+                'references.' => [
+                    'fieldName' => $fieldname
+                ],
+                'folders.' => [
+                    'field' => 'file_folder'
+                ],
+                'sorting.' => [
+                    'field' => 'filelink_sorting'
+                ]
+            ]
+        ];
+
+        $images = GeneralUtility::makeInstance(FilesProcessor::class)->process(
+            $this->cObj,
+            $configuration,
+            $configuration['10.'],
+            []
+        );
+
+        foreach ($images['files'] as $image) {
+            /** @var FileReference $image */
+            $imagesArray[] = [
+                'image' => $this->getLink($image->getPublicUrl()),
+                'link' => $this->getLink($image->getLink()),
+                'caption' => $image->getDescription()
+            ];
+        }
+
+        $images = $this->renderImages($imagesArray, $fieldname);
 
         return $images;
-    }
-
-    /**
-     * Get images from image field and store this images to $images_arr
-     *
-     * @param array $imagesArray The image array
-     * @param string $upload_path The upload path
-     *
-     * @return	void
-     */
-    public function getImagesStandard(array &$imagesArray, $uploadPath='uploads/pics/')
-    {
-        $images = explode(',', $this->cObj->data['image']);
-        foreach ($images as $file) {
-            if (strlen(trim($file)) > 0) {
-                $imagesArray[] = $this->siteUrl . $uploadPath . $file;
-            }
-        }
     }
 
     /**
@@ -292,7 +311,7 @@ class DirectMail extends AbstractPlugin
         // Then all a-tags:
         $aConf = array();
         $aConf['parseFunc.']['tags.']['a'] = 'USER';
-        $aConf['parseFunc.']['tags.']['a.']['userFunc'] = 'tx_directmail_pi1->atag_to_http';
+        $aConf['parseFunc.']['tags.']['a.']['userFunc'] = 'DirectMailTeam\DirectMail\Plugin\DirectMail->atag_to_http';
         $aConf['parseFunc.']['tags.']['a.']['siteUrl'] = $this->siteUrl;
         $str = $this->cObj->stdWrap($str, $aConf);
         $str = str_replace('&nbsp;', ' ', htmlspecialchars_decode($str));
@@ -588,53 +607,40 @@ class DirectMail extends AbstractPlugin
     /**
      * Render block of images - which means creating lines with links to the images.
      *
-     * @param	 array		$imagesArray The image array
-     * @param	string		$links Link value from the "image_link" field in tt_content records
-     * @param	string		$caption Caption text
-     *
-     * @return	string		Content
+     * @param   array   $imagesArray The image array*
+     * @param   string  $fieldname
+     * @return  string  Content
      * @see getImages()
      */
-    public function renderImages(array $imagesArray, $links, $caption)
+    public function renderImages(array $imagesArray, $fieldname)
     {
-        $linksArr = explode(',', $links);
+        if ($fieldname == 'assets') {
+            $fieldname = 'textmedia';
+        }
         $lines = array();
         $imageExists = false;
 
-        foreach ($imagesArray as $k => $file) {
-            if (strlen(trim($file)) > 0) {
-                $lines[] = $file;
-                if ($links && count($linksArr) > 1) {
-                    if (isset($linksArr[$k])) {
-                        $ll = $linksArr[$k];
-                    } else {
-                        $ll = $linksArr[0];
-                    }
-
-                    $theLink = $this->getLink($ll);
+        // create the image, imagelink and image caption block
+        foreach ($imagesArray as $k => $image) {
+            if (strlen(trim($image['image'])) > 0) {
+                $lines[] = $image['image'];
+                if ($image['link']) {
+                    $theLink = $this->getLink($image['link']);
                     if ($theLink) {
-                        $lines[] = $this->getString($this->conf['images.']['linkPrefix']) . $theLink;
+                        $lines[] = $this->getString($this->conf[$fieldname.'.']['linkPrefix']) . $theLink;
                     }
                 }
+                if ($image['caption']) {
+                    $cHeader = trim($this->getString($this->conf[$fieldname.'.']['captionHeader']));
+                    $lines[] = $cHeader . ' ' .$this->breakContent($image['caption']);
+                }
+                // add newline
+                $lines[] = '';
                 $imageExists = true;
             }
         }
-        if ($this->conf['images.']['header'] && $imageExists) {
-            array_unshift($lines, $this->getString($this->conf['images.']['header']));
-        }
-        if ($links && count($linksArr) == 1) {
-            $theLink = $this->getLink($links);
-            if ($theLink) {
-                $lines[] = $this->getString($this->conf['images.']['linkPrefix']) . $theLink;
-            }
-        }
-        if ($caption) {
-            $lines[] = '';
-            $cHeader = trim($this->getString($this->conf['images.']['captionHeader']));
-            if ($cHeader) {
-                $lines[] = $cHeader;
-            }
-            $lines[] = $this->breakContent($caption);
+        if ($this->conf[$fieldname.'.']['header'] && $imageExists) {
+            array_unshift($lines, $this->getString($this->conf[$fieldname.'.']['header']));
         }
 
         return LF . implode(LF, $lines);
@@ -643,17 +649,19 @@ class DirectMail extends AbstractPlugin
     /**
      * Returns a typolink URL based on input.
      *
-     * @param	string		$ll Parameter to typolink
+     * @param	string		$link Parameter to typolink
      *
      * @return	string		The URL returned from $this->cObj->getTypoLink_URL(); - possibly it prefixed with the URL of the site if not present already
      */
-    public function getLink($ll)
+    public function getLink($link)
     {
-        $theLink = $this->cObj->getTypoLink_URL($ll);
-        if (substr($theLink, 0, 4) != 'http') {
-            $theLink = $this->siteUrl . $theLink;
-        }
-        return $theLink;
+        return $this->cObj->typoLink_URL([
+            'parameter' => $link,
+            'forceAbsoluteUrl' => '1',
+            'forceAbsoluteUrl.' => [
+                'scheme' => GeneralUtility::getIndpEnv('TYPO3_SSL')?'https':'http'
+            ]
+        ]);
     }
 
     /**
@@ -723,11 +731,14 @@ class DirectMail extends AbstractPlugin
         $this->conf = $conf;
         $this->siteUrl = $conf['siteUrl'];
         $theLink = trim($this->cObj->parameters['href']);
+
+        $theLink = $this->getLink($theLink);
+
+        // remove mailto if it's an email link
         if (strtolower(substr($theLink, 0, 7)) == 'mailto:') {
             $theLink = substr($theLink, 7);
-        } elseif (substr($theLink, 0, 4) != 'http') {
-            $theLink = $this->siteUrl . $theLink;
         }
+
         return $this->cObj->getCurrentVal() . ' (###LINK_PREFIX### ' . $theLink . ' )';
     }
 
