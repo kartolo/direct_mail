@@ -22,7 +22,7 @@
     "typo3/cms-core": "^10.3",
     "friendsoftypo3/jumpurl": "^8.0",
     "friendsoftypo3/tt-address": "^4.3 || ^5.0",
-    "friendsoftypo3/rdct": "dev-master"
+    "friendsoftypo3/rdct": "^2.0"
   },
   "require-dev": {
     "roave/security-advisories": "dev-master"
