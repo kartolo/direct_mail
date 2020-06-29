@@ -128,10 +128,6 @@ class DirectMail extends AbstractPlugin
                 $lines[] = $this->getHeader();
                 $lines[] = $this->renderUploads($this->cObj->data['media']);
                 break;
-            case 'menu':
-                $lines[] = $this->getHeader();
-                $lines[] = $this->getMenuSitemap();
-                break;
             case 'shortcut':
                 $lines[] = $this->getShortcut();
                 break;
@@ -145,6 +141,10 @@ class DirectMail extends AbstractPlugin
                 break;
             case 'html':
                 $lines[] = $this->getHtml();
+                break;
+            case (!!preg_match('/menu_.*/', $cType)):
+                $lines[] = $this->getHeader();
+                $lines[] = $this->getMenuContent($cType);
                 break;
             default:
                     // Hook for processing other content types
@@ -201,12 +201,16 @@ class DirectMail extends AbstractPlugin
     /**
      * Creates a menu/sitemap
      *
+     * @param string $cType: menu type
      * @return	string		$str: Content
      */
-    public function getMenuSitemap()
+    public function getMenuContent($cType)
     {
-        $str = $this->cObj->cObjGetSingle($this->conf['menu'], $this->conf['menu.']);
-        $str = $this->breakBulletlist(trim(strip_tags(preg_replace('/<br\s*\/?>/i', LF, $this->parseBody($str)))));
+        $str = $this->cObj->cObjGetSingle(
+            $GLOBALS['TSFE']->tmpl->setup['tt_content.'][$cType],
+            $GLOBALS['TSFE']->tmpl->setup['tt_content.'][$cType . '.']
+        );
+
         return $str;
     }
 
