@@ -103,26 +103,28 @@ class DirectMail extends AbstractPlugin
             case 'text':
                 // same as textpic
             case 'textpic':
-                $lines[] = $this->getHeader();
-                if (($cType == 'textpic') && !($this->cObj->data['imageorient']&24)) {
-                    $lines[] = $this->getImages();
-                    $lines[] = '';
-                }
-                $lines[] = $this->breakContent(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
-                if (($cType == 'textpic') && ($this->cObj->data['imageorient']&24)) {
-                    $lines[] = '';
-                    $lines[] = $this->getImages();
-                }
-                break;
             case 'textmedia':
+                if ($cType == 'textmedia') {
+                    $field = 'assets';
+                } else {
+                    $field = 'image';
+                }
                 $lines[] = $this->getHeader();
+                $list = 'textpic,textmedia';
+
+                if (GeneralUtility::inList($list, $cType) && !($this->cObj->data['imageorient']&24)) {
+                    $lines[] = $this->getImages($field);
+                    $lines[] = '';
+                }
                 $lines[] = $this->breakContent(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
-                $lines[] = '';
-                $lines[] = $this->getImages('assets');
+                if (GeneralUtility::inList($list, $cType) && ($this->cObj->data['imageorient']&24)) {
+                    $lines[] = '';
+                    $lines[] = $this->getImages($field);
+                }
                 break;
             case 'image':
                 $lines[] = $this->getHeader();
-                $lines[] = $this->getImages();
+                $lines[] = $this->getImages('image');
                 break;
             case 'uploads':
                 $lines[] = $this->getHeader();
@@ -257,7 +259,7 @@ class DirectMail extends AbstractPlugin
      * @param   string  fieldname
      * @return  string  Content
      */
-    public function getImages($fieldname = 'image')
+    public function getImages($fieldname)
     {
         $configuration = [
             '10' => 'TYPO3\CMS\Frontend\DataProcessing\FilesProcessor',
@@ -281,16 +283,20 @@ class DirectMail extends AbstractPlugin
             []
         );
 
-        foreach ($images['files'] as $image) {
-            /** @var FileReference $image */
-            $imagesArray[] = [
-                'image' => $this->getLink($image->getPublicUrl()),
-                'link' => $this->getLink($image->getLink()),
-                'caption' => $image->getDescription()
-            ];
-        }
+        if (is_array($images['files']) && count($images['files'])) {
+            foreach ($images['files'] as $image) {
+                /** @var FileReference $image */
+                $imagesArray[] = [
+                    'image' => $this->getLink($image->getPublicUrl()),
+                    'link' => $this->getLink($image->getLink()),
+                    'caption' => $image->getDescription()
+                ];
+            }
 
-        $images = $this->renderImages($imagesArray, $fieldname);
+            $images = $this->renderImages($imagesArray, $fieldname);
+        } else {
+            $images = '';
+        }
 
         return $images;
     }
