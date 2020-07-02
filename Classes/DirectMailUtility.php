@@ -1255,12 +1255,18 @@ class DirectMailUtility
         // Make sure long_link_rdct_url is consistent with baseUrl.
         $row['long_link_rdct_url'] = $urlBase;
 
+        if (strpos($urlBase, '?') !== false ) {
+            $glue = '&';
+        } else {
+            $glue = '?';
+        }
+
         // Compile the mail
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
         if ($params['enable_jump_url']) {
-            $htmlmail->jumperURL_prefix = $urlBase .
-                '&mid=###SYS_MAIL_ID###' .
+            $htmlmail->jumperURL_prefix = $urlBase . $glue .
+                'mid=###SYS_MAIL_ID###' .
                 (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
                 '&aC=###SYS_AUTHCODE###' .
                 '&jumpurl=';
@@ -1388,7 +1394,12 @@ class DirectMailUtility
             $url = $matches[0] . $user . ':' . $pass . '@' . substr($url, strlen($matches[0]));
         }
         if ($params['simulate_usergroup'] && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
-            $url = $url . '&dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' . self::createAndGetAccessToken();
+            if (strpos($url, '?') !== false ) {
+                $glue = '&';
+            } else {
+                $glue = '?';
+            }
+            $url = $url . $glue . 'dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' . self::createAndGetAccessToken();
         }
         return $url;
     }
@@ -1440,7 +1451,7 @@ class DirectMailUtility
         // Finding the domain to use
         $result = [
             'baseUrl' => $cObj->typolink_URL([
-                'parameter' => (int)$row['page'],
+                'parameter' => 't3://page?uid=' . (int)$row['page'],
                 'forceAbsoluteUrl' => true,
                 'linkAccessRestrictedPages' => true
             ]),
