@@ -1189,36 +1189,25 @@ class Dmailer implements LoggerAwareInterface
             return $content;
         }
 
-        $textpieces = explode('http://', $content);
-        $pieces = count($textpieces);
-        $textstr = $textpieces[0];
-        for ($i = 1; $i < $pieces; $i++) {
-            $len = strcspn($textpieces[$i], chr(32) . "\t" . CRLF);
-            if (trim(substr($textstr, -1)) == '' && $len) {
-                $lastChar = substr($textpieces[$i], $len - 1, 1);
-                if (!preg_match('/[A-Za-z0-9\/#]/', $lastChar)) {
-                    $len--;
-                }
-
-                $parts = array();
-                $parts[0] = 'http://' . substr($textpieces[$i], 0, $len);
-                $parts[1] = substr($textpieces[$i], $len);
-
-                if (strpos($parts[0], '&no_jumpurl=1') !== false) {
+        $jumpUrlCounter = 1;
+        return preg_replace_callback(
+            '/http[s]?:\/\/\S+/',
+            function ($urlMatches) use (&$jumpUrlCounter) {
+                $url = $urlMatches[0];
+                if (strpos($url, '&no_jumpurl=1') !== false) {
                     // A link parameter "&no_jumpurl=1" allows to disable jumpurl for plain text links
-                    $parts[0] = str_replace('&no_jumpurl=1', '', $parts[0]);
+                    $url = str_replace('&no_jumpurl=1', '', $url);
                 } elseif ($this->jumperURL_useId) {
-                    $this->theParts['plain']['link_ids'][$i] = $parts[0];
-                    $parts[0] = $this->jumperURL_prefix . '-' . $i;
+                    $this->theParts['plain']['link_ids'][$jumpUrlCounter] = $url;
+                    $url = $this->jumperURL_prefix . '-' . $jumpUrlCounter;
+                    $jumpUrlCounter++;
                 } else {
-                    $parts[0] = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($parts[0]));
+                    $url = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($url));
                 }
-                $textstr .= $parts[0] . $parts[1];
-            } else {
-                $textstr .= 'http://' . $textpieces[$i];
-            }
-        }
-        return $textstr;
+                return $url;
+            },
+            $content
+        );
     }
 
     /**
