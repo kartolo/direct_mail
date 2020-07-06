@@ -1,7 +1,7 @@
 <?php
 
-return array(
-    'ctrl' => array(
+return [
+    'ctrl' => [
         'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category',
         'label' => 'category',
         'tstamp' => 'tstamp',
@@ -12,74 +12,76 @@ return array(
         'transOrigDiffSourceField' => 'l18n_diffsource',
         'sortby' => 'sorting',
         'delete' => 'deleted',
-        'enablecolumns' => array(
+        'enablecolumns' => [
             'disabled' => 'hidden',
-        ),
-        'iconfile' => TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('direct_mail') . 'Resources/Public/Icons/icon_tx_directmail_category.gif',
-    ),
-    'interface' => array(
+        ],
+        'iconfile' => 'EXT:direct_mail/Resources/Public/Icons/icon_tx_directmail_category.gif',
+    ],
+    'interface' => [
         'showRecordFieldList' => 'hidden,category'
-    ),
-    'feInterface' => $GLOBALS['TCA']['sys_dmail_category']['feInterface'],
-    'columns' => array(
-        'sys_language_uid' => array(
-            'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.language',
-            'config' => array(
+    ],
+    'columns' => [
+        'sys_language_uid' => [
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
+            'config' => [
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'foreign_table' => 'sys_language',
                 'foreign_table_where' => 'ORDER BY sys_language.title',
-                'items' => array(
-                    array('LLL:EXT:lang/locallang_general.xlf:LGL.allLanguages', -1),
-                    array('LLL:EXT:lang/locallang_general.xlf:LGL.default_value', 0)
-                )
-            )
-        ),
-        'l18n_parent' => array(
+                'items' => [
+                    ['LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.allLanguages', -1],
+                    ['LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.default_value', 0]
+                ]
+            ]
+        ],
+        'l18n_parent' => [
             'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.l18n_parent',
-            'config' => array(
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
+            'config' => [
                 'type' => 'select',
-                'items' => array(
-                    array('', 0),
-                ),
+                'renderType' => 'selectSingle',
+                'items' => [
+                    ['', 0],
+                ],
                 'foreign_table' => 'sys_dmail_category',
                 'foreign_table_where' => 'AND sys_dmail_category.pid=###CURRENT_PID### AND sys_dmail_category.sys_language_uid IN (-1,0)',
-            )
-        ),
-        'l18n_diffsource' => array(
-            'config' => array(
-                'type' => 'passthrough'
-            )
-        ),
-        'hidden' => array(
-            'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.hidden',
-            'config' => array(
+                'default' => 0
+            ],
+        ],
+        'l18n_diffsource' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
+        'hidden' => [
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.hidden',
+            'config' => [
                 'type' => 'check',
                 'default' => '0'
-            )
-        ),
-        'category' => array(
+            ]
+        ],
+        'category' => [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category.category',
-            'config' => array(
+            'config' => [
                 'type' => 'input',
                 'size' => '30',
-            )
-        ),
-        'old_cat_number' => array(
+            ]
+        ],
+        'old_cat_number' => [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category.old_cat_number',
             'l10n_mode' => 'exclude',
-            'config' => array(
+            'config' => [
                 'type' => 'input',
                 'size' => '2',
                 'eval' => 'trim',
                 'max' => '2',
-            )
-        ),
-    ),
-    'types' => array(
-        '0' => array('showitem' => 'sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource,hidden;;1;;1-1-1, category')
-    ),
-    'palettes' => array(
-        '1' => array('showitem' => '')
-    )
-);
+            ]
+        ],
+    ],
+    'types' => [
+        '0' => ['showitem' => 'sys_language_uid, l18n_parent, l18n_diffsource, hidden, category']
+    ],
+    'palettes' => [
+        '1' => ['showitem' => '']
+    ]
+];

@@ -1,0 +1,10 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Plaintext" />
+<f:section name="Main">
+<f:spaceless>
+<f:if condition="{content}"><f:for each="{content}" as="element">
+* {element.data.header -> f:format.htmlentitiesDecode()} (Link: <f:uri.page pageUid="{element.data.pid}" section="{element.data.uid}" absolute="1"></f:uri.page>)
+</f:for></f:if>
+</f:spaceless>
+</f:section>
+</html>

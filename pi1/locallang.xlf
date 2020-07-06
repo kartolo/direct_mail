@@ -20,6 +20,9 @@
 		<trans-unit id="image_link_prefix">
 			<source>- Imagelink:</source>
 		</trans-unit>
+		<trans-unit id="media_header">
+			<source>MEDIA:</source>
+		</trans-unit>
 		<trans-unit id="images_header">
 			<source>IMAGES:</source>
 		</trans-unit>

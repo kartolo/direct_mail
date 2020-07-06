@@ -14,6 +14,8 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -71,23 +73,32 @@ class Container
                     $mmTable = 'sys_dmail_ttcontent_category_mm';
                     $whereClause = '';
                     $orderBy = $foreignTable . '.uid';
-                    $res = $this->cObj->exec_mm_query_uidList(
-                        $select,
-                        $localTableUidList,
-                        $mmTable,
-                        $foreignTable,
-                        $whereClause,
-                        '',
-                        $orderBy
-                    );
 
-                    if ($GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
-                        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                            $categoryList .= $row['uid'] . ',';
-                        }
-                        $GLOBALS['TYPO3_DB']->sql_free_result($res);
-                        $categoryList = rtrim($categoryList, ',');
+                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($foreignTable);
+                    $statement = $queryBuilder
+                        ->select($select)
+                        ->from($foreignTable)
+                        ->from($mmTable)
+                        ->where(
+                            $queryBuilder->expr()->eq(
+                                $foreignTable . '.uid',
+                                $mmTable . '.uid_foreign'
+                            )
+                        )
+                        ->andWhere(
+                            $queryBuilder->expr()->in(
+                                $mmTable . '.uid_local',
+                                $localTableUidList
+                            )
+                        )
+                        ->orderBy($orderBy)
+                        ->execute();
+
+
+                    while (($row = $statement->fetch())) {
+                        $categoryList .= $row['uid'] . ',';
                     }
+                    $categoryList = rtrim($categoryList, ',');
                 }
                 // wrap boundaries around content
                 $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . $content . $this->boundaryEnd;
@@ -142,7 +153,21 @@ class Container
         $uid = $this->cObj->data['uid'];
         $content = '';
 
-        $categories = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_dmail_ttcontent_category_mm', 'uid_local=' . (int)$uid, '', 'sorting');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_ttcontent_category_mm');
+        $categories = $queryBuilder
+            ->select('*')
+            ->from('sys_dmail_ttcontent_category_mm')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'uid_local',
+                    (int) $uid
+                )
+            )
+            ->orderBy('sorting')
+            ->execute()
+            ->fetchAll();
+
+
         if (count($categories) > 0) {
             $categoryList = array();
             foreach ($categories as $category) {

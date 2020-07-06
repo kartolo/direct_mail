@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Configuring plain text rendering
@@ -40,7 +31,7 @@ The “Direct Mail Plain Text” static template is as follows:
 Constants
 """""""""
 
-::
+.. code-block:: typoscript
 
    plugin.tx_directmail_pi1 {
        # cat=plugin.tx_directmail_pi1//; type=string; label= Site url: Enter the url of the site here.
@@ -57,7 +48,7 @@ Constants
 Setup
 """""
 
-::
+.. code-block:: typoscript
 
    plugin.tx_directmail_pi1 = USER
    plugin.tx_directmail_pi1.userFunc = tx_directmail_pi1->main
@@ -155,5 +146,3 @@ Setup
            marks.DATE.data = date:U
            marks.DATE.strftime = %e. %B %Y
    }
-
-

@@ -4,6 +4,14 @@
 ## @version $Id:setup.txt 6012 2007-07-23 12:54:25 +0000 (Mo, 23 Jul 2007) ivankartolo $
 ##
 
+[globalVar = GP:type = 99]
+// add template path for fluid_styled_content
+lib.contentElement {
+  templateRootPaths.100 = EXT:direct_mail/Resources/Private/Plaintext/FluidContentElement/Templates/
+  layoutRootPaths.100 = EXT:direct_mail/Resources/Private/Plaintext/FluidContentElement/Layouts/
+}
+[global]
+
 plugin.tx_directmail_pi1 = USER
 plugin.tx_directmail_pi1 {
   userFunc = DirectMailTeam\DirectMail\Plugin\DirectMail->main
@@ -48,8 +56,12 @@ plugin.tx_directmail_pi1 {
   uploads.header = |###UPLOADS_HEADER###|
 
   images.header = |###IMAGES_HEADER###|
-  images.linkPrefix = | ###IMAGE_LINK_PREFIX### |
+  images.linkPrefix = |###IMAGE_LINK_PREFIX### |
   images.captionHeader = |###CAPTION_HEADER###|
+
+  textmedia.header = |###MEDIA_HEADER###|
+  textmedia.linkPrefix = |###IMAGE_LINK_PREFIX### |
+  textmedia.captionHeader = |###CAPTION_HEADER###|
 
   bulletlist.0.bullet = |*  |
   bulletlist.1.bullet = |#  |
@@ -58,7 +70,6 @@ plugin.tx_directmail_pi1 {
   bulletlist.3.secondRow = |.  |
   bulletlist.3.blanks = 1
 
-  menu =< tt_content.menu.20
   shortcut =< tt_content.shortcut.20
   shortcut.0.conf.tt_content =< plugin.tx_directmail_pi1
   shortcut.0.tables = tt_content
@@ -84,7 +95,7 @@ includeLibs.tx_directmail_pi1 = EXT:direct_mail/pi1/class.tx_directmail_pi1.php
 
 tx_directmail_pi1 >
 tx_directmail_pi1 = PAGE
-tx_directmail_pi1.typeNum=99
+tx_directmail_pi1.typeNum = 99
 
 tx_directmail_pi1.config {
 	disableAllHeaderCode = 1

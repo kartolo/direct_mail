@@ -1,35 +1,23 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Requirements
 ------------
 
 Extension Direct Mail (extension key: direct\_mail) requires TYPO3
-6.2.2+ and PHP 5.3.3+.
+9.5 which requires PHP 7.2
 
-Version 1.1.0 is the last version of this extension that will work
-with TYPO3 3.8.
+Prerequisites
+'''''''''''''
 
-Version 3.1.2 is the last version of this extension that will work
-with TYPO3 4.5
+Extension Address list (tt\_address)
 
-Extension Address list (tt\_address) is a prerequisite.
+Extension rdct
 
-Please read the `upgrading section <#5.Upgrading|outline>`_ , before
-you're upgrading your direct\_mail installation.
-
-
+Please read the upgrading section, before you're upgrading your
+direct\_mail installation.

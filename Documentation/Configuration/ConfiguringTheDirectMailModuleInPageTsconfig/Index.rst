@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Configuring the Direct Mail module in Page TSConfig
@@ -281,26 +272,6 @@ parameters used to fetch the content of the direct mails.
          Default: &type=99
 
 
-.. container:: table-row
-
-   Property
-         use\_domain
-
-   Data type
-         Int+
-
-   Description
-         Uid of default sys\_domain record of the domain that should be used
-         for fetching content from internal TYPO3 pages.
-
-         Note: When a domain is specified on a direct mail, the domain will
-         also be used in all internal links contained in mail content.
-
-         Note: When no domain is specified on a direct mail, the domain in use
-         in the backend when the direct mail is compiled is used to fetch
-         internal TYPO3 pages.
-
-
 .. ###### END~OF~TABLE ######
 
 The following properties specify the content transfer encodings and
@@ -437,27 +408,11 @@ processed.
          boolean
 
    Description
-         If set, the rendered jump URL won't have UID of the recipient records.
-
-         Default: 0
-
-.. _jumpurl_tracking_privacy:
-jumpurl_tracking_privacy
-''''
-
-.. container:: table-row
-
-   Property
-         jumpurl\_tracking\_privacy
-
-   Data type
-         boolean
-
-   Description
          If set, the use of jump URL's will be enabled so that click statistics
          can be produced.
 
          Default: 0
+
 
 .. container:: table-row
 
@@ -474,6 +429,7 @@ jumpurl_tracking_privacy
 
          Default: uid
 
+.. _pageTsconfig_jumpurl_tracking_privacy:
 
 .. container:: table-row
 
@@ -631,4 +587,3 @@ Following settings are for the statistics module
 
 
 .. ### BEGIN~OF~TABLE ###
-

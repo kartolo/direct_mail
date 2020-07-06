@@ -509,7 +509,7 @@ class Message
         $parameters = self::getParametersFromStructure($structure);
 
         if ((isset($parameters['name']) || isset($parameters['filename']))
-            || (isset($structure->subtype) && strtolower($structure->subtype) == 'rfc822')
+            || (isset($structure->subtype) && stripos($structure->subtype, 'rfc822') !== false)
         ) {
             $attachment          = new Attachment($this, $structure, $partIdentifier);
             $this->attachments[] = $attachment;
@@ -543,7 +543,7 @@ class Message
                 }
             }
 
-            if (strtolower($structure->subtype) === 'plain' || ($structure->type == 1 && strtolower($structure->subtype) !== 'alternative')) {
+            if ((strtolower($structure->subtype) === 'plain') || ($structure->type == 1 && strtolower($structure->subtype) !== 'alternative') || ($structure->type == 0 && strtolower($structure->subtype) == 'rfc822-headers')) {
                 if (isset($this->plaintextMessage)) {
                     $this->plaintextMessage .= PHP_EOL . PHP_EOL;
                 } else {

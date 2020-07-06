@@ -14,10 +14,15 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use TYPO3\CMS\Core\Charset\CharsetConverter;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
@@ -28,15 +33,15 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
-class Dmailer
+class Dmailer implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
 
     /*
      * @var int amount of mail sent in one batch
      */
     public $sendPerCycle = 50;
 
-    public $logArray = array();
     public $massend_id_lists = array();
     public $mailHasContent;
     public $flag_html = 0;
@@ -107,15 +112,38 @@ class Dmailer
 
     public $tempFileList = array();
 
+    //in TYPO3 9 LanguageService->charset has been removed because backend charset is always utf-8
+    protected $backendCharset= 'utf-8';
+
     /*
      * @var integer Usergroup that is simulated when fetching the mail content
      */
     public $simulateUsergroup;
 
     /**
+     * @var CharsetConverter
+     */
+    protected $charsetConverter;
+
+    /**
      * @var MarkerBasedTemplateService
      */
     protected $templateService;
+
+    protected $message = '';
+
+    protected $notificationJob = false;
+
+    protected function getCharsetConverter()
+    {
+        if ($this->charsetConverter && ($this->charsetConverter instanceof CharsetConverter)) {
+            // charsetConverter is set already
+        } else
+        {
+            $this->charsetConverter = GeneralUtility::makeInstance(CharsetConverter::class);
+        }
+        return $this->charsetConverter;
+    }
 
     /**
      * Preparing the Email. Headers are set in global variables
@@ -126,8 +154,6 @@ class Dmailer
      */
     public function dmailer_prepare(array $row)
     {
-        global $LANG;
-
         $sys_dmail_uid = $row['uid'];
         if ($row['flowedFormat']) {
             $this->flowedFormat = 1;
@@ -145,17 +171,17 @@ class Dmailer
         $this->theParts  = unserialize(base64_decode($row['mailContent']));
         $this->messageid = $this->theParts['messageid'];
 
-        $this->subject = $LANG->csConvObj->conv($row['subject'], $LANG->charSet, $this->charset);
+        $this->subject = $this->getCharsetConverter()->conv($row['subject'], $this->backendCharset, $this->charset);
 
         $this->from_email = $row['from_email'];
-        $this->from_name = ($row['from_name'] ? $LANG->csConvObj->conv($row['from_name'], $LANG->charSet, $this->charset) : '');
+        $this->from_name = ($row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'], $this->backendCharset, $this->charset) : '');
 
         $this->replyto_email = ($row['replyto_email'] ? $row['replyto_email'] : '');
-        $this->replyto_name  = ($row['replyto_name'] ? $LANG->csConvObj->conv($row['replyto_name'], $LANG->charSet, $this->charset) : '');
+        $this->replyto_name  = ($row['replyto_name'] ? $this->getCharsetConverter()->conv($row['replyto_name'], $this->backendCharset, $this->charset) : '');
 
-        $this->organisation  = ($row['organisation']  ? $LANG->csConvObj->conv($row['organisation'], $LANG->charSet, $this->charset) : '');
+        $this->organisation  = ($row['organisation'] ? $this->getCharsetConverter()->conv($row['organisation'], $this->backendCharset, $this->charset) : '');
 
-        $this->priority      = DirectMailUtility::intInRangeWrapper($row['priority'], 1, 5);
+        $this->priority      = DirectMailUtility::intInRangeWrapper((int)$row['priority'], 1, 5);
         $this->mailer        = 'TYPO3 Direct Mail module';
         $this->authCode_fieldList = ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid');
 
@@ -203,7 +229,7 @@ class Dmailer
     public function removeHTMLComments($content)
     {
         $content = preg_replace('/\/\*<!\[CDATA\[\*\/[\t\v\n\r\f]*<!--/', '/*<![CDATA[*/', $content);
-        $content = preg_replace('/[\t\v\n\r\f]*<!(?:--[^\[][\s\S]*?--\s*)?>[\t\v\n\r\f]*/', '', $content);
+        $content = preg_replace('/[\t\v\n\r\f]*<!(?:--[^\[\<\>][\s\S]*?--\s*)?>[\t\v\n\r\f]*/', '', $content);
         return preg_replace('/\/\*<!\[CDATA\[\*\//', '/*<![CDATA[*/<!--', $content);
     }
 
@@ -228,14 +254,14 @@ class Dmailer
         }
 
         foreach ($rowFieldsArray as $substField) {
-            $subst = $this->getLanguageService()->csConvObj->conv($recipRow[$substField], $this->getLanguageService()->charSet, $this->charset);
+            $subst = $this->getCharsetConverter()->conv($recipRow[$substField], $this->backendCharset, $this->charset);
             $markers['###USER_' . $substField . '###'] = $subst;
         }
 
         // uppercase fields with uppercased values
         $uppercaseFieldsArray = array('name', 'firstname');
         foreach ($uppercaseFieldsArray as $substField) {
-            $subst = $this->getLanguageService()->csConvObj->conv($recipRow[$substField], $this->getLanguageService()->charSet, $this->charset);
+            $subst = $this->getCharsetConverter()->conv($recipRow[$substField], $this->backendCharset, $this->charset);
             $markers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
         }
 
@@ -334,7 +360,7 @@ class Dmailer
                 if (!empty($recipRow['name'])) {
                     // if there's a name
                     $recipient = array(
-                        $recipRow['email'] => $this->getLanguageService()->csConvObj->conv($recipRow['name'], $this->getLanguageService()->charSet, $this->charset),
+                        $recipRow['email'] => $this->getCharsetConverter()->conv($recipRow['name'], $this->backendCharset, $this->charset),
                     );
                 } else {
                     // if only email is given
@@ -436,26 +462,29 @@ class Dmailer
      *
      * @return	string		list of categories
      */
-    public function getListOfRecipentCategories($table, $uid)
+    public function getListOfRecipentCategories(string $table, int $uid): string
     {
-        if ($table == 'PLAINLIST') {
+        if ($table === 'PLAINLIST') {
             return '';
         }
 
-        $mm_table = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'uid_foreign',
-            $mm_table . ' LEFT JOIN ' . $table . ' ON ' . $mm_table . '.uid_local = ' . $table . '.uid',
-            $mm_table . '.uid_local=' . intval($uid) .
-                BackendUtility::deleteClause($table)
-            );
-        $list = array();
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-            $list[] = $row['uid_foreign'];
-        }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+        $relationTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
 
-        return implode(',', $list);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $statement = $queryBuilder
+            ->select('uid_foreign')
+            ->from($relationTable, $relationTable)
+            ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
+            ->where($queryBuilder->expr()->eq($relationTable . '.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+            ->execute();
+
+        $list = '';
+        while ($row = $statement->fetch()) {
+            $list .= $row['uid_foreign'] . ',';
+        }
+
+        return rtrim($list, ',');
     }
 
     /**
@@ -467,9 +496,6 @@ class Dmailer
      */
     public function dmailer_masssend_list(array $query_info, $mid)
     {
-        /* @var $LANG \TYPO3\CMS\Lang\LanguageService */
-        global $LANG;
-
         $enableFields['tt_address'] = 'tt_address.deleted=0 AND tt_address.hidden=0';
         $enableFields['fe_users']   = 'fe_users.deleted=0 AND fe_users.disable=0';
 
@@ -480,16 +506,20 @@ class Dmailer
                 if (is_array($listArr)) {
                     $ct = 0;
                     // Find tKey
-                    if ($table=='tt_address' || $table=='fe_users') {
-                        $tKey = substr($table, 0, 1);
-                    } elseif ($table=='PLAINLIST') {
-                        $tKey='P';
-                    } else {
-                        $tKey='u';
+                    switch ($table) {
+                        case 'tt_address':
+                        case 'fe_users':
+                            $tKey = substr($table, 0, 1);
+                            break;
+                        case 'PLAINLIST':
+                            $tKey = 'P';
+                            break;
+                        default:
+                            $tKey = 'u';
                     }
 
                     // Send mails
-                    $sendIds = $this->dmailer_getSentMails($mid, $tKey);
+                    $sendIds = $this->dmailer_getSentMails((int)$mid, $tKey);
                     if ($table == 'PLAINLIST') {
                         $sendIdsArr = explode(',', $sendIds);
                         foreach ($listArr as $kval => $recipRow) {
@@ -508,37 +538,32 @@ class Dmailer
                     } else {
                         $idList = implode(',', $listArr);
                         if ($idList) {
-                            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                                $table . '.*',
-                                $table,
-                                'uid IN (' . $idList . ')' .
-                                    ' AND uid NOT IN (' . ($sendIds ? $sendIds : 0) . ')' .
-                                    ($enableFields[$table] ? (' AND ' . $enableFields[$table]) : ''),
-                                '',
-                                '',
-                                $this->sendPerCycle+1
-                            );
-                            if ($GLOBALS['TYPO3_DB']->sql_error()) {
-                                die($GLOBALS['TYPO3_DB']->sql_error());
-                            }
-                            while (($recipRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+                            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+                            $statement = $queryBuilder
+                                ->select('*')
+                                ->from($table)
+                                ->where($queryBuilder->expr()->in('uid', $idList))
+                                ->andWhere($queryBuilder->expr()->notIn('uid', ($sendIds ? $sendIds : 0)))
+                                ->setMaxResults($this->sendPerCycle + 1)
+                                ->execute();
+
+                            while ($recipRow = $statement->fetch()) {
                                 $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table, $recipRow['uid']);
+
                                 if ($c >= $this->sendPerCycle) {
                                     $returnVal = false;
                                     break;
                                 }
+
                                 // We are NOT finished!
                                 $this->shipOfMail($mid, $recipRow, $tKey);
                                 $ct++;
                                 $c++;
                             }
-                            $GLOBALS['TYPO3_DB']->sql_free_result($res);
                         }
                     }
-                    if (TYPO3_DLOG) {
-                        GeneralUtility::devLog($LANG->getLL('dmailer_sending') . ' ' . $ct . ' ' . $LANG->getLL('dmailer_sending_to_table') . ' ' . $table, 'direct_mail');
-                    }
-                    $this->logArray[] = $LANG->getLL('dmailer_sending') . ' ' . $ct . ' ' . $LANG->getLL('dmailer_sending_to_table') . ' ' . $table;
+
+                    $this->logger->debug($this->getLanguageService()->getLL('dmailer_sending') . ' ' . $ct . ' ' . $this->getLanguageService()->getLL('dmailer_sending_to_table') . ' ' . $table);
                 }
             }
         }
@@ -556,40 +581,41 @@ class Dmailer
      *
      * @return	void
      */
-    public function shipOfMail($mid, array $recipRow, $tableKey)
+    public function shipOfMail(int $mid, array $recipRow, string $tableKey): void
     {
-        if (!$this->dmailer_isSend($mid, $recipRow['uid'], $tableKey)) {
+        if ($this->dmailer_isSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
             $pt = GeneralUtility::milliseconds();
             $recipRow = self::convertFields($recipRow);
 
             // write to dmail_maillog table. if it can be written, continue with sending.
             // if not, stop the script and report error
             $rC = 0;
-            $ok = $this->dmailer_addToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), GeneralUtility::milliseconds() - $pt, $rC, $recipRow['email']);
-            if ($ok) {
-                $logUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
-                $rC     = $this->dmailer_sendAdvanced($recipRow, $tableKey);
+            $logUid = $this->dmailer_addToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), GeneralUtility::milliseconds() - $pt, $rC, $recipRow['email']);
+
+            if ($logUid) {
+                $rC = $this->dmailer_sendAdvanced($recipRow, $tableKey);
                 $parsetime = GeneralUtility::milliseconds() - $pt;
-                // Update the log with real values
-                $updateFields = array(
-                    'tstamp'    => time(),
-                    'size'      => strlen($this->message),
-                    'parsetime' => $parsetime,
-                    'html_sent' => intval($rC)
-                );
-                $ok = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail_maillog', 'uid=' . $logUid, $updateFields);
-                if (!$ok) {
-                    if (TYPO3_DLOG) {
-                        GeneralUtility::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')', 'direct_mail', 3);
-                    }
-                    die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')');
+
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+                $ok = $queryBuilder
+                    ->update('sys_dmail_maillog')
+                    ->set('tstamp', time())
+                    ->set('size', strlen($this->message))
+                    ->set('parsetime', $parsetime)
+                    ->set('html_sent', intval($rC))
+                    ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($logUid, \PDO::PARAM_INT)))
+                    ->execute();
+
+                if ($ok === false) {
+                    $message = 'Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')';
+                    $this->logger->critical($message);
+                    die($message);
                 }
             } else {
                 // stop the script if dummy log can't be made
-                if (TYPO3_DLOG) {
-                    GeneralUtility::devLog('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')', 'direct_mail', 3);
-                }
-                die('Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')');
+                $message = 'Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')';
+                $this->logger->critical($message);
+                die($message);
             }
         }
     }
@@ -602,9 +628,8 @@ class Dmailer
      *
      * @return array Fixed recipient's data array
      */
-    public static function convertFields(array $recipRow)
+    public static function convertFields(array $recipRow): array
     {
-
         // Compensation for the fact that fe_users has the field 'telephone' instead of 'phone'
         if ($recipRow['telephone']) {
             $recipRow['phone'] = $recipRow['telephone'];
@@ -629,16 +654,17 @@ class Dmailer
      *
      * @return	void
      */
-    public function dmailer_setBeginEnd($mid, $key)
+    public function dmailer_setBeginEnd(int $mid, string $key)
     {
         $subject = '';
         $message = '';
 
-        $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-            'sys_dmail',
-            'uid=' . intval($mid),
-            array('scheduled_' . $key => time())
-        );
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+        $queryBuilder
+            ->update('sys_dmail')
+            ->set('scheduled_' . $key, time())
+            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
+            ->execute();
 
         switch ($key) {
             case 'begin':
@@ -653,47 +679,23 @@ class Dmailer
                 // do nothing
         }
 
-        if (TYPO3_DLOG) {
-            GeneralUtility::devLog($subject . ': ' . $message, 'direct_mail');
-        }
-        $this->logArray[] = $subject . ': ' . $message;
+        $this->logger->debug($subject . ': ' . $message);
 
+        if ($this->notificationJob === true) {
+            $from_name = $this->getCharsetConverter()->conv($this->from_name, $this->charset, $this->backendCharset) ?? '';
 
-        if ($this->notificationJob) {
-            $from_name = ($this->from_name) ? $this->getLanguageService()->csConvObj->conv($this->from_name, $this->charset, $this->getLanguageService()->charSet) : '';
-
-            /* @var $mail \TYPO3\CMS\Core\Mail\MailMessage */
-            $mail = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Mail\\MailMessage');
+            $mail = GeneralUtility::makeInstance(MailMessage::class);
             $mail->setTo($this->from_email, $from_name);
             $mail->setFrom($this->from_email, $from_name);
             $mail->setSubject($subject);
-            if (!empty($this->replyto_email)) {
+
+            if ($this->replyto_email !== '') {
                 $mail->setReplyTo($this->replyto_email);
             }
+
             $mail->setBody($message);
             $mail->send();
         }
-    }
-
-    /**
-     * Count how many email have been sent
-     *
-     * @param int $mid Newsletter ID. UID of the sys_dmail record
-     * @param string $rtbl Recipient table
-     *
-     * @return int Number of sent emails
-     */
-    public function dmailer_howManySendMails($mid, $rtbl='')
-    {
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'count(*)',
-            'sys_dmail_maillog',
-            'mid=' . intval($mid) .
-                ' AND response_type=0' .
-                ($rtbl ? ' AND rtbl=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($rtbl, 'sys_dmail_maillog') : '')
-        );
-        $row = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
-        return $row[0];
     }
 
     /**
@@ -703,19 +705,22 @@ class Dmailer
      * @param int $rid Recipient UID
      * @param string $rtbl Recipient table
      *
-     * @return	int Number of found records
+     * @return	bool Number of found records
      */
-    public function dmailer_isSend($mid, $rid, $rtbl)
+    public function dmailer_isSend(int $mid, int $rid, string $rtbl): bool
     {
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'uid',
-            'sys_dmail_maillog',
-            'rid=' . intval($rid) .
-                ' AND rtbl=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($rtbl, 'sys_dmail_maillog') .
-                ' AND mid=' . intval($mid) .
-                ' AND response_type=0'
-        );
-        return $GLOBALS['TYPO3_DB']->sql_num_rows($res);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+
+        $statement = $queryBuilder
+            ->select('uid')
+            ->from('sys_dmail_maillog')
+            ->where($queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($rid, \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
+            ->andWhere($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->execute();
+
+        return (bool)$statement->rowCount();
     }
 
     /**
@@ -726,29 +731,31 @@ class Dmailer
      *
      * @return	string		list of sent recipients
      */
-    public function dmailer_getSentMails($mid, $rtbl)
+    public function dmailer_getSentMails(int $mid, string $rtbl): string
     {
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'rid',
-            'sys_dmail_maillog',
-            'mid=' . intval($mid) .
-                ' AND rtbl=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($rtbl, 'sys_dmail_maillog') .
-                ' AND response_type=0'
-        );
-        $list = array();
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-            $list[] = $row['rid'];
-        }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+        $statement = $queryBuilder
+            ->select('rid')
+            ->from('sys_dmail_maillog')
+            ->where($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
+            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->execute();
 
-        return implode(',', $list);
+        $list = '';
+
+        while (($row = $statement->fetch())) {
+            $list .= $row['rid'] . ',';
+        }
+
+        return rtrim($list, ',');
     }
 
     /**
      * Add action to sys_dmail_maillog table
      *
      * @param int $mid Newsletter ID
-     * @param int $rid Recipient ID
+     * @param string $rid Recipient ID
      * @param int $size Size of the sent email
      * @param int $parsetime Parse time of the email
      * @param int $html Set if HTML email is sent
@@ -756,21 +763,27 @@ class Dmailer
      *
      * @return bool True on success or False on error
      */
-    public function dmailer_addToMailLog($mid, $rid, $size, $parsetime, $html, $email)
+    public function dmailer_addToMailLog(int $mid, string $rid, int $size, int $parsetime, int $html, string $email): int
     {
-        $temp_recip = explode('_', $rid);
-        $insertFields = array(
-            'mid'       => intval($mid),
-            'rtbl'      => $temp_recip[0],
-            'rid'       => intval($temp_recip[1]),
-            'email'     => $email,
-            'tstamp'    => time(),
-            'url'       => '',
-            'size'      => $size,
-            'parsetime' => $parsetime,
-            'html_sent' => intval($html)
-        );
-        return $GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail_maillog', $insertFields);
+        list($rtbl, $rid) = explode('_', $rid);
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+        $queryBuilder
+            ->insert('sys_dmail_maillog')
+            ->values([
+                'mid' => $mid,
+                'rtbl' => $rtbl,
+                'rid' => $rid,
+                'email' => $email,
+                'tstamp' => time(),
+                'url' => '',
+                'size' => $size,
+                'parsetime' => $parsetime,
+                'html_sent' => (int)$html,
+            ])
+            ->execute();
+
+        return (int)$queryBuilder->getConnection()->lastInsertId('sys_dmail_maillog');
     }
 
     /**
@@ -783,10 +796,10 @@ class Dmailer
     public function runcron()
     {
         $this->sendPerCycle = trim($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['sendPerCycle']) ? intval($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['sendPerCycle']) : 50;
-        $this->notificationJob = intval($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['notificationJob']);
+        $this->notificationJob = (bool)($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['notificationJob']);
 
         if (!is_object($this->getLanguageService())) {
-            /* @var $LANG \TYPO3\CMS\Lang\LanguageService */
+            /* @var $this->getLanguageService() \TYPO3\CMS\Lang\LanguageService */
             $GLOBALS['LANG'] = GeneralUtility::makeInstance('TYPO3\\CMS\\Lang\\LanguageService');
             $language = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] ? $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] : $this->user_dmailerLang;
             $this->getLanguageService()->init(trim($language));
@@ -797,54 +810,58 @@ class Dmailer
 
         $pt = GeneralUtility::milliseconds();
 
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            '*',
-            'sys_dmail',
-            'scheduled!=0' .
-            ' AND scheduled < ' . time() .
-            ' AND scheduled_end = 0' .
-            ' AND type NOT IN (2,3)' .
-            BackendUtility::deleteClause('sys_dmail'),
-            '',
-            'scheduled'
-        );
-        if (TYPO3_DLOG) {
-            GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'), 'direct_mail');
-        }
-        $this->logArray[] = $this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
-        if (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-            if (TYPO3_DLOG) {
-                GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed'), 'direct_mail');
-            }
-            $this->logArray[] = $this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed');
+        $statement = $queryBuilder
+            ->select('*')
+            ->from('sys_dmail')
+            ->where($queryBuilder->expr()->neq('scheduled', '0'))
+            ->andWhere($queryBuilder->expr()->lt('scheduled', time()))
+            ->andWhere($queryBuilder->expr()->eq('scheduled_end', '0'))
+            ->andWhere($queryBuilder->expr()->notIn('type', ['2', '3']))
+            ->orderBy('scheduled')
+            ->execute();
+
+        $this->logger->debug($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'));
+
+        if (($row = $statement->fetch())) {
+            $this->logger->debug($this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed'));
             $this->dmailer_prepare($row);
             $query_info = unserialize($row['query_info']);
 
             if (!$row['scheduled_begin']) {
-                $this->dmailer_setBeginEnd($row['uid'], 'begin');
+                // Hook to alter the list of recipients
+                if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['queryInfoHook'])) {
+                    $queryInfoHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['queryInfoHook'];
+                    if (is_array($queryInfoHook)) {
+                        $hookParameters = array(
+                            'row'    => $row,
+                            'query_info' => &$query_info,
+                        );
+                        $hookReference = &$this;
+                        foreach ($queryInfoHook as $hookFunction) {
+                            GeneralUtility::callUserFunction($hookFunction, $hookParameters, $hookReference);
+                        }
+                    }
+                }
+                $this->dmailer_setBeginEnd((int)$row['uid'], 'begin');
             }
 
             $finished = $this->dmailer_masssend_list($query_info, $row['uid']);
 
             if ($finished) {
-                $this->dmailer_setBeginEnd($row['uid'], 'end');
+                $this->dmailer_setBeginEnd((int)$row['uid'], 'end');
             }
         } else {
-            if (TYPO3_DLOG) {
-                GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_nothing_to_do'), 'direct_mail');
-            }
-            $this->logArray[] = $this->getLanguageService()->getLL('dmailer_nothing_to_do');
+            $this->logger->debug($this->getLanguageService()->getLL('dmailer_nothing_to_do'));
         }
-
-        // closing DB connection
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
 
         $parsetime = GeneralUtility::milliseconds()-$pt;
-        if (TYPO3_DLOG) {
-            GeneralUtility::devLog($this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms', 'direct_mail');
-        }
-        $this->logArray[] = $this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms';
+        $this->logger->debug($this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms');
     }
 
     /**
@@ -859,7 +876,7 @@ class Dmailer
     {
 
         // Sets the message id
-        $host = GeneralUtility::getHostname();
+        $host = $this->getHostname();
         if (!$host || $host == '127.0.0.1' || $host == 'localhost' || $host == 'localhost.localdomain') {
             $host = ($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']) : 'localhost') . '.TYPO3';
         }
@@ -872,7 +889,7 @@ class Dmailer
         $this->linebreak = LF;
         // Line break for Windows. This is needed because PHP on Windows systems
         // send mails via SMTP instead of using sendmail, and thus the linebreak needs to be \r\n.
-        if (TYPO3_OS == 'WIN') {
+        if (Environment::isWindows()) {
             $this->linebreak = CRLF;
         }
 
@@ -880,11 +897,9 @@ class Dmailer
         $this->sendPerCycle = $user_dmailer_sendPerCycle;
         $this->user_dmailerLang = $user_dmailer_lang;
         if (!$this->nonCron) {
-            if (TYPO3_DLOG) {
-                GeneralUtility::devLog('Starting directmail cronjob', 'direct_mail');
-            }
+            $this->logger->debug('Starting directmail cronjob');
             // write this temp file for checking the engine in the status module
-            $this->dmailer_log('w', 'starting directmail cronjob');
+            $this->dmailer_log('starting directmail cronjob');
         }
     }
 
@@ -912,7 +927,7 @@ class Dmailer
                         // SwiftMailer depends on allow_url_fopen in PHP
                         // To work around this, download the files using t3lib::getURL() to a temporary location.
                         $fileContent = GeneralUtility::getUrl($media['absRef']);
-                        $tempFile = PATH_site . 'uploads/tx_directmail/' . basename($media['absRef']);
+                        $tempFile = Environment::getPublicPath() . '/uploads/tx_directmail/' . basename($media['absRef']);
                         GeneralUtility::writeFile($tempFile, $fileContent);
 
                         unset($fileContent);
@@ -949,7 +964,7 @@ class Dmailer
         if (!empty($this->dmailer['sys_dmail_rec']['attachment'])) {
             $files = explode(',', $this->dmailer['sys_dmail_rec']['attachment']);
             foreach ($files as $file) {
-                $mailer->attach(\Swift_Attachment::fromPath(PATH_site . 'uploads/tx_directmail/' . $file));
+                $mailer->attach(\Swift_Attachment::fromPath(Environment::getPublicPath() . '/uploads/tx_directmail/' . $file));
             }
         }
     }
@@ -985,7 +1000,7 @@ class Dmailer
         if ($this->organisation) {
             $header->addTextHeader('Organization', $this->organisation);
         }
-        
+
         // Hook to edit or add the mail headers
         if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'])) {
             $mailHeadersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'];
@@ -1095,36 +1110,6 @@ class Dmailer
     }
 
     /**
-     * If it's a HTML email, which MIME type?
-     *
-     * @return	string		MIME type of the email
-     */
-    public function getHTMLContentType()
-    {
-        return (count($this->theParts['html']['media']) && $this->includeMedia) ? 'multipart/related' : 'multipart/alternative';
-    }
-
-    /**
-     * This function returns the mime type of the file specified by the url
-     *
-     * @param string $url The url
-     *
-     * @return string $mimeType: the mime type found in the header
-     */
-    public function getMimeType($url)
-    {
-        $mimeType = '';
-        $headers = trim(GeneralUtility::getURL($url, 2));
-        if ($headers) {
-            $matches = array();
-            if (preg_match('/(Content-Type:[\s]*)([a-zA-Z_0-9\/\-\+\.]*)([\s]|$)/', $headers, $matches)) {
-                $mimeType = trim($matches[2]);
-            }
-        }
-        return $mimeType;
-    }
-
-    /**
      * Rewrite core function, since it has bug.
      * See Bug Tracker 8265. It will be removed if it's fixed.
      * This function substitutes the hrefs in $this->theParts["html"]["content"]
@@ -1145,13 +1130,13 @@ class Dmailer
                 if ($this->jumperURL_useId) {
                     $substVal = $this->jumperURL_prefix . $urlId;
                 } else {
-                    $substVal = $this->jumperURL_prefix . GeneralUtility::rawUrlEncodeFP($val['absRef']);
+                    $substVal = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($val['absRef']));
                 }
             } elseif (strstr($val['ref'], 'mailto:') && $this->jumperURL_useMailto) {
                 if ($this->jumperURL_useId) {
                     $substVal = $this->jumperURL_prefix . $urlId;
                 } else {
-                    $substVal = $this->jumperURL_prefix . GeneralUtility::rawUrlEncodeFP($val['absRef']);
+                    $substVal = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($val['absRef']));
                 }
             } else {
                 $substVal = $val['absRef'];
@@ -1167,21 +1152,13 @@ class Dmailer
     /**
      * Write to log file and send a notification email to admin if no records in sys_dmail_maillog table can be made
      *
-     * @param string $writeMode Mode to open a file
      * @param string $logMsg Log message
-     *
-     * @return	void
      */
-    public function dmailer_log($writeMode, $logMsg)
+    public function dmailer_log(string $logMsg): void
     {
         $content = time() . ' => ' . $logMsg . LF;
-        $logfilePath = 'typo3temp/tx_directmail_dmailer_log.txt';
-
-        $fp = fopen(PATH_site . $logfilePath, $writeMode);
-        if ($fp) {
-            fwrite($fp, $content);
-            fclose($fp);
-        }
+        $logfilePath = Environment::getPublicPath() . '/typo3temp/tx_directmail_dmailer_log.txt';
+        GeneralUtility::writeFile($logfilePath, $content);
     }
 
     /**
@@ -1212,36 +1189,25 @@ class Dmailer
             return $content;
         }
 
-        $textpieces = explode('http://', $content);
-        $pieces = count($textpieces);
-        $textstr = $textpieces[0];
-        for ($i = 1; $i < $pieces; $i++) {
-            $len = strcspn($textpieces[$i], chr(32) . TAB . CRLF);
-            if (trim(substr($textstr, -1)) == '' && $len) {
-                $lastChar = substr($textpieces[$i], $len - 1, 1);
-                if (!preg_match('/[A-Za-z0-9\/#]/', $lastChar)) {
-                    $len--;
-                }
-
-                $parts = array();
-                $parts[0] = 'http://' . substr($textpieces[$i], 0, $len);
-                $parts[1] = substr($textpieces[$i], $len);
-
-                if (strpos($parts[0], '&no_jumpurl=1') !== false) {
+        $jumpUrlCounter = 1;
+        return preg_replace_callback(
+            '/http[s]?:\/\/\S+/',
+            function ($urlMatches) use (&$jumpUrlCounter) {
+                $url = $urlMatches[0];
+                if (strpos($url, '&no_jumpurl=1') !== false) {
                     // A link parameter "&no_jumpurl=1" allows to disable jumpurl for plain text links
-                    $parts[0] = str_replace('&no_jumpurl=1', '', $parts[0]);
+                    $url = str_replace('&no_jumpurl=1', '', $url);
                 } elseif ($this->jumperURL_useId) {
-                    $this->theParts['plain']['link_ids'][$i] = $parts[0];
-                    $parts[0] = $this->jumperURL_prefix . '-' . $i;
+                    $this->theParts['plain']['link_ids'][$jumpUrlCounter] = $url;
+                    $url = $this->jumperURL_prefix . '-' . $jumpUrlCounter;
+                    $jumpUrlCounter++;
                 } else {
-                    $parts[0] = $this->jumperURL_prefix . GeneralUtility::rawUrlEncodeFP($parts[0]);
+                    $url = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($url));
                 }
-                $textstr .= $parts[0] . $parts[1];
-            } else {
-                $textstr .= 'http://' . $textpieces[$i];
-            }
-        }
-        return $textstr;
+                return $url;
+            },
+            $content
+        );
     }
 
     /**
@@ -1250,22 +1216,11 @@ class Dmailer
      * @param string $content The content that will be encoded
      *
      * @return string The encoded content
+     * @deprecated WTF?
      */
     public function encodeMsg($content)
     {
         return $content;
-    }
-
-    /**
-     * Returns base64-encoded content, which is broken every 76 character
-     *
-     * @param string $inputstr The string to encode
-     *
-     * @return string The encoded string
-     */
-    public function makeBase64($inputstr)
-    {
-        return chunk_split(base64_encode($inputstr));
     }
 
     /**
@@ -1598,52 +1553,42 @@ class Dmailer
     }
 
     /**
-     * Reads a url or file
+     * Get the fully-qualified domain name of the host
+     * Copy from TYPO3 v9.5, will be removed in TYPO3 v10.0
      *
-     * @param string $url The URL to fetch
-     *
-     * @return string The content of the URL
+     * @param bool $requestHost Use request host (when not in CLI mode).
+     * @return string The fully-qualified host name.
      */
-    public function getURL($url)
+    protected static function getHostname($requestHost = true)
     {
-        $url = $this->addUserPass($url);
-        $url = $this->addSimulateUsergroup($url);
-        return GeneralUtility::getURL($url);
-    }
-
-    /**
-     * Adds HTTP user and password (from $this->http_username) to a URL
-     *
-     * @param string $url The URL
-     *
-     * @return string The URL with the added values
-     */
-    public function addUserPass($url)
-    {
-        $user = $this->http_username;
-        $pass = $this->http_password;
-        $matches = array();
-        if ($user && $pass && preg_match('/^(https?:\/\/)/', $url, $matches)) {
-            return $matches[1] . $user . ':' . $pass . '@' . substr($url, strlen($matches[1]));
+        $host = '';
+        // If not called from the command-line, resolve on getIndpEnv()
+        if ($requestHost && !Environment::isCli()) {
+            $host = GeneralUtility::getIndpEnv('HTTP_HOST');
         }
-        return $url;
-    }
-
-    /**
-     * If the page containing the mail is access protected,
-     * access permission can be simulated when fetching the e-mail
-     * by adding a special parameter to the URL
-     *
-     * @param string $url The URL
-     *
-     * @return string The URL with the added values
-     */
-    public function addSimulateUsergroup($url)
-    {
-        if ($this->simulateUsergroup && MathUtility::canBeInterpretedAsInteger($this->simulateUsergroup)) {
-            return $url . '&dmail_fe_group=' . (int)$this->simulateUsergroup . '&access_token=' . DirectMailUtility::createAndGetAccessToken();
+        if (!$host) {
+            // will fail for PHP 4.1 and 4.2
+            $host = @php_uname('n');
+            // 'n' is ignored in broken installations
+            if (strpos($host, ' ')) {
+                $host = '';
+            }
         }
-        return $url;
+        // We have not found a FQDN yet
+        if ($host && strpos($host, '.') === false) {
+            $ip = gethostbyname($host);
+            // We got an IP address
+            if ($ip != $host) {
+                $fqdn = gethostbyaddr($ip);
+                if ($ip != $fqdn) {
+                    $host = $fqdn;
+                }
+            }
+        }
+        if (!$host) {
+            $host = 'localhost.localdomain';
+        }
+        return $host;
     }
 
     /**

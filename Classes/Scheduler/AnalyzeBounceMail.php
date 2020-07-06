@@ -15,8 +15,12 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  */
 
 use DirectMailTeam\DirectMail\Readmail;
+use Doctrine\DBAL\FetchMode;
 use Fetch\Message;
 use Fetch\Server;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
@@ -206,44 +210,81 @@ class AnalyzeBounceMail extends AbstractTask
         $attachmentArray = $message->getAttachments();
         $midArray = array();
         if (is_array($attachmentArray)) {
+            // search in attachment
             foreach ($attachmentArray as $v => $attachment) {
                 $bouncedMail = $attachment->getData();
                 // Find mail id
                 $midArray = $readMail->find_XTypo3MID($bouncedMail);
-                if (is_array($midArray)) {
-                    // if mid, rid and rtbl are found, then continue
+                if (false === empty($midArray)) {
+                    // if mid, rid and rtbl are found, then stop looping
                     break;
                 }
             }
-            // Extract text content
-            $cp = $readMail->analyseReturnError($message->getMessageBody());
+        } else {
+            // search in MessageBody (see rfc822-headers as Attachments placed )
+            $midArray = $readMail->find_XTypo3MID($message->getMessageBody());
+        }
 
-            $res = $this->getDatabaseConnection()->exec_SELECTquery(
-                'uid,email',
-                'sys_dmail_maillog',
-                'rid=' . intval($midArray['rid']) . ' AND rtbl="' .
-                $this->getDatabaseConnection()->quoteStr($midArray['rtbl'], 'sys_dmail_maillog') . '"' .
-                ' AND mid=' . intval($midArray['mid']) . ' AND response_type=0'
-            );
+        if (empty($midArray)) {
+            // no mid, rid and rtbl found - exit
+            return false;
+        }
 
-            // only write to log table, if we found a corresponding recipient record
-            if ($this->getDatabaseConnection()->sql_num_rows($res)) {
-                $row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
+        // Extract text content
+        $cp = $readMail->analyseReturnError($message->getMessageBody());
+
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('sys_dmail_maillog');
+        $row = $queryBuilder
+            ->select('uid','email')
+            ->from('sys_dmail_maillog')
+            ->where(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq(
+                        'rid',
+                        $queryBuilder->createNamedParameter((int)$midArray['rid'], \PDO::PARAM_INT)
+                    ),
+                    $queryBuilder->expr()->eq(
+                        'rtbl',
+                        $queryBuilder->createNamedParameter($midArray['rtbl'], \PDO::PARAM_STR)
+                    ),
+                    $queryBuilder->expr()->eq(
+                        'mid',
+                        $queryBuilder->createNamedParameter((int)$midArray['mid'], \PDO::PARAM_INT)
+                    ),
+                    $queryBuilder->expr()->eq('response_type', 0)
+                )
+            )
+            ->setMaxResults(1)
+            ->execute()
+            ->fetch(FetchMode::ASSOCIATIVE);
+        // only write to log table, if we found a corresponding recipient record
+        if (!empty($row)) {
+            /** @var Connection $connection */
+            $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getConnectionForTable('sys_dmail_maillog');
+            try {
                 $midArray['email'] = $row['email'];
-                $insertFields = array(
+                $insertFields = [
                     'tstamp' => $GLOBALS['EXEC_TIME'],
                     'response_type' => -127,
-                    'mid' => intval($midArray['mid']),
-                    'rid' => intval($midArray['rid']),
+                    'mid' => (int)$midArray['mid'],
+                    'rid' => (int)$midArray['rid'],
                     'email' => $midArray['email'],
                     'rtbl' => $midArray['rtbl'],
                     'return_content' => serialize($cp),
-                    'return_code' => intval($cp['reason'])
-                );
-                return $this->getDatabaseConnection()->exec_INSERTquery('sys_dmail_maillog', $insertFields);
-            } else {
+                    'return_code' => (int)$cp['reason']
+                ];
+                $connection->insert('sys_dmail_maillog', $insertFields);
+                $sql_insert_id = $connection->lastInsertId('sys_dmail_maillog');
+                return (bool)$sql_insert_id;
+            } catch (\Doctrine\DBAL\DBALException $e) {
+                // Log $e->getMessage();
                 return false;
             }
+        } else {
+            return false;
         }
     }
 
@@ -273,15 +314,5 @@ class AnalyzeBounceMail extends AbstractTask
         } catch (\Exception $e) {
             return false;
         }
-    }
-
-    /**
-     * Get the DB global object
-     *
-     * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-     */
-    protected function getDatabaseConnection()
-    {
-        return $GLOBALS['TYPO3_DB'];
     }
 }

@@ -14,16 +14,20 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+
 
 /**
  * Module Mailer-Engine for tx_directmail extension
@@ -37,7 +41,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @subpackage 	tx_directmail
 
  */
-class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
+class MailerEngine extends BaseScriptClass
 {
     public $extKey = 'direct_mail';
     public $TSconfPrefix = 'mod.web_modules.dmail.';
@@ -75,67 +79,23 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     public function __construct()
     {
-        $this->MCONF = array(
-                'name' => $this->moduleName
-        );
-    }
-
-    /**
-     * Initializing global variables
-     *
-     * @return	void
-     */
-    public function init()
-    {
-        parent::init();
-
-        // initialize IconFactory
-        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-
-        $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
-        if (!is_array($temp['properties'])) {
-            $temp['properties'] = array();
-        }
-        $this->params = $temp['properties'];
-        $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
-        if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']])) {
-            $this->userTable = $this->params['userTable'];
-            $this->allowedTables[] = $this->userTable;
-        }
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
-
-        // initialize backend user language
-        if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'sys_language.uid',
-                'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-                'static_languages.lg_typo3=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($this->getLanguageService()->lang, 'static_languages') .
-                    BackendUtility::BEenableFields('sys_language') .
-                    BackendUtility::deleteClause('sys_language') .
-                    BackendUtility::deleteClause('static_languages')
-                );
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                $this->sys_language_uid = $row['uid'];
-            }
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
-        }
-        // load contextual help
-        $this->cshTable = '_MOD_' . $this->MCONF['name'];
-        if ($GLOBALS['BE_USER']->uc['edit_showFieldHelp']) {
-            $this->getLanguageService()->loadSingleTableDescription($this->cshTable);
-        }
+        $this->MCONF = [
+            'name' => $this->moduleName
+        ];
     }
 
     /**
      * Entrance from the backend module. This replace the _dispatch
      *
      * @param ServerRequestInterface $request The request object from the backend
-     * @param ResponseInterface $response The reponse object sent to the backend
      *
      * @return ResponseInterface Return the response object
      */
-    public function mainAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function mainAction(ServerRequestInterface $request) : ResponseInterface
     {
+        /** @var ResponseInterface $response */
+        $response = func_num_args() === 2 ? func_get_arg(1) : null;
+
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
 
@@ -144,7 +104,12 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $this->main();
         $this->printContent();
 
-        $response->getBody()->write($this->content);
+        if ($response !== null) {
+            $response->getBody()->write($this->content);
+        } else {
+            // Behaviour in TYPO3 v9
+            $response = new HtmlResponse($this->content);
+        }
         return $response;
     }
 
@@ -194,7 +159,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             );
 
             $docHeaderButtons = array(
-                'PAGEPATH' => $this->getLanguageService()->sL('LLL:EXT:lang/locallang_core.php:labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
+                'PAGEPATH' => $this->getLanguageService()->getLL('labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => '',
                 'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS['BACK_PATH'])
             );
@@ -210,7 +175,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             }
             // Render content:
             if ($module == 'dmail') {
-                if (GeneralUtility::_GP('cmd') == 'delete') {
+                if (GeneralUtility::_GP('CMD') == 'delete') {
                     $this->deleteDMail(GeneralUtility::_GP('uid'));
                 }
 
@@ -248,7 +213,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
+            $this->content .= '<h1 class="t3js-title-inlineedit">' . htmlspecialchars($this->getLanguageService()->getLL('title')) . '</h1>'; //$this->doc->header
             $this->content .= '<div style="padding-top: 15px;"></div>';
         }
     }
@@ -274,12 +239,14 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     {
         $table = 'sys_dmail';
         if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
-            $res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                $table,
-                'uid = ' . $uid,
-                array($GLOBALS['TCA'][$table]['ctrl']['delete'] => 1)
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $connection = $connectionPool->getConnectionForTable($table);
+
+            $connection->update(
+                $table, // table
+                [ $GLOBALS['TCA'][$table]['ctrl']['delete'] => 1 ],
+                [ 'uid' => $uid ] // where
             );
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
         }
     }
 
@@ -300,7 +267,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $cronInterval = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronInt'] * 60;
         $lastCronjobShouldBeNewThan = (time() - $cronInterval);
 
-        $filename = PATH_site . 'typo3temp/tx_directmail_dmailer_log.txt';
+        $filename = Environment::getPublicPath() . '/typo3temp/tx_directmail_dmailer_log.txt';
         if (file_exists($filename)) {
             $logContent = file_get_contents($filename);
             $lastExecutionTime = substr($logContent, 0, 10);
@@ -314,18 +281,26 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
          */
 
         // cron running or error (die function in dmailer_log)
-        if (file_exists(PATH_site . 'typo3temp/tx_directmail_cron.lock')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'sys_dmail_maillog', 'response_type = 0', 'tstamp DESC');
-            $lastSend = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
+        if (file_exists(Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock')) {
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_dmail_maillog');
+            $res = $queryBuilder
+                ->select('uid')
+                ->from('sys_dmail_maillog')
+                ->where($queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter(0)))
+                ->orderBy('tstamp','DESC')
+                ->execute()
+                ->fetchAll();
 
-            if (($lastSend['tstamp'] < time()) && ($lastSend['tstamp'] > $lastCronjobShouldBeNewThan)) {
-                // cron is sending
-                $mailerStatus = 1;
-            } else {
-                // there's lock file but cron is not sending
-                $mailerStatus = -1;
-            }
+           foreach($res as $lastSend) {
+               if (($lastSend['tstamp'] < time()) && ($lastSend['tstamp'] > $lastCronjobShouldBeNewThan)) {
+                   // cron is sending
+                   $mailerStatus = 1;
+               } else {
+                   // there's lock file but cron is not sending
+                   $mailerStatus = -1;
+               }
+           }
             // cron is idle or no cron
         } elseif (strpos($logContent, 'error')) {
             // error in log file
@@ -377,6 +352,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      * TODO: Should really only show some entries, or provide a browsing interface.
      *
      * @return	string		List of the mailing status
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function cmd_mailerengine()
     {
@@ -385,10 +361,11 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         // enable manual invocation of mailer engine; enabled by default
         $enableTrigger = ! (isset($this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']) && $this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']);
         if ($enableTrigger && GeneralUtility::_GP('invokeMailerEngine')) {
+            $this->invokeMEngine();
             /* @var $flashMessage FlashMessage */
             $flashMessage = GeneralUtility::makeInstance(
                 'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                $this->getLanguageService()->getLL('dmail_mailerengine_log') . ' ' . $this->invokeMEngine() . '. ',
+                '',
                 $this->getLanguageService()->getLL('dmail_mailerengine_invoked'),
                 FlashMessage::INFO
             );
@@ -397,22 +374,35 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // Invoke engine
         if ($enableTrigger) {
-            $out = '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br /><a class="t3-link" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&invokeMailerEngine=1"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a></p>';
-            $invokeMessage .= '<div style="padding-top: 20px;"></div>';
-            $invokeMessage .= $this->doc->section(BackendUtility::cshItem($this->cshTable, 'mailerengine_invoke', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke'), $out, 1, 1, 0, true);
+            /** @var UriBuilder $uriBuilder */
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            $moduleUrl = $uriBuilder->buildUriFromRoute(
+                $this->moduleName,
+                [
+                    'id' => $this->id,
+                    'invokeMailerEngine' => 1
+                ]
+            );
+            $invokeMessage .= '<h3>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke') . '</h3>' .
+                '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br />' .
+                    '<a class="t3-link" href="' . $moduleUrl . '"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a>'.
+                '</p>';
             $invokeMessage .= '<div style="padding-top: 20px;"></div>';
         }
 
         // Display mailer engine status
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'uid,pid,subject,scheduled,scheduled_begin,scheduled_end',
-            'sys_dmail',
-            'pid=' . intval($this->id) .
-                ' AND scheduled>0' .
-                BackendUtility::deleteClause('sys_dmail'),
-            '',
-            'scheduled DESC'
-        );
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $res = $queryBuilder->select('uid', 'pid', 'subject', 'scheduled', 'scheduled_begin', 'scheduled_end')
+            ->from('sys_dmail')
+            ->add('where','pid=' . intval($this->id) .' AND scheduled>0')
+            ->orderBy('scheduled','DESC')
+            ->execute()
+            ->fetchAll();
+
 
         $out = '<tr class="t3-row-header">
 				<td>&nbsp;</td>
@@ -424,15 +414,19 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 				<td style="text-align: center;"><b>&nbsp;' . $this->getLanguageService()->getLL('dmail_mailerengine_delete') . '&nbsp;</b></td>
 			</tr>';
 
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-            $countres = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'count(*)',
-                'sys_dmail_maillog',
-                'mid=' . intval($row['uid']) .
+
+
+        foreach ($res as $row) {
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+            $countres = $queryBuilder->count('*')
+                ->from('sys_dmail_maillog')
+                ->add('where','mid=' . intval($row['uid']) .
                     ' AND response_type=0' .
-                    ' AND html_sent>0'
-                );
-            list($count) = $GLOBALS['TYPO3_DB']->sql_fetch_row($countres);
+                    ' AND html_sent>0')
+                ->execute();
+
+            foreach($countres as $cRow) $count = $cRow['COUNT(*)'];
+
             $out .='<tr class="db_list_normal">
 						<td>' . $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '</td>
 						<td>' . $this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)) . '&nbsp;&nbsp;', $row['uid']) . '</td>
@@ -445,7 +439,7 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         }
 
         $out = $invokeMessage . '<table class="table table-striped table-hover">' . $out . '</table>';
-        return $this->doc->section(BackendUtility::cshItem($this->cshTable, 'mailerengine_status', $GLOBALS['BACK_PATH']) . $this->getLanguageService()->getLL('dmail_mailerengine_status'), $out, 1, 1, 0, true);
+        return '<h3>' .  $this->getLanguageService()->getLL('dmail_mailerengine_status') .'</h3>' . $out;
     }
 
     /**
@@ -454,13 +448,25 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      * @param int $uid Uid of the record
      *
      * @return string Link with the trash icon
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function deleteLink($uid)
     {
         $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
-        if (!$dmail['scheduled_begin']) {
-            return '<a href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_MailerEngine') . '&id=' . $this->id . '&cmd=delete&uid=' . $uid . '">' . $icon . '</a>';
+
+        if (!empty($dmail['scheduled_begin'])) {
+            /** @var UriBuilder $uriBuilder */
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            $moduleUrl = $uriBuilder->buildUriFromRoute(
+                $this->moduleName,
+                [
+                    'id' => $this->id,
+                    'uid' => $uid,
+                    'CMD' => 'delete'
+                ]
+            );
+            return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
         }
         return '';
     }
@@ -482,8 +488,8 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
     /**
      * Invoking the mail engine
+     * This method no longer returns logs in backend modul directly
      *
-     * @return	string Log from the mailer class
      * @see		Dmailer::start
      * @see		Dmailer::runcron
      */
@@ -495,7 +501,6 @@ class MailerEngine extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $htmlmail->nonCron = 1;
         $htmlmail->start();
         $htmlmail->runcron();
-        return implode(LF, $htmlmail->logArray);
     }
 
     /**

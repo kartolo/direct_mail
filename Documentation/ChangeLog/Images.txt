@@ -1,6 +1,0 @@
-﻿.. |img-21|     image:: ../Images/manual_html_4eb86102.png
-   :height: 23
-   :width: 86
-.. :align: left
-.. :border: 0
-.. :name: Grafik2

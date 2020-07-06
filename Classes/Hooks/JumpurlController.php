@@ -14,8 +14,12 @@ namespace DirectMailTeam\DirectMail\Hooks;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
  * JumpUrl processing hook on TYPO3\CMS\Frontend\Http\RequestHandler
@@ -36,8 +40,6 @@ class JumpurlController
      */
     public function preprocessRequest($parameter, $parentObject)
     {
-        $db = $this->getDatabaseConnection();
-
         $jumpUrlVariables = GeneralUtility::_GET();
 
         $mid = $jumpUrlVariables['mid'];
@@ -61,14 +63,17 @@ class JumpurlController
 
             if (MathUtility::canBeInterpretedAsInteger($jumpurl)) {
 
-                    // fetch the direct mail record where the mailing was sent (for this message)
-                $resMailing = $db->exec_SELECTquery(
-                    'mailContent, page, authcode_fieldList',
-                    'sys_dmail',
-                    'uid = ' . intval($mid)
-                );
 
-                if (($row = $db->sql_fetch_assoc($resMailing))) {
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+                $resMailing = $queryBuilder->select('mailContent','page','authcode_fieldList')
+                    ->from('sys_dmail')
+                    ->where(
+                        $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT))
+                    )
+                    ->execute()
+                    ->fetchAll();
+
+                foreach ($resMailing as  $row) {
                     $mailContent = unserialize(base64_decode($row['mailContent']));
                     $urlId = $jumpurl;
                     if ($jumpurl >= 0) {
@@ -127,15 +132,15 @@ class JumpurlController
                                     $_POST['logintype'] = 'login';
                                 }
                             } else {
-                                throw new \Exception('authCode: Calculated authCode did not match the submitted authCode.', 1376899631);
+                                throw new \Exception('authCode: Calculated authCode did not match the submitted authCode. varDump = '.var_dump($recipRow).' $recipientUid = '.$recipientUid.' theTable = '.$theTable.' authcode_fieldList'.$row['authcode_fieldList'].' AC = '. $aC .' AuthCode = '. $authCode, 1376899631);
                             }
                         }
                     }
                 }
-                $db->sql_free_result($resMailing);
                 if (!$jumpurl) {
                     die('Error: No further link. Please report error to the mail sender.');
                 } else {
+                    $jumpurl = str_replace('#', '%23', $jumpurl);
                     // jumpurl has been validated by lookup of id in direct_mail tables
                     // for this reason it is save to set the juHash
                     // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
@@ -148,11 +153,15 @@ class JumpurlController
                 // Check if jumpurl is a valid link to a "dmailerping.gif"
                 // Make $checkPath an absolute path pointing to dmailerping.gif so it can get checked via ::isAllowedAbsPath()
                 // and remove an eventual "/" at beginning of $jumpurl (because PATH_site already contains "/" at the end)
-                $checkPath = PATH_site . preg_replace('#^/#', '', $jumpurl);
+                $checkPath = Environment::getPublicPath() . '/' . ltrim($jumpurl, '/');
 
                 // Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
                 if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && GeneralUtility::isAllowedAbsPath($checkPath)) {
                     // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
+                    GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
+                    $responseType = -1;
+                } elseif (GeneralUtility::validEmail(substr($jumpurl,7)) && preg_match('#^(mailto:)#', $jumpurl)) {
+                    // Also allow jumpurl to be a valid mailto link
                     GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
                     $responseType = -1;
                 } else {
@@ -165,38 +174,47 @@ class JumpurlController
             }
 
             if ($responseType != 0) {
+
                 $logTable = 'sys_dmail_maillog';
-                $insertFields = array(
-                    // the message ID
+                $insertArray = [
                     'mid'           => intval($mid),
                     'tstamp'        => time(),
                     'url'           => $jumpurl,
                     'response_type' => intval($responseType),
                     'url_id'        => intval($urlId),
-                    'rtbl'          => $recipientTable,
-                    'rid'           => $recipientUid
-                );
+                    'rtbl'            => $recipientTable,
+                    'rid'            => $recipientUid
+                ];
+
+                /** @var ConnectionPool $connectionPool */
+                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+                /** @var Connection $databaseConnectionSysDamilMaillog */
+                $databaseConnectionSysDamilMaillog = $connectionPool->getConnectionForTable($logTable);
 
                 // check if entry exists in the last 10 seconds
-                $existingLog = $db->exec_SELECTgetSingleRow(
-                    '1',
-                    $logTable,
-                    implode(' AND ',
-                        array(
-                            'mid = ' . $insertFields['mid'],
-                            'url = ' . $db->fullQuoteStr($insertFields['url'], $logTable),
-                            'response_type = ' . $insertFields['response_type'],
-                            'url_id = ' . $insertFields['url_id'],
-                            'rtbl = ' . $db->fullQuoteStr($insertFields['rtbl'], $logTable),
-                            'rid = ' . $db->fullQuoteStr($insertFields['rid'], $logTable),
-                            'tstamp <= ' . $insertFields['tstamp'],
-                            'tstamp >= ' . intval($insertFields['tstamp']-10),
-                        )
+                $queryBuilder = $connectionPool->getQueryBuilderForTable($logTable);
+                $queryBuilder->getRestrictions()->removeAll()
+                    ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+                $existingLog = $queryBuilder->select('uid')
+                    ->from($logTable)
+                    ->where(
+                        $queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($insertArray['mid'], \PDO::PARAM_INT)),
+                        $queryBuilder->expr()->eq('url', $queryBuilder->createNamedParameter($insertArray['url'])),
+                        $queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter($insertArray['response_type'], \PDO::PARAM_INT)),
+                        $queryBuilder->expr()->eq('url_id', $queryBuilder->createNamedParameter( $insertArray['url_id'], \PDO::PARAM_INT)),
+                        $queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($insertArray['rtbl'])),
+                        $queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($insertArray['rid'], \PDO::PARAM_INT)),
+                        $queryBuilder->expr()->lte('tstamp', $queryBuilder->createNamedParameter($insertArray['tstamp'], \PDO::PARAM_INT)),
+                        $queryBuilder->expr()->gte('tstamp', $queryBuilder->createNamedParameter($insertArray['tstamp']-10, \PDO::PARAM_INT))
                     )
-                );
+                    ->execute()
+                    ->fetch();
 
                 if ($existingLog === false) {
-                    $db->exec_INSERTquery($logTable, $insertFields);
+                    $databaseConnectionSysDamilMaillog->insert(
+                        $logTable,
+                        $insertArray
+                    );
                 }
             }
         }
@@ -221,25 +239,25 @@ class JumpurlController
     {
         $uid = (int)$uid;
         if ($uid > 0) {
-            $res = $this->getDatabaseConnection()->exec_SELECTquery($fields, $table, 'uid = ' . $uid . ' AND deleted = 0');
-            $row = $this->getDatabaseConnection()->sql_fetch_assoc($res);
-            $this->getDatabaseConnection()->sql_free_result($res);
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+            $res = $queryBuilder->select($fields)
+                ->from($table)
+                ->where(
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)),
+                    $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
+                )
+                ->execute();
+
+            $row = $res->fetchAll();
+
             if ($row) {
-                if (is_array($row)) {
-                    return $row;
+                if (is_array($row[0])) {
+                    return $row[0];
                 }
             }
         }
         return 0;
     }
 
-    /**
-     * Get the DB global object
-     *
-     * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-     */
-    protected function getDatabaseConnection()
-    {
-        return $GLOBALS['TYPO3_DB'];
-    }
+
 }

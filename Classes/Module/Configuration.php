@@ -14,10 +14,8 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
-
-use TYPO3\CMS\Backend\Module\BaseScriptClass;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -66,12 +64,6 @@ class Configuration extends BaseScriptClass
     public $configArray_length;
 
     /**
-     * Page Repository
-     * @var \TYPO3\CMS\Frontend\Page\PageRepository
-     */
-    public $sys_page;
-
-    /**
      * IconFactory for skinning
      * @var \TYPO3\CMS\Core\Imaging\IconFactory
      */
@@ -89,61 +81,20 @@ class Configuration extends BaseScriptClass
      */
     public function __construct()
     {
-        $this->MCONF = array(
-                'name' => $this->moduleName
-        );
+        $this->MCONF = [
+            'name' => $this->moduleName
+        ];
     }
 
     /**
-     * Standard initialization
+     * Initialization
      *
      * @return	void
      */
     public function init()
     {
         parent::init();
-
-        $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
-        if (!is_array($temp['properties'])) {
-            // init empty array
-            $temp['properties'] = array();
-        }
-        $this->params = $temp['properties'];
-        $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
-        if ($this->params['userTable'] && is_array($GLOBALS['TCA'][$this->params['userTable']])) {
-            $this->userTable = $this->params['userTable'];
-            $this->allowedTables[] = $this->userTable;
-        }
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
-
-        // initialize the page selector
-        $this->sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
-        $this->sys_page->init(true);
-
-        // initialize IconFactory
-        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-
-            // initialize backend user language
-        if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'sys_language.uid',
-                'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-                'static_languages.lg_typo3=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($this->getLanguageService()->lang, 'static_languages') .
-                    BackendUtility::BEenableFields('sys_language') .
-                    BackendUtility::deleteClause('sys_language') .
-                    BackendUtility::deleteClause('static_languages')
-                );
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                $this->sys_language_uid = $row['uid'];
-            }
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
-        }
-        // load contextual help
-        $this->cshTable = '_MOD_' . $this->MCONF['name'];
-        if ($GLOBALS['BE_USER']->uc['edit_showFieldHelp']) {
-            $this->getLanguageService()->loadSingleTableDescription($this->cshTable);
-        }
-
+        // Update the pageTS
         $this->updatePageTS();
     }
 
@@ -151,12 +102,14 @@ class Configuration extends BaseScriptClass
      * Entrance from the backend module. This replace the _dispatch
      *
      * @param ServerRequestInterface $request The request object from the backend
-     * @param ResponseInterface $response The reponse object sent to the backend
      *
      * @return ResponseInterface Return the response object
      */
-    public function mainAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function mainAction(ServerRequestInterface $request) : ResponseInterface
     {
+        /** @var ResponseInterface $response */
+        $response = func_num_args() === 2 ? func_get_arg(1) : null;
+
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
 
@@ -165,7 +118,12 @@ class Configuration extends BaseScriptClass
         $this->main();
         $this->printContent();
 
-        $response->getBody()->write($this->content);
+        if ($response !== null) {
+            $response->getBody()->write($this->content);
+        } else {
+            // Behaviour in TYPO3 v9
+            $response = new HtmlResponse($this->content);
+        }
         return $response;
     }
 
@@ -190,7 +148,7 @@ class Configuration extends BaseScriptClass
             $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
             $this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
 
-            $this->doc->addStyleSheet('direct_mail', ExtensionManagementUtility::extRelPath('direct_mail') . '/Resources/Public/StyleSheets/modules.css');
+            $this->getPageRenderer()->addCssFile( ExtensionManagementUtility::extPath('direct_mail') . 'Resources/Public/StyleSheets/modules.css', 'stylesheet', 'all', '', false, false);
 
             // Add CSS
             $this->doc->inDocStylesArray['dmail'] = '.toggleTitle { width: 70%; }';
@@ -271,7 +229,7 @@ class Configuration extends BaseScriptClass
             );
 
             $docHeaderButtons = array(
-                'PAGEPATH' => $this->getLanguageService()->sL('LLL:EXT:lang/locallang_core.php:labels.path') . ': ' .
+                'PAGEPATH' => $this->getLanguageService()->getLL('labels.path') . ': ' .
                     GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => '',
                 'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS['BACK_PATH'])
@@ -322,7 +280,7 @@ class Configuration extends BaseScriptClass
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
+            $this->content .= '<h1 class="t3js-title-inlineedit">' . htmlspecialchars($this->getLanguageService()->getLL('title')) . '</h1>'; //$this->doc->header
             $this->content .= '<div style="padding-top: 15px;"></div>';
         }
     }
@@ -365,7 +323,6 @@ class Configuration extends BaseScriptClass
             'box-3' => $this->getLanguageService()->getLL('configure_default_fetching'),
             'HTMLParams' => array('short', DirectMailUtility::fName('HTMLParams'), $this->getLanguageService()->getLL('configure_HTMLParams_description') . '<br />' . $this->getLanguageService()->getLL('configure_HTMLParams_details')),
             'plainParams' => array('short', DirectMailUtility::fName('plainParams'), $this->getLanguageService()->getLL('configure_plainParams_description') . '<br />' . $this->getLanguageService()->getLL('configure_plainParams_details')),
-            'use_domain' => array('select', DirectMailUtility::fName('use_domain'), $this->getLanguageService()->getLL('use_domain.description') . '<br />' . $this->getLanguageService()->getLL('use_domain.details'), array(0 => '')),
         );
         $configArray[4] = array(
             'box-4' => $this->getLanguageService()->getLL('configure_options_encoding'),
@@ -404,24 +361,6 @@ class Configuration extends BaseScriptClass
         if (!isset($this->implodedParams['direct_mail_charset'])) {
             $this->implodedParams['direct_mail_charset'] = 'iso-8859-1';
         }
-
-        // Set domain selection list
-        $rootline = $this->sys_page->getRootLine($this->id);
-        $rootlineId = array();
-        foreach ($rootline as $rArr) {
-            $rootlineId[] = $rArr['uid'];
-        }
-
-        $res_domain = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'uid,domainName',
-            'sys_domain',
-            'sys_domain.pid in (' . implode(',', $rootlineId) . ')' .
-                BackendUtility::deleteClause('sys_domain')
-        );
-        while (($row_domain = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_domain))) {
-            $configArray[3]['use_domain']['3'][$row_domain['uid']] = $row_domain['domainName'];
-        }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res_domain);
 
         $this->configArray_length = count($configArray);
         $form ='';

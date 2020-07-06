@@ -37,10 +37,12 @@ namespace DirectMailTeam\DirectMail\Plugin;
  *
  */
 
+use TYPO3\CMS\Core\Resource\FileReference;
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use TYPO3\CMS\Frontend\DataProcessing\FilesProcessor;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 /**
@@ -60,6 +62,10 @@ class DirectMail extends AbstractPlugin
      * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
      */
     public $cObj;
+    /**
+     * @var MarkerBasedTemplateService
+     */
+    protected $templateService;
     public $conf = array();
     public $prefixId = 'tx_directmail_pi1';
     public $scriptRelPath = 'pi1/class.tx_directmail_pi1.php';
@@ -67,7 +73,7 @@ class DirectMail extends AbstractPlugin
     public $charWidth = 76;
     public $linebreak = LF;
     public $siteUrl;
-    public $labelsList = 'header_date_prefix,header_link_prefix,uploads_header,images_header,image_link_prefix,caption_header,unrendered_content,link_prefix';
+    public $labelsList = 'header_date_prefix,header_link_prefix,uploads_header,media_header,images_header,image_link_prefix,caption_header,unrendered_content,link_prefix';
 
     /**
      * Main function, called from TypoScript
@@ -97,28 +103,32 @@ class DirectMail extends AbstractPlugin
             case 'text':
                 // same as textpic
             case 'textpic':
+            case 'textmedia':
+                if ($cType == 'textmedia') {
+                    $field = 'assets';
+                } else {
+                    $field = 'image';
+                }
                 $lines[] = $this->getHeader();
-                if (($cType == 'textpic') && !($this->cObj->data['imageorient']&24)) {
-                    $lines[] = $this->getImages();
+                $list = 'textpic,textmedia';
+
+                if (GeneralUtility::inList($list, $cType) && !($this->cObj->data['imageorient']&24)) {
+                    $lines[] = $this->getImages($field);
                     $lines[] = '';
                 }
                 $lines[] = $this->breakContent(strip_tags($this->parseBody($this->cObj->data['bodytext'])));
-                if (($cType == 'textpic') && ($this->cObj->data['imageorient']&24)) {
+                if (GeneralUtility::inList($list, $cType) && ($this->cObj->data['imageorient']&24)) {
                     $lines[] = '';
-                    $lines[] = $this->getImages();
+                    $lines[] = $this->getImages($field);
                 }
                 break;
             case 'image':
                 $lines[] = $this->getHeader();
-                $lines[] = $this->getImages();
+                $lines[] = $this->getImages('image');
                 break;
             case 'uploads':
                 $lines[] = $this->getHeader();
                 $lines[] = $this->renderUploads($this->cObj->data['media']);
-                break;
-            case 'menu':
-                $lines[] = $this->getHeader();
-                $lines[] = $this->getMenuSitemap();
                 break;
             case 'shortcut':
                 $lines[] = $this->getShortcut();
@@ -134,11 +144,15 @@ class DirectMail extends AbstractPlugin
             case 'html':
                 $lines[] = $this->getHtml();
                 break;
+            case (!!preg_match('/menu_.*/', $cType)):
+                $lines[] = $this->getHeader();
+                $lines[] = $this->getMenuContent($cType);
+                break;
             default:
                     // Hook for processing other content types
                 if (is_array($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'])) {
                     foreach ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'] as $classRef) {
-                        $procObj = &GeneralUtility::getUserObj($classRef);
+                        $procObj = GeneralUtility::makeInstance($classRef);
                         $lines = array_merge($lines, $procObj->renderPlainText($this, $content));
                     }
                 }
@@ -157,7 +171,8 @@ class DirectMail extends AbstractPlugin
         // Substitute labels
         $markerArray = array();
         $markerArray = $this->addLabelsMarkers($markerArray);
-        $content = $this->cObj->substituteMarkerArray($content, $markerArray);
+        $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
+        $content = $this->templateService->substituteMarkerArray($content, $markerArray);
 
         // User processing:
         $content = $this->userProcess('userProc', $content);
@@ -188,12 +203,16 @@ class DirectMail extends AbstractPlugin
     /**
      * Creates a menu/sitemap
      *
+     * @param string $cType: menu type
      * @return	string		$str: Content
      */
-    public function getMenuSitemap()
+    public function getMenuContent($cType)
     {
-        $str = $this->cObj->cObjGetSingle($this->conf['menu'], $this->conf['menu.']);
-        $str = $this->breakBulletlist(trim(strip_tags(preg_replace('/<br\s*\/?>/i', LF, $this->parseBody($str)))));
+        $str = $this->cObj->cObjGetSingle(
+            $GLOBALS['TSFE']->tmpl->setup['tt_content.'][$cType],
+            $GLOBALS['TSFE']->tmpl->setup['tt_content.'][$cType . '.']
+        );
+
         return $str;
     }
 
@@ -237,56 +256,49 @@ class DirectMail extends AbstractPlugin
     /**
      * Get images found in the "image" field of "tt_content"
      *
-     * @return	string		Content
+     * @param   string  fieldname
+     * @return  string  Content
      */
-    public function getImages()
+    public function getImages($fieldname)
     {
-        $imagesArray = array();
-        $this->getImagesStandard($imagesArray);
-        if (ExtensionManagementUtility::isLoaded('dam')) {
-            $this->getImagesFromDam($imagesArray);
-        }
+        $configuration = [
+            '10' => 'TYPO3\CMS\Frontend\DataProcessing\FilesProcessor',
+            '10.' => [
+                'references.' => [
+                    'fieldName' => $fieldname
+                ],
+                'folders.' => [
+                    'field' => 'file_folder'
+                ],
+                'sorting.' => [
+                    'field' => 'filelink_sorting'
+                ]
+            ]
+        ];
 
-        $images = $this->renderImages($imagesArray, !$this->cObj->data['image_zoom']?$this->cObj->data['image_link']:'', $this->cObj->data['imagecaption']);
+        $images = GeneralUtility::makeInstance(FilesProcessor::class)->process(
+            $this->cObj,
+            $configuration,
+            $configuration['10.'],
+            []
+        );
+
+        if (is_array($images['files']) && count($images['files'])) {
+            foreach ($images['files'] as $image) {
+                /** @var FileReference $image */
+                $imagesArray[] = [
+                    'image' => $this->getLink($image->getPublicUrl()),
+                    'link' => $this->getLink($image->getLink()),
+                    'caption' => $image->getDescription()
+                ];
+            }
+
+            $images = $this->renderImages($imagesArray, $fieldname);
+        } else {
+            $images = '';
+        }
 
         return $images;
-    }
-
-    /**
-     * Get images from image field and store this images to $images_arr
-     *
-     * @param array $imagesArray The image array
-     * @param string $upload_path The upload path
-     *
-     * @return	void
-     */
-    public function getImagesStandard(array &$imagesArray, $uploadPath='uploads/pics/')
-    {
-        $images = explode(',', $this->cObj->data['image']);
-        foreach ($images as $file) {
-            if (strlen(trim($file)) > 0) {
-                $imagesArray[] = $this->siteUrl . $uploadPath . $file;
-            }
-        }
-    }
-
-    /**
-     * Get images from DAM and store this images to $images_arr
-     * TODO: rewrite sql?
-     * @param array $imagesArray
-     * @return	string		Content
-     */
-    public function getImagesFromDam(array &$imagesArray)
-    {
-        $sql = 'SELECT tx_dam.* FROM tx_dam_mm_ref,tx_dam WHERE tx_dam_mm_ref.tablenames="tt_content" AND tx_dam_mm_ref.ident="tx_damttcontent_files" AND tx_dam_mm_ref.uid_foreign="' . $this->cObj->data['uid'] . '" AND tx_dam_mm_ref.uid_local=tx_dam.uid AND tx_dam.deleted=0 ORDER BY sorting_foreign';
-        /* @var \TYPO3\CMS\Core\Database\DatabaseConnection $db */
-        $db = $GLOBALS['TYPO3_DB'];
-        $res = $db->sql_query($sql);
-        if ($db->sql_num_rows($res) > 0) {
-            while ($row = $db->sql_fetch_assoc($res)) {
-                $imagesArray[] = $this->siteUrl . $row['file_path'] . $row['file_name'];
-            }
-        }
     }
 
     /**
@@ -309,7 +321,7 @@ class DirectMail extends AbstractPlugin
         // Then all a-tags:
         $aConf = array();
         $aConf['parseFunc.']['tags.']['a'] = 'USER';
-        $aConf['parseFunc.']['tags.']['a.']['userFunc'] = 'tx_directmail_pi1->atag_to_http';
+        $aConf['parseFunc.']['tags.']['a.']['userFunc'] = 'DirectMailTeam\DirectMail\Plugin\DirectMail->atag_to_http';
         $aConf['parseFunc.']['tags.']['a.']['siteUrl'] = $this->siteUrl;
         $str = $this->cObj->stdWrap($str, $aConf);
         $str = str_replace('&nbsp;', ' ', htmlspecialchars_decode($str));
@@ -357,8 +369,8 @@ class DirectMail extends AbstractPlugin
     {
         if ($str) {
             $hConf = $this->conf['header.'];
-            $defaultType = DirectMailUtility::intInRangeWrapper($hConf['defaultType'], 1, 5);
-            $type = DirectMailUtility::intInRangeWrapper($type, 0, 6);
+            $defaultType = DirectMailUtility::intInRangeWrapper((int)$hConf['defaultType'], 1, 5);
+            $type = DirectMailUtility::intInRangeWrapper((int)$type, 0, 6);
             if (!$type) {
                 $type = $defaultType;
             }
@@ -372,14 +384,14 @@ class DirectMail extends AbstractPlugin
 
                 $lines = array();
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['preBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
 
                 $lines = $this->pad($lines, $tConf['preLineChar'], $tConf['preLineLen']);
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['preLineBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preLineBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
@@ -405,14 +417,14 @@ class DirectMail extends AbstractPlugin
                     $lines[] = $this->getString($hConf['linkPrefix']) . $this->getLink($this->cObj->data['header_link']);
                 }
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['postLineBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postLineBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
 
                 $lines = $this->pad($lines, $tConf['postLineChar'], $tConf['postLineLen']);
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['postBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
@@ -435,7 +447,7 @@ class DirectMail extends AbstractPlugin
      */
     public function pad(array $lines, $preLineChar, $len)
     {
-        $strPad = DirectMailUtility::intInRangeWrapper($len, 0, 1000);
+        $strPad = DirectMailUtility::intInRangeWrapper((int)$len, 0, 1000);
         $strPadChar = $preLineChar?$preLineChar:'-';
         if ($strPad) {
             $lines[] = str_pad('', $strPad, $strPadChar);
@@ -471,7 +483,7 @@ class DirectMail extends AbstractPlugin
     public function breakBulletlist($str)
     {
         $type = $this->cObj->data['layout'];
-        $type = DirectMailUtility::intInRangeWrapper($type, 0, 3);
+        $type = DirectMailUtility::intInRangeWrapper((int)$type, 0, 3);
 
         $tConf = $this->conf['bulletlist.'][$type . '.'];
 
@@ -491,7 +503,7 @@ class DirectMail extends AbstractPlugin
 
             $lines[] = $bullet . $this->breakLines($substrs, LF . $secondRow, $this->charWidth-$bLen);
 
-            $blanks = DirectMailUtility::intInRangeWrapper($tConf['blanks'], 0, 1000);
+            $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['blanks'], 0, 1000);
             if ($blanks) {
                 $lines[] = str_pad('', $blanks-1, LF);
             }
@@ -605,53 +617,40 @@ class DirectMail extends AbstractPlugin
     /**
      * Render block of images - which means creating lines with links to the images.
      *
-     * @param	 array		$imagesArray The image array
-     * @param	string		$links Link value from the "image_link" field in tt_content records
-     * @param	string		$caption Caption text
-     *
-     * @return	string		Content
+     * @param   array   $imagesArray The image array*
+     * @param   string  $fieldname
+     * @return  string  Content
      * @see getImages()
      */
-    public function renderImages(array $imagesArray, $links, $caption)
+    public function renderImages(array $imagesArray, $fieldname)
     {
-        $linksArr = explode(',', $links);
+        if ($fieldname == 'assets') {
+            $fieldname = 'textmedia';
+        }
         $lines = array();
         $imageExists = false;
 
-        foreach ($imagesArray as $k => $file) {
-            if (strlen(trim($file)) > 0) {
-                $lines[] = $file;
-                if ($links && count($linksArr) > 1) {
-                    if (isset($linksArr[$k])) {
-                        $ll = $linksArr[$k];
-                    } else {
-                        $ll = $linksArr[0];
-                    }
-
-                    $theLink = $this->getLink($ll);
+        // create the image, imagelink and image caption block
+        foreach ($imagesArray as $k => $image) {
+            if (strlen(trim($image['image'])) > 0) {
+                $lines[] = $image['image'];
+                if ($image['link']) {
+                    $theLink = $this->getLink($image['link']);
                     if ($theLink) {
-                        $lines[] = $this->getString($this->conf['images.']['linkPrefix']) . $theLink;
+                        $lines[] = $this->getString($this->conf[$fieldname.'.']['linkPrefix']) . $theLink;
                     }
                 }
+                if ($image['caption']) {
+                    $cHeader = trim($this->getString($this->conf[$fieldname.'.']['captionHeader']));
+                    $lines[] = $cHeader . ' ' .$this->breakContent($image['caption']);
+                }
+                // add newline
+                $lines[] = '';
                 $imageExists = true;
             }
         }
-        if ($this->conf['images.']['header'] && $imageExists) {
-            array_unshift($lines, $this->getString($this->conf['images.']['header']));
-        }
-        if ($links && count($linksArr) == 1) {
-            $theLink = $this->getLink($links);
-            if ($theLink) {
-                $lines[] = $this->getString($this->conf['images.']['linkPrefix']) . $theLink;
-            }
-        }
-        if ($caption) {
-            $lines[] = '';
-            $cHeader = trim($this->getString($this->conf['images.']['captionHeader']));
-            if ($cHeader) {
-                $lines[] = $cHeader;
-            }
-            $lines[] = $this->breakContent($caption);
+        if ($this->conf[$fieldname.'.']['header'] && $imageExists) {
+            array_unshift($lines, $this->getString($this->conf[$fieldname.'.']['header']));
         }
 
         return LF . implode(LF, $lines);
@@ -660,17 +659,19 @@ class DirectMail extends AbstractPlugin
     /**
      * Returns a typolink URL based on input.
      *
-     * @param	string		$ll Parameter to typolink
+     * @param	string		$link Parameter to typolink
      *
      * @return	string		The URL returned from $this->cObj->getTypoLink_URL(); - possibly it prefixed with the URL of the site if not present already
      */
-    public function getLink($ll)
+    public function getLink($link)
     {
-        $theLink = $this->cObj->getTypoLink_URL($ll);
-        if (substr($theLink, 0, 4) != 'http') {
-            $theLink = $this->siteUrl . $theLink;
-        }
-        return $theLink;
+        return $this->cObj->typoLink_URL([
+            'parameter' => $link,
+            'forceAbsoluteUrl' => '1',
+            'forceAbsoluteUrl.' => [
+                'scheme' => GeneralUtility::getIndpEnv('TYPO3_SSL')?'https':'http'
+            ]
+        ]);
     }
 
     /**
@@ -740,11 +741,14 @@ class DirectMail extends AbstractPlugin
         $this->conf = $conf;
         $this->siteUrl = $conf['siteUrl'];
         $theLink = trim($this->cObj->parameters['href']);
+
+        $theLink = $this->getLink($theLink);
+
+        // remove mailto if it's an email link
         if (strtolower(substr($theLink, 0, 7)) == 'mailto:') {
             $theLink = substr($theLink, 7);
-        } elseif (substr($theLink, 0, 4) != 'http') {
-            $theLink = $this->siteUrl . $theLink;
         }
+
         return $this->cObj->getCurrentVal() . ' (###LINK_PREFIX### ' . $theLink . ' )';
     }
 

@@ -14,18 +14,20 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Backend\Utility\IconUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 
 /**
  * Module Statistics of tx_directmail extension
@@ -38,7 +40,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
-class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
+class Statistics extends BaseScriptClass
 {
     public $extKey = 'direct_mail';
     public $fieldList = 'uid,name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
@@ -60,11 +62,6 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     public $MCONF;
     public $cshTable;
     public $formname = 'dmailform';
-
-    /*
-     * @var \TYPO3\CMS\Frontend\Page\PageRepository
-     */
-    public $sys_page;
 
     /*
      * @var array
@@ -89,56 +86,9 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     public function __construct()
     {
-        $this->MCONF = array(
+        $this->MCONF = [
             'name' => $this->moduleName
-        );
-    }
-
-    /**
-     * First initialization of global variables
-     *
-     * @return	void
-     */
-    public function init()
-    {
-        parent::init();
-
-        // initialize IconFactory
-        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-
-        // get TS Params
-        $temp = BackendUtility::getModTSconfig($this->id, 'mod.web_modules.dmail');
-        if (!is_array($temp['properties'])) {
-            $temp['properties'] = array();
-        }
-        $this->params = $temp['properties'];
-        $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
-
-        $this->MOD_MENU['dmail_mode'] = BackendUtility::unsetMenuItems($this->params, $this->MOD_MENU['dmail_mode'], 'menu.dmail_mode');
-
-        // initialize the page selector
-        $this->sys_page = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\Page\\PageRepository');
-        $this->sys_page->init(true);
-
-        // initialize backend user language
-        if ($this->getLanguageService()->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'sys_language.uid',
-                'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-                'static_languages.lg_typo3=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($this->getLanguageService()->lang, 'static_languages') .
-                    BackendUtility::BEenableFields('sys_language') .
-                    BackendUtility::deleteClause('sys_language') .
-                    BackendUtility::deleteClause('static_languages')
-                );
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                $this->sys_language_uid = $row['uid'];
-            }
-        }
-        // load contextual help
-        $this->cshTable = '_MOD_'.$this->MCONF['name'];
-        if ($GLOBALS['BE_USER']->uc['edit_showFieldHelp']) {
-            $this->getLanguageService()->loadSingleTableDescription($this->cshTable);
-        }
+        ];
     }
 
     /**
@@ -155,12 +105,14 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      * Entrance from the backend module. This replace the _dispatch
      *
      * @param ServerRequestInterface $request The request object from the backend
-     * @param ResponseInterface $response The reponse object sent to the backend
      *
      * @return ResponseInterface Return the response object
      */
-    public function mainAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function mainAction(ServerRequestInterface $request) : ResponseInterface
     {
+        /** @var ResponseInterface $response */
+        $response = func_num_args() === 2 ? func_get_arg(1) : null;
+
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
 
@@ -169,7 +121,12 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $this->main();
         $this->printContent();
 
-        $response->getBody()->write($this->content);
+        if ($response !== null) {
+            $response->getBody()->write($this->content);
+        } else {
+            // Behaviour in TYPO3 v9
+            $response = new HtmlResponse($this->content);
+        }
         return $response;
     }
 
@@ -231,7 +188,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             );
 
             $docHeaderButtons = array(
-                'PAGEPATH' => $this->getLanguageService()->sL('LLL:EXT:lang/locallang_core.php:labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
+                'PAGEPATH' => $this->getLanguageService()->getLL('labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => '',
                 'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS['BACK_PATH'])
             );
@@ -282,7 +239,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content .= $this->doc->header($this->getLanguageService()->getLL('title'));
+            $this->content .= '<h1 class="t3js-title-inlineedit">' . htmlspecialchars($this->getLanguageService()->getLL('title')) . '</h1>'; // $this->doc->header
             $this->content .= '<div style="padding-top: 15px;"></div>';
         }
     }
@@ -301,17 +258,20 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         } else {
             // Here the single dmail record is shown.
             $this->sys_dmail_uid = intval($this->sys_dmail_uid);
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                '*',
-                'sys_dmail',
-                'pid=' . intval($this->id) .
-                    ' AND uid=' . intval($this->sys_dmail_uid) .
-                    BackendUtility::deleteClause('sys_dmail')
-                );
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+            $queryBuilder
+                ->getRestrictions()
+                ->removeAll()
+                ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+            $res = $queryBuilder->select('*')
+                ->from('sys_dmail')
+                ->add('where', 'pid=' . intval($this->id) .
+                    ' AND uid=' . intval($this->sys_dmail_uid))
+                ->execute();
 
             $this->noView = 0;
-
-            if (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            if (($row = $res->fetch())) {
                 // Set URL data for commands
                 $this->setURLs($row);
 
@@ -390,26 +350,35 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         switch ($table) {
             case 'tt_address':
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'tt_address.*',
-                    'tt_address LEFT JOIN pages ON pages.uid=tt_address.pid',
-                    'tt_address.uid=' . intval($uid) .
-                        ' AND ' . $this->perms_clause .
-                        BackendUtility::deleteClause('pages') .
-                        BackendUtility::BEenableFields('tt_address') .
-                        BackendUtility::deleteClause('tt_address')
-                    );
+
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_language');
+                $res = $queryBuilder
+                    ->select('tt_address.*')
+                    ->from('tt_address','tt_address')
+                    ->leftjoin(
+                        'tt_address',
+                        'pages',
+                        'pages',
+                        $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('tt_address.pid'))
+                    )
+                    ->add('where','tt_address.uid=' . intval($uid) .
+                        ' AND ' . $this->perms_clause . ' AND pages.deleted = 0')
+                    ->execute();
                 break;
             case 'fe_users':
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'fe_users.*',
-                    'fe_users LEFT JOIN pages ON pages.uid=fe_users.pid',
-                    'fe_users.uid=' . intval($uid) .
-                        ' AND ' . $this->perms_clause .
-                        BackendUtility::deleteClause('pages') .
-                        BackendUtility::BEenableFields('fe_users') .
-                        BackendUtility::deleteClause('fe_users')
-                    );
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_users');
+                $res = $queryBuilder
+                    ->select('fe_users.*')
+                    ->from('fe_users','fe_users')
+                    ->leftjoin(
+                        'fe_users',
+                        'pages',
+                        'pages',
+                        $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('fe_users.pid'))
+                    )
+                    ->add('where','fe_users.uid=' . intval($uid) .
+                        ' AND ' . $this->perms_clause . ' AND pages.deleted = 0')
+                    ->execute();
                 break;
             default:
                 // do nothing
@@ -417,24 +386,23 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         $row = array();
         if ($res) {
-            $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
+            $row = $res->fetch();
         }
 
         $theOutput = '';
         if (is_array($row)) {
             $categories = '';
-            $resCat = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'uid_foreign',
-                $mmTable,
-                'uid_local=' . $row['uid']
-                );
 
-            while (($rowCat = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat))) {
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($mmTable);
+            $resCat = $queryBuilder
+                ->select('uid_foreign')
+                ->from($mmTable)
+                ->add('where','uid_local=' . $row['uid'])
+                ->execute();
+            while (($rowCat = $resCat->fetch())) {
                 $categories .= $rowCat['uid_foreign'] . ',';
             }
             $categories = rtrim($categories, ',');
-            $GLOBALS['TYPO3_DB']->sql_free_result($resCat);
 
             $editParameters = '&edit[' . $table . '][' . $row['uid'] . ']=edit';
             $out = '';
@@ -442,7 +410,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParameters, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                 $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                 $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
-            $theOutput = $this->doc->section($this->getLanguageService()->getLL('subscriber_info'), $out);
+            $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' . $out;
 
             $out = '';
 
@@ -461,7 +429,8 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 '<input type="hidden" name="CMD" value="' . $this->CMD . '" /><br />' .
                 '<input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
             $theOutput .= '<div style="padding-top: 20px;"></div>';
-            $theOutput .= $this->doc->section($this->getLanguageService()->getLL('subscriber_profile'), $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out);
+            $theOutput .= '<h3>' . $this->getLanguageService()->getLL('subscriber_profile') . '</h3>' .
+                $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out;
         }
 
         return $theOutput;
@@ -475,25 +444,43 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     public function cmd_displayPageInfo()
     {
         // Here the dmail list is rendered:
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            '*',
-            'sys_dmail',
-            'pid=' . intval($this->id) .
-                ' AND type IN (0,1)' .
-                ' AND issent = 1' .
-                BackendUtility::deleteClause('sys_dmail'),
-            '',
-            'scheduled DESC, scheduled_begin DESC'
-            );
 
-        if ($GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
-            $onClick = ' onClick="return confirm(' . GeneralUtility::quoteJSvalue(sprintf($this->getLanguageService()->getLL('nl_l_warning'), $GLOBALS['TYPO3_DB']->sql_num_rows($res))) . ');"';
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $res = $queryBuilder
+            ->selectLiteral('sys_dmail.uid', 'sys_dmail.subject', 'sys_dmail.scheduled', 'sys_dmail.scheduled_begin', 'sys_dmail.scheduled_end', 'COUNT(sys_dmail_maillog.mid) AS count')
+            ->from('sys_dmail','sys_dmail')
+            ->leftJoin(
+                'sys_dmail',
+                'sys_dmail_maillog',
+                'sys_dmail_maillog',
+                $queryBuilder->expr()->eq('sys_dmail.uid', $queryBuilder->quoteIdentifier('sys_dmail_maillog.mid'))
+            )
+            ->add('where','sys_dmail.pid=' . intval($this->id) .
+                ' AND sys_dmail.type IN (0,1)' .
+                ' AND sys_dmail.issent = 1'.
+                ' AND sys_dmail_maillog.response_type=0'.
+                ' AND sys_dmail_maillog.html_sent>0')
+            ->groupBy('sys_dmail_maillog.mid')
+            ->orderBy('sys_dmail.scheduled','DESC')
+            ->addOrderBy('sys_dmail.scheduled_begin','DESC')
+            ->execute()
+        ->fetchAll();
+
+
+        if ($res) {
+           $onClick = ' onClick="return confirm(' . GeneralUtility::quoteJSvalue(sprintf($this->getLanguageService()->getLL('nl_l_warning'), count($res))) . ');"';
+
         } else {
             $onClick = '';
         }
         $out = '';
 
-        if ($GLOBALS['TYPO3_DB']->sql_num_rows($res)) {
+
+        if ($res) {
             $out .='<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">';
             $out .='<thead>
 					<th>&nbsp;</th>
@@ -504,15 +491,9 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 					<th nowrap="nowrap"><b>' . $this->getLanguageService()->getLL('stats_overview_total_sent') . '</b></th>
 					<th><b>' . $this->getLanguageService()->getLL('stats_overview_status') . '</b></th>
 				</thead>';
-            while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                $countRes = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'count(*)',
-                    'sys_dmail_maillog',
-                    'mid = ' . $row['uid'] .
-                        ' AND response_type=0' .
-                        ' AND html_sent>0'
-                );
-                list($count) = $GLOBALS['TYPO3_DB']->sql_fetch_row($countRes);
+
+
+            foreach ($res as $row)  {
 
                 if (!empty($row['scheduled_begin'])) {
                     if (!empty($row['scheduled_end'])) {
@@ -530,14 +511,15 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 					<td>' . BackendUtility::datetime($row['scheduled']) . '</td>
 					<td>' . ($row['scheduled_begin']?BackendUtility::datetime($row['scheduled_begin']):'&nbsp;') . '</td>
 					<td>' . ($row['scheduled_end']?BackendUtility::datetime($row['scheduled_end']):'&nbsp;') . '</td>
-					<td>' . ($count?$count:'&nbsp;') . '</td>
+					<td>' . ($row['count']?$row['count']:'&nbsp;') . '</td>
 					<td>' . $sent . '</td>
 				</tr>';
             }
             $out.='</table>';
         }
 
-        $theOutput = $this->doc->section($this->getLanguageService()->getLL('stats_overview_choose'), $out, 1, 1, 0, true);
+        $theOutput = '<h3>' . $this->getLanguageService()->getLL('stats_overview_choose') . '</h3>' .
+            $out;
         $theOutput .= '<div style="padding-top: 20px;"></div>';
 
         return $theOutput;
@@ -551,10 +533,22 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      * @param string $aTitle Title param of the link tag
      *
      * @return string wrapped string as a link
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function linkDMail_record($str, $uid, $aTitle='')
     {
-        return '<a title="' . htmlspecialchars($aTitle) . '" href="' . BackendUtility::getModuleUrl('DirectMailNavFrame_Statistics') . '&id=' . $this->id . '&sys_dmail_uid=' . $uid . '&SET[dmail_mode]=direct&CMD=stats">' . htmlspecialchars($str) . '</a>';
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $moduleUrl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'sys_dmail_uid' => $uid,
+                'CMD' => 'stats',
+                'SET[dmail_mode]' => 'direct'
+            ]
+        );
+        return '<a title="' . htmlspecialchars($aTitle) . '" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
     }
 
     /**
@@ -563,13 +557,24 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      * @param array $row DB record
      *
      * @return string Statistics of a mail
+     * @throws RouteNotFoundException If the named route doesn't exist
      */
     public function cmd_stats($row)
     {
         if (GeneralUtility::_GP('recalcCache')) {
             $this->makeStatTempTableContent($row);
         }
-        $thisurl = BackendUtility::getModuleUrl('DirectMailNavFrame_Statistics') . '&id=' . $this->id . '&sys_dmail_uid=' . $row['uid'] . '&CMD=' . $this->CMD . '&recalcCache=1';
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $thisurl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'sys_dmail_uid' => $row['uid'],
+                'CMD' => $this->CMD,
+                'recalcCache' => 1
+            ]
+        );
         $output = $this->directMail_compactView($row);
 
         // *****************************
@@ -577,33 +582,84 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         // *****************************
 
         $mailingId = intval($row['uid']);
-        $queryArray = array('response_type,count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId, 'response_type');
+        $fieldRows = 'response_type';
+        $addFieldRows = '*';
+        $tableRows =  'sys_dmail_maillog';
+        $whereRows = 'mid=' . $mailingId;
+        $groupByRows = 'response_type';
+        $orderByRows = '';
+        $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
+
         $table = $this->getQueryRows($queryArray, 'response_type');
 
         // Plaintext/HTML
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('html_sent,count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=0', 'html_sent');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+
+        $res = $queryBuilder
+            ->count('*')
+            ->addSelect('html_sent')
+            ->from('sys_dmail_maillog')
+            ->add('where','mid=' . $mailingId . ' AND response_type=0')
+            ->groupBy('html_sent')
+            ->execute()
+            ->fetchAll();
+
+        /* this function is called to change the key from 'COUNT(*)' to 'counter' */
+        $res = $this->changekeyname($res,'counter','COUNT(*)');
+
 
         $textHtml = array();
-        while (($row2 = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+        foreach($res as $row2){
             // 0:No mail; 1:HTML; 2:TEXT; 3:HTML+TEXT
             $textHtml[$row2['html_sent']] = $row2['counter'];
         }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
 
         // Unique responses, html
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=1', 'rid,rtbl', 'counter');
-        $uniqueHtmlResponses = $GLOBALS['TYPO3_DB']->sql_num_rows($res);
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+
+        $res = $queryBuilder
+            ->count('*')
+            ->from('sys_dmail_maillog')
+            ->add('where','mid=' . $mailingId . ' AND response_type=1')
+            ->groupBy('rid')
+            ->addGroupBy('rtbl')
+            ->orderBy('COUNT(*)')
+            ->execute()
+            ->fetchAll();
+
+        $uniqueHtmlResponses = count($res);//sql_num_rows($res);
+
 
         // Unique responses, Plain
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=2', 'rid,rtbl', 'counter');
-        $uniquePlainResponses = $GLOBALS['TYPO3_DB']->sql_num_rows($res);
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+       $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+
+        $res = $queryBuilder
+            ->count('*')
+            ->from('sys_dmail_maillog')
+            ->add('where','mid=' . $mailingId . ' AND response_type=2')
+            ->groupBy('rid')
+            ->addGroupBy('rtbl')
+            ->orderBy('COUNT(*)')
+            ->execute()
+            ->fetchAll();
+        $uniquePlainResponses = count($res); //sql_num_rows($res);
+
 
         // Unique responses, pings
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*) as counter', 'sys_dmail_maillog', 'mid=' . $mailingId . ' AND response_type=-1', 'rid,rtbl', 'counter');
-        $uniquePingResponses = $GLOBALS['TYPO3_DB']->sql_num_rows($res);
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+
+        $res = $queryBuilder
+            ->count('*')
+            ->from('sys_dmail_maillog')
+            ->add('where','mid=' . $mailingId . ' AND response_type=-1')
+            ->groupBy('rid')
+            ->addGroupBy('rtbl')
+            ->orderBy('COUNT(*)')
+            ->execute()
+            ->fetchAll();
+        $uniquePingResponses = count($res);//sql_num_rows($res);
+       ;
 
         $tblLines = array();
         $tblLines[]=array('',$this->getLanguageService()->getLL('stats_total'),$this->getLanguageService()->getLL('stats_HTML'),$this->getLanguageService()->getLL('stats_plaintext'));
@@ -631,11 +687,25 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             'html' => array(),
         );
         // Most popular links, html:
-        $queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=1', 'url_id', 'counter');
+        $fieldRows = 'url_id';
+        $addFieldRows = '*';
+        $tableRows =  'sys_dmail_maillog';
+        $whereRows = 'mid=' . intval($row['uid']) . ' AND response_type=1';
+        $groupByRows = 'url_id';
+        $orderByRows = 'COUNT(*)';
+        //$queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=1', 'url_id', 'counter');
+        $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
         $htmlUrlsTable=$this->getQueryRows($queryArray, 'url_id');
 
         // Most popular links, plain:
-        $queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=2', 'url_id', 'counter');
+        $fieldRows = 'url_id';
+        $addFieldRows = '*';
+        $tableRows =  'sys_dmail_maillog';
+        $whereRows = 'mid=' . intval($row['uid']) . ' AND response_type=2';
+        $groupByRows = 'url_id';
+        $orderByRows = 'COUNT(*)';
+        //$queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=2', 'url_id', 'counter');
+        $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
         $plainUrlsTable=$this->getQueryRows($queryArray, 'url_id');
 
 
@@ -849,7 +919,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'])) {
                 $hookObjectsArr = array();
                 foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'] as $classRef) {
-                    $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                    $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
                 }
 
                 foreach ($hookObjectsArr as $hookObj) {
@@ -906,7 +976,14 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         $iconsUnknownReason[] = '<a href="' . $thisurl . '&reasonUnknownCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_reason_unknown') . '"> ' . $csvIcons . '</span></a>';
 
         // Table with Icon
-        $queryArray = array('count(*) as counter,return_code', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=-127', 'return_code');
+        $fieldRows = 'return_code';
+        $addFieldRows = '*';
+        $tableRows =  'sys_dmail_maillog';
+        $whereRows = 'mid=' . intval($row['uid']) . ' AND response_type=-127';
+        $groupByRows = 'return_code';
+        $orderByRows = '';
+        $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
+        //$queryArray = array('COUNT(*) as counter'.','.'return_code', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=-127', 'return_code');
         $responseResult = $this->getQueryRows($queryArray, 'return_code');
 
         $tblLines = array();
@@ -923,15 +1000,19 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // Find all returned mail
         if (GeneralUtility::_GP('returnList')||GeneralUtility::_GP('returnDisable')||GeneralUtility::_GP('returnCSV')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'rid,rtbl,email',
-                'sys_dmail_maillog',
-                'mid=' . intval($row['uid']) .
-                    ' AND response_type=-127'
-                );
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_dmail_maillog');
+            $res =  $queryBuilder
+                ->select('rid','rtbl','email')
+                ->from('sys_dmail_maillog')
+                ->add('where','mid=' . intval($row['uid']) .
+                    ' AND response_type=-127')
+                ->execute();
+
+
             $idLists = array();
 
-            while (($rrow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            while (($rrow = $res->fetch())) {
                 switch ($rrow['rtbl']) {
                     case 't':
                         $idLists['tt_address'][]=$rrow['rid'];
@@ -993,16 +1074,18 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // Find Unknown Recipient
         if (GeneralUtility::_GP('unknownList')||GeneralUtility::_GP('unknownDisable')||GeneralUtility::_GP('unknownCSV')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'rid,rtbl,email',
-                'sys_dmail_maillog',
-                'mid=' . intval($row['uid']) .
-                    ' AND response_type=-127' .
-                    ' AND (return_code=550 OR return_code=553)'
-                );
 
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_dmail_maillog');
+            $res =  $queryBuilder
+                ->select('rid','rtbl','email')
+                ->from('sys_dmail_maillog')
+                ->add('where','mid=' . intval($row['uid']) .
+                    ' AND response_type=-127' .
+                    ' AND (return_code=550 OR return_code=553)')
+                ->execute();
             $idLists = array();
-            while (($rrow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            while (($rrow = $res->fetch())) {
                 switch ($rrow['rtbl']) {
                     case 't':
                         $idLists['tt_address'][]=$rrow['rid'];
@@ -1064,15 +1147,18 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // Mailbox Full
         if (GeneralUtility::_GP('fullList')||GeneralUtility::_GP('fullDisable')||GeneralUtility::_GP('fullCSV')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'rid,rtbl,email',
-                'sys_dmail_maillog',
-                'mid=' . intval($row['uid']) .
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_dmail_maillog');
+            $res =  $queryBuilder
+                ->select('rid','rtbl','email')
+                ->from('sys_dmail_maillog')
+                ->add('where','mid=' . intval($row['uid']) .
                     ' AND response_type=-127' .
-                    ' AND return_code=551'
-                );
+                    ' AND return_code=551')
+                ->execute();
             $idLists = array();
-            while (($rrow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            while (($rrow = $res->fetch())) {
                 switch ($rrow['rtbl']) {
                     case 't':
                         $idLists['tt_address'][]=$rrow['rid'];
@@ -1134,15 +1220,17 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // find Bad Host
         if (GeneralUtility::_GP('badHostList')||GeneralUtility::_GP('badHostDisable')||GeneralUtility::_GP('badHostCSV')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'rid,rtbl,email',
-                'sys_dmail_maillog',
-                'mid=' . intval($row['uid']) .
+           $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_dmail_maillog');
+            $res =  $queryBuilder
+                ->select('rid','rtbl','email')
+                ->from('sys_dmail_maillog')
+                ->add('where','mid=' . intval($row['uid']) .
                     ' AND response_type=-127' .
-                    ' AND return_code=552'
-                );
+                    ' AND return_code=552')
+                ->execute();
             $idLists = array();
-            while (($rrow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            while (($rrow = $res->fetch())) {
                 switch ($rrow['rtbl']) {
                     case 't':
                         $idLists['tt_address'][]=$rrow['rid'];
@@ -1204,15 +1292,18 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         // find Bad Header
         if (GeneralUtility::_GP('badHeaderList')||GeneralUtility::_GP('badHeaderDisable')||GeneralUtility::_GP('badHeaderCSV')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'rid,rtbl,email',
-                'sys_dmail_maillog',
-                'mid=' . intval($row['uid']) .
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_dmail_maillog');
+            $res =  $queryBuilder
+                ->select('rid','rtbl','email')
+                ->from('sys_dmail_maillog')
+                ->add('where','mid=' . intval($row['uid']) .
                     ' AND response_type=-127' .
-                    ' AND return_code=554'
-                );
+                    ' AND return_code=554')
+                ->execute();
+
             $idLists = array();
-            while (($rrow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            while (($rrow = $res->fetch())) {
                 switch ($rrow['rtbl']) {
                     case 't':
                         $idLists['tt_address'][] = $rrow['rid'];
@@ -1276,15 +1367,18 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         // find Unknown Reasons
         // TODO: list all reason
         if (GeneralUtility::_GP('reasonUnknownList')||GeneralUtility::_GP('reasonUnknownDisable')||GeneralUtility::_GP('reasonUnknownCSV')) {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'rid,rtbl,email',
-                'sys_dmail_maillog',
-                'mid=' . intval($row['uid']) .
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('sys_dmail_maillog');
+            $res =  $queryBuilder
+                ->select('rid','rtbl','email')
+                ->from('sys_dmail_maillog')
+                ->add('where','mid=' . intval($row['uid']) .
                     ' AND response_type=-127' .
-                    ' AND return_code=-1'
-                );
+                    ' AND return_code=-1')
+                ->execute();
             $idLists = array();
-            while (($rrow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+            while (($rrow = $res->fetch())) {
                 switch ($rrow['rtbl']) {
                     case 't':
                         $idLists['tt_address'][] = $rrow['rid'];
@@ -1351,7 +1445,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'])) {
             $hookObjectsArr = array();
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] as $classRef) {
-                $hookObjectsArr[] = &GeneralUtility::getUserObj($classRef);
+                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
 
             // assigned $output to class property to make it acesssible inside hook
@@ -1369,11 +1463,11 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
 
         $this->noView = 1;
         // put all the stats tables in a section
-        $theOutput = $this->doc->section($this->getLanguageService()->getLL('stats_direct_mail'), $output, 1, 1, 0, true);
+        $theOutput = '<h3>' . $this->getLanguageService()->getLL('stats_direct_mail') .'</h3>' . $output;
         $theOutput .= '<div style="padding-top: 20px;"></div>';
 
-        $link = '<p><a style="text-decoration: underline;" href="' . $thisurl . '">' . $this->getLanguageService()->getLL('stats_recalculate_stats') . '</a></p>';
-        $theOutput .= $this->doc->section($this->getLanguageService()->getLL('stats_recalculate_cached_data'), $link, 1, 1, 0, true);
+        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('stats_recalculate_cached_data') . '</h3>' .
+            '<p><a style="text-decoration: underline;" href="' . $thisurl . '">' . $this->getLanguageService()->getLL('stats_recalculate_stats') . '</a></p>';
         return $theOutput;
     }
 
@@ -1470,13 +1564,16 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             // do we have an id?
             if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $urlParts['query'], $m)) {
                 $isInt = MathUtility::canBeInterpretedAsInteger($m[1]);
-
                 if ($isInt) {
                     $uid = intval($m[1]);
                 } else {
-                    $uid = $this->sys_page->getPageIdFromAlias($m[1]);
+                    // initialize the page selector
+                    /** @var \TYPO3\CMS\Frontend\Page\PageRepository $sys_page */
+                    $sys_page = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+                    $sys_page->init(true);
+                    $uid = $sys_page->getPageIdFromAlias($m[1]);
                 }
-                $rootLine = $this->sys_page->getRootLine($uid);
+                $rootLine = BackendUtility::BEgetRootLine($uid);
                 $pages = array_shift($rootLine);
                 // array_shift reverses the array (rootline has numeric index in the wrong order!)
                 $rootLine = array_reverse($rootLine);
@@ -1531,13 +1628,17 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
                 $values[$enField] = 1;
                 $count = count($arr);
                 $uidList = array_keys($arr);
+                $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
                 if (count($uidList)) {
-                    $res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-                        $table,
-                        'uid IN (' . implode(',', $GLOBALS['TYPO3_DB']->cleanIntArray($uidList)) . ')',
-                        $values
+                    foreach ($uidList as $uid){
+                        $connection->update(
+                            $table,
+                            $values,
+                            [
+                                'uid' => $uid
+                            ]
                         );
-                    $GLOBALS['TYPO3_DB']->sql_free_result($res);
+                    }
                 }
             }
         }
@@ -1554,23 +1655,28 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     public function makeStatTempTableContent(array $mrow)
     {
         // Remove old:
-        $GLOBALS['TYPO3_DB']->exec_DELETEquery(
-            'cache_sys_dmail_stat',
-            'mid=' . intval($mrow['uid'])
+
+        GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('cache_sys_dmail_stat')
+            ->delete(
+                'cache_sys_dmail_stat', // from
+                [ 'mid' => intval($mrow['uid']) ] // where
             );
 
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'rid,rtbl,tstamp,response_type,url_id,html_sent,size',
-            'sys_dmail_maillog',
-            'mid=' . intval($mrow['uid']),
-            '',
-            'rtbl,rid,tstamp'
-            );
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+        $res = $queryBuilder
+            ->select('rid','rtbl','tstamp','response_type','url_id','html_sent','size')
+            ->from('sys_dmail_maillog')
+            ->add('where', 'mid=' . intval($mrow['uid']))
+            ->orderBy('rtbl')
+            ->addOrderBy('rid')
+            ->addOrderBy('tstamp')
+            ->execute();
 
         $currentRec = '';
-        $recRec = '';
+        $recRec = array();
 
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+
+        while (($row = $res->fetch())) {
             $thisRecPointer = $row['rtbl'] . $row['rid'];
 
             if ($thisRecPointer != $currentRec) {
@@ -1626,7 +1732,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             }
         }
 
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
         $this->storeRecRec($recRec);
     }
 
@@ -1656,21 +1762,25 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
             $recRec['links_last'] = intval(@max($recRec['links']));
             $recRec['links'] = count($recRec['links']);
 
-            $recRec['response_first'] = DirectMailUtility::intInRangeWrapper(intval(@min($recRec['response']))-$recRec['tstamp'], 0);
-            $recRec['response_last'] = DirectMailUtility::intInRangeWrapper(intval(@max($recRec['response']))-$recRec['tstamp'], 0);
+            $recRec['response_first'] = DirectMailUtility::intInRangeWrapper((int)((int)(@min($recRec['response']))-$recRec['tstamp']), 0);
+            $recRec['response_last'] = DirectMailUtility::intInRangeWrapper((int)((int)(@max($recRec['response']))-$recRec['tstamp']), 0);
             $recRec['response'] = count($recRec['response']);
 
-            $recRec['time_firstping'] = DirectMailUtility::intInRangeWrapper($recRec['pings_first']-$recRec['tstamp'], 0);
-            $recRec['time_lastping'] = DirectMailUtility::intInRangeWrapper($recRec['pings_last']-$recRec['tstamp'], 0);
+            $recRec['time_firstping'] = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_first']-$recRec['tstamp']), 0);
+            $recRec['time_lastping'] = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_last']-$recRec['tstamp']), 0);
 
-            $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper($recRec['links_first']-$recRec['tstamp'], 0);
-            $recRec['time_last_link'] = DirectMailUtility::intInRangeWrapper($recRec['links_last']-$recRec['tstamp'], 0);
+            $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_first']-$recRec['tstamp']), 0);
+            $recRec['time_last_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_last']-$recRec['tstamp']), 0);
 
-            $res = $GLOBALS['TYPO3_DB']->exec_INSERTquery(
-                'cache_sys_dmail_stat',
-                $recRec
-            );
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
+
+            GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('cache_sys_dmail_stat')
+             ->insert(
+                 'cache_sys_dmail_stat',
+                  $recRec
+              );
+
+
         }
     }
 
@@ -1684,24 +1794,42 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
      */
     public function getQueryRows(array $queryArray, $fieldName)
     {
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            $queryArray[0],
-            $queryArray[1],
-            $queryArray[2],
-            $queryArray[3],
-            $queryArray[4],
-            $queryArray[5]
-            );
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($queryArray[2]);
+
+        if (empty($queryArray[5])){
+            $res = $queryBuilder
+                ->count($queryArray[1])
+                ->addSelect($queryArray[0])
+                ->from($queryArray[2])
+                ->add('where',$queryArray[3])
+                ->groupBy($queryArray[4])
+                ->execute()
+                ->fetchAll();
+        }else{
+            $res = $queryBuilder
+                ->count($queryArray[1])
+                ->addSelect($queryArray[0])
+                ->from($queryArray[2])
+                ->add('where',$queryArray[3])
+                ->groupBy($queryArray[4])
+                ->orderBy($queryArray[5])
+                ->execute()
+                ->fetchAll();
+        }
+
+
+       /*questa funzione viene chiamata per cambiare la key 'COUNT(*)' in 'counter'*/
+        $res = $this->changekeyname($res,'counter','COUNT(*)');
+
         $lines = array();
-        while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+        foreach($res as $row){
             if ($fieldName) {
                 $lines[$row[$fieldName]] = $row;
             } else {
                 $lines[] = $row;
             }
         }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
-
         return $lines;
     }
 
@@ -1733,7 +1861,7 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     public function setURLs(array $row)
     {
         // Finding the domain to use
-        $this->urlbase = DirectMailUtility::getUrlBase($row['use_domain']);
+        $this->urlbase = DirectMailUtility::getUrlBase((int)$row['page']);
 
         // Finding the url to fetch content from
         switch ((string)$row['type']) {
@@ -1816,7 +1944,16 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
         foreach ($idLists['id_lists'] as $idArray) {
             $totalRecip += count($idArray);
         }
-        $sentRecip = $GLOBALS['TYPO3_DB']->sql_num_rows($GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'sys_dmail_maillog', 'mid=' . $row['uid'] . ' AND response_type = 0', '', 'rid ASC'));
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+        $res = $queryBuilder->select('*')
+            ->from('sys_dmail_maillog')
+            ->add('where', 'mid=' . $row['uid'] . ' AND response_type = 0')
+            ->orderBy('rid','ASC')
+            ->execute()
+            ->fetchAll();
+
+        $sentRecip = count($res);
 
         $out = '<table class="table table-striped table-hover">';
         $out .= '<tr class="t3-row-header"><td colspan="3">' . $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . htmlspecialchars($row['subject']) . '</td></tr>';
@@ -1849,5 +1986,27 @@ class Statistics extends \TYPO3\CMS\Backend\Module\BaseScriptClass
     protected function getLanguageService()
     {
         return $GLOBALS['LANG'];
+    }
+
+
+	/**
+	 * Switch the key of an array
+	 *
+	 * @return $array
+	 */
+    private function changekeyname($array, $newkey, $oldkey)
+    {
+        foreach ($array as $key => $value)
+        {
+            if (is_array($value))
+                $array[$key] = $this->changekeyname($value,$newkey,$oldkey);
+            else
+            {
+                $array[$newkey] =  $array[$oldkey];
+            }
+
+        }
+        unset($array[$oldkey]);
+        return $array;
     }
 }

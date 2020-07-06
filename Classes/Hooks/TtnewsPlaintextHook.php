@@ -15,9 +15,12 @@ namespace DirectMailTeam\DirectMail\Hooks;
  */
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
+use DirectMailTeam\DirectMail\Plugin\DirectMail;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-require_once(ExtensionManagementUtility::extPath('direct_mail').'pi1/class.tx_directmail_pi1.php');
 
 /**
  * Generating plain text content of tt_news records for Direct Mails
@@ -36,6 +39,11 @@ class TtnewsPlaintextHook
     public $cObj;
 
     /**
+     * @var MarkerBasedTemplateService
+     */
+    protected $templateService;
+
+    /**
      * ts array
      * @var array
      */
@@ -47,7 +55,7 @@ class TtnewsPlaintextHook
     public $config = array();
     public $charWidth = 76;
     /**
-     * @var tx_directmail_pi1
+     * @var DirectMail
      */
     public $renderPlainText;
 
@@ -92,7 +100,7 @@ class TtnewsPlaintextHook
             $this->sys_language_mode = $invokingObj->sys_language_mode;
             $this->templateCode = $invokingObj->templateCode;
 
-            $this->renderPlainText = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_directmail_pi1');
+            $this->renderPlainText = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(DirectMail::class);
             $this->renderPlainText->init($GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_directmail_pi1.']);
             $this->renderPlainText->cObj = $this->cObj;
             $this->renderPlainText->labelsList = 'tt_news_author_prefix,tt_news_author_date_prefix,tt_news_author_email_prefix,tt_news_short_header,tt_news_bodytext_header';
@@ -100,13 +108,19 @@ class TtnewsPlaintextHook
             $lines = array();
             $singleWhere = 'tt_news.uid=' . intval($this->tt_news_uid);
             $singleWhere .= ' AND type=0' . $this->enableFields; // type=0->only real news.
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                '*',
-                'tt_news',
-                $singleWhere
-                );
-            $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-            $GLOBALS['TYPO3_DB']->sql_free_result($res);
+
+
+            $conn = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getConnectionForTable('tt_news');
+            $querybuilder = $conn->createQueryBuilder();
+
+
+            $res = $querybuilder->select('*')
+                ->from('tt_news')
+                ->add('where',$singleWhere)
+                ->execute();
+
+            $row = $res->fetchAll();
+
             // get the translated record if the content language is not the default language
             if ($GLOBALS['TSFE']->sys_language_content) {
                 $OLmode = ($this->sys_language_mode == 'strict'?'hideNonTranslated':'');
@@ -143,7 +157,9 @@ class TtnewsPlaintextHook
             if (!empty($content)) {
                 $markerArray = array();
                 $markerArray = $this->renderPlainText->addLabelsMarkers($markerArray);
-                $content = $this->cObj->substituteMarkerArray($content, $markerArray);
+
+                $templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
+                $content = $templateService->substituteMarkerArray($content, $markerArray);
             }
         }
 
@@ -175,8 +191,8 @@ class TtnewsPlaintextHook
         if ($row['author']) {
             $hConf = $this->renderPlainText->conf['tt_news_author.'];
             $str = $this->renderPlainText->getString($hConf['prefix']).$row['author'].$this->renderPlainText->getString($hConf['emailPrefix']).'<'.$row['author_email'].'>';
-            $defaultType = DirectMailUtility::intInRangeWrapper($hConf['defaultType'], 1, 5);
-            $type = DirectMailUtility::intInRangeWrapper($type, 0, 6);
+            $defaultType = DirectMailUtility::intInRangeWrapper((int)$hConf['defaultType'], 1, 5);
+            $type = DirectMailUtility::intInRangeWrapper((int)$type, 0, 6);
 
             if (!$type) {
                 $type = $defaultType;
@@ -187,14 +203,14 @@ class TtnewsPlaintextHook
 
                 $lines = array();
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['preBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
 
                 $lines = $this->renderPlainText->pad($lines, $tConf['preLineChar'], $tConf['preLineLen']);
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['preLineBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preLineBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
@@ -209,14 +225,14 @@ class TtnewsPlaintextHook
 
                 $lines[]=$this->cObj->stdWrap($str, $tConf['stdWrap.']);
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['postLineBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postLineBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[]=str_pad('', $blanks-1, LF);
                 }
 
                 $lines = $this->renderPlainText->pad($lines, $tConf['postLineChar'], $tConf['postLineLen']);
 
-                $blanks = DirectMailUtility::intInRangeWrapper($tConf['postBlanks'], 0, 1000);
+                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postBlanks'], 0, 1000);
                 if ($blanks) {
                     $lines[]=str_pad('', $blanks-1, LF);
                 }

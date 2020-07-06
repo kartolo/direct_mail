@@ -1,18 +1,9 @@
-﻿.. include:: Images.txt
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Importing a csv list of email addresses
@@ -73,5 +64,3 @@ of new imported, invalid email, updated and doublet records will be
 shown.
 
 |img-15|
-
-

@@ -1,5 +1,6 @@
 <?php
-return array(
+
+return [
     'tx_directmail_pi1' => 'DirectMailTeam\\DirectMail\\Plugin\\DirectMail',
     'tx_directmail_checkjumpurl' => 'DirectMailTeam\\DirectMail\\Checkjumpurl',
     'tx_directmail_container' => 'DirectMailTeam\\DirectMail\\Container',
@@ -19,6 +20,5 @@ return array(
     'tx_directmail_scheduler' => 'DirectMailTeam\\DirectMail\\Scheduler\\DirectmailScheduler',
     'tx_directmail_Scheduler_MailFromDraft' => 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraft',
     'tx_directmail_Scheduler_MailFromDraft_AdditionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraftAdditionalFields',
-    'tx_directmail_tsparserext' => 'DirectMailTeam\\DirectMail\\Utility\\TsParserExt',
     'tx_directmail_Scheduler_MailFromDraftHook' => 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraftHookInterface'
-);
+];

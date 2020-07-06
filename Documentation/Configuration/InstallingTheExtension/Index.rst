@@ -1,18 +1,9 @@
-﻿
-
-.. ==================================================
+﻿.. ==================================================
 .. FOR YOUR INFORMATION
 .. --------------------------------------------------
 .. -*- coding: utf-8 -*- with BOM.
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../../Includes.txt
 
 
 Installing the extension
@@ -62,10 +53,10 @@ extension configuration variables:
 
 - **Use HTTP to fetch**: always use http to fetch the newsletter regardless https in BE
 
+- **Use implicit port to fetch**: Use implicit port in URL for fetching Newsletter-Content: Even if your TYPO3 Backend is on a non-standard-port, the URL for fetching the newsletter contents from one of your Frontend-Domains will not use the PORT you are using to access your TYPO3 Backend, but use implicit port instead (e.g. no explicit port in URL)
+
 If you are upgrading to version 2.0+ from an earlier version, an
 additional entry may be presented in the function drop-down menu of
 the extension manager: UPDATE! This option provides a function to
 convert some tables of your database. You should read the section
 below about upgrading to version 2.0+.
-
-
