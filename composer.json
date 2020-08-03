@@ -1,5 +1,5 @@
 {
-  "name": "azich/direct-mail",
+  "name": "directmailteam/direct-mail",
   "type": "typo3-cms-extension",
   "description": "Advanced Direct Mail/Newsletter mailer system with sophisticated options for personalization of emails including response statistics. Fork of kartolo/direct-mail.",
   "keywords": [
