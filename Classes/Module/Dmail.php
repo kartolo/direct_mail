@@ -992,7 +992,7 @@ class Dmail extends BaseScriptClass
                 $res = $queryBuilder
                     ->select('a.*')
                     ->from('tt_address', 'a')
-                    ->leftJoin('a', 'pages', 'p', $queryBuilder->expr()->eq('p.uid', $queryBuilder->quoteIdentifier('a.pid')))
+                    ->leftJoin('a', 'pages', 'pages', $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('a.pid')))
                     ->where($queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter((int)GeneralUtility::_GP('tt_address_uid'), \PDO::PARAM_INT)))
                     ->andWhere($this->perms_clause)
                     ->execute()
