@@ -69,7 +69,7 @@ class Importer
         $this->parent = &$pObj;
 
         // get some importer default from pageTS
-        $this->params = BackendUtility::getPagesTSconfig(intval(GeneralUtility::_GP('id')))['mod.']['web_modules.']['dmail.']['importer'] ?? [];
+        $this->params = BackendUtility::getPagesTSconfig(intval(GeneralUtility::_GP('id')))['mod.']['web_modules.']['dmail.']['importer.'] ?? [];
     }
 
     /**
