@@ -156,7 +156,7 @@ class JumpurlController
                 $checkPath = Environment::getPublicPath() . '/' . ltrim($jumpurl, '/');
 
                 // Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
-                if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && GeneralUtility::isAllowedAbsPath($checkPath)) {
+                if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && (GeneralUtility::isAllowedAbsPath($checkPath) || GeneralUtility::isValidUrl($jumpurl))) {
                     // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
                     GeneralUtility::_GETset(GeneralUtility::hmac($jumpurl, 'jumpurl'), 'juHash');
                     $responseType = -1;
