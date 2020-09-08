@@ -575,17 +575,17 @@ class Dmailer implements LoggerAwareInterface
     public function shipOfMail(int $mid, array $recipRow, string $tableKey): void
     {
         if ($this->dmailer_isSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
-            $pt = GeneralUtility::milliseconds();
+            $pt = self::getMilliseconds();
             $recipRow = self::convertFields($recipRow);
 
             // write to dmail_maillog table. if it can be written, continue with sending.
             // if not, stop the script and report error
             $rC = 0;
-            $logUid = $this->dmailer_addToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), GeneralUtility::milliseconds() - $pt, $rC, $recipRow['email']);
+            $logUid = $this->dmailer_addToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), self::getMilliseconds() - $pt, $rC, $recipRow['email']);
 
             if ($logUid) {
                 $rC = $this->dmailer_sendAdvanced($recipRow, $tableKey);
-                $parsetime = GeneralUtility::milliseconds() - $pt;
+                $parsetime = self::getMilliseconds() - $pt;
 
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
                 $ok = $queryBuilder
@@ -799,7 +799,7 @@ class Dmailer implements LoggerAwareInterface
         // always include locallang file
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
 
-        $pt = GeneralUtility::milliseconds();
+        $pt = self::getMilliseconds();
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
         $queryBuilder
@@ -851,7 +851,7 @@ class Dmailer implements LoggerAwareInterface
             $this->logger->debug($this->getLanguageService()->getLL('dmailer_nothing_to_do'));
         }
 
-        $parsetime = GeneralUtility::milliseconds()-$pt;
+        $parsetime = self::getMilliseconds() - $pt;
         $this->logger->debug($this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms');
     }
 
@@ -1594,5 +1594,15 @@ class Dmailer implements LoggerAwareInterface
                 $this->backendCharset,
                 $this->charset
             );
+    }
+
+    /**
+     * Gets the unixtime as milliseconds.
+     *
+     * @return int The unixtime as milliseconds
+     */
+    public static function getMilliseconds()
+    {
+        return round(microtime(true) * 1000);
     }
 }

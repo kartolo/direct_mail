@@ -16,6 +16,7 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -1568,8 +1569,8 @@ class Statistics extends BaseScriptClass
                     $uid = intval($m[1]);
                 } else {
                     // initialize the page selector
-                    /** @var \TYPO3\CMS\Frontend\Page\PageRepository $sys_page */
-                    $sys_page = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+                    /** @var PageRepository $sys_page */
+                    $sys_page = GeneralUtility::makeInstance(PageRepository::class);
                     $sys_page->init(true);
                     $uid = $sys_page->getPageIdFromAlias($m[1]);
                 }
