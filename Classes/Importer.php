@@ -1053,9 +1053,6 @@ class Importer
         // Initializing:
         /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
         $this->fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
-        if (version_compare(TYPO3_branch, '8.3', '<')) {
-            $this->fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-        }
         $this->fileProcessor->setActionPermissions($userPermissions);
         $this->fileProcessor->dontCheckForUnique = 1;
 
@@ -1115,19 +1112,17 @@ class Importer
         $fm = array();
 
         $tempFolder = $this->userTempFolder();
+        $array = explode('/', trim($tempFolder, '/'));
         $fm = array(
             $GLOBALS['EXEC_TIME'] => array(
                 'path' => $tempFolder,
-                'name' => array_pop(explode('/', trim($tempFolder, '/'))) .  '/',
+                'name' => array_pop($array) .  '/',
             )
         );
 
         // Initializing:
         /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
         $this->fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
-        if (version_compare(TYPO3_branch, '8.3', '<')) {
-            $this->fileProcessor->init($fm, $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-        }
         $this->fileProcessor->setActionPermissions();
         $this->fileProcessor->dontCheckForUnique = 1;
 
