@@ -661,7 +661,8 @@ class RecipientList extends BaseScriptClass
             default:
 
                 if (is_array($idLists['tt_address']) && count($idLists['tt_address'])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_address') .'</h3>' .
                         $csvError .
                         $recipContent;
@@ -669,7 +670,8 @@ class RecipientList extends BaseScriptClass
                 }
 
                 if (is_array($idLists['fe_users']) && count($idLists['fe_users'])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_fe_users') . '</h3>' .
                         $csvError .
                         $recipContent;
@@ -677,7 +679,8 @@ class RecipientList extends BaseScriptClass
                 }
 
                 if (is_array($idLists['PLAINLIST']) && count($idLists['PLAINLIST'])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_plain_list') .'</h3>' .
                         $csvError .
                         $recipContent;
@@ -685,7 +688,8 @@ class RecipientList extends BaseScriptClass
                 }
 
                 if (is_array($idLists[$this->userTable]) && count($idLists[$this->userTable])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv' => $this->userTable)) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv' => $this->userTable)) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_custom') . '</h3>' .
                         $csvError .
                         $recipContent;

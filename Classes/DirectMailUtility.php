@@ -18,6 +18,7 @@ use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Crypto\Random;
 use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
@@ -26,6 +27,7 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Registry;
+use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -34,8 +36,8 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
-use TYPO3\CMS\Frontend\Page\PageRepository;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Static class.
@@ -1106,7 +1108,7 @@ class DirectMailUtility
         if ($pageRecord['doktype']) {
             $newRecord['subject'] = $pageRecord['title'];
             $newRecord['page']    = $pageRecord['uid'];
-            $newRecord['charset'] = self::getCharacterSetOfPage($pageRecord['uid']);
+            $newRecord['charset'] = self::getCharacterSet();
         }
 
         // save to database
@@ -1508,80 +1510,31 @@ class DirectMailUtility
     }
 
     /**
-     * Initializes the TSFE for a given page ID and language.
+     * Get the configured charset.
      *
-     * @throws ServiceUnavailableException
-     * @throws ImmediateResponseException
-     */
-    public static function initializeTsfe(int $pageId, int $language = 0, bool $useCache = true): void
-    {
-        // resetting, a TSFE instance with data from a different page Id could be set already
-        unset($GLOBALS['TSFE']);
-
-        $cacheId = $pageId . '|' . $language;
-
-        if (!isset($tsfeCache[$cacheId]) || !$useCache) {
-            $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class, $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
-
-            // for certain situations we need to trick TSFE into granting us
-            // access to the page in any case to make getPageAndRootline() work
-            // see http://forge.typo3.org/issues/42122
-            $pageRecord = BackendUtility::getRecord('pages', $pageId);
-            $groupListBackup = $GLOBALS['TSFE']->gr_list;
-            $GLOBALS['TSFE']->gr_list = $pageRecord['fe_group'];
-
-            $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
-            $GLOBALS['TSFE']->getPageAndRootlineWithDomain($pageId);
-
-
-            // restore gr_list
-            $GLOBALS['TSFE']->gr_list = $groupListBackup;
-
-            $GLOBALS['TSFE']->forceTemplateParsing = true;
-            $GLOBALS['TSFE']->initFEuser();
-            $GLOBALS['TSFE']->initUserGroups();
-
-            $GLOBALS['TSFE']->no_cache = true;
-            $GLOBALS['TSFE']->initTemplate();
-            $GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
-            $GLOBALS['TSFE']->no_cache = false;
-            $GLOBALS['TSFE']->getConfigArray();
-
-            $GLOBALS['TSFE']->settingLanguage();
-            $GLOBALS['TSFE']->newCObj();
-            $GLOBALS['TSFE']->absRefPrefix = ($GLOBALS['TSFE']->config['config']['absRefPrefix'] ? trim($GLOBALS['TSFE']->config['config']['absRefPrefix']) : '');
-
-            if ($useCache) {
-                $tsfeCache[$cacheId] = $GLOBALS['TSFE'];
-            }
-        }
-
-        if ($useCache) {
-            $GLOBALS['TSFE'] = $tsfeCache[$cacheId];
-        }
-    }
-
-    /**
-     * Get the charset of a page
+     * This method used to initialize the TSFE object to get the charset on a per page basis. Now it just evaluates the
+     * configured charset of the instance
      *
      * @throws ImmediateResponseException
      * @throws ServiceUnavailableException
      */
-    public static function getCharacterSetOfPage(int $pageId): string
+    public static function getCharacterSet(): string
     {
-        // init a fake TSFE object
-        self::initializeTsfe($pageId);
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        /** @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager $configurationManager */
+        $configurationManager = $objectManager->get(ConfigurationManager::class);
+
+        $settings = $configurationManager->getConfiguration(
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+        );
 
         $characterSet = 'utf-8';
 
-        if ($GLOBALS['TSFE']->tmpl->setup['config.']['metaCharset']) {
-            $characterSet = $GLOBALS['TSFE']->tmpl->setup['config.']['metaCharset'];
+        if ($settings['config.']['metaCharset']) {
+            $characterSet = $settings['config.']['metaCharset'];
         } elseif ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) {
             $characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
         }
-
-        // destroy it :)
-        unset($GLOBALS['TSFE']);
 
         return mb_strtolower($characterSet);
     }
@@ -1730,5 +1683,20 @@ class DirectMailUtility
             );
         }
         return $messageSubstituted;
+    }
+
+    /**
+     * Fetches the attachment files referenced in the sys_dmail record.
+     *
+     * @param int $dmailUid The uid of the sys_dmail record to fetch the records for
+     * @return array An array of FileReferences
+     */
+    public static function getAttachments($dmailUid)
+    {
+        /** @var FileRepository $fileRepository */
+        $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
+        $fileObjects = $fileRepository->findByRelation('sys_dmail', 'attachment', $dmailUid);
+
+        return $fileObjects;
     }
 }
