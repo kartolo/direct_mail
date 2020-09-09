@@ -405,10 +405,18 @@ class Statistics extends BaseScriptClass
             }
             $categories = rtrim($categories, ',');
 
-            $editParameters = '&edit[' . $table . '][' . $row['uid'] . ']=edit';
+            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+                'edit' => [
+                    $table => [
+                        $row['uid'] => 'edit',
+                    ],
+                ],
+                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+            ]);
+
             $out = '';
             $out .= $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name'] . ' <' . $row['email'] . '>');
-            $out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParameters, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+            $out .= '&nbsp;&nbsp;<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                 $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                 $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
             $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' . $out;

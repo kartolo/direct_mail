@@ -1314,6 +1314,7 @@ class Dmail extends BaseScriptClass
         $out = '';
         if (is_array($listArr)) {
             $count = count($listArr);
+            /** @var UriBuilder $uriBuilder */
             $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
             foreach ($listArr as $row) {
                 $tableIcon = '';
@@ -1324,14 +1325,24 @@ class Dmail extends BaseScriptClass
                     $tableIcon = '<td>' . $this->iconFactory->getIconForRecord($table, $row, Icon::SIZE_SMALL) . '</td>';
                     if ($editLinkFlag) {
                         $requestUri = GeneralUtility::getIndpEnv('REQUEST_URI') . '&CMD=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid;
-                        $editLink = '<td><a href="#" onClick="' . BackendUtility::editOnClick('&edit[tt_address][' . $row['uid'] . ']=edit', $GLOBALS['BACK_PATH'], $requestUri) . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+
+                        $params = [
+                            'edit' => [
+                                'tt_address' => [
+                                    $row['uid'] => 'edit',
+                                ]
+                            ],
+                            'returnUrl' => $requestUri
+                        ];
+
+                        $editOnClick = DirectMailUtility::getEditOnClickLink($params);
+
+                        $editLink = '<td><a href="#" onClick="' . $editOnClick . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                             $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                             '</a></td>';
                     }
 
                     if ($testMailLink) {
-                        /** @var UriBuilder $uriBuilder */
-                        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
                         $moduleUrl = $uriBuilder->buildUriFromRoute(
                             $this->moduleName,
                             [
@@ -2025,10 +2036,20 @@ class Dmail extends BaseScriptClass
                         $previewLink = $previewHTMLLink . '&nbsp;&nbsp;' . $previewTextLink;
                 }
 
+                $params = [
+                    'edit' => [
+                        'pages' => [
+                            $row['uid'] => 'edit',
+                        ]
+                    ],
+                    'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+                ];
+                $editOnClickLink = DirectMailUtility::getEditOnClickLink($params);
+
                 $outLines[] = [
                     '<a href="' . $createDmailLink . '">' . $pageIcon . '</a>',
                     $createLink,
-                    '<a onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[pages][' . $row['uid'] . ']=edit', $this->doc->backPath)) . '" href="#" title="' . $GLOBALS['LANG']->getLL('nl_editPage') . '">' . $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
+                    '<a onclick="' . $editOnClickLink . '" href="#" title="' . $GLOBALS['LANG']->getLL('nl_editPage') . '">' . $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
                     $previewLink
                 ];
             }
@@ -2138,7 +2159,14 @@ class Dmail extends BaseScriptClass
                     ]
                 );
 
-                $editParams = BackendUtility::editOnClick('&edit[sys_dmail][' . $row['uid'] . ']=edit', $GLOBALS['BACK_PATH'], $requestUri);
+                $editParams = DirectMailUtility::getEditOnClickLink([
+                    'edit' => [
+                        'sys_dmail' => [
+                            $row['uid'] => 'edit',
+                        ],
+                    ],
+                    'returnUrl' => $requestUri->__toString(),
+                ]);
 
                 $content = '<a href="#" onClick="' . $editParams . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                     $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .

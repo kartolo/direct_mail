@@ -1699,4 +1699,19 @@ class DirectMailUtility
 
         return $fileObjects;
     }
+
+    /**
+     * generate edit link for records
+     *
+     * @param $params
+     * @return string
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
+     */
+    public static function getEditOnClickLink($params)
+    {
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+
+        return 'window.location.href=' . GeneralUtility::quoteJSvalue((string) $uriBuilder->buildUriFromRoute('record_edit', $params)) . '; return false;';
+    }
 }

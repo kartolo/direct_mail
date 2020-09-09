@@ -353,8 +353,17 @@ class RecipientList extends BaseScriptClass
         $theOutput = '<h3>' . $this->getLanguageService()->getLL('recip_select_mailgroup') . '</h3>' .
             $out;
 
+        $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+            'edit' => [
+                'sys_dmail_group' => [
+                    $this->id => 'new'
+                ]
+            ],
+            'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+        ]);
+
         // New:
-        $out = '<a href="#" class="t3-link" onClick="' . BackendUtility::editOnClick('&edit[sys_dmail_group][' . $this->id . ']=new', $GLOBALS['BACK_PATH'], '') . '">' .
+        $out = '<a href="#" class="t3-link" onClick="' . $editOnClickLink . '">' .
             $this->iconFactory->getIconForRecord('sys_dmail_group', array(), Icon::SIZE_SMALL) .
             $this->getLanguageService()->getLL('recip_create_mailgroup_msg') . '</a>';
         $theOutput .= '<div style="padding-top: 20px;"></div>';
@@ -392,8 +401,15 @@ class RecipientList extends BaseScriptClass
 
         // check if the user has the right to modify the table
         if ($GLOBALS['BE_USER']->check('tables_modify', $table)) {
-            $params = '&edit[' . $table . '][' . $uid . ']=edit';
-            $str = '<a href="#" onClick="' . BackendUtility::editOnClick($params, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+                'edit' => [
+                    $table => [
+                        $uid => 'edit',
+                    ],
+                ],
+                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+            ]);
+            $str = '<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                 $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                 '</a>';
         }
@@ -940,11 +956,18 @@ class RecipientList extends BaseScriptClass
 
                 $categories = implode($categoriesArray, ',');
 
-                $editParams = '&edit[' . $table . '][' . $row['uid'] . ']=edit';
+                $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+                    'edit' => [
+                        $table => [
+                            $row['uid'] => 'edit'
+                        ]
+                    ],
+                    'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+                ]);
 
                 $out = '';
                 $out .= $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name']) . htmlspecialchars(' <' . $row['email'] . '>');
-                $out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParams, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+                $out .= '&nbsp;&nbsp;<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                     $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                     '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
                 $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' .
