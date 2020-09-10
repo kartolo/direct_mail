@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
@@ -143,7 +144,7 @@ class Configuration extends BaseScriptClass
         if (($this->id && $access) || ($GLOBALS['BE_USER']->user['admin'] && !$this->id)) {
 
             // Draw the header.
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
             $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
             $this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
@@ -281,7 +282,7 @@ class Configuration extends BaseScriptClass
         } else {
             // If no access or if ID == zero
 
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));

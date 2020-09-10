@@ -18,6 +18,7 @@ use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
@@ -781,7 +782,7 @@ class Importer
 
         // start importing
         /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-        $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+        $tce = GeneralUtility::makeInstance(DataHandler::class);
         $tce->stripslashes_values = 0;
         $tce->enableLogging = 0;
         $tce->start($data, array());

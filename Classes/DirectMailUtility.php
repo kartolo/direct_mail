@@ -17,6 +17,7 @@ namespace DirectMailTeam\DirectMail;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Crypto\Random;
@@ -1120,7 +1121,7 @@ class DirectMailUtility
             );
 
             /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+            $tce = GeneralUtility::makeInstance(DataHandler::class);
             $tce->stripslashes_values = 0;
             $tce->start($tcemainData, array());
             $tce->process_datamap();
@@ -1223,7 +1224,7 @@ class DirectMailUtility
             );
 
             /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+            $tce = GeneralUtility::makeInstance(DataHandler::class);
             $tce->stripslashes_values = 0;
             $tce->start($tcemainData, array());
             $tce->process_datamap();
@@ -1265,7 +1266,7 @@ class DirectMailUtility
 
         // Compile the mail
         /* @var $htmlmail Dmailer */
-        $htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
+        $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         if ($params['enable_jump_url']) {
             $htmlmail->jumperURL_prefix = $urlBase . $glue .
                 'mid=###SYS_MAIL_ID###' .
@@ -1433,7 +1434,7 @@ class DirectMailUtility
     public static function validateAndRemoveAccessToken($accessToken)
     {
         /* @var \TYPO3\CMS\Core\Registry $registry */
-        $registry = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Registry');
+        $registry = GeneralUtility::makeInstance(Registry::class);
         $registeredAccessToken = $registry->get('tx_directmail', 'accessToken');
         if (!empty($registeredAccessToken) && $registeredAccessToken === $accessToken) {
             $registry->remove('tx_directmail', 'accessToken');

@@ -16,6 +16,8 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\DocumentTemplate;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -147,7 +149,7 @@ class Statistics extends BaseScriptClass
         if (($this->id && $access) || ($GLOBALS['BE_USER']->user['admin'] && !$this->id)) {
 
             // Draw the header.
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
             $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
             $this->doc->form='<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
@@ -241,7 +243,7 @@ class Statistics extends BaseScriptClass
         } else {
             // If no access or if ID == zero
 
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
@@ -344,7 +346,7 @@ class Statistics extends BaseScriptClass
                     $data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
 
                     /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-                    $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+                    $tce = GeneralUtility::makeInstance(DataHandler::class);
                     $tce->stripslashes_values=0;
                     $tce->start($data, array());
                     $tce->process_datamap();

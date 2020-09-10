@@ -15,13 +15,16 @@ namespace DirectMailTeam\DirectMail\Module;
  */
 
 use DirectMailTeam\DirectMail\Dmailer;
+use DirectMailTeam\DirectMail\MailSelect;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Resource\FileReference;
@@ -159,7 +162,7 @@ class Dmail extends BaseScriptClass
         if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id)) {
 
             // Draw the header.
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
             $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/ModuleDirectMail.html');
             $this->doc->form = '<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
@@ -305,7 +308,7 @@ class Dmail extends BaseScriptClass
         } else {
             // If no access or if ID == zero
 
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
@@ -363,7 +366,7 @@ class Dmail extends BaseScriptClass
 
         if ($dmail['sys_dmail']['NEW']['pid'] && $dmail['sys_dmail']['NEW']['sendOptions']) {
             /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+            $tce = GeneralUtility::makeInstance(DataHandler::class);
             $tce->stripslashes_values = 0;
             $tce->start($dmail, array());
             $tce->process_datamap();
@@ -410,7 +413,7 @@ class Dmail extends BaseScriptClass
 
         // Compile the mail
         /* @var $htmlmail Dmailer */
-        $htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
+        $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         $htmlmail->nonCron = 1;
         $htmlmail->start();
         $htmlmail->charset = $row['charset'];
@@ -940,7 +943,7 @@ class Dmail extends BaseScriptClass
     {
         // Preparing mailer
         /* @var $htmlmail Dmailer */
-        $htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
+        $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         $htmlmail->nonCron = 1;
         $htmlmail->start();
         $htmlmail->dmailer_prepare($row);
@@ -1554,7 +1557,7 @@ class Dmail extends BaseScriptClass
                         }
                         if ($table) {
                             // initialize the query generator
-                            $queryGenerator = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\MailSelect');
+                            $queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
                             $idLists[$table] = DirectMailUtility::getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
                         }
                         break;
@@ -1660,7 +1663,7 @@ class Dmail extends BaseScriptClass
             }
 
             /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+            $tce = GeneralUtility::makeInstance(DataHandler::class);
             $tce->stripslashes_values = 0;
             $tce->start($data, array());
             $tce->process_datamap();

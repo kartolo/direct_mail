@@ -14,8 +14,10 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Dmailer;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -128,7 +130,7 @@ class MailerEngine extends BaseScriptClass
 
         if (($this->id && $access) || ($GLOBALS['BE_USER']->user['admin'] && !$this->id)) {
             // Draw the header.
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
             $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
             $this->doc->form='<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
@@ -213,7 +215,7 @@ class MailerEngine extends BaseScriptClass
         } else {
             // If no access or if ID == zero
 
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
@@ -505,7 +507,7 @@ class MailerEngine extends BaseScriptClass
     {
         // TODO: remove htmlmail
         /* @var $htmlmail \DirectMailTeam\DirectMail\Dmailer */
-        $htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
+        $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         $htmlmail->nonCron = 1;
         $htmlmail->start();
         $htmlmail->runcron();

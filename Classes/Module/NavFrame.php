@@ -18,6 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
@@ -87,7 +88,7 @@ class NavFrame
      */
     public function init()
     {
-        $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+        $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
         $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/NavFrame.html');
         $this->doc->showFlashMessages = false;
 
