@@ -23,6 +23,7 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -262,7 +263,7 @@ class NavFrame
     /**
      * Returns LanguageService
      *
-     * @return \TYPO3\CMS\Lang\LanguageService
+     * @return LanguageService
      */
     protected function getLanguageService()
     {

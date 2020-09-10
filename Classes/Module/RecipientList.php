@@ -1004,14 +1004,4 @@ class RecipientList extends BaseScriptClass
         }
         return $theOutput;
     }
-
-    /**
-     * Returns LanguageService
-     *
-     * @return \TYPO3\CMS\Lang\LanguageService
-     */
-    protected function getLanguageService()
-    {
-        return $GLOBALS['LANG'];
-    }
 }

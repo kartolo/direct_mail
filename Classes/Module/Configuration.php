@@ -471,14 +471,4 @@ class Configuration extends BaseScriptClass
             }
         }
     }
-
-    /**
-     * Returns LanguageService
-     *
-     * @return \TYPO3\CMS\Lang\LanguageService
-     */
-    protected function getLanguageService()
-    {
-        return $GLOBALS['LANG'];
-    }
 }

@@ -1992,16 +1992,6 @@ class Statistics extends BaseScriptClass
         return $out;
     }
 
-    /**
-     * Returns LanguageService
-     *
-     * @return \TYPO3\CMS\Lang\LanguageService
-     */
-    protected function getLanguageService()
-    {
-        return $GLOBALS['LANG'];
-    }
-
 
 	/**
 	 * Switch the key of an array

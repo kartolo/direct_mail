@@ -510,14 +510,4 @@ class MailerEngine extends BaseScriptClass
         $htmlmail->start();
         $htmlmail->runcron();
     }
-
-    /**
-     * Returns LanguageService
-     *
-     * @return \TYPO3\CMS\Lang\LanguageService
-     */
-    protected function getLanguageService()
-    {
-        return $GLOBALS['LANG'];
-    }
 }

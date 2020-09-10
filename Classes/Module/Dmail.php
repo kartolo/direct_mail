@@ -2291,14 +2291,4 @@ class Dmail extends BaseScriptClass
         // closes
         return $this->iconFactory->getIcon('apps-pagetree-collapse', Icon::SIZE_SMALL);
     }
-
-    /**
-     * Returns LanguageService
-     *
-     * @return \TYPO3\CMS\Lang\LanguageService
-     */
-    protected function getLanguageService()
-    {
-        return $GLOBALS['LANG'];
-    }
 }

@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -790,8 +791,7 @@ class Dmailer implements LoggerAwareInterface
         $this->notificationJob = (bool)($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['notificationJob']);
 
         if (!is_object($this->getLanguageService())) {
-            /* @var $this->getLanguageService() \TYPO3\CMS\Lang\LanguageService */
-            $GLOBALS['LANG'] = GeneralUtility::makeInstance('TYPO3\\CMS\\Lang\\LanguageService');
+            $GLOBALS['LANG'] = GeneralUtility::makeInstance(LanguageService::class);
             $language = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] ? $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] : $this->user_dmailerLang;
             $this->getLanguageService()->init(trim($language));
         }
@@ -1556,7 +1556,7 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Returns LanguageService
      *
-     * @return \TYPO3\CMS\Lang\LanguageService
+     * @return LanguageService
      */
     protected function getLanguageService()
     {
