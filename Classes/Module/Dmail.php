@@ -23,6 +23,7 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -31,7 +32,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use DirectMailTeam\DirectMail\DirectMailUtility;
-use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Core\Imaging\Icon;
 
 /**
@@ -276,24 +276,28 @@ class Dmail extends BaseScriptClass
                 if (($this->pageinfo['doktype'] == 254) && ($this->pageinfo['module'] == 'dmail')) {
                     $markers = $this->moduleContent();
                 } elseif ($this->id != 0) {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        $this->getLanguageService()->getLL('dmail_noRegular'),
-                        $this->getLanguageService()->getLL('dmail_newsletters'),
-                        FlashMessage::WARNING
-                    );
-                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                $this->getLanguageService()->getLL('dmail_noRegular'),
+                                $this->getLanguageService()->getLL('dmail_newsletters'),
+                                FlashMessage::WARNING
+                            )
+                        ]);
                 }
             } else {
-                /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $this->getLanguageService()->getLL('select_folder'),
-                    $this->getLanguageService()->getLL('header_directmail'),
-                    FlashMessage::WARNING
-                );
-                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                    ->resolve()
+                    ->render([
+                        GeneralUtility::makeInstance(
+                            FlashMessage::class,
+                            $this->getLanguageService()->getLL('select_folder'),
+                            $this->getLanguageService()->getLL('header_directmail'),
+                            FlashMessage::WARNING
+                        )
+                    ]);
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('title'));
@@ -648,14 +652,16 @@ class Dmail extends BaseScriptClass
                 if ($fetchMessage) {
                     $markers['FLASHMESSAGES'] = $fetchMessage;
                 } elseif (!$fetchError && $shouldFetchData) {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        '',
-                        $this->getLanguageService()->getLL('dmail_wiz2_fetch_success'),
-                        FlashMessage::OK
-                    );
-                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                '',
+                                $this->getLanguageService()->getLL('dmail_wiz2_fetch_success'),
+                                FlashMessage::OK
+                            )
+                        ]);
                 }
 
                 if (is_array($row)) {
@@ -868,14 +874,16 @@ class Dmail extends BaseScriptClass
 
         // added disabled. see hook
         if (count($opt) === 0) {
-            /* @var $flashMessage FlashMessage */
-            $flashMessage = GeneralUtility::makeInstance(
-                'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                $this->getLanguageService()->getLL('error.no_recipient_groups_found'),
-                '',
-                FlashMessage::ERROR //severity
-            );
-            $groupInput = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+            $groupInput = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                ->resolve()
+                ->render([
+                    GeneralUtility::makeInstance(
+                        FlashMessage::class,
+                        $this->getLanguageService()->getLL('error.no_recipient_groups_found'),
+                        '',
+                        FlashMessage::ERROR //severity
+                    )
+                ]);
         } elseif (count($opt) === 1) {
             $groupInput = '';
             if (!$hookSelectDisabled) {
@@ -969,7 +977,7 @@ class Dmail extends BaseScriptClass
 
                 /* @var $flashMessage FlashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                    FlashMessage::class,
                     $this->getLanguageService()->getLL('send_was_sent') . ' ' .
                     $this->getLanguageService()->getLL('send_recipients') . ' ' . htmlspecialchars($addressList),
                     $this->getLanguageService()->getLL('send_sending'),
@@ -1005,7 +1013,7 @@ class Dmail extends BaseScriptClass
 
                         /* @var $flashMessage FlashMessage */
                         $flashMessage = GeneralUtility::makeInstance(
-                            'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                            FlashMessage::class,
                         sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), $recipRow['name'] . ' <' . $recipRow['email'] . '>'),
                             $this->getLanguageService()->getLL('send_sending'),
                             FlashMessage::OK
@@ -1014,7 +1022,7 @@ class Dmail extends BaseScriptClass
                 } else {
                     /* @var $flashMessage FlashMessage */
                     $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                        FlashMessage::class,
                         'Error: No valid recipient found to send test mail to. #1579209279',
                         $this->getLanguageService()->getLL('send_sending'),
                         FlashMessage::ERROR
@@ -1034,7 +1042,7 @@ class Dmail extends BaseScriptClass
 
                 /* @var $flashMessage FlashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                    FlashMessage::class,
                     sprintf($this->getLanguageService()->getLL('send_was_sent_to_number'), $sendFlag),
                     $this->getLanguageService()->getLL('send_sending'),
                     FlashMessage::OK
@@ -1093,7 +1101,7 @@ class Dmail extends BaseScriptClass
 
                 /* @var $flashMessage FlashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                    FlashMessage::class,
                     $sectionTitle . ' ' . $content,
                     $this->getLanguageService()->getLL('dmail_wiz5_sendmass'),
                     FlashMessage::OK
@@ -1115,7 +1123,9 @@ class Dmail extends BaseScriptClass
 
         }
 
-        return GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+        return GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+            ->resolve()
+            ->render([$flashMessage]);
     }
 
     /**

@@ -14,10 +14,10 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
-use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Crypto\Random;
 use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
@@ -1345,26 +1345,30 @@ class DirectMailUtility
 
             if (count($warningMsg)) {
                 foreach ($warningMsg as $warning) {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        $warning,
-                        $GLOBALS['LANG']->getLL('dmail_warning'),
-                        FlashMessage::WARNING
-                    );
-                    $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $theOutput .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                $warning,
+                                $GLOBALS['LANG']->getLL('dmail_warning'),
+                                FlashMessage::WARNING
+                            )
+                        ]);
                 }
             }
         } else {
             foreach ($errorMsg as $error) {
-                /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $error,
-                    $GLOBALS['LANG']->getLL('dmail_error'),
-                    FlashMessage::ERROR
-                );
-                $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                $theOutput .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                    ->resolve()
+                    ->render([
+                        GeneralUtility::makeInstance(
+                            FlashMessage::class,
+                            $error,
+                            $GLOBALS['LANG']->getLL('dmail_error'),
+                            FlashMessage::ERROR
+                        )
+                    ]);
             }
         }
         if ($returnArray) {

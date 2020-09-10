@@ -20,9 +20,9 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -184,24 +184,28 @@ class MailerEngine extends BaseScriptClass
                     $markers['CONTENT'] = '<h1>' . $this->getLanguageService()->getLL('header_mailer') . '</h1>' .
                     $this->cmd_cronMonitor() . $this->cmd_mailerengine();
                 } elseif ($this->id != 0) {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        $this->getLanguageService()->getLL('dmail_noRegular'),
-                        $this->getLanguageService()->getLL('dmail_newsletters'),
-                        FlashMessage::WARNING
-                    );
-                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                $this->getLanguageService()->getLL('dmail_noRegular'),
+                                $this->getLanguageService()->getLL('dmail_newsletters'),
+                                FlashMessage::WARNING
+                            )
+                        ]);
                 }
             } else {
-                /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $this->getLanguageService()->getLL('select_folder'),
-                    $this->getLanguageService()->getLL('header_mailer'),
-                    FlashMessage::WARNING
-                );
-                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                    ->resolve()
+                    ->render([
+                        GeneralUtility::makeInstance(
+                            FlashMessage::class,
+                            $this->getLanguageService()->getLL('select_folder'),
+                            $this->getLanguageService()->getLL('header_mailer'),
+                            FlashMessage::WARNING
+                        )
+                    ]);
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('title'));
@@ -320,7 +324,7 @@ class MailerEngine extends BaseScriptClass
         switch ($mailerStatus) {
             case -1:
                 $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                    FlashMessage::class,
                     $this->getLanguageService()->getLL('dmail_mailerengine_cron_warning') . ': ' . ($error ? $error : $this->getLanguageService()->getLL('dmail_mailerengine_cron_warning_msg')) . $lastRun,
                     $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
                     FlashMessage::ERROR
@@ -328,7 +332,7 @@ class MailerEngine extends BaseScriptClass
                 break;
             case 0:
                 $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                    FlashMessage::class,
                     $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution_msg') . $lastRun,
                     $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
                     FlashMessage::WARNING
@@ -336,7 +340,7 @@ class MailerEngine extends BaseScriptClass
                 break;
             case 1:
                 $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
+                    FlashMessage::class,
                     $this->getLanguageService()->getLL('dmail_mailerengine_cron_ok') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_ok_msg') . $lastRun,
                     $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
                     FlashMessage::OK
@@ -344,7 +348,9 @@ class MailerEngine extends BaseScriptClass
                 break;
             default:
         }
-        return GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+        return GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+            ->resolve()
+            ->render([$flashMessage]);
     }
 
     /**
@@ -362,14 +368,16 @@ class MailerEngine extends BaseScriptClass
         $enableTrigger = ! (isset($this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']) && $this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']);
         if ($enableTrigger && GeneralUtility::_GP('invokeMailerEngine')) {
             $this->invokeMEngine();
-            /* @var $flashMessage FlashMessage */
-            $flashMessage = GeneralUtility::makeInstance(
-                'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                '',
-                $this->getLanguageService()->getLL('dmail_mailerengine_invoked'),
-                FlashMessage::INFO
-            );
-            $invokeMessage = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+            $invokeMessage = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                ->resolve()
+                ->render([
+                    GeneralUtility::makeInstance(
+                        FlashMessage::class,
+                        '',
+                        $this->getLanguageService()->getLL('dmail_mailerengine_invoked'),
+                        FlashMessage::INFO
+                    )
+                ]);
         }
 
         // Invoke engine

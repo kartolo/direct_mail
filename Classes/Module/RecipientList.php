@@ -22,10 +22,10 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use DirectMailTeam\DirectMail\DirectMailUtility;
-use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\CsvUtility;
@@ -214,24 +214,28 @@ class RecipientList extends BaseScriptClass
                     $markers['CONTENT'] = '<h1>' . $this->getLanguageService()->getLL('mailgroup_header') . '</h1>' .
                         $this->moduleContent();
                 } elseif ($this->id != 0) {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        $this->getLanguageService()->getLL('dmail_noRegular'),
-                        $this->getLanguageService()->getLL('dmail_newsletters'),
-                        FlashMessage::WARNING
-                    );
-                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                $this->getLanguageService()->getLL('dmail_noRegular'),
+                                $this->getLanguageService()->getLL('dmail_newsletters'),
+                                FlashMessage::WARNING
+                            )
+                        ]);
                 }
             } else {
-                /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $this->getLanguageService()->getLL('select_folder'),
-                    $this->getLanguageService()->getLL('header_recip'),
-                    FlashMessage::WARNING
-                );
-                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                    ->resolve()
+                    ->render([
+                        GeneralUtility::makeInstance(
+                            FlashMessage::class,
+                            $this->getLanguageService()->getLL('select_folder'),
+                            $this->getLanguageService()->getLL('header_recip'),
+                            FlashMessage::WARNING
+                        )
+                    ]);
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('mailgroup_header'));
@@ -639,14 +643,16 @@ class RecipientList extends BaseScriptClass
                 if($GLOBALS['BE_USER']->check('tables_select', $csvValue)) {
                     $this->downloadCSV(DirectMailUtility::fetchRecordsListValues($idLists[$csvValue], $csvValue, (($csvValue == 'fe_users') ? str_replace('phone', 'telephone', $this->fieldList) : $this->fieldList) . ',tstamp'));
                 } else {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        '',
-                        $this->getLanguageService()->getLL('mailgroup_table_disallowed_csv'),
-                        FlashMessage::ERROR
-                    );
-                    $csvError = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $csvError = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                '',
+                                $this->getLanguageService()->getLL('mailgroup_table_disallowed_csv'),
+                                FlashMessage::ERROR
+                            )
+                        ]);
                 }
 
             }

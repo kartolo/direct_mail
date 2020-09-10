@@ -16,12 +16,12 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use DirectMailTeam\DirectMail\DirectMailUtility;
-use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -251,23 +251,28 @@ class Configuration extends BaseScriptClass
                     $markers['CONTENT'] = '<h1>' . $this->getLanguageService()->getLL('header_conf') . '</h1>' .
                         $this->moduleContent();
                 } elseif ($this->id != 0) {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        $this->getLanguageService()->getLL('dmail_noRegular'),
-                        $this->getLanguageService()->getLL('dmail_newsletters'),
-                        FlashMessage::WARNING
-                    );
-                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                $this->getLanguageService()->getLL('dmail_noRegular'),
+                                $this->getLanguageService()->getLL('dmail_newsletters'),
+                                FlashMessage::WARNING
+                            )
+                        ]);
                 }
             } else {
-                $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $this->getLanguageService()->getLL('select_folder'),
-                    $this->getLanguageService()->getLL('header_conf'),
-                    FlashMessage::WARNING
-                );
-                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                    ->resolve()
+                    ->render([
+                        GeneralUtility::makeInstance(
+                            FlashMessage::class,
+                            $this->getLanguageService()->getLL('select_folder'),
+                            $this->getLanguageService()->getLL('header_conf'),
+                            FlashMessage::WARNING
+                        )
+                    ]);
             }
 
 
