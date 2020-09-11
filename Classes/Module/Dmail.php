@@ -341,7 +341,7 @@ class Dmail extends BaseScriptClass
 
         // always plaintext
         $dmail['sys_dmail']['NEW']['sendOptions'] = 1;
-        $dmail['sys_dmail']['NEW']['long_link_rdct_url'] = DirectMailUtility::getUrlBase((int)$this->params['page']);
+        $dmail['sys_dmail']['NEW']['long_link_rdct_url'] = DirectMailUtility::getUrlBase((int)$this->params['pid']);
         $dmail['sys_dmail']['NEW']['subject'] = $indata['subject'];
         $dmail['sys_dmail']['NEW']['type'] = 1;
         $dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
@@ -374,7 +374,7 @@ class Dmail extends BaseScriptClass
                 $message = DirectMailUtility::substUrlsInPlainText(
                     $message,
                     $this->params['long_link_mode']?'all':'76',
-                    DirectMailUtility::getUrlBase((int)$this->params['page'])
+                    DirectMailUtility::getUrlBase((int)$this->params['pid'])
                 );
             }
             if ($indata['breakLines']) {
@@ -440,7 +440,6 @@ class Dmail extends BaseScriptClass
                 ->set('charset', $htmlmail->charset)
                 ->set('mailContent', $mailContent)
                 ->set('renderedSize', strlen($mailContent))
-                ->set('long_link_rdct_url', $this->urlbase)
                 ->execute();
 
             if ($warningMsg) {
