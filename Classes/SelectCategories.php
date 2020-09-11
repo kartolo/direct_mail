@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -56,7 +57,7 @@ class SelectCategories
 
         // initialize backend user language
         if ($LANG->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-            $sysPage = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Page\PageRepository');
+            $sysPage = GeneralUtility::makeInstance(PageRepository::class);
 
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
                 ->getQueryBuilderForTable('sys_language');

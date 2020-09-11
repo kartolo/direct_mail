@@ -104,7 +104,7 @@ class DirectMail extends AbstractPlugin
                 // same as textpic
             case 'textpic':
             case 'textmedia':
-                if ($cType == 'textmedia') {
+                if ($cType === 'textmedia') {
                     $field = 'assets';
                 } else {
                     $field = 'image';
@@ -188,10 +188,10 @@ class DirectMail extends AbstractPlugin
      */
     public function init(array $conf)
     {
-        AbstractPlugin::__construct();
+        $this->__construct();
 
         $this->conf = $conf;
-        $this->pi_loadLL();
+        $this->pi_loadLL('EXT:direct_mail/Resources/Private/Language/Plaintext/locallang.xlf');
         $this->siteUrl = $this->conf['siteUrl'];
 
         // Default linebreak;
@@ -405,10 +405,10 @@ class DirectMail extends AbstractPlugin
                 if ($tConf['autonumber']) {
                     $str = $this->cObj->parentRecordNumber . $str;
                 }
-                if ($this->cObj->data['header_position'] == 'right') {
+                if ($this->cObj->data['header_position'] === 'right') {
                     $prefix = str_pad(' ', ($this->charWidth - strlen($str)));
                 }
-                if ($this->cObj->data['header_position'] == 'center') {
+                if ($this->cObj->data['header_position'] === 'center') {
                     $prefix = str_pad(' ', floor(($this->charWidth-strlen($str))/2));
                 }
                 $lines[] = $this->cObj->stdWrap($prefix . $str, $tConf['stdWrap.']);
@@ -448,7 +448,7 @@ class DirectMail extends AbstractPlugin
     public function pad(array $lines, $preLineChar, $len)
     {
         $strPad = DirectMailUtility::intInRangeWrapper((int)$len, 0, 1000);
-        $strPadChar = $preLineChar?$preLineChar:'-';
+        $strPadChar = $preLineChar ?: '-';
         if ($strPad) {
             $lines[] = str_pad('', $strPad, $strPadChar);
         }
@@ -492,7 +492,7 @@ class DirectMail extends AbstractPlugin
         $c = 0;
 
         foreach ($cParts as $substrs) {
-            if (!strlen($substrs)) {
+            if ($substrs === '') {
                 continue;
             }
             $c++;
@@ -523,7 +523,7 @@ class DirectMail extends AbstractPlugin
         $cParts = explode(LF, $str);
 
         $lines = array();
-        $cols = intval($this->conf['cols']) ? intval($this->conf['cols']) : 0 ;
+        $cols = (int)$this->conf['cols'] ?: 0;
         $c = 0;
         foreach ($cParts as $substrs) {
             $c++;
@@ -550,7 +550,7 @@ class DirectMail extends AbstractPlugin
         $outLines[] = $this->addDiv($messure, '', $divChar, $joinChar, $cols);
 
         foreach ($lines as $k => $v) {
-            $top = intval($messure[1][$k]);
+            $top = (int)$messure[1][$k];
             for ($aa = 0; $aa < $top; $aa++) {
                 $tempArr = array();
                 for ($bb = 0; $bb < $cols; $bb++) {
@@ -602,11 +602,11 @@ class DirectMail extends AbstractPlugin
         foreach ($tableLines as $k => $v) {
             foreach ($v as $kk => $vv) {
                 foreach ($vv as $lv) {
-                    if (strlen($lv) > intval($maxLen[$kk])) {
+                    if (strlen($lv) > (int)$maxLen[$kk]) {
                         $maxLen[$kk] = strlen($lv);
                     }
                 }
-                if (count($vv) > intval($maxLines[$k])) {
+                if (count($vv) > (int)$maxLines[$k]) {
                     $maxLines[$k] = count($vv);
                 }
             }
@@ -624,7 +624,7 @@ class DirectMail extends AbstractPlugin
      */
     public function renderImages(array $imagesArray, $fieldname)
     {
-        if ($fieldname == 'assets') {
+        if ($fieldname === 'assets') {
             $fieldname = 'textmedia';
         }
         $lines = array();
@@ -686,9 +686,9 @@ class DirectMail extends AbstractPlugin
      */
     public function breakLines($str, $implChar, $charWidth=0)
     {
-        $cW = $charWidth ? $charWidth : $this->charWidth;
+        $cW = $charWidth ?: $this->charWidth;
 
-        $linebreak = $implChar ? $implChar : $this->linebreak;
+        $linebreak = $implChar ?: $this->linebreak;
 
         return MailUtility::breakLinesForEmail($str, $linebreak, $cW);
     }
@@ -745,7 +745,7 @@ class DirectMail extends AbstractPlugin
         $theLink = $this->getLink($theLink);
 
         // remove mailto if it's an email link
-        if (strtolower(substr($theLink, 0, 7)) == 'mailto:') {
+        if (strtolower(substr($theLink, 0, 7)) === 'mailto:') {
             $theLink = substr($theLink, 7);
         }
 

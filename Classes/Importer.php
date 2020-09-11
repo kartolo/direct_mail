@@ -18,11 +18,11 @@ use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 
@@ -782,7 +782,7 @@ class Importer
 
         // start importing
         /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-        $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+        $tce = GeneralUtility::makeInstance(DataHandler::class);
         $tce->stripslashes_values = 0;
         $tce->enableLogging = 0;
         $tce->start($data, array());
@@ -1053,9 +1053,6 @@ class Importer
         // Initializing:
         /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
         $this->fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
-        if (version_compare(TYPO3_branch, '8.3', '<')) {
-            $this->fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-        }
         $this->fileProcessor->setActionPermissions($userPermissions);
         $this->fileProcessor->dontCheckForUnique = 1;
 
@@ -1115,19 +1112,17 @@ class Importer
         $fm = array();
 
         $tempFolder = $this->userTempFolder();
+        $array = explode('/', trim($tempFolder, '/'));
         $fm = array(
             $GLOBALS['EXEC_TIME'] => array(
                 'path' => $tempFolder,
-                'name' => array_pop(explode('/', trim($tempFolder, '/'))) .  '/',
+                'name' => array_pop($array) .  '/',
             )
         );
 
         // Initializing:
         /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
         $this->fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
-        if (version_compare(TYPO3_branch, '8.3', '<')) {
-            $this->fileProcessor->init($fm, $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-        }
         $this->fileProcessor->setActionPermissions();
         $this->fileProcessor->dontCheckForUnique = 1;
 
@@ -1148,7 +1143,7 @@ class Importer
     /**
      * Returns LanguageService
      *
-     * @return \TYPO3\CMS\Lang\LanguageService
+     * @return LanguageService
      */
     protected function getLanguageService()
     {
