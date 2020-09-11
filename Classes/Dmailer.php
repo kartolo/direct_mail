@@ -417,7 +417,7 @@ class Dmailer implements LoggerAwareInterface
         foreach ($cArray as $bKey => $cP) {
             $key = substr($cP[0], 1);
             $isSubscribed = false;
-            if (!$key || (intval($userCategories) == -1)) {
+            if (!$key || ($userCategories == '')) {
                 $returnVal .= $cP[1];
                 $this->mediaList .= $cP['mediaList'];
                 if ($cP[1]) {
