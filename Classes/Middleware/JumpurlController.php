@@ -450,7 +450,7 @@ class JumpurlController implements MiddlewareInterface
         $checkPath = Environment::getPublicPath() . '/' . ltrim($target, '/');
 
         // Now check if $checkPath is a valid path and points to a "/dmailerping.gif"
-        if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && GeneralUtility::isAllowedAbsPath($checkPath)) {
+        if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && (GeneralUtility::isAllowedAbsPath($checkPath) || GeneralUtility::isValidUrl($target))) {
             // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
             $allowed = true;
         } elseif (GeneralUtility::isValidUrl($target)) {
