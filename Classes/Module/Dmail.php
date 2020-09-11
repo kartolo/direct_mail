@@ -1341,7 +1341,7 @@ class Dmail extends BaseScriptClass
 
                         $params = [
                             'edit' => [
-                                'tt_address' => [
+                                $table => [
                                     $row['uid'] => 'edit',
                                 ]
                             ],
