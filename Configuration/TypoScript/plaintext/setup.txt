@@ -104,7 +104,7 @@ tx_directmail_pi1.10 {
     # FLUIDTEMPLATE is a workaround to avoid template migration. As FILE
     # was removed in TYPO3 10, this keeps the old templates alive for the time being
 	template = FLUIDTEMPLATE
-	template.file = EXT:direct_mail/pi1/tx_directmail_pi1_plaintext.tmpl
+	template.file = EXT:direct_mail/Resources/Private/Plaintext/tx_directmail_pi1_plaintext.tmpl
 	marks.CONTENT < styles.content.get
 	marks.CONTENT.renderObj = < plugin.tx_directmail_pi1
 	marks.DATE = TEXT
