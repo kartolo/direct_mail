@@ -139,7 +139,7 @@ Setup
    tx_directmail_pi1.10 = TEMPLATE
    tx_directmail_pi1.10 {
            template = FILE
-           template.file = EXT:direct_mail/pi1/tx_directmail_pi1_plaintext.tmpl
+           template.file = EXT:direct_mail/Resources/Private/Plaintext/tx_directmail_pi1_plaintext.tmpl
            marks.CONTENT < styles.content.get
            marks.CONTENT.renderObj = < plugin.tx_directmail_pi1
            marks.DATE = TEXT

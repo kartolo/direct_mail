@@ -22,11 +22,15 @@
     "issues": "https://forge.typo3.org/projects/extension-direct_mail"
   },
   "require": {
-    "typo3/cms-core": "^9.5",
-    "friendsoftypo3/jumpurl": "^7.8",
+    "typo3/cms-core": "^10.4",
+    "friendsoftypo3/jumpurl": "^8.0",
     "friendsoftypo3/tt-address": "^4.3 || ^5.0",
-    "friendsoftypo3/rdct": "^1.0"
+    "friendsoftypo3/rdct": "^2.0"
   },
+  "require-dev": {
+    "roave/security-advisories": "dev-master"
+  },
+  "minimum-stability": "dev",
   "autoload": {
     "psr-4": {
       "DirectMailTeam\\DirectMail\\": "Classes",

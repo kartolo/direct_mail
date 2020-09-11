@@ -14,10 +14,12 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
-use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Crypto\Random;
 use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
@@ -26,6 +28,7 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Registry;
+use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -34,8 +37,8 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
-use TYPO3\CMS\Frontend\Page\PageRepository;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Static class.
@@ -1106,7 +1109,7 @@ class DirectMailUtility
         if ($pageRecord['doktype']) {
             $newRecord['subject'] = $pageRecord['title'];
             $newRecord['page']    = $pageRecord['uid'];
-            $newRecord['charset'] = self::getCharacterSetOfPage($pageRecord['uid']);
+            $newRecord['charset'] = self::getCharacterSet();
         }
 
         // save to database
@@ -1118,7 +1121,7 @@ class DirectMailUtility
             );
 
             /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+            $tce = GeneralUtility::makeInstance(DataHandler::class);
             $tce->stripslashes_values = 0;
             $tce->start($tcemainData, array());
             $tce->process_datamap();
@@ -1221,7 +1224,7 @@ class DirectMailUtility
             );
 
             /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+            $tce = GeneralUtility::makeInstance(DataHandler::class);
             $tce->stripslashes_values = 0;
             $tce->start($tcemainData, array());
             $tce->process_datamap();
@@ -1263,7 +1266,7 @@ class DirectMailUtility
 
         // Compile the mail
         /* @var $htmlmail Dmailer */
-        $htmlmail = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
+        $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         if ($params['enable_jump_url']) {
             $htmlmail->jumperURL_prefix = $urlBase . $glue .
                 'mid=###SYS_MAIL_ID###' .
@@ -1343,26 +1346,30 @@ class DirectMailUtility
 
             if (count($warningMsg)) {
                 foreach ($warningMsg as $warning) {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        $warning,
-                        $GLOBALS['LANG']->getLL('dmail_warning'),
-                        FlashMessage::WARNING
-                    );
-                    $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $theOutput .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                $warning,
+                                $GLOBALS['LANG']->getLL('dmail_warning'),
+                                FlashMessage::WARNING
+                            )
+                        ]);
                 }
             }
         } else {
             foreach ($errorMsg as $error) {
-                /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $error,
-                    $GLOBALS['LANG']->getLL('dmail_error'),
-                    FlashMessage::ERROR
-                );
-                $theOutput .= GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                $theOutput .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                    ->resolve()
+                    ->render([
+                        GeneralUtility::makeInstance(
+                            FlashMessage::class,
+                            $error,
+                            $GLOBALS['LANG']->getLL('dmail_error'),
+                            FlashMessage::ERROR
+                        )
+                    ]);
             }
         }
         if ($returnArray) {
@@ -1427,7 +1434,7 @@ class DirectMailUtility
     public static function validateAndRemoveAccessToken($accessToken)
     {
         /* @var \TYPO3\CMS\Core\Registry $registry */
-        $registry = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Registry');
+        $registry = GeneralUtility::makeInstance(Registry::class);
         $registeredAccessToken = $registry->get('tx_directmail', 'accessToken');
         if (!empty($registeredAccessToken) && $registeredAccessToken === $accessToken) {
             $registry->remove('tx_directmail', 'accessToken');
@@ -1508,80 +1515,31 @@ class DirectMailUtility
     }
 
     /**
-     * Initializes the TSFE for a given page ID and language.
+     * Get the configured charset.
      *
-     * @throws ServiceUnavailableException
-     * @throws ImmediateResponseException
-     */
-    public static function initializeTsfe(int $pageId, int $language = 0, bool $useCache = true): void
-    {
-        // resetting, a TSFE instance with data from a different page Id could be set already
-        unset($GLOBALS['TSFE']);
-
-        $cacheId = $pageId . '|' . $language;
-
-        if (!isset($tsfeCache[$cacheId]) || !$useCache) {
-            $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class, $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
-
-            // for certain situations we need to trick TSFE into granting us
-            // access to the page in any case to make getPageAndRootline() work
-            // see http://forge.typo3.org/issues/42122
-            $pageRecord = BackendUtility::getRecord('pages', $pageId);
-            $groupListBackup = $GLOBALS['TSFE']->gr_list;
-            $GLOBALS['TSFE']->gr_list = $pageRecord['fe_group'];
-
-            $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
-            $GLOBALS['TSFE']->getPageAndRootlineWithDomain($pageId);
-
-
-            // restore gr_list
-            $GLOBALS['TSFE']->gr_list = $groupListBackup;
-
-            $GLOBALS['TSFE']->forceTemplateParsing = true;
-            $GLOBALS['TSFE']->initFEuser();
-            $GLOBALS['TSFE']->initUserGroups();
-
-            $GLOBALS['TSFE']->no_cache = true;
-            $GLOBALS['TSFE']->initTemplate();
-            $GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
-            $GLOBALS['TSFE']->no_cache = false;
-            $GLOBALS['TSFE']->getConfigArray();
-
-            $GLOBALS['TSFE']->settingLanguage();
-            $GLOBALS['TSFE']->newCObj();
-            $GLOBALS['TSFE']->absRefPrefix = ($GLOBALS['TSFE']->config['config']['absRefPrefix'] ? trim($GLOBALS['TSFE']->config['config']['absRefPrefix']) : '');
-
-            if ($useCache) {
-                $tsfeCache[$cacheId] = $GLOBALS['TSFE'];
-            }
-        }
-
-        if ($useCache) {
-            $GLOBALS['TSFE'] = $tsfeCache[$cacheId];
-        }
-    }
-
-    /**
-     * Get the charset of a page
+     * This method used to initialize the TSFE object to get the charset on a per page basis. Now it just evaluates the
+     * configured charset of the instance
      *
      * @throws ImmediateResponseException
      * @throws ServiceUnavailableException
      */
-    public static function getCharacterSetOfPage(int $pageId): string
+    public static function getCharacterSet(): string
     {
-        // init a fake TSFE object
-        self::initializeTsfe($pageId);
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        /** @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager $configurationManager */
+        $configurationManager = $objectManager->get(ConfigurationManager::class);
+
+        $settings = $configurationManager->getConfiguration(
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+        );
 
         $characterSet = 'utf-8';
 
-        if ($GLOBALS['TSFE']->tmpl->setup['config.']['metaCharset']) {
-            $characterSet = $GLOBALS['TSFE']->tmpl->setup['config.']['metaCharset'];
+        if ($settings['config.']['metaCharset']) {
+            $characterSet = $settings['config.']['metaCharset'];
         } elseif ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) {
             $characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
         }
-
-        // destroy it :)
-        unset($GLOBALS['TSFE']);
 
         return mb_strtolower($characterSet);
     }
@@ -1730,5 +1688,35 @@ class DirectMailUtility
             );
         }
         return $messageSubstituted;
+    }
+
+    /**
+     * Fetches the attachment files referenced in the sys_dmail record.
+     *
+     * @param int $dmailUid The uid of the sys_dmail record to fetch the records for
+     * @return array An array of FileReferences
+     */
+    public static function getAttachments($dmailUid)
+    {
+        /** @var FileRepository $fileRepository */
+        $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
+        $fileObjects = $fileRepository->findByRelation('sys_dmail', 'attachment', $dmailUid);
+
+        return $fileObjects;
+    }
+
+    /**
+     * generate edit link for records
+     *
+     * @param $params
+     * @return string
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
+     */
+    public static function getEditOnClickLink($params)
+    {
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+
+        return 'window.location.href=' . GeneralUtility::quoteJSvalue((string) $uriBuilder->buildUriFromRoute('record_edit', $params)) . '; return false;';
     }
 }

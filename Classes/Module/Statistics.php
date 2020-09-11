@@ -16,14 +16,17 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\DocumentTemplate;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use DirectMailTeam\DirectMail\DirectMailUtility;
-use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -146,7 +149,7 @@ class Statistics extends BaseScriptClass
         if (($this->id && $access) || ($GLOBALS['BE_USER']->user['admin'] && !$this->id)) {
 
             // Draw the header.
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
             $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
             $this->doc->form='<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
@@ -209,23 +212,28 @@ class Statistics extends BaseScriptClass
                 if ($this->pageinfo['doktype']==254 && $this->pageinfo['module']=='dmail') {
                     $markers['CONTENT'] = '<h1>' . $this->getLanguageService()->getLL('stats_overview_header') . '</h1>' . $this->moduleContent();
                 } elseif ($this->id != 0) {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        $this->getLanguageService()->getLL('dmail_noRegular'),
-                        $this->getLanguageService()->getLL('dmail_newsletters'),
-                        FlashMessage::WARNING
-                    );
-                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                $this->getLanguageService()->getLL('dmail_noRegular'),
+                                $this->getLanguageService()->getLL('dmail_newsletters'),
+                                FlashMessage::WARNING
+                            )
+                        ]);
                 }
             } else {
-                $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $this->getLanguageService()->getLL('select_folder'),
-                    $this->getLanguageService()->getLL('header_stat'),
-                    FlashMessage::WARNING
-                );
-                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                    ->resolve()
+                    ->render([
+                        GeneralUtility::makeInstance(
+                            FlashMessage::class,
+                            $this->getLanguageService()->getLL('select_folder'),
+                            $this->getLanguageService()->getLL('header_stat'),
+                            FlashMessage::WARNING
+                        )
+                    ]);
 
                 $markers['CONTENT'] = '<h2>' . $this->getLanguageService()->getLL('stats_overview_header') . '</h2>';
             }
@@ -235,7 +243,7 @@ class Statistics extends BaseScriptClass
         } else {
             // If no access or if ID == zero
 
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content .= $this->doc->startPage($this->getLanguageService()->getLL('title'));
@@ -338,7 +346,7 @@ class Statistics extends BaseScriptClass
                     $data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
 
                     /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-                    $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+                    $tce = GeneralUtility::makeInstance(DataHandler::class);
                     $tce->stripslashes_values=0;
                     $tce->start($data, array());
                     $tce->process_datamap();
@@ -404,10 +412,18 @@ class Statistics extends BaseScriptClass
             }
             $categories = rtrim($categories, ',');
 
-            $editParameters = '&edit[' . $table . '][' . $row['uid'] . ']=edit';
+            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+                'edit' => [
+                    $table => [
+                        $row['uid'] => 'edit',
+                    ],
+                ],
+                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+            ]);
+
             $out = '';
             $out .= $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name'] . ' <' . $row['email'] . '>');
-            $out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParameters, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+            $out .= '&nbsp;&nbsp;<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                 $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                 $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
             $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' . $out;
@@ -1568,8 +1584,8 @@ class Statistics extends BaseScriptClass
                     $uid = intval($m[1]);
                 } else {
                     // initialize the page selector
-                    /** @var \TYPO3\CMS\Frontend\Page\PageRepository $sys_page */
-                    $sys_page = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+                    /** @var PageRepository $sys_page */
+                    $sys_page = GeneralUtility::makeInstance(PageRepository::class);
                     $sys_page->init(true);
                     $uid = $sys_page->getPageIdFromAlias($m[1]);
                 }
@@ -1976,16 +1992,6 @@ class Statistics extends BaseScriptClass
         $out .= '<div style="padding-top: 5px;"></div>';
 
         return $out;
-    }
-
-    /**
-     * Returns LanguageService
-     *
-     * @return \TYPO3\CMS\Lang\LanguageService
-     */
-    protected function getLanguageService()
-    {
-        return $GLOBALS['LANG'];
     }
 
 

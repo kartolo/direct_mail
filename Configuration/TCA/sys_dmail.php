@@ -267,22 +267,32 @@ return [
         ],
         'attachment' => [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.attachment',
-            'config' => [
-                'type' => 'group',
-                'internal_type' => 'file',
-                'allowed' => '', // Must be empty for disallowed to work.
-                'disallowed' => 'php,php3',
-                'max_size' => '10000',
-                'uploadfolder' => 'uploads/tx_directmail',
-                'fieldWizard' => [
-                    'fileThumbnails' => [
-                        'disabled' => 0
-                    ]
+            'config' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getFileFieldTCAConfig(
+                'attachment',
+                [
+                    'maxitems' => 5,
+                    'appearance' => [
+                        'createNewRelationLinkTitle' => 'LLL:EXT:frontend/locallang_ttc.xlf:images.addFileReference'
+                    ],
+                    // custom configuration for displaying fields in the overlay/reference table
+                    // to use the image overlay palette instead of the basic overlay palette
+                    'overrideChildTca' => [
+                        'types' => [
+                            '0' => [
+                                'showitem' => '
+                                    --palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
+                                    --palette--;;filePalette'
+                            ],
+                            \TYPO3\CMS\Core\Resource\File::FILETYPE_TEXT => [
+                                'showitem' => '
+                                    --palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
+                                    --palette--;;filePalette'
+                            ],
+                        ],
+                    ],
                 ],
-                'size' => '3',
-                'maxitems' => '5',
-                'minitems' => '0'
-            ]
+                $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']
+            ),
         ],
         'type' => [
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.type',

@@ -10,12 +10,12 @@
  * writing. "version" and "dependencies" must not be touched!
  ***************************************************************/
 
-$EM_CONF[$_EXTKEY] = [
+$EM_CONF['direct_mail'] = [
     'title' => 'Direct Mail',
     'description' => 'Advanced Direct Mail/Newsletter mailer system with sophisticated options for personalization of emails including response statistics.',
     'category' => 'module',
     'shy' => 0,
-    'version' => '6.0.2',
+    'version' => '7.0.0-dev',
     'dependencies' => 'cms,tt_address',
     'conflicts' => 'sr_direct_mail_ext,it_dmail_fix,plugin_mgm,direct_mail_123',
     'priority' => '',
@@ -36,9 +36,9 @@ $EM_CONF[$_EXTKEY] = [
         'depends' => [
             'tt_address' => '4.0.0-',
             'php' => '7.2.0',
-            'typo3' => '9.5.0-9.5.99',
-            'jumpurl' => '7.7.0-7.8.99',
-            'rdct' => '1.0.0'
+            'typo3' => '10.4.0-10.4.99',
+            'jumpurl' => '8.0.0-',
+            'rdct' => '2.0.0'
         ],
         'conflicts' => [
             'sr_direct_mail_ext' => '',
