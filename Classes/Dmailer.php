@@ -972,10 +972,11 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Send of the email using php mail function.
      *
-     * @param	string/array	$recipient The recipient array. array($name => $mail)
-     * @param   array           $recipRow  Recipient's data array
+     * @param string|array $recipient The recipient array. array($name => $mail)
+     * @param array        $recipRow  Recipient's data array
      *
-     * @return	void
+     * @return void
+     * @throws \Swift_RfcComplianceException
      */
     public function sendTheMail($recipient, $recipRow = null)
     {
@@ -1020,8 +1021,22 @@ class Dmailer implements LoggerAwareInterface
             $mailer->setReturnPath($this->dmailer['sys_dmail_rec']['return_path']);
         }
 
-        // set the recipient
-        $mailer->setTo($recipient);
+        /**
+         * Set the recipients
+         */
+        $to = $header->get('To');
+
+        if ($to instanceof \Swift_Mime_Headers_MailboxHeader
+            && count($to->getAddresses()) > 0
+            && is_array($recipient)
+        ){
+            $to->setNameAddresses(
+                array_merge($to->getNameAddresses(), $recipient)
+            );
+        }
+        else {
+            $mailer->setTo($recipient);
+        }
 
         // TODO: setContent should set the images (includeMedia) or add attachment
         $this->setContent($mailer);
