@@ -11,9 +11,6 @@ return [
         'iconfile' => 'EXT:direct_mail/Resources/Public/Icons/mailgroup.gif',
         'type' => 'type',
     ],
-    'interface' => [
-        'showRecordFieldList' => 'sys_language_uidtype,title,description'
-    ],
     'columns' => [
         'sys_language_uid' => [
             'exclude' => 1,
