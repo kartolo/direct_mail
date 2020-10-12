@@ -52,6 +52,7 @@ if (TYPO3_MODE == 'BE') {
             'routeTarget' => DirectMailTeam\DirectMail\Module\Dmail::class . '::mainAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_DirectMail',
+            'workspaces' => 'online',
             'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-directmail.svg',
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangDirectMail.xlf',
@@ -70,6 +71,7 @@ if (TYPO3_MODE == 'BE') {
             'routeTarget' => DirectMailTeam\DirectMail\Module\RecipientList::class . '::mainAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_RecipientList',
+            'workspaces' => 'online',
             'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-recipient-list.svg',
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangRecipientList.xlf',
@@ -88,6 +90,7 @@ if (TYPO3_MODE == 'BE') {
             'routeTarget' => DirectMailTeam\DirectMail\Module\Statistics::class . '::mainAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_Statistics',
+            'workspaces' => 'online',
             'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-statistics.svg',
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangStatistics.xlf',
@@ -106,6 +109,7 @@ if (TYPO3_MODE == 'BE') {
             'routeTarget' => DirectMailTeam\DirectMail\Module\MailerEngine::class . '::mainAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_MailerEngine',
+            'workspaces' => 'online',
             'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-mailer-engine.svg',
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangMailerEngine.xlf',
@@ -124,6 +128,7 @@ if (TYPO3_MODE == 'BE') {
             'routeTarget' => DirectMailTeam\DirectMail\Module\Configuration::class . '::mainAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_Configuration',
+            'workspaces' => 'online',
             'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-configuration.svg',
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangConfiguration.xlf',
