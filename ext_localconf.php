@@ -28,8 +28,8 @@ foreach ($icons as $identifier => $options) {
 // Register hook for simulating a user group
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['determineId-PreProcessing']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\TypoScriptFrontendController->simulateUsergroup';
 
-    // unserializing the configuration so we can use it here:
-$extConf = unserialize($_EXTCONF);
+// Get extension configuration so we can use it here:
+$extConf = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class)->get('direct_mail');
 
 /**
  * Language of the cron task:
