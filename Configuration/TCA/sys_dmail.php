@@ -11,11 +11,7 @@ return [
         'iconfile' => 'EXT:direct_mail/Resources/Public/Icons/mail.gif',
         'type' => 'type',
         'useColumnsForDefaultValues' => 'from_email,from_name,replyto_email,replyto_name,organisation,priority,encoding,charset,sendOptions,type',
-        'dividers2tabs' => true,
         'languageField' => 'sys_language_uid'
-    ],
-    'interface' => [
-        'showRecordFieldList' => 'sys_language_uid,type,plainParams,HTMLParams,subject,from_name,from_email,replyto_name,replyto_email,return_path,organisation,attachment,priority,encoding,charset,sendOptions,includeMedia,flowedFormat,issent,renderedsize,use_rdct,long_link_mode,authcode_fieldList'
     ],
     'columns' => [
         'sys_language_uid' => [

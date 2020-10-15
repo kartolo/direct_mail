@@ -210,6 +210,12 @@ class NavFrame
                     )
                 )
             )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'sys_language_uid',
+                    '0'
+                )
+            )
             ->orderBy('title')
             ->execute();
 
