@@ -220,7 +220,7 @@ class BaseScriptClass
                     'sys_language',
                     'static_languages',
                     'static_languages',
-                    $queryBuilder->expr()->eq('sys_language.static_lang_isocode', $queryBuilder->quoteIdentifier('static_languages.uid'))
+                    $queryBuilder->expr()->eq('sys_language.language_isocode', $queryBuilder->quoteIdentifier('static_languages.lg_typo3'))
                 )
                 ->where(
                     $queryBuilder->expr()->eq('static_languages.lg_typo3', $queryBuilder->createNamedParameter($this->getLanguageService()->lang))
