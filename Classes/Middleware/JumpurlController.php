@@ -37,7 +37,7 @@ class JumpurlController implements MiddlewareInterface
 {
 
     public const RECIPIENT_TABLE_TTADDRESS = 'tt_address';
-    public const RECIPIENT_TABLE_FEUSER = 'fe_user';
+    public const RECIPIENT_TABLE_FEUSER = 'fe_users';
 
     public const RESPONSE_TYPE_URL = -1;
     public const RESPONSE_TYPE_HREF = 1;
