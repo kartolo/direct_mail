@@ -685,7 +685,7 @@ class Dmailer implements LoggerAwareInterface
                 $mail->setReplyTo($this->replyto_email);
             }
 
-            $mail->setBody($message);
+            $mail->text($message);
             $mail->send();
         }
     }
