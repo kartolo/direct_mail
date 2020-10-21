@@ -77,14 +77,6 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] = $extCo
 $TYPO3_CONF_VARS['EXTCONF'][$_EXTKEY]['UseImplicitPortToFetch'] = $extConf['UseImplicitPortToFetch'];
 
 /**
- * Enable the use of News plain text rendering hook:
- */
-if ($extConf['enablePlainTextNews']) {
-    // Register tt_news plain text processing hook
-    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['tt_news']['extraCodesHook'][] = 'DirectMailTeam\\DirectMail\\Hooks\\TtnewsPlaintextHook';
-}
-
-/**
  * Registering class to scheduler
  */
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['DirectMailTeam\\DirectMail\\Scheduler\\DirectmailScheduler'] = [

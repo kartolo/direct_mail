@@ -29,21 +29,6 @@
 		<trans-unit id="link_prefix">
 			<source>Link:</source>
 		</trans-unit>
-		<trans-unit id="tt_news_author_date_prefix">
-			<source>Date:</source>
-		</trans-unit>
-		<trans-unit id="tt_news_author_email_prefix">
-			<source>- Email address:</source>
-		</trans-unit>
-		<trans-unit id="tt_news_author_prefix">
-			<source>AUTHOR:</source>
-		</trans-unit>
-		<trans-unit id="tt_news_bodytext_header">
-			<source>FULL TEXT:</source>
-		</trans-unit>
-		<trans-unit id="tt_news_short_header">
-			<source>SUMMARY:</source>
-		</trans-unit>
 		<trans-unit id="unrendered_content">
 			<source>Unrendered Content Element:</source>
 		</trans-unit>

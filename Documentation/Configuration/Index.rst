@@ -22,7 +22,6 @@ Configuration
    ConfiguringTheDirectMailWizardInUserTsconfig/Index
    ConfiguringTheTsTemplateForNewsletterPages/Index
    ConfiguringPlainTextRendering/Index
-   ConfiguringPlainTextRenderingOfNewsRecords/Index
    ConfiguringTheUseOfCategories/Index
    ConfiguringMultilanguage/Index
    EnablingClickStatistics/Index

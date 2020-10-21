@@ -46,10 +46,6 @@ extension configuration variables:
 - **Enable notification email:** Allow Direct Mail to send notification
   emails about start and end of mailing job.
 
-- **Enable plain text rendering of News** : if set, a script will be
-  enabled to render News (tt\_news records) in plain text for inclusion
-  as plain text content of email messages.
-
 
 - **Use HTTP to fetch**: always use http to fetch the newsletter regardless https in BE
 
