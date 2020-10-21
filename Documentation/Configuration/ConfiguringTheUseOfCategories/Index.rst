@@ -56,27 +56,5 @@ properties in Page TSConfig of the same pages:
    TCEFORM.fe_users.module_sys_dmail_category.disabled = 0
    TCEFORM.sys_dmail_group.select_categories.disabled = 0
 
-The “Direct Mail Content Boundaries” static template is as follows:
+The “Direct Mail Content Boundaries” static template can be found in :file:`Configuration/TypoScript/boundaries/setup.txt`
 
-
-Setup
-"""""
-
-.. code-block:: typoscript
-
-   // Configuring the insertion of dmailer boundaries
-   includeLibs.tx_directmail_container = EXT:direct_mail/res/scripts/class.tx_directmail_container.php
-
-   // In html content
-   tt_content.stdWrap.postUserFunc = tx_directmail_container->insert_dMailer_boundaries
-
-   // In old plaintext content static tenmplate
-   lib.alt_plaintext.renderObj.userProc < tt_content.stdWrap.postUserFunc
-   lib.alt_plaintext.renderObj.userProc.useParentCObj = 1
-
-   // In new direct mail plain text plugin
-   plugin.tx_directmail_pi1.userProc < tt_content.stdWrap.postUserFunc
-   plugin.tx_directmail_pi1.userProc.useParentCObj = 1
-
-   // Enable the insertion of content boundaries
-   config.insertDmailerBoundaries = 1
