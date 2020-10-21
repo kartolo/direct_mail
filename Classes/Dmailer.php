@@ -685,7 +685,7 @@ class Dmailer implements LoggerAwareInterface
                 $mail->setReplyTo($this->replyto_email);
             }
 
-            $mail->setBody($message);
+            $mail->text($message);
             $mail->send();
         }
     }
@@ -910,13 +910,8 @@ class Dmailer implements LoggerAwareInterface
             foreach ($this->theParts['html']['media'] as $media) {
                 // TODO: why are there table related tags here?
                 if (($media['tag'] === 'img' || $media['tag'] === 'table' || $media['tag'] === 'tr' || $media['tag'] === 'td') && !$media['use_jumpurl'] && !$media['do_not_embed']) {
-                    $fileContent = GeneralUtility::getUrl($media['absRef']);
-
-                    // embed images using base64 encoding
-                    $cid = 'data:' . mime_content_type(basename($media['absRef']))
-                        . ';base64,' . base64_encode($fileContent);
-                    $this->theParts['html']['content'] = str_replace($media['subst_str'], $cid, $this->theParts['html']['content']);
-                    unset($fileContent);
+                    $mailer->embed(GeneralUtility::getUrl($media['absRef']), basename($media['absRef']));
+                    $this->theParts['html']['content'] = str_replace($media['subst_str'], 'cid:' . basename($media['absRef']), $this->theParts['html']['content']);
                 }
             }
             // remove ` do_not_embed="1"` attributes
