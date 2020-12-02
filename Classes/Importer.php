@@ -533,7 +533,7 @@ class Importer
                 $tblLines[] = '<b>' . $this->getLanguageService()->getLL('mailgroup_import_or') . '</b>';
                 $tblLines[] = '';
                 $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_paste_csv');
-                $tblLines[] = '<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off"' . $this->parent->doc->formWidth(48) . '>' . LF . htmlspecialchars($this->indata['csv']) . '</textarea>';
+                $tblLines[] = '<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off" style="width:460px;">' . LF . htmlspecialchars($this->indata['csv']) . '</textarea>';
                 $tblLines[] = '<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_next') . '" />';
 
                 $out .= implode('<br />', $tblLines);
