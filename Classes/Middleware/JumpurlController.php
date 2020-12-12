@@ -380,8 +380,8 @@ class JumpurlController implements MiddlewareInterface
      */
     protected function substituteSystemMarkersFromTargetUrl($targetUrl): string
     {
-        $mailId = $this->request->getAttribute('mid');
-        $submittedAuthCode = $this->request->getAttribute('aC');
+        $mailId = $this->request->getQueryParams()['mid'];
+        $submittedAuthCode = $this->request->getQueryParams()['aC'];
 
         // substitute system markers
         $markers = ['###SYS_TABLE_NAME###', '###SYS_MAIL_ID###', '###SYS_AUTHCODE###'];
