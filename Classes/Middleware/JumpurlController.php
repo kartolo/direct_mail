@@ -313,17 +313,12 @@ class JumpurlController implements MiddlewareInterface
     {
         $authCodeToMatch = GeneralUtility::stdAuthCode(
             $this->recipientRecord,
-            ($this->directMailRecord['authcode_fieldList'] ?? 'uid')
+            ($this->directMailRecord['authcode_fieldList'] ?: 'uid')
         );
 
-         if (!empty($submittedAuthCode) && $submittedAuthCode === $authCodeToMatch) {
-             // TODO: do we really need that much information?
+         if (!empty($submittedAuthCode) && $submittedAuthCode !== $authCodeToMatch) {
              throw new \Exception(
-                 'authCode verification failed.' .
-                 ' recipientUid = ' . $this->recipientRecord['uid'] .
-                 ' theTable = ' . $this->recipientTable .
-                 ' authcode_fieldList' . $this->directMailRecord['authcode_fieldList'] .
-                 ' AC = ' . $submittedAuthCode . ' AuthCode = ' . $authCodeToMatch,
+                 'authCode verification failed.',
                  1376899631
              );
          }
