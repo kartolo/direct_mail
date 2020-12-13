@@ -92,12 +92,12 @@ class JumpurlController implements MiddlewareInterface
                 $urlId = $jumpurl;
                 $this->initDirectMailRecord($mailId);
                 $this->initRecipientRecord($submittedRecipient);
-                $targetUrl = $this->getTargetUrl($jumpurl);
+                $jumpurl = $this->getTargetUrl($jumpurl);
 
                 // try to build the ready-to-use target url
                 if (!empty($this->recipientRecord)) {
                     $this->validateAuthCode($submittedAuthCode);
-                    $jumpurl = $this->substituteMarkersFromTargetUrl($targetUrl);
+                    $jumpurl = $this->substituteMarkersFromTargetUrl($jumpurl);
 
                     $this->performFeUserAutoLogin();
                 }
