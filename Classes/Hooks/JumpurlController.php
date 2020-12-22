@@ -132,7 +132,7 @@ class JumpurlController
                                     $_POST['logintype'] = 'login';
                                 }
                             } else {
-                                throw new \Exception('authCode: Calculated authCode did not match the submitted authCode. varDump = '.var_dump($recipRow).' $recipientUid = '.$recipientUid.' theTable = '.$theTable.' authcode_fieldList'.$row['authcode_fieldList'].' AC = '. $aC .' AuthCode = '. $authCode, 1376899631);
+                                throw new \Exception('authCode: Calculated authCode did not match the submitted authCode.');
                             }
                         }
                     }
