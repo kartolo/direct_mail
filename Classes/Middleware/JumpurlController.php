@@ -92,12 +92,12 @@ class JumpurlController implements MiddlewareInterface
                 $urlId = $jumpurl;
                 $this->initDirectMailRecord($mailId);
                 $this->initRecipientRecord($submittedRecipient);
-                $targetUrl = $this->getTargetUrl($jumpurl);
+                $jumpurl = $this->getTargetUrl($jumpurl);
 
                 // try to build the ready-to-use target url
                 if (!empty($this->recipientRecord)) {
                     $this->validateAuthCode($submittedAuthCode);
-                    $jumpurl = $this->substituteMarkersFromTargetUrl($targetUrl);
+                    $jumpurl = $this->substituteMarkersFromTargetUrl($jumpurl);
 
                     $this->performFeUserAutoLogin();
                 }
@@ -313,17 +313,12 @@ class JumpurlController implements MiddlewareInterface
     {
         $authCodeToMatch = GeneralUtility::stdAuthCode(
             $this->recipientRecord,
-            ($this->directMailRecord['authcode_fieldList'] ?? 'uid')
+            ($this->directMailRecord['authcode_fieldList'] ?: 'uid')
         );
 
-         if (!empty($submittedAuthCode) && $submittedAuthCode === $authCodeToMatch) {
-             // TODO: do we really need that much information?
+         if (!empty($submittedAuthCode) && $submittedAuthCode !== $authCodeToMatch) {
              throw new \Exception(
-                 'authCode verification failed.' .
-                 ' recipientUid = ' . $this->recipientRecord['uid'] .
-                 ' theTable = ' . $this->recipientTable .
-                 ' authcode_fieldList' . $this->directMailRecord['authcode_fieldList'] .
-                 ' AC = ' . $submittedAuthCode . ' AuthCode = ' . $authCodeToMatch,
+                 'authCode verification failed.',
                  1376899631
              );
          }
@@ -385,8 +380,8 @@ class JumpurlController implements MiddlewareInterface
      */
     protected function substituteSystemMarkersFromTargetUrl($targetUrl): string
     {
-        $mailId = $this->request->getAttribute('mid');
-        $submittedAuthCode = $this->request->getAttribute('aC');
+        $mailId = $this->request->getQueryParams()['mid'];
+        $submittedAuthCode = $this->request->getQueryParams()['aC'];
 
         // substitute system markers
         $markers = ['###SYS_TABLE_NAME###', '###SYS_MAIL_ID###', '###SYS_AUTHCODE###'];
