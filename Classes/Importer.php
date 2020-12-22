@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Module\RecipientList;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -46,14 +47,14 @@ class Importer
     /**
      * Parent object
      *
-     * @var \DirectMailTeam\DirectMail\Module\RecipientList
+     * @var RecipientList
      */
     public $parent;
 
     /**
      * File Processor FAL
      *
-     * @var \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility
+     * @var ExtendedFileUtility
      */
     public $fileProcessor;
 
@@ -69,7 +70,7 @@ class Importer
         $this->parent = &$pObj;
 
         // get some importer default from pageTS
-        $this->params = BackendUtility::getPagesTSconfig(intval(GeneralUtility::_GP('id')))['mod.']['web_modules.']['dmail.']['importer.'] ?? [];
+        $this->params = BackendUtility::getPagesTSconfig((int)GeneralUtility::_GP('id'))['mod.']['web_modules.']['dmail.']['importer.'] ?? [];
     }
 
     /**
@@ -91,7 +92,7 @@ class Importer
 
         if (GeneralUtility::_GP('CSV_IMPORT')) {
             $importerConfig = GeneralUtility::_GP('CSV_IMPORT');
-            if ($step['next'] == 'mapping') {
+            if ($step['next'] === 'mapping') {
                 $this->indata = $importerConfig + $defaultConf;
             } else {
                 $this->indata = $importerConfig;
@@ -106,7 +107,7 @@ class Importer
             $this->params = array();
         }
         // merge it with inData, but inData has priority.
-        $this->indata = $this->indata + $this->params;
+        $this->indata += $this->params;
 
         //		$currentFileInfo = BasicFileUtility::getTotalFileInfo($this->indata['newFile']);
         //		$currentFileName = $currentFileInfo['file'];
@@ -136,7 +137,7 @@ class Importer
             $stepCurrent = 'mapping';
         }
 
-        if (strlen($this->indata['csv']) > 0) {
+        if ($this->indata['csv'] !== '') {
             $this->indata['mode'] = 'csv';
             $this->indata['newFile'] = $this->writeTempFile();
         } elseif (!empty($this->indata['newFile'])) {
@@ -280,14 +281,14 @@ class Importer
 
             case 'mapping':
                 // show charset selector
-                $cs = array_unique(array_values(GeneralUtility::makeInstance(CharsetConverter::class)->synonyms));
+                $cs = array_unique(array_values(mb_list_encodings()));
                 $charSets = array();
                 foreach ($cs as $charset) {
                     $charSets[] = array($charset,$charset);
                 }
 
                 if (!isset($this->indata['charset'])) {
-                    $this->indata['charset'] = 'iso-8859-1';
+                    $this->indata['charset'] = 'ISO-8859-1';
                 }
                 $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_charset') . '</h3>';
                 $tblLines = array();
@@ -315,7 +316,7 @@ class Importer
                 }
 
                 // read tt_address TCA
-                $no_map = array('image');
+                $no_map = ['image', 'sys_language_uid', 'l10n_parent', 'l10n_diffsource', 't3_origuid', 'cruser_id', 'crdate', 'tstamp'];
                 $ttAddressFields = array_keys($GLOBALS['TCA']['tt_address']['columns']);
                 foreach ($no_map as $v) {
                     $ttAddressFields = ArrayUtility::removeArrayEntryByValue($ttAddressFields, $v);
@@ -519,7 +520,8 @@ class Importer
                 $tempDir = $this->userTempFolder();
 
                 $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_upload_file') . '<input type="file" name="upload_1" size="30" />';
-                if (($this->indata['mode'] == 'file') && !(((strpos($currentFileInfo['file'], 'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt'))) {
+                if (($this->indata['mode'] === 'file') && !(((strpos($currentFileInfo['file'], 'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt'))) {
+                    $currentFileMessage = '';
                     $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_current_file') . '<b>' . $currentFileMessage . '</b>';
                 }
 
@@ -564,7 +566,6 @@ class Importer
         if (is_array($hookObjectsArr)) {
             foreach ($hookObjectsArr as $hookObj) {
                 if (method_exists($hookObj, 'cmd_displayImport')) {
-                    $theOutput = '';
                     $theOutput = $hookObj->cmd_displayImport($this);
                 }
             }
@@ -781,7 +782,7 @@ class Importer
         $resultImport['double'] = (is_array($filteredCSV['double']))?$filteredCSV['double']: array();
 
         // start importing
-        /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
+        /* @var $tce DataHandler */
         $tce = GeneralUtility::makeInstance(DataHandler::class);
         $tce->stripslashes_values = 0;
         $tce->enableLogging = 0;
@@ -852,8 +853,7 @@ class Importer
             }
         }
 
-        $dropdown = '<select name="' . $name . '" ' . $disableInput . '>' . implode('', $opt) . '</select>';
-        return $dropdown;
+        return '<select name="' . $name . '" ' . $disableInput . '>' . implode('', $opt) . '</select>';
     }
 
     /**
@@ -967,7 +967,10 @@ class Importer
     {
         $dbCharset = 'utf-8';
         if ($dbCharset != $this->indata['charset']) {
-            GeneralUtility::makeInstance(CharsetConverter::class)->convArray($data, $this->indata['charset'], $dbCharset);
+            $converter = GeneralUtility::makeInstance(CharsetConverter::class);
+            foreach ($data as $k => $v) {
+                $data[$k] = $converter->conv($v, $this->indata['charset'], $dbCharset);
+            }
         }
         return $data;
     }
@@ -993,7 +996,7 @@ class Importer
         reset($tableLines);
         foreach ($tableLines as $r) {
             $rowA = array();
-            for ($k = 0; $k < count($r); $k++) {
+            for ($k = 0, $kMax = count($r); $k < $kMax; $k++) {
                 $v = $r[$k];
                 $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : '&nbsp;';
                 if ($first) {
@@ -1015,8 +1018,7 @@ class Importer
             $first = 0;
             $c++;
         }
-        $table = '<table ' . $tableParams . '>' . implode('', $lines) . '</table>';
-        return $table;
+        return '<table ' . $tableParams . '>' . implode('', $lines) . '</table>';
     }
 
     /**
@@ -1051,7 +1053,7 @@ class Importer
         );
 
         // Initializing:
-        /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
+        /* @var $fileProcessor ExtendedFileUtility */
         $this->fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
         $this->fileProcessor->setActionPermissions($userPermissions);
         $this->fileProcessor->dontCheckForUnique = 1;
@@ -1121,7 +1123,7 @@ class Importer
         );
 
         // Initializing:
-        /* @var $fileProcessor \TYPO3\CMS\Core\Utility\File\ExtendedFileUtility */
+        /* @var $fileProcessor ExtendedFileUtility */
         $this->fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
         $this->fileProcessor->setActionPermissions();
         $this->fileProcessor->dontCheckForUnique = 1;
