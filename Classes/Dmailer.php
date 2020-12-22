@@ -910,7 +910,11 @@ class Dmailer implements LoggerAwareInterface
             foreach ($this->theParts['html']['media'] as $media) {
                 // TODO: why are there table related tags here?
                 if (($media['tag'] === 'img' || $media['tag'] === 'table' || $media['tag'] === 'tr' || $media['tag'] === 'td') && !$media['use_jumpurl'] && !$media['do_not_embed']) {
-                    $mailer->embed(GeneralUtility::getUrl($media['absRef']), basename($media['absRef']));
+                    if (ini_get('allow_url_fopen')) {
+                        $mailer->embed(fopen($media['absRef'], 'r'), basename($media['absRef']));
+                    } else {
+                        $mailer->embed(GeneralUtility::getUrl($media['absRef']), basename($media['absRef']));
+                    }
                     $this->theParts['html']['content'] = str_replace($media['subst_str'], 'cid:' . basename($media['absRef']), $this->theParts['html']['content']);
                 }
             }

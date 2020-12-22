@@ -1084,7 +1084,7 @@ class Statistics extends BaseScriptClass
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
                 $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_list') . '<br />';
-                $output .= '<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
             }
         }
 
@@ -1157,7 +1157,7 @@ class Statistics extends BaseScriptClass
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
                 $output .='<br />' . $this->getLanguageService()->getLL('stats_emails_returned_unknown_recipient_list') . '<br />';
-                $output .='<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                $output .='<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
             }
         }
 
@@ -1230,7 +1230,7 @@ class Statistics extends BaseScriptClass
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
                 $output .='<br />' . $this->getLanguageService()->getLL('stats_emails_returned_mailbox_full_list') . '<br />';
-                $output .='<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                $output .='<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
             }
         }
 
@@ -1302,7 +1302,7 @@ class Statistics extends BaseScriptClass
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
                 $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_bad_host_list') . '<br />';
-                $output .= '<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
             }
         }
 
@@ -1376,7 +1376,7 @@ class Statistics extends BaseScriptClass
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
                 $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_bad_header_list') .  '<br />';
-                $output .= '<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
             }
         }
 
@@ -1450,7 +1450,7 @@ class Statistics extends BaseScriptClass
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
                 $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_reason_unknown_list') . '<br />';
-                $output .= '<textarea' . $this->doc->formWidth() . ' rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
             }
         }
 
