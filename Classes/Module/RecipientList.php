@@ -14,18 +14,21 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Importer;
 use DirectMailTeam\DirectMail\MailSelect;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\DocumentTemplate;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use DirectMailTeam\DirectMail\DirectMailUtility;
-use DirectMailTeam\DirectMail\Utility\FlashMessageRenderer;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\CsvUtility;
@@ -156,7 +159,7 @@ class RecipientList extends BaseScriptClass
         if (($this->id && $access) || ($GLOBALS['BE_USER']->user['admin'] && !$this->id)) {
 
             // Draw the header.
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
             $this->doc->setModuleTemplate('EXT:direct_mail/Resources/Private/Templates/Module.html');
             $this->doc->form='<form action="" method="post" name="' . $this->formname . '" enctype="multipart/form-data">';
@@ -214,24 +217,28 @@ class RecipientList extends BaseScriptClass
                     $markers['CONTENT'] = '<h1>' . $this->getLanguageService()->getLL('mailgroup_header') . '</h1>' .
                         $this->moduleContent();
                 } elseif ($this->id != 0) {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        $this->getLanguageService()->getLL('dmail_noRegular'),
-                        $this->getLanguageService()->getLL('dmail_newsletters'),
-                        FlashMessage::WARNING
-                    );
-                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                $this->getLanguageService()->getLL('dmail_noRegular'),
+                                $this->getLanguageService()->getLL('dmail_newsletters'),
+                                FlashMessage::WARNING
+                            )
+                        ]);
                 }
             } else {
-                /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance(
-                    'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                    $this->getLanguageService()->getLL('select_folder'),
-                    $this->getLanguageService()->getLL('header_recip'),
-                    FlashMessage::WARNING
-                );
-                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                    ->resolve()
+                    ->render([
+                        GeneralUtility::makeInstance(
+                            FlashMessage::class,
+                            $this->getLanguageService()->getLL('select_folder'),
+                            $this->getLanguageService()->getLL('header_recip'),
+                            FlashMessage::WARNING
+                        )
+                    ]);
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('mailgroup_header'));
@@ -239,7 +246,7 @@ class RecipientList extends BaseScriptClass
         } else {
             // If no access or if ID == zero
 
-            $this->doc = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Template\\DocumentTemplate');
+            $this->doc = GeneralUtility::makeInstance(DocumentTemplate::class);
             $this->doc->backPath = $GLOBALS['BACK_PATH'];
 
             $this->content.=$this->doc->startPage($this->getLanguageService()->getLL('title'));
@@ -276,7 +283,7 @@ class RecipientList extends BaseScriptClass
                 break;
             case 'displayImport':
                 /* @var $importer \DirectMailTeam\DirectMail\Importer */
-                $importer = GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Importer');
+                $importer = GeneralUtility::makeInstance(Importer::class);
                 $importer->init($this);
                 $theOutput = $importer->cmd_displayImport();
                 break;
@@ -353,8 +360,17 @@ class RecipientList extends BaseScriptClass
         $theOutput = '<h3>' . $this->getLanguageService()->getLL('recip_select_mailgroup') . '</h3>' .
             $out;
 
+        $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+            'edit' => [
+                'sys_dmail_group' => [
+                    $this->id => 'new'
+                ]
+            ],
+            'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+        ]);
+
         // New:
-        $out = '<a href="#" class="t3-link" onClick="' . BackendUtility::editOnClick('&edit[sys_dmail_group][' . $this->id . ']=new', $GLOBALS['BACK_PATH'], '') . '">' .
+        $out = '<a href="#" class="t3-link" onClick="' . $editOnClickLink . '">' .
             $this->iconFactory->getIconForRecord('sys_dmail_group', array(), Icon::SIZE_SMALL) .
             $this->getLanguageService()->getLL('recip_create_mailgroup_msg') . '</a>';
         $theOutput .= '<div style="padding-top: 20px;"></div>';
@@ -392,8 +408,15 @@ class RecipientList extends BaseScriptClass
 
         // check if the user has the right to modify the table
         if ($GLOBALS['BE_USER']->check('tables_modify', $table)) {
-            $params = '&edit[' . $table . '][' . $uid . ']=edit';
-            $str = '<a href="#" onClick="' . BackendUtility::editOnClick($params, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+                'edit' => [
+                    $table => [
+                        $uid => 'edit',
+                    ],
+                ],
+                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+            ]);
+            $str = '<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                 $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                 '</a>';
         }
@@ -623,14 +646,16 @@ class RecipientList extends BaseScriptClass
                 if($GLOBALS['BE_USER']->check('tables_select', $csvValue)) {
                     $this->downloadCSV(DirectMailUtility::fetchRecordsListValues($idLists[$csvValue], $csvValue, (($csvValue == 'fe_users') ? str_replace('phone', 'telephone', $this->fieldList) : $this->fieldList) . ',tstamp'));
                 } else {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        'TYPO3\\CMS\\Core\\Messaging\\FlashMessage',
-                        '',
-                        $this->getLanguageService()->getLL('mailgroup_table_disallowed_csv'),
-                        FlashMessage::ERROR
-                    );
-                    $csvError = GeneralUtility::makeInstance(FlashMessageRenderer::class)->render($flashMessage);
+                    $csvError = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                '',
+                                $this->getLanguageService()->getLL('mailgroup_table_disallowed_csv'),
+                                FlashMessage::ERROR
+                            )
+                        ]);
                 }
 
             }
@@ -661,7 +686,8 @@ class RecipientList extends BaseScriptClass
             default:
 
                 if (is_array($idLists['tt_address']) && count($idLists['tt_address'])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_address') .'</h3>' .
                         $csvError .
                         $recipContent;
@@ -669,7 +695,8 @@ class RecipientList extends BaseScriptClass
                 }
 
                 if (is_array($idLists['fe_users']) && count($idLists['fe_users'])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_fe_users') . '</h3>' .
                         $csvError .
                         $recipContent;
@@ -677,7 +704,8 @@ class RecipientList extends BaseScriptClass
                 }
 
                 if (is_array($idLists['PLAINLIST']) && count($idLists['PLAINLIST'])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_plain_list') .'</h3>' .
                         $csvError .
                         $recipContent;
@@ -685,7 +713,8 @@ class RecipientList extends BaseScriptClass
                 }
 
                 if (is_array($idLists[$this->userTable]) && count($idLists[$this->userTable])) {
-                    $recipContent = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) . '<br /><a href="' . GeneralUtility::linkThisScript(array('csv' => $this->userTable)) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                    $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv' => $this->userTable)) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_custom') . '</h3>' .
                         $csvError .
                         $recipContent;
@@ -865,7 +894,7 @@ class RecipientList extends BaseScriptClass
                     }
                     $data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
                     /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler*/
-                    $tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
+                    $tce = GeneralUtility::makeInstance(DataHandler::class);
                     $tce->stripslashes_values = 0;
                     $tce->start($data, array());
                     $tce->process_datamap();
@@ -936,11 +965,18 @@ class RecipientList extends BaseScriptClass
 
                 $categories = implode($categoriesArray, ',');
 
-                $editParams = '&edit[' . $table . '][' . $row['uid'] . ']=edit';
+                $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+                    'edit' => [
+                        $table => [
+                            $row['uid'] => 'edit'
+                        ]
+                    ],
+                    'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+                ]);
 
                 $out = '';
                 $out .= $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name']) . htmlspecialchars(' <' . $row['email'] . '>');
-                $out .= '&nbsp;&nbsp;<a href="#" onClick="' . BackendUtility::editOnClick($editParams, $GLOBALS['BACK_PATH'], '') . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+                $out .= '&nbsp;&nbsp;<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                     $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                     '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
                 $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' .
@@ -970,15 +1006,5 @@ class RecipientList extends BaseScriptClass
             }
         }
         return $theOutput;
-    }
-
-    /**
-     * Returns LanguageService
-     *
-     * @return \TYPO3\CMS\Lang\LanguageService
-     */
-    protected function getLanguageService()
-    {
-        return $GLOBALS['LANG'];
     }
 }

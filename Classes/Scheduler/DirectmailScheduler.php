@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Dmailer;
 use TYPO3\CMS\Core\Utility;
 
 /**
@@ -35,7 +36,7 @@ class DirectmailScheduler extends \TYPO3\CMS\Scheduler\Task\AbstractTask
     public function execute()
     {
         /* @var $htmlmail \DirectMailTeam\DirectMail\Dmailer */
-        $htmlmail = Utility\GeneralUtility::makeInstance('DirectMailTeam\\DirectMail\\Dmailer');
+        $htmlmail = Utility\GeneralUtility::makeInstance(Dmailer::class);
         $htmlmail->start();
         $htmlmail->runcron();
         return true;

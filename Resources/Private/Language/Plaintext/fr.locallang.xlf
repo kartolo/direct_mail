@@ -36,26 +36,6 @@
 			<source>Link:</source>
 			<target>Lien:</target>
 		</trans-unit>
-		<trans-unit id="tt_news_author_date_prefix" approved="yes">
-			<source>Date:</source>
-			<target>Date:</target>
-		</trans-unit>
-		<trans-unit id="tt_news_author_email_prefix" approved="yes">
-			<source>- Email address:</source>
-			<target>- Courrier électronique:</target>
-		</trans-unit>
-		<trans-unit id="tt_news_author_prefix" approved="yes">
-			<source>AUTHOR:</source>
-			<target>AUTEUR:</target>
-		</trans-unit>
-		<trans-unit id="tt_news_bodytext_header" approved="yes">
-			<source>FULL TEXT:</source>
-			<target>TEXTE COMPLET:</target>
-		</trans-unit>
-		<trans-unit id="tt_news_short_header" approved="yes">
-			<source>SUMMARY:</source>
-			<target>RÉSUMÉ:</target>
-		</trans-unit>
 		<trans-unit id="unrendered_content" approved="yes">
 			<source>Unrendered Content Element:</source>
 			<target>Élément de contenu non-présenté:</target>
