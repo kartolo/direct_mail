@@ -1079,20 +1079,13 @@ class DirectMailUtility
         }
 
         $pageRecord = BackendUtility::getRecord('pages', $pageUid);
-        // Fetch page title from pages_language_overlay
+        // Fetch page title from translated page
         if ($newRecord['sys_language_uid'] > 0) {
-            if (strpos(VersionNumberUtility::getNumericTypo3Version(), '9') === 0) {
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
-                $queryBuilder
-                    ->select('title')
-                    ->from('pages')
-                    ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)));
-            } else {
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages_language_overlay');
-                $queryBuilder->select('title')
-                    ->from('pages_language_overlay')
-                    ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)));
-            }
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+            $queryBuilder
+                ->select('title')
+                ->from('pages')
+                ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)));
 
             $pageRecordOverlay = $queryBuilder->andWhere(
                 $queryBuilder->expr()->eq(
