@@ -1095,7 +1095,7 @@ class Importer
         }
 
         if ($newfile) {
-            $csvFile['data'] = $this->indata['csv'];
+            $csvFile['data'] = $this->indata['csv'] ?? '';
             $csvFile['target'] = $newfile;
             $write = $this->fileProcessor->func_edit($csvFile);
         }
