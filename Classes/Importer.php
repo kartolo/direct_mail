@@ -119,7 +119,7 @@ class Importer
             // TYPO3 6.0 returns an object...
             if (is_object($this->indata['newFile'][0])) {
                 $storageConfig = $this->indata['newFile'][0]->getStorage()->getConfiguration();
-		$this->indata['newFile'] = rtrim($storageConfig['basePath'], '/') . '/' . ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
+                $this->indata['newFile'] = rtrim($storageConfig['basePath'], '/') . '/' . ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
             }
         } elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
             if (((strpos($currentFileInfo['file'], 'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt')) {
