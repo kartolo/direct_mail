@@ -890,6 +890,9 @@ class Importer
         ini_set('auto_detect_line_endings', true);
         $mydata = array();
         $handle = fopen($this->indata['newFile'], 'r');
+	if($handle === false) {
+            return $mydata;
+        }
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
         $delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
@@ -929,6 +932,9 @@ class Importer
             $this->indata['newFile'] = Environment::getPublicPath() . '/' . $this->indata['newFile'];
         }
         $handle = fopen($this->indata['newFile'], 'r');
+	if($handle === false) {
+            return $mydata;
+        }
         $i = 0;
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
