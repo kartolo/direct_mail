@@ -137,7 +137,7 @@ class Importer
             $stepCurrent = 'mapping';
         }
 
-        if ($this->indata['csv'] !== '') {
+        if (strlen($this->indata['csv']) > 0) {
             $this->indata['mode'] = 'csv';
             $this->indata['newFile'] = $this->writeTempFile();
         } elseif (!empty($this->indata['newFile'])) {
@@ -969,7 +969,7 @@ class Importer
         if ($dbCharset != $this->indata['charset']) {
             $converter = GeneralUtility::makeInstance(CharsetConverter::class);
             foreach ($data as $k => $v) {
-                $data[$k] = $converter->conv($v, $this->indata['charset'], $dbCharset);
+                $data[$k] = $converter->conv($v, strtolower($this->indata['charset']), $dbCharset);
             }
         }
         return $data;
@@ -1095,7 +1095,7 @@ class Importer
         }
 
         if ($newfile) {
-            $csvFile['data'] = $this->indata['csv'];
+            $csvFile['data'] = $this->indata['csv'] ?? '';
             $csvFile['target'] = $newfile;
             $write = $this->fileProcessor->func_edit($csvFile);
         }
