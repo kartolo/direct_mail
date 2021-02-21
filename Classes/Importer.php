@@ -119,7 +119,7 @@ class Importer
             // TYPO3 6.0 returns an object...
             if (is_object($this->indata['newFile'][0])) {
                 $storageConfig = $this->indata['newFile'][0]->getStorage()->getConfiguration();
-                $this->indata['newFile'] = $storageConfig['basePath'] . ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
+                $this->indata['newFile'] = rtrim($storageConfig['basePath'], '/') . '/' . ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
             }
         } elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
             if (((strpos($currentFileInfo['file'], 'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt')) {
@@ -890,6 +890,9 @@ class Importer
         ini_set('auto_detect_line_endings', true);
         $mydata = array();
         $handle = fopen($this->indata['newFile'], 'r');
+	if($handle === false) {
+            return $mydata;
+        }
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
         $delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
@@ -929,6 +932,9 @@ class Importer
             $this->indata['newFile'] = Environment::getPublicPath() . '/' . $this->indata['newFile'];
         }
         $handle = fopen($this->indata['newFile'], 'r');
+	if($handle === false) {
+            return $mydata;
+        }
         $i = 0;
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
