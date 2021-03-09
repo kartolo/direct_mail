@@ -465,7 +465,9 @@ class MailerEngine extends BaseScriptClass
         $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
 
-        if (!empty($dmail['scheduled_begin'])) {
+        // show delete icon if newsletter hasn't been sent, or not yet finished sending
+        if (!($dmail['scheduled_begin']) ||
+            ($dmail['scheduled_begin'] && $dmail['scheduled_end'] === 0)) {
             /** @var UriBuilder $uriBuilder */
             $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
             $moduleUrl = $uriBuilder->buildUriFromRoute(
