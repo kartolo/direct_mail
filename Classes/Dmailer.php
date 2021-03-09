@@ -465,7 +465,7 @@ class Dmailer implements LoggerAwareInterface
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         $statement = $queryBuilder
-            ->select($relationTable . 'uid_foreign')
+            ->select($relationTable . '.uid_foreign')
             ->from($relationTable, $relationTable)
             ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
             ->where($queryBuilder->expr()->eq($relationTable . '.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
