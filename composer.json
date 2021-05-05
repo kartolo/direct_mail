@@ -46,6 +46,9 @@
       "class-alias-maps": [
         "Migrations/Code/ClassAliasMap.php"
       ]
+    },
+    "typo3/cms": {
+		  "extension-key": "direct_mail"
     }
   }
 }
