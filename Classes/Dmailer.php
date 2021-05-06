@@ -904,7 +904,7 @@ class Dmailer implements LoggerAwareInterface
     {
         // todo: css??
         // iterate through the media array and embed them
-        if ($this->includeMedia) {
+        if ($this->includeMedia && !empty($this->theParts['html']['content'])) {
             // extract all media path from the mail message
             $this->extractMediaLinks();
             foreach ($this->theParts['html']['media'] as $media) {
@@ -923,11 +923,11 @@ class Dmailer implements LoggerAwareInterface
         }
 
         // set the html content
-        if ($this->theParts['html']) {
+        if ($this->theParts['html']['content']) {
             $mailer->html($this->theParts['html']['content']);
         }
         // set the plain content as alt part
-        if ($this->theParts['plain']) {
+        if ($this->theParts['plain']['content']) {
             $mailer->text($this->theParts['plain']['content']);
         }
 
