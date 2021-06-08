@@ -48,7 +48,7 @@
       ]
     },
     "typo3/cms": {
-		  "extension-key": "direct_mail"
+      "extension-key": "direct_mail"
     }
   }
 }
