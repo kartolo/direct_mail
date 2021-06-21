@@ -18,7 +18,7 @@ use Fetch\Server;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
+use TYPO3\CMS\Scheduler\AbstractAdditionalFieldProvider;
 use TYPO3\CMS\Scheduler\Controller\SchedulerModuleController;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
@@ -29,7 +29,7 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * @package DirectMailTeam\DirectMail\Scheduler
  * @author Ivan Kartolo <ivan.kartolo@gmail.com>
  */
-class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterface
+class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
 {
     public function __construct()
     {
@@ -128,7 +128,7 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
                 $imapStream = $mailServer->getImapStream();
                 $return = true;
             } catch (\Exception $e) {
-                $schedulerModule->addMessage(
+                $this->addMessage(
                     $this->getLanguangeService()->getLL('scheduler.bounceMail.dataVerification') .
                     $e->getMessage(),
                     FlashMessage::ERROR
@@ -136,7 +136,7 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
                 $return = false;
             }
         } else {
-            $schedulerModule->addMessage(
+            $this->addMessage(
                 $this->getLanguangeService()->getLL('scheduler.bounceMail.phpImapError'),
                 FlashMessage::ERROR
             );
