@@ -1,0 +1,17 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  DirectMailTeam\DirectMail\:
+    resource: '../Classes/*'
+    
+  DirectMailTeam\DirectMail\Command\InvokeMailerEngineCommand:
+    tags:
+      - name: 'console.command'
+        command: 'directmail:invokemailerengine'
+        description: 'Invoke Mailer Engine of EXT:directmail'
+        # not required, defaults to false
+        #hidden: false
+        #schedulable: false
