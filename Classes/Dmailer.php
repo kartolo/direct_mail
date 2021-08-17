@@ -967,7 +967,7 @@ class Dmailer implements LoggerAwareInterface
         }
 
         if (GeneralUtility::validEmail($this->dmailer['sys_dmail_rec']['return_path'])) {
-            $mailer->returnPath($this->dmailer['sys_dmail_rec']['return_path']);
+            $mailer->sender($this->dmailer['sys_dmail_rec']['return_path']);
         }
 
         // TODO: setContent should set the images (includeMedia) or add attachment
