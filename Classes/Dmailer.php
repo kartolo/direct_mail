@@ -465,7 +465,7 @@ class Dmailer implements LoggerAwareInterface
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         $statement = $queryBuilder
-            ->select('uid_foreign')
+            ->select($relationTable . '.uid_foreign')
             ->from($relationTable, $relationTable)
             ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
             ->where($queryBuilder->expr()->eq($relationTable . '.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
@@ -904,7 +904,7 @@ class Dmailer implements LoggerAwareInterface
     {
         // todo: css??
         // iterate through the media array and embed them
-        if ($this->includeMedia) {
+        if ($this->includeMedia && !empty($this->theParts['html']['content'])) {
             // extract all media path from the mail message
             $this->extractMediaLinks();
             foreach ($this->theParts['html']['media'] as $media) {
@@ -923,11 +923,11 @@ class Dmailer implements LoggerAwareInterface
         }
 
         // set the html content
-        if ($this->theParts['html']) {
+        if ($this->theParts['html']['content']) {
             $mailer->html($this->theParts['html']['content']);
         }
         // set the plain content as alt part
-        if ($this->theParts['plain']) {
+        if ($this->theParts['plain']['content']) {
             $mailer->text($this->theParts['plain']['content']);
         }
 
@@ -967,7 +967,7 @@ class Dmailer implements LoggerAwareInterface
         }
 
         if (GeneralUtility::validEmail($this->dmailer['sys_dmail_rec']['return_path'])) {
-            $mailer->returnPath($this->dmailer['sys_dmail_rec']['return_path']);
+            $mailer->sender($this->dmailer['sys_dmail_rec']['return_path']);
         }
 
         // TODO: setContent should set the images (includeMedia) or add attachment

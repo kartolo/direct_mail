@@ -18,6 +18,7 @@ use DirectMailTeam\DirectMail\Dmailer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -45,7 +46,6 @@ class InvokeMailerEngineCommand extends Command
     public function configure()
     {
         $this->setDescription('Invoke Mailer Engine of EXT:directmail');
-        $this->setHelp('Describe ...');
         $this->setHelp('
 Sends newsletters which are ready to send.
 
@@ -63,17 +63,21 @@ like the recommended scheduler task or BE module for invoking maler engine will 
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $io = new SymfonyStyle($input, $output);
+        $io->title($this->getDescription());
+        $lockfile = Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock';
+        
         // Check if cronjob is already running:
-        if (@file_exists(Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock')) {
-            // If the lock is not older than 1 day, skip index creation:
-            if (filemtime(Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock') > (time() - (60 * 60 * 24))) {
-                die('TYPO3 Direct Mail Cron: Aborting, another process is already running!' . LF);
+        if (@file_exists($lockfile)) {
+            // If the lock is not older than 1 day, skip:
+            if (filemtime($lockfile) > (time() - (60 * 60 * 24))) {
+                $io->warning('TYPO3 Direct Mail Cron: Aborting, another process is already running!');
+                return 0;
             } else {
-                echo('TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...' . LF);
+                $io->writeln('TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...');
             }
         }
-
-        $lockfile = Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock';
+        
         touch($lockfile);
         // Fixing filepermissions
         GeneralUtility::fixPermissions($lockfile);
@@ -87,5 +91,6 @@ like the recommended scheduler task or BE module for invoking maler engine will 
         $htmlmail->runcron();
 
         unlink($lockfile);
+        return 0;
     }
 }

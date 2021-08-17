@@ -119,7 +119,7 @@ class Importer
             // TYPO3 6.0 returns an object...
             if (is_object($this->indata['newFile'][0])) {
                 $storageConfig = $this->indata['newFile'][0]->getStorage()->getConfiguration();
-                $this->indata['newFile'] = $storageConfig['basePath'] . ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
+                $this->indata['newFile'] = rtrim($storageConfig['basePath'], '/') . '/' . ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
             }
         } elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
             if (((strpos($currentFileInfo['file'], 'import')=== false)?0:1) && ($currentFileInfo['realFileext'] === 'txt')) {
@@ -137,7 +137,7 @@ class Importer
             $stepCurrent = 'mapping';
         }
 
-        if ($this->indata['csv'] !== '') {
+        if (strlen($this->indata['csv']) > 0) {
             $this->indata['mode'] = 'csv';
             $this->indata['newFile'] = $this->writeTempFile();
         } elseif (!empty($this->indata['newFile'])) {
@@ -890,6 +890,9 @@ class Importer
         ini_set('auto_detect_line_endings', true);
         $mydata = array();
         $handle = fopen($this->indata['newFile'], 'r');
+	if($handle === false) {
+            return $mydata;
+        }
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
         $delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
@@ -929,6 +932,9 @@ class Importer
             $this->indata['newFile'] = Environment::getPublicPath() . '/' . $this->indata['newFile'];
         }
         $handle = fopen($this->indata['newFile'], 'r');
+	if($handle === false) {
+            return $mydata;
+        }
         $i = 0;
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
@@ -969,7 +975,7 @@ class Importer
         if ($dbCharset != $this->indata['charset']) {
             $converter = GeneralUtility::makeInstance(CharsetConverter::class);
             foreach ($data as $k => $v) {
-                $data[$k] = $converter->conv($v, $this->indata['charset'], $dbCharset);
+                $data[$k] = $converter->conv($v, strtolower($this->indata['charset']), $dbCharset);
             }
         }
         return $data;
@@ -1095,7 +1101,7 @@ class Importer
         }
 
         if ($newfile) {
-            $csvFile['data'] = $this->indata['csv'];
+            $csvFile['data'] = $this->indata['csv'] ?? '';
             $csvFile['target'] = $newfile;
             $write = $this->fileProcessor->func_edit($csvFile);
         }
