@@ -1152,7 +1152,7 @@ class Dmailer implements LoggerAwareInterface
 
         $jumpUrlCounter = 1;
         return preg_replace_callback(
-            '/http[s]?:\/\/\S+/',
+            '/http[s]?:\/\/[^\s>]+/',
             function ($urlMatches) use (&$jumpUrlCounter) {
                 $url = $urlMatches[0];
                 if (strpos($url, '&no_jumpurl=1') !== false) {
