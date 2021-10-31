@@ -33,7 +33,7 @@ if (TYPO3_MODE == 'BE') {
         '',
         '',
         [
-            'routeTarget' => DirectMailTeam\DirectMail\Module\NavFrame::class . '::mainAction',
+            'routeTarget' => DirectMailTeam\DirectMail\Module\NavFrameController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame',
             'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail.svg',
