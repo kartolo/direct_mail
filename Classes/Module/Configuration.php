@@ -41,7 +41,7 @@ class Configuration extends BaseScriptClass
 {
     public $TSconfPrefix = 'mod.web_modules.dmail.';
     // Internal
-    public $params = array();
+    public $params = [];
     public $perms_clause = '';
     public $pageinfo = '';
     public $sys_dmail_uid;
@@ -49,11 +49,11 @@ class Configuration extends BaseScriptClass
     public $pages_uid;
     public $categories;
     public $id;
-    public $implodedParams = array();
+    public $implodedParams = [];
     // If set a valid user table is around
     public $userTable;
     public $sys_language_uid = 0;
-    public $allowedTables = array('tt_address','fe_users');
+    public $allowedTables = ['tt_address','fe_users'];
     public $MCONF;
     public $cshTable;
     public $formname = 'dmailform';
@@ -223,18 +223,17 @@ class Configuration extends BaseScriptClass
 				</script>
 			';
 
-
-            $markers = array(
+            $markers = [
                 'FLASHMESSAGES' => '',
                 'CONTENT' => '',
-            );
+            ];
 
-            $docHeaderButtons = array(
+            $docHeaderButtons = [
                 'PAGEPATH' => $this->getLanguageService()->getLL('labels.path') . ': ' .
                     GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => '',
                 'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS['BACK_PATH'])
-            );
+            ];
             // shortcut icon
             if ($GLOBALS['BE_USER']->mayMakeShortcut()) {
                 $docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
@@ -275,7 +274,6 @@ class Configuration extends BaseScriptClass
                         )
                     ]);
             }
-
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('title'));
             $this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
@@ -387,7 +385,7 @@ class Configuration extends BaseScriptClass
      *
      * @return string The compiled input form
      */
-    public function makeConfigForm(array $configArray, array$params, $dataPrefix)
+    public function makeConfigForm(array $configArray, array $params, $dataPrefix)
     {
         $boxFlag = 0;
 
@@ -396,7 +394,7 @@ class Configuration extends BaseScriptClass
             ' <span class="help" id="sender_email_help">';
         $wrapHelp2 = '</span></a>';
 
-        $lines = array();
+        $lines = [];
         if (is_array($configArray)) {
             foreach ($configArray as $fname => $config) {
                 if (is_array($config)) {

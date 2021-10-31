@@ -66,7 +66,7 @@ class DirectMail extends AbstractPlugin
      * @var MarkerBasedTemplateService
      */
     protected $templateService;
-    public $conf = array();
+    public $conf = [];
     public $prefixId = 'tx_directmail_pi1';
     public $scriptRelPath = 'pi1/class.tx_directmail_pi1.php';
     public $extKey = 'direct_mail';

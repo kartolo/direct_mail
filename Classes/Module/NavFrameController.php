@@ -62,7 +62,7 @@ class NavFrameController
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
-        $currentModule = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'DirectMailNavFrame_Configuration###');
+        $currentModule = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'DirectMailNavFrame_Configuration');
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $currentSubScript = $uriBuilder->buildUriFromRoute($currentModule);

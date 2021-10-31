@@ -44,9 +44,9 @@ class TypoScriptFrontendController
             if ($typoScriptFrontendController->fe_user->user) {
                 $typoScriptFrontendController->fe_user->user[$typoScriptFrontendController->usergroup_column] = $directMailFeGroup;
             } else {
-                $typoScriptFrontendController->fe_user->user = array(
+                $typoScriptFrontendController->fe_user->user = [
                     $typoScriptFrontendController->fe_user->usergroup_column => $directMailFeGroup
-                );
+                ];
             }
         }
     }

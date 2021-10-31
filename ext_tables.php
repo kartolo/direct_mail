@@ -125,7 +125,7 @@ if (TYPO3_MODE == 'BE') {
         'bottom',
         '',
         [
-            'routeTarget' => DirectMailTeam\DirectMail\Module\Configuration::class . '::mainAction',
+            'routeTarget' => DirectMailTeam\DirectMail\Module\ConfigurationController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_Configuration',
             'workspaces' => 'online',
