@@ -1,10 +1,3 @@
-##
-## @package TYPO3
-## @subpackage tx_directmail
-## @version $Id$
-##
-
-
 #
 # Table structure for table 'cache_sys_dmail_stat'
 #
@@ -240,4 +233,3 @@ CREATE TABLE tt_address (
 CREATE TABLE tt_content (
   module_sys_dmail_category int(10) unsigned DEFAULT '0' NOT NULL,
 );
-
