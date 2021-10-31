@@ -276,7 +276,7 @@ class Configuration extends BaseScriptClass
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
+            $this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, []);
         } else {
             // If no access or if ID == zero
 
@@ -307,7 +307,7 @@ class Configuration extends BaseScriptClass
      */
     protected function moduleContent()
     {
-        $configArray[1] = array(
+        $configArray[1] = [
             'box-1' => $this->getLanguageService()->getLL('configure_default_headers'),
             'from_email' => array('string', DirectMailUtility::fName('from_email'), $this->getLanguageService()->getLL('from_email.description') . '<br />' . $this->getLanguageService()->getLL('from_email.details')),
             'from_name' => array('string', DirectMailUtility::fName('from_name'), $this->getLanguageService()->getLL('from_name.description') . '<br />' . $this->getLanguageService()->getLL('from_name.details')),
@@ -316,7 +316,7 @@ class Configuration extends BaseScriptClass
             'return_path' => array('string', DirectMailUtility::fName('return_path'), $this->getLanguageService()->getLL('return_path.description') . '<br />' . $this->getLanguageService()->getLL('return_path.details')),
             'organisation' => array('string', DirectMailUtility::fName('organisation'), $this->getLanguageService()->getLL('organisation.description') . '<br />' . $this->getLanguageService()->getLL('organisation.details')),
             'priority' => array('select', DirectMailUtility::fName('priority'), $this->getLanguageService()->getLL('priority.description') . '<br />' . $this->getLanguageService()->getLL('priority.details'), array(3 => $this->getLanguageService()->getLL('configure_priority_normal'), 1 => $this->getLanguageService()->getLL('configure_priority_high'), 5 => $this->getLanguageService()->getLL('configure_priority_low'))),
-        );
+        ];
         $configArray[2] = array(
             'box-2' => $this->getLanguageService()->getLL('configure_default_content'),
             'sendOptions' => array('select', DirectMailUtility::fName('sendOptions'), $this->getLanguageService()->getLL('sendOptions.description') . '<br />' . $this->getLanguageService()->getLL('sendOptions.details'), array(3 => $this->getLanguageService()->getLL('configure_plain_and_html') ,1 => $this->getLanguageService()->getLL('configure_plain_only') ,2 => $this->getLanguageService()->getLL('configure_html_only'))),
