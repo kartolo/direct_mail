@@ -1,15 +1,5 @@
 <?php
 
-/***************************************************************
- * Extension Manager/Repository config file for ext "direct_mail".
- *
- * Auto generated 29-07-2013 16:04
- *
- * Manual updates:
- * Only the data in the array - everything else is removed by next
- * writing. "version" and "dependencies" must not be touched!
- ***************************************************************/
-
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Direct Mail',
     'description' => 'Advanced Direct Mail/Newsletter mailer system with sophisticated options for personalization of emails including response statistics.',
@@ -25,7 +15,7 @@ $EM_CONF[$_EXTKEY] = [
         'depends' => [
             'tt_address' => '4.0.0-',
             'php' => '7.2.0',
-            'typo3' => '10.4.0-10.4.99',
+            'typo3' => '11.5.0-11.9.99',
             'jumpurl' => '8.0.0-',
             'rdct' => '2.0.0'
         ],
