@@ -92,8 +92,9 @@ class NavFrameController
         
         $this->setDocHeader('index');
         
-        $this->moduleTemplate->addJavaScriptCode($this->getJS($currentModule, $currentSubScript));
-        
+        //$this->moduleTemplate->addJavaScriptCode($this->getJS($currentModule, $currentSubScript));
+        $this->moduleTemplate->getPageRenderer()->addJsInlineCode($currentModule, $this->getJS($currentModule, $currentSubScript));
+            
         $this->view->assignMultiple(
             [
                 'pages' => $pages,
@@ -110,7 +111,9 @@ class NavFrameController
     protected function getJS($currentModule, $currentSubScript) {
         //@TODO Uncaught Error: Writing to fsMod is not possible anymore, use ModuleStateStorage instead.
         //https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/11.4/Deprecation-94762-DeprecateJavaScriptTopfsModState.html
-        return GeneralUtility::wrapJS(
+        //https://github.com/typo3/typo3/commit/ca4afee813
+        //https://git.higidi.com/TYPO3/TYPO3.CMS/-/commit/1da997b9d7823900300568e181d7d1c17ecef71f
+        return //GeneralUtility::wrapJS(
             ($currentModule ? 'top.currentSubScript=unescape("' . rawurlencode($currentSubScript) . '");' : '') . '
             
 			function jumpTo(params,linkObj,highLightID)	{
@@ -149,7 +152,8 @@ class NavFrameController
 				theObj = document.getElementById(highLightID);
 			}
 		'
-        );
+        //)
+        ;
     }
     
     protected function getPages() {

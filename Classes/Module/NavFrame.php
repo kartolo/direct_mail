@@ -75,9 +75,9 @@ class NavFrame
      */
     public function __construct()
     {
-        $this->MCONF = array(
+        $this->MCONF = [
             'name' => $this->moduleName
-        );
+        ];
     }
 
     /**
@@ -120,27 +120,25 @@ class NavFrame
 				return false;
 			}
 
-
-				// Call this function, refresh_nav(), from another script in the backend if you want to refresh the navigation frame (eg. after having changed a page title or moved pages etc.)
-				// See t3lib_BEfunc::getSetUpdateSignal()
+			// Call this function, refresh_nav(), from another script in the backend if you want to refresh the navigation frame (eg. after having changed a page title or moved pages etc.)
+			// See t3lib_BEfunc::getSetUpdateSignal()
 			function refresh_nav() { //
 				window.setTimeout("_refresh_nav();",0);
 			}
-
 
 			function _refresh_nav()	{ //
 				document.location="' . htmlspecialchars(GeneralUtility::getIndpEnv('SCRIPT_NAME') . '?unique=' . time()) . '";
 			}
 
-				// Highlighting rows in the page tree:
+			// Highlighting rows in the page tree:
 			function hilight_row(frameSetModule,highLightID) { //
-					// Remove old:
+				// Remove old:
 				theObj = document.getElementById(top.fsMod.navFrameHighlightedID[frameSetModule]);
 				if (theObj)	{
 					theObj.style.backgroundColor="";
 				}
 
-					// Set new:
+				// Set new:
 				top.fsMod.navFrameHighlightedID[frameSetModule] = highLightID;
 				theObj = document.getElementById(highLightID);
 			}
