@@ -26,6 +26,7 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
@@ -58,6 +59,8 @@ class NavFrameController
     public function __construct(ModuleTemplate $moduleTemplate = null)
     {
         $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
+      #  $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+        $this->getLanguageService()->includeLLFile('EXT:core/Resources/Private/Language/locallang_core.xlf');
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -113,8 +116,7 @@ class NavFrameController
         //https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/11.4/Deprecation-94762-DeprecateJavaScriptTopfsModState.html
         //https://github.com/typo3/typo3/commit/ca4afee813
         //https://git.higidi.com/TYPO3/TYPO3.CMS/-/commit/1da997b9d7823900300568e181d7d1c17ecef71f
-        return //GeneralUtility::wrapJS(
-            ($currentModule ? 'top.currentSubScript=unescape("' . rawurlencode($currentSubScript) . '");' : '') . '
+        return ($currentModule ? 'top.currentSubScript=unescape("' . rawurlencode($currentSubScript) . '");' : '') . '
             
 			function jumpTo(params,linkObj,highLightID)	{
 				var theUrl = top.currentSubScript+"&"+params;
@@ -152,7 +154,6 @@ class NavFrameController
 				theObj = document.getElementById(highLightID);
 			}
 		'
-        //)
         ;
     }
     
@@ -199,15 +200,25 @@ class NavFrameController
         /**
         $docHeaderButtons = [
             'CSH' => BackendUtility::cshItem('_MOD_DirectMailNavFrame', 'folders', $GLOBALS['BACK_PATH'], true),
-            'REFRESH' => '<a class="btn btn-default btn-sm " href="' . htmlspecialchars(GeneralUtility::linkThisScript(array('unique' => uniqid('directmail_navframe')))) . '"></a>'
+            'REFRESH' => '<a class="btn btn-default btn-sm " href="' . htmlspecialchars(GeneralUtility::linkThisScript(['unique' => uniqid('directmail_navframe')])) . '"></a>'
         ];
         */
+
         $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
         $list = $buttonBar->makeLinkButton()
-        ->setHref('<uri-builder-path>') //@TODO
-        ->setTitle('refresh')
+        ->setHref(GeneralUtility::linkThisScript(['unique' => uniqid('directmail_navframe')]))
+        //->setHref(GeneralUtility::getIndpEnv('REQUEST_URI'))
+        ->setTitle($this->getLanguageService()->getLL('labels.reload'))
         ->setShowLabelText('Link')
         ->setIcon($this->moduleTemplate->getIconFactory()->getIcon('actions-refresh', Icon::SIZE_SMALL));
         $buttonBar->addButton($list, ButtonBar::BUTTON_POSITION_RIGHT, 1);
+    }
+    
+    /**
+     * @return LanguageService
+     */
+    protected function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }
