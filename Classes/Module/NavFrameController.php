@@ -87,6 +87,7 @@ class NavFrameController
         $pages = [];
         while (($row = $rows->fetchAssociative()) !== false) {
             if (BackendUtility::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1))) {
+                debug($row);
                 $icon = $this->moduleTemplate->getIconFactory()->getIconForRecord('pages', $row, Icon::SIZE_SMALL)->render();
                 $pages[] = ['icon' => $icon, 'page' => $row];
             }
@@ -165,7 +166,7 @@ class NavFrameController
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         
         $statement = $queryBuilder
-            ->select('uid', 'title')
+            ->select('uid', 'title', 'module')
             ->from('pages')
             ->where(
             $queryBuilder->expr()->eq(
