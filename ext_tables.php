@@ -106,7 +106,7 @@ if (TYPO3_MODE == 'BE') {
         'bottom',
         '',
         [
-            'routeTarget' => DirectMailTeam\DirectMail\Module\MailerEngine::class . '::mainAction',
+            'routeTarget' => DirectMailTeam\DirectMail\Module\MailerEngineController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_MailerEngine',
             'workspaces' => 'online',
