@@ -48,17 +48,17 @@ class MailerEngine extends BaseScriptClass
     public $extKey = 'direct_mail';
     public $TSconfPrefix = 'mod.web_modules.dmail.';
     // Internal
-    public $params=array();
+    public $params = [];
     public $perms_clause='';
     public $pageinfo='';
     public $sys_dmail_uid;
     public $pages_uid;
     public $id;
-    public $implodedParams=array();
+    public $implodedParams = [];
     // If set a valid user table is around
     public $userTable;
     public $sys_language_uid = 0;
-    public $allowedTables = array('tt_address','fe_users');
+    public $allowedTables = ['tt_address','fe_users'];
     public $MCONF;
     public $cshTable;
     public $formname = 'dmailform';
@@ -148,23 +148,23 @@ class MailerEngine extends BaseScriptClass
 				</script>
 			';
 
-            $this->doc->postCode='
+            $this->doc->postCode = '
 				<script language="javascript" type="text/javascript">
 					script_ended = 1;
 					if (top.fsMod) top.fsMod.recentIds[\'web\'] = ' . intval($this->id) . ';
 				</script>
 			';
 
-            $markers = array(
+            $markers = [
                 'FLASHMESSAGES' => '',
                 'CONTENT' => '',
-            );
+            ];
 
-            $docHeaderButtons = array(
+            $docHeaderButtons = [
                 'PAGEPATH' => $this->getLanguageService()->getLL('labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => '',
                 'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS['BACK_PATH'])
-            );
+            ];
             // shortcut icon
             if ($GLOBALS['BE_USER']->mayMakeShortcut()) {
                 $docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
@@ -172,8 +172,8 @@ class MailerEngine extends BaseScriptClass
 
             $module = $this->pageinfo['module'];
             if (!$module) {
-                $pidrec=BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
-                $module=$pidrec['module'];
+                $pidrec = BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
+                $module = $pidrec['module'];
             }
             // Render content:
             if ($module == 'dmail') {
@@ -211,7 +211,7 @@ class MailerEngine extends BaseScriptClass
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
+            $this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, []);
         } else {
             // If no access or if ID == zero
 
