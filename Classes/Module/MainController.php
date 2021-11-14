@@ -2,6 +2,8 @@
 namespace DirectMailTeam\DirectMail\Module;
 
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -24,5 +26,10 @@ class MainController {
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+    
+    protected function getQueryBuilder($table): QueryBuilder
+    {
+        return GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
     }
 }
