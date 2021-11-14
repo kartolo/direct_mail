@@ -87,7 +87,7 @@ if (TYPO3_MODE == 'BE') {
         'bottom',
         '',
         [
-            'routeTarget' => DirectMailTeam\DirectMail\Module\Statistics::class . '::mainAction',
+            'routeTarget' => DirectMailTeam\DirectMail\Module\StatisticsController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_Statistics',
             'workspaces' => 'online',
