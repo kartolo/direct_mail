@@ -68,7 +68,7 @@ if (TYPO3_MODE == 'BE') {
         'bottom',
         '',
         [
-            'routeTarget' => DirectMailTeam\DirectMail\Module\RecipientList::class . '::mainAction',
+            'routeTarget' => DirectMailTeam\DirectMail\Module\RecipientListController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_RecipientList',
             'workspaces' => 'online',
