@@ -48,7 +48,7 @@ class RecipientList extends BaseScriptClass
 {
     public $fieldList = 'uid,name,first_name,middle_name,last_name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
     // Internal
-    public $params = array();
+    public $params = [];
     public $perms_clause = '';
     public $pageinfo = '';
     public $sys_dmail_uid;
@@ -62,12 +62,12 @@ class RecipientList extends BaseScriptClass
     public $url_plain;
     public $url_html;
     public $mode;
-    public $implodedParams=array();
+    public $implodedParams=[];
     // If set a valid user table is around
     public $userTable;
     public $sys_language_uid = 0;
     public $error='';
-    public $allowedTables = array('tt_address','fe_users');
+    public $allowedTables = ['tt_address','fe_users'];
 
     /**
      * Query generator
@@ -188,21 +188,20 @@ class RecipientList extends BaseScriptClass
 				</script>
 			';
 
-            $markers = array(
+            $markers = [
                 'FLASHMESSAGES' => '',
                 'CONTENT' => '',
-            );
+            ];
 
-            $docHeaderButtons = array(
+            $docHeaderButtons = [
                 'PAGEPATH' => $this->getLanguageService()->getLL('labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => '',
                 'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS['BACK_PATH'])
-            );
+            ];
             // shortcut icon
             if ($GLOBALS['BE_USER']->mayMakeShortcut()) {
                 $docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name'], '', 'btn btn-default btn-sm');
             }
-
 
             $module = $this->pageinfo['module'];
             if (!$module) {
@@ -242,7 +241,7 @@ class RecipientList extends BaseScriptClass
             }
 
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('mailgroup_header'));
-            $this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
+            $this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, []);
         } else {
             // If no access or if ID == zero
 
@@ -271,8 +270,7 @@ class RecipientList extends BaseScriptClass
      */
     protected function moduleContent()
     {
-
-            // COMMAND:
+        // COMMAND:
         switch ($this->CMD) {
             case 'displayUserInfo':
                 $theOutput = $this->cmd_displayUserInfo();
@@ -371,7 +369,7 @@ class RecipientList extends BaseScriptClass
 
         // New:
         $out = '<a href="#" class="t3-link" onClick="' . $editOnClickLink . '">' .
-            $this->iconFactory->getIconForRecord('sys_dmail_group', array(), Icon::SIZE_SMALL) .
+            $this->iconFactory->getIconForRecord('sys_dmail_group', [], Icon::SIZE_SMALL) .
             $this->getLanguageService()->getLL('recip_create_mailgroup_msg') . '</a>';
         $theOutput .= '<div style="padding-top: 20px;"></div>';
         $theOutput .= '<h3>' . $this->getLanguageService()->getLL('recip_select_mailgroup') . '</h3>' .
@@ -458,7 +456,7 @@ class RecipientList extends BaseScriptClass
      */
     public function cmd_compileMailGroup($groupUid)
     {
-        $idLists = array();
+        $idLists = [];
         if ($groupUid) {
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $groupUid);
             if (is_array($mailGroup) && $mailGroup['pid']==$this->id) {
@@ -469,7 +467,7 @@ class RecipientList extends BaseScriptClass
                         $thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;
                         // Explode the pages
                         $pages = GeneralUtility::intExplode(',', $thePages);
-                        $pageIdArray=array();
+                        $pageIdArray = [];
                         foreach ($pages as $pageUid) {
                             if ($pageUid>0) {
                                 $pageinfo = BackendUtility::readPageAccess($pageUid, $this->perms_clause);
@@ -505,7 +503,7 @@ class RecipientList extends BaseScriptClass
                             // fe_groups
                             if ($whichTables&8) {
                                 if (!is_array($idLists['fe_users'])) {
-                                    $idLists['fe_users'] = array();
+                                    $idLists['fe_users'] = [];
                                 }
                                 $idLists['fe_users'] = array_unique(array_merge($idLists['fe_users'], DirectMailUtility::getIdList('fe_groups', $pidList, $groupUid, $mailGroup['select_categories'])));
                             }
@@ -578,7 +576,7 @@ class RecipientList extends BaseScriptClass
         * manipulate the generated id_lists
         */
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'])) {
-            $hookObjectsArr = array();
+            $hookObjectsArr = [];
 
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'] as $classRef) {
                 $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
@@ -593,10 +591,9 @@ class RecipientList extends BaseScriptClass
             $idLists = $temporaryList;
         }
 
-
-        return array(
-            'queryInfo' => array('id_lists' => $idLists)
-        );
+        return [
+            'queryInfo' => ['id_lists' => $idLists]
+        ];
     }
 
     /**
@@ -687,7 +684,7 @@ class RecipientList extends BaseScriptClass
 
                 if (is_array($idLists['tt_address']) && count($idLists['tt_address'])) {
                     $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) .
-                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'tt_address')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                        '<br /><a href="' . GeneralUtility::linkThisScript(['csv'=>'tt_address']) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_address') .'</h3>' .
                         $csvError .
                         $recipContent;
@@ -696,7 +693,7 @@ class RecipientList extends BaseScriptClass
 
                 if (is_array($idLists['fe_users']) && count($idLists['fe_users'])) {
                     $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) .
-                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'fe_users')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                        '<br /><a href="' . GeneralUtility::linkThisScript(['csv'=>'fe_users']) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_fe_users') . '</h3>' .
                         $csvError .
                         $recipContent;
@@ -705,7 +702,7 @@ class RecipientList extends BaseScriptClass
 
                 if (is_array($idLists['PLAINLIST']) && count($idLists['PLAINLIST'])) {
                     $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) .
-                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv'=>'PLAINLIST')) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                        '<br /><a href="' . GeneralUtility::linkThisScript(['csv'=>'PLAINLIST']) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_plain_list') .'</h3>' .
                         $csvError .
                         $recipContent;
@@ -714,7 +711,7 @@ class RecipientList extends BaseScriptClass
 
                 if (is_array($idLists[$this->userTable]) && count($idLists[$this->userTable])) {
                     $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) .
-                        '<br /><a href="' . GeneralUtility::linkThisScript(array('csv' => $this->userTable)) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                        '<br /><a href="' . GeneralUtility::linkThisScript(['csv' => $this->userTable]) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_custom') . '</h3>' .
                         $csvError .
                         $recipContent;
@@ -771,10 +768,10 @@ class RecipientList extends BaseScriptClass
             } elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
                 $whichTables = 4;
             }
-            $updateFields = array(
+            $updateFields = [
                 'whichtables' => intval($whichTables),
                 'query' => $this->MOD_SETTINGS['queryConfig']
-            );
+            ];
 
 
             $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
@@ -834,7 +831,7 @@ class RecipientList extends BaseScriptClass
      */
     public function downloadCSV(array $idArr)
     {
-        $lines = array();
+        $lines = [];
         if (is_array($idArr) && count($idArr)) {
             reset($idArr);
             $lines[] = CsvUtility::csvValues(array_keys(current($idArr)), ',', '');
@@ -878,12 +875,12 @@ class RecipientList extends BaseScriptClass
                 // see fe_users
             case 'fe_users':
                 if (is_array($indata)) {
-                    $data=array();
+                    $data=[];
                     if (is_array($indata['categories'])) {
                         reset($indata['categories']);
                         foreach ($indata['categories'] as $recValues) {
                             reset($recValues);
-                            $enabled = array();
+                            $enabled = [];
                             foreach ($recValues as $k => $b) {
                                 if ($b) {
                                     $enabled[] = $k;
@@ -896,7 +893,7 @@ class RecipientList extends BaseScriptClass
                     /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler*/
                     $tce = GeneralUtility::makeInstance(DataHandler::class);
                     $tce->stripslashes_values = 0;
-                    $tce->start($data, array());
+                    $tce->start($data, []);
                     $tce->process_datamap();
                 }
                 break;
