@@ -23,7 +23,7 @@
   },
   "require": {
     "typo3/cms-core": "^11.5",
-    "friendsoftypo3/tt-address": "dev-master"
+    "friendsoftypo3/tt-address": ""^5.3"
   },
   "require-dev": {
     "roave/security-advisories": "dev-master"
