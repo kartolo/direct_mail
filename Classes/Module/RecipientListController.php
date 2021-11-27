@@ -5,6 +5,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -37,16 +38,6 @@ class RecipientListController extends MainController
      * @var string
      */
     protected $moduleName = '';
-    
-    /**
-     * Constructor Method
-     *
-     * @var ModuleTemplate $moduleTemplate
-     */
-    public function __construct(ModuleTemplate $moduleTemplate = null)
-    {
-        $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
-    }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
@@ -124,11 +115,12 @@ class RecipientListController extends MainController
         
         $out = '<thead>
 					<th colspan="2">&nbsp;</th>
-					<th>' . $this->getLanguageService()->getLL('title') . '</th>
-					<th>' . $this->getLanguageService()->getLL('type') . '</th>
-					<th>' . $this->getLanguageService()->getLL('description') . '</th>
+                    <th>' . $this->getLanguageService()->sL(BackendUtility::getItemLabel('sys_dmail_group', 'title')) . '</th>
+                    <th>' . $this->getLanguageService()->sL(BackendUtility::getItemLabel('sys_dmail_group', 'type')) . '</th>
+					<th>' . $this->getLanguageService()->sL(BackendUtility::getItemLabel('sys_dmail_group', 'description')) . '</th>
 					<th>' . $this->getLanguageService()->getLL('recip_group_amount') . '</th>
 				</thead>';
+        
         
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
         $queryBuilder
