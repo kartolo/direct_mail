@@ -49,7 +49,7 @@ if (TYPO3_MODE == 'BE') {
         'bottom',
         '',
         [
-            'routeTarget' => DirectMailTeam\DirectMail\Module\Dmail::class . '::mainAction',
+            'routeTarget' => DirectMailTeam\DirectMail\Module\DmailController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_DirectMail',
             'workspaces' => 'online',
