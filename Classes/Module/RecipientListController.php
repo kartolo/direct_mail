@@ -52,14 +52,7 @@ class RecipientListController extends MainController
             if (($this->id && $access) || ($GLOBALS['BE_USER']->user['admin'] && !$this->id)) {
          */
         
-        /**
-         * Configure template paths for your backend module
-         */
-        $this->view = GeneralUtility::makeInstance(StandaloneView::class);
-        $this->view->setTemplateRootPaths(['EXT:direct_mail/Resources/Private/Templates/']);
-        $this->view->setPartialRootPaths(['EXT:direct_mail/Resources/Private/Partials/']);
-        $this->view->setLayoutRootPaths(['EXT:direct_mail/Resources/Private/Layouts/']);
-        $this->view->setTemplate('RecipientList');
+        $this->view = $this->configureTemplatePaths('RecipientList');
         
         $formcontent = $this->moduleContent();
         $this->view->assignMultiple(

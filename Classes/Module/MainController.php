@@ -6,6 +6,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class MainController {
     
@@ -18,6 +19,20 @@ class MainController {
     {
         $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+    }
+    
+    /**
+     * Configure template paths for your backend module
+     * @return StandaloneView
+     */
+    protected function configureTemplatePaths (string $templateName): StandaloneView
+    {
+        $view = GeneralUtility::makeInstance(StandaloneView::class);
+        $view->setTemplateRootPaths(['EXT:direct_mail/Resources/Private/Templates/']);
+        $view->setPartialRootPaths(['EXT:direct_mail/Resources/Private/Partials/']);
+        $view->setLayoutRootPaths(['EXT:direct_mail/Resources/Private/Layouts/']);
+        $view->setTemplate($templateName);
+        return $view;
     }
     
     /**

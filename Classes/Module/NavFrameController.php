@@ -73,14 +73,7 @@ class NavFrameController extends MainController
         $disableTitleHighlight = $GLOBALS['BE_USER']->getTSConfig()['options.']['pageTree.']['disableTitleHighlight'] ?? false;
         $this->doHighlight = (bool)($disableTitleHighlight) ? false : true;
         
-        /**
-         * Configure template paths for your backend module
-         */
-        $this->view = GeneralUtility::makeInstance(StandaloneView::class);
-        $this->view->setTemplateRootPaths(['EXT:direct_mail/Resources/Private/Templates/']);
-        $this->view->setPartialRootPaths(['EXT:direct_mail/Resources/Private/Partials/']);
-        $this->view->setLayoutRootPaths(['EXT:direct_mail/Resources/Private/Layouts/']);
-        $this->view->setTemplate('NavFrame');
+        $this->view = $this->configureTemplatePaths('NavFrame');
 
         $rows = $this->getPages();
         $pages = [];

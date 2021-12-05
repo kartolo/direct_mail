@@ -67,14 +67,7 @@ class ConfigurationController extends MainController
         */
         $sys_dmail_uid = 0;
 
-        /**
-         * Configure template paths for your backend module
-         */
-        $this->view = GeneralUtility::makeInstance(StandaloneView::class);
-        $this->view->setTemplateRootPaths(['EXT:direct_mail/Resources/Private/Templates/']);
-        $this->view->setPartialRootPaths(['EXT:direct_mail/Resources/Private/Partials/']);
-        $this->view->setLayoutRootPaths(['EXT:direct_mail/Resources/Private/Layouts/']);
-        $this->view->setTemplate('Configuration');
+        $this->view = $this->configureTemplatePaths('Configuration');
         
         $this->moduleTemplate->addJavaScriptCode($this->getJS($sys_dmail_uid));
         
