@@ -1,4 +1,15 @@
 <f:layout name="Default" />
 
 <f:section name="content">
+<div class="typo3-fullDoc">
+	<div class="module-body t3js-module-body">
+        <f:format.raw>{wizardsteps}</f:format.raw>
+        <f:format.raw>{navigation}</f:format.raw>
+        <br clear="all" />
+        <br />
+		<f:format.raw>{flashmessages}</f:format.raw>
+		<h3><f:format.raw>{title}</f:format.raw></h3>
+		<f:format.raw>{content}</f:format.raw>
+	</div>
+</div>
 </f:section>

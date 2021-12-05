@@ -66,7 +66,7 @@ class DirectMailUtility
      */
     public static function fetchRecordsListValues(array $listArr, $table, $fields='uid,name,email')
     {
-        $outListArr = array();
+        $outListArr = [];
         if (is_array($listArr) && count($listArr)) {
             $idlist = implode(',', $listArr);
 
@@ -297,7 +297,7 @@ class DirectMailUtility
                     ->execute();
             }
         }
-        $outArr = array();
+        $outArr = [];
         while (($row = $res->fetch())) {
             $outArr[] = $row['uid'];
         }
@@ -401,7 +401,7 @@ class DirectMailUtility
                 ->execute();
         }
 
-        $outArr = array();
+        $outArr = [];
 
         while (($row = $res->fetch())) {
             $outArr[] = $row['uid'];
@@ -494,7 +494,7 @@ class DirectMailUtility
      */
     public static function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group): array
     {
-        $outArr = array();
+        $outArr = [];
         if ($group['query']) {
             $queryGenerator->init('dmail_queryConfig', $table);
             $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
@@ -524,7 +524,7 @@ class DirectMailUtility
     public static function getMailGroups($list, array $parsedGroups, $perms_clause)
     {
         $groupIdList = GeneralUtility::intExplode(',', $list);
-        $groups = array();
+        $groups = [];
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
         $queryBuilder
@@ -568,7 +568,7 @@ class DirectMailUtility
      */
     public static function rearrangeCsvValues(array $lines, $fieldList)
     {
-        $out = array();
+        $out = [];
         if (is_array($lines) && count($lines)>0) {
             // Analyse if first line is fieldnames.
             // Required is it that every value is either
@@ -585,7 +585,7 @@ class DirectMailUtility
                 $fieldListArr = array_merge($fieldListArr, explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
             }
             $fieldName = 1;
-            $fieldOrder = array();
+            $fieldOrder = [];
 
             foreach ($first as $v) {
                 list($fName, $fConf) = preg_split('|[\[\]]|', $v);
@@ -647,7 +647,7 @@ class DirectMailUtility
      */
     public static function rearrangePlainMails(array $plainMails)
     {
-        $out = array();
+        $out = [];
         if (is_array($plainMails)) {
             $c = 0;
             foreach ($plainMails as $v) {
@@ -670,7 +670,7 @@ class DirectMailUtility
      */
     public static function makeCategories($table, array $row, $sysLanguageUid)
     {
-        $categories = array();
+        $categories = [];
 
         $mmField = 'module_sys_dmail_category';
         if ($table == 'sys_dmail_group') {
@@ -776,24 +776,26 @@ class DirectMailUtility
      *
      * @return string HTML table
      */
-    public static function formatTable(array $tableLines, array $cellParams, $header, array $cellcmd = array(), $tableParams = 'class="table table-striped table-hover"')
+    public static function formatTable(array $tableLines, array $cellParams, $header, array $cellcmd = [], $tableParams = 'class="table table-striped table-hover"')
     {
         reset($tableLines);
         $cols = empty($tableLines) ? 0 : count(current($tableLines));
 
         reset($tableLines);
-        $lines = array();
+        $lines = [];
         $first = $header?1:0;
 
         foreach ($tableLines as $r) {
-            $rowA = array();
+            $rowA = [];
             for ($k=0; $k<$cols; $k++) {
                 $v = $r[$k];
                 $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : '&nbsp;';
                 if ($first) {
                     $rowA[] = '<td>' . $v . '</td>';
                 } else {
-                    $rowA[] = '<td' . ($cellParams[$k]?' ' . $cellParams[$k]:'') . '>' . $v . '</td>';
+                    $cellParam = $cellParams[$k] ?? '';
+                    $cellParam = $cellParam != '' ? ' '.$cellParam : '';
+                    $rowA[] = '<td' . ($cellParam) . '>' . $v . '</td>';
                 }
             }
             $lines[] = '<tr class="' . ($first ? 't3-row-header' : 'db_list_normal') . '">' . implode('', $rowA) . '</tr>';
@@ -880,7 +882,7 @@ class DirectMailUtility
         $fh = tmpfile();
         fwrite($fh, trim($str));
         fseek($fh, 0);
-        $lines = array();
+        $lines = [];
         if ($sep == 'tab') {
             $sep = "\t";
         }
@@ -1014,7 +1016,7 @@ class DirectMailUtility
             )
             ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . intval($groupId) . ',\' )')
             ->execute();
-        $groupArr = array();
+        $groupArr = [];
 
         while (($row = $res->fetch())) {
             $groupArr[] = $row['uid'];
@@ -1116,7 +1118,7 @@ class DirectMailUtility
             /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
             $tce = GeneralUtility::makeInstance(DataHandler::class);
             $tce->stripslashes_values = 0;
-            $tce->start($tcemainData, array());
+            $tce->start($tcemainData, []);
             $tce->process_datamap();
             $result = $tce->substNEWwithIDs['NEW'];
         } elseif (!$newRecord['sendOptions']) {
@@ -1219,7 +1221,7 @@ class DirectMailUtility
             /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
             $tce = GeneralUtility::makeInstance(DataHandler::class);
             $tce->stripslashes_values = 0;
-            $tce->start($tcemainData, array());
+            $tce->start($tcemainData, []);
             $tce->process_datamap();
             $result = $tce->substNEWwithIDs['NEW'];
         } elseif (!$newRecord['sendOptions']) {
@@ -1241,8 +1243,8 @@ class DirectMailUtility
     public static function fetchUrlContentsForDirectMailRecord(array $row, array $params, $returnArray = false)
     {
         $theOutput = '';
-        $errorMsg = array();
-        $warningMsg = array();
+        $errorMsg = [];
+        $warningMsg = [];
         $urls = self::getFullUrlsForDirectMailRecord($row);
         $plainTextUrl = $urls['plainTextUrl'];
         $htmlUrl = $urls['htmlUrl'];
@@ -1297,7 +1299,7 @@ class DirectMailUtility
             // If type = 1, we have an external page.
             if ($row['type'] == 1) {
                 // Try to auto-detect the charset of the message
-                $matches = array();
+                $matches = [];
                 $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', $htmlmail->theParts['html_content'], $matches);
                 if ($res == 1) {
                     $htmlmail->charset = $matches[1];
@@ -1389,7 +1391,7 @@ class DirectMailUtility
     {
         $user = $params['http_username'];
         $pass = $params['http_password'];
-        $matches = array();
+        $matches = [];
         if ($user && $pass && preg_match('/^(?:http)s?:\/\//', $url, $matches)) {
             $url = $matches[0] . $user . ':' . $pass . '@' . substr($url, strlen($matches[0]));
         }
@@ -1574,7 +1576,7 @@ class DirectMailUtility
             if (!is_array($impParams)) {
                 $impParams = DirectMailUtility::implodeTSParams(BackendUtility::getPagesTSconfig($id));
             }
-            $set = array();
+            $set = [];
             foreach ($pageTs as $f => $v) {
                 $f = $tsConfPrefix . $f;
                 if ((!isset($impParams[$f]) && trim($v)) || strcmp(trim($impParams[$f]), trim($v))) {
@@ -1629,7 +1631,7 @@ class DirectMailUtility
      */
     public static function implodeTSParams(array $p, $k = '')
     {
-        $implodeParams = array();
+        $implodeParams = [];
         if (is_array($p)) {
             foreach ($p as $kb => $val) {
                 if (is_array($val)) {

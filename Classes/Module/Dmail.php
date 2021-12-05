@@ -72,11 +72,10 @@ class Dmail extends BaseScriptClass
     public $userTable;
     public $sys_language_uid = 0;
     public $error='';
-    public $allowedTables = array('tt_address','fe_users');
+    public $allowedTables = ['tt_address', 'fe_users'];
     public $MCONF;
     public $cshTable;
     public $formname = 'dmailform';
-
 
     /**
      * IconFactory for skinning
@@ -175,11 +174,11 @@ class Dmail extends BaseScriptClass
                 $this->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
 
                 // Define settings for Date Picker
-                $typo3Settings = array(
+                $typo3Settings = [
                     'datePickerUSmode' => $GLOBALS['TYPO3_CONF_VARS']['SYS']['USdateFormat'] ? 1 : 0,
-                    'dateFormat'       => array('j-n-Y', 'G:i j-n-Y'),
-                    'dateFormatUS'     => array('n-j-Y', 'G:i n-j-Y'),
-                );
+                    'dateFormat'       => ['j-n-Y', 'G:i j-n-Y'],
+                    'dateFormatUS'     => ['n-j-Y', 'G:i n-j-Y'],
+                ];
                 $this->getPageRenderer()->addInlineSettingArray('', $typo3Settings);
             }
 
@@ -251,18 +250,18 @@ class Dmail extends BaseScriptClass
 				</script>
 			';
 
-            $markers = array(
+            $markers = [
                 'TITLE' => '',
                 'FLASHMESSAGES' => '',
                 'CONTENT' => '',
                 'WIZARDSTEPS' => '',
                 'NAVIGATION' => ''
-            );
+            ];
 
-            $docHeaderButtons = array(
+            $docHeaderButtons = [
                 'PAGEPATH' => $this->getLanguageService()->getLL('labels.path') . ': ' . GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => ''
-            );
+            ];
             // shortcut icon
             if ($BE_USER->mayMakeShortcut()) {
                 $docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name'], 1, 'btn btn-default btn-sm');
@@ -330,7 +329,7 @@ class Dmail extends BaseScriptClass
         $theOutput = '';
         // Set default values:
         $dmail = [];
-        $dmail['sys_dmail']['NEW'] = array(
+        $dmail['sys_dmail']['NEW'] = [
             'from_email'        => $indata['senderEmail'],
             'from_name'            => $indata['senderName'],
             'replyto_email'        => $this->params['replyto_email'],
@@ -342,7 +341,7 @@ class Dmail extends BaseScriptClass
             'organisation'        => $this->params['organisation'],
             'authcode_fieldList'=> $this->params['authcode_fieldList'],
             'plainParams'        => ''
-        );
+        ];
 
         // always plaintext
         $dmail['sys_dmail']['NEW']['sendOptions'] = 1;
@@ -483,12 +482,12 @@ class Dmail extends BaseScriptClass
         $theOutput = '';
         $isExternalDirectMailRecord = false;
 
-        $markers = array(
+        $markers = [
             'WIZARDSTEPS' => '',
             'FLASHMESSAGES' => '',
             'NAVIGATION' => '',
             'TITLE' => ''
-        );
+        ];
 
         if ($this->CMD == 'delete') {
             $this->deleteDMail(intval(GeneralUtility::_GP('uid')));
