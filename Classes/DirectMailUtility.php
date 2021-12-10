@@ -684,8 +684,10 @@ class DirectMailUtility
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
                 $res = $queryBuilder->select('*')
                     ->from('sys_dmail_category')
-                    ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
-                        ' AND l18n_parent=0')
+                    ->where(
+                        $queryBuilder->expr()->in('sys_dmail_category.pid', $queryBuilder->createNamedParameter(explode(',', $pidList), Connection::PARAM_INT_ARRAY)),
+                        $queryBuilder->expr()->eq('sys_dmail_category.l18n_parent', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+                    )
                     ->execute();
                 while (($rowCat = $res->fetch())) {
                     if (($localizedRowCat = self::getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid, ''))) {
