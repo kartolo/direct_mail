@@ -25,18 +25,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 
 class ConfigurationController extends MainController
-{   
-    /**
-     * Constructor Method
-     *
-     * @var ModuleTemplate $moduleTemplate
-     */
-    public function __construct(ModuleTemplate $moduleTemplate = null)
-    {
-        $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
-        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
-    }
-    
+{
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('Configuration');
@@ -45,11 +34,7 @@ class ConfigurationController extends MainController
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $this->moduleTemplate->addJavaScriptCode($this->getJS($this->sys_dmail_uid));
 
-            $module = $this->pageinfo['module'] ?? false;
-            if (!$module && isset($this->pageinfo['pid'])) {
-                $pidrec = BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
-                $module = $pidrec['module'] ?? false;
-            }
+            $module = $this->getModulName();
 
             if ($module == 'dmail') {
                 // Direct mail module
@@ -57,7 +42,8 @@ class ConfigurationController extends MainController
                     $formcontent = $this->moduleContent();
                     $this->view->assignMultiple(
                         [
-                            'formcontent' => $formcontent
+                            'formcontent' => $formcontent,
+                            'show' => true
                         ]
                     );
                 }

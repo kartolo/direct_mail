@@ -2,9 +2,11 @@
 
 <f:section name="content">
 <f:flashMessages />
+<f:if condition="{show}">
 <h1><f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:header_mailer" /></h1>
 <f:format.raw>{cronMonitor}</f:format.raw>
 <f:format.raw>{mailerEngine}</f:format.raw>
 <form action="" method="post" name="dmailform" enctype="multipart/form-data">
 </form>
+</f:if>
 </f:section>

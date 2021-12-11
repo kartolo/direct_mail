@@ -231,7 +231,7 @@ class MailerEngine extends BaseScriptClass
      */
     public function printContent()
     {
-        $this->content.=$this->doc->endPage();
+        $this->content .= $this->doc->endPage();
     }
 
     /**
