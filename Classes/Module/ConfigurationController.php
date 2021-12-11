@@ -26,19 +26,7 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 
 class ConfigurationController extends MainController
-{
-    /**
-     * ModuleTemplate Container
-     *
-     * @var ModuleTemplate
-     */
-    protected $moduleTemplate;
-    
-    /**
-     * @var StandaloneView
-     */
-    protected $view;
-    
+{   
     /**
      * Constructor Method
      *
@@ -52,32 +40,35 @@ class ConfigurationController extends MainController
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
-        /**
-        debug($request->getQueryParams());
-        $currentModule = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'DirectMailNavFrame_Configuration###');
-        
-        $this->CMD = GeneralUtility::_GP('CMD');
-        $this->pages_uid = intval(GeneralUtility::_GP('pages_uid'));
-        $sys_dmail_uid = intval(GeneralUtility::_GP('sys_dmail_uid'));
-        $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
-        $access = is_array($this->pageinfo) ? 1 : 0;
-        
-        if (($this->id && $access) || ($GLOBALS['BE_USER']->user['admin'] && !$this->id)) {
-            
-        */
-        $sys_dmail_uid = 0;
-
         $this->view = $this->configureTemplatePaths('Configuration');
         
-        $this->moduleTemplate->addJavaScriptCode($this->getJS($sys_dmail_uid));
+        $queryParams = $request->getQueryParams();
+        $parsedBody = $request->getParsedBody();
         
-        $formcontent = $this->moduleContent();
-        $this->view->assignMultiple(
-            [
-                'formcontent' => $formcontent
-            ]
-        );
+        $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
+        $this->cmd = (string)($parsedBody['cmd'] ?? $queryParams['cmd'] ?? '');
+        $this->pages_uid = (string)($parsedBody['pages_uid'] ?? $queryParams['pages_uid'] ?? '');
+        $this->sys_dmail_uid = (int)($parsedBody['sys_dmail_uid'] ?? $queryParams['sys_dmail_uid'] ?? 0);
         
+        $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
+
+        $access = is_array($this->pageinfo) ? 1 : 0;
+
+        if (($this->id && $access) || ($this->isAdmin() && !$this->id)) {
+            $this->moduleTemplate->addJavaScriptCode($this->getJS($this->sys_dmail_uid));
+            
+            $formcontent = $this->moduleContent();
+            $this->view->assignMultiple(
+                [
+                    'formcontent' => $formcontent
+                ]
+            );
+        }
+        else {
+            // If no access or if ID == zero
+            $this->view = $this->configureTemplatePaths('NoAccess');
+        }
+
         /**
          * Render template and return html content
          */

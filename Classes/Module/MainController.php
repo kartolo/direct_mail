@@ -11,6 +11,23 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 class MainController {
     
     /**
+     * ModuleTemplate Container
+     *
+     * @var ModuleTemplate
+     */
+    protected $moduleTemplate;
+    
+    /**
+     * @var StandaloneView
+     */
+    protected $view;
+
+    protected string $cmd = '';
+    protected int $id = 0;
+    protected string $perms_clause = '';
+    protected int $sys_dmail_uid = 0;
+
+    /**
      * Constructor Method
      *
      * @var ModuleTemplate $moduleTemplate
@@ -41,6 +58,11 @@ class MainController {
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+    
+    protected function isAdmin(): bool
+    {
+        return $GLOBALS['BE_USER']->isAdmin();
     }
     
     protected function getQueryBuilder($table): QueryBuilder

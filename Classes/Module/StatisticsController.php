@@ -4,6 +4,7 @@ namespace DirectMailTeam\DirectMail\Module;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
@@ -11,22 +12,6 @@ use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 
 class StatisticsController extends MainController
 {
-    /**
-     * ModuleTemplate Container
-     *
-     * @var ModuleTemplate
-     */
-    protected $moduleTemplate;
-    
-    /**
-     * @var StandaloneView
-     */
-    protected $view;
-    
-    protected $CMD = '';
-    protected $id = 0;
-    protected $sys_dmail_uid = 0;
-    
     /**
      * Constructor Method
      *
@@ -39,25 +24,33 @@ class StatisticsController extends MainController
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
-/**
-        $this->CMD = GeneralUtility::_GP('CMD');
-        $this->pages_uid = intval(GeneralUtility::_GP('pages_uid'));
-        $this->sys_dmail_uid = intval(GeneralUtility::_GP('sys_dmail_uid'));
-        $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
-        $access = is_array($this->pageinfo) ? 1 : 0;
-        
-        if (($this->id && $access) || ($GLOBALS['BE_USER']->user['admin'] && !$this->id)) {
-*/            
-
         $this->view = $this->configureTemplatePaths('Statistics');
         
-        $formcontent = $this->moduleContent();
-        $this->view->assignMultiple(
-            [
-                'formcontent' => $formcontent
-            ]
-        );
+        $queryParams = $request->getQueryParams();
+        $parsedBody = $request->getParsedBody();
         
+        $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
+        $this->cmd = (string)($parsedBody['cmd'] ?? $queryParams['cmd'] ?? '');
+        $this->pages_uid = (string)($parsedBody['pages_uid'] ?? $queryParams['pages_uid'] ?? '');
+        $this->sys_dmail_uid = (int)($parsedBody['sys_dmail_uid'] ?? $queryParams['sys_dmail_uid'] ?? 0);
+        
+        $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
+        
+        $access = is_array($this->pageinfo) ? 1 : 0;
+        
+        if (($this->id && $access) || ($this->isAdmin() && !$this->id)) {
+            $formcontent = $this->moduleContent();
+            $this->view->assignMultiple(
+                [
+                    'formcontent' => $formcontent
+                ]
+            );
+        }
+        else {
+            // If no access or if ID == zero
+            $this->view = $this->configureTemplatePaths('NoAccess');
+        }
+
         /**
          * Render template and return html content
          */

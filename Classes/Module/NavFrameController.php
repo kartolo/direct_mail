@@ -31,19 +31,7 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 
 
 class NavFrameController extends MainController
-{
-    /**
-     * ModuleTemplate Container
-     *
-     * @var ModuleTemplate
-     */
-    protected $moduleTemplate;
-    
-    /**
-     * @var StandaloneView
-     */
-    protected $view;
-    
+{   
     /**
      * Set highlight
      * @var	string

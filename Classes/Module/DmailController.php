@@ -20,28 +20,12 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 
 class DmailController extends MainController
 {
-    /**
-     * ModuleTemplate Container
-     *
-     * @var ModuleTemplate
-     */
-    protected $moduleTemplate;
-    
-    /**
-     * @var StandaloneView
-     */
-    protected $view;
-    
     protected array $implodedParams = [];
     protected $cshTable;
     protected string $error = '';
-    
-    protected int $id = 0;
-    protected string $cmd = '';
+
     protected array $pageinfo = [];
-    protected string $perms_clause = '';
     protected string $pages_uid = '';
-    protected int $sys_dmail_uid = 0;
     
     protected int $currentStep = 1;
     
@@ -86,7 +70,7 @@ class DmailController extends MainController
         
         $access = is_array($this->pageinfo) ? 1 : 0;
         
-        if (($this->id && $access) || ($GLOBALS['BE_USER']->isAdmin() && !$this->id)) {
+        if (($this->id && $access) || ($this->isAdmin() && !$this->id)) {
             $markers = $this->moduleContent();
             $formcontent = $markers['CONTENT'];
             $this->view->assignMultiple(
@@ -101,8 +85,8 @@ class DmailController extends MainController
         }
         else {
             // If no access or if ID == zero
+            $this->view = $this->configureTemplatePaths('NoAccess');
         }
-        
 
         /**
          * Render template and return html content

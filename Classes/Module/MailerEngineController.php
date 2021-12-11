@@ -16,33 +16,38 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class MailerEngineController extends MainController
 {
-    /**
-     * ModuleTemplate Container
-     *
-     * @var ModuleTemplate
-     */
-    protected $moduleTemplate;
-    
-    /**
-     * @var StandaloneView
-     */
-    protected $view;
-    
-    public $id;
-    
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('MailerEngine');
         
-        $cronMonitor = $this->cmd_cronMonitor();
-        $mailerEngine = $this->cmd_mailerengine();
+        $queryParams = $request->getQueryParams();
+        $parsedBody = $request->getParsedBody();
         
-        $this->view->assignMultiple(
-            [
-                'cronMonitor' => $cronMonitor,
-                'mailerEngine' => $mailerEngine
-            ]
-        );
+        $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
+        $this->cmd = (string)($parsedBody['cmd'] ?? $queryParams['cmd'] ?? '');
+        $this->pages_uid = (string)($parsedBody['pages_uid'] ?? $queryParams['pages_uid'] ?? '');
+        $this->sys_dmail_uid = (int)($parsedBody['sys_dmail_uid'] ?? $queryParams['sys_dmail_uid'] ?? 0);
+        
+        $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
+
+        $access = is_array($this->pageinfo) ? 1 : 0;
+
+        if (($this->id && $access) || ($this->isAdmin() && !$this->id)) {
+            $cronMonitor = $this->cmd_cronMonitor();
+            $mailerEngine = $this->cmd_mailerengine();
+            
+            $this->view->assignMultiple(
+                [
+                    'cronMonitor' => $cronMonitor,
+                    'mailerEngine' => $mailerEngine
+                ]
+            );
+        }
+        else {
+            // If no access or if ID == zero
+            $this->view = $this->configureTemplatePaths('NoAccess');
+        }
+
         /**
          * Render template and return html content
          */
