@@ -2,9 +2,11 @@
 
 <f:section name="content">
 <f:flashMessages />
+<f:if condition="{formcontent}">
 <h1><f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:header_conf" /></h1>
 <form action="" method="post" name="dmailform" enctype="multipart/form-data">
     <f:format.raw>{formcontent}</f:format.raw>
     <input type="submit" name="submit" value="{f:translate(key: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:configure_update_configuration', default: 'Update configuration')}" />
 </form>
+</f:if>
 </f:section>

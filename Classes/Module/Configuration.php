@@ -241,8 +241,8 @@ class Configuration extends BaseScriptClass
 
             $module = $this->pageinfo['module'];
             if (!$module) {
-                $pidrec=BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
-                $module=$pidrec['module'];
+                $pidrec = BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
+                $module = $pidrec['module'];
             }
 
             if ($module == 'dmail') {

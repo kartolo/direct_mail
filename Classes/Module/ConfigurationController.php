@@ -44,13 +44,32 @@ class ConfigurationController extends MainController
         $this->init($request);
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $this->moduleTemplate->addJavaScriptCode($this->getJS($this->sys_dmail_uid));
-            
-            $formcontent = $this->moduleContent();
-            $this->view->assignMultiple(
-                [
-                    'formcontent' => $formcontent
-                ]
-            );
+
+            $module = $this->pageinfo['module'] ?? false;
+            if (!$module && isset($this->pageinfo['pid'])) {
+                $pidrec = BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
+                $module = $pidrec['module'] ?? false;
+            }
+
+            if ($module == 'dmail') {
+                // Direct mail module
+                if (($this->pageinfo['doktype'] ?? 0) == 254) {
+                    $formcontent = $this->moduleContent();
+                    $this->view->assignMultiple(
+                        [
+                            'formcontent' => $formcontent
+                        ]
+                    );
+                }
+                elseif ($this->id != 0) {
+                    $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
+                    $this->messageQueue->addMessage($message);
+                }
+            }
+            else {
+                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_conf'), 1, false);
+                $this->messageQueue->addMessage($message);
+            }
         }
         else {
             // If no access or if ID == zero

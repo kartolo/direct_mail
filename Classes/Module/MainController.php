@@ -117,7 +117,8 @@ class MainController {
      * @param int $messageType
      * @param bool $storeInSession
      */
-    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false) {
+    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false) 
+    {
         return GeneralUtility::makeInstance(FlashMessage::class,
             $messageText,
             $messageHeader, // [optional] the header
