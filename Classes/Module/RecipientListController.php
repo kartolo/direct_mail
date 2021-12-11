@@ -55,6 +55,8 @@ class RecipientListController extends MainController
         else {
             // If no access or if ID == zero
             $this->view = $this->configureTemplatePaths('NoAccess');
+            $message = $this->createFlashMessage('If no access or if ID == zero', 'No Access', 1, false);
+            $this->messageQueue->addMessage($message);
         }
     
         /**

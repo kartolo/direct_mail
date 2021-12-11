@@ -42,7 +42,6 @@ class ConfigurationController extends MainController
         $this->view = $this->configureTemplatePaths('Configuration');
         
         $this->init($request);
-
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $this->moduleTemplate->addJavaScriptCode($this->getJS($this->sys_dmail_uid));
             
@@ -56,6 +55,8 @@ class ConfigurationController extends MainController
         else {
             // If no access or if ID == zero
             $this->view = $this->configureTemplatePaths('NoAccess');
+            $message = $this->createFlashMessage('If no access or if ID == zero', 'No Access', 1, false);
+            $this->messageQueue->addMessage($message);
         }
 
         /**
