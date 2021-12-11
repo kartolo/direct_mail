@@ -45,7 +45,7 @@ class MainController {
     protected $userTable;
     protected $allowedTables = [];
     protected int $sys_language_uid = 0;
-    protected $pageinfo;
+    protected array $pageinfo = [];
     protected bool $access = false;
     
     /**
