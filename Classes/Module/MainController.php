@@ -134,12 +134,9 @@ class MainController {
     
     protected function getModulName() {
         $module = $this->pageinfo['module'] ?? false;
-        
-        $this->pageinfo['pid'] = 108; //TEST
+
         if (!$module && isset($this->pageinfo['pid'])) {
-            
             $pidrec = BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
-            
             $module = $pidrec['module'] ?? false;
         }
         

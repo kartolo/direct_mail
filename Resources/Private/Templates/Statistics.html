@@ -2,6 +2,8 @@
 
 <f:section name="content">
 <f:flashMessages />
-<h1><f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:header_stat" /></h1>
+<f:if condition="{show}">
+<h1><f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:stats_overview_header" /></h1>
 <f:format.raw>{formcontent}</f:format.raw>
+</f:if>
 </f:section>

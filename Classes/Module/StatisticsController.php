@@ -11,30 +11,37 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 
 class StatisticsController extends MainController
-{
-    /**
-     * Constructor Method
-     *
-     * @var ModuleTemplate $moduleTemplate
-     */
-    public function __construct(ModuleTemplate $moduleTemplate = null)
-    {
-        $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
-    }
-    
+{   
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('Statistics');
         
         $this->init($request);
+        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
         
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
-            $formcontent = $this->moduleContent();
-            $this->view->assignMultiple(
-                [
-                    'formcontent' => $formcontent
-                ]
-            );
+            $module = $this->getModulName();
+
+            if ($module == 'dmail') {
+                // Direct mail module
+                if (($this->pageinfo['doktype'] ?? 0) == 254) {
+                    $formcontent = $this->moduleContent();
+                    $this->view->assignMultiple(
+                        [
+                            'formcontent' => $formcontent,
+                            'show' => true
+                        ]
+                    );
+                }
+                elseif ($this->id != 0) {
+                    $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
+                    $this->messageQueue->addMessage($message);
+                }
+            }
+            else {
+                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_conf'), 1, false);
+                $this->messageQueue->addMessage($message);
+            }
         }
         else {
             // If no access or if ID == zero
@@ -79,7 +86,7 @@ class StatisticsController extends MainController
                 $this->setURLs($row);
                 
                 // COMMAND:
-                switch ($this->CMD) {
+                switch ($this->cmd) {
                     case 'displayUserInfo':
                         $theOutput = $this->displayUserInfo();
                         break;
@@ -88,8 +95,8 @@ class StatisticsController extends MainController
                         break;
                     default:
                         // Hook for handling of custom direct mail commands:
-                        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->CMD])) {
-                            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->CMD] as $funcRef) {
+                        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd])) {
+                            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd] as $funcRef) {
                                 $params = ['pObj' => &$this];
                                 $theOutput = GeneralUtility::callUserFunction($funcRef, $params, $this);
                             }
@@ -124,26 +131,19 @@ class StatisticsController extends MainController
             'sys_dmail_maillog',
             $queryBuilder->expr()->eq('sys_dmail.uid', $queryBuilder->quoteIdentifier('sys_dmail_maillog.mid'))
         )
-        ->add('where','sys_dmail.pid=' . intval($this->id) .
+        ->add('where','sys_dmail.pid = ' . intval($this->id) .
             ' AND sys_dmail.type IN (0,1)' .
             ' AND sys_dmail.issent = 1'.
-            ' AND sys_dmail_maillog.response_type=0'.
-            ' AND sys_dmail_maillog.html_sent>0')
+            ' AND sys_dmail_maillog.response_type = 0'.
+            ' AND sys_dmail_maillog.html_sent > 0')
             ->groupBy('sys_dmail_maillog.mid')
             ->orderBy('sys_dmail.scheduled','DESC')
             ->addOrderBy('sys_dmail.scheduled_begin','DESC')
             ->execute()
             ->fetchAll();
-        
-        $onClick = '';
-        if ($res) {
-            $onClick = ' onClick="return confirm(' . GeneralUtility::quoteJSvalue(sprintf($this->getLanguageService()->getLL('nl_l_warning'), count($res))) . ');"';
-        }
-        $out = '';
-        
-        if ($res) {
-            $out .='<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">';
-            $out .='<thead>
+
+        $out ='<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">';
+        $out .='<thead>
 					<th>&nbsp;</th>
 					<th><b>' . $this->getLanguageService()->getLL('stats_overview_subject') . '</b></th>
 					<th><b>' . $this->getLanguageService()->getLL('stats_overview_scheduled') . '</b></th>
@@ -152,7 +152,8 @@ class StatisticsController extends MainController
 					<th nowrap="nowrap"><b>' . $this->getLanguageService()->getLL('stats_overview_total_sent') . '</b></th>
 					<th><b>' . $this->getLanguageService()->getLL('stats_overview_status') . '</b></th>
 				</thead>';
-            
+        
+        if ($res) {
             foreach ($res as $row)  {
                 if (!empty($row['scheduled_begin'])) {
                     if (!empty($row['scheduled_end'])) {
@@ -174,14 +175,12 @@ class StatisticsController extends MainController
 					<td>' . $sent . '</td>
 				</tr>';
             }
-            $out.='</table>';
         }
+        $out .= '</table>';
+        $out = '<h3>' . $this->getLanguageService()->getLL('stats_overview_choose') . '</h3>' .$out;
+        $out .= '<div style="padding-top: 20px;"></div>';
 
-        $theOutput = '<h3>' . $this->getLanguageService()->getLL('stats_overview_choose') . '</h3>' .
-            $out;
-            $theOutput .= '<div style="padding-top: 20px;"></div>';
-
-        return $theOutput;
+        return $out;
     }
     
     /**

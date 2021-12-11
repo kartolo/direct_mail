@@ -26,13 +26,13 @@ class MailerEngineController extends MainController
         
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $module = $this->getModulName();
-            debug($module);
+
             if ($module == 'dmail') {
                 //@TODO $this->cmd
                 if (GeneralUtility::_GP('cmd') == 'delete') {
                     $this->deleteDMail(GeneralUtility::_GP('uid'));
                 }
-                $this->pageinfo['doktype'] = 254;//TEST
+
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $cronMonitor = $this->cmd_cronMonitor();
