@@ -118,7 +118,7 @@ class DmailController extends MainController
         }
         
         $hideCategoryStep = false;
-        $tsconfig = $GLOBALS['BE_USER']->getTSConfig();
+        $tsconfig = $this->getTSConfig();
 
         if ((isset($tsconfig['tx_directmail.']['hideSteps']) &&
             $tsconfig['tx_directmail.']['hideSteps'] === 'cat') || $isExternalDirectMailRecord) {

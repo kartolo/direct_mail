@@ -58,7 +58,7 @@ class NavFrameController extends MainController
         $currentSubScript = $uriBuilder->buildUriFromRoute($currentModule);
         
         // Setting highlight mode:
-        $disableTitleHighlight = $GLOBALS['BE_USER']->getTSConfig()['options.']['pageTree.']['disableTitleHighlight'] ?? false;
+        $disableTitleHighlight = $this->getTSConfig()['options.']['pageTree.']['disableTitleHighlight'] ?? false;
         $this->doHighlight = (bool)($disableTitleHighlight) ? false : true;
         
         $this->view = $this->configureTemplatePaths('NavFrame');

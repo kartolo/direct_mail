@@ -65,6 +65,10 @@ class MainController {
         return $GLOBALS['BE_USER']->isAdmin();
     }
     
+    protected function getTSConfig() {
+        return $GLOBALS['BE_USER']->getTSConfig();
+    }
+    
     protected function getQueryBuilder($table): QueryBuilder
     {
         return GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
