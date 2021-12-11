@@ -26,19 +26,9 @@ class StatisticsController extends MainController
     {
         $this->view = $this->configureTemplatePaths('Statistics');
         
-        $queryParams = $request->getQueryParams();
-        $parsedBody = $request->getParsedBody();
+        $this->init($request);
         
-        $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
-        $this->cmd = (string)($parsedBody['cmd'] ?? $queryParams['cmd'] ?? '');
-        $this->pages_uid = (string)($parsedBody['pages_uid'] ?? $queryParams['pages_uid'] ?? '');
-        $this->sys_dmail_uid = (int)($parsedBody['sys_dmail_uid'] ?? $queryParams['sys_dmail_uid'] ?? 0);
-        
-        $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
-        
-        $access = is_array($this->pageinfo) ? 1 : 0;
-        
-        if (($this->id && $access) || ($this->isAdmin() && !$this->id)) {
+        if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $formcontent = $this->moduleContent();
             $this->view->assignMultiple(
                 [

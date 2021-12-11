@@ -20,12 +20,8 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 
 class DmailController extends MainController
 {
-    protected array $implodedParams = [];
     protected $cshTable;
     protected string $error = '';
-
-    protected array $pageinfo = [];
-    protected string $pages_uid = '';
     
     protected int $currentStep = 1;
     
@@ -52,25 +48,17 @@ class DmailController extends MainController
     {
         $this->view = $this->configureTemplatePaths('Dmail');
         
+        $this->init($request);
+        
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
 
-        $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
-        $this->cmd = (string)($parsedBody['cmd'] ?? $queryParams['cmd'] ?? '');
-        $this->pages_uid = (string)($parsedBody['pages_uid'] ?? $queryParams['pages_uid'] ?? '');
-        $this->sys_dmail_uid = (int)($parsedBody['sys_dmail_uid'] ?? $queryParams['sys_dmail_uid'] ?? 0);
-
-        $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
         // get the config from pageTS
-        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
-        $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
         $this->params['pid'] = intval($this->id);
         
         $this->cshTable = '_MOD_' . $this->moduleName;
         
-        $access = is_array($this->pageinfo) ? 1 : 0;
-        
-        if (($this->id && $access) || ($this->isAdmin() && !$this->id)) {
+        if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $markers = $this->moduleContent();
             $formcontent = $markers['CONTENT'];
             $this->view->assignMultiple(
