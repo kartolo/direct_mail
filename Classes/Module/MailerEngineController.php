@@ -52,7 +52,7 @@ class MailerEngineController extends MainController
                 }
             }
             else {
-                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_conf'), 1, false);
+                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_mailer'), 1, false);
                 $this->messageQueue->addMessage($message);
             }
         }

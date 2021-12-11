@@ -39,7 +39,7 @@ class StatisticsController extends MainController
                 }
             }
             else {
-                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_conf'), 1, false);
+                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_stat'), 1, false);
                 $this->messageQueue->addMessage($message);
             }
         }

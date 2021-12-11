@@ -1,6 +1,8 @@
 <?php
 namespace DirectMailTeam\DirectMail\Module;
 
+use DirectMailTeam\DirectMail\Importer;
+use DirectMailTeam\DirectMail\MailSelect;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -23,34 +25,38 @@ class RecipientListController extends MainController
      */
     protected $moduleName = '';
     
-    /**
-     * Constructor Method
-     *
-     * @var ModuleTemplate $moduleTemplate
-     */
-    public function __construct(ModuleTemplate $moduleTemplate = null)
-    {
-        $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
-        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
-    }
-    
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('RecipientList');
         
         $this->init($request);
+        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
         
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
+            $module = $this->getModulName();
             $this->moduleName = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'DirectMailNavFrame_RecipientList');
-            
-            $this->view = $this->configureTemplatePaths('RecipientList');
-            
-            $formcontent = $this->moduleContent();
-            $this->view->assignMultiple(
-                [
-                    'formcontent' => $formcontent
-                ]
-            );
+            $module = 'dmail';
+            $this->pageinfo['doktype'] = 254;
+            if ($module == 'dmail') {
+                // Direct mail module
+                if (($this->pageinfo['doktype'] ?? 0) == 254) {
+                    $formcontent = $this->moduleContent();
+                    $this->view->assignMultiple(
+                        [
+                            'formcontent' => $formcontent,
+                            'show' => true
+                        ]
+                    );
+                }
+                elseif ($this->id != 0) {
+                    $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
+                    $this->messageQueue->addMessage($message);
+                }
+            }
+            else {
+                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_recip'), 1, false);
+                $this->messageQueue->addMessage($message);
+            }
         }
         else {
             // If no access or if ID == zero
@@ -137,16 +143,16 @@ class RecipientListController extends MainController
             $count = 0;
             $idLists = $result['queryInfo']['id_lists'];
             if (is_array($idLists['tt_address'])) {
-                $count+=count($idLists['tt_address']);
+                $count += count($idLists['tt_address']);
             }
             if (is_array($idLists['fe_users'])) {
-                $count+=count($idLists['fe_users']);
+                $count += count($idLists['fe_users']);
             }
             if (is_array($idLists['PLAINLIST'])) {
-                $count+=count($idLists['PLAINLIST']);
+                $count += count($idLists['PLAINLIST']);
             }
             if (is_array($idLists[$this->userTable])) {
-                $count+=count($idLists[$this->userTable]);
+                $count += count($idLists[$this->userTable]);
             }
             
             $out .= '<tr class="db_list_normal">
@@ -159,7 +165,7 @@ class RecipientListController extends MainController
 		</tr>';
         }
                 
-        $out =' <table class="table table-striped table-hover">' . $out . '</table>';
+        $out = ' <table class="table table-striped table-hover">' . $out . '</table>';
         $theOutput = '<h3>' . $this->getLanguageService()->getLL('recip_select_mailgroup') . '</h3>' .
             $out;
             
@@ -189,11 +195,11 @@ class RecipientListController extends MainController
                         'id' => $this->id,
                         'cmd' => 'displayImport'
                     ]
-                    );
-                $out = '<a class="t3-link" href="' . $moduleUrl . '">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
-                $theOutput.= '<div style="padding-top: 20px;"></div>';
-                $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_import') . '</h3>' . $out;
-                return $theOutput;
+                );
+        $out = '<a class="t3-link" href="' . $moduleUrl . '">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
+        $theOutput .= '<div style="padding-top: 20px;"></div>';
+        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('mailgroup_import') . '</h3>' . $out;
+        return $theOutput;
     }
     
 }
