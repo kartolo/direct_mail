@@ -35,8 +35,7 @@ class RecipientListController extends MainController
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $module = $this->getModulName();
             $this->moduleName = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'DirectMailNavFrame_RecipientList');
-            $module = 'dmail';
-            $this->pageinfo['doktype'] = 254;
+
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {

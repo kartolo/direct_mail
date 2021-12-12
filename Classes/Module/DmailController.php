@@ -49,9 +49,6 @@ class DmailController extends MainController
         $this->view = $this->configureTemplatePaths('Dmail');
         
         $this->init($request);
-        
-        $queryParams = $request->getQueryParams();
-        $parsedBody = $request->getParsedBody();
 
         // get the config from pageTS
         $this->params['pid'] = intval($this->id);
@@ -59,17 +56,32 @@ class DmailController extends MainController
         $this->cshTable = '_MOD_' . $this->moduleName;
         
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
-            $markers = $this->moduleContent();
-            $formcontent = $markers['CONTENT'];
-            $this->view->assignMultiple(
-                [
-                    'wizardsteps' => $markers['WIZARDSTEPS'],
-                    'navigation'  => $markers['NAVIGATION'],
-                    'flashmessages' => $markers['FLASHMESSAGES'],
-                    'title' => $markers['TITLE'],
-                    'content' => $markers['CONTENT']
-                ]
-            );
+            $module = $this->getModulName();
+
+            if ($module == 'dmail') {
+                // Direct mail module
+                if (($this->pageinfo['doktype'] ?? 0) == 254) {
+                    $markers = $this->moduleContent();
+                    $formcontent = $markers['CONTENT'];
+                    $this->view->assignMultiple(
+                        [
+                            'wizardsteps' => $markers['WIZARDSTEPS'],
+                            'navigation'  => $markers['NAVIGATION'],
+                            'flashmessages' => $markers['FLASHMESSAGES'],
+                            'title' => $markers['TITLE'],
+                            'content' => $markers['CONTENT']
+                        ]
+                    );
+                }
+                elseif ($this->id != 0) {
+                    $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
+                    $this->messageQueue->addMessage($message);
+                }
+            }
+            else {
+                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_directmail'), 1, false);
+                $this->messageQueue->addMessage($message);
+            }
         }
         else {
             // If no access or if ID == zero
