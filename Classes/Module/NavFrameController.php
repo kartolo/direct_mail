@@ -92,12 +92,12 @@ class NavFrameController extends MainController
     }
     
     protected function getJS($currentModule, $currentSubScript) {
-        //@TODO Uncaught Error: Writing to fsMod is not possible anymore, use ModuleStateStorage instead.
-        //https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/11.4/Deprecation-94762-DeprecateJavaScriptTopfsModState.html
-        //https://github.com/typo3/typo3/commit/ca4afee813
-        //https://git.higidi.com/TYPO3/TYPO3.CMS/-/commit/1da997b9d7823900300568e181d7d1c17ecef71f
+        // @TODO Uncaught Error: Writing to fsMod is not possible anymore, use ModuleStateStorage instead.
+        // https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/11.4/Deprecation-94762-DeprecateJavaScriptTopfsModState.html
+        // https://github.com/typo3/typo3/commit/ca4afee813
+        // https://git.higidi.com/TYPO3/TYPO3.CMS/-/commit/1da997b9d7823900300568e181d7d1c17ecef71f
+        // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.4/Deprecation-95011-VariousGlobalJavaScriptFunctionsAndVariables.html
         return ($currentModule ? 'top.currentSubScript=unescape("' . rawurlencode($currentSubScript) . '");' : '') . '
-            
 			function jumpTo(params,linkObj,highLightID)	{
 				var theUrl = top.currentSubScript+"&"+params;
             

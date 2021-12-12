@@ -238,17 +238,16 @@ class NavFrame
             $content .= GeneralUtility::wrapJS('hilight_row("",top.fsMod.navFrameHighlightedID["web"]);');
         }
 
-
-        $docHeaderButtons = array(
+        $docHeaderButtons = [
             'CSH' => BackendUtility::cshItem('_MOD_DirectMailNavFrame', 'folders', $GLOBALS['BACK_PATH'], true),
-            'REFRESH' => '<a class="btn btn-default btn-sm " href="' . htmlspecialchars(GeneralUtility::linkThisScript(array('unique' => uniqid('directmail_navframe')))) . '">' .
+            'REFRESH' => '<a class="btn btn-default btn-sm " href="' . htmlspecialchars(GeneralUtility::linkThisScript(['unique' => uniqid('directmail_navframe')])) . '">' .
                 $iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL) . '</a>'
-        );
+        ];
 
-        $markers = array(
+        $markers = [
             'HEADLINE' => '',
             'CONTENT' => $this->getLanguageService()->getLL('dmail_folders') . $content
-        );
+        ];
         // Build the <body> for the module
         $this->content = $this->doc->startPage('TYPO3 Direct Mail Navigation');
         $this->content .= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers);
