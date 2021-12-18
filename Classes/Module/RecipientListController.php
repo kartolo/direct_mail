@@ -141,16 +141,16 @@ class RecipientListController extends MainController
             $result = $this->cmd_compileMailGroup(intval($row['uid']));
             $count = 0;
             $idLists = $result['queryInfo']['id_lists'];
-            if (is_array($idLists['tt_address'])) {
+            if (is_array($idLists['tt_address'] ?? false)) {
                 $count += count($idLists['tt_address']);
             }
-            if (is_array($idLists['fe_users'])) {
+            if (is_array($idLists['fe_users'] ?? false)) {
                 $count += count($idLists['fe_users']);
             }
-            if (is_array($idLists['PLAINLIST'])) {
+            if (is_array($idLists['PLAINLIST'] ?? false)) {
                 $count += count($idLists['PLAINLIST']);
             }
-            if (is_array($idLists[$this->userTable])) {
+            if (is_array($idLists[$this->userTable] ?? false)) {
                 $count += count($idLists[$this->userTable]);
             }
             
@@ -201,4 +201,613 @@ class RecipientListController extends MainController
         return $theOutput;
     }
     
+    /**
+     * Put all recipients uid from all table into an array
+     *
+     * @param int $groupUid Uid of the group
+     *
+     * @return	array List of the uid in an array
+     */
+    protected function cmd_compileMailGroup($groupUid)
+    {
+        $idLists = [];
+        if ($groupUid) {
+            $mailGroup = BackendUtility::getRecord('sys_dmail_group', $groupUid);
+            if (is_array($mailGroup) && $mailGroup['pid']==$this->id) {
+                switch ($mailGroup['type']) {
+                    case 0:
+                        // From pages
+                        // use current page if no else
+                        $thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;
+                        // Explode the pages
+                        $pages = GeneralUtility::intExplode(',', $thePages);
+                        $pageIdArray = [];
+                        foreach ($pages as $pageUid) {
+                            if ($pageUid>0) {
+                                $pageinfo = BackendUtility::readPageAccess($pageUid, $this->perms_clause);
+                                if (is_array($pageinfo)) {
+                                    $info['fromPages'][]=$pageinfo;
+                                    $pageIdArray[]=$pageUid;
+                                    if ($mailGroup['recursive']) {
+                                        $pageIdArray=array_merge($pageIdArray, DirectMailUtility::getRecursiveSelect($pageUid, $this->perms_clause));
+                                    }
+                                }
+                            }
+                        }
+                        // Remove any duplicates
+                        $pageIdArray=array_unique($pageIdArray);
+                        $pidList = implode(',', $pageIdArray);
+                        $info['recursive']=$mailGroup['recursive'];
+                        
+                        // Make queries
+                        if ($pidList) {
+                            $whichTables = intval($mailGroup['whichtables']);
+                            // tt_address
+                            if ($whichTables&1) {
+                                $idLists['tt_address']=DirectMailUtility::getIdList('tt_address', $pidList, $groupUid, $mailGroup['select_categories']);
+                            }
+                            // fe_users
+                            if ($whichTables&2) {
+                                $idLists['fe_users']=DirectMailUtility::getIdList('fe_users', $pidList, $groupUid, $mailGroup['select_categories']);
+                            }
+                            // user table
+                            if ($this->userTable && ($whichTables&4)) {
+                                $idLists[$this->userTable]=DirectMailUtility::getIdList($this->userTable, $pidList, $groupUid, $mailGroup['select_categories']);
+                            }
+                            // fe_groups
+                            if ($whichTables&8) {
+                                if (!is_array($idLists['fe_users'])) {
+                                    $idLists['fe_users'] = [];
+                                }
+                                $idLists['fe_users'] = array_unique(array_merge($idLists['fe_users'], DirectMailUtility::getIdList('fe_groups', $pidList, $groupUid, $mailGroup['select_categories'])));
+                            }
+                        }
+                        break;
+                    case 1:
+                        // List of mails
+                        if ($mailGroup['csv']==1) {
+                            $recipients = DirectMailUtility::rearrangeCsvValues(DirectMailUtility::getCsvValues($mailGroup['list']), $this->fieldList);
+                        } else {
+                            $recipients = DirectMailUtility::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroup['list'])));
+                        }
+                        $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($recipients);
+                        break;
+                    case 2:
+                        // Static MM list
+                        $idLists['tt_address'] = DirectMailUtility::getStaticIdList('tt_address', $groupUid);
+                        $idLists['fe_users'] = DirectMailUtility::getStaticIdList('fe_users', $groupUid);
+                        $idLists['fe_users'] = array_unique(array_merge($idLists['fe_users'], DirectMailUtility::getStaticIdList('fe_groups', $groupUid)));
+                        if ($this->userTable) {
+                            $idLists[$this->userTable] = DirectMailUtility::getStaticIdList($this->userTable, $groupUid);
+                        }
+                        break;
+                    case 3:
+                        // Special query list
+                        $mailGroup = $this->update_SpecialQuery($mailGroup);
+                        $whichTables = intval($mailGroup['whichtables']);
+                        $table = '';
+                        if ($whichTables&1) {
+                            $table = 'tt_address';
+                        } elseif ($whichTables&2) {
+                            $table = 'fe_users';
+                        } elseif ($this->userTable && ($whichTables&4)) {
+                            $table = $this->userTable;
+                        }
+                        if ($table) {
+                            $idLists[$table] = DirectMailUtility::getSpecialQueryIdList($this->queryGenerator, $table, $mailGroup);
+                        }
+                        break;
+                    case 4:
+                        $groups = array_unique(DirectMailUtility::getMailGroups($mailGroup['mail_groups'], array($mailGroup['uid']), $this->perms_clause));
+                        foreach ($groups as $group) {
+                            $collect = $this->cmd_compileMailGroup($group);
+                            if (is_array($collect['queryInfo']['id_lists'])) {
+                                $idLists = array_merge_recursive($idLists, $collect['queryInfo']['id_lists']);
+                            }
+                        }
+                        
+                        // Make unique entries
+                        if (is_array($idLists['tt_address'])) {
+                            $idLists['tt_address'] = array_unique($idLists['tt_address']);
+                        }
+                        if (is_array($idLists['fe_users'])) {
+                            $idLists['fe_users'] = array_unique($idLists['fe_users']);
+                        }
+                        if (is_array($idLists[$this->userTable]) && $this->userTable) {
+                            $idLists[$this->userTable] = array_unique($idLists[$this->userTable]);
+                        }
+                        if (is_array($idLists['PLAINLIST'])) {
+                            $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($idLists['PLAINLIST']);
+                        }
+                        break;
+                    default:
+                }
+            }
+        }
+        /**
+         * Hook for cmd_compileMailGroup
+         * manipulate the generated id_lists
+         */
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'] ?? false)) {
+            $hookObjectsArr = [];
+            
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'] as $classRef) {
+                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
+            }
+            foreach ($hookObjectsArr as $hookObj) {
+                if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
+                    $temporaryList = $hookObj->cmd_compileMailGroup_postProcess($idLists, $this, $mailGroup);
+                }
+            }
+            
+            unset($idLists);
+            $idLists = $temporaryList;
+        }
+        
+        return [
+            'queryInfo' => ['id_lists' => $idLists]
+        ];
+    }
+    
+    /**
+     * Shows edit link
+     *
+     * @param string $table Table name
+     * @param int $uid Record uid
+     *
+     * @return string the edit link
+     */
+    protected function editLink($table, $uid)
+    {
+        $str = '';
+        
+        // check if the user has the right to modify the table
+        if ($GLOBALS['BE_USER']->check('tables_modify', $table)) {
+            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+                'edit' => [
+                    $table => [
+                        $uid => 'edit',
+                    ],
+                ],
+                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+            ]);
+            $str = '<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+                $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) .
+                '</a>';
+        }
+        
+        return $str;
+    }
+    
+    /**
+     * Shows link to show the recipient infos
+     *
+     * @param string $str Name of the recipient link
+     * @param int $uid Uid of the recipient link
+     *
+     * @return string The link
+     * @throws RouteNotFoundException If the named route doesn't exist
+     */
+    protected function linkRecip_record($str, $uid)
+    {
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $moduleUrl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'group_uid' => $uid,
+                'cmd' => 'displayMailGroup',
+                'SET[dmail_mode]' => 'recip'
+            ]
+            );
+        return '<a href="' . $moduleUrl . '">' . $str . '</a>';
+    }
+    
+    /**
+     * Display infos of the mail group
+     *
+     * @param array $result Array containing list of recipient uid
+     *
+     * @return string list of all recipient (HTML)
+     */
+    protected function cmd_displayMailGroup($result)
+    {
+        $totalRecipients = 0;
+        $idLists = $result['queryInfo']['id_lists'];
+        if (is_array($idLists['tt_address'])) {
+            $totalRecipients += count($idLists['tt_address']);
+        }
+        if (is_array($idLists['fe_users'])) {
+            $totalRecipients += count($idLists['fe_users']);
+        }
+        if (is_array($idLists['PLAINLIST'])) {
+            $totalRecipients += count($idLists['PLAINLIST']);
+        }
+        if (is_array($idLists[$this->userTable])) {
+            $totalRecipients += count($idLists[$this->userTable]);
+        }
+        
+        $group = BackendUtility::getRecord('sys_dmail_group', intval(GeneralUtility::_GP('group_uid')));
+        $out = $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL) . htmlspecialchars($group['title']);
+        
+        $lCmd = GeneralUtility::_GP('lCmd');
+        
+        $mainC = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' <strong>' . $totalRecipients . '</strong>';
+        if (!$lCmd) {
+            $mainC.= '<br /><br /><strong><a class="t3-link" href="' . GeneralUtility::linkThisScript(['lCmd'=>'listall']) . '">' . $this->getLanguageService()->getLL('mailgroup_list_all') . '</a></strong>';
+        }
+        
+        $theOutput = '<h3>' . $this->getLanguageService()->getLL('mailgroup_recip_from') . ' ' . $out . '</h3>' .
+            $mainC;
+            $theOutput .= '<div style="padding-top: 20px;"></div>';
+            
+            // do the CSV export
+            $csvValue = GeneralUtility::_GP('csv');
+            if ($csvValue) {
+                if ($csvValue == 'PLAINLIST') {
+                    $this->downloadCSV($idLists['PLAINLIST']);
+                } elseif (GeneralUtility::inList('tt_address,fe_users,' . $this->userTable, $csvValue)) {
+                    if($GLOBALS['BE_USER']->check('tables_select', $csvValue)) {
+                        $this->downloadCSV(DirectMailUtility::fetchRecordsListValues($idLists[$csvValue], $csvValue, (($csvValue == 'fe_users') ? str_replace('phone', 'telephone', $this->fieldList) : $this->fieldList) . ',tstamp'));
+                    } else {
+                        $csvError = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                        ->resolve()
+                        ->render([
+                            GeneralUtility::makeInstance(
+                                FlashMessage::class,
+                                '',
+                                $this->getLanguageService()->getLL('mailgroup_table_disallowed_csv'),
+                                FlashMessage::ERROR
+                                )
+                        ]);
+                    }
+                    
+                }
+            }
+            
+            switch ($lCmd) {
+                case 'listall':
+                    if (is_array($idLists['tt_address'])) {
+                        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_address') . '</h3>' .
+                            DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id);
+                            $theOutput.= '<div style="padding-top: 20px;"></div>';
+                    }
+                    if (is_array($idLists['fe_users'])) {
+                        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_fe_users') .'</h3>' .
+                            DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id);
+                            $theOutput.= '<div style="padding-top: 20px;"></div>';
+                    }
+                    if (is_array($idLists['PLAINLIST'])) {
+                        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_plain_list') .'</h3>' .
+                            DirectMailUtility::getRecordList($idLists['PLAINLIST'], 'sys_dmail_group', $this->id);
+                            $theOutput.= '<div style="padding-top: 20px;"></div>';
+                    }
+                    if (is_array($idLists[$this->userTable])) {
+                        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_custom') . ' ' . $this->userTable . '</h3>' .
+                            DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable], $this->userTable), $this->userTable, $this->id);
+                    }
+                    break;
+                default:
+                    
+                    if (is_array($idLists['tt_address']) && count($idLists['tt_address'])) {
+                        $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['tt_address']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(['csv'=>'tt_address']) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_address') .'</h3>' .
+                            $csvError .
+                            $recipContent;
+                            $theOutput.= '<div style="padding-top: 20px;"></div>';
+                    }
+                    
+                    if (is_array($idLists['fe_users']) && count($idLists['fe_users'])) {
+                        $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['fe_users']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(['csv'=>'fe_users']) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_fe_users') . '</h3>' .
+                            $csvError .
+                            $recipContent;
+                            $theOutput.= '<div style="padding-top: 20px;"></div>';
+                    }
+                    
+                    if (is_array($idLists['PLAINLIST']) && count($idLists['PLAINLIST'])) {
+                        $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists['PLAINLIST']) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(['csv'=>'PLAINLIST']) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_plain_list') .'</h3>' .
+                            $csvError .
+                            $recipContent;
+                            $theOutput.= '<div style="padding-top: 20px;"></div>';
+                    }
+                    
+                    if (is_array($idLists[$this->userTable]) && count($idLists[$this->userTable])) {
+                        $recipContent = $csvError . $this->getLanguageService()->getLL('mailgroup_recip_number') . ' ' . count($idLists[$this->userTable]) .
+                        '<br /><a href="' . GeneralUtility::linkThisScript(['csv' => $this->userTable]) . '" class="t3-link">' . $this->getLanguageService()->getLL('mailgroup_download') . '</a>';
+                        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_custom') . '</h3>' .
+                            $csvError .
+                            $recipContent;
+                            $theOutput.= '<div style="padding-top: 20px;"></div>';
+                    }
+                    
+                    if ($group['type'] == 3) {
+                        if ($GLOBALS['BE_USER']->check('tables_modify', 'sys_dmail_group')) {
+                            $theOutput .= $this->cmd_specialQuery($group);
+                        }
+                    }
+            }
+            return $theOutput;
+    }
+    
+    /**
+     * Update recipient list record with a special query
+     *
+     * @param array $mailGroup DB records
+     *
+     * @return array Updated DB records
+     */
+    protected function update_specialQuery($mailGroup)
+    {
+        $set = GeneralUtility::_GP('SET');
+        $queryTable = $set['queryTable'];
+        $queryConfig = GeneralUtility::_GP('dmail_queryConfig');
+        $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
+        
+        $whichTables = intval($mailGroup['whichtables']);
+        $table = '';
+        if ($whichTables&1) {
+            $table = 'tt_address';
+        } elseif ($whichTables&2) {
+            $table = 'fe_users';
+        } elseif ($this->userTable && ($whichTables&4)) {
+            $table = $this->userTable;
+        }
+        
+        $this->MOD_SETTINGS['queryTable'] = $queryTable ? $queryTable : $table;
+        $this->MOD_SETTINGS['queryConfig'] = $queryConfig ? serialize($queryConfig) : $mailGroup['query'];
+        $this->MOD_SETTINGS['search_query_smallparts'] = 1;
+        
+        if ($this->MOD_SETTINGS['queryTable'] != $table) {
+            $this->MOD_SETTINGS['queryConfig'] = '';
+        }
+        
+        if ($this->MOD_SETTINGS['queryTable'] != $table || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query']) {
+            $whichTables = 0;
+            if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
+                $whichTables = 1;
+            } elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
+                $whichTables = 2;
+            } elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
+                $whichTables = 4;
+            }
+            $updateFields = [
+                'whichtables' => intval($whichTables),
+                'query' => $this->MOD_SETTINGS['queryConfig']
+            ];
+            
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $connection = $connectionPool->getConnectionForTable('sys_dmail_group');
+            
+            $connection->update(
+                'sys_dmail_group', // table
+                $updateFields,
+                [ 'uid' => intval($mailGroup['uid']) ] // where
+                );
+            $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
+        }
+        return $mailGroup;
+    }
+    
+    /**
+     * Show HTML form to make special query
+     *
+     * @param array $mailGroup Recipient list DB record
+     *
+     * @return string HTML form to make a special query
+     */
+    protected function cmd_specialQuery($mailGroup)
+    {
+        $out = '';
+        $this->queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
+        
+        if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
+            $this->queryGenerator->queryConfig = $this->queryGenerator->cleanUpQueryConfig(unserialize($this->MOD_SETTINGS['queryConfig']));
+            $this->queryGenerator->extFieldLists['queryFields'] = 'uid';
+            $out .= $this->queryGenerator->getSelectQuery();
+            $out .= '<div style="padding-top: 20px;"></div>';
+        }
+        
+        $this->queryGenerator->setFormName($this->formname);
+        $this->queryGenerator->noWrap = '';
+        $this->queryGenerator->allowedTables = $this->allowedTables;
+        $tmpCode = $this->queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
+        $tmpCode .= '<input type="hidden" name="cmd" value="displayMailGroup" /><input type="hidden" name="group_uid" value="' . $mailGroup['uid'] . '" />';
+        $tmpCode .= '<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_updateQuery') . '" />';
+        $out .= '<h3>' . $this->getLanguageService()->getLL('dmail_makeQuery') . '</h3>' .
+            $tmpCode;
+            
+            $theOutput = '<div style="padding-top: 20px;"></div>';
+            $theOutput .= '<h3>' . $this->getLanguageService()->getLL('dmail_query') . '</h3>' .
+                $out;
+                
+                return $theOutput;
+    }
+    
+    /**
+     * Send csv values as download by sending appropriate HTML header
+     *
+     * @param array $idArr Values to be put into csv
+     *
+     * @return void Sent HML header for a file download
+     */
+    protected function downloadCSV(array $idArr)
+    {
+        $lines = [];
+        if (is_array($idArr) && count($idArr)) {
+            reset($idArr);
+            $lines[] = CsvUtility::csvValues(array_keys(current($idArr)), ',', '');
+            
+            reset($idArr);
+            foreach ($idArr as $rec) {
+                $lines[] = CsvUtility::csvValues($rec);
+            }
+        }
+        
+        $filename = 'DirectMail_export_' . date('dmy-Hi') . '.csv';
+        $mimeType = 'application/octet-stream';
+        Header('Content-Type: ' . $mimeType);
+        Header('Content-Disposition: attachment; filename=' . $filename);
+        echo implode(CR . LF, $lines);
+        exit;
+    }
+    
+    /**
+     * Shows user's info and categories
+     *
+     * @return	string HTML showing user's info and the categories
+     */
+    protected function cmd_displayUserInfo()
+    {
+        $uid = intval(GeneralUtility::_GP('uid'));
+        $indata = GeneralUtility::_GP('indata');
+        $table = GeneralUtility::_GP('table');
+        
+        $mmTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
+        
+        if (GeneralUtility::_GP('submit')) {
+            $indata = GeneralUtility::_GP('indata');
+            if (!$indata) {
+                $indata['html']= 0;
+            }
+        }
+        
+        switch ($table) {
+            case 'tt_address':
+                // see fe_users
+            case 'fe_users':
+                if (is_array($indata)) {
+                    $data=[];
+                    if (is_array($indata['categories'])) {
+                        reset($indata['categories']);
+                        foreach ($indata['categories'] as $recValues) {
+                            reset($recValues);
+                            $enabled = [];
+                            foreach ($recValues as $k => $b) {
+                                if ($b) {
+                                    $enabled[] = $k;
+                                }
+                            }
+                            $data[$table][$uid]['module_sys_dmail_category'] = implode(',', $enabled);
+                        }
+                    }
+                    $data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
+                    /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler*/
+                    $tce = GeneralUtility::makeInstance(DataHandler::class);
+                    $tce->stripslashes_values = 0;
+                    $tce->start($data, []);
+                    $tce->process_datamap();
+                }
+                break;
+            default:
+                // do nothing
+        }
+        
+        switch ($table) {
+            case 'tt_address':
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('tt_address');
+                $res = $queryBuilder
+                ->select('tt_address.*')
+                ->from('tt_address')
+                ->leftJoin(
+                    'tt_address',
+                    'pages',
+                    'pages',
+                    $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('tt_address.pid'))
+                    )
+                    ->add('where','tt_address.uid=' . intval($uid) .
+                        ' AND ' . $this->perms_clause )
+                        ->execute()
+                        ->fetchAll();
+
+                break;
+            case 'fe_users':
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('fe_users');
+                $res = $queryBuilder
+                ->select('fe_users.*')
+                ->from('fe_users')
+                ->leftJoin(
+                    'fe_users',
+                    'pages',
+                    'pages',
+                    $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('fe_users.pid'))
+                    )
+                    ->add('where','fe_users.uid=' . intval($uid) .
+                        ' AND ' . $this->perms_clause )
+                        ->execute()
+                        ->fetchAll();
+                        
+                        break;
+            default:
+                // do nothing
+        }
+        
+        $theOutput = '';
+        
+        if (is_array($res)) {
+            foreach($res as $row){
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable($mmTable);
+                $resCat = $queryBuilder
+                ->select('uid_foreign')
+                ->from($mmTable)
+                ->where($queryBuilder->expr()->eq('uid_local', $queryBuilder->createNamedParameter($row['uid'])))
+                ->execute()
+                ->fetchAll();
+                
+                foreach ($resCat as $rowCat) {
+                    $categoriesArray[] = $rowCat['uid_foreign'];
+                }
+                
+                $categories = implode($categoriesArray, ',');
+                
+                $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+                    'edit' => [
+                        $table => [
+                            $row['uid'] => 'edit'
+                        ]
+                    ],
+                    'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+                ]);
+                
+                $out = '';
+                $out .= $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name']) . htmlspecialchars(' <' . $row['email'] . '>');
+                $out .= '&nbsp;&nbsp;<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+                    $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
+                    '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
+                    $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' .
+                        $out;
+                        
+                        $out = '';
+                        $outCheckBox = '';
+                        
+                        $this->categories = DirectMailUtility::makeCategories($table, $row, $this->sys_language_uid);
+                        
+                        reset($this->categories);
+                        foreach ($this->categories as $pKey => $pVal) {
+                            $outCheckBox .= '<input type="hidden" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="0" />' .
+                                '<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categories, $pKey) ? ' checked="checked"' : '') . ' /> ' . htmlspecialchars($pVal) . '<br />';
+                        }
+                        $outCheckBox .= '<br /><br /><input type="checkbox" name="indata[html]" value="1"' . ($row['module_sys_dmail_html'] ? ' checked="checked"' : '') . ' /> ';
+                        $outCheckBox .= $this->getLanguageService()->getLL('subscriber_profile_htmlemail') . '<br />';
+                        $out .= $outCheckBox;
+                        
+                        $out .= '<input type="hidden" name="table" value="' . $table . '" />' .
+                            '<input type="hidden" name="uid" value="' . $uid . '" />' .
+                            '<input type="hidden" name="CMD" value="' . $this->CMD . '" />' .
+                            '<br /><input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
+                        $theOutput .= '<div style="padding-top: 20px;"></div>';
+                        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('subscriber_profile') . '</h3>' .
+                            $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out;
+            }
+        }
+        return $theOutput;
+    }
 }
