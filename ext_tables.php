@@ -43,12 +43,16 @@ if (TYPO3_MODE == 'BE') {
         ]
     );
 
+    // https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/BackendModules/BackendModuleApi/Index.html#without-extbase
+    // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.5/Deprecation-94094-NavigationFrameModuleInModuleRegistration.html
+    
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
         'DirectMailNavFrame',
         'DirectMail',
         'bottom',
         '',
         [
+            'navigationComponentId' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
             'routeTarget' => DirectMailTeam\DirectMail\Module\DmailController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_DirectMail',
@@ -57,8 +61,8 @@ if (TYPO3_MODE == 'BE') {
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangDirectMail.xlf',
             ],
-            'navigationFrameModule' => 'DirectMailNavFrame',
-            'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_DirectMail'],
+//             'navigationFrameModule' => 'DirectMailNavFrame',
+//             'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_DirectMail'],
         ]
     );
 
@@ -68,6 +72,7 @@ if (TYPO3_MODE == 'BE') {
         'bottom',
         '',
         [
+            'navigationComponentId' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
             'routeTarget' => DirectMailTeam\DirectMail\Module\RecipientListController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_RecipientList',
@@ -76,8 +81,8 @@ if (TYPO3_MODE == 'BE') {
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangRecipientList.xlf',
             ],
-            'navigationFrameModule' => 'DirectMailNavFrame',
-            'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_RecipientList'],
+//             'navigationFrameModule' => 'DirectMailNavFrame',
+//             'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_RecipientList'],
         ]
     );
 
@@ -87,6 +92,7 @@ if (TYPO3_MODE == 'BE') {
         'bottom',
         '',
         [
+            'navigationComponentId' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
             'routeTarget' => DirectMailTeam\DirectMail\Module\StatisticsController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_Statistics',
@@ -95,8 +101,8 @@ if (TYPO3_MODE == 'BE') {
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangStatistics.xlf',
             ],
-            'navigationFrameModule' => 'DirectMailNavFrame',
-            'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_Statistics'],
+//             'navigationFrameModule' => 'DirectMailNavFrame',
+//             'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_Statistics'],
         ]
     );
 
@@ -106,6 +112,7 @@ if (TYPO3_MODE == 'BE') {
         'bottom',
         '',
         [
+            'navigationComponentId' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
             'routeTarget' => DirectMailTeam\DirectMail\Module\MailerEngineController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_MailerEngine',
@@ -114,8 +121,8 @@ if (TYPO3_MODE == 'BE') {
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangMailerEngine.xlf',
             ],
-            'navigationFrameModule' => 'DirectMailNavFrame',
-            'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_MailerEngine'],
+//             'navigationFrameModule' => 'DirectMailNavFrame',
+//             'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_MailerEngine'],
         ]
     );
 
@@ -125,6 +132,7 @@ if (TYPO3_MODE == 'BE') {
         'bottom',
         '',
         [
+            'navigationComponentId' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
             'routeTarget' => DirectMailTeam\DirectMail\Module\ConfigurationController::class . '::indexAction',
             'access' => 'group,user',
             'name' => 'DirectMailNavFrame_Configuration',
@@ -133,8 +141,8 @@ if (TYPO3_MODE == 'BE') {
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangConfiguration.xlf',
             ],
-            'navigationFrameModule' => 'DirectMailNavFrame',
-            'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_Configuration'],
+//             'navigationFrameModule' => 'DirectMailNavFrame',
+//             'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_Configuration'],
         ]
     );
 }
