@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Utility\CsvUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 
 class RecipientListController extends MainController
@@ -26,6 +27,7 @@ class RecipientListController extends MainController
     protected $moduleName = '';
     
     protected int $group_uid = 0;
+    protected string $fieldList = 'uid,name,first_name,middle_name,last_name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
     
     protected function initRecipientList(ServerRequestInterface $request): void {
         $queryParams = $request->getQueryParams();
@@ -453,6 +455,7 @@ class RecipientListController extends MainController
             $mainC;
             $theOutput .= '<div style="padding-top: 20px;"></div>';
             
+        $csvError = '';
             // do the CSV export
             $csvValue = GeneralUtility::_GP('csv');
             if ($csvValue) {
@@ -649,10 +652,11 @@ class RecipientListController extends MainController
      */
     protected function downloadCSV(array $idArr)
     {
+        // https://api.typo3.org/master/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_utility_1_1_csv_utility.html
         $lines = [];
         if (is_array($idArr) && count($idArr)) {
             reset($idArr);
-            $lines[] = CsvUtility::csvValues(array_keys(current($idArr)), ',', '');
+            $lines[] = CsvUtility::csvValues(array_keys(current($idArr)));
             
             reset($idArr);
             foreach ($idArr as $rec) {
@@ -662,8 +666,8 @@ class RecipientListController extends MainController
         
         $filename = 'DirectMail_export_' . date('dmy-Hi') . '.csv';
         $mimeType = 'application/octet-stream';
-        Header('Content-Type: ' . $mimeType);
-        Header('Content-Disposition: attachment; filename=' . $filename);
+        header('Content-Type: ' . $mimeType);
+        header('Content-Disposition: attachment; filename=' . $filename);
         echo implode(CR . LF, $lines);
         exit;
     }
