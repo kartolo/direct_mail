@@ -25,11 +25,21 @@ class RecipientListController extends MainController
      */
     protected $moduleName = '';
     
+    protected int $group_uid = 0;
+    
+    protected function initRecipientList(ServerRequestInterface $request): void {
+        $queryParams = $request->getQueryParams();
+        $parsedBody = $request->getParsedBody();
+        
+        $this->group_uid = (int)($parsedBody['group_uid'] ?? $queryParams['group_uid'] ?? 0);
+    }
+    
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('RecipientList');
         
         $this->init($request);
+        $this->initRecipientList($request);
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
         
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
@@ -84,7 +94,7 @@ class RecipientListController extends MainController
                 $theOutput = $this->cmd_displayUserInfo();
                 break;
             case 'displayMailGroup':
-                $result = $this->cmd_compileMailGroup(intval(GeneralUtility::_GP('group_uid'))); //@TODO
+                $result = $this->cmd_compileMailGroup($this->group_uid);
                 $theOutput = $this->cmd_displayMailGroup($result);
                 break;
             case 'displayImport':
@@ -208,12 +218,12 @@ class RecipientListController extends MainController
      *
      * @return	array List of the uid in an array
      */
-    protected function cmd_compileMailGroup($groupUid)
+    protected function cmd_compileMailGroup(int $groupUid)
     {
         $idLists = [];
         if ($groupUid) {
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $groupUid);
-            if (is_array($mailGroup) && $mailGroup['pid']==$this->id) {
+            if (is_array($mailGroup) && $mailGroup['pid'] == $this->id) {
                 switch ($mailGroup['type']) {
                     case 0:
                         // From pages
@@ -223,36 +233,37 @@ class RecipientListController extends MainController
                         $pages = GeneralUtility::intExplode(',', $thePages);
                         $pageIdArray = [];
                         foreach ($pages as $pageUid) {
-                            if ($pageUid>0) {
+                            if ($pageUid > 0) {
                                 $pageinfo = BackendUtility::readPageAccess($pageUid, $this->perms_clause);
                                 if (is_array($pageinfo)) {
-                                    $info['fromPages'][]=$pageinfo;
-                                    $pageIdArray[]=$pageUid;
+                                    $info['fromPages'][] = $pageinfo;
+                                    $pageIdArray[] = $pageUid;
                                     if ($mailGroup['recursive']) {
-                                        $pageIdArray=array_merge($pageIdArray, DirectMailUtility::getRecursiveSelect($pageUid, $this->perms_clause));
+                                        $pageIdArray = array_merge($pageIdArray, DirectMailUtility::getRecursiveSelect($pageUid, $this->perms_clause));
                                     }
                                 }
                             }
                         }
+
                         // Remove any duplicates
-                        $pageIdArray=array_unique($pageIdArray);
+                        $pageIdArray = array_unique($pageIdArray);
                         $pidList = implode(',', $pageIdArray);
-                        $info['recursive']=$mailGroup['recursive'];
-                        
+                        $info['recursive'] = $mailGroup['recursive'];
+
                         // Make queries
                         if ($pidList) {
                             $whichTables = intval($mailGroup['whichtables']);
                             // tt_address
                             if ($whichTables&1) {
-                                $idLists['tt_address']=DirectMailUtility::getIdList('tt_address', $pidList, $groupUid, $mailGroup['select_categories']);
+                                $idLists['tt_address'] = DirectMailUtility::getIdList('tt_address', $pidList, $groupUid, $mailGroup['select_categories']);
                             }
                             // fe_users
                             if ($whichTables&2) {
-                                $idLists['fe_users']=DirectMailUtility::getIdList('fe_users', $pidList, $groupUid, $mailGroup['select_categories']);
+                                $idLists['fe_users'] = DirectMailUtility::getIdList('fe_users', $pidList, $groupUid, $mailGroup['select_categories']);
                             }
                             // user table
                             if ($this->userTable && ($whichTables&4)) {
-                                $idLists[$this->userTable]=DirectMailUtility::getIdList($this->userTable, $pidList, $groupUid, $mailGroup['select_categories']);
+                                $idLists[$this->userTable] = DirectMailUtility::getIdList($this->userTable, $pidList, $groupUid, $mailGroup['select_categories']);
                             }
                             // fe_groups
                             if ($whichTables&8) {
