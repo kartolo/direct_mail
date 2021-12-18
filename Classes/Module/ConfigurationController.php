@@ -28,7 +28,8 @@ class ConfigurationController extends MainController
 {
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
-        $this->view = $this->configureTemplatePaths('Configuration');
+        $currentModule = 'Configuration';
+        $this->view = $this->configureTemplatePaths($currentModule);
         
         $this->init($request);
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
@@ -39,6 +40,7 @@ class ConfigurationController extends MainController
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
+                    $this->moduleTemplate->getPageRenderer()->addJsInlineCode($currentModule, $this->getJS($this->sys_dmail_uid));
                     $formcontent = $this->moduleContent();
                     $this->view->assignMultiple(
                         [
@@ -72,8 +74,7 @@ class ConfigurationController extends MainController
     }
     
     protected function getJS($sys_dmail_uid) {
-        return GeneralUtility::wrapJS('
-        <script language="javascript" type="text/javascript">
+        return '
         script_ended = 0;
         function jumpToUrl(URL)	{
             window.location.href = URL;
@@ -130,7 +131,7 @@ class ConfigurationController extends MainController
                 }
             }
         }
-        </script>');
+        ';
     }
     
     /**

@@ -463,7 +463,7 @@ class Configuration extends BaseScriptClass
     public function updatePageTS()
     {
         if ($GLOBALS['BE_USER']->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
-            $pageTypoScript= GeneralUtility::_GP('pageTS');
+            $pageTypoScript = GeneralUtility::_GP('pageTS');
             if (is_array($pageTypoScript)) {
                 DirectMailUtility::updatePagesTSconfig($this->id, $pageTypoScript, $this->TSconfPrefix);
                 header('Location: ' . GeneralUtility::locationHeaderUrl(GeneralUtility::getIndpEnv('REQUEST_URI')));
