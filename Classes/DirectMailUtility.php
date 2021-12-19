@@ -1580,7 +1580,7 @@ class DirectMailUtility
             foreach ($pageTs as $f => $v) {
                 $v = trim($v);
                 $f = $tsConfPrefix . $f;
-                $tempF = isset($impParams[$f]) ? trim($tempF) : '';
+                $tempF = isset($impParams[$f]) ? trim($impParams[$f]) : '';
                 if (strcmp($tempF, $v)) {
                     $set[$f] = $v;
                 }
