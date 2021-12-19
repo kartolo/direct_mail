@@ -79,6 +79,7 @@ class MainController {
         
         // get the config from pageTS
         $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
+
         $this->implodedParams = DirectMailUtility::implodeTSParams($this->params);
         if ($this->params['userTable'] ?? false && isset($GLOBALS['TCA'][$this->params['userTable']]) && is_array($GLOBALS['TCA'][$this->params['userTable']])) {
             $this->userTable = $this->params['userTable'];

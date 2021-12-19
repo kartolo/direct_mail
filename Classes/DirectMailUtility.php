@@ -1578,9 +1578,11 @@ class DirectMailUtility
             }
             $set = [];
             foreach ($pageTs as $f => $v) {
+                $v = trim($v);
                 $f = $tsConfPrefix . $f;
-                if ((!isset($impParams[$f]) && trim($v)) || strcmp(trim($impParams[$f]), trim($v))) {
-                    $set[$f] = trim($v);
+                $tempF = isset($impParams[$f]) ? trim($tempF) : '';
+                if (strcmp($tempF, $v)) {
+                    $set[$f] = $v;
                 }
             }
             if (count($set)) {

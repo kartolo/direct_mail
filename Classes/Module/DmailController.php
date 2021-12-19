@@ -100,13 +100,16 @@ class DmailController extends MainController
                     $this->moduleTemplate->getPageRenderer()->addJsInlineCode($currentModule, $this->getJS($this->sys_dmail_uid));
                     $markers = $this->moduleContent();
                     $formcontent = $markers['CONTENT'];
+                    
+                    $formcontent = '<form action="" method="post" name="dmailform" enctype="multipart/form-data">'.$formcontent.'</form>';
+                    
                     $this->view->assignMultiple(
                         [
                             'wizardsteps' => $markers['WIZARDSTEPS'],
                             'navigation'  => $markers['NAVIGATION'],
                             'flashmessages' => $markers['FLASHMESSAGES'],
                             'title' => $markers['TITLE'],
-                            'content' => $markers['CONTENT']
+                            'content' => $formcontent
                         ]
                     );
                 }
@@ -906,5 +909,84 @@ class DmailController extends MainController
             $output.= DirectMailUtility::formatTable($tblLines, [], 1, [1, 1, 1, 0, 0, 1, 0, 1]);
             $output.= '</div></div>';
             return $output;
+    }
+    
+    /**
+     * Creates a directmail entry in th DB.
+     * used only for quickmail.
+     *
+     * @param array $indata Quickmail data (quickmail content, etc.)
+     *
+     * @return string error or warning message produced during the process
+     */
+    protected function createDMail_quick(array $indata)
+    {
+        $theOutput = '';
+        // Set default values:
+        $dmail = [];
+        $dmail['sys_dmail']['NEW'] = [
+            'from_email'        => $indata['senderEmail'],
+            'from_name'         => $indata['senderName'],
+            'replyto_email'     => $this->params['replyto_email'],
+            'replyto_name'      => $this->params['replyto_name'],
+            'return_path'       => $this->params['return_path'],
+            'priority'          => (int) $this->params['priority'],
+            'use_rdct'          => (int) $this->params['use_rdct'],
+            'long_link_mode'    => (int) $this->params['long_link_mode'],
+            'organisation'      => $this->params['organisation'],
+            'authcode_fieldList'=> $this->params['authcode_fieldList'],
+            'plainParams'       => ''
+        ];
+        
+        // always plaintext
+        $dmail['sys_dmail']['NEW']['sendOptions'] = 1;
+        $dmail['sys_dmail']['NEW']['long_link_rdct_url'] = DirectMailUtility::getUrlBase((int)$this->params['pid']);
+        $dmail['sys_dmail']['NEW']['subject'] = $indata['subject'];
+        $dmail['sys_dmail']['NEW']['type'] = 1;
+        $dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
+        $dmail['sys_dmail']['NEW']['charset'] = isset($this->params['quick_mail_charset']) ? $this->params['quick_mail_charset'] : 'utf-8';
+        
+        // If params set, set default values:
+        if (isset($this->params['includeMedia'])) {
+            $dmail['sys_dmail']['NEW']['includeMedia'] = $this->params['includeMedia'];
+        }
+        if (isset($this->params['flowedFormat'])) {
+            $dmail['sys_dmail']['NEW']['flowedFormat'] = $this->params['flowedFormat'];
+        }
+        if (isset($this->params['direct_mail_encoding'])) {
+            $dmail['sys_dmail']['NEW']['encoding'] = $this->params['direct_mail_encoding'];
+        }
+
+        if ($dmail['sys_dmail']['NEW']['pid'] && $dmail['sys_dmail']['NEW']['sendOptions']) {
+            /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
+            $tce = GeneralUtility::makeInstance(DataHandler::class);
+            $tce->stripslashes_values = 0;
+            $tce->start($dmail, []);
+            $tce->process_datamap();
+            $this->sys_dmail_uid = $tce->substNEWwithIDs['NEW'];
+            
+            $row = BackendUtility::getRecord('sys_dmail', intval($this->sys_dmail_uid));
+            // link in the mail
+            $message = '<!--DMAILER_SECTION_BOUNDARY_-->' . $indata['message'] . '<!--DMAILER_SECTION_BOUNDARY_END-->';
+            if (trim($this->params['use_rdct'])) {
+                $message = DirectMailUtility::substUrlsInPlainText(
+                    $message,
+                    $this->params['long_link_mode']?'all':'76',
+                    DirectMailUtility::getUrlBase((int)$this->params['pid'])
+                    );
+            }
+            if ($indata['breakLines']) {
+                $message = wordwrap($message, 76, "\n");
+            }
+            // fetch functions
+            $theOutput = $this->compileQuickMail($row, $message);
+            // end fetch function
+        } else {
+            if (!$dmail['sys_dmail']['NEW']['sendOptions']) {
+                $this->error = 'no_valid_url';
+            }
+        }
+        
+        return $theOutput;
     }
 }
