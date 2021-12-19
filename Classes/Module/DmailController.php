@@ -306,7 +306,7 @@ class DmailController extends MainController
                     $fetchMessage = $this->createDMail_quick($quickmail);
                     $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                     $row = BackendUtility::getRecord('sys_dmail', $this->sys_dmail_uid);
-                    $theOutput.= '<input type="hidden" name="CMD" value="send_test">';
+                    $theOutput.= '<input type="hidden" name="cmd" value="send_test">';
                     // existing dmail
                 } elseif ($row) {
                     if ($row['type'] == '1' && ((empty($row['HTMLParams'])) || (empty($row['plainParams'])))) {
@@ -358,7 +358,7 @@ class DmailController extends MainController
                 
                 $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
                 $theOutput .= !empty($row['page'])?'<input type="hidden" name="pages_uid" value="' . $row['page'] . '">':'';
-                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->CMD . '">';
+                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->cmd . '">';
                 break;
                 
             case 'cats':
@@ -376,7 +376,7 @@ class DmailController extends MainController
                 $theOutput .= '<input type="hidden" name="cmd" value="send_test">';
                 $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
                 $theOutput .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">';
-                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->CMD . '">';
+                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->cmd . '">';
                 break;
                     
             case 'send_test':
@@ -389,7 +389,7 @@ class DmailController extends MainController
                 $navigationButtons = '<input type="submit" class="btn btn-default" value="' . $this->getLanguageService()->getLL('dmail_wiz_back') . '" name="back">&nbsp;';
                 $navigationButtons.= '<input type="submit" class="btn btn-default" value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '">';
                 
-                if ($this->CMD == 'send_mail_test') {
+                if ($this->cmd == 'send_mail_test') {
                     // using Flashmessages to show sent test mail
                     $markers['FLASHMESSAGES'] = $this->cmd_send_mail($row);
                 }
@@ -400,7 +400,7 @@ class DmailController extends MainController
                 $theOutput .= '<input type="hidden" name="cmd" value="send_mass">';
                 $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
                 $theOutput .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">';
-                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->CMD . '">';
+                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->cmd . '">';
                 break;
                     
             case 'send_mail_final':
@@ -432,7 +432,7 @@ class DmailController extends MainController
                 $theOutput .= '<input type="hidden" name="cmd" value="send_mail_final">';
                 $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
                 $theOutput .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">';
-                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->CMD . '">';
+                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->cmd . '">';
                 break;
                         
             default:
@@ -605,7 +605,7 @@ class DmailController extends MainController
                             'id' => $this->id,
                             'createMailFrom_UID' => $row['uid'],
                             'fetchAtOnce' => 1,
-                            'CMD' => 'info'
+                            'cmd' => 'info'
                         ]
                         );
                     $pageIcon = $this->moduleTemplate->getIconFactory()->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);

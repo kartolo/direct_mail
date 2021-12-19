@@ -816,7 +816,7 @@ class RecipientListController extends MainController
                         
                         $out .= '<input type="hidden" name="table" value="' . $table . '" />' .
                             '<input type="hidden" name="uid" value="' . $uid . '" />' .
-                            '<input type="hidden" name="CMD" value="' . $this->CMD . '" />' .
+                            '<input type="hidden" name="cmd" value="' . $this->cmd . '" />' .
                             '<br /><input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
                         $theOutput .= '<div style="padding-top: 20px;"></div>';
                         $theOutput .= '<h3>' . $this->getLanguageService()->getLL('subscriber_profile') . '</h3>' .
