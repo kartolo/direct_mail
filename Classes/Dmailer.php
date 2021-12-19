@@ -187,7 +187,7 @@ class Dmailer implements LoggerAwareInterface
         $this->authCode_fieldList = ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid');
 
         $this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
-        $this->dmailer['html_content']    =  $this->theParts['html']['content'];
+        $this->dmailer['html_content']    = $this->theParts['html']['content'] ?? '';
         $this->dmailer['plain_content']   = $this->theParts['plain']['content'];
         $this->dmailer['messageID']       = $this->messageid;
         $this->dmailer['sys_dmail_uid']   = $sys_dmail_uid;
@@ -206,6 +206,9 @@ class Dmailer implements LoggerAwareInterface
             $mediaParts = explode('cid:part', $this->dmailer['boundaryParts_html'][$bKey][1]);
             reset($mediaParts);
             next($mediaParts);
+            if(!isset($this->dmailer['boundaryParts_html'][$bKey]['mediaList'])) {
+                $this->dmailer['boundaryParts_html'][$bKey]['mediaList'] = '';
+            }
             foreach ($mediaParts as $part) {
                 $this->dmailer['boundaryParts_html'][$bKey]['mediaList'] .= ',' . strtok($part, '.');
             }
@@ -215,7 +218,7 @@ class Dmailer implements LoggerAwareInterface
             $this->dmailer['boundaryParts_plain'][$bKey] = explode('-->', $bContent, 2);
         }
 
-        $this->flag_html    = ($this->theParts['html']['content']  ? 1 : 0);
+        $this->flag_html    = (($this->theParts['html']['content'] ?? false) ? 1 : 0);
         $this->flag_plain   = ($this->theParts['plain']['content'] ? 1 : 0);
         $this->includeMedia = $row['includeMedia'];
     }
@@ -233,7 +236,6 @@ class Dmailer implements LoggerAwareInterface
         $content = preg_replace('/[\t\v\n\r\f]*<!(?:--[^\[\<\>][\s\S]*?--\s*)?>[\t\v\n\r\f]*/', '', $content);
         return preg_replace('/\/\*<!\[CDATA\[\*\//', '/*<![CDATA[*/<!--', $content);
     }
-
 
     /**
      * Replace the marker with recipient data and then send it
@@ -379,12 +381,12 @@ class Dmailer implements LoggerAwareInterface
      */
     public function dmailer_sendSimple($addressList)
     {
-        if ($this->theParts['html']['content']) {
+        if ($this->theParts['html']['content'] ?? false) {
             $this->theParts['html']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_html'], -1));
         } else {
             $this->theParts['html']['content'] = '';
         }
-        if ($this->theParts['plain']['content']) {
+        if ($this->theParts['plain']['content'] ?? false) {
             $this->theParts['plain']['content'] = $this->encodeMsg($this->dmailer_getBoundaryParts($this->dmailer['boundaryParts_plain'], -1));
         } else {
             $this->theParts['plain']['content'] = '';
@@ -417,6 +419,7 @@ class Dmailer implements LoggerAwareInterface
         foreach ($cArray as $bKey => $cP) {
             $key = substr($cP[0], 1);
             $isSubscribed = false;
+            $cP['mediaList'] = $cP['mediaList'] ?? '';
             if (!$key || (intval($userCategories) == -1)) {
                 $returnVal .= $cP[1];
                 $this->mediaList .= $cP['mediaList'];
@@ -1146,7 +1149,7 @@ class Dmailer implements LoggerAwareInterface
      */
     public function substHTTPurlsInPlainText($content)
     {
-        if (!$this->jumperURL_prefix) {
+        if (!isset($this->jumperURL_prefix) || !$this->jumperURL_prefix) {
             return $content;
         }
 

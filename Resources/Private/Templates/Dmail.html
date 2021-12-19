@@ -3,14 +3,16 @@
 <f:section name="content">
 <f:flashMessages />
 <div class="typo3-fullDoc">
-	<div class="module-body t3js-module-body">
-        <f:format.raw>{wizardsteps}</f:format.raw>
-        <f:format.raw>{navigation}</f:format.raw>
-        <br clear="all" />
-        <br />
-		<f:format.raw>{flashmessages}</f:format.raw>
-		<h3><f:format.raw>{title}</f:format.raw></h3>
-		<f:format.raw>{content}</f:format.raw>
+    <div class="module-body t3js-module-body">
+        <form action="" method="post" name="dmailform" enctype="multipart/form-data">
+	        <f:format.raw>{wizardsteps}</f:format.raw>
+	        <f:format.raw>{navigation}</f:format.raw>
+	        <br clear="all" />
+	        <br />
+			<f:format.raw>{flashmessages}</f:format.raw>
+			<h3><f:format.raw>{title}</f:format.raw></h3>
+			<f:format.raw>{content}</f:format.raw>
+		</form>
 	</div>
 </div>
 </f:section>

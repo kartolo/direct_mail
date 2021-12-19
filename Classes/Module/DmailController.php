@@ -1,6 +1,8 @@
 <?php
 namespace DirectMailTeam\DirectMail\Module;
 
+use DirectMailTeam\DirectMail\Dmailer;
+use DirectMailTeam\DirectMail\DirectMailUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
@@ -17,7 +19,6 @@ use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-use DirectMailTeam\DirectMail\DirectMailUtility;
 
 class DmailController extends MainController
 {
@@ -36,6 +37,8 @@ class DmailController extends MainController
     
     protected string $currentCMD = '';
     protected bool $fetchAtOnce = false;
+
+    protected array $quickmail = [];
 
     /**
      * The name of the module
@@ -77,6 +80,8 @@ class DmailController extends MainController
         $this->currentCMD = (string)($parsedBody['currentCMD'] ?? $queryParams['currentCMD'] ?? '');
         // Create DirectMail and fetch the data
         $this->fetchAtOnce = (bool)($parsedBody['fetchAtOnce'] ?? $queryParams['fetchAtOnce'] ?? false);
+        
+        $this->quickmail = $parsedBody['quickmail'] ?? $queryParams['quickmail'] ?? []; 
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -101,9 +106,7 @@ class DmailController extends MainController
                     $this->moduleTemplate->getPageRenderer()->addJsInlineCode($currentModule, $this->getJS($this->sys_dmail_uid));
                     $markers = $this->moduleContent();
                     $formcontent = $markers['CONTENT'];
-                    
-                    $formcontent = '<form action="" method="post" name="dmailform" enctype="multipart/form-data">'.$formcontent.'</form>';
-                    
+
                     $this->view->assignMultiple(
                         [
                             'wizardsteps' => $markers['WIZARDSTEPS'],
@@ -283,7 +286,7 @@ class DmailController extends MainController
                 // greyed out next-button if fetching is not successful (on error)
                 $fetchError = true;
                 
-                $quickmail = GeneralUtility::_GP('quickmail'); //@TODO
+                $quickmail = $this->quickmail;
                 
                 $createMailFromInternalPage = intval(GeneralUtility::_GP('createMailFrom_UID'));
                 $createMailFromExternalUrl = GeneralUtility::_GP('createMailFrom_URL');
@@ -573,7 +576,7 @@ class DmailController extends MainController
      * @return	string		HTML
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    public function cmd_news()
+    protected function cmd_news()
     {
         // Here the list of subpages, news, is rendered
         
@@ -1037,12 +1040,618 @@ class DmailController extends MainController
                 [
                     'id' => $this->id,
                     'uid' => $uid,
-                    'CMD' => 'delete'
+                    'cmd' => 'delete'
                 ]
                 );
             return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
         }
         
         return '';
+    }
+    
+    /**
+     * Delete existing dmail record
+     *
+     * @param int $uid record uid to be deleted
+     *
+     * @return void
+     */
+    protected function deleteDMail($uid)
+    {
+        $table = 'sys_dmail';
+        if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
+            
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $connection = $connectionPool->getConnectionForTable($table);
+            
+            $connection->update(
+                $table, // table
+                [ $GLOBALS['TCA'][$table]['ctrl']['delete'] => 1 ],
+                [ 'uid' => $uid ] // where
+            );
+        }
+        
+        return;
+    }
+    
+    /**
+     * Compiling the quickmail content and save to DB
+     *
+     * @param array $row The sys_dmail record
+     * @param string $message Body of the mail
+     *
+     * @return string
+     * @TODO: remove htmlmail, compiling mail
+     */
+    protected function compileQuickMail(array $row, $message)
+    {
+        $errorMsg = '';
+        $warningMsg = '';
+        
+        // Compile the mail
+        /* @var $htmlmail Dmailer */
+        $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
+        $htmlmail->nonCron = 1;
+        $htmlmail->start();
+        $htmlmail->charset = $row['charset'];
+        $htmlmail->addPlain($message);
+        
+        if (!$message || !$htmlmail->theParts['plain']['content']) {
+            $errorMsg .= '&nbsp;<strong>' . $this->getLanguageService()->getLL('dmail_no_plain_content') . '</strong>';
+        } elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']), '<!--DMAILER_SECTION_BOUNDARY')) {
+            $warningMsg .= '&nbsp;<strong>' . $this->getLanguageService()->getLL('dmail_no_plain_boundaries') . '</strong>';
+        }
+        
+        // add attachment is removed. since it will be add during sending
+        
+        if (!$errorMsg) {
+            // Update the record:
+            $htmlmail->theParts['messageid'] = $htmlmail->messageid;
+            $mailContent = base64_encode(serialize($htmlmail->theParts));
+            
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+            $queryBuilder
+            ->update('sys_dmail')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'uid',
+                    intval($this->sys_dmail_uid)
+                    )
+                )
+                ->set('issent', 0)
+                ->set('charset', $htmlmail->charset)
+                ->set('mailContent', $mailContent)
+                ->set('renderedSize', strlen($mailContent))
+                ->execute();
+                
+            if ($warningMsg) {
+                return '<h3>' . $this->getLanguageService()->getLL('dmail_warning') . '</h3>' . $warningMsg . '<br /><br />';
+            }
+        }
+        
+        return '';
+    }
+    
+    /**
+     * Shows the infos of a directmail record in a table
+     *
+     * @param array $row DirectMail DB record
+     *
+     * @return string the HTML output
+     * @throws RouteNotFoundException If the named route doesn't exist
+     */
+    protected function renderRecordDetailsTable(array $row)
+    {
+        if (!$row['issent']) {
+            if ($GLOBALS['BE_USER']->check('tables_modify', 'sys_dmail')) {
+                // $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
+                /** @var UriBuilder $uriBuilder */
+                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                $requestUri = $uriBuilder->buildUriFromRoute(
+                    $this->moduleName,
+                    [
+                        'id' => $this->id,
+                        'sys_dmail_uid' => $row['uid'],
+                        'fetchAtOnce' => 1,
+                        'cmd' => 'info'
+                    ]
+                    );
+                
+                $editParams = DirectMailUtility::getEditOnClickLink([
+                    'edit' => [
+                        'sys_dmail' => [
+                            $row['uid'] => 'edit',
+                        ],
+                    ],
+                    'returnUrl' => $requestUri->__toString(),
+                ]);
+                
+                $content = '<a href="#" onClick="' . $editParams . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+                    $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) .
+                    '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
+            } else {
+                $content = $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) . ' (' . $this->getLanguageService()->getLL('dmail_noEdit_noPerms') . ')';
+            }
+        } else {
+            $content = $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) . '(' . $this->getLanguageService()->getLL('dmail_noEdit_isSent') . ')';
+        }
+        
+        $content = '<thead >
+			<th>' . DirectMailUtility::fName('subject') . ' <b>' . GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject']), 60) . '</b></th>
+			<th style="text-align: right;">' . $content . '</th>
+		</thead>';
+        
+        $nameArr = explode(',', 'from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,type,page,sendOptions,includeMedia,flowedFormat,sys_language_uid,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
+        foreach ($nameArr as $name) {
+            $content .= '
+			<tr class="db_list_normal">
+				<td>' . DirectMailUtility::fName($name) . '</td>
+				<td>' . htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail', $name, $row[$name])) . '</td>
+			</tr>';
+        }
+        // attachments need to be fetched manually as BackendUtility::getProcessedValue can't do that
+        $fileNames = [];
+        $attachments = DirectMailUtility::getAttachments($row['uid']);
+        /** @var FileReference $attachment */
+        foreach ($attachments as $attachment) {
+            $fileNames[] = $attachment->getName();
+        }
+        $content .= '
+			<tr class="db_list_normal">
+				<td>' . DirectMailUtility::fName('attachment') . '</td>
+				<td>' . implode(', ', $fileNames) . '</td>
+			</tr>';
+        $content = '<table width="460" class="table table-striped table-hover">' . $content . '</table>';
+        
+        $sectionTitle = $this->moduleTemplate->getIconFactory()->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '&nbsp;' . htmlspecialchars($row['subject']);
+        return '<h3>' . $sectionTitle . '</h3>' . $content;
+    }
+    
+    /**
+     * Show the step of sending a test mail
+     *
+     * @return string the HTML form
+     * @throws RouteNotFoundException If the named route doesn't exist
+     */
+    protected function cmd_testmail()
+    {
+        $theOutput = '';
+        
+        if ($this->params['test_tt_address_uids'] ?? false) {
+            $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_tt_address_uids']));
+            
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('tt_address');
+            $res = $queryBuilder
+            ->select('tt_address.*')
+            ->from('tt_address')
+            ->leftJoin(
+                'tt_address',
+                'pages',
+                'pages',
+                $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('tt_address.pid'))
+                )
+                ->add('where','tt_address.uid IN (' . $intList . ')' .
+                    ' AND ' . $this->perms_clause )
+                    ->execute()
+                    ->fetchAll();
+                    
+                    $msg = $this->getLanguageService()->getLL('testmail_individual_msg') . '<br /><br />';
+                    
+                    $ids = [];
+                    
+                    foreach ($res as $row) {
+                        $ids[] = $row['uid'];
+                    }
+                    
+                    $msg .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids, 'tt_address'), 'tt_address', 1, 1);
+                    
+            $theOutput.= '<h3>' . $this->getLanguageService()->getLL('testmail_individual') . '</h3>' .
+                $msg;
+                
+            $theOutput.= '<div style="padding-top: 20px;"></div>';
+        }
+        
+        if ($this->params['test_dmail_group_uids'] ?? false) {
+            $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_dmail_group_uids']));
+            
+            
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('sys_dmail_group');
+            $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+            $res = $queryBuilder
+            ->select('sys_dmail_group.*')
+            ->from('sys_dmail_group')
+            ->leftJoin(
+                'sys_dmail_group',
+                'pages',
+                'pages',
+                $queryBuilder->expr()->eq('sys_dmail_group.pid', $queryBuilder->quoteIdentifier('pages.uid'))
+                )
+                ->add('where','sys_dmail_group.uid IN (' . $intList . ')' .
+                    ' AND ' . $this->perms_clause )
+                    ->execute()
+                    ->fetchAll();
+                    
+                    $msg = $this->getLanguageService()->getLL('testmail_mailgroup_msg') . '<br /><br />';
+                    
+                    $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                    
+                    foreach ($res as $row) {
+                        /** @var UriBuilder $uriBuilder */
+                        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                        $moduleUrl = $uriBuilder->buildUriFromRoute(
+                            $this->moduleName,
+                            [
+                                'id' => $this->id,
+                                'sys_dmail_uid' => $this->sys_dmail_uid,
+                                'CMD' => 'send_mail_test',
+                                'sys_dmail_group_uid[]' => $row['uid']
+                            ]
+                            );
+                        $msg .='<a href="' . $moduleUrl . '">' .
+                            $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL) .
+                            htmlspecialchars($row['title']) . '</a><br />';
+                            // Members:
+                            $result = $this->cmd_compileMailGroup([$row['uid']]);
+                            $msg.='<table border="0" class="table table-striped table-hover">
+				<tr>
+					<td>' . $this->cmd_displayMailGroup_test($result) . '</td>
+				</tr>
+				</table>';
+                    }
+                    
+            $theOutput.= '<h3>' . $this->getLanguageService()->getLL('testmail_mailgroup') . '</h3>' .
+                $msg;
+                $theOutput.= '<div style="padding-top: 20px;"></div>';
+        }
+        
+        $msg = '';
+        $msg.= $this->getLanguageService()->getLL('testmail_simple_msg') . '<br /><br />';
+        $msg.= '<input style="width: 460px;" type="text" name="SET[dmail_test_email]" value="' . ($this->MOD_SETTINGS['dmail_test_email'] ?? '') . '" /><br /><br />';
+        
+        $msg.= '<input type="hidden" name="id" value="' . $this->id . '" />';
+        $msg.= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '" />';
+        $msg.= '<input type="hidden" name="cmd" value="send_mail_test" />';
+        $msg.= '<input type="submit" name="mailingMode_simple" value="' . $this->getLanguageService()->getLL('dmail_send') . '" />';
+        
+        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('testmail_simple') . '</h3>' .
+            $msg;
+            
+        $this->noView = 1;
+        return $theOutput;
+    }
+    
+    /**
+     * Sending the mail.
+     * if it's a test mail, then will be sent directly.
+     * if mass-send mail, only update the DB record. the dmailer script will send it.
+     *
+     * @param array $row Directmal DB record
+     *
+     * @return string Messages if the mail is sent or planned to sent
+     * @todo	remove htmlmail. sending test mail
+     */
+    protected function cmd_send_mail($row)
+    {
+        // Preparing mailer
+        /* @var $htmlmail Dmailer */
+        $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
+        $htmlmail->nonCron = 1;
+        $htmlmail->start();
+        $htmlmail->dmailer_prepare($row);
+        
+        // send out non-personalized emails
+        $simpleMailMode = GeneralUtility::_GP('mailingMode_simple');
+        
+        $sentFlag = false;
+        if ($simpleMailMode) {
+            // step 4, sending simple test emails
+            
+            // setting Testmail flag
+            $htmlmail->testmail = $this->params['testmail'] ?? false;
+            
+            // Fixing addresses:
+            $addresses = GeneralUtility::_GP('SET');
+            $addressList = $addresses['dmail_test_email'] ? $addresses['dmail_test_email'] : $this->MOD_SETTINGS['dmail_test_email'];
+            $addresses = preg_split('|[' . LF . ',;]|', $addressList);
+            
+            foreach ($addresses as $key => $val) {
+                $addresses[$key] = trim($val);
+                if (!GeneralUtility::validEmail($addresses[$key])) {
+                    unset($addresses[$key]);
+                }
+            }
+            $hash = array_flip($addresses);
+            $addresses = array_keys($hash);
+            $addressList = implode(',', $addresses);
+            
+            if ($addressList) {
+                // Sending the same mail to lots of recipients
+                $htmlmail->dmailer_sendSimple($addressList);
+                $sentFlag = true;
+                
+                /* @var $flashMessage FlashMessage */
+                $flashMessage = GeneralUtility::makeInstance(
+                    FlashMessage::class,
+                    $this->getLanguageService()->getLL('send_was_sent') . ' ' .
+                    $this->getLanguageService()->getLL('send_recipients') . ' ' . htmlspecialchars($addressList),
+                    $this->getLanguageService()->getLL('send_sending'),
+                    FlashMessage::OK
+                    );
+                
+                $this->noView = 1;
+            }
+        } elseif ($this->cmd == 'send_mail_test') {
+            // step 4, sending test personalized test emails
+            // setting Testmail flag
+            $htmlmail->testmail = $this->params['testmail'];
+            
+            if (GeneralUtility::_GP('tt_address_uid')) {
+                // personalized to tt_address
+                
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_address');
+                $res = $queryBuilder
+                ->select('a.*')
+                ->from('tt_address', 'a')
+                ->leftJoin('a', 'pages', 'pages', $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('a.pid')))
+                ->where($queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter((int)GeneralUtility::_GP('tt_address_uid'), \PDO::PARAM_INT)))
+                ->andWhere($this->perms_clause)
+                ->execute()
+                ->fetchAll();
+                
+                if (!empty($res)) {
+                    foreach ($res as $recipRow) {
+                        $recipRow = Dmailer::convertFields($recipRow);
+                        $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address', $recipRow['uid']);
+                        $htmlmail->dmailer_sendAdvanced($recipRow, 't');
+                        $sentFlag = true;
+                        
+                        /* @var $flashMessage FlashMessage */
+                        $flashMessage = GeneralUtility::makeInstance(
+                            FlashMessage::class,
+                            sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), $recipRow['name'] . ' <' . $recipRow['email'] . '>'),
+                            $this->getLanguageService()->getLL('send_sending'),
+                            FlashMessage::OK
+                            );
+                    }
+                } else {
+                    /* @var $flashMessage FlashMessage */
+                    $flashMessage = GeneralUtility::makeInstance(
+                        FlashMessage::class,
+                        'Error: No valid recipient found to send test mail to. #1579209279',
+                        $this->getLanguageService()->getLL('send_sending'),
+                        FlashMessage::ERROR
+                        );
+                }
+                
+            } elseif (is_array(GeneralUtility::_GP('sys_dmail_group_uid'))) {
+                // personalized to group
+                $result = $this->cmd_compileMailGroup(GeneralUtility::_GP('sys_dmail_group_uid'));
+                
+                $idLists = $result['queryInfo']['id_lists'];
+                $sendFlag = 0;
+                $sendFlag += $this->sendTestMailToTable($idLists, 'tt_address', $htmlmail);
+                $sendFlag += $this->sendTestMailToTable($idLists, 'fe_users', $htmlmail);
+                $sendFlag += $this->sendTestMailToTable($idLists, 'PLAINLIST', $htmlmail);
+                $sendFlag += $this->sendTestMailToTable($idLists, $this->userTable, $htmlmail);
+                
+                /* @var $flashMessage FlashMessage */
+                $flashMessage = GeneralUtility::makeInstance(
+                    FlashMessage::class,
+                    sprintf($this->getLanguageService()->getLL('send_was_sent_to_number'), $sendFlag),
+                    $this->getLanguageService()->getLL('send_sending'),
+                    FlashMessage::OK
+                    );
+            }
+        } else {
+            // step 5, sending personalized emails to the mailqueue
+            
+            // prepare the email for sending with the mailqueue
+            $recipientGroups = GeneralUtility::_GP('mailgroup_uid');
+            if (GeneralUtility::_GP('mailingMode_mailGroup') && $this->sys_dmail_uid && is_array($recipientGroups)) {
+                // Update the record:
+                $result = $this->cmd_compileMailGroup($recipientGroups);
+                $queryInfo = $result['queryInfo'];
+                
+                $distributionTime = strtotime(GeneralUtility::_GP('send_mail_datetime_hr'));
+                if ($distributionTime < time()) {
+                    $distributionTime = time();
+                }
+                
+                $updateFields = [
+                    'recipientGroups' => implode(',', $recipientGroups),
+                    'scheduled'  => $distributionTime,
+                    'query_info' => serialize($queryInfo)
+                ];
+                
+                if (GeneralUtility::_GP('testmail')) {
+                    $updateFields['subject'] = $this->params['testmail'] . ' ' . $row['subject'];
+                }
+                
+                // create a draft version of the record
+                if (GeneralUtility::_GP('savedraft')) {
+                    if ($row['type'] == 0) {
+                        $updateFields['type'] = 2;
+                    } else {
+                        $updateFields['type'] = 3;
+                    }
+                    
+                    $updateFields['scheduled'] = 0;
+                    $content = $this->getLanguageService()->getLL('send_draft_scheduler');
+                    $sectionTitle = $this->getLanguageService()->getLL('send_draft_saved');
+                } else {
+                    $content = $this->getLanguageService()->getLL('send_was_scheduled_for') . ' ' . BackendUtility::datetime($distributionTime);
+                    $sectionTitle = $this->getLanguageService()->getLL('send_was_scheduled');
+                }
+                $sentFlag = true;
+                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+                $connection = $connectionPool->getConnectionForTable('sys_dmail');
+                
+                $connection->update(
+                    'sys_dmail', // table
+                    $updateFields,
+                    [ 'uid' => intval($this->sys_dmail_uid) ] // where
+                );
+                
+                
+                /* @var $flashMessage FlashMessage */
+                $flashMessage = GeneralUtility::makeInstance(
+                    FlashMessage::class,
+                    $sectionTitle . ' ' . $content,
+                    $this->getLanguageService()->getLL('dmail_wiz5_sendmass'),
+                    FlashMessage::OK
+                );
+            }
+        }
+        
+        // Setting flags and update the record:
+        if ($sentFlag && $this->cmd == 'send_mail_final') {
+            
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+            $connection = $connectionPool->getConnectionForTable('sys_dmail');
+            
+            $connection->update(
+                'sys_dmail', // table
+                ['issent' => 1],
+                [ 'uid' => intval($this->sys_dmail_uid) ] // where
+                );
+            
+        }
+        
+        return GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+        ->resolve()
+        ->render([$flashMessage]);
+    }
+    
+    /**
+     * Shows the final steps of the process. Show recipient list and calendar library
+     *
+     * @param array $direct_mail_row
+     * @return	string		HTML
+     */
+    protected function cmd_finalmail($direct_mail_row)
+    {
+        /**
+         * Hook for cmd_finalmail
+         * insert a link to open extended importer
+         */
+        $hookSelectDisabled = '';
+        $hookContents = '';
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_finalmail'] ?? false)) {
+            $hookObjectsArr = [];
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_finalmail'] as $classRef) {
+                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
+            }
+            foreach ($hookObjectsArr as $hookObj) {
+                if (method_exists($hookObj, 'cmd_finalmail')) {
+                    $hookContents = $hookObj->cmd_finalmail($this);
+                    $hookSelectDisabled = $hookObj->selectDisabled;
+                }
+            }
+        }
+        
+        // Mail groups
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
+        $statement = $queryBuilder
+        ->select('uid','pid','title')
+        ->from('sys_dmail_group')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'pid',
+                intval($this->id)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->in(
+                    'sys_language_uid',
+                    '-1, ' . $direct_mail_row['sys_language_uid']
+                    )
+                )
+                ->orderBy(
+                    preg_replace(
+                        '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
+                        trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
+                        )
+                    )
+                    ->execute();
+                    
+        $opt = [];
+        $lastGroup = null;
+        while (($group = $statement->fetch())) {
+            $result = $this->cmd_compileMailGroup(array($group['uid']));
+            $count = 0;
+            $idLists = $result['queryInfo']['id_lists'];
+            if (is_array($idLists['tt_address'])) {
+                $count += count($idLists['tt_address']);
+            }
+            if (is_array($idLists['fe_users'])) {
+                $count += count($idLists['fe_users']);
+            }
+            if (is_array($idLists['PLAINLIST'])) {
+                $count += count($idLists['PLAINLIST']);
+            }
+            if (is_array($idLists[$this->userTable])) {
+                $count += count($idLists[$this->userTable]);
+            }
+            $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
+            $lastGroup = $group;
+        }
+                    
+        // added disabled. see hook
+        if (count($opt) === 0) {
+            $groupInput = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+            ->resolve()
+            ->render([
+                GeneralUtility::makeInstance(
+                    FlashMessage::class,
+                    $this->getLanguageService()->getLL('error.no_recipient_groups_found'),
+                    '',
+                    FlashMessage::ERROR //severity
+                    )
+            ]);
+        } elseif (count($opt) === 1) {
+            $groupInput = '';
+            if (!$hookSelectDisabled) {
+                $groupInput .= '<input type="hidden" name="mailgroup_uid[]" value="' . $lastGroup['uid'] . '" />';
+            }
+            $groupInput .= '* ' . htmlentities($lastGroup['title']);
+            if ($hookSelectDisabled) {
+                $groupInput .= '<em>disabled</em>';
+            }
+        } else {
+            $groupInput = '<select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
+        }
+        // Set up form:
+        $msg = '';
+        $msg .= '<input type="hidden" name="id" value="' . $this->id . '" />';
+        $msg .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '" />';
+        $msg .= '<input type="hidden" name="CMD" value="send_mail_final" />';
+        $msg .= $this->getLanguageService()->getLL('schedule_mailgroup') . '<br />' . $groupInput . '<br /><br />';
+        
+        // put content from hook
+        $msg .= $hookContents;
+        
+        
+        $msg .= $this->getLanguageService()->getLL('schedule_time') .
+        '<br /><div class="form-control-wrap"><div class="input-group">' .
+        '<input class="form-control t3js-datetimepicker t3js-clearable" data-date-type="datetime" data-date-offset="0" type="text" id="tceforms-datetimefield-startdate" name="send_mail_datetime_hr" value="' . strftime('%H:%M %d-%m-%Y', time()) . '">' .
+        '<input name="send_mail_datetime" value="' . strftime('%H:%M %d-%m-%Y', time()) . '" type="hidden">' .
+        '<span class="input-group-btn"><label class="btn btn-default" for="tceforms-datetimefield-startdate"><span class="fa fa-calendar"></span></label></span>' .
+        '</div></div><br />';
+        
+        $msg .= '<br/><label for="tx-directmail-sendtestmail-check"><input type="checkbox" name="testmail" id="tx-directmail-sendtestmail-check" value="1" />&nbsp;' . $this->getLanguageService()->getLL('schedule_testmail') . '</label>';
+        $msg .= '<br/><label for="tx-directmail-savedraft-check"><input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;' . $this->getLanguageService()->getLL('schedule_draft') . '</label>';
+        $msg .= '<br /><br /><input class="btn btn-default" type="Submit" name="mailingMode_mailGroup" value="' . $this->getLanguageService()->getLL('schedule_send_all') . '" />';
+                    
+        $theOutput = '<h3>' . $this->getLanguageService()->getLL('schedule_select_mailgroup') . '</h3>' .
+            $msg;
+            $theOutput .= '<div style="padding-top: 20px;"></div>';
+                        
+        $this->noView = 1;
+        return $theOutput;
     }
 }
