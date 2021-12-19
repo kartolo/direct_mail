@@ -10,6 +10,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
@@ -889,12 +890,12 @@ class DmailController extends MainController
             
             foreach ($res as $row) {
                 $tblLines[] = [
-                    $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+                    $this->moduleTemplate->getIconFactory()->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
                     $this->linkDMail_record($row['subject'], $row['uid']),
                     BackendUtility::date($row['tstamp']),
                     ($row['issent'] ? $this->getLanguageService()->getLL('dmail_yes') : $this->getLanguageService()->getLL('dmail_no')),
                     ($row['renderedsize'] ? GeneralUtility::formatSize($row['renderedsize']) : ''),
-                    ($row['attachment'] ? $this->iconFactory->getIcon('directmail-attachment', Icon::SIZE_SMALL) : ''),
+                    ($row['attachment'] ? $this->moduleTemplate->getIconFactory()->getIcon('directmail-attachment', Icon::SIZE_SMALL) : ''),
                     ($row['type'] & 0x1 ? $this->getLanguageService()->getLL('nl_l_tUrl') : $this->getLanguageService()->getLL('nl_l_tPage')) . ($row['type']  & 0x2 ? ' (' . $this->getLanguageService()->getLL('nl_l_tDraft') . ')' : ''),
                     $this->deleteLink($row['uid'])
                 ];
@@ -927,14 +928,14 @@ class DmailController extends MainController
         $dmail['sys_dmail']['NEW'] = [
             'from_email'        => $indata['senderEmail'],
             'from_name'         => $indata['senderName'],
-            'replyto_email'     => $this->params['replyto_email'],
-            'replyto_name'      => $this->params['replyto_name'],
-            'return_path'       => $this->params['return_path'],
+            'replyto_email'     => $this->params['replyto_email'] ?? '',
+            'replyto_name'      => $this->params['replyto_name'] ?? '',
+            'return_path'       => $this->params['return_path'] ?? '',
             'priority'          => (int) $this->params['priority'],
             'use_rdct'          => (int) $this->params['use_rdct'],
             'long_link_mode'    => (int) $this->params['long_link_mode'],
-            'organisation'      => $this->params['organisation'],
-            'authcode_fieldList'=> $this->params['authcode_fieldList'],
+            'organisation'      => $this->params['organisation'] ?? '',
+            'authcode_fieldList'=> $this->params['authcode_fieldList'] ?? '',
             'plainParams'       => ''
         ];
         
@@ -971,11 +972,11 @@ class DmailController extends MainController
             if (trim($this->params['use_rdct'])) {
                 $message = DirectMailUtility::substUrlsInPlainText(
                     $message,
-                    $this->params['long_link_mode']?'all':'76',
+                    $this->params['long_link_mode'] ? 'all' : '76',
                     DirectMailUtility::getUrlBase((int)$this->params['pid'])
-                    );
+                );
             }
-            if ($indata['breakLines']) {
+            if ($indata['breakLines'] ?? false) {
                 $message = wordwrap($message, 76, "\n");
             }
             // fetch functions
@@ -988,5 +989,60 @@ class DmailController extends MainController
         }
         
         return $theOutput;
+    }
+    
+    /**
+     * Wrap a string as a link
+     *
+     * @param string $str String to be linked
+     * @param int $uid UID of the directmail record
+     *
+     * @return string the link
+     * @throws RouteNotFoundException If the named route doesn't exist
+     */
+    protected function linkDMail_record($str, $uid)
+    {
+        /** @var UriBuilder $uriBuilder */
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $moduleUrl = $uriBuilder->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'sys_dmail_uid' => $uid,
+                'fetchAtOnce' => 1,
+                'cmd' => 'info'
+            ]
+        );
+        return '<a class="t3-link" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
+    }
+    
+    /**
+     * Create delete link with trash icon
+     *
+     * @param int $uid Uid of the record
+     *
+     * @return string link with the trash icon
+     * @throws RouteNotFoundException If the named route doesn't exist
+     */
+    protected function deleteLink($uid)
+    {
+        $icon = $this->moduleTemplate->getIconFactory()->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
+        $dmail = BackendUtility::getRecord('sys_dmail', $uid);
+        
+        if (!$dmail['scheduled_begin']) {
+            /** @var UriBuilder $uriBuilder */
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            $moduleUrl = $uriBuilder->buildUriFromRoute(
+                $this->moduleName,
+                [
+                    'id' => $this->id,
+                    'uid' => $uid,
+                    'CMD' => 'delete'
+                ]
+                );
+            return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
+        }
+        
+        return '';
     }
 }
