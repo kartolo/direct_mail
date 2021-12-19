@@ -26,6 +26,17 @@ class DmailController extends MainController
     protected int $currentStep = 1;
     
     /**
+     * for cmd == 'delete'
+     * @var integer
+     */
+    protected int $uid = 0;
+    
+    protected bool $backButtonPressed = false;
+    
+    protected string $currentCMD = '';
+    protected bool $fetchAtOnce = false;
+
+    /**
      * The name of the module
      *
      * @var string
@@ -44,13 +55,37 @@ class DmailController extends MainController
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
     }
     
+    protected function initDmail(ServerRequestInterface $request): void {
+        $queryParams = $request->getQueryParams();
+        $parsedBody = $request->getParsedBody();
+        
+        $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
+        
+        $update_cats = $parsedBody['update_cats'] ?? $queryParams['update_cats'] ?? false;
+        if ($update_cats) {
+            $this->cmd = 'cats';
+        }
+        
+        $mailingMode_simple = $parsedBody['mailingMode_simple'] ?? $queryParams['mailingMode_simple'] ?? false;
+        if ($mailingMode_simple) {
+            $this->cmd = 'send_mail_test';
+        }
+        
+        $this->backButtonPressed = (bool)($parsedBody['back'] ?? $queryParams['back'] ?? false);
+        
+        $this->currentCMD = (string)($parsedBody['currentCMD'] ?? $queryParams['currentCMD'] ?? '');
+        // Create DirectMail and fetch the data
+        $this->fetchAtOnce = (bool)($parsedBody['fetchAtOnce'] ?? $queryParams['fetchAtOnce'] ?? false);
+    }
+    
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $currentModule = 'Dmail';
         $this->view = $this->configureTemplatePaths($currentModule);
         
         $this->init($request);
-
+        $this->initDmail($request);
+        
         // get the config from pageTS
         $this->params['pid'] = intval($this->id);
         
@@ -173,12 +208,12 @@ class DmailController extends MainController
         ];
         
         if ($this->cmd == 'delete') {
-            $this->deleteDMail(intval(GeneralUtility::_GP('uid'))); //@TODO
+            $this->deleteDMail($this->uid);
         }
         
         $row = [];
         if (intval($this->sys_dmail_uid)) {
-            $row = BackendUtility::getRecord('sys_dmail', intval($this->sys_dmail_uid));
+            $row = BackendUtility::getRecord('sys_dmail', $this->sys_dmail_uid);
             $isExternalDirectMailRecord = (is_array($row) && $row['type'] == 1);
         }
         
@@ -188,20 +223,11 @@ class DmailController extends MainController
         if ((isset($tsconfig['tx_directmail.']['hideSteps']) &&
             $tsconfig['tx_directmail.']['hideSteps'] === 'cat') || $isExternalDirectMailRecord) {
                 $hideCategoryStep = true;
-            }
-            
-        if (GeneralUtility::_GP('update_cats')) { //@TODO
-            $this->cmd = 'cats';
         }
-            
-        if (GeneralUtility::_GP('mailingMode_simple')) { //@TODO
-            $this->cmd = 'send_mail_test';
-        }
-            
-        $backButtonPressed = GeneralUtility::_GP('back');  //@TODO
-        if ($backButtonPressed) {
+
+        if ($this->backButtonPressed) {
             // CMD move 1 step back
-            switch (GeneralUtility::_GP('currentCMD')) {  //@TODO
+            switch ($this->currentCMD) {
                 case 'info':
                     $this->cmd = '';
                     break;
@@ -209,7 +235,7 @@ class DmailController extends MainController
                     $this->cmd = 'info';
                     break;
                 case 'send_test':
-                    // Sameas send_mail_test
+                    // Same as send_mail_test
                 case 'send_mail_test':
                     if (($this->cmd == 'send_mass') && $hideCategoryStep) {
                         $this->cmd = 'info';
@@ -240,23 +266,20 @@ class DmailController extends MainController
                 $nextCmd = 'cats';
             }
         }
-            
+
         $navigationButtons = '';
         switch ($this->cmd) {
             case 'info':
-                $fetchMessage = '';
-                
                 // step 2: create the Direct Mail record, or use existing
                 $this->currentStep = 2;
                 $markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz2_detail');
                 
+                $fetchMessage = '';
+                
                 // greyed out next-button if fetching is not successful (on error)
                 $fetchError = true;
                 
-                // Create DirectMail and fetch the data
-                $shouldFetchData = GeneralUtility::_GP('fetchAtOnce');
-                
-                $quickmail = GeneralUtility::_GP('quickmail');
+                $quickmail = GeneralUtility::_GP('quickmail'); //@TODO
                 
                 $createMailFromInternalPage = intval(GeneralUtility::_GP('createMailFrom_UID'));
                 $createMailFromExternalUrl = GeneralUtility::_GP('createMailFrom_URL');
@@ -271,7 +294,7 @@ class DmailController extends MainController
                         // Read new record (necessary because TCEmain sets default field values)
                         $row = BackendUtility::getRecord('sys_dmail', $newUid);
                         // fetch the data
-                        if ($shouldFetchData) {
+                        if ($this->fetchAtOnce) {
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
                             $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                         }
@@ -291,7 +314,7 @@ class DmailController extends MainController
                         // Read new record (necessary because TCEmain sets default field values)
                         $row = BackendUtility::getRecord('sys_dmail', $newUid);
                         // fetch the data
-                        if ($shouldFetchData) {
+                        if ($this->fetchAtOnce) {
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
                             $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                         }
@@ -319,7 +342,7 @@ class DmailController extends MainController
                         $unserializedMailContent = unserialize(base64_decode($row['mailContent']));
                         $theOutput .= $this->compileQuickMail($row, $unserializedMailContent['plain']['content'], false);
                     } else {
-                        if ($shouldFetchData) {
+                        if ($thios->fetchAtOnce) {
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
                             $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                         }
@@ -337,7 +360,7 @@ class DmailController extends MainController
                 
                 if ($fetchMessage) {
                     $markers['FLASHMESSAGES'] = $fetchMessage;
-                } elseif (!$fetchError && $shouldFetchData) {
+                } elseif (!$fetchError && $this->fetchAtOnce) {
                     $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
                     ->resolve()
                     ->render([
@@ -346,7 +369,7 @@ class DmailController extends MainController
                             '',
                             $this->getLanguageService()->getLL('dmail_wiz2_fetch_success'),
                             FlashMessage::OK
-                            )
+                        )
                     ]);
                 }
                 
@@ -426,8 +449,7 @@ class DmailController extends MainController
                 $theOutput .= $this->cmd_finalmail($row);
                 $theOutput .= '</div>';
                 
-                $theOutput = '<h3>' . $this->getLanguageService()->getLL('dmail_wiz5_sendmass') . '</h3>' .
-                    $theOutput;
+                $theOutput = '<h3>' . $this->getLanguageService()->getLL('dmail_wiz5_sendmass') . '</h3>' . $theOutput;
                     
                 $theOutput .= '<input type="hidden" name="cmd" value="send_mail_final">';
                 $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';

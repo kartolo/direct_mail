@@ -67,9 +67,9 @@ class MainController {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
         
-        $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
-        $this->cmd = (string)($parsedBody['cmd'] ?? $queryParams['cmd'] ?? '');
-        $this->pages_uid = (string)($parsedBody['pages_uid'] ?? $queryParams['pages_uid'] ?? '');
+        $this->id            = (int)($parsedBody['id']            ?? $queryParams['id'] ?? 0);
+        $this->cmd           = (string)($parsedBody['cmd']        ?? $queryParams['cmd'] ?? '');
+        $this->pages_uid     = (string)($parsedBody['pages_uid']  ?? $queryParams['pages_uid'] ?? '');
         $this->sys_dmail_uid = (int)($parsedBody['sys_dmail_uid'] ?? $queryParams['sys_dmail_uid'] ?? 0);
         
         $this->perms_clause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
