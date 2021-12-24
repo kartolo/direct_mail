@@ -191,7 +191,7 @@ class Dmailer implements LoggerAwareInterface
 
         $this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
         $this->dmailer['html_content']    = $this->theParts['html']['content'] ?? '';
-        $this->dmailer['plain_content']   = $this->theParts['plain']['content'];
+        $this->dmailer['plain_content']   = $this->theParts['plain']['content'] ?? '';
         $this->dmailer['messageID']       = $this->messageid;
         $this->dmailer['sys_dmail_uid']   = $sys_dmail_uid;
         $this->dmailer['sys_dmail_rec']   = $row;
@@ -222,7 +222,7 @@ class Dmailer implements LoggerAwareInterface
         }
 
         $this->flag_html    = (($this->theParts['html']['content'] ?? false) ? 1 : 0);
-        $this->flag_plain   = ($this->theParts['plain']['content'] ? 1 : 0);
+        $this->flag_plain   = (($this->theParts['plain']['content'] ?? false) ? 1 : 0);
         $this->includeMedia = $row['includeMedia'];
     }
 
