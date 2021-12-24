@@ -62,7 +62,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
         }
 
         // fetch all available drafts
-        $drafts = array();
+        $drafts = [];
 
         $queryBuilder =  GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('sys_dmail');
@@ -107,15 +107,15 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
         }
         $fieldHtml = '<select name="tx_scheduler[selecteddraft]" id="' . $fieldID . '">' . $fieldHtml . '</select>';
 
-        $additionalFields = array();
-        $additionalFields[$fieldID] = array(
+        $additionalFields = [];
+        $additionalFields[$fieldID] = [
             'code'     => $fieldHtml,
             // TODO: add LLL label 'LLL:EXT:scheduler/mod1/locallang.xml:label.email',
             'label'    => 'Choose Draft to create DirectMail from',
             // TODO! add CSH
             'cshKey'   => '',
             'cshLabel' => $fieldID
-        );
+        ];
 
         return $additionalFields;
     }

@@ -165,7 +165,7 @@ class Readmail
     {
         $mParts = explode('--' . $boundary, $content);
         unset($mParts[0]);
-        $new = array();
+        $new = [];
         foreach ($mParts as $val) {
             if (trim($val) == '--') {
                 break;
@@ -187,7 +187,7 @@ class Readmail
     public function getCType($str)
     {
         $parts = explode(';', $str);
-        $cTypes = array();
+        $cTypes = [];
         $cTypes['ContentType'] = $parts[0];
         next($parts);
         foreach ($parts as $ppstr) {
@@ -213,7 +213,7 @@ class Readmail
      */
     public function analyseReturnError($c)
     {
-        $cp = array();
+        $cp = [];
         // QMAIL
         if (preg_match('/' . preg_quote('--- Below this line is a copy of the message.') . '|' . preg_quote('------ This is a copy of the message, including all the headers.') . '/i', $c)) {
             if (preg_match('/' . preg_quote('--- Below this line is a copy of the message.') . '/i', $c)) {
@@ -335,7 +335,7 @@ class Readmail
      */
     public function extractNameEmail($str)
     {
-        $outArr = array();
+        $outArr = [];
         // Email:
         $reg = '';
         preg_match('/<([^>]*)>/', $str, $reg);
@@ -368,7 +368,7 @@ class Readmail
      */
     public function getContentTypeData($contentTypeStr)
     {
-        $outValue = array();
+        $outValue = [];
         $cTypeParts = GeneralUtility::trimExplode(';', $contentTypeStr, 1);
         // Content type, first value is supposed to be the mime-type,
         // whatever after the first is something else.
@@ -441,7 +441,7 @@ class Readmail
             $content = substr($content, 0, $limit);
         }
         $lines = explode(LF, ltrim($content));
-        $headers = array();
+        $headers = [];
         $p = '';
         foreach ($lines as $k => $str) {
             if (!trim($str)) {
@@ -522,7 +522,7 @@ class Readmail
             case 'multipart':
                 if ($mailParts['_CONTENT_TYPE_DAT']['boundary']) {
                     $contentSectionParts = GeneralUtility::trimExplode('--' . $mailParts['_CONTENT_TYPE_DAT']['boundary'], $mailParts['CONTENT'], 1);
-                    $contentSectionParts_proc = array();
+                    $contentSectionParts_proc = [];
                     foreach ($contentSectionParts as $k => $v) {
                         if (substr($v, 0, 2) == '--') {
                             break;

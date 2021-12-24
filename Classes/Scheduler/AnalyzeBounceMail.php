@@ -208,7 +208,7 @@ class AnalyzeBounceMail extends AbstractTask
 
         // get attachment
         $attachmentArray = $message->getAttachments();
-        $midArray = array();
+        $midArray = [];
         if (is_array($attachmentArray)) {
             // search in attachment
             foreach ($attachmentArray as $v => $attachment) {

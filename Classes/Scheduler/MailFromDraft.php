@@ -33,7 +33,7 @@ class MailFromDraft extends AbstractTask
 {
     public $draftUid = null;
 
-    protected $hookObjects = array();
+    protected $hookObjects = [];
 
     /**
      * Setter function to set the draft ID that the task should use
@@ -57,7 +57,7 @@ class MailFromDraft extends AbstractTask
     {
         if ($this->draftUid > 0) {
             $this->initializeHookObjects();
-            $hookParams = array();
+            $hookParams = [];
 
             $draftRecord = BackendUtility::getRecord('sys_dmail', $this->draftUid);
 
@@ -112,7 +112,7 @@ class MailFromDraft extends AbstractTask
             // fetch mail content
             $result = DirectMailUtility::fetchUrlContentsForDirectMailRecord($mailRecord, $defaultParams, true);
 
-            if ($result['errors'] !== array()) {
+            if ($result['errors'] !== []) {
                 throw new \Exception('Failed to fetch contents: ' . implode(', ', $result['errors']));
             }
 

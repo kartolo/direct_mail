@@ -48,7 +48,7 @@ class Container
      *
      * @return    string        content of the email with dmail boundaries
      */
-    public function insert_dMailer_boundaries($content, $conf = array())
+    public function insert_dMailer_boundaries($content, $conf = [])
     {
         if (isset($conf['useParentCObj']) && $conf['useParentCObj']) {
             $this->cObj = $conf['parentObj']->cObj;
@@ -169,7 +169,7 @@ class Container
 
 
         if (count($categories) > 0) {
-            $categoryList = array();
+            $categoryList = [];
             foreach ($categories as $category) {
                 $categoryList[] = $category['uid_foreign'];
             }

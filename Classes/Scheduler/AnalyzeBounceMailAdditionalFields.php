@@ -74,7 +74,7 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
                 '</select>';
         }
 
-        $additionalFields = array();
+        $additionalFields = [];
         $additionalFields['server'] = $this->createAdditionalFields('server', $serverHTML);
         $additionalFields['port'] = $this->createAdditionalFields('port', $portHTML);
         $additionalFields['user'] = $this->createAdditionalFields('user', $userHTML);

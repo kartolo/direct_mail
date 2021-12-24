@@ -91,7 +91,7 @@ class DirectMail extends AbstractPlugin
 
         $this->init($conf);
 
-        $lines = array();
+        $lines = [];
         $cType = (string)$this->cObj->data['CType'];
         switch ($cType) {
             case 'header':
@@ -169,7 +169,7 @@ class DirectMail extends AbstractPlugin
         $content = implode(LF, $lines);
 
         // Substitute labels
-        $markerArray = array();
+        $markerArray = [];
         $markerArray = $this->addLabelsMarkers($markerArray);
         $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
         $content = $this->templateService->substituteMarkerArray($content, $markerArray);
@@ -236,7 +236,7 @@ class DirectMail extends AbstractPlugin
      *
      * @return	string		Plain content.
      */
-    public function getHtml($str = array())
+    public function getHtml($str = [])
     {
         return $this->breakContent(strip_tags(preg_replace('/<br\s*\/?>/i', LF, $this->parseBody(is_string($str)?$str:$this->cObj->data['bodytext']))));
     }
@@ -319,7 +319,7 @@ class DirectMail extends AbstractPlugin
         $str = $this->cObj->stdWrap($str, $this->conf[$altConf . '.']['stdWrap.']);
 
         // Then all a-tags:
-        $aConf = array();
+        $aConf = [];
         $aConf['parseFunc.']['tags.']['a'] = 'USER';
         $aConf['parseFunc.']['tags.']['a.']['userFunc'] = 'DirectMailTeam\DirectMail\Plugin\DirectMail->atag_to_http';
         $aConf['parseFunc.']['tags.']['a.']['siteUrl'] = $this->siteUrl;
@@ -344,7 +344,7 @@ class DirectMail extends AbstractPlugin
     public function renderUploads($str, $uploadPath='uploads/media/')
     {
         $files = explode(',', $str);
-        $lines = array();
+        $lines = [];
 
         if (count($files) > 0 && strlen($files[0])) {
             if ($this->conf['uploads.']['header']) {
@@ -382,7 +382,7 @@ class DirectMail extends AbstractPlugin
                     $str = preg_replace('/' . preg_quote($tConf['removeSplitChar'], '/') . '/', '', $str);
                 }
 
-                $lines = array();
+                $lines = [];
 
                 $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preBlanks'], 0, 1000);
                 if ($blanks) {
@@ -466,7 +466,7 @@ class DirectMail extends AbstractPlugin
     public function breakContent($str)
     {
         $cParts = explode(LF, $str);
-        $lines = array();
+        $lines = [];
         foreach ($cParts as $substrs) {
             $lines[] = $this->breakLines($substrs, '');
         }
@@ -488,7 +488,7 @@ class DirectMail extends AbstractPlugin
         $tConf = $this->conf['bulletlist.'][$type . '.'];
 
         $cParts = explode(LF, $str);
-        $lines = array();
+        $lines = [];
         $c = 0;
 
         foreach ($cParts as $substrs) {
@@ -522,7 +522,7 @@ class DirectMail extends AbstractPlugin
     {
         $cParts = explode(LF, $str);
 
-        $lines = array();
+        $lines = [];
         $cols = (int)$this->conf['cols'] ?: 0;
         $c = 0;
         foreach ($cParts as $substrs) {
@@ -546,13 +546,13 @@ class DirectMail extends AbstractPlugin
         $colChar = '|';
 
         // Make table:
-        $outLines = array();
+        $outLines = [];
         $outLines[] = $this->addDiv($messure, '', $divChar, $joinChar, $cols);
 
         foreach ($lines as $k => $v) {
             $top = (int)$messure[1][$k];
             for ($aa = 0; $aa < $top; $aa++) {
-                $tempArr = array();
+                $tempArr = [];
                 for ($bb = 0; $bb < $cols; $bb++) {
                     $tempArr[$bb] = str_pad($v[$bb][$aa], $messure[0][$bb], ' ');
                 }
@@ -578,7 +578,7 @@ class DirectMail extends AbstractPlugin
      */
     public function addDiv(array $messure, $content, $divChar, $joinChar, $cols)
     {
-        $tempArr = array();
+        $tempArr = [];
         for ($a = 0; $a < $cols; $a++) {
             $tempArr[$a] = str_pad($content, $messure[0][$a], $divChar);
         }
@@ -596,8 +596,8 @@ class DirectMail extends AbstractPlugin
      */
     public function traverseTable(array $tableLines)
     {
-        $maxLen = array();
-        $maxLines = array();
+        $maxLen = [];
+        $maxLines = [];
 
         foreach ($tableLines as $k => $v) {
             foreach ($v as $kk => $vv) {
@@ -627,7 +627,7 @@ class DirectMail extends AbstractPlugin
         if ($fieldname === 'assets') {
             $fieldname = 'textmedia';
         }
-        $lines = array();
+        $lines = [];
         $imageExists = false;
 
         // create the image, imagelink and image caption block

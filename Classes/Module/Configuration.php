@@ -414,7 +414,7 @@ class Configuration extends BaseScriptClass
                             $formEl = '';
                             break;
                         case 'select':
-                            $opt = array();
+                            $opt = [];
                             foreach ($config[3] as $k => $v) {
                                 $opt[]='<option value="' . htmlspecialchars($k) . '"' . ($params[$fname]==$k?' selected="selected"':'') . '>' . htmlspecialchars($v) . '</option>';
                             }
