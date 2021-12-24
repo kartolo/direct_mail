@@ -370,17 +370,15 @@ class DmailController extends MainController
                 
                 if ($fetchMessage) {
                     $markers['FLASHMESSAGES'] = $fetchMessage;
-                } elseif (!$fetchError && $this->fetchAtOnce) {
-                    $markers['FLASHMESSAGES'] = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
-                    ->resolve()
-                    ->render([
-                        GeneralUtility::makeInstance(
-                            FlashMessage::class,
-                            '',
-                            $this->getLanguageService()->getLL('dmail_wiz2_fetch_success'),
-                            FlashMessage::OK
-                        )
-                    ]);
+                } 
+                elseif (!$fetchError && $this->fetchAtOnce) {
+                    $message = $this->createFlashMessage(
+                        '', 
+                        $this->getLanguageService()->getLL('dmail_wiz2_fetch_success'), 
+                        0, 
+                        false
+                    );
+                    $this->messageQueue->addMessage($message);
                 }
                 
                 if (is_array($row)) {
@@ -1367,15 +1365,14 @@ class DmailController extends MainController
                 // Sending the same mail to lots of recipients
                 $htmlmail->dmailer_sendSimple($addressList);
                 $sentFlag = true;
-                
-                /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance(
-                    FlashMessage::class,
+                $message = $this->createFlashMessage(
                     $this->getLanguageService()->getLL('send_was_sent') . ' ' .
-                    $this->getLanguageService()->getLL('send_recipients') . ' ' . htmlspecialchars($addressList),
-                    $this->getLanguageService()->getLL('send_sending'),
-                    FlashMessage::OK
-                    );
+                    $this->getLanguageService()->getLL('send_recipients') . ' ' . htmlspecialchars($addressList), 
+                    $this->getLanguageService()->getLL('send_sending'), 
+                    0, 
+                    false
+                );
+                $this->messageQueue->addMessage($message);
                 
                 $this->noView = 1;
             }
@@ -1403,22 +1400,22 @@ class DmailController extends MainController
                         $htmlmail->dmailer_sendAdvanced($recipRow, 't');
                         $sentFlag = true;
                         
-                        /* @var $flashMessage FlashMessage */
-                        $flashMessage = GeneralUtility::makeInstance(
-                            FlashMessage::class,
-                            sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), $recipRow['name'] . ' <' . $recipRow['email'] . '>'),
-                            $this->getLanguageService()->getLL('send_sending'),
-                            FlashMessage::OK
-                            );
+                        $message = $this->createFlashMessage(
+                            sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), $recipRow['name'] . ' <' . $recipRow['email'] . '>'), 
+                            $this->getLanguageService()->getLL('send_sending'), 
+                            0, 
+                            false
+                        );
+                        $this->messageQueue->addMessage($message);
                     }
                 } else {
-                    /* @var $flashMessage FlashMessage */
-                    $flashMessage = GeneralUtility::makeInstance(
-                        FlashMessage::class,
-                        'Error: No valid recipient found to send test mail to. #1579209279',
-                        $this->getLanguageService()->getLL('send_sending'),
-                        FlashMessage::ERROR
-                        );
+                    $message = $this->createFlashMessage(
+                        'Error: No valid recipient found to send test mail to. #1579209279', 
+                        $this->getLanguageService()->getLL('send_sending'), 
+                        2, 
+                        false
+                    );
+                    $this->messageQueue->addMessage($message);
                 }
                 
             } elseif (is_array(GeneralUtility::_GP('sys_dmail_group_uid'))) {
@@ -1432,13 +1429,13 @@ class DmailController extends MainController
                 $sendFlag += $this->sendTestMailToTable($idLists, 'PLAINLIST', $htmlmail);
                 $sendFlag += $this->sendTestMailToTable($idLists, $this->userTable, $htmlmail);
                 
-                /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance(
-                    FlashMessage::class,
-                    sprintf($this->getLanguageService()->getLL('send_was_sent_to_number'), $sendFlag),
-                    $this->getLanguageService()->getLL('send_sending'),
-                    FlashMessage::OK
-                    );
+                $message = $this->createFlashMessage(
+                    sprintf($this->getLanguageService()->getLL('send_was_sent_to_number'), $sendFlag), 
+                    $this->getLanguageService()->getLL('send_sending'), 
+                    0, 
+                    false
+                );
+                $this->messageQueue->addMessage($message);
             }
         } else {
             // step 5, sending personalized emails to the mailqueue
@@ -1490,14 +1487,13 @@ class DmailController extends MainController
                     [ 'uid' => intval($this->sys_dmail_uid) ] // where
                 );
                 
-                
-                /* @var $flashMessage FlashMessage */
-                $flashMessage = GeneralUtility::makeInstance(
-                    FlashMessage::class,
-                    $sectionTitle . ' ' . $content,
-                    $this->getLanguageService()->getLL('dmail_wiz5_sendmass'),
-                    FlashMessage::OK
+                $message = $this->createFlashMessage(
+                    $sectionTitle . ' ' . $content, 
+                    $this->getLanguageService()->getLL('dmail_wiz5_sendmass'), 
+                    0, 
+                    false
                 );
+                $this->messageQueue->addMessage($message);
             }
         }
         
@@ -1511,13 +1507,8 @@ class DmailController extends MainController
                 'sys_dmail', // table
                 ['issent' => 1],
                 [ 'uid' => intval($this->sys_dmail_uid) ] // where
-                );
-            
+            );
         }
-        
-        return GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
-        ->resolve()
-        ->render([$flashMessage]);
     }
     
     /**
@@ -1593,21 +1584,19 @@ class DmailController extends MainController
             $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
             $lastGroup = $group;
         }
-                    
+        
+        $groupInput = '';
         // added disabled. see hook
         if (count($opt) === 0) {
-            $groupInput = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
-            ->resolve()
-            ->render([
-                GeneralUtility::makeInstance(
-                    FlashMessage::class,
-                    $this->getLanguageService()->getLL('error.no_recipient_groups_found'),
-                    '',
-                    FlashMessage::ERROR //severity
-                    )
-            ]);
-        } elseif (count($opt) === 1) {
-            $groupInput = '';
+            $message = $this->createFlashMessage(
+                $this->getLanguageService()->getLL('error.no_recipient_groups_found'), 
+                '', 
+                2, 
+                false
+            );
+            $this->messageQueue->addMessage($message);
+        } 
+        elseif (count($opt) === 1) {
             if (!$hookSelectDisabled) {
                 $groupInput .= '<input type="hidden" name="mailgroup_uid[]" value="' . $lastGroup['uid'] . '" />';
             }
@@ -1615,7 +1604,8 @@ class DmailController extends MainController
             if ($hookSelectDisabled) {
                 $groupInput .= '<em>disabled</em>';
             }
-        } else {
+        } 
+        else {
             $groupInput = '<select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
         }
         // Set up form:
@@ -1627,8 +1617,6 @@ class DmailController extends MainController
         
         // put content from hook
         $msg .= $hookContents;
-        
-        
         $msg .= $this->getLanguageService()->getLL('schedule_time') .
         '<br /><div class="form-control-wrap"><div class="input-group">' .
         '<input class="form-control t3js-datetimepicker t3js-clearable" data-date-type="datetime" data-date-offset="0" type="text" id="tceforms-datetimefield-startdate" name="send_mail_datetime_hr" value="' . strftime('%H:%M %d-%m-%Y', time()) . '">' .
@@ -1640,9 +1628,8 @@ class DmailController extends MainController
         $msg .= '<br/><label for="tx-directmail-savedraft-check"><input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;' . $this->getLanguageService()->getLL('schedule_draft') . '</label>';
         $msg .= '<br /><br /><input class="btn btn-default" type="Submit" name="mailingMode_mailGroup" value="' . $this->getLanguageService()->getLL('schedule_send_all') . '" />';
                     
-        $theOutput = '<h3>' . $this->getLanguageService()->getLL('schedule_select_mailgroup') . '</h3>' .
-            $msg;
-            $theOutput .= '<div style="padding-top: 20px;"></div>';
+        $theOutput = '<h3>' . $this->getLanguageService()->getLL('schedule_select_mailgroup') . '</h3>' . $msg;
+        $theOutput .= '<div style="padding-top: 20px;"></div>';
                         
         $this->noView = 1;
         return $theOutput;
