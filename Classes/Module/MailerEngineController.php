@@ -10,6 +10,7 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -17,6 +18,13 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class MailerEngineController extends MainController
 {
+    /**
+     * The name of the module
+     *
+     * @var string
+     */
+    protected $moduleName = 'DirectMailNavFrame_MailerEngine';
+    
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('MailerEngine');
@@ -336,5 +344,20 @@ class MailerEngineController extends MainController
         $htmlmail->nonCron = 1;
         $htmlmail->start();
         $htmlmail->runcron();
+    }
+    
+    /**
+     * Wrapping a string with a link
+     *
+     * @param string $str String to be wrapped
+     * @param int $uid Uid of the record
+     *
+     * @return string wrapped string as a link
+     */
+    public function linkDMail_record($str, $uid)
+    {
+        return $str;
+        //TODO: Link to detail page for the new queue
+        #return '<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&SET[dmail_mode]=direct">'.$str.'</a>';
     }
 }
