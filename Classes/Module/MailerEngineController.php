@@ -19,26 +19,42 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 class MailerEngineController extends MainController
 {
     /**
+     * for cmd == 'delete'
+     * @var integer
+     */
+    protected int $uid = 0;
+    
+    protected bool $invokeMailerEngine = false;
+
+    /**
      * The name of the module
      *
      * @var string
      */
     protected $moduleName = 'DirectMailNavFrame_MailerEngine';
+
+    protected function initMailerEngine(ServerRequestInterface $request): void {
+        $queryParams = $request->getQueryParams();
+        $parsedBody = $request->getParsedBody();
+        
+        $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
+        $this->invokeMailerEngine = (bool)($parsedBody['uid'] ?? $queryParams['uid'] ?? false);
+    }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('MailerEngine');
         
         $this->init($request);
+        $this->initMailerEngine($request);
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
         
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $module = $this->getModulName();
 
             if ($module == 'dmail') {
-                //@TODO $this->cmd
-                if (GeneralUtility::_GP('cmd') == 'delete') {
-                    $this->deleteDMail(GeneralUtility::_GP('uid'));
+                if ($this->cmd == 'delete' && $this->uid) {
+                    $this->deleteDMail($this->uid);
                 }
 
                 // Direct mail module
@@ -215,7 +231,8 @@ class MailerEngineController extends MainController
         
         // enable manual invocation of mailer engine; enabled by default
         $enableTrigger = ! (isset($this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']) && $this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']);
-        if ($enableTrigger && GeneralUtility::_GP('invokeMailerEngine')) {
+
+        if ($enableTrigger && $this->invokeMailerEngine) {
             $this->invokeMEngine();
             $message = $this->createFlashMessage('', $this->getLanguageService()->getLL('dmail_mailerengine_invoked'), -1, false);
             $this->messageQueue->addMessage($message);
