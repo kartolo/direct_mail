@@ -28,6 +28,8 @@ class RecipientListController extends MainController
     
     protected int $group_uid = 0;
     protected string $lCmd = '';
+    protected string $csv = '';
+    protected array $set = [];
     protected string $fieldList = 'uid,name,first_name,middle_name,last_name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
     
     protected function initRecipientList(ServerRequestInterface $request): void {
@@ -36,6 +38,8 @@ class RecipientListController extends MainController
         
         $this->group_uid = (int)($parsedBody['group_uid'] ?? $queryParams['group_uid'] ?? 0);
         $this->lCmd = $parsedBody['lCmd'] ?? $queryParams['lCmd'] ?? '';
+        $this->csv = $parsedBody['csv'] ?? $queryParams['csv'] ?? '';
+        $this->set = is_array($parsedBody['csv'] ?? '') ? $parsedBody['csv'] : is_array($queryParams['csv'] ?? '') ? $queryParams['csv'] : [];
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -450,12 +454,11 @@ class RecipientListController extends MainController
             $mainC.= '<br /><br /><strong><a class="t3-link" href="' . GeneralUtility::linkThisScript(['lCmd'=>'listall']) . '">' . $this->getLanguageService()->getLL('mailgroup_list_all') . '</a></strong>';
         }
         
-        $theOutput = '<h3>' . $this->getLanguageService()->getLL('mailgroup_recip_from') . ' ' . $out . '</h3>' .
-            $mainC;
+        $theOutput = '<h3>' . $this->getLanguageService()->getLL('mailgroup_recip_from') . ' ' . $out . '</h3>' . $mainC;
         $theOutput .= '<div style="padding-top: 20px;"></div>';
 
         // do the CSV export
-        $csvValue = GeneralUtility::_GP('csv'); //@TODO
+        $csvValue = $this->csv;
         if ($csvValue) {
             if ($csvValue == 'PLAINLIST') {
                 $this->downloadCSV($idLists['PLAINLIST']);
@@ -546,8 +549,8 @@ class RecipientListController extends MainController
      */
     protected function update_specialQuery($mailGroup)
     {
-        $set = GeneralUtility::_GP('SET');
-        $queryTable = $set['queryTable'];
+        $set = $this->set;
+        $queryTable = $set['queryTable'] ?? '';
         $queryConfig = GeneralUtility::_GP('dmail_queryConfig');
         $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
         
@@ -590,7 +593,7 @@ class RecipientListController extends MainController
                 'sys_dmail_group', // table
                 $updateFields,
                 [ 'uid' => intval($mailGroup['uid']) ] // where
-                );
+            );
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
         }
         return $mailGroup;
