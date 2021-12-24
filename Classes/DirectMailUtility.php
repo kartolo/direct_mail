@@ -1042,25 +1042,25 @@ class DirectMailUtility
     {
         $result = false;
 
-        $newRecord = array(
-            'type'                    => 0,
-            'pid'                    => $parameters['pid'],
+        $newRecord = [
+            'type'                  => 0,
+            'pid'                   => $parameters['pid'],
             'from_email'            => $parameters['from_email'],
-            'from_name'                => $parameters['from_name'],
-            'replyto_email'            => $parameters['replyto_email'],
-            'replyto_name'            => $parameters['replyto_name'],
-            'return_path'            => $parameters['return_path'],
-            'priority'                => $parameters['priority'],
-            'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0), /*$parameters['use_rdct'],*/
+            'from_name'             => $parameters['from_name'],
+            'replyto_email'         => $parameters['replyto_email'],
+            'replyto_name'          => $parameters['replyto_name'],
+            'return_path'           => $parameters['return_path'],
+            'priority'              => $parameters['priority'],
+            'use_rdct'              => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0), /*$parameters['use_rdct'],*/
             'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode']:0),//$parameters['long_link_mode'],
-            'organisation'            => $parameters['organisation'],
+            'organisation'          => $parameters['organisation'],
             'authcode_fieldList'    => $parameters['authcode_fieldList'],
-            'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
+            'sendOptions'           => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
             'long_link_rdct_url'    => self::getUrlBase((int)$pageUid),
-            'sys_language_uid' => (int)$sysLanguageUid,
-            'attachment' => '',
-            'mailContent' => ''
-        );
+            'sys_language_uid'      => (int)$sysLanguageUid,
+            'attachment'            => '',
+            'mailContent'           => ''
+        ];
 
         if ($newRecord['sys_language_uid'] > 0) {
             $langParam = self::getLanguageParam($newRecord['sys_language_uid'], $parameters);
@@ -1068,9 +1068,8 @@ class DirectMailUtility
             $parameters['HTMLParams'] .= $langParam;
         }
 
-
         // If params set, set default values:
-        $paramsToOverride = array('sendOptions', 'includeMedia', 'flowedFormat', 'HTMLParams', 'plainParams');
+        $paramsToOverride = ['sendOptions', 'includeMedia', 'flowedFormat', 'HTMLParams', 'plainParams'];
         foreach ($paramsToOverride as $param) {
             if (isset($parameters[$param])) {
                 $newRecord[$param] = $parameters[$param];
@@ -1109,11 +1108,11 @@ class DirectMailUtility
 
         // save to database
         if ($newRecord['page'] && $newRecord['sendOptions']) {
-            $tcemainData = array(
-                'sys_dmail' => array(
+            $tcemainData = [
+                'sys_dmail' => [
                     'NEW' => $newRecord
-                )
-            );
+                ]
+            ];
 
             /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
             $tce = GeneralUtility::makeInstance(DataHandler::class);
@@ -1163,27 +1162,26 @@ class DirectMailUtility
     {
         $result = false;
 
-        $newRecord = array(
-            'type'                    => 1,
-            'pid'                    => $parameters['pid'],
-            'subject'                => $subject,
-            'from_email'            => $parameters['from_email'],
-            'from_name'                => $parameters['from_name'],
-            'replyto_email'            => $parameters['replyto_email'],
-            'replyto_name'            => $parameters['replyto_name'],
-            'return_path'            => $parameters['return_path'],
-            'priority'                => $parameters['priority'],
-            'use_rdct'                => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0),
-            'long_link_mode'        => $parameters['long_link_mode'],
-            'organisation'            => $parameters['organisation'],
-            'authcode_fieldList'    => $parameters['authcode_fieldList'],
-            'sendOptions'            => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => self::getUrlBase((int)$parameters['page'])
-        );
-
+        $newRecord = [
+            'type'                  => 1,
+            'pid'                   => $parameters['pid'] ?? 0,
+            'subject'               => $subject,
+            'from_email'            => $parameters['from_email'] ?? '',
+            'from_name'             => $parameters['from_name'] ?? '',
+            'replyto_email'         => $parameters['replyto_email'] ?? '',
+            'replyto_name'          => $parameters['replyto_name'] ?? '',
+            'return_path'           => $parameters['return_path'] ?? '',
+            'priority'              => $parameters['priority'] ?? 0,
+            'use_rdct'              => (!empty($parameters['use_rdct']) ? $parameters['use_rdct'] : 0),
+            'long_link_mode'        => $parameters['long_link_mode'] ?? '',
+            'organisation'          => $parameters['organisation'] ?? '',
+            'authcode_fieldList'    => $parameters['authcode_fieldList'] ?? '',
+            'sendOptions'           => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
+            'long_link_rdct_url'    => self::getUrlBase((int)($parameters['page'] ?? 0))
+        ];
 
         // If params set, set default values:
-        $paramsToOverride = array('sendOptions', 'includeMedia', 'flowedFormat', 'HTMLParams', 'plainParams');
+        $paramsToOverride = ['sendOptions', 'includeMedia', 'flowedFormat', 'HTMLParams', 'plainParams'];
         foreach ($paramsToOverride as $param) {
             if (isset($parameters[$param])) {
                 $newRecord[$param] = $parameters[$param];
@@ -1212,11 +1210,11 @@ class DirectMailUtility
 
         // save to database
         if ($newRecord['pid'] && $newRecord['sendOptions']) {
-            $tcemainData = array(
-                'sys_dmail' => array(
+            $tcemainData = [
+                'sys_dmail' => [
                     'NEW' => $newRecord
-                )
-            );
+                ]
+            ];
 
             /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
             $tce = GeneralUtility::makeInstance(DataHandler::class);
@@ -1276,13 +1274,13 @@ class DirectMailUtility
 
         $htmlmail->start();
         $htmlmail->charset = $row['charset'];
-        $htmlmail->http_username = $params['http_username'];
-        $htmlmail->http_password = $params['http_password'];
-        $htmlmail->simulateUsergroup = $params['simulate_usergroup'];
+        $htmlmail->http_username = $params['http_username'] ?? '';
+        $htmlmail->http_password = $params['http_password'] ?? '';
+        $htmlmail->simulateUsergroup = $params['simulate_usergroup'] ?? false;
         $htmlmail->includeMedia = $row['includeMedia'];
 
         if ($plainTextUrl) {
-            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params), 0, array('User-Agent: Direct Mail'));
+            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params), 0, ['User-Agent: Direct Mail']);
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
                 $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_no_plain_content');
@@ -1300,7 +1298,7 @@ class DirectMailUtility
             if ($row['type'] == 1) {
                 // Try to auto-detect the charset of the message
                 $matches = [];
-                $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', $htmlmail->theParts['html_content'], $matches);
+                $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', ($htmlmail->theParts['html_content'] ?? ''), $matches);
                 if ($res == 1) {
                     $htmlmail->charset = $matches[1];
                 } elseif (isset($params['direct_mail_charset'])) {
@@ -1323,13 +1321,13 @@ class DirectMailUtility
             $htmlmail->theParts['messageid'] = $htmlmail->messageid;
             $mailContent = base64_encode(serialize($htmlmail->theParts));
 
-            $updateData = array(
+            $updateData = [
                 'issent'             => 0,
                 'charset'            => $htmlmail->charset,
                 'mailContent'        => $mailContent,
                 'renderedSize'       => strlen($mailContent),
                 'long_link_rdct_url' => $urlBase
-            );
+            ];
 
             $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
             $connection = $connectionPool->getConnectionForTable('sys_dmail');
@@ -1389,13 +1387,13 @@ class DirectMailUtility
      */
     protected static function addUserPass($url, array $params)
     {
-        $user = $params['http_username'];
-        $pass = $params['http_password'];
+        $user = $params['http_username'] ?? '';
+        $pass = $params['http_password'] ?? '';
         $matches = [];
         if ($user && $pass && preg_match('/^(?:http)s?:\/\//', $url, $matches)) {
             $url = $matches[0] . $user . ':' . $pass . '@' . substr($url, strlen($matches[0]));
         }
-        if ($params['simulate_usergroup'] && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
+        if (($params['simulate_usergroup'] ?? false) && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
             if (strpos($url, '?') !== false ) {
                 $glue = '&';
             } else {

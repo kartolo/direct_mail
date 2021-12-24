@@ -288,7 +288,8 @@ class DmailController extends MainController
                 $fetchError = true;
                 
                 $quickmail = $this->quickmail;
-                
+                $quickmail['send'] = $quickmail['send'] ?? false; 
+
                 $createMailFromInternalPage = intval(GeneralUtility::_GP('createMailFrom_UID'));
                 $createMailFromExternalUrl = GeneralUtility::_GP('createMailFrom_URL');
                 
@@ -312,7 +313,8 @@ class DmailController extends MainController
                     }
                     
                     // external URL
-                } elseif ($createMailFromExternalUrl && !$quickmail['send']) {
+                } 
+                elseif ($createMailFromExternalUrl && !$quickmail['send']) {
                     // $createMailFromExternalUrl is the External URL subject
                     $htmlUrl = GeneralUtility::_GP('createMailFrom_HTMLUrl');
                     $plainTextUrl = GeneralUtility::_GP('createMailFrom_plainUrl');
@@ -1144,7 +1146,7 @@ class DmailController extends MainController
     protected function renderRecordDetailsTable(array $row)
     {
         if (!$row['issent']) {
-            if ($GLOBALS['BE_USER']->check('tables_modify', 'sys_dmail')) {
+            if ($this->getBackendUser()->check('tables_modify', 'sys_dmail')) {
                 // $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
                 /** @var UriBuilder $uriBuilder */
                 $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
