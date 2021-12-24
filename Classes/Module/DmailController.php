@@ -18,6 +18,7 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class DmailController extends MainController
@@ -1469,7 +1470,7 @@ class DmailController extends MainController
                 ];
                 
                 if (GeneralUtility::_GP('testmail')) {
-                    $updateFields['subject'] = $this->params['testmail'] . ' ' . $row['subject'];
+                    $updateFields['subject'] = ($this->params['testmail'] ?? '') . ' ' . $row['subject'];
                 }
                 
                 // create a draft version of the record
@@ -1571,13 +1572,13 @@ class DmailController extends MainController
                     '-1, ' . $direct_mail_row['sys_language_uid']
                     )
                 )
-                ->orderBy(
-                    preg_replace(
-                        '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
-                        trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
-                        )
+            ->orderBy(
+                preg_replace(
+                    '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
+                    trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
                     )
-                    ->execute();
+                )
+            ->execute();
                     
         $opt = [];
         $lastGroup = null;
@@ -1585,16 +1586,16 @@ class DmailController extends MainController
             $result = $this->cmd_compileMailGroup(array($group['uid']));
             $count = 0;
             $idLists = $result['queryInfo']['id_lists'];
-            if (is_array($idLists['tt_address'])) {
+            if (is_array($idLists['tt_address'] ?? false)) {
                 $count += count($idLists['tt_address']);
             }
-            if (is_array($idLists['fe_users'])) {
+            if (is_array($idLists['fe_users'] ?? false)) {
                 $count += count($idLists['fe_users']);
             }
-            if (is_array($idLists['PLAINLIST'])) {
+            if (is_array($idLists['PLAINLIST'] ?? false)) {
                 $count += count($idLists['PLAINLIST']);
             }
-            if (is_array($idLists[$this->userTable])) {
+            if (is_array($idLists[$this->userTable] ?? false)) {
                 $count += count($idLists[$this->userTable]);
             }
             $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
@@ -1653,5 +1654,196 @@ class DmailController extends MainController
                         
         $this->noView = 1;
         return $theOutput;
+    }
+    
+    /**
+     * Get the recipient IDs given a list of group IDs
+     *
+     * @param array $groups List of selected group IDs
+     *
+     * @return array list of the recipient ID
+     */
+    public function cmd_compileMailGroup(array $groups)
+    {
+        // If supplied with an empty array, quit instantly as there is nothing to do
+        if (!count($groups)) {
+            return [];
+        }
+        
+        // Looping through the selected array, in order to fetch recipient details
+        $idLists = [];
+        foreach ($groups as $group) {
+            // Testing to see if group ID is a valid integer, if not - skip to next group ID
+            $group = MathUtility::convertToPositiveInteger($group);
+            if (!$group) {
+                continue;
+            }
+            
+            $recipientList = $this->getSingleMailGroup($group);
+            if (!is_array($recipientList)) {
+                continue;
+            }
+            
+            $idLists = array_merge_recursive($idLists, $recipientList);
+        }
+        
+        // Make unique entries
+        if (is_array($idLists['tt_address'] ?? false)) {
+            $idLists['tt_address'] = array_unique($idLists['tt_address']);
+        }
+        
+        if (is_array($idLists['fe_users'] ?? false)) {
+            $idLists['fe_users'] = array_unique($idLists['fe_users']);
+        }
+        
+        if (is_array($idLists[$this->userTable] ?? false) && $this->userTable) {
+            $idLists[$this->userTable] = array_unique($idLists[$this->userTable]);
+        }
+        
+        if (is_array($idLists['PLAINLIST'] ?? false)) {
+            $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($idLists['PLAINLIST']);
+        }
+        
+        /**
+         * Hook for cmd_compileMailGroup
+         * manipulate the generated id_lists
+         */
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] ?? false)) {
+            $hookObjectsArr = [];
+            $temporaryList = '';
+            
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] as $classRef) {
+                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
+            }
+            foreach ($hookObjectsArr as $hookObj) {
+                if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
+                    $temporaryList = $hookObj->cmd_compileMailGroup_postProcess($idLists, $this, $groups);
+                }
+            }
+            
+            unset($idLists);
+            $idLists = $temporaryList;
+        }
+        
+        return [
+            'queryInfo' => ['id_lists' => $idLists]
+        ];
+    }
+    
+    /**
+     * Fetches recipient IDs from a given group ID
+     * Most of the functionality from cmd_compileMailGroup in order to use multiple recipient lists when sending
+     *
+     * @param int $groupUid Recipient group ID
+     *
+     * @return array List of recipient IDs
+     */
+    protected function getSingleMailGroup($groupUid)
+    {
+        $idLists = [];
+        if ($groupUid) {
+            $mailGroup = BackendUtility::getRecord('sys_dmail_group', $groupUid);
+            
+            if (is_array($mailGroup)) {
+                switch ($mailGroup['type']) {
+                    case 0:
+                        // From pages
+                        // use current page if no else
+                        $thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;
+                        // Explode the pages
+                        $pages = GeneralUtility::intExplode(',', $thePages);
+                        $pageIdArray = [];
+                        
+                        foreach ($pages as $pageUid) {
+                            if ($pageUid > 0) {
+                                $pageinfo = BackendUtility::readPageAccess($pageUid, $this->perms_clause);
+                                if (is_array($pageinfo)) {
+                                    $info['fromPages'][] = $pageinfo;
+                                    $pageIdArray[] = $pageUid;
+                                    if ($mailGroup['recursive']) {
+                                        $pageIdArray = array_merge($pageIdArray, DirectMailUtility::getRecursiveSelect($pageUid, $this->perms_clause));
+                                    }
+                                }
+                            }
+                        }
+                        // Remove any duplicates
+                        $pageIdArray = array_unique($pageIdArray);
+                        $pidList = implode(',', $pageIdArray);
+                        $info['recursive'] = $mailGroup['recursive'];
+                        
+                        // Make queries
+                        if ($pidList) {
+                            $whichTables = intval($mailGroup['whichtables']);
+                            if ($whichTables&1) {
+                                // tt_address
+                                $idLists['tt_address'] = DirectMailUtility::getIdList('tt_address', $pidList, $groupUid, $mailGroup['select_categories']);
+                            }
+                            if ($whichTables&2) {
+                                // fe_users
+                                $idLists['fe_users'] = DirectMailUtility::getIdList('fe_users', $pidList, $groupUid, $mailGroup['select_categories']);
+                            }
+                            if ($this->userTable && ($whichTables&4)) {
+                                // user table
+                                $idLists[$this->userTable] = DirectMailUtility::getIdList($this->userTable, $pidList, $groupUid, $mailGroup['select_categories']);
+                            }
+                            if ($whichTables&8) {
+                                // fe_groups
+                                if (!is_array($idLists['fe_users'])) {
+                                    $idLists['fe_users'] = [];
+                                }
+                                $idLists['fe_users'] = array_unique(array_merge($idLists['fe_users'], DirectMailUtility::getIdList('fe_groups', $pidList, $groupUid, $mailGroup['select_categories'])));
+                            }
+                        }
+                        break;
+                    case 1:
+                        // List of mails
+                        if ($mailGroup['csv'] == 1) {
+                            $recipients = DirectMailUtility::rearrangeCsvValues(DirectMailUtility::getCsvValues($mailGroup['list']), $this->fieldList);
+                        } else {
+                            $recipients = DirectMailUtility::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroup['list'])));
+                        }
+                        $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($recipients);
+                        break;
+                    case 2:
+                        // Static MM list
+                        $idLists['tt_address'] = DirectMailUtility::getStaticIdList('tt_address', $groupUid);
+                        $idLists['fe_users'] = DirectMailUtility::getStaticIdList('fe_users', $groupUid);
+                        $idLists['fe_users'] = array_unique(array_merge($idLists['fe_users'], DirectMailUtility::getStaticIdList('fe_groups', $groupUid)));
+                        if ($this->userTable) {
+                            $idLists[$this->userTable] = DirectMailUtility::getStaticIdList($this->userTable, $groupUid);
+                        }
+                        break;
+                    case 3:
+                        // Special query list
+                        $mailGroup = $this->update_SpecialQuery($mailGroup);
+                        $whichTables = intval($mailGroup['whichtables']);
+                        $table = '';
+                        if ($whichTables&1) {
+                            $table = 'tt_address';
+                        } elseif ($whichTables&2) {
+                            $table = 'fe_users';
+                        } elseif ($this->userTable && ($whichTables&4)) {
+                            $table = $this->userTable;
+                        }
+                        if ($table) {
+                            // initialize the query generator
+                            $queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
+                            $idLists[$table] = DirectMailUtility::getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
+                        }
+                        break;
+                    case 4:
+                        $groups = array_unique(DirectMailUtility::getMailGroups($mailGroup['mail_groups'], [$mailGroup['uid']], $this->perms_clause));
+                        foreach ($groups as $v) {
+                            $collect = $this->getSingleMailGroup($v);
+                            if (is_array($collect)) {
+                                $idLists = array_merge_recursive($idLists, $collect);
+                            }
+                        }
+                        break;
+                    default:
+                }
+            }
+        }
+        return $idLists;
     }
 }

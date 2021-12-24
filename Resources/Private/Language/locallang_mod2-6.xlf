@@ -1042,6 +1042,9 @@
 			<trans-unit id="labels.path">
 				<source>Path</source>
 			</trans-unit>
+			<trans-unit id="mod.no_access">
+				<source>no access</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
