@@ -189,7 +189,7 @@ class MailerEngineController extends MainController
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
         return $queryBuilder->count('*')
         ->from('sys_dmail_maillog')
-        ->add('where', 'mid = ' . intval($row['uid']) .
+        ->add('where', 'mid = ' . intval($uid) .
             ' AND response_type = 0' .
             ' AND html_sent > 0')
             ->execute();
