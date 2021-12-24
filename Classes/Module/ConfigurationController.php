@@ -319,7 +319,7 @@ class ConfigurationController extends MainController
      */
     protected function updatePageTS()
     {
-        if ($GLOBALS['BE_USER']->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
+        if ($this->getBackendUser()->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
             if (is_array($this->pageTS) && count($this->pageTS)) {
                 DirectMailUtility::updatePagesTSconfig($this->id, $this->pageTS, $this->TSconfPrefix);
                 header('Location: ' . GeneralUtility::locationHeaderUrl(GeneralUtility::getIndpEnv('REQUEST_URI')));

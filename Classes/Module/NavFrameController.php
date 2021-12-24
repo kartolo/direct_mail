@@ -66,7 +66,7 @@ class NavFrameController extends MainController
         $rows = $this->getPages();
         $pages = [];
         while (($row = $rows->fetchAssociative()) !== false) {
-            if (BackendUtility::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1))) {
+            if (BackendUtility::readPageAccess($row['uid'], $this->getBackendUser()->getPagePermsClause(1))) {
                 $icon = $this->moduleTemplate->getIconFactory()->getIconForRecord('pages', $row, Icon::SIZE_SMALL)->render();
                 $pages[] = ['icon' => $icon, 'page' => $row];
             }

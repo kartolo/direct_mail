@@ -376,7 +376,7 @@ class RecipientListController extends MainController
         $str = '';
         
         // check if the user has the right to modify the table
-        if ($GLOBALS['BE_USER']->check('tables_modify', $table)) {
+        if ($this->getBackendUser()->check('tables_modify', $table)) {
             $editOnClickLink = DirectMailUtility::getEditOnClickLink([
                 'edit' => [
                     $table => [
@@ -461,7 +461,7 @@ class RecipientListController extends MainController
                 $this->downloadCSV($idLists['PLAINLIST']);
             } 
             elseif (GeneralUtility::inList('tt_address,fe_users,' . $this->userTable, $csvValue)) {
-                if($GLOBALS['BE_USER']->check('tables_select', $csvValue)) {
+                if($this->getBackendUser()->check('tables_select', $csvValue)) {
                     $this->downloadCSV(DirectMailUtility::fetchRecordsListValues($idLists[$csvValue], $csvValue, (($csvValue == 'fe_users') ? str_replace('phone', 'telephone', $this->fieldList) : $this->fieldList) . ',tstamp'));
                 } 
                 else {
@@ -529,7 +529,7 @@ class RecipientListController extends MainController
                 }
                         
                 if ($group['type'] == 3) {
-                    if ($GLOBALS['BE_USER']->check('tables_modify', 'sys_dmail_group')) {
+                    if ($this->getBackendUser()->check('tables_modify', 'sys_dmail_group')) {
                         $theOutput .= $this->cmd_specialQuery($group);
                     }
                 }
