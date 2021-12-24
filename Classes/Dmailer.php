@@ -629,7 +629,7 @@ class Dmailer implements LoggerAwareInterface
     public static function convertFields(array $recipRow): array
     {
         // Compensation for the fact that fe_users has the field 'telephone' instead of 'phone'
-        if ($recipRow['telephone']) {
+        if ($recipRow['telephone'] ?? false) {
             $recipRow['phone'] = $recipRow['telephone'];
         }
 
