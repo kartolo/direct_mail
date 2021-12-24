@@ -582,10 +582,7 @@ class DmailController extends MainController
     protected function cmd_news()
     {
         // Here the list of subpages, news, is rendered
-        
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-        ->getQueryBuilderForTable('pages');
-        
+        $queryBuilder = $this->getQueryBuilder('pages');
         $queryBuilder
         ->select('uid', 'doktype', 'title', 'abstract')
         ->from('pages')
@@ -739,8 +736,8 @@ class DmailController extends MainController
             
             // 0 is always present so only for > 0
             if ((int)$lang['uid'] > 0) {
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
-                
+                $queryBuilder = $this->getQueryBuilder('pages');
+
                 $langRow = $queryBuilder
                 ->select('sys_language_uid')
                 ->from('pages')
@@ -868,8 +865,7 @@ class DmailController extends MainController
             }
             
         }
-        
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail');
         $queryBuilder
         ->getRestrictions()
         ->removeAll()
@@ -1111,8 +1107,7 @@ class DmailController extends MainController
             // Update the record:
             $htmlmail->theParts['messageid'] = $htmlmail->messageid;
             $mailContent = base64_encode(serialize($htmlmail->theParts));
-            
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+            $queryBuilder = $this->getQueryBuilder('sys_dmail');
             $queryBuilder
             ->update('sys_dmail')
             ->where(
@@ -1222,9 +1217,7 @@ class DmailController extends MainController
         
         if ($this->params['test_tt_address_uids'] ?? false) {
             $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_tt_address_uids']));
-            
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('tt_address');
+            $queryBuilder = $this->getQueryBuilder('tt_address');
             $res = $queryBuilder
             ->select('tt_address.*')
             ->from('tt_address')
@@ -1258,9 +1251,7 @@ class DmailController extends MainController
         if ($this->params['test_dmail_group_uids'] ?? false) {
             $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_dmail_group_uids']));
             
-            
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('sys_dmail_group');
+            $queryBuilder = $this->getQueryBuilder('sys_dmail_group');
             $queryBuilder
             ->getRestrictions()
             ->removeAll()
@@ -1395,8 +1386,7 @@ class DmailController extends MainController
             
             if (GeneralUtility::_GP('tt_address_uid')) {
                 // personalized to tt_address
-                
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_address');
+                $queryBuilder = $this->getQueryBuilder('tt_address');
                 $res = $queryBuilder
                 ->select('a.*')
                 ->from('tt_address', 'a')
@@ -1558,7 +1548,7 @@ class DmailController extends MainController
         }
         
         // Mail groups
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_group');
         $statement = $queryBuilder
         ->select('uid','pid','title')
         ->from('sys_dmail_group')

@@ -89,7 +89,7 @@ class MailerEngineController extends MainController
         $mailerStatus = 0;
         $lastExecutionTime = 0;
         $logContent = '';
-        
+        $error = '';
         
         // seconds
         $cronInterval = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronInt'] * 60;
@@ -107,19 +107,19 @@ class MailerEngineController extends MainController
          * 	0 = check
          * 	-1 = cron stopped
          */
-        
+
         // cron running or error (die function in dmailer_log)
         if (file_exists(Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock')) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('sys_dmail_maillog');
+            $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
+
             $res = $queryBuilder
-            ->select('uid')
+            ->select('uid', 'tstamp')
             ->from('sys_dmail_maillog')
             ->where($queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter(0)))
             ->orderBy('tstamp','DESC')
             ->execute()
             ->fetchAll();
-            
+
             foreach($res as $lastSend) {
                 if (($lastSend['tstamp'] < time()) && ($lastSend['tstamp'] > $lastCronjobShouldBeNewThan)) {
                     // cron is sending
@@ -141,44 +141,43 @@ class MailerEngineController extends MainController
             // last run of cron is in the interval
             $mailerStatus = 1;
         }
-        
-        
+
         $currentDate = ' / ' . $this->getLanguageService()->getLL('dmail_mailerengine_current_time') . ' ' . BackendUtility::datetime(time()) . '. ';
         $lastRun = ' ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_lastrun') . ($lastExecutionTime ? BackendUtility::datetime($lastExecutionTime) : '-') . $currentDate;
         switch ($mailerStatus) {
             case -1:
-                $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
-                $this->getLanguageService()->getLL('dmail_mailerengine_cron_warning') . ': ' . ($error ? $error : $this->getLanguageService()->getLL('dmail_mailerengine_cron_warning_msg')) . $lastRun,
-                $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
-                FlashMessage::ERROR
+                $message = $this->createFlashMessage(
+                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_warning') . ': ' . ($error ? $error : $this->getLanguageService()->getLL('dmail_mailerengine_cron_warning_msg')) . $lastRun,
+                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
+                    2,
+                    false
                 );
+                $this->messageQueue->addMessage($message);
                 break;
             case 0:
-                $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
-                $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution_msg') . $lastRun,
-                $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
-                FlashMessage::WARNING
+                $message = $this->createFlashMessage(
+                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution_msg') . $lastRun, 
+                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'), 
+                    1, 
+                    false
                 );
+                $this->messageQueue->addMessage($message);
                 break;
             case 1:
-                $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
-                $this->getLanguageService()->getLL('dmail_mailerengine_cron_ok') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_ok_msg') . $lastRun,
-                $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
-                FlashMessage::OK
+                $message = $this->createFlashMessage(
+                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_ok') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_ok_msg') . $lastRun,
+                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
+                    0,
+                    false
                 );
+                $this->messageQueue->addMessage($message);
                 break;
             default:
         }
-        return GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
-        ->resolve()
-        ->render([$flashMessage]);
     }
     
     protected function getSysDmails() {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail');
         $queryBuilder
             ->getRestrictions()
             ->removeAll()
@@ -194,7 +193,7 @@ class MailerEngineController extends MainController
     }
     
     protected function countSysDmailMaillogs($uid) {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
         return $queryBuilder->count('*')
         ->from('sys_dmail_maillog')
         ->add('where', 'mid = ' . intval($uid) .
@@ -301,7 +300,7 @@ class MailerEngineController extends MainController
                         'uid' => $uid,
                         'cmd' => 'delete'
                     ]
-                    );
+                );
                 return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
             }
             return '';

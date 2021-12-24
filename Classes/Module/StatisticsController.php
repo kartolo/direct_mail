@@ -236,8 +236,7 @@ class StatisticsController extends MainController
         
         switch ($table) {
             case 'tt_address':
-                
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_language');
+                $queryBuilder = $this->getQueryBuilder('sys_language');
                 $res = $queryBuilder
                 ->select('tt_address.*')
                 ->from('tt_address','tt_address')
@@ -252,7 +251,7 @@ class StatisticsController extends MainController
                         ->execute();
                         break;
             case 'fe_users':
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_users');
+                $queryBuilder = $this->getQueryBuilder('fe_users');
                 $res = $queryBuilder
                 ->select('fe_users.*')
                 ->from('fe_users','fe_users')
@@ -278,8 +277,7 @@ class StatisticsController extends MainController
         $theOutput = '';
         if (is_array($row)) {
             $categories = '';
-            
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($mmTable);
+            $queryBuilder = $this->getQueryBuilder($mmTable);
             $resCat = $queryBuilder
             ->select('uid_foreign')
             ->from($mmTable)
@@ -372,7 +370,7 @@ class StatisticsController extends MainController
         $table = $this->getQueryRows($queryArray, 'response_type');
         
         // Plaintext/HTML
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
         
         $res = $queryBuilder
         ->count('*')
@@ -393,7 +391,7 @@ class StatisticsController extends MainController
         }
         
         // Unique responses, html
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
         
         $res = $queryBuilder
         ->count('*')
@@ -408,7 +406,7 @@ class StatisticsController extends MainController
         $uniqueHtmlResponses = count($res);//sql_num_rows($res);
         
         // Unique responses, Plain
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
         
         $res = $queryBuilder
         ->count('*')
@@ -422,7 +420,7 @@ class StatisticsController extends MainController
         $uniquePlainResponses = count($res); //sql_num_rows($res);
         
         // Unique responses, pings
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
         
         $res = $queryBuilder
         ->count('*')
@@ -443,13 +441,13 @@ class StatisticsController extends MainController
         $htmlSent = intval($textHtml['1']+$textHtml['3']);
         $plainSent = intval($textHtml['2']);
         
-        $tblLines[] = array($this->getLanguageService()->getLL('stats_mails_sent'),$totalSent,$htmlSent,$plainSent);
-        $tblLines[] = array($this->getLanguageService()->getLL('stats_mails_returned'),$this->showWithPercent($table['-127']['counter'], $totalSent));
-        $tblLines[] = array($this->getLanguageService()->getLL('stats_HTML_mails_viewed'),'',$this->showWithPercent($uniquePingResponses, $htmlSent));
-        $tblLines[] = array($this->getLanguageService()->getLL('stats_unique_responses'),$this->showWithPercent($uniqueHtmlResponses+$uniquePlainResponses, $totalSent),$this->showWithPercent($uniqueHtmlResponses, $htmlSent),$this->showWithPercent($uniquePlainResponses, $plainSent?$plainSent:$htmlSent));
+        $tblLines[] = [$this->getLanguageService()->getLL('stats_mails_sent'),$totalSent,$htmlSent,$plainSent];
+        $tblLines[] = [$this->getLanguageService()->getLL('stats_mails_returned'),$this->showWithPercent($table['-127']['counter'], $totalSent)];
+        $tblLines[] = [$this->getLanguageService()->getLL('stats_HTML_mails_viewed'),'',$this->showWithPercent($uniquePingResponses, $htmlSent)];
+        $tblLines[] = [$this->getLanguageService()->getLL('stats_unique_responses'),$this->showWithPercent($uniqueHtmlResponses+$uniquePlainResponses, $totalSent),$this->showWithPercent($uniqueHtmlResponses, $htmlSent),$this->showWithPercent($uniquePlainResponses, $plainSent?$plainSent:$htmlSent)];
         
-        $output.='<br /><h2>' . $this->getLanguageService()->getLL('stats_general_information') . '</h2>';
-        $output.= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, []);
+        $output .= '<br /><h2>' . $this->getLanguageService()->getLL('stats_general_information') . '</h2>';
+        $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, []);
         
         // ******************
         // Links:
@@ -470,7 +468,7 @@ class StatisticsController extends MainController
         $orderByRows = 'COUNT(*)';
         //$queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=1', 'url_id', 'counter');
         $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
-        $htmlUrlsTable=$this->getQueryRows($queryArray, 'url_id');
+        $htmlUrlsTable = $this->getQueryRows($queryArray, 'url_id');
         
         // Most popular links, plain:
         $fieldRows = 'url_id';
@@ -481,8 +479,7 @@ class StatisticsController extends MainController
         $orderByRows = 'COUNT(*)';
         //$queryArray = array('url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=2', 'url_id', 'counter');
         $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
-        $plainUrlsTable=$this->getQueryRows($queryArray, 'url_id');
-        
+        $plainUrlsTable = $this->getQueryRows($queryArray, 'url_id');
         
         // Find urls:
         $unpackedMail = unserialize(base64_decode($row['mailContent']));
@@ -772,8 +769,7 @@ class StatisticsController extends MainController
         
         // Find all returned mail
         if (GeneralUtility::_GP('returnList')||GeneralUtility::_GP('returnDisable')||GeneralUtility::_GP('returnCSV')) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('sys_dmail_maillog');
+            $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
             ->from('sys_dmail_maillog')
@@ -845,9 +841,7 @@ class StatisticsController extends MainController
         
         // Find Unknown Recipient
         if (GeneralUtility::_GP('unknownList')||GeneralUtility::_GP('unknownDisable')||GeneralUtility::_GP('unknownCSV')) {
-            
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('sys_dmail_maillog');
+            $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
             ->from('sys_dmail_maillog')
@@ -918,9 +912,7 @@ class StatisticsController extends MainController
         
         // Mailbox Full
         if (GeneralUtility::_GP('fullList')||GeneralUtility::_GP('fullDisable')||GeneralUtility::_GP('fullCSV')) {
-            
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('sys_dmail_maillog');
+            $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
             ->from('sys_dmail_maillog')
@@ -991,8 +983,7 @@ class StatisticsController extends MainController
         
         // find Bad Host
         if (GeneralUtility::_GP('badHostList')||GeneralUtility::_GP('badHostDisable')||GeneralUtility::_GP('badHostCSV')) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('sys_dmail_maillog');
+            $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
             ->from('sys_dmail_maillog')
@@ -1063,8 +1054,7 @@ class StatisticsController extends MainController
         
         // find Bad Header
         if (GeneralUtility::_GP('badHeaderList')||GeneralUtility::_GP('badHeaderDisable')||GeneralUtility::_GP('badHeaderCSV')) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('sys_dmail_maillog');
+            $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
             ->from('sys_dmail_maillog')
@@ -1138,9 +1128,7 @@ class StatisticsController extends MainController
         // find Unknown Reasons
         // TODO: list all reason
         if (GeneralUtility::_GP('reasonUnknownList')||GeneralUtility::_GP('reasonUnknownDisable')||GeneralUtility::_GP('reasonUnknownCSV')) {
-            
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('sys_dmail_maillog');
+            $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
             ->from('sys_dmail_maillog')

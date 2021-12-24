@@ -138,7 +138,7 @@ class NavFrameController extends MainController
     }
     
     protected function getPages() {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+        $queryBuilder = $this->getQueryBuilder('pages');
         $queryBuilder
             ->getRestrictions()
             ->removeAll()

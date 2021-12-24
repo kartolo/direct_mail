@@ -131,8 +131,7 @@ class RecipientListController extends MainController
 					<th>' . $this->getLanguageService()->getLL('recip_group_amount') . '</th>
 				</thead>';
         
-        
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_group');
         $queryBuilder
         ->getRestrictions()
         ->removeAll()
@@ -726,8 +725,7 @@ class RecipientListController extends MainController
         
         switch ($table) {
             case 'tt_address':
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getQueryBuilderForTable('tt_address');
+                $queryBuilder = $this->getQueryBuilder('tt_address');
                 $res = $queryBuilder
                 ->select('tt_address.*')
                 ->from('tt_address')
@@ -744,8 +742,7 @@ class RecipientListController extends MainController
 
                 break;
             case 'fe_users':
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getQueryBuilderForTable('fe_users');
+                $queryBuilder = $this->getQueryBuilder('fe_users');
                 $res = $queryBuilder
                 ->select('fe_users.*')
                 ->from('fe_users')
@@ -769,8 +766,7 @@ class RecipientListController extends MainController
         
         if (is_array($res)) {
             foreach($res as $row){
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getQueryBuilderForTable($mmTable);
+                $queryBuilder = $this->getQueryBuilder($mmTable);
                 $resCat = $queryBuilder
                 ->select('uid_foreign')
                 ->from($mmTable)
