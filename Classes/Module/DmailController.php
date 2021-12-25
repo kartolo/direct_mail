@@ -43,7 +43,9 @@ class DmailController extends MainController
     protected int $createMailFrom_UID = 0;
     protected string $createMailFrom_URL = '';
     protected int $createMailFrom_LANG = 0;
-    
+    protected string $createMailFrom_HTMLUrl = '';
+    protected string $createMailFrom_plainUrl = '';
+
     /**
      * The name of the module
      *
@@ -89,6 +91,8 @@ class DmailController extends MainController
         $this->createMailFrom_UID = (int)($parsedBody['createMailFrom_UID'] ?? $queryParams['createMailFrom_UID'] ?? 0);
         $this->createMailFrom_URL = (string)($parsedBody['createMailFrom_URL'] ?? $queryParams['createMailFrom_URL'] ?? '');
         $this->createMailFrom_LANG = (int)($parsedBody['createMailFrom_LANG'] ?? $queryParams['createMailFrom_LANG'] ?? 0);
+        $this->createMailFrom_HTMLUrl = (string)($parsedBody['createMailFrom_HTMLUrl'] ?? $queryParams['createMailFrom_HTMLUrl'] ?? '');
+        $this->createMailFrom_plainUrl = (string)($parsedBody['createMailFrom_plainUrl'] ?? $queryParams['createMailFrom_plainUrl'] ?? '');
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -315,11 +319,14 @@ class DmailController extends MainController
                     }
                 } 
                 // external URL
+                // $this->createMailFrom_URL is the External URL subject
                 elseif ($this->createMailFrom_URL != '' && !$quickmail['send']) {
-                    // $this->createMailFrom_URL is the External URL subject
-                    $htmlUrl = GeneralUtility::_GP('createMailFrom_HTMLUrl');
-                    $plainTextUrl = GeneralUtility::_GP('createMailFrom_plainUrl');
-                    $newUid = DirectMailUtility::createDirectMailRecordFromExternalURL($this->createMailFrom_URL, $htmlUrl, $plainTextUrl, $this->params);
+                    $newUid = DirectMailUtility::createDirectMailRecordFromExternalURL(
+                        $this->createMailFrom_URL, 
+                        $this->createMailFrom_HTMLUrl, 
+                        $this->createMailFrom_plainUrl, 
+                        $this->params
+                    );
                     if (is_numeric($newUid)) {
                         $this->sys_dmail_uid = $newUid;
                         // Read new record (necessary because TCEmain sets default field values)
