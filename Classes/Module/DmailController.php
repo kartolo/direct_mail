@@ -367,7 +367,7 @@ class DmailController extends MainController
                         $unserializedMailContent = unserialize(base64_decode($row['mailContent']));
                         $theOutput .= $this->compileQuickMail($row, $unserializedMailContent['plain']['content'], false);
                     } else {
-                        if ($thios->fetchAtOnce) {
+                        if ($this->fetchAtOnce) {
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
                             $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                         }
@@ -459,7 +459,7 @@ class DmailController extends MainController
                 }
                 
                 if ($this->cmd == 'send_mail_final') {
-                    $selectedMailGroups = GeneralUtility::_GP('mailgroup_uid');
+                    $selectedMailGroups = GeneralUtility::_GP('mailgroup_uid'); //@TODO
                     if (is_array($selectedMailGroups)) {
                         $markers['FLASHMESSAGES'] = $this->cmd_send_mail($row);
                         break;
