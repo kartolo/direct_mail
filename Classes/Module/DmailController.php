@@ -6,7 +6,6 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
@@ -633,20 +632,18 @@ class DmailController extends MainController
                 $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_select') . '</h3>' . $this->getLanguageService()->getLL('nl_select_msg1');
             } else {
                 $outLines = [];
+
                 foreach ($rows as $row) {
                     $languages = $this->getAvailablePageLanguages($row['uid']);
-                    
-                    /** @var UriBuilder $uriBuilder */
-                    $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-                    $createDmailLink = $uriBuilder->buildUriFromRoute(
-                        $this->moduleName,
+                    $createDmailLink = $this->buildUriFromRoute(
+                        $this->moduleName, 
                         [
                             'id' => $this->id,
                             'createMailFrom_UID' => $row['uid'],
                             'fetchAtOnce' => 1,
                             'cmd' => 'info'
                         ]
-                        );
+                    );
                     $pageIcon = $this->moduleTemplate->getIconFactory()->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
                     
                     $previewHTMLLink = $previewTextLink = $createLink = '';
@@ -668,7 +665,7 @@ class DmailController extends MainController
                             '',
                             '',
                             $htmlParams
-                            ) . '" title="' . htmlentities($GLOBALS['LANG']->getLL('nl_viewPage_HTML') . $langTitle) . '">' . $htmlIcon . '</a>';
+                            ) . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_viewPage_HTML') . $langTitle) . '">' . $htmlIcon . '</a>';
                         
                         $previewTextLink .= '<a href="#" onClick="' . BackendUtility::viewOnClick(
                             $row['uid'],
@@ -677,8 +674,8 @@ class DmailController extends MainController
                             '',
                             '',
                             $plainParams
-                            ) . '" title="' . htmlentities($GLOBALS['LANG']->getLL('nl_viewPage_TXT') . $langTitle) . '">' . $plainIcon . '</a>';
-                            $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($GLOBALS['LANG']->getLL('nl_create') . $langTitle) . '">' . $createIcon . '</a>';
+                            ) . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_viewPage_TXT') . $langTitle) . '">' . $plainIcon . '</a>';
+                            $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_create') . $langTitle) . '">' . $createIcon . '</a>';
                     }
                     
                     switch ($this->params['sendOptions'] ?? 0) {
@@ -707,7 +704,7 @@ class DmailController extends MainController
                     $outLines[] = [
                         '<a href="' . $createDmailLink . '">' . $pageIcon . '</a>',
                         $createLink,
-                        '<a onclick="' . $editOnClickLink . '" href="#" title="' . $GLOBALS['LANG']->getLL('nl_editPage') . '">' . 
+                        '<a onclick="' . $editOnClickLink . '" href="#" title="' . $this->getLanguageService()->getLL('nl_editPage') . '">' . 
                         $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
                         $previewLink
                     ];
@@ -1012,9 +1009,7 @@ class DmailController extends MainController
      */
     protected function linkDMail_record($str, $uid)
     {
-        /** @var UriBuilder $uriBuilder */
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        $moduleUrl = $uriBuilder->buildUriFromRoute(
+        $moduleUrl = $this->buildUriFromRoute(
             $this->moduleName,
             [
                 'id' => $this->id,
@@ -1036,20 +1031,18 @@ class DmailController extends MainController
      */
     protected function deleteLink($uid)
     {
-        $icon = $this->moduleTemplate->getIconFactory()->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
         
         if (!$dmail['scheduled_begin']) {
-            /** @var UriBuilder $uriBuilder */
-            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-            $moduleUrl = $uriBuilder->buildUriFromRoute(
+            $icon = $this->moduleTemplate->getIconFactory()->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
+            $moduleUrl = $this->buildUriFromRoute(
                 $this->moduleName,
                 [
                     'id' => $this->id,
                     'uid' => $uid,
                     'cmd' => 'delete'
                 ]
-                );
+            );
             return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
         }
         
@@ -1151,9 +1144,7 @@ class DmailController extends MainController
         if (!$row['issent']) {
             if ($this->getBackendUser()->check('tables_modify', 'sys_dmail')) {
                 // $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
-                /** @var UriBuilder $uriBuilder */
-                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-                $requestUri = $uriBuilder->buildUriFromRoute(
+                $requestUri = $this->buildUriFromRoute(
                     $this->moduleName,
                     [
                         'id' => $this->id,
@@ -1161,7 +1152,7 @@ class DmailController extends MainController
                         'fetchAtOnce' => 1,
                         'cmd' => 'info'
                     ]
-                    );
+                );
                 
                 $editParams = DirectMailUtility::getEditOnClickLink([
                     'edit' => [
@@ -1280,12 +1271,8 @@ class DmailController extends MainController
                     
                     $msg = $this->getLanguageService()->getLL('testmail_mailgroup_msg') . '<br /><br />';
                     
-                    $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-                    
                     foreach ($res as $row) {
-                        /** @var UriBuilder $uriBuilder */
-                        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-                        $moduleUrl = $uriBuilder->buildUriFromRoute(
+                        $moduleUrl = $this->buildUriFromRoute(
                             $this->moduleName,
                             [
                                 'id' => $this->id,
@@ -1293,7 +1280,7 @@ class DmailController extends MainController
                                 'CMD' => 'send_mail_test',
                                 'sys_dmail_group_uid[]' => $row['uid']
                             ]
-                            );
+                        );
                         $msg .='<a href="' . $moduleUrl . '">' .
                             $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL) .
                             htmlspecialchars($row['title']) . '</a><br />';

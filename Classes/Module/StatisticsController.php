@@ -341,9 +341,8 @@ class StatisticsController extends MainController
         if (GeneralUtility::_GP('recalcCache')) {
             $this->makeStatTempTableContent($row);
         }
-        /** @var UriBuilder $uriBuilder */
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        $thisurl = $uriBuilder->buildUriFromRoute(
+        
+        $thisurl = $this->buildUriFromRoute(
             $this->moduleName,
             [
                 'id' => $this->id,
@@ -351,7 +350,7 @@ class StatisticsController extends MainController
                 'cmd' => $this->cmd,
                 'recalcCache' => 1
             ]
-            );
+        );
         $output = $this->directMail_compactView($row);
         
         // *****************************
@@ -444,7 +443,10 @@ class StatisticsController extends MainController
         $tblLines[] = [$this->getLanguageService()->getLL('stats_mails_sent'),$totalSent,$htmlSent,$plainSent];
         $tblLines[] = [$this->getLanguageService()->getLL('stats_mails_returned'),$this->showWithPercent($table['-127']['counter'], $totalSent)];
         $tblLines[] = [$this->getLanguageService()->getLL('stats_HTML_mails_viewed'),'',$this->showWithPercent($uniquePingResponses, $htmlSent)];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_unique_responses'),$this->showWithPercent($uniqueHtmlResponses+$uniquePlainResponses, $totalSent),$this->showWithPercent($uniqueHtmlResponses, $htmlSent),$this->showWithPercent($uniquePlainResponses, $plainSent?$plainSent:$htmlSent)];
+        $tblLines[] = [$this->getLanguageService()->getLL('stats_unique_responses'),
+            $this->showWithPercent($uniqueHtmlResponses+$uniquePlainResponses, $totalSent),
+            $this->showWithPercent($uniqueHtmlResponses, $htmlSent),
+            $this->showWithPercent($uniquePlainResponses, $plainSent?$plainSent:$htmlSent)];
         
         $output .= '<br /><h2>' . $this->getLanguageService()->getLL('stats_general_information') . '</h2>';
         $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, []);

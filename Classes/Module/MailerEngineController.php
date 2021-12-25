@@ -4,7 +4,6 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\Dmailer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -240,15 +239,14 @@ class MailerEngineController extends MainController
         
         // Invoke engine
         if ($enableTrigger) {
-            /** @var UriBuilder $uriBuilder */
-            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-            $moduleUrl = $uriBuilder->buildUriFromRoute(
+            $moduleUrl = $this->buildUriFromRoute(
                 'DirectMailNavFrame_MailerEngine',
                 [
                     'id' => $this->id,
                     'invokeMailerEngine' => 1
                 ]
-                );
+            );
+
             $invokeMessage .= '<h3>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke') . '</h3>' .
                 '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br />' .
                 '<a class="t3-link" href="' . $moduleUrl . '"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a>'.
@@ -308,9 +306,7 @@ class MailerEngineController extends MainController
         // show delete icon if newsletter hasn't been sent, or not yet finished sending
         if (!($dmail['scheduled_begin']) ||
             ($dmail['scheduled_begin'] && $dmail['scheduled_end'] === 0)) {
-                /** @var UriBuilder $uriBuilder */
-                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-                $moduleUrl = $uriBuilder->buildUriFromRoute(
+                $moduleUrl = $this->buildUriFromRoute(
                     $this->moduleName,
                     [
                         'id' => $this->id,

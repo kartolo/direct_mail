@@ -5,7 +5,6 @@ use DirectMailTeam\DirectMail\Importer;
 use DirectMailTeam\DirectMail\MailSelect;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -39,7 +38,7 @@ class RecipientListController extends MainController
         $this->group_uid = (int)($parsedBody['group_uid'] ?? $queryParams['group_uid'] ?? 0);
         $this->lCmd = $parsedBody['lCmd'] ?? $queryParams['lCmd'] ?? '';
         $this->csv = $parsedBody['csv'] ?? $queryParams['csv'] ?? '';
-        $this->set = is_array($parsedBody['csv'] ?? '') ? $parsedBody['csv'] : is_array($queryParams['csv'] ?? '') ? $queryParams['csv'] : [];
+        $this->set = is_array($parsedBody['csv'] ?? '') ? $parsedBody['csv'] : (is_array($queryParams['csv'] ?? '') ? $queryParams['csv'] : []);
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -201,17 +200,15 @@ class RecipientListController extends MainController
             $theOutput .= '<div style="padding-top: 20px;"></div>';
             $theOutput .= '<h3>' . $this->getLanguageService()->getLL('recip_select_mailgroup') . '</h3>' .
                 $out;
-                
-                // Import
-                /** @var UriBuilder $uriBuilder */
-                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-                $moduleUrl = $uriBuilder->buildUriFromRoute(
-                    $this->moduleName,
-                    [
-                        'id' => $this->id,
-                        'cmd' => 'displayImport'
-                    ]
-                );
+            
+        // Import
+        $moduleUrl = $this->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'cmd' => 'displayImport'
+            ]
+        );
         $out = '<a class="t3-link" href="' . $moduleUrl . '">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
         $theOutput .= '<div style="padding-top: 20px;"></div>';
         $theOutput .= '<h3>' . $this->getLanguageService()->getLL('mailgroup_import') . '</h3>' . $out;
@@ -408,9 +405,7 @@ class RecipientListController extends MainController
      */
     protected function linkRecip_record($str, $uid)
     {
-        /** @var UriBuilder $uriBuilder */
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        $moduleUrl = $uriBuilder->buildUriFromRoute(
+        $moduleUrl = $this->buildUriFromRoute(
             $this->moduleName,
             [
                 'id' => $this->id,
@@ -418,7 +413,7 @@ class RecipientListController extends MainController
                 'cmd' => 'displayMailGroup',
                 'SET[dmail_mode]' => 'recip'
             ]
-            );
+        );
         return '<a href="' . $moduleUrl . '">' . $str . '</a>';
     }
     
