@@ -45,6 +45,8 @@ class DmailController extends MainController
     protected int $createMailFrom_LANG = 0;
     protected string $createMailFrom_HTMLUrl = '';
     protected string $createMailFrom_plainUrl = '';
+    protected array $mailgroup_uid = [];
+    protected bool $mailingMode_simple = false;
 
     /**
      * The name of the module
@@ -76,8 +78,8 @@ class DmailController extends MainController
             $this->cmd = 'cats';
         }
         
-        $mailingMode_simple = $parsedBody['mailingMode_simple'] ?? $queryParams['mailingMode_simple'] ?? false;
-        if ($mailingMode_simple) {
+        $this->mailingMode_simple = (bool)($parsedBody['mailingMode_simple'] ?? $queryParams['mailingMode_simple'] ?? false);
+        if ($this->mailingMode_simple) {
             $this->cmd = 'send_mail_test';
         }
         
@@ -93,6 +95,7 @@ class DmailController extends MainController
         $this->createMailFrom_LANG = (int)($parsedBody['createMailFrom_LANG'] ?? $queryParams['createMailFrom_LANG'] ?? 0);
         $this->createMailFrom_HTMLUrl = (string)($parsedBody['createMailFrom_HTMLUrl'] ?? $queryParams['createMailFrom_HTMLUrl'] ?? '');
         $this->createMailFrom_plainUrl = (string)($parsedBody['createMailFrom_plainUrl'] ?? $queryParams['createMailFrom_plainUrl'] ?? '');
+        $this->mailgroup_uid = $parsedBody['mailgroup_uid'] ?? $queryParams['mailgroup_uid'] ?? [];
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -459,8 +462,7 @@ class DmailController extends MainController
                 }
                 
                 if ($this->cmd == 'send_mail_final') {
-                    $selectedMailGroups = GeneralUtility::_GP('mailgroup_uid'); //@TODO
-                    if (is_array($selectedMailGroups)) {
+                    if (is_array($this->mailgroup_uid)) {
                         $markers['FLASHMESSAGES'] = $this->cmd_send_mail($row);
                         break;
                     } else {
@@ -1348,14 +1350,11 @@ class DmailController extends MainController
         $htmlmail->nonCron = 1;
         $htmlmail->start();
         $htmlmail->dmailer_prepare($row);
+        $sentFlag = false;
         
         // send out non-personalized emails
-        $simpleMailMode = GeneralUtility::_GP('mailingMode_simple');
-        
-        $sentFlag = false;
-        if ($simpleMailMode) {
+        if ($this->mailingMode_simple) {
             // step 4, sending simple test emails
-            
             // setting Testmail flag
             $htmlmail->testmail = $this->params['testmail'] ?? false;
             
@@ -1389,7 +1388,8 @@ class DmailController extends MainController
                 
                 $this->noView = 1;
             }
-        } elseif ($this->cmd == 'send_mail_test') {
+        } 
+        elseif ($this->cmd == 'send_mail_test') {
             // step 4, sending test personalized test emails
             // setting Testmail flag
             $htmlmail->testmail = $this->params['testmail'];
