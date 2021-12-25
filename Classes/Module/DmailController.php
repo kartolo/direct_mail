@@ -715,7 +715,7 @@ class DmailController extends MainController
                         $previewLink
                     ];
                 }
-                $out = DirectMailUtility::formatTable($outLines, [], 0, array(1, 1, 1, 1));
+                $out = DirectMailUtility::formatTable($outLines, [], 0, [1, 1, 1, 1]);
                 $theOutput = '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromNL') .
                 BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH'] ?? '#') .
                 '</h3>' .
@@ -1579,7 +1579,7 @@ class DmailController extends MainController
         $opt = [];
         $lastGroup = null;
         while (($group = $statement->fetch())) {
-            $result = $this->cmd_compileMailGroup(array($group['uid']));
+            $result = $this->cmd_compileMailGroup([$group['uid']]);
             $count = 0;
             $idLists = $result['queryInfo']['id_lists'];
             if (is_array($idLists['tt_address'] ?? false)) {
