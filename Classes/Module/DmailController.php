@@ -821,8 +821,8 @@ class DmailController extends MainController
         $theOutput = '';
         $indata = GeneralUtility::_GP('quickmail'); //@TODO
         
-        $senderName = ($indata['senderName'] ?? $GLOBALS['BE_USER']->user['realName']);
-        $senderMail = ($indata['senderEmail'] ?? $GLOBALS['BE_USER']->user['email']);
+        $senderName = ($indata['senderName'] ?? $this->getBackendUser()->user['realName']);
+        $senderMail = ($indata['senderEmail'] ?? $this->getBackendUser()->user['email']);
         
         $breakLines = $indata['breakLines'] ?? false;
         // Set up form:
