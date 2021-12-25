@@ -264,7 +264,6 @@ class DmailController extends MainController
                         $this->cmd = 'cats';
                     }
                     break;
-                    
                 case 'send_mail_final':
                     // The same as send_mass
                 case 'send_mass':
@@ -579,13 +578,9 @@ class DmailController extends MainController
      */
     protected function getNewsletterTabIcon($expand = false)
     {
-        if ($expand) {
-            // opened
-            return $this->moduleTemplate->getIconFactory()->getIcon('apps-pagetree-expand', Icon::SIZE_SMALL);
-        }
-        
-        // closes
-        return $this->moduleTemplate->getIconFactory()->getIcon('apps-pagetree-collapse', Icon::SIZE_SMALL);
+        // opened - closes
+        $icon = $expand ? 'apps-pagetree-expand' : 'apps-pagetree-collapse';
+        return $this->moduleTemplate->getIconFactory()->getIcon($icon, Icon::SIZE_SMALL);
     }
     
     /**
