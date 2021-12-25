@@ -311,9 +311,8 @@ class DmailController extends MainController
                     } else {
                         // TODO: Error message - Error while adding the DB set
                     }
-                    
-                    // external URL
                 } 
+                // external URL
                 elseif ($createMailFromExternalUrl && !$quickmail['send']) {
                     // $createMailFromExternalUrl is the External URL subject
                     $htmlUrl = GeneralUtility::_GP('createMailFrom_HTMLUrl');
@@ -333,13 +332,20 @@ class DmailController extends MainController
                         // TODO: Error message - Error while adding the DB set
                         $this->error = 'no_valid_url';
                     }
-                    
-                    // Quickmail
-                } elseif ($quickmail['send']) {
+                } 
+                // Quickmail
+                elseif ($quickmail['send']) {
                     $fetchMessage = $this->createDMail_quick($quickmail);
                     $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                     $row = BackendUtility::getRecord('sys_dmail', $this->sys_dmail_uid);
-                    $theOutput.= '<input type="hidden" name="cmd" value="send_test">';
+                    $theOutput .= '<input type="hidden" name="cmd" value="send_test">';
+                    $theOutput .= '<input type="hidden" name="quickmail[senderName]" value="' . htmlspecialchars($quickmail['senderName'] ?? '') . '" />';
+                    $theOutput .= '<input type="hidden" name="quickmail[senderEmail]" value="' . htmlspecialchars($quickmail['senderEmail'] ?? '') . '" />';
+                    $theOutput .= '<input type="hidden" name="quickmail[subject]" value="' . htmlspecialchars($quickmail['subject'] ?? '') . '" />';
+                    $theOutput .= '<input type="hidden" name="quickmail[message]" value="' . htmlspecialchars($quickmail['message'] ?? '') . '" />';
+                    if($quickmail['breakLines'] ?? false) {
+                        $theOutput .= '<input type="hidden" name="quickmail[breakLines]" value="'. (int)$quickmail['breakLines'] . '" />';
+                    }
                     // existing dmail
                 } elseif ($row) {
                     if ($row['type'] == '1' && ((empty($row['HTMLParams'])) || (empty($row['plainParams'])))) {
@@ -782,10 +788,9 @@ class DmailController extends MainController
 			(($this->error == 'no_valid_url')?('<br /><b>' . $this->getLanguageService()->getLL('dmail_no_valid_url') . '</b><br /><br />'):'') .
 			'<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_createMail') . '" />
 			<input type="hidden" name="fetchAtOnce" value="1">';
-			$output.= '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromUrl') . BackendUtility::cshItem($this->cshTable, 'create_directmail_from_url', $GLOBALS['BACK_PATH'] ?? '') . '</h3>';
-			$output.= $out;
-			
-			$output.= '</div></div>';
+			$output .= '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromUrl') . BackendUtility::cshItem($this->cshTable, 'create_directmail_from_url', $GLOBALS['BACK_PATH'] ?? '') . '</h3>';
+			$output .= $out;
+			$output .= '</div></div>';
 		return $output;
     }
     
@@ -803,11 +808,11 @@ class DmailController extends MainController
         $imgSrc = $this->getNewsletterTabIcon($open);
         
         $output = '<div class="box"><div class="toggleTitle">';
-        $output.= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_quickmail') . '</a>';
-        $output.= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
-        $output.= '<h3>' . $this->getLanguageService()->getLL('dmail_wiz1_quickmail_header') . '</h3>';
-        $output.= $this->cmd_quickmail();
-        $output.= '</div></div>';
+        $output .= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_quickmail') . '</a>';
+        $output .= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
+        $output .= '<h3>' . $this->getLanguageService()->getLL('dmail_wiz1_quickmail_header') . '</h3>';
+        $output .= $this->cmd_quickmail();
+        $output .= '</div></div>';
         return $output;
     }
     
@@ -819,20 +824,20 @@ class DmailController extends MainController
     protected function cmd_quickmail()
     {
         $theOutput = '';
-        $indata = GeneralUtility::_GP('quickmail'); //@TODO
-        
+        $indata = $this->quickmail;
+
         $senderName = ($indata['senderName'] ?? $this->getBackendUser()->user['realName']);
         $senderMail = ($indata['senderEmail'] ?? $this->getBackendUser()->user['email']);
         
         $breakLines = $indata['breakLines'] ?? false;
         // Set up form:
-        $theOutput.= '<input type="hidden" name="id" value="' . $this->id . '" />';
-        $theOutput.= $this->getLanguageService()->getLL('quickmail_sender_name') . '<br /><input type="text" name="quickmail[senderName]" value="' . htmlspecialchars($senderName) . '" style="width: 460px;" /><br />';
-        $theOutput.= $this->getLanguageService()->getLL('quickmail_sender_email') . '<br /><input type="text" name="quickmail[senderEmail]" value="' . htmlspecialchars($senderMail) . '" style="width: 460px;" /><br />';
-        $theOutput.= $this->getLanguageService()->getLL('dmail_subject') . '<br /><input type="text" name="quickmail[subject]" value="' . htmlspecialchars($indata['subject'] ?? '') . '" style="width: 460px;" /><br />';
-        $theOutput.= $this->getLanguageService()->getLL('quickmail_message') . '<br /><textarea rows="20" name="quickmail[message]" style="width: 460px;">' . LF . htmlspecialchars($indata['message'] ?? '') . '</textarea><br />';
-        $theOutput.= $this->getLanguageService()->getLL('quickmail_break_lines') . ' <input type="checkbox" name="quickmail[breakLines]" value="1"' . ($breakLines ? ' checked="checked"' : '') . ' /><br /><br />';
-        $theOutput.= '<input type="Submit" name="quickmail[send]" value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '" />';
+        $theOutput .= '<input type="hidden" name="id" value="' . $this->id . '" />';
+        $theOutput .= $this->getLanguageService()->getLL('quickmail_sender_name') . '<br /><input type="text" name="quickmail[senderName]" value="' . htmlspecialchars($senderName) . '" style="width: 460px;" /><br />';
+        $theOutput .= $this->getLanguageService()->getLL('quickmail_sender_email') . '<br /><input type="text" name="quickmail[senderEmail]" value="' . htmlspecialchars($senderMail) . '" style="width: 460px;" /><br />';
+        $theOutput .= $this->getLanguageService()->getLL('dmail_subject') . '<br /><input type="text" name="quickmail[subject]" value="' . htmlspecialchars($indata['subject'] ?? '') . '" style="width: 460px;" /><br />';
+        $theOutput .= $this->getLanguageService()->getLL('quickmail_message') . '<br /><textarea rows="20" name="quickmail[message]" style="width: 460px;">' . LF . htmlspecialchars($indata['message'] ?? '') . '</textarea><br />';
+        $theOutput .= $this->getLanguageService()->getLL('quickmail_break_lines') . ' <input type="checkbox" name="quickmail[breakLines]" value="1"' . ($breakLines ? ' checked="checked"' : '') . ' /><br /><br />';
+        $theOutput .= '<input type="Submit" name="quickmail[send]" value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '" />';
         
         return $theOutput;
     }
@@ -848,7 +853,6 @@ class DmailController extends MainController
      */
     protected function makeListDMail($boxId, $totalBox, $open=false)
     {
-        
         $sOrder = preg_replace(
             '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
             trim($GLOBALS['TCA']['sys_dmail']['ctrl']['default_sortby'])
@@ -857,11 +861,11 @@ class DmailController extends MainController
             if (substr_count($sOrder, 'ASC') > 0 ){
                 $sOrder = trim(str_replace('ASC','',$sOrder));
                 $ascDesc = 'ASC';
-            }else{
+            }
+            else{
                 $sOrder = trim(str_replace('DESC','',$sOrder));
                 $ascDesc = 'DESC';
             }
-            
         }
         $queryBuilder = $this->getQueryBuilder('sys_dmail');
         $queryBuilder
