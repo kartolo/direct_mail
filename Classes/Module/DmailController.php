@@ -40,7 +40,9 @@ class DmailController extends MainController
     protected bool $fetchAtOnce = false;
 
     protected array $quickmail = [];
-
+    protected int $createMailFrom_UID = 0;
+    protected string $createMailFrom_URL = '';
+    
     /**
      * The name of the module
      *
@@ -82,7 +84,9 @@ class DmailController extends MainController
         // Create DirectMail and fetch the data
         $this->fetchAtOnce = (bool)($parsedBody['fetchAtOnce'] ?? $queryParams['fetchAtOnce'] ?? false);
         
-        $this->quickmail = $parsedBody['quickmail'] ?? $queryParams['quickmail'] ?? []; 
+        $this->quickmail = $parsedBody['quickmail'] ?? $queryParams['quickmail'] ?? [];
+        $this->createMailFrom_UID = (int)($parsedBody['createMailFrom_UID'] ?? $queryParams['createMailFrom_UID'] ?? 0);
+        $this->createMailFrom_URL = (string)($parsedBody['createMailFrom_URL'] ?? $queryParams['createMailFrom_URL'] ?? '');
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -288,15 +292,12 @@ class DmailController extends MainController
                 $fetchError = true;
                 
                 $quickmail = $this->quickmail;
-                $quickmail['send'] = $quickmail['send'] ?? false; 
+                $quickmail['send'] = $quickmail['send'] ?? false;
 
-                $createMailFromInternalPage = intval(GeneralUtility::_GP('createMailFrom_UID'));
-                $createMailFromExternalUrl = GeneralUtility::_GP('createMailFrom_URL');
-                
                 // internal page
-                if ($createMailFromInternalPage && !$quickmail['send']) {
+                if ($this->createMailFrom_UID && !$quickmail['send']) {
                     $createMailFromInternalPageLang = (int)GeneralUtility::_GP('createMailFrom_LANG');
-                    $newUid = DirectMailUtility::createDirectMailRecordFromPage($createMailFromInternalPage, $this->params, $createMailFromInternalPageLang);
+                    $newUid = DirectMailUtility::createDirectMailRecordFromPage($this->createMailFrom_UID, $this->params, $createMailFromInternalPageLang);
                     
                     if (is_numeric($newUid)) {
                         $this->sys_dmail_uid = $newUid;
@@ -313,11 +314,11 @@ class DmailController extends MainController
                     }
                 } 
                 // external URL
-                elseif ($createMailFromExternalUrl && !$quickmail['send']) {
-                    // $createMailFromExternalUrl is the External URL subject
+                elseif ($this->createMailFrom_URL != '' && !$quickmail['send']) {
+                    // $this->createMailFrom_URL is the External URL subject
                     $htmlUrl = GeneralUtility::_GP('createMailFrom_HTMLUrl');
                     $plainTextUrl = GeneralUtility::_GP('createMailFrom_plainUrl');
-                    $newUid = DirectMailUtility::createDirectMailRecordFromExternalURL($createMailFromExternalUrl, $htmlUrl, $plainTextUrl, $this->params);
+                    $newUid = DirectMailUtility::createDirectMailRecordFromExternalURL($this->createMailFrom_URL, $htmlUrl, $plainTextUrl, $this->params);
                     if (is_numeric($newUid)) {
                         $this->sys_dmail_uid = $newUid;
                         // Read new record (necessary because TCEmain sets default field values)
