@@ -42,6 +42,7 @@ class DmailController extends MainController
     protected array $quickmail = [];
     protected int $createMailFrom_UID = 0;
     protected string $createMailFrom_URL = '';
+    protected int $createMailFrom_LANG = 0;
     
     /**
      * The name of the module
@@ -87,6 +88,7 @@ class DmailController extends MainController
         $this->quickmail = $parsedBody['quickmail'] ?? $queryParams['quickmail'] ?? [];
         $this->createMailFrom_UID = (int)($parsedBody['createMailFrom_UID'] ?? $queryParams['createMailFrom_UID'] ?? 0);
         $this->createMailFrom_URL = (string)($parsedBody['createMailFrom_URL'] ?? $queryParams['createMailFrom_URL'] ?? '');
+        $this->createMailFrom_LANG = (int)($parsedBody['createMailFrom_LANG'] ?? $queryParams['createMailFrom_LANG'] ?? 0);
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -296,8 +298,7 @@ class DmailController extends MainController
 
                 // internal page
                 if ($this->createMailFrom_UID && !$quickmail['send']) {
-                    $createMailFromInternalPageLang = (int)GeneralUtility::_GP('createMailFrom_LANG');
-                    $newUid = DirectMailUtility::createDirectMailRecordFromPage($this->createMailFrom_UID, $this->params, $createMailFromInternalPageLang);
+                    $newUid = DirectMailUtility::createDirectMailRecordFromPage($this->createMailFrom_UID, $this->params, $this->createMailFrom_LANG);
                     
                     if (is_numeric($newUid)) {
                         $this->sys_dmail_uid = $newUid;
