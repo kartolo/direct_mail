@@ -1157,7 +1157,7 @@ class DmailController extends MainController
      */
     protected function renderRecordDetailsTable(array $row)
     {
-        if (!$row['issent']) {
+        if (isset($row['issent']) && !$row['issent']) {
             if ($this->getBackendUser()->check('tables_modify', 'sys_dmail')) {
                 // $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
                 $requestUri = $this->buildUriFromRoute(
@@ -1190,7 +1190,7 @@ class DmailController extends MainController
         }
         
         $content = '<thead >
-			<th>' . DirectMailUtility::fName('subject') . ' <b>' . GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject']), 60) . '</b></th>
+			<th>' . DirectMailUtility::fName('subject') . ' <b>' . GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject'] ?? ''), 60) . '</b></th>
 			<th style="text-align: right;">' . $content . '</th>
 		</thead>';
         
@@ -1199,12 +1199,12 @@ class DmailController extends MainController
             $content .= '
 			<tr class="db_list_normal">
 				<td>' . DirectMailUtility::fName($name) . '</td>
-				<td>' . htmlspecialchars((string)BackendUtility::getProcessedValue('sys_dmail', $name, $row[$name])) . '</td>
+				<td>' . htmlspecialchars((string)BackendUtility::getProcessedValue('sys_dmail', $name, ($row[$name] ?? false))) . '</td>
 			</tr>';
         }
         // attachments need to be fetched manually as BackendUtility::getProcessedValue can't do that
         $fileNames = [];
-        $attachments = DirectMailUtility::getAttachments($row['uid']);
+        $attachments = DirectMailUtility::getAttachments($row['uid'] ?? 0);
         /** @var FileReference $attachment */
         foreach ($attachments as $attachment) {
             $fileNames[] = $attachment->getName();
@@ -1216,7 +1216,7 @@ class DmailController extends MainController
 			</tr>';
         $content = '<table width="460" class="table table-striped table-hover">' . $content . '</table>';
         
-        $sectionTitle = $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '&nbsp;' . htmlspecialchars($row['subject']);
+        $sectionTitle = $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '&nbsp;' . htmlspecialchars($row['subject'] ?? '');
         return '<h3>' . $sectionTitle . '</h3>' . $content;
     }
     
