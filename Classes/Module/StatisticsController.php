@@ -168,7 +168,7 @@ class StatisticsController extends MainController
                 }
                 
                 $out.='<tr class="db_list_normal">
-					<td>' .  $this->moduleTemplate->getIconFactory()->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '</td>
+					<td>' .  $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '</td>
 					<td>' . $this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'], 30) . '  ', $row['uid'], $row['subject']) . '&nbsp;&nbsp;</td>
 					<td>' . BackendUtility::datetime($row['scheduled']) . '</td>
 					<td>' . ($row['scheduled_begin']?BackendUtility::datetime($row['scheduled_begin']):'&nbsp;') . '</td>
@@ -300,9 +300,9 @@ class StatisticsController extends MainController
             ]);
             
             $out = '';
-            $out .=  $this->moduleTemplate->getIconFactory()->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name'] . ' <' . $row['email'] . '>');
+            $out .=  $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name'] . ' <' . $row['email'] . '>');
             $out .= '&nbsp;&nbsp;<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) .
+                $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                 $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
                 $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' . $out;
                 
@@ -637,7 +637,7 @@ class StatisticsController extends MainController
             
             $label = $this->getLinkLabel($url, $urlstr, false, $htmlLinks[$id]['label']);
             
-            $img = '<a href="' . $urlstr . '" target="_blank">' .  $this->moduleTemplate->getIconFactory()->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL) . '</a>';
+            $img = '<a href="' . $urlstr . '" target="_blank">' .  $this->iconFactory->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL) . '</a>';
             
             if (isset($urlCounter['html'][$id]['plainId'])) {
                 $tblLines[] = [
@@ -673,7 +673,7 @@ class StatisticsController extends MainController
                 $urlstr = $this->getUrlStr($uParts);
                 
                 $label = $htmlLinks[$id]['label'] . ' (' . ($urlstr ? $urlstr : '/') . ')';
-                $img = '<a href="' . htmlspecialchars($link) . '" target="_blank">' .  $this->moduleTemplate->getIconFactory()->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL) . '</a>';
+                $img = '<a href="' . htmlspecialchars($link) . '" target="_blank">' .  $this->iconFactory->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL) . '</a>';
                 $tblLines[] = [
                     $label,
                     ($html ? $id : '-'),
@@ -713,9 +713,9 @@ class StatisticsController extends MainController
         // ******************
         
         // The icons:
-        $listIcons = $this->moduleTemplate->getIconFactory()->getIcon('actions-system-list-open', Icon::SIZE_SMALL);
-        $csvIcons  = $this->moduleTemplate->getIconFactory()->getIcon('actions-document-export-csv', Icon::SIZE_SMALL);
-        $hideIcons = $this->moduleTemplate->getIconFactory()->getIcon('actions-lock', Icon::SIZE_SMALL);
+        $listIcons = $this->iconFactory->getIcon('actions-system-list-open', Icon::SIZE_SMALL);
+        $csvIcons  = $this->iconFactory->getIcon('actions-document-export-csv', Icon::SIZE_SMALL);
+        $hideIcons = $this->iconFactory->getIcon('actions-lock', Icon::SIZE_SMALL);
         
         // Icons mails returned
         $iconsMailReturned[] = '<a href="' . $thisurl . '&returnList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned') . '"> ' . $listIcons . '</span></a>';

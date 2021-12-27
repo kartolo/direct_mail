@@ -11,12 +11,15 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Http\Uri;
+use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
+
 
 class MainController {
     
@@ -26,6 +29,8 @@ class MainController {
      * @var ModuleTemplate
      */
     protected $moduleTemplate;
+    protected IconFactory $iconFactory;
+    protected PageRenderer $pageRenderer;
     
     /**
      * @var StandaloneView
@@ -61,10 +66,16 @@ class MainController {
      *
      * @var ModuleTemplate $moduleTemplate
      */
-    public function __construct(ModuleTemplate $moduleTemplate = null)
+    public function __construct(
+        ModuleTemplate $moduleTemplate = null, 
+        IconFactory $iconFactory = null,
+        PageRenderer $pageRenderer = null)
     {
         $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
+        $this->iconFactory = $iconFactory ?? GeneralUtility::makeInstance(IconFactory::class);
+        $this->pageRenderer = $pageRenderer ?? GeneralUtility::makeInstance(PageRenderer::class);
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
     }
     
     protected function init(ServerRequestInterface $request): void {

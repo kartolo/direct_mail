@@ -250,7 +250,7 @@ class ConfigurationController extends MainController
         $boxFlag = 0;
         
         $wrapHelp1 = '&nbsp;<a href="#" class="bubble">' .
-            $this->moduleTemplate->getIconFactory()->getIcon('actions-system-help-open', Icon::SIZE_SMALL) .
+            $this->iconFactory->getIcon('actions-system-help-open', Icon::SIZE_SMALL) .
             ' <span class="help" id="sender_email_help">';
             $wrapHelp2 = '</span></a>';
             
@@ -288,7 +288,7 @@ class ConfigurationController extends MainController
                             $lines[$fname] ='<div id="header" class="box">
 								<div class="toggleTitle">
 									<a href="#" onclick="toggleDisplay(\'' . $fname . '\', event, ' . $this->configArray_length . ')">
-									 	' . $this->moduleTemplate->getIconFactory()->getIcon('apps-pagetree-collapse', Icon::SIZE_SMALL) . '
+									 	' . $this->iconFactory->getIcon('apps-pagetree-collapse', Icon::SIZE_SMALL) . '
 										<strong>' . htmlspecialchars($config) . '</strong>
 									</a>
 								</div>

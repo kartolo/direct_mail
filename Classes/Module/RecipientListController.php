@@ -173,7 +173,7 @@ class RecipientListController extends MainController
             }
             
             $out .= '<tr class="db_list_normal">
-			<td nowrap="nowrap">' .  $this->moduleTemplate->getIconFactory()->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render() . '</td>
+			<td nowrap="nowrap">' .  $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render() . '</td>
 			<td>' . $this->editLink('sys_dmail_group', $row['uid']) . '</td>
 			<td nowrap="nowrap">' . $this->linkRecip_record('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']) . '</td>
 			<td nowrap="nowrap">' . htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])) . '&nbsp;&nbsp;</td>
@@ -197,7 +197,7 @@ class RecipientListController extends MainController
                     
         // New:
         $out = '<a href="#" class="t3-link" onClick="' . $editOnClickLink . '">' .
-            $this->moduleTemplate->getIconFactory()->getIconForRecord('sys_dmail_group', [], Icon::SIZE_SMALL) .
+            $this->iconFactory->getIconForRecord('sys_dmail_group', [], Icon::SIZE_SMALL) .
             $this->getLanguageService()->getLL('recip_create_mailgroup_msg') . '</a>';
             $theOutput .= '<div style="padding-top: 20px;"></div>';
             $theOutput .= '<h3>' . $this->getLanguageService()->getLL('recip_select_mailgroup') . '</h3>' .
@@ -389,7 +389,7 @@ class RecipientListController extends MainController
                 'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
             ]);
             $str = '<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) .
+                $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                 '</a>';
         }
         
@@ -444,7 +444,7 @@ class RecipientListController extends MainController
         }
 
         $group = BackendUtility::getRecord('sys_dmail_group', $this->group_uid);
-        $out = $this->moduleTemplate->getIconFactory()->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL) . htmlspecialchars($group['title']);
+        $out = $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL) . htmlspecialchars($group['title']);
 
         $mainC = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' <strong>' . $totalRecipients . '</strong>';
         if (!$this->lCmd) {
@@ -776,9 +776,9 @@ class RecipientListController extends MainController
                 ]);
                 
                 $out = '';
-                $out .= $this->moduleTemplate->getIconFactory()->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name']) . htmlspecialchars(' <' . $row['email'] . '>');
+                $out .= $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name']) . htmlspecialchars(' <' . $row['email'] . '>');
                 $out .= '&nbsp;&nbsp;<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                    $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) .
+                    $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                     '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
                     $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' .
                         $out;

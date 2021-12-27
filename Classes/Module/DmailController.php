@@ -62,12 +62,12 @@ class DmailController extends MainController
      *
      * @var ModuleTemplate $moduleTemplate
      */
-    public function __construct(ModuleTemplate $moduleTemplate = null)
-    {
-        $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
-        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
-        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
-    }
+//     public function __construct(ModuleTemplate $moduleTemplate = null)
+//     {
+//         $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
+//         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+//         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
+//     }
     
     protected function initDmail(ServerRequestInterface $request): void {
         $queryParams = $request->getQueryParams();
@@ -563,7 +563,6 @@ class DmailController extends MainController
     protected function makeFormInternal($boxId, $totalBox, $open = false)
     {
         $imgSrc = $this->getNewsletterTabIcon($open);
-        
         $output = '<div class="box"><div class="toggleTitle">';
         $output .= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_internal_page') . '</a>';
         $output .= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
@@ -583,7 +582,7 @@ class DmailController extends MainController
     {
         // opened - closes
         $icon = $expand ? 'apps-pagetree-expand' : 'apps-pagetree-collapse';
-        return $this->moduleTemplate->getIconFactory()->getIcon($icon, Icon::SIZE_SMALL);
+        return $this->iconFactory->getIcon($icon, Icon::SIZE_SMALL);
     }
     
     /**
@@ -648,7 +647,7 @@ class DmailController extends MainController
                             'cmd' => 'info'
                         ]
                     );
-                    $pageIcon = $this->moduleTemplate->getIconFactory()->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
+                    $pageIcon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
                     
                     $previewHTMLLink = $previewTextLink = $createLink = '';
                     foreach ($languages as $languageUid => $lang) {
@@ -658,9 +657,9 @@ class DmailController extends MainController
                         $langTitle = (count($languages) > 1 ? ' - ' . $lang['title'] : '');
                         $plainParams = $this->implodedParams['plainParams'] ?? '' . $langParam;
                         $htmlParams = $this->implodedParams['HTMLParams'] ?? '' . $langParam;
-                        $htmlIcon = $this->moduleTemplate->getIconFactory()->getIcon('directmail-dmail-preview-html', Icon::SIZE_SMALL, $langIconOverlay);
-                        $plainIcon = $this->moduleTemplate->getIconFactory()->getIcon('directmail-dmail-preview-text', Icon::SIZE_SMALL, $langIconOverlay);
-                        $createIcon = $this->moduleTemplate->getIconFactory()->getIcon('directmail-dmail-new', Icon::SIZE_SMALL, $langIconOverlay);
+                        $htmlIcon = $this->iconFactory->getIcon('directmail-dmail-preview-html', Icon::SIZE_SMALL, $langIconOverlay);
+                        $plainIcon = $this->iconFactory->getIcon('directmail-dmail-preview-text', Icon::SIZE_SMALL, $langIconOverlay);
+                        $createIcon = $this->iconFactory->getIcon('directmail-dmail-new', Icon::SIZE_SMALL, $langIconOverlay);
                         
                         $previewHTMLLink .= '<a href="#" onClick="' . BackendUtility::viewOnClick(
                             $row['uid'],
@@ -709,7 +708,7 @@ class DmailController extends MainController
                         '<a href="' . $createDmailLink . '">' . $pageIcon . '</a>',
                         $createLink,
                         '<a onclick="' . $editOnClickLink . '" href="#" title="' . $this->getLanguageService()->getLL('nl_editPage') . '">' . 
-                        $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
+                        $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
                         $previewLink
                     ];
                 }
@@ -901,12 +900,12 @@ class DmailController extends MainController
             
             foreach ($res as $row) {
                 $tblLines[] = [
-                    $this->moduleTemplate->getIconFactory()->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+                    $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
                     $this->linkDMail_record($row['subject'], $row['uid']),
                     BackendUtility::date($row['tstamp']),
                     ($row['issent'] ? $this->getLanguageService()->getLL('dmail_yes') : $this->getLanguageService()->getLL('dmail_no')),
                     ($row['renderedsize'] ? GeneralUtility::formatSize($row['renderedsize']) : ''),
-                    ($row['attachment'] ? $this->moduleTemplate->getIconFactory()->getIcon('directmail-attachment', Icon::SIZE_SMALL) : ''),
+                    ($row['attachment'] ? $this->iconFactory->getIcon('directmail-attachment', Icon::SIZE_SMALL) : ''),
                     ($row['type'] & 0x1 ? $this->getLanguageService()->getLL('nl_l_tUrl') : $this->getLanguageService()->getLL('nl_l_tPage')) . ($row['type']  & 0x2 ? ' (' . $this->getLanguageService()->getLL('nl_l_tDraft') . ')' : ''),
                     $this->deleteLink($row['uid'])
                 ];
@@ -1038,7 +1037,7 @@ class DmailController extends MainController
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
         
         if (!$dmail['scheduled_begin']) {
-            $icon = $this->moduleTemplate->getIconFactory()->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
+            $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
             $moduleUrl = $this->buildUriFromRoute(
                 $this->moduleName,
                 [
@@ -1168,13 +1167,13 @@ class DmailController extends MainController
                 ]);
                 
                 $content = '<a href="#" onClick="' . $editParams . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                    $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) .
+                    $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
                     '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
             } else {
-                $content = $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) . ' (' . $this->getLanguageService()->getLL('dmail_noEdit_noPerms') . ')';
+                $content = $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . ' (' . $this->getLanguageService()->getLL('dmail_noEdit_noPerms') . ')';
             }
         } else {
-            $content = $this->moduleTemplate->getIconFactory()->getIcon('actions-open', Icon::SIZE_SMALL) . '(' . $this->getLanguageService()->getLL('dmail_noEdit_isSent') . ')';
+            $content = $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '(' . $this->getLanguageService()->getLL('dmail_noEdit_isSent') . ')';
         }
         
         $content = '<thead >
@@ -1187,7 +1186,7 @@ class DmailController extends MainController
             $content .= '
 			<tr class="db_list_normal">
 				<td>' . DirectMailUtility::fName($name) . '</td>
-				<td>' . htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail', $name, $row[$name])) . '</td>
+				<td>' . htmlspecialchars((string)BackendUtility::getProcessedValue('sys_dmail', $name, $row[$name])) . '</td>
 			</tr>';
         }
         // attachments need to be fetched manually as BackendUtility::getProcessedValue can't do that
@@ -1204,7 +1203,7 @@ class DmailController extends MainController
 			</tr>';
         $content = '<table width="460" class="table table-striped table-hover">' . $content . '</table>';
         
-        $sectionTitle = $this->moduleTemplate->getIconFactory()->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '&nbsp;' . htmlspecialchars($row['subject']);
+        $sectionTitle = $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '&nbsp;' . htmlspecialchars($row['subject']);
         return '<h3>' . $sectionTitle . '</h3>' . $content;
     }
     

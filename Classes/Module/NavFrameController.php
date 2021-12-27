@@ -45,12 +45,12 @@ class NavFrameController extends MainController
      *
      * @var ModuleTemplate $moduleTemplate
      */
-    public function __construct(ModuleTemplate $moduleTemplate = null)
-    {
-        $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
-      #  $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
-        $this->getLanguageService()->includeLLFile('EXT:core/Resources/Private/Language/locallang_core.xlf');
-    }
+//     public function __construct(ModuleTemplate $moduleTemplate = null)
+//     {
+//         $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
+//       #  $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
+//         $this->getLanguageService()->includeLLFile('EXT:core/Resources/Private/Language/locallang_core.xlf');
+//     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
@@ -69,7 +69,7 @@ class NavFrameController extends MainController
         $pages = [];
         while (($row = $rows->fetchAssociative()) !== false) {
             if (BackendUtility::readPageAccess($row['uid'], $this->getBackendUser()->getPagePermsClause(1))) {
-                $icon = $this->moduleTemplate->getIconFactory()->getIconForRecord('pages', $row, Icon::SIZE_SMALL)->render();
+                $icon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL)->render();
                 $pages[] = ['icon' => $icon, 'page' => $row];
             }
         }
@@ -192,7 +192,7 @@ class NavFrameController extends MainController
         //->setHref(GeneralUtility::getIndpEnv('REQUEST_URI'))
         ->setTitle($this->getLanguageService()->getLL('labels.reload'))
         ->setShowLabelText('Link')
-        ->setIcon($this->moduleTemplate->getIconFactory()->getIcon('actions-refresh', Icon::SIZE_SMALL));
+        ->setIcon($this->iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
         $buttonBar->addButton($list, ButtonBar::BUTTON_POSITION_RIGHT, 1);
     }
 }

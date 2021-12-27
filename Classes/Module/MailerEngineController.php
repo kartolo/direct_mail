@@ -278,7 +278,7 @@ class MailerEngineController extends MainController
             unset($countres);
             
             $out .='<tr class="db_list_normal">
-					<td>' . $this->moduleTemplate->getIconFactory()->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '</td>
+					<td>' . $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '</td>
 					<td>' . $this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)) . '&nbsp;&nbsp;', $row['uid']) . '</td>
 					<td>' . BackendUtility::datetime($row['scheduled']) . '&nbsp;&nbsp;</td>
 					<td>' . ($row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '') . '&nbsp;&nbsp;</td>
@@ -302,7 +302,7 @@ class MailerEngineController extends MainController
      */
     public function deleteLink($uid)
     {
-        $icon = $this->moduleTemplate->getIconFactory()->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
+        $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
         
         // show delete icon if newsletter hasn't been sent, or not yet finished sending
