@@ -787,9 +787,9 @@ class DirectMailUtility
 
         foreach ($tableLines as $r) {
             $rowA = [];
-            for ($k=0; $k<$cols; $k++) {
-                $v = $r[$k];
-                $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : '&nbsp;';
+            for ($k = 0; $k < $cols; $k++) {
+                $v = $r[$k] ?? '';
+                $v = strlen($v) ? (($cellcmd[$k] ?? false) ? $v : htmlspecialchars($v)) : '&nbsp;';
                 if ($first) {
                     $rowA[] = '<td>' . $v . '</td>';
                 } else {

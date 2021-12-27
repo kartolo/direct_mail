@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Module;
 
+use DirectMailTeam\DirectMail\DirectMailUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -444,16 +445,34 @@ class StatisticsController extends MainController
         ;
         
         $tblLines = [];
-        $tblLines[] = ['',$this->getLanguageService()->getLL('stats_total'),$this->getLanguageService()->getLL('stats_HTML'),$this->getLanguageService()->getLL('stats_plaintext')];
+        $tblLines[] = [
+            '',
+            $this->getLanguageService()->getLL('stats_total'),
+            $this->getLanguageService()->getLL('stats_HTML'),
+            $this->getLanguageService()->getLL('stats_plaintext')
+        ];
+
+        $totalSent = intval(($textHtml['1'] ?? 0) + ($textHtml['2'] ?? 0) + ($textHtml['3'] ?? 0));
+        $htmlSent  = intval(($textHtml['1'] ?? 0) + ($textHtml['3'] ?? 0));
+        $plainSent = intval(($textHtml['2'] ?? 0));
         
-        $totalSent = intval($textHtml['1'] + $textHtml['2'] + $textHtml['3']);
-        $htmlSent = intval($textHtml['1']+$textHtml['3']);
-        $plainSent = intval($textHtml['2']);
-        
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_mails_sent'),$totalSent,$htmlSent,$plainSent];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_mails_returned'),$this->showWithPercent($table['-127']['counter'], $totalSent)];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_HTML_mails_viewed'),'',$this->showWithPercent($uniquePingResponses, $htmlSent)];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_unique_responses'),
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_mails_sent'),
+            $totalSent,
+            $htmlSent,
+            $plainSent
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_mails_returned'),
+            $this->showWithPercent($table['-127']['counter'] ?? 0, $totalSent)
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_HTML_mails_viewed'),
+            '',
+            $this->showWithPercent($uniquePingResponses, $htmlSent)
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_unique_responses'),
             $this->showWithPercent($uniqueHtmlResponses+$uniquePlainResponses, $totalSent),
             $this->showWithPercent($uniqueHtmlResponses, $htmlSent),
             $this->showWithPercent($uniquePlainResponses, $plainSent?$plainSent:$htmlSent)];
@@ -499,14 +518,14 @@ class StatisticsController extends MainController
         $urlArr = [];
         
         $urlMd5Map = [];
-        if (is_array($unpackedMail['html']['hrefs'])) {
+        if (is_array($unpackedMail['html']['hrefs'] ?? false)) {
             foreach ($unpackedMail['html']['hrefs'] as $k => $v) {
                 // convert &amp; of query params back
                 $urlArr[$k] = html_entity_decode($v['absRef']);
                 $urlMd5Map[md5($v['absRef'])] = $k;
             }
         }
-        if (is_array($unpackedMail['plain']['link_ids'])) {
+        if (is_array($unpackedMail['plain']['link_ids'] ?? false)) {
             foreach ($unpackedMail['plain']['link_ids'] as $k => $v) {
                 $urlArr[intval(-$k)] = $v;
             }
@@ -553,10 +572,26 @@ class StatisticsController extends MainController
         }
         
         $tblLines = [];
-        $tblLines[] = ['',$this->getLanguageService()->getLL('stats_total'),$this->getLanguageService()->getLL('stats_HTML'),$this->getLanguageService()->getLL('stats_plaintext')];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_total_responses'),$table['1']['counter'] + $table['2']['counter'],$table['1']['counter']?$table['1']['counter']:'0',$table['2']['counter']?$table['2']['counter']:'0'];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_unique_responses'),$this->showWithPercent($uniqueHtmlResponses+$uniquePlainResponses, $totalSent), $this->showWithPercent($uniqueHtmlResponses, $htmlSent), $this->showWithPercent($uniquePlainResponses, $plainSent?$plainSent:$htmlSent)];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_links_clicked_per_respondent'),
+        $tblLines[] = [
+            '',
+            $this->getLanguageService()->getLL('stats_total'),
+            $this->getLanguageService()->getLL('stats_HTML'),
+            $this->getLanguageService()->getLL('stats_plaintext')
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_total_responses'),
+            ($table['1']['counter'] ?? 0) + ($table['2']['counter'] ?? 0),
+            $table['1']['counter'] ?? '0',
+            $table['2']['counter'] ?? '0'
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_unique_responses'),
+            $this->showWithPercent($uniqueHtmlResponses + $uniquePlainResponses, $totalSent), 
+            $this->showWithPercent($uniqueHtmlResponses, $htmlSent), 
+            $this->showWithPercent($uniquePlainResponses, $plainSent ? $plainSent : $htmlSent)
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_links_clicked_per_respondent'),
             ($uniqueHtmlResponses+$uniquePlainResponses ? number_format(($table['1']['counter']+$table['2']['counter'])/($uniqueHtmlResponses+$uniquePlainResponses), 2) : '-'),
             ($uniqueHtmlResponses  ? number_format(($table['1']['counter'])/($uniqueHtmlResponses), 2)  : '-'),
             ($uniquePlainResponses ? number_format(($table['2']['counter'])/($uniquePlainResponses), 2) : '-')
@@ -768,13 +803,41 @@ class StatisticsController extends MainController
         $responseResult = $this->getQueryRows($queryArray, 'return_code');
         
         $tblLines = [];
-        $tblLines[] = ['',$this->getLanguageService()->getLL('stats_count'),''];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_total_mails_returned'), ($table['-127']['counter']?number_format(intval($table['-127']['counter'])):'0'), implode('&nbsp;', $iconsMailReturned)];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_recipient_unknown'), $this->showWithPercent($responseResult['550']['counter']+$responseResult['553']['counter'], $table['-127']['counter']), implode('&nbsp;', $iconsUnknownRecip)];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_mailbox_full'), $this->showWithPercent($responseResult['551']['counter'], $table['-127']['counter']), implode('&nbsp;', $iconsMailbox)];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_bad_host'), $this->showWithPercent($responseResult['552']['counter'], $table['-127']['counter']), implode('&nbsp;', $iconsBadhost)];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_error_in_header'), $this->showWithPercent($responseResult['554']['counter'], $table['-127']['counter']),implode('&nbsp;', $iconsBadheader)];
-        $tblLines[] = [$this->getLanguageService()->getLL('stats_reason_unkown'), $this->showWithPercent($responseResult['-1']['counter'], $table['-127']['counter']),implode('&nbsp;', $iconsUnknownReason)];
+        $tblLines[] = [
+            '',
+            $this->getLanguageService()->getLL('stats_count'),
+            ''
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_total_mails_returned'), 
+            number_format(intval($table['-127']['counter'] ?? 0)), 
+            implode('&nbsp;', $iconsMailReturned)
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_recipient_unknown'), 
+            $this->showWithPercent(($responseResult['550']['counter'] ?? 0) + ($responseResult['553']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)), 
+            implode('&nbsp;', $iconsUnknownRecip)
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_mailbox_full'), 
+            $this->showWithPercent(($responseResult['551']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)), 
+            implode('&nbsp;', $iconsMailbox)
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_bad_host'), 
+            $this->showWithPercent(($responseResult['552']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)), 
+            implode('&nbsp;', $iconsBadhost)
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_error_in_header'), 
+            $this->showWithPercent(($responseResult['554']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+            implode('&nbsp;', $iconsBadheader)
+        ];
+        $tblLines[] = [
+            $this->getLanguageService()->getLL('stats_reason_unkown'), 
+            $this->showWithPercent(($responseResult['-1']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+            implode('&nbsp;', $iconsUnknownReason)
+        ];
         
         $output.='<br /><h2>' . $this->getLanguageService()->getLL('stats_mails_returned') . '</h2>';
         $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', ''], 1, [0, 0, 1]);
@@ -1213,7 +1276,7 @@ class StatisticsController extends MainController
          * Hook for cmd_stats_postProcess
          * insert a link to open extended importer
          */
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'])) {
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] ?? false)) {
             $hookObjectsArr = [];
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] as $classRef) {
                 $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
@@ -1252,7 +1315,7 @@ class StatisticsController extends MainController
      * @return string wrapped string as a link
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    public function linkDMail_record($str, $uid, $aTitle='')
+    protected function linkDMail_record($str, $uid, $aTitle='')
     {
         $moduleUrl = $this->buildUriFromRoute(
             $this->moduleName,
@@ -1264,5 +1327,351 @@ class StatisticsController extends MainController
             ]
         );
         return '<a title="' . htmlspecialchars($aTitle) . '" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
+    }
+    
+    /**
+     * Set up URL variables for this $row.
+     *
+     * @param array $row DB records
+     *
+     * @return void
+     */
+    protected function setURLs(array $row)
+    {
+        // Finding the domain to use
+        $this->urlbase = DirectMailUtility::getUrlBase((int)$row['page']);
+        
+        // Finding the url to fetch content from
+        switch ((string)$row['type']) {
+            case 1:
+                $this->url_html = $row['HTMLParams'];
+                $this->url_plain = $row['plainParams'];
+                break;
+            default:
+                $this->url_html = $this->urlbase . '?id=' . $row['page'] . $row['HTMLParams'];
+                $this->url_plain = $this->urlbase . '?id=' . $row['page'] . $row['plainParams'];
+        }
+        
+        // plain
+        if (!($row['sendOptions']&1) || !$this->url_plain) {
+            $this->url_plain = '';
+        } else {
+            $urlParts = @parse_url($this->url_plain);
+            if (!$urlParts['scheme']) {
+                $this->url_plain = 'http://' . $this->url_plain;
+            }
+        }
+        
+        // html
+        if (!($row['sendOptions']&2) || !$this->url_html) {
+            $this->url_html = '';
+        } else {
+            $urlParts = @parse_url($this->url_html);
+            if (!$urlParts['scheme']) {
+                $this->url_html = 'http://' . $this->url_html;
+            }
+        }
+    }
+    
+    /**
+     * Show the compact information of a direct mail record
+     *
+     * @param array $row Direct mail record
+     *
+     * @return string The compact infos of the direct mail record
+     */
+    protected function directMail_compactView($row)
+    {
+        $dmailInfo = '';
+        // Render record:
+        if ($row['type']) {
+            $dmailData = $row['plainParams'] . ', ' . $row['HTMLParams'];
+        } else {
+            $page = BackendUtility::getRecord('pages', $row['page'], 'title');
+            $dmailData = $row['page'] . ', ' . htmlspecialchars($page['title']);
+            
+            $dmailInfo = DirectMailUtility::fName('plainParams') . ' ' . htmlspecialchars($row['plainParams'] . LF . DirectMailUtility::fName('HTMLParams') . $row['HTMLParams']) . '; ' . LF;
+        }
+        
+        $dmailInfo .= $this->getLanguageService()->getLL('view_media') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'includeMedia', $row['includeMedia']) . '; ' . LF .
+        $this->getLanguageService()->getLL('view_flowed') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'flowedFormat', $row['flowedFormat']);
+        
+        $dmailInfo = '<span title="' . $dmailInfo . '">' .
+            $this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL) .
+            '</span>';
+            
+        $fromInfo = $this->getLanguageService()->getLL('view_replyto') . ' ' . htmlspecialchars($row['replyto_name'] . ' <' . $row['replyto_email'] . '>') . '; ' . LF .
+            DirectMailUtility::fName('organisation') . ' ' . htmlspecialchars($row['organisation']) . '; ' . LF .
+            DirectMailUtility::fName('return_path') . ' ' . htmlspecialchars($row['return_path']);
+        $fromInfo = '<span title="' . $fromInfo . '">' .
+                $this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL) .
+                '</span>';
+                
+                $mailInfo = DirectMailUtility::fName('priority') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'priority', $row['priority']) . '; ' . LF .
+                DirectMailUtility::fName('encoding') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']) . '; ' . LF .
+                DirectMailUtility::fName('charset') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']);
+        $mailInfo = '<span title="' . $mailInfo . '">' .
+            $this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL) .
+            '</span>';
+            
+            $delBegin = ($row['scheduled_begin']?BackendUtility::datetime($row['scheduled_begin']):'-');
+            $delEnd = ($row['scheduled_end']?BackendUtility::datetime($row['scheduled_begin']):'-');
+            
+            // count total recipient from the query_info
+            $totalRecip = 0;
+            $idLists = unserialize($row['query_info']);
+            foreach ($idLists['id_lists'] as $idArray) {
+                $totalRecip += count($idArray);
+            }
+        
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
+        $res = $queryBuilder->select('*')
+        ->from('sys_dmail_maillog')
+        ->add('where', 'mid=' . $row['uid'] . ' AND response_type = 0')
+        ->orderBy('rid','ASC')
+        ->execute()
+        ->fetchAll();
+        
+        $sentRecip = count($res);
+                    
+        $out = '<table class="table table-striped table-hover">';
+        $out .= '<tr class="t3-row-header"><td colspan="3">' . $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . htmlspecialchars($row['subject']) . '</td></tr>';
+        $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_from') . '</td>' .
+            '<td>' . htmlspecialchars($row['from_name'] . ' <' . htmlspecialchars($row['from_email']) . '>') . '</td>' .
+            '<td>' . $fromInfo . '</td></tr>';
+        $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_dmail') . '</td>' .
+            '<td>' . BackendUtility::getProcessedValue('sys_dmail', 'type', $row['type']) . ': ' . $dmailData . '</td>' .
+            '<td>' . $dmailInfo . '</td></tr>';
+        $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_mail') . '</td>' .
+            '<td>' . BackendUtility::getProcessedValue('sys_dmail', 'sendOptions', $row['sendOptions']) . ($row['attachment']?'; ':'') . BackendUtility::getProcessedValue('sys_dmail', 'attachment', $row['attachment']) . '</td>' .
+            '<td>' . $mailInfo . '</td></tr>';
+        $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_delivery_begin_end') . '</td>' .
+            '<td>' . $delBegin . ' / ' . $delEnd . '</td>' .
+            '<td>&nbsp;</td></tr>';
+        $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_recipient_total_sent') . '</td>' .
+            '<td>' . $totalRecip . ' / ' . $sentRecip . '</td>' .
+            '<td>&nbsp;</td></tr>';
+        $out .= '</table>';
+        $out .= '<div style="padding-top: 5px;"></div>';
+        
+        return $out;
+    }
+    
+    /**
+     * Make a select query
+     *
+     * @param array $queryArray Part of select-statement in an array
+     * @param string $fieldName DB fieldname to be the array keys
+     *
+     * @return array Result of the Select-query
+     */
+    protected function getQueryRows(array $queryArray, $fieldName)
+    {
+        $queryBuilder = $this->getQueryBuilder($queryArray[2]);
+        
+        if (empty($queryArray[5])){
+            $res = $queryBuilder
+            ->count($queryArray[1])
+            ->addSelect($queryArray[0])
+            ->from($queryArray[2])
+            ->add('where',$queryArray[3])
+            ->groupBy($queryArray[4])
+            ->execute()
+            ->fetchAll();
+        }else{
+            $res = $queryBuilder
+            ->count($queryArray[1])
+            ->addSelect($queryArray[0])
+            ->from($queryArray[2])
+            ->add('where',$queryArray[3])
+            ->groupBy($queryArray[4])
+            ->orderBy($queryArray[5])
+            ->execute()
+            ->fetchAll();
+        }
+
+        /*questa funzione viene chiamata per cambiare la key 'COUNT(*)' in 'counter'*/
+        $res = $this->changekeyname($res,'counter','COUNT(*)');
+        
+        $lines = [];
+        foreach($res as $row){
+            if ($fieldName) {
+                $lines[$row[$fieldName]] = $row;
+            } else {
+                $lines[] = $row;
+            }
+        }
+        return $lines;
+    }
+    
+    /**
+     * Switch the key of an array
+     *
+     * @return $array
+     */
+    private function changekeyname($array, $newkey, $oldkey)
+    {
+        foreach ($array as $key => $value)
+        {
+            if (is_array($value)) {
+                $array[$key] = $this->changekeyname($value,$newkey,$oldkey);
+            }
+            else {
+                $array[$newkey] =  $array[$oldkey];
+            }
+        }
+        unset($array[$oldkey]);
+        return $array;
+    }
+    
+    /**
+     * Make a percent from the given parameters
+     *
+     * @param int $pieces Number of pieces
+     * @param int $total Total of pieces
+     *
+     * @return string show number of pieces and the percent
+     */
+    protected function showWithPercent($pieces, $total)
+    {
+        $total = intval($total);
+        $str = $pieces ? number_format(intval($pieces)) : '0';
+        if ($total) {
+            $str .= ' / ' . number_format(($pieces/$total*100), 2) . '%';
+        }
+        return $str;
+    }
+    
+    /**
+     * Write the statistic to a temporary table
+     *
+     * @param array $mrow DB mail records
+     *
+     * @return void
+     */
+    protected function makeStatTempTableContent(array $mrow)
+    {
+        // Remove old:
+        
+        $connection = $this->getConnectionPool('cache_sys_dmail_stat');
+        $connection->delete(
+            'cache_sys_dmail_stat', // from
+            [ 'mid' => intval($mrow['uid']) ] // where
+        );
+        
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
+        $res = $queryBuilder
+        ->select('rid','rtbl','tstamp','response_type','url_id','html_sent','size')
+        ->from('sys_dmail_maillog')
+        ->add('where', 'mid=' . intval($mrow['uid']))
+        ->orderBy('rtbl')
+        ->addOrderBy('rid')
+        ->addOrderBy('tstamp')
+        ->execute();
+        
+        $currentRec = '';
+        $recRec = [];
+
+        while (($row = $res->fetch())) {
+            $thisRecPointer = $row['rtbl'] . $row['rid'];
+            
+            if ($thisRecPointer != $currentRec) {
+                $recRec = [
+                    'mid'            => intval($mrow['uid']),
+                    'rid'            => $row['rid'],
+                    'rtbl'            => $row['rtbl'],
+                    'pings'            => [],
+                    'plain_links'    => [],
+                    'html_links'    => [],
+                    'response'        => [],
+                    'links'            => []
+                ];
+                $currentRec = $thisRecPointer;
+            }
+            switch ($row['response_type']) {
+                case '-1':
+                    $recRec['pings'][] = $row['tstamp'];
+                    $recRec['response'][] = $row['tstamp'];
+                    break;
+                case '0':
+                    $recRec['recieved_html'] = $row['html_sent']&1;
+                    $recRec['recieved_plain'] = $row['html_sent']&2;
+                    $recRec['size'] = $row['size'];
+                    $recRec['tstamp'] = $row['tstamp'];
+                    break;
+                case '1':
+                    // treat html links like plain text
+                case '2':
+                    // plain text link response
+                    $recRec[($row['response_type']==1?'html_links':'plain_links')][] = $row['tstamp'];
+                    $recRec['links'][] = $row['tstamp'];
+                    if (!$recRec['firstlink']) {
+                        $recRec['firstlink'] = $row['url_id'];
+                        $recRec['firstlink_time'] = intval(@max($recRec['pings']));
+                        $recRec['firstlink_time'] = $recRec['firstlink_time'] ? $row['tstamp']-$recRec['firstlink_time'] : 0;
+                    } elseif (!$recRec['secondlink']) {
+                        $recRec['secondlink'] = $row['url_id'];
+                        $recRec['secondlink_time'] = intval(@max($recRec['pings']));
+                        $recRec['secondlink_time'] = $recRec['secondlink_time'] ? $row['tstamp']-$recRec['secondlink_time'] : 0;
+                    } elseif (!$recRec['thirdlink']) {
+                        $recRec['thirdlink'] = $row['url_id'];
+                        $recRec['thirdlink_time'] = intval(@max($recRec['pings']));
+                        $recRec['thirdlink_time'] = $recRec['thirdlink_time'] ? $row['tstamp']-$recRec['thirdlink_time'] : 0;
+                    }
+                    $recRec['response'][] = $row['tstamp'];
+                    break;
+                case '-127':
+                    $recRec['returned'] = 1;
+                    break;
+                default:
+                    // do nothing
+            }
+        }
+        
+        $this->storeRecRec($recRec);
+    }
+    
+    /**
+     * Insert statistic to a temporary table
+     *
+     * @param array $recRec Statistic array
+     *
+     * @return void
+     */
+    protected function storeRecRec(array $recRec)
+    {
+        if (is_array($recRec)) {
+            $recRec['pings_first'] = empty($recRec['pings']) ? 0 : intval(@min($recRec['pings']));
+            $recRec['pings_last']  = empty($recRec['pings']) ? 0 : intval(@max($recRec['pings']));
+            $recRec['pings'] = count($recRec['pings']);
+            
+            $recRec['html_links_first'] = empty($recRec['html_links']) ? 0 : intval(@min($recRec['html_links']));
+            $recRec['html_links_last']  = empty($recRec['html_links']) ? 0 : intval(@max($recRec['html_links']));
+            $recRec['html_links'] = count($recRec['html_links']);
+            
+            $recRec['plain_links_first'] = empty($recRec['plain_links']) ? 0 : intval(@min($recRec['plain_links']));
+            $recRec['plain_links_last']  = empty($recRec['plain_links']) ? 0 : intval(@max($recRec['plain_links']));
+            $recRec['plain_links'] = count($recRec['plain_links']);
+            
+            $recRec['links_first'] = empty($recRec['links']) ? 0 : intval(@min($recRec['links']));
+            $recRec['links_last']  = empty($recRec['links']) ? 0 : intval(@max($recRec['links']));
+            $recRec['links'] = count($recRec['links']);
+            
+            $recRec['response_first'] = DirectMailUtility::intInRangeWrapper((int)((int)(empty($recRec['response']) ? 0 : @min($recRec['response']))-$recRec['tstamp']), 0);
+            $recRec['response_last']  = DirectMailUtility::intInRangeWrapper((int)((int)(empty($recRec['response']) ? 0 : @max($recRec['response']))-$recRec['tstamp']), 0);
+            $recRec['response'] = count($recRec['response']);
+            
+            $recRec['time_firstping'] = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_first']-$recRec['tstamp']), 0);
+            $recRec['time_lastping']  = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_last']-$recRec['tstamp']), 0);
+            
+            $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_first']-$recRec['tstamp']), 0);
+            $recRec['time_last_link']  = DirectMailUtility::intInRangeWrapper((int)($recRec['links_last']-$recRec['tstamp']), 0);
+            
+            $connection = $this->getConnectionPool('cache_sys_dmail_stat');
+            $connection->insert(
+                'cache_sys_dmail_stat',
+                $recRec
+            );
+        }
     }
 }

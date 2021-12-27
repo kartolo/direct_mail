@@ -8,6 +8,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Http\Uri;
@@ -19,7 +20,6 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-
 
 class MainController {
     
@@ -181,11 +181,17 @@ class MainController {
         return $GLOBALS['BE_USER']->isAdmin();
     }
 
-    protected function getTSConfig() {
+    protected function getTSConfig() 
+    {
         return $GLOBALS['BE_USER']->getTSConfig();
     }
 
-    protected function getQueryBuilder($table): QueryBuilder
+    protected function getConnectionPool(string $table): Connection
+    {
+        return GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+    }
+    
+    protected function getQueryBuilder(string $table): QueryBuilder
     {
         return GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
     }
