@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Dmailer;
@@ -46,7 +48,8 @@ class DmailController extends MainController
     protected string $createMailFrom_plainUrl = '';
     protected array $mailgroup_uid = [];
     protected bool $mailingMode_simple = false;
-
+    protected int $tt_address_uid = 0;
+    
     /**
      * The name of the module
      *
@@ -95,6 +98,7 @@ class DmailController extends MainController
         $this->createMailFrom_HTMLUrl = (string)($parsedBody['createMailFrom_HTMLUrl'] ?? $queryParams['createMailFrom_HTMLUrl'] ?? '');
         $this->createMailFrom_plainUrl = (string)($parsedBody['createMailFrom_plainUrl'] ?? $queryParams['createMailFrom_plainUrl'] ?? '');
         $this->mailgroup_uid = $parsedBody['mailgroup_uid'] ?? $queryParams['mailgroup_uid'] ?? [];
+        $this->tt_address_uid = (int)($parsedBody['tt_address_uid'] ?? $queryParams['tt_address_uid'] ?? 0);
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -1376,14 +1380,14 @@ class DmailController extends MainController
             // setting Testmail flag
             $htmlmail->testmail = $this->params['testmail'];
             
-            if (GeneralUtility::_GP('tt_address_uid')) {
+            if ($this->$this->tt_address_uid) {
                 // personalized to tt_address
                 $queryBuilder = $this->getQueryBuilder('tt_address');
                 $res = $queryBuilder
                 ->select('a.*')
                 ->from('tt_address', 'a')
                 ->leftJoin('a', 'pages', 'pages', $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('a.pid')))
-                ->where($queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter((int)GeneralUtility::_GP('tt_address_uid'), \PDO::PARAM_INT)))
+                ->where($queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter($this->$this->tt_address_uid, \PDO::PARAM_INT)))
                 ->andWhere($this->perms_clause)
                 ->execute()
                 ->fetchAll();

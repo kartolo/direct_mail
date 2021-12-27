@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace DirectMailTeam\DirectMail\Module;
 
 /*
@@ -273,7 +275,7 @@ class ConfigurationController extends MainController
                             case 'select':
                                 $opt = [];
                                 foreach ($config[3] as $k => $v) {
-                                    $opt[] = '<option value="' . htmlspecialchars($k) . '"' . (($params[$fname] ?? '') == $k ?' selected="selected"' : '') . '>' . htmlspecialchars($v) . '</option>';
+                                    $opt[] = '<option value="' . htmlspecialchars((string)$k) . '"' . (($params[$fname] ?? '') == $k ?' selected="selected"' : '') . '>' . htmlspecialchars($v) . '</option>';
                                 }
                                 $formEl = '<select name="' . $dataPrefix . '[' . $fname . ']">' . implode('', $opt) . '</select>';
                                 break;

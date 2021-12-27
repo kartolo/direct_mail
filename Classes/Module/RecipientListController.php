@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Importer;
@@ -619,14 +621,12 @@ class RecipientListController extends MainController
         $tmpCode = $this->queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
         $tmpCode .= '<input type="hidden" name="cmd" value="displayMailGroup" /><input type="hidden" name="group_uid" value="' . $mailGroup['uid'] . '" />';
         $tmpCode .= '<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_updateQuery') . '" />';
-        $out .= '<h3>' . $this->getLanguageService()->getLL('dmail_makeQuery') . '</h3>' .
-            $tmpCode;
+        $out .= '<h3>' . $this->getLanguageService()->getLL('dmail_makeQuery') . '</h3>' . $tmpCode;
             
-            $theOutput = '<div style="padding-top: 20px;"></div>';
-            $theOutput .= '<h3>' . $this->getLanguageService()->getLL('dmail_query') . '</h3>' .
-                $out;
-                
-                return $theOutput;
+        $theOutput = '<div style="padding-top: 20px;"></div>';
+        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('dmail_query') . '</h3>' . $out;
+            
+        return $theOutput;
     }
     
     /**
