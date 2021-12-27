@@ -265,7 +265,7 @@ class Dmailer implements LoggerAwareInterface
         }
 
         // uppercase fields with uppercased values
-        $uppercaseFieldsArray = array('name', 'firstname');
+        $uppercaseFieldsArray = ['name', 'firstname'];
         foreach ($uppercaseFieldsArray as $substField) {
             $subst = $this->getCharsetConverter()->conv($recipRow[$substField], $this->backendCharset, $this->charset);
             $markers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
@@ -275,10 +275,10 @@ class Dmailer implements LoggerAwareInterface
         if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'])) {
             $mailMarkersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'];
             if (is_array($mailMarkersHook)) {
-                $hookParameters = array(
+                $hookParameters = [
                     'row'     => &$recipRow,
                     'markers' => &$markers,
-                );
+                ];
                 $hookReference = &$this;
                 foreach ($mailMarkersHook as $hookFunction) {
                     GeneralUtility::callUserFunction($hookFunction, $hookParameters, $hookReference);
@@ -321,7 +321,7 @@ class Dmailer implements LoggerAwareInterface
             $uniqMsgId = md5(microtime()) . '_' . $midRidId;
             $authCode = GeneralUtility::stdAuthCode($recipRow, $this->authCode_fieldList);
 
-            $additionalMarkers = array(
+            $additionalMarkers = [
                     // Put in the tablename of the userinformation
                 '###SYS_TABLE_NAME###'      => $tableNameChar,
                     // Put in the uid of the mail-record
@@ -329,7 +329,7 @@ class Dmailer implements LoggerAwareInterface
                 '###SYS_AUTHCODE###'        => $authCode,
                     // Put in the unique message id in HTML-code
                 $this->dmailer['messageID'] => $uniqMsgId,
-            );
+            ];
 
             $this->mediaList = '';
             $this->theParts['html']['content'] = '';
@@ -835,10 +835,10 @@ class Dmailer implements LoggerAwareInterface
                 if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['queryInfoHook'])) {
                     $queryInfoHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['queryInfoHook'];
                     if (is_array($queryInfoHook)) {
-                        $hookParameters = array(
+                        $hookParameters = [
                             'row'    => $row,
                             'query_info' => &$query_info,
-                        );
+                        ];
                         $hookReference = &$this;
                         foreach ($queryInfoHook as $hookFunction) {
                             GeneralUtility::callUserFunction($hookFunction, $hookParameters, $hookReference);
@@ -994,10 +994,10 @@ class Dmailer implements LoggerAwareInterface
         if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'])) {
             $mailHeadersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'];
             if (is_array($mailHeadersHook)) {
-                $hookParameters = array(
+                $hookParameters = [
                     'row'     => &$recipRow,
                     'header' => &$header,
-                );
+                ];
                 $hookReference = &$this;
                 foreach ($mailHeadersHook as $hookFunction) {
                     GeneralUtility::callUserFunction($hookFunction, $hookParameters, $hookReference);
@@ -1225,7 +1225,7 @@ class Dmailer implements LoggerAwareInterface
         $this->theParts['html']['media'] = [];
 
         $htmlContent = $this->theParts['html']['content'];
-        $attribRegex = $this->tag_regex(array('img', 'table', 'td', 'tr', 'body', 'iframe', 'script', 'input', 'embed'));
+        $attribRegex = $this->tag_regex(['img', 'table', 'td', 'tr', 'body', 'iframe', 'script', 'input', 'embed']);
         $imageList = '';
 
         // split the document by the beginning of the above tags
@@ -1261,7 +1261,7 @@ class Dmailer implements LoggerAwareInterface
         }
 
         // Extracting stylesheets
-        $attribRegex = $this->tag_regex(array('link'));
+        $attribRegex = $this->tag_regex(['link']);
         // Split the document by the beginning of the above tags
         $codepieces = preg_split($attribRegex, $htmlContent);
         $pieces = count($codepieces);
@@ -1425,7 +1425,7 @@ class Dmailer implements LoggerAwareInterface
      */
     public function tag_regex($tags)
     {
-        $tags = (!is_array($tags) ? array($tags) : $tags);
+        $tags = (!is_array($tags) ? [$tags] : $tags);
         $regexp = '/';
         $c = count($tags);
         foreach ($tags as $tag) {
