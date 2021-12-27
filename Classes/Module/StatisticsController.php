@@ -15,6 +15,13 @@ use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 
 class StatisticsController extends MainController
 {   
+    /**
+     * The name of the module
+     *
+     * @var string
+     */
+    protected $moduleName = 'DirectMailNavFrame_Statistics';
+    
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('Statistics');
@@ -1233,5 +1240,29 @@ class StatisticsController extends MainController
         $theOutput .= '<h3>' . $this->getLanguageService()->getLL('stats_recalculate_cached_data') . '</h3>' .
             '<p><a style="text-decoration: underline;" href="' . $thisurl . '">' . $this->getLanguageService()->getLL('stats_recalculate_stats') . '</a></p>';
         return $theOutput;
+    }
+    
+    /**
+     * Wrap a string with a link
+     *
+     * @param string $str String to be wrapped with a link
+     * @param int $uid Record uid to be link
+     * @param string $aTitle Title param of the link tag
+     *
+     * @return string wrapped string as a link
+     * @throws RouteNotFoundException If the named route doesn't exist
+     */
+    public function linkDMail_record($str, $uid, $aTitle='')
+    {
+        $moduleUrl = $this->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'sys_dmail_uid' => $uid,
+                'cmd' => 'stats',
+                'SET[dmail_mode]' => 'direct'
+            ]
+        );
+        return '<a title="' . htmlspecialchars($aTitle) . '" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
     }
 }
