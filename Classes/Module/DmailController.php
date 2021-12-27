@@ -120,7 +120,7 @@ class DmailController extends MainController
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
-                    $this->moduleTemplate->getPageRenderer()->addJsInlineCode($currentModule, $this->getJS($this->sys_dmail_uid));
+                    $this->pageRenderer->addJsInlineCode($currentModule, $this->getJS($this->sys_dmail_uid));
                     $markers = $this->moduleContent();
                     $formcontent = $markers['CONTENT'];
 
