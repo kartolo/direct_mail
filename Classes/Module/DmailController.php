@@ -8,6 +8,7 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
+use TYPO3\CMS\Backend\Routing\PreviewUriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
@@ -661,24 +662,36 @@ class DmailController extends MainController
                         $plainIcon = $this->iconFactory->getIcon('directmail-dmail-preview-text', Icon::SIZE_SMALL, $langIconOverlay);
                         $createIcon = $this->iconFactory->getIcon('directmail-dmail-new', Icon::SIZE_SMALL, $langIconOverlay);
                         
-                        $previewHTMLLink .= '<a href="#" onClick="' . BackendUtility::viewOnClick(
-                            $row['uid'],
-                            $GLOBALS['BACK_PATH'] ?? '',
-                            BackendUtility::BEgetRootLine($row['uid']),
-                            '',
-                            '',
-                            $htmlParams
-                            ) . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_viewPage_HTML') . $langTitle) . '">' . $htmlIcon . '</a>';
+                        $attributes = \TYPO3\CMS\Backend\Routing\PreviewUriBuilder::create($row['uid'], '')
+                        ->withRootLine(BackendUtility::BEgetRootLine($row['uid']))
+                        //->withSection('')
+                        ->withAdditionalQueryParameters($htmlParams)
+                         ->buildDispatcherDataAttributes([]);
+
+                        $serializedAttributes = GeneralUtility::implodeAttributes([
+                            'href' => '#',
+                            'data-dispatch-action' => $attributes['dispatch-action'],
+                            'data-dispatch-args' => $attributes['dispatch-args'],
+                            'title' => htmlentities($this->getLanguageService()->getLL('nl_viewPage_HTML') . $langTitle)
+                        ], true);
                         
-                        $previewTextLink .= '<a href="#" onClick="' . BackendUtility::viewOnClick(
-                            $row['uid'],
-                            $GLOBALS['BACK_PATH'] ?? '',
-                            BackendUtility::BEgetRootLine($row['uid']),
-                            '',
-                            '',
-                            $plainParams
-                            ) . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_viewPage_TXT') . $langTitle) . '">' . $plainIcon . '</a>';
-                            $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_create') . $langTitle) . '">' . $createIcon . '</a>';
+                        $previewHTMLLink .= '<a ' . $serializedAttributes . '>' . $htmlIcon . '</a>';
+                        
+                        $attributes = \TYPO3\CMS\Backend\Routing\PreviewUriBuilder::create($row['uid'], '')
+                        ->withRootLine(BackendUtility::BEgetRootLine($row['uid']))
+                        //->withSection('')
+                        ->withAdditionalQueryParameters($plainParams)
+                        ->buildDispatcherDataAttributes([]);
+
+                        $serializedAttributes = GeneralUtility::implodeAttributes([
+                            'href' => '#',
+                            'data-dispatch-action' => $attributes['dispatch-action'],
+                            'data-dispatch-args' => $attributes['dispatch-args'],
+                            'title' => htmlentities($this->getLanguageService()->getLL('nl_viewPage_TXT') . $langTitle)
+                        ], true);
+
+                        $previewTextLink .= '<a href="#" ' . $serializedAttributes . '>' . $plainIcon . '</a>';
+                        $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_create') . $langTitle) . '">' . $createIcon . '</a>';
                     }
                     
                     switch ($this->params['sendOptions'] ?? 0) {
