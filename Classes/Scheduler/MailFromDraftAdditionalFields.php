@@ -52,7 +52,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
     {
         // Initialize extra field value
         if (empty($taskInfo['selecteddraft'])) {
-            if ($schedulerModuleController->CMD === 'edit') {
+            if ($schedulerModuleController->getCurrentAction() === 'edit') {
                 // In case of edit, and editing a test task, set to internal value if not data was submitted already
                 $taskInfo['selecteddraft'] = $task->draftUid;
             } else {
@@ -101,7 +101,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
         } else {
             foreach ($drafts as $draft) {
                 // see #44577
-                $selected = ($task->draftUid === $draft['uid'] ? ' selected="selected"' : '');
+                $selected = (($schedulerModuleController->getCurrentAction() === 'edit' && $task->draftUid === $draft['uid']) ? ' selected="selected"' : '');
                 $fieldHtml .= '<option value="' . $draft['uid'] . '"' . $selected . '>' . $draft['subject'] . ' [' . $draft['uid'] . ']</option>';
             }
         }

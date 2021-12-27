@@ -149,12 +149,12 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
     protected function createAdditionalFields($fieldName, $fieldHTML)
     {
         // create server input field
-        return array(
+        return [
             'code'     => $fieldHTML,
             'label'    => $this->getLanguangeService()->getLL('scheduler.bounceMail.' . $fieldName),
             'cshKey'   => $fieldName,
             'cshLabel' => $this->getLanguangeService()->getLL('scheduler.bounceMail.csh.' . $fieldName)
-        );
+        ];
     }
 
     /**
