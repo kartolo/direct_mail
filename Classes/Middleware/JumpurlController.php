@@ -311,7 +311,8 @@ class JumpurlController implements MiddlewareInterface
      */
     protected function validateAuthCode($submittedAuthCode): void
     {
-        $authCodeToMatch = GeneralUtility::stdAuthCode(
+        // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.3/Deprecation-94309-DeprecatedGeneralUtilitystdAuthCode.html
+        $authCodeToMatch = GeneralUtility::stdAuthCode( //@TODO
             $this->recipientRecord,
             ($this->directMailRecord['authcode_fieldList'] ?: 'uid')
         );
