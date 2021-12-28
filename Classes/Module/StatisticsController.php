@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -74,25 +75,13 @@ class StatisticsController extends MainController
         
         if (!$this->sys_dmail_uid) {
             $theOutput = $this->displayPageInfo();
-        } else {
-            $table = 'sys_dmail';
-            $queryBuilder = $this->getQueryBuilder($table);
-            $queryBuilder
-            ->getRestrictions()
-            ->removeAll()
-            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-            $res = $queryBuilder->select('*')
-            ->from('sys_dmail')
-            ->where(
-                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->id, \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($this->sys_dmail_uid, \PDO::PARAM_INT))
-            )
-    //      debug($statement->getSQL());
-    //      debug($statement->getParameters());
-            ->execute();
+        } 
+        else {
+            $row = GeneralUtility::makeInstance(SysDmailRepository::class)
+            ->selectSysDmailById($this->sys_dmail_uid, $this->id);
             
 //          $this->noView = 0;
-            if (($row = $res->fetch())) {
+            if (is_array($row)) {
                 // Set URL data for commands
                 $this->setURLs($row);
                 
@@ -176,7 +165,7 @@ class StatisticsController extends MainController
                     $sent = $this->getLanguageService()->getLL('stats_overview_queuing');
                 }
                 
-                $out.='<tr class="db_list_normal">
+                $out .= '<tr class="db_list_normal">
 					<td>' .  $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '</td>
 					<td>' . $this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'], 30) . '  ', $row['uid'], $row['subject']) . '&nbsp;&nbsp;</td>
 					<td>' . BackendUtility::datetime($row['scheduled']) . '</td>
