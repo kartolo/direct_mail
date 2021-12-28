@@ -5,6 +5,7 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -368,18 +369,10 @@ class StatisticsController extends MainController
         
         $table = $this->getQueryRows($queryArray, 'response_type');
         
-        // Plaintext/HTML
-        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
-        
-        $res = $queryBuilder
-        ->count('*')
-        ->addSelect('html_sent')
-        ->from('sys_dmail_maillog')
-        ->add('where','mid=' . $mailingId . ' AND response_type=0')
-        ->groupBy('html_sent')
-        ->execute()
-        ->fetchAll();
-        
+        // Plaintext/HTML       
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)
+        ->countSysDmailMaillogAllByMid($mailingId);
+
         /* this function is called to change the key from 'COUNT(*)' to 'counter' */
         $res = $this->changekeyname($res,'counter','COUNT(*)');
         
@@ -390,48 +383,19 @@ class StatisticsController extends MainController
         }
         
         // Unique responses, html
-        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
-        
-        $res = $queryBuilder
-        ->count('*')
-        ->from('sys_dmail_maillog')
-        ->add('where','mid=' . $mailingId . ' AND response_type=1')
-        ->groupBy('rid')
-        ->addGroupBy('rtbl')
-        ->orderBy('COUNT(*)')
-        ->execute()
-        ->fetchAll();
-        
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)
+        ->countSysDmailMaillogHtmlByMid($mailingId);
         $uniqueHtmlResponses = count($res);//sql_num_rows($res);
         
         // Unique responses, Plain
-        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
-        
-        $res = $queryBuilder
-        ->count('*')
-        ->from('sys_dmail_maillog')
-        ->add('where','mid=' . $mailingId . ' AND response_type=2')
-        ->groupBy('rid')
-        ->addGroupBy('rtbl')
-        ->orderBy('COUNT(*)')
-        ->execute()
-        ->fetchAll();
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)
+        ->countSysDmailMaillogPlainByMid($mailingId);
         $uniquePlainResponses = count($res); //sql_num_rows($res);
         
         // Unique responses, pings
-        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
-        
-        $res = $queryBuilder
-        ->count('*')
-        ->from('sys_dmail_maillog')
-        ->add('where','mid=' . $mailingId . ' AND response_type=-1')
-        ->groupBy('rid')
-        ->addGroupBy('rtbl')
-        ->orderBy('COUNT(*)')
-        ->execute()
-        ->fetchAll();
-        $uniquePingResponses = count($res);//sql_num_rows($res);
-        ;
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)
+        ->countSysDmailMaillogPingByMid($mailingId);
+        $uniquePingResponses = count($res); //sql_num_rows($res);
         
         $tblLines = [];
         $tblLines[] = [
