@@ -27,7 +27,7 @@ use TYPO3\CMS\Core\Database\QueryGenerator;
  */
 class MailSelect extends QueryGenerator
 {
-    public $allowedTables = array('tt_address','fe_users');
+    public $allowedTables = ['tt_address','fe_users'];
 
     /**
      * Build a dropdown box. override function from parent class. Limit only to 2 tables.
@@ -50,7 +50,7 @@ class MailSelect extends QueryGenerator
                     '</option>';
             }
         }
-        $out.='</select>';
+        $out .= '</select>';
         return $out;
     }
 }

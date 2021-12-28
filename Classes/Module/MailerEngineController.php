@@ -331,8 +331,7 @@ class MailerEngineController extends MainController
     {
         $table = 'sys_dmail';
         if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
-            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $connection = $connectionPool->getConnectionForTable($table);
+            $connection = $this->getConnection($table);
             
             $connection->update(
                 $table, // table

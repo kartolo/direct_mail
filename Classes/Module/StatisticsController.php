@@ -1553,7 +1553,7 @@ class StatisticsController extends MainController
     {
         // Remove old:
         
-        $connection = $this->getConnectionPool('cache_sys_dmail_stat');
+        $connection = $this->getConnection('cache_sys_dmail_stat');
         $connection->delete(
             'cache_sys_dmail_stat', // from
             [ 'mid' => intval($mrow['uid']) ] // where
@@ -1667,7 +1667,7 @@ class StatisticsController extends MainController
             $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_first']-$recRec['tstamp']), 0);
             $recRec['time_last_link']  = DirectMailUtility::intInRangeWrapper((int)($recRec['links_last']-$recRec['tstamp']), 0);
             
-            $connection = $this->getConnectionPool('cache_sys_dmail_stat');
+            $connection = $this->getConnection('cache_sys_dmail_stat');
             $connection->insert(
                 'cache_sys_dmail_stat',
                 $recRec

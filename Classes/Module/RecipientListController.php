@@ -583,8 +583,7 @@ class RecipientListController extends MainController
                 'query' => $this->MOD_SETTINGS['queryConfig']
             ];
             
-            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $connection = $connectionPool->getConnectionForTable('sys_dmail_group');
+            $connection = $this->getConnection('sys_dmail_group');
             
             $connection->update(
                 'sys_dmail_group', // table

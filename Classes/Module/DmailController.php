@@ -1077,9 +1077,7 @@ class DmailController extends MainController
         $table = 'sys_dmail';
         if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
             
-            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $connection = $connectionPool->getConnectionForTable($table);
-            
+            $connection = $this->getConnection($table);
             $connection->update(
                 $table, // table
                 [ $GLOBALS['TCA'][$table]['ctrl']['delete'] => 1 ],
@@ -1489,9 +1487,7 @@ class DmailController extends MainController
                     $sectionTitle = $this->getLanguageService()->getLL('send_was_scheduled');
                 }
                 $sentFlag = true;
-                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-                $connection = $connectionPool->getConnectionForTable('sys_dmail');
-                
+                $connection = $this->getConnection('sys_dmail');
                 $connection->update(
                     'sys_dmail', // table
                     $updateFields,
@@ -1510,10 +1506,8 @@ class DmailController extends MainController
         
         // Setting flags and update the record:
         if ($sentFlag && $this->cmd == 'send_mail_final') {
-            
-            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $connection = $connectionPool->getConnectionForTable('sys_dmail');
-            
+
+            $connection = $this->getConnection('sys_dmail');
             $connection->update(
                 'sys_dmail', // table
                 ['issent' => 1],

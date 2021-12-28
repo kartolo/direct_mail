@@ -56,7 +56,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function extractHyperLinksDataProvider()
     {
-        return array(
+        return [
             'no hyperlinks found' => ['This is a simple test', '', null],
             'no hyperlinks in anchor' => ['This is a <a name="anchor">simple</a> test', '', null],
             'absolute url' => ['
@@ -87,90 +87,90 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                     ],
                 ]
             ],
-            'relative link #1' => array('
+            'relative link #1' => ['
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com/',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'relative link #2' => array('
+                    ],
+                ]
+            ],
+            'relative link #2' => ['
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'relative link #3' => array('
+                    ],
+                ]
+            ],
+            'relative link #3' => ['
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com/subdirectory/',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/subdirectory/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'relative link #4' => array('
+                    ],
+                ]
+            ],
+            'relative link #4' => ['
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com/subdirectory',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'absolute link #1' => array('
+                    ],
+                ]
+            ],
+            'absolute link #1' => ['
 				This is a <a name="link" href="/fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com/subdirectory',
-                array(
-                    array(
+                [
+                    [
                         'ref' => '/fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"/fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'absolute link #2' => array('
+                    ],
+                ]
+            ],
+            'absolute link #2' => ['
 				This is a <a name="link" href="/fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com/subdirectory/',
-                array(
-                    array(
+                [
+                    [
                         'ref' => '/fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"/fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
+                    ],
+                ]
+            ],
             'absolute link #3 (no_jumpurl)' => ['
 				This is a <a name="link" href="image.png" no_jumpurl="1">simple</a> test',
                 'http://www.server.com/subdirectory',
@@ -204,6 +204,6 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                     ],
                 ]
             ],
-        );
+        ];
     }
 }

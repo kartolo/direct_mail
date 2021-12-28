@@ -186,7 +186,7 @@ class MainController {
         return $GLOBALS['BE_USER']->getTSConfig();
     }
 
-    protected function getConnectionPool(string $table): Connection
+    protected function getConnection(string $table): Connection
     {
         return GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
     }
