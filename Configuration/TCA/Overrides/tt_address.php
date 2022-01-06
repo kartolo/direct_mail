@@ -34,4 +34,3 @@ $ttAddressCols = [
 
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_address', $ttAddressCols);
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCATypes('tt_address', '--div--;Direct mail,module_sys_dmail_category,module_sys_dmail_html');
-$GLOBALS['TCA']['tt_address']['feInterface']['fe_admin_fieldList'] .= ',module_sys_dmail_category,module_sys_dmail_html';
