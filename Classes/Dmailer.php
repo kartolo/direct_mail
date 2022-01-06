@@ -136,6 +136,10 @@ class Dmailer implements LoggerAwareInterface
 
     public $jumperURL_prefix = '';
     public $jumperURL_useMailto = '';
+
+    /** @var bool|int */
+    public $jumperURL_useId = false;
+
     protected function getCharsetConverter()
     {
         if ($this->charsetConverter && ($this->charsetConverter instanceof CharsetConverter)) {
@@ -762,7 +766,7 @@ class Dmailer implements LoggerAwareInterface
      */
     public function dmailer_addToMailLog(int $mid, string $rid, int $size, int $parsetime, int $html, string $email): int
     {
-        list($rtbl, $rid) = explode('_', $rid);
+        [$rtbl, $rid] = explode('_', $rid);
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
         $queryBuilder
