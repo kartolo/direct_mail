@@ -135,9 +135,8 @@ class Dmailer implements LoggerAwareInterface
 
     protected $notificationJob = false;
 
-    protected $jumperURL_prefix = '';
-    protected $jumperURL_useMailto = '';
-    
+    public $jumperURL_prefix = '';
+    public $jumperURL_useMailto = '';
     protected function getCharsetConverter()
     {
         if ($this->charsetConverter && ($this->charsetConverter instanceof CharsetConverter)) {
