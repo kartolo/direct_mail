@@ -1274,8 +1274,6 @@ class DirectMailUtility
 
         $htmlmail->start();
         $htmlmail->charset = $row['charset'];
-        $htmlmail->http_username = $params['http_username'] ?? '';
-        $htmlmail->http_password = $params['http_password'] ?? '';
         $htmlmail->simulateUsergroup = $params['simulate_usergroup'] ?? false;
         $htmlmail->includeMedia = $row['includeMedia'];
 

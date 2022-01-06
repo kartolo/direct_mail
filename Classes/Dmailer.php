@@ -45,7 +45,6 @@ class Dmailer implements LoggerAwareInterface
      */
     public $sendPerCycle = 50;
 
-    public $massend_id_lists = [];
     public $mailHasContent;
     public $flag_html = 0;
     public $flag_plain = 0;
