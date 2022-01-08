@@ -88,67 +88,6 @@ class ConfigurationController extends MainController
         $this->pageTS = $parsedBody['pageTS'] ?? $queryParams['pageTS'] ?? [];
     }
     
-    protected function getJS($sys_dmail_uid) {
-        return '
-        script_ended = 0;
-        function jumpToUrl(URL)	{
-            window.location.href = URL;
-        }
-        function jumpToUrlD(URL) {
-            window.location.href = URL+"&sys_dmail_uid=' . $sys_dmail_uid . '";
-        }
-        function toggleDisplay(toggleId, e, countBox) {
-            if (!e) {
-                e = window.event;
-            }
-            if (!document.getElementById) {
-                return false;
-            }
-            
-            prefix = toggleId.split("-");
-            for (i=1; i<=countBox; i++){
-                newToggleId = prefix[0]+"-"+i;
-                body = document.getElementById(newToggleId);
-                image = document.getElementById(toggleId + "_toggle");
-                if (newToggleId != toggleId){
-                    if (body.style.display == "block"){
-                        body.style.display = "none";
-                        if (image) {
-                            image.className = image.className.replace( /expand/ , "collapse");
-                        }
-                    }
-                }
-            }
-            
-            var body = document.getElementById(toggleId);
-            if (!body) {
-                return false;
-            }
-            var image = document.getElementById(toggleId + "_toggle");
-            if (body.style.display == "none") {
-                body.style.display = "block";
-                if (image) {
-                    image.className = image.className.replace( /collapse/ , "expand");
-                }
-            } else {
-                body.style.display = "none";
-                if (image) {
-                    image.className = image.className.replace( /expand/ , "collapse");
-                }
-            }
-            if (e) {
-                // Stop the event from propagating, which
-                // would cause the regular HREF link to
-                // be followed, ruining our hard work.
-                e.cancelBubble = true;
-                if (e.stopPropagation) {
-                    e.stopPropagation();
-                }
-            }
-        }
-        ';
-    }
-    
     /**
      * Shows the content of configuration module
      * compiling the configuration form and fill it with default values

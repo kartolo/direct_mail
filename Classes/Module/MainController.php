@@ -78,7 +78,8 @@ class MainController {
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
     }
     
-    protected function init(ServerRequestInterface $request): void {
+    protected function init(ServerRequestInterface $request): void 
+    {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
         
@@ -143,12 +144,14 @@ class MainController {
         );
     }
     
-    protected function getMessageQueue() {
+    protected function getMessageQueue() 
+    {
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
         return $flashMessageService->getMessageQueueByIdentifier();
     }
     
-    protected function getModulName() {
+    protected function getModulName() 
+    {
         $module = $this->pageinfo['module'] ?? false;
 
         if (!$module && isset($this->pageinfo['pid'])) {
@@ -196,12 +199,76 @@ class MainController {
         return GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
     }
     
-    protected function buildUriFromRoute($name, $parameters = []): Uri {
+    protected function buildUriFromRoute($name, $parameters = []): Uri 
+    {
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         return $uriBuilder->buildUriFromRoute(
             $name,
             $parameters
         );
+    }
+    
+    protected function getJS($sys_dmail_uid) 
+    {
+        return '
+        script_ended = 0;
+        function jumpToUrl(URL)	{
+            window.location.href = URL;
+        }
+        function jumpToUrlD(URL) {
+            window.location.href = URL+"&sys_dmail_uid=' . $sys_dmail_uid . '";
+        }
+        function toggleDisplay(toggleId, e, countBox) {
+            if (!e) {
+                e = window.event;
+            }
+            if (!document.getElementById) {
+                return false;
+            }
+
+            prefix = toggleId.split("-");
+            for (i=1; i<=countBox; i++){
+                newToggleId = prefix[0]+"-"+i;
+                body = document.getElementById(newToggleId);
+                image = document.getElementById(toggleId + "_toggle"); //ConfigurationController
+                //image = document.getElementById(newToggleId + "_toggle"); //DmailController
+                if (newToggleId != toggleId){
+                    if (body.style.display == "block"){
+                        body.style.display = "none";
+                        if (image) {
+                            image.className = image.className.replace( /expand/ , "collapse");
+                        }
+                    }
+                }
+            }
+
+            var body = document.getElementById(toggleId);
+            if (!body) {
+                return false;
+            }
+            var image = document.getElementById(toggleId + "_toggle");
+            if (body.style.display == "none") {
+                body.style.display = "block";
+                if (image) {
+                    image.className = image.className.replace( /collapse/ , "expand");
+                }
+            } else {
+                body.style.display = "none";
+                if (image) {
+                    image.className = image.className.replace( /expand/ , "collapse");
+                }
+            }
+            if (e) {
+                // Stop the event from propagating, which
+                // would cause the regular HREF link to
+                // be followed, ruining our hard work.
+                e.cancelBubble = true;
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                }
+            }
+        }
+        ';
     }
 }
