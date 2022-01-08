@@ -111,13 +111,6 @@ class ConfigurationController extends MainController
             'includeMedia' => ['check', DirectMailUtility::fName('includeMedia'), $this->getLanguageService()->getLL('includeMedia.description') . '<br />' . $this->getLanguageService()->getLL('includeMedia.details')],
             'flowedFormat' => ['check', DirectMailUtility::fName('flowedFormat'), $this->getLanguageService()->getLL('flowedFormat.description') . '<br />' . $this->getLanguageService()->getLL('flowedFormat.details')],
         ];
-        $configArray[4] = [
-            'box-4' => $this->getLanguageService()->getLL('configure_options_encoding'),
-            'quick_mail_encoding' => ['select', $this->getLanguageService()->getLL('configure_quickmail_encoding'), $this->getLanguageService()->getLL('configure_quickmail_encoding_description'), ['quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit']],
-            'direct_mail_encoding' => ['select', $this->getLanguageService()->getLL('configure_directmail_encoding'), $this->getLanguageService()->getLL('configure_directmail_encoding_description'), ['quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit']],
-            'quick_mail_charset' => ['short', $this->getLanguageService()->getLL('configure_quickmail_charset'), $this->getLanguageService()->getLL('configure_quickmail_charset_description')],
-            'direct_mail_charset' => ['short', $this->getLanguageService()->getLL('configure_directmail_charset'), $this->getLanguageService()->getLL('configure_directmail_charset_description')],
-        ];
         $configArray[5] = [
             'box-5' => $this->getLanguageService()->getLL('configure_options_links'),
             'use_rdct' => ['check', DirectMailUtility::fName('use_rdct'), $this->getLanguageService()->getLL('use_rdct.description') . '<br />' . $this->getLanguageService()->getLL('use_rdct.details') . '<br />' . $this->getLanguageService()->getLL('configure_options_links_rdct')],
@@ -180,9 +173,6 @@ class ConfigurationController extends MainController
                             break;
                         case 'check':
                             $formEl = '<input type="hidden" name="' . $dataPrefix . '[' . $fname . ']" value="0" /><input type="checkbox" name="' . $dataPrefix . '[' . $fname . ']" value="1"' . (($params[$fname] ?? '') ? ' checked="checked"' : '') . ' />';
-                            break;
-                        case 'comment':
-                            $formEl = '';
                             break;
                         case 'select':
                             $opt = [];
