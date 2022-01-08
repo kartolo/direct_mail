@@ -39,7 +39,7 @@ class MailerEngineController extends MainController
         $parsedBody = $request->getParsedBody();
         
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
-        $this->invokeMailerEngine = (bool)($queryParams['invokeMailerEngine']);
+        $this->invokeMailerEngine = (bool)($queryParams['invokeMailerEngine'] ?? false);
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
