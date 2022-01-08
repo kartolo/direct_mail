@@ -1830,4 +1830,123 @@ class DmailController extends MainController
         }
         return $idLists;
     }
+
+
+    /**
+     * Show the categories table for user to categorize the directmail content
+     * TYPO3 content)
+     *
+     * @param array $row The dmail row.
+     *
+     * @return string HTML form showing the categories
+     */
+    public function makeCategoriesForm(array $row)
+    {
+        $indata = GeneralUtility::_GP('indata');
+        if (is_array($indata['categories'])) {
+            $data = [];
+            foreach ($indata['categories'] as $recUid => $recValues) {
+                $enabled = [];
+                foreach ($recValues as $k => $b) {
+                    if ($b) {
+                        $enabled[] = $k;
+                    }
+                }
+                $data['tt_content'][$recUid]['module_sys_dmail_category'] = implode(',', $enabled);
+            }
+
+            /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
+            $tce = GeneralUtility::makeInstance(DataHandler::class);
+            $tce->stripslashes_values = 0;
+            $tce->start($data, []);
+            $tce->process_datamap();
+
+            // remove cache
+            $tce->clear_cacheCmd($this->pages_uid);
+            $out = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
+        }
+
+        // Todo Perhaps we should here check if TV is installed and fetch content from that instead of the old Columns...
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('tt_content');
+        $res = $queryBuilder
+            ->select('colPos', 'CType', 'uid', 'pid', 'header', 'bodytext', 'module_sys_dmail_category')
+            ->from('tt_content')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'pid',
+                    $queryBuilder->createNamedParameter($this->pages_uid, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'sys_language_uid',
+                    $queryBuilder->createNamedParameter($row['sys_language_uid'], \PDO::PARAM_INT)
+                )
+            )
+            ->orderBy('colPos')
+            ->addOrderBy('sorting')
+            ->execute()
+            ->fetchAll();
+
+        if (empty($res)) {
+            $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_cat') . '</h3>' . $this->getLanguageService()->getLL('nl_cat_msg1');
+        } else {
+            $out = '';
+            $colPosVal = 99;
+            foreach ($res as $row) {
+                $categoriesRow = '';
+
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                    ->getQueryBuilderForTable('sys_dmail_ttcontent_category_mm');
+                $resCat = $queryBuilder
+                    ->select('uid_foreign')
+                    ->from('sys_dmail_ttcontent_category_mm')
+                    ->add('where','uid_local=' . $row['uid'])
+                    ->execute()
+                    ->fetchAll();
+
+                foreach ($resCat as $rowCat) {
+                    $categoriesRow .= $rowCat['uid_foreign'] . ',';
+                }
+
+                $categoriesRow = rtrim($categoriesRow, ',');
+
+                if ($colPosVal != $row['colPos']) {
+                    $out .= '<tr><td colspan="3" bgcolor="' . $this->doc->bgColor5 . '">' . $this->getLanguageService()->getLL('nl_l_column') . ': <strong>' . BackendUtility::getProcessedValue('tt_content', 'colPos', $row['colPos']) . '</strong></td></tr>';
+                    $colPosVal = $row['colPos'];
+                }
+                $out .= '<tr>';
+                $out .= '<td valign="top" width="75%">' . $this->iconFactory->getIconForRecord('tt_content', $row, Icon::SIZE_SMALL) .
+                    $row['header'] . '<br />' . GeneralUtility::fixed_lgd_cs(strip_tags($row['bodytext']), 200) . '<br /></td>';
+
+                $out .= '<td nowrap valign="top">';
+                $checkBox = '';
+                if ($row['module_sys_dmail_category']) {
+                    $checkBox .= '<strong style="color:red;">' . $this->getLanguageService()->getLL('nl_l_ONLY') . '</strong>';
+                } else {
+                    $checkBox .= '<strong style="color:green">' . $this->getLanguageService()->getLL('nl_l_ALL') . '</strong>';
+                }
+                $checkBox .= '<br />';
+
+                $this->categories = DirectMailUtility::makeCategories('tt_content', $row, $this->sys_language_uid);
+                reset($this->categories);
+                foreach ($this->categories as $pKey => $pVal) {
+                    $checkBox .= '<input type="hidden" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="0">' .
+                        '<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categoriesRow, $pKey) ?' checked':'') . '> ' .
+                        htmlspecialchars($pVal) . '<br />';
+                }
+                $out .= $checkBox . '</td></tr>';
+            }
+
+            $out = '<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">' . $out . '</table>';
+            $out .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">' .
+                '<input type="hidden" name="CMD" value="' . $this->CMD . '"><br />' .
+                '<input type="submit" name="update_cats" value="' . $this->getLanguageService()->getLL('nl_l_update') . '">';
+
+            $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_cat') . '</h3>' .
+                BackendUtility::cshItem($this->cshTable, 'assign_categories', $GLOBALS['BACK_PATH']) .
+                $out;
+
+        }
+        return $theOutput;
+    }
 }

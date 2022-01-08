@@ -45,7 +45,6 @@ class Dmailer implements LoggerAwareInterface
      */
     public $sendPerCycle = 50;
 
-    public $massend_id_lists = [];
     public $mailHasContent;
     public $flag_html = 0;
     public $flag_plain = 0;
@@ -135,15 +134,15 @@ class Dmailer implements LoggerAwareInterface
 
     protected $notificationJob = false;
 
-    protected $jumperURL_prefix = '';
-    protected $jumperURL_useMailto = '';
-    
+    public $jumperURL_prefix = '';
+    public $jumperURL_useMailto = '';
+
+    /** @var bool|int */
+    public $jumperURL_useId = false;
+
     protected function getCharsetConverter()
     {
-        if ($this->charsetConverter && ($this->charsetConverter instanceof CharsetConverter)) {
-            // charsetConverter is set already
-        } else
-        {
+        if (!$this->charsetConverter) {
             $this->charsetConverter = GeneralUtility::makeInstance(CharsetConverter::class);
         }
         return $this->charsetConverter;
@@ -764,7 +763,7 @@ class Dmailer implements LoggerAwareInterface
      */
     public function dmailer_addToMailLog(int $mid, string $rid, int $size, int $parsetime, int $html, string $email): int
     {
-        list($rtbl, $rid) = explode('_', $rid);
+        [$rtbl, $rid] = explode('_', $rid);
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
         $queryBuilder
@@ -952,7 +951,7 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Send of the email using php mail function.
      *
-     * @param Address   $recipient The recipient to send the mail to
+     * @param Address|string   $recipient The recipient to send the mail to
      * @param array     $recipRow  Recipient's data array
      *
      * @return	void
@@ -1369,7 +1368,7 @@ class Dmailer implements LoggerAwareInterface
                 $hrefData['quotes'] = "'";
                 // subst_str is the string to look for, when substituting lateron
                 $hrefData['subst_str'] = $hrefData['quotes'] . $hrefData['ref'] . $hrefData['quotes'];
-                if ($hrefData['ref'] && !strstr($linkList, '|' . $hrefData['subst_str'] . '|')) {
+                if (!strstr($linkList, '|' . $hrefData['subst_str'] . '|')) {
                     $linkList .= '|' . $hrefData['subst_str'] . '|';
                     $hrefData['absRef'] = $this->absRef($hrefData['ref']);
                     $this->theParts['html']['hrefs'][] = $hrefData;

@@ -1274,13 +1274,11 @@ class DirectMailUtility
 
         $htmlmail->start();
         $htmlmail->charset = $row['charset'];
-        $htmlmail->http_username = $params['http_username'] ?? '';
-        $htmlmail->http_password = $params['http_password'] ?? '';
         $htmlmail->simulateUsergroup = $params['simulate_usergroup'] ?? false;
         $htmlmail->includeMedia = $row['includeMedia'];
 
         if ($plainTextUrl) {
-            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params), 0, ['User-Agent: Direct Mail']);
+            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
                 $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_no_plain_content');
