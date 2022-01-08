@@ -1,12 +1,127 @@
+{namespace core = TYPO3\CMS\Core\ViewHelpers}
+
 <f:layout name="Default" />
 
 <f:section name="content">
+
 <f:flashMessages />
 <f:if condition="{show}">
-<h1><f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:header_conf" /></h1>
+<f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+<h1><f:translate key="{lll}header_conf" /></h1>
 <form action="" method="post" name="dmailform" enctype="multipart/form-data">
     <f:format.raw>{formcontent}</f:format.raw>
-    <input type="submit" name="submit" value="{f:translate(key: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:configure_update_configuration', default: 'Update configuration')}" />
+    <f:comment>
+    <div class="box">
+        <f:render section="toggleTitle" arguments="{title:'configure_default_headers',id:1}" />
+        <f:render section="box-1" arguments="{implodedParams:implodedParams}" />
+    </div>
+    <div class="box">
+        <f:render section="toggleTitle" arguments="{title:'configure_default_content',id:2}" />
+        <f:render section="box-2" arguments="{implodedParams:implodedParams}" />
+    </div>
+    </f:comment>
+    <div class="box">
+        <f:render section="toggleTitle" arguments="{title:'configure_default_fetching',id:3}" />
+        <f:render section="box-3" arguments="{implodedParams:implodedParams}" />
+    </div>
+    <f:comment>
+    <div class="box">
+        <f:render section="toggleTitle" arguments="{title:'configure_options_encoding',id:4}" />
+        <f:render section="box-4" arguments="{implodedParams:implodedParams}" />
+    </div>
+    <div class="box">
+        <f:render section="toggleTitle" arguments="{title:'configure_options_links',id:5}" />
+        <f:render section="box-5" arguments="{implodedParams:implodedParams}" />
+    </div>
+    </f:comment>
+    <div class="box">
+        <f:render section="toggleTitle" arguments="{title:'configure_options_additional',id:6}" />
+        <f:render section="box-6" arguments="{implodedParams:implodedParams}" />
+    </div>
+    <input type="submit" name="submit" value="{f:translate(key: '{lll}configure_update_configuration', default: 'Update configuration')}" />
 </form>
 </f:if>
+</f:section>
+
+<f:section name="help">
+&nbsp;
+<a href="#" class="bubble">
+    <core:icon identifier="actions-system-help-open" size="small" />
+    <span class="help" id="sender_email_help">
+</f:section>
+
+<f:section name="toggleTitle">
+    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+	<div class="toggleTitle">
+	    <a href="#" onclick="toggleDisplay('box-{id}', event, 6)">
+	        <core:icon identifier="apps-pagetree-collapse" size="small" />
+	        <strong><f:format.htmlspecialchars><f:translate key="{lll}{title}" /></f:format.htmlspecialchars></strong>
+	    </a>
+	</div>
+</f:section>
+
+<f:section name="box-1">
+    <div id="box-1" class="toggleBox" style="display:none">
+    </div>
+</f:section>
+
+<f:section name="box-2">
+    <div id="box-2" class="toggleBox" style="display:none">
+    </div>
+</f:section>
+
+<f:section name="box-3">
+    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="lll2"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:" />
+    <div id="box-3" class="toggleBox" style="display:none">
+		<strong><f:translate key="{lll2}sys_dmail.HTMLParams" /></strong>
+		<f:render section="help" /><f:translate key="{lll}configure_HTMLParams_description" /><br><f:translate key="{lll}configure_HTMLParams_details" /></span></a><br>
+		<input type="text" name="pageTS[HTMLParams]" value="{implodedParams.HTMLParams}"><br>
+
+		<strong><f:translate key="{lll2}sys_dmail.plainParams" /></strong>
+		<f:render section="help" /><f:translate key="{lll}configure_plainParams_description" /><br><f:translate key="{lll}configure_plainParams_details" /></span></a><br>
+		<input type="text" name="pageTS[plainParams]" value="{implodedParams.plainParams}"><br>
+    </div>
+</f:section>
+
+<f:section name="box-4">
+    <div id="box-4" class="toggleBox" style="display:none">
+    </div>
+</f:section>
+
+<f:section name="box-5">
+    <div id="box-5" class="toggleBox" style="display:none">
+    </div>
+</f:section>
+
+<f:section name="box-6">
+    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <div id="box-6" class="toggleBox" style="display:none">
+        <strong><f:translate key="{lll}configure_http_username" /></strong>
+        <f:render section="help" /><f:translate key="{lll}configure_http_username_description" /><br><f:translate key="{lll}configure_http_username_details" /></span></a><br>
+        <input type="text" name="pageTS[http_username]" value="{implodedParams.http_username}"><br>
+
+        <strong><f:translate key="{lll}configure_http_password" /></strong>
+        <f:render section="help" /><f:translate key="{lll}configure_http_password_description" /></span></a><br>
+        <input type="text" name="pageTS[http_password]" value="{implodedParams.http_password}"><br>
+
+        <strong><f:translate key="{lll}configure_simulate_usergroup" /></strong>
+        <f:render section="help" /><f:translate key="{lll}configure_simulate_usergroup_description" /><br><f:translate key="{lll}configure_simulate_usergroup_details" /></span></a><br>
+        <input type="text" name="pageTS[simulate_usergroup]" value="{implodedParams.simulate_usergroup}"><br>
+
+        <strong><f:translate key="{lll}configure_user_table" /></strong>
+        <f:render section="help" /><f:translate key="{lll}configure_user_table_description" /></span></a><br>
+        <input type="text" name="pageTS[userTable]" value="{implodedParams.userTable}"><br>
+
+        <strong><f:translate key="{lll}configure_test_tt_address_uids" /></strong>
+        <f:render section="help" /><f:translate key="{lll}configure_test_tt_address_uids_description" /></span></a><br>
+        <input type="text" name="pageTS[test_tt_address_uids]" value="{implodedParams.test_tt_address_uids}"><br>
+
+        <strong><f:translate key="{lll}configure_test_dmail_group_uids" /></strong>
+        <f:render section="help" /><f:translate key="{lll}configure_test_dmail_group_uids_description" /></span></a><br>
+        <input type="text" name="pageTS[test_dmail_group_uids]" value="{implodedParams.test_dmail_group_uids}"><br>
+
+        <strong><f:translate key="{lll}configure_testmail" /></strong><f:render section="help" /><f:translate key="{lll}configure_testmail_description" /></span></a><br>
+        <input type="text" name="pageTS[testmail]" value="{implodedParams.testmail}"><br>
+    </div>
 </f:section>

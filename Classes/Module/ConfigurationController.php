@@ -3,19 +3,6 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Module;
 
-/*
- * This file is part of the TYPO3 CMS project.
- *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
- */
-
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
@@ -39,7 +26,7 @@ class ConfigurationController extends MainController
         $this->init($request);
         $this->initConfiguration($request);
         $this->updatePageTS();
-        
+
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $this->moduleTemplate->addJavaScriptCode($this->getJS($this->sys_dmail_uid));
 
@@ -53,7 +40,8 @@ class ConfigurationController extends MainController
                     $this->view->assignMultiple(
                         [
                             'formcontent' => $formcontent,
-                            'show' => true
+                            'show' => true,
+                            'implodedParams' => $this->implodedParams
                         ]
                     );
                 }
@@ -123,11 +111,6 @@ class ConfigurationController extends MainController
             'includeMedia' => ['check', DirectMailUtility::fName('includeMedia'), $this->getLanguageService()->getLL('includeMedia.description') . '<br />' . $this->getLanguageService()->getLL('includeMedia.details')],
             'flowedFormat' => ['check', DirectMailUtility::fName('flowedFormat'), $this->getLanguageService()->getLL('flowedFormat.description') . '<br />' . $this->getLanguageService()->getLL('flowedFormat.details')],
         ];
-        $configArray[3] = [
-            'box-3' => $this->getLanguageService()->getLL('configure_default_fetching'),
-            'HTMLParams' => ['short', DirectMailUtility::fName('HTMLParams'), $this->getLanguageService()->getLL('configure_HTMLParams_description') . '<br />' . $this->getLanguageService()->getLL('configure_HTMLParams_details')],
-            'plainParams' => ['short', DirectMailUtility::fName('plainParams'), $this->getLanguageService()->getLL('configure_plainParams_description') . '<br />' . $this->getLanguageService()->getLL('configure_plainParams_details')],
-        ];
         $configArray[4] = [
             'box-4' => $this->getLanguageService()->getLL('configure_options_encoding'),
             'quick_mail_encoding' => ['select', $this->getLanguageService()->getLL('configure_quickmail_encoding'), $this->getLanguageService()->getLL('configure_quickmail_encoding_description'), ['quoted-printable'=>'quoted-printable','base64'=>'base64','8bit'=>'8bit']],
@@ -144,17 +127,7 @@ class ConfigurationController extends MainController
             'enable_mailto_jump_url' => ['check', $this->getLanguageService()->getLL('configure_options_mailto_jumpurl'), $this->getLanguageService()->getLL('configure_options_mailto_jumpurl_description')],
             'authcode_fieldList' => ['short', DirectMailUtility::fName('authcode_fieldList'), $this->getLanguageService()->getLL('authcode_fieldList.description')],
         ];
-        $configArray[6] = [
-            'box-6' => $this->getLanguageService()->getLL('configure_options_additional'),
-            'http_username' => ['short', $this->getLanguageService()->getLL('configure_http_username'), $this->getLanguageService()->getLL('configure_http_username_description') . '<br />' . $this->getLanguageService()->getLL('configure_http_username_details')],
-            'http_password' => ['short', $this->getLanguageService()->getLL('configure_http_password'), $this->getLanguageService()->getLL('configure_http_password_description')],
-            'simulate_usergroup' => ['short', $this->getLanguageService()->getLL('configure_simulate_usergroup'), $this->getLanguageService()->getLL('configure_simulate_usergroup_description') . '<br />' . $this->getLanguageService()->getLL('configure_simulate_usergroup_details')],
-            'userTable' => ['short', $this->getLanguageService()->getLL('configure_user_table'), $this->getLanguageService()->getLL('configure_user_table_description')],
-            'test_tt_address_uids' => ['short', $this->getLanguageService()->getLL('configure_test_tt_address_uids'), $this->getLanguageService()->getLL('configure_test_tt_address_uids_description')],
-            'test_dmail_group_uids' => ['short', $this->getLanguageService()->getLL('configure_test_dmail_group_uids'), $this->getLanguageService()->getLL('configure_test_dmail_group_uids_description')],
-            'testmail' => ['short', $this->getLanguageService()->getLL('configure_testmail'), $this->getLanguageService()->getLL('configure_testmail_description')]
-        ];
-        
+
         // Set default values
         if (!isset($this->implodedParams['plainParams'])) {
             $this->implodedParams['plainParams'] = '&type=99';
@@ -168,8 +141,8 @@ class ConfigurationController extends MainController
         
         $this->configArray_length = count($configArray);
         $form = '';
-        for ($i = 1; $i <= count($configArray); $i++) {
-            $form .= $this->makeConfigForm($configArray[$i], $this->implodedParams, 'pageTS');
+        foreach($configArray as $cArray) {
+            $form .= $this->makeConfigForm($cArray, $this->implodedParams, 'pageTS');
         }
         
         return $form;
@@ -191,65 +164,65 @@ class ConfigurationController extends MainController
         $wrapHelp1 = '&nbsp;<a href="#" class="bubble">' .
             $this->iconFactory->getIcon('actions-system-help-open', Icon::SIZE_SMALL) .
             ' <span class="help" id="sender_email_help">';
-            $wrapHelp2 = '</span></a>';
+        $wrapHelp2 = '</span></a>';
             
-            $lines = [];
-            if (is_array($configArray)) {
-                foreach ($configArray as $fname => $config) {
-                    if (is_array($config)) {
-                        $lines[$fname] = '<strong>' . htmlspecialchars($config[1]) . '</strong>';
-                        $lines[$fname] .= $wrapHelp1 . $config[2] . $wrapHelp2 . '<br />';
-                        $formEl = '';
-                        switch ($config[0]) {
-                            case 'string':
-                            case 'short':
-                                $formEl = '<input type="text" name="' . $dataPrefix . '[' . $fname . ']" value="' . htmlspecialchars($params[$fname] ?? '') . '" style="width: 229.92px;" />';
-                                break;
-                            case 'check':
-                                $formEl = '<input type="hidden" name="' . $dataPrefix . '[' . $fname . ']" value="0" /><input type="checkbox" name="' . $dataPrefix . '[' . $fname . ']" value="1"' . (($params[$fname] ?? '') ? ' checked="checked"' : '') . ' />';
-                                break;
-                            case 'comment':
-                                $formEl = '';
-                                break;
-                            case 'select':
-                                $opt = [];
-                                foreach ($config[3] as $k => $v) {
-                                    $opt[] = '<option value="' . htmlspecialchars((string)$k) . '"' . (($params[$fname] ?? '') == $k ?' selected="selected"' : '') . '>' . htmlspecialchars($v) . '</option>';
-                                }
-                                $formEl = '<select name="' . $dataPrefix . '[' . $fname . ']">' . implode('', $opt) . '</select>';
-                                break;
-                            default:
-                        }
-                        $lines[$fname] .= $formEl;
-                        $lines[$fname] .= '<br />';
+        $lines = [];
+        if (is_array($configArray)) {
+            foreach ($configArray as $fname => $config) {
+                if (is_array($config)) {
+                    $lines[$fname] = '<strong>' . htmlspecialchars($config[1]) . '</strong>';
+                    $lines[$fname] .= $wrapHelp1 . $config[2] . $wrapHelp2 . '<br />';
+                    $formEl = '';
+                    switch ($config[0]) {
+                        case 'string':
+                        case 'short':
+                            $formEl = '<input type="text" name="' . $dataPrefix . '[' . $fname . ']" value="' . htmlspecialchars($params[$fname] ?? '') . '" />';
+                            break;
+                        case 'check':
+                            $formEl = '<input type="hidden" name="' . $dataPrefix . '[' . $fname . ']" value="0" /><input type="checkbox" name="' . $dataPrefix . '[' . $fname . ']" value="1"' . (($params[$fname] ?? '') ? ' checked="checked"' : '') . ' />';
+                            break;
+                        case 'comment':
+                            $formEl = '';
+                            break;
+                        case 'select':
+                            $opt = [];
+                            foreach ($config[3] as $k => $v) {
+                                $opt[] = '<option value="' . htmlspecialchars((string)$k) . '"' . (($params[$fname] ?? '') == $k ?' selected="selected"' : '') . '>' . htmlspecialchars($v) . '</option>';
+                            }
+                            $formEl = '<select name="' . $dataPrefix . '[' . $fname . ']">' . implode('', $opt) . '</select>';
+                            break;
+                        default:
+                    }
+                    $lines[$fname] .= $formEl;
+                    $lines[$fname] .= '<br />';
+                } else {
+                    if (!strpos($fname, 'box')) {
+                        $lines[$fname] ='<div id="header" class="box">
+							<div class="toggleTitle">
+								<a href="#" onclick="toggleDisplay(\'' . $fname . '\', event, ' . $this->configArray_length . ')">
+								 	' . $this->iconFactory->getIcon('apps-pagetree-collapse', Icon::SIZE_SMALL) . '
+									<strong>' . htmlspecialchars($config) . '</strong>
+								</a>
+							</div>
+							<div id="' . $fname . '" class="toggleBox" style="display:none">';
+                        $boxFlag = 1;
                     } else {
-                        if (!strpos($fname, 'box')) {
-                            $lines[$fname] ='<div id="header" class="box">
-								<div class="toggleTitle">
-									<a href="#" onclick="toggleDisplay(\'' . $fname . '\', event, ' . $this->configArray_length . ')">
-									 	' . $this->iconFactory->getIcon('apps-pagetree-collapse', Icon::SIZE_SMALL) . '
-										<strong>' . htmlspecialchars($config) . '</strong>
-									</a>
-								</div>
-								<div id="' . $fname . '" class="toggleBox" style="display:none">';
-                            $boxFlag = 1;
-                        } else {
-                            $lines[$fname] = '<hr />';
-                            if ($config) {
-                                $lines[$fname] .= '<strong>' . htmlspecialchars($config) . '</strong><br />';
-                            }
-                            if ($config) {
-                                $lines[$fname] .= '<br />';
-                            }
+                        $lines[$fname] = '<hr />';
+                        if ($config) {
+                            $lines[$fname] .= '<strong>' . htmlspecialchars($config) . '</strong><br />';
+                        }
+                        if ($config) {
+                            $lines[$fname] .= '<br />';
                         }
                     }
                 }
             }
-            $out = implode('', $lines);
-            if ($boxFlag) {
-                $out .= '</div></div>';
-            }
-            return $out;
+        }
+        $out = implode('', $lines);
+        if ($boxFlag) {
+            $out .= '</div></div>';
+        }
+        return $out;
     }
     
    /**
