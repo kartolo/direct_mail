@@ -6,7 +6,7 @@
 
 <f:flashMessages />
 <f:if condition="{show}">
-<f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
 <h1><f:translate key="{lll}header_conf" /></h1>
 <f:form action="" method="post" name="dmailform" enctype="multipart/form-data">
     <f:format.raw>{formcontent}</f:format.raw>
@@ -15,11 +15,11 @@
         <f:render section="toggleTitle" arguments="{title:'configure_default_headers',id:1}" />
         <f:render section="box-1" arguments="{implodedParams:implodedParams}" />
     </div>
+    </f:comment>
     <div class="box">
         <f:render section="toggleTitle" arguments="{title:'configure_default_content',id:2}" />
         <f:render section="box-2" arguments="{implodedParams:implodedParams}" />
     </div>
-    </f:comment>
     <div class="box">
         <f:render section="toggleTitle" arguments="{title:'configure_default_fetching',id:3}" />
         <f:render section="box-3" arguments="{implodedParams:implodedParams}" />
@@ -51,7 +51,7 @@
 </f:section>
 
 <f:section name="toggleTitle">
-    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
 	<div class="toggleTitle">
 	    <a href="#" onclick="toggleDisplay('box-{id}', event, 6)">
 	        <core:icon identifier="apps-pagetree-collapse" size="small" />
@@ -66,13 +66,36 @@
 </f:section>
 
 <f:section name="box-2">
+    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="lll2" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:" />
+    <f:variable name="lll3" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf:" />
     <div id="box-2" class="toggleBox" style="display:none">
+		<strong><f:translate key="{lll2}sys_dmail.sendOptions" /></strong>
+		<f:render section="help" /><f:translate key="{lll3}sendOptions.description" /><br><f:translate key="{lll3}sendOptions.details" /></span></a><br>
+		<f:form.select name="pageTS[sendOptions]" value="{implodedParams.sendOptions}">
+            <f:form.select.option value="3"><f:translate key="{lll}configure_plain_and_html" /></f:form.select.option>
+            <f:form.select.option value="1"><f:translate key="{lll}configure_plain_only" /></f:form.select.option>
+            <f:form.select.option value="2"><f:translate key="{lll}configure_html_only" /></f:form.select.option>
+		</f:form.select>
+		<br>
+
+		<strong><f:translate key="{lll2}sys_dmail.includeMedia" /></strong>
+		<f:render section="help" /><f:translate key="{lll3}includeMedia.description" /><br><f:translate key="{lll3}includeMedia.details" /></span></a>
+		<br>
+		<f:form.checkbox name="pageTS[includeMedia]" value="1" checked="{implodedParams.includeMedia} == 1" />
+		<br>
+
+		<strong><f:translate key="{lll2}sys_dmail.flowedFormat" /></strong>
+		<f:render section="help" /><f:translate key="{lll3}flowedFormat.description" /><br><f:translate key="{lll3}flowedFormat.details" /></span></a>
+		<br>
+		<f:form.checkbox name="pageTS[flowedFormat]" value="1" checked="{implodedParams.flowedFormat} == 1" />
+		<br>
     </div>
 </f:section>
 
 <f:section name="box-3">
-    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
-    <f:variable name="lll2"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:" />
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="lll2" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:" />
     <div id="box-3" class="toggleBox" style="display:none">
 		<strong><f:translate key="{lll2}sys_dmail.HTMLParams" /></strong>
 		<f:render section="help" /><f:translate key="{lll}configure_HTMLParams_description" /><br><f:translate key="{lll}configure_HTMLParams_details" /></span></a><br>
@@ -87,7 +110,7 @@
 </f:section>
 
 <f:section name="box-4">
-    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <div id="box-4" class="toggleBox" style="display:none">
         <strong><f:translate key="{lll}configure_options_encoding" /></strong>
         <f:render section="help" /><f:translate key="{lll}configure_quickmail_encoding" /><f:translate key="{lll}configure_quickmail_encoding_description" /></span></a><br>
@@ -117,7 +140,7 @@
 </f:section>
 
 <f:section name="box-6">
-    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <div id="box-6" class="toggleBox" style="display:none">
         <strong><f:translate key="{lll}configure_http_username" /></strong>
         <f:render section="help" /><f:translate key="{lll}configure_http_username_description" /><br><f:translate key="{lll}configure_http_username_details" /></span></a><br>

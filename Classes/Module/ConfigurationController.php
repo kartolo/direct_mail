@@ -100,17 +100,6 @@ class ConfigurationController extends MainController
                     1 => $this->getLanguageService()->getLL('configure_priority_high'), 
                     5 => $this->getLanguageService()->getLL('configure_priority_low')]],
         ];
-        $configArray[2] = [
-            'box-2' => $this->getLanguageService()->getLL('configure_default_content'),
-            'sendOptions' => [
-                'select', DirectMailUtility::fName('sendOptions'), $this->getLanguageService()->getLL('sendOptions.description') . '<br />' . $this->getLanguageService()->getLL('sendOptions.details'), 
-                [
-                    3 => $this->getLanguageService()->getLL('configure_plain_and_html'),
-                    1 => $this->getLanguageService()->getLL('configure_plain_only'),
-                    2 => $this->getLanguageService()->getLL('configure_html_only')]],
-            'includeMedia' => ['check', DirectMailUtility::fName('includeMedia'), $this->getLanguageService()->getLL('includeMedia.description') . '<br />' . $this->getLanguageService()->getLL('includeMedia.details')],
-            'flowedFormat' => ['check', DirectMailUtility::fName('flowedFormat'), $this->getLanguageService()->getLL('flowedFormat.description') . '<br />' . $this->getLanguageService()->getLL('flowedFormat.details')],
-        ];
         $configArray[5] = [
             'box-5' => $this->getLanguageService()->getLL('configure_options_links'),
             'use_rdct' => ['check', DirectMailUtility::fName('use_rdct'), $this->getLanguageService()->getLL('use_rdct.description') . '<br />' . $this->getLanguageService()->getLL('use_rdct.details') . '<br />' . $this->getLanguageService()->getLL('configure_options_links_rdct')],
