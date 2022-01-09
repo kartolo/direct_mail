@@ -100,15 +100,6 @@ class ConfigurationController extends MainController
                     1 => $this->getLanguageService()->getLL('configure_priority_high'), 
                     5 => $this->getLanguageService()->getLL('configure_priority_low')]],
         ];
-        $configArray[5] = [
-            'box-5' => $this->getLanguageService()->getLL('configure_options_links'),
-            'use_rdct' => ['check', DirectMailUtility::fName('use_rdct'), $this->getLanguageService()->getLL('use_rdct.description') . '<br />' . $this->getLanguageService()->getLL('use_rdct.details') . '<br />' . $this->getLanguageService()->getLL('configure_options_links_rdct')],
-            'long_link_mode' => ['check', DirectMailUtility::fName('long_link_mode'), $this->getLanguageService()->getLL('long_link_mode.description')],
-            'enable_jump_url' => ['check', $this->getLanguageService()->getLL('configure_options_links_jumpurl'), $this->getLanguageService()->getLL('configure_options_links_jumpurl_description')],
-            'jumpurl_tracking_privacy' => ['check', $this->getLanguageService()->getLL('configure_jumpurl_tracking_privacy'), $this->getLanguageService()->getLL('configure_jumpurl_tracking_privacy_description')],
-            'enable_mailto_jump_url' => ['check', $this->getLanguageService()->getLL('configure_options_mailto_jumpurl'), $this->getLanguageService()->getLL('configure_options_mailto_jumpurl_description')],
-            'authcode_fieldList' => ['short', DirectMailUtility::fName('authcode_fieldList'), $this->getLanguageService()->getLL('authcode_fieldList.description')],
-        ];
 
         // Set default values
         if (!isset($this->implodedParams['plainParams'])) {
