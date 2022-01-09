@@ -3,19 +3,15 @@
 <f:layout name="Default" />
 
 <f:section name="content">
-
 <f:flashMessages />
 <f:if condition="{show}">
 <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
 <h1><f:translate key="{lll}header_conf" /></h1>
 <f:form action="" method="post" name="dmailform" enctype="multipart/form-data">
-    <f:format.raw>{formcontent}</f:format.raw>
-    <f:comment>
     <div class="box">
         <f:render section="toggleTitle" arguments="{title:'configure_default_headers',id:1}" />
         <f:render section="box-1" arguments="{implodedParams:implodedParams}" />
     </div>
-    </f:comment>
     <div class="box">
         <f:render section="toggleTitle" arguments="{title:'configure_default_content',id:2}" />
         <f:render section="box-2" arguments="{implodedParams:implodedParams}" />
@@ -59,7 +55,48 @@
 </f:section>
 
 <f:section name="box-1">
+    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="lll2" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:" />
+    <f:variable name="lll3" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf:" />
     <div id="box-1" class="toggleBox" style="display:none">
+        <strong><f:translate key="{lll2}sys_dmail.from_email" /></strong>
+        <f:render section="help" /><f:translate key="{lll3}from_email.description" /><br><f:translate key="{lll3}from_email.details" /></span></a><br>
+        <f:form.textfield name="pageTS[from_email]" value="{implodedParams.from_email}" />
+        <br>
+
+        <strong><f:translate key="{lll2}sys_dmail.from_name" /></strong>
+        <f:render section="help" /><f:translate key="{lll3}from_name.description" /><br><f:translate key="{lll3}from_name.details" /></span></a><br>
+        <f:form.textfield name="pageTS[from_name]" value="{implodedParams.from_name}" />
+        <br>
+
+        <strong><f:translate key="{lll2}sys_dmail.replyto_email" /></strong>
+        <f:render section="help" /><f:translate key="{lll3}replyto_email.description" /><br><f:translate key="{lll3}replyto_email.details" /></span></a><br>
+        <f:form.textfield name="pageTS[replyto_email]" value="{implodedParams.replyto_email}" />
+        <br>
+
+        <strong><f:translate key="{lll2}sys_dmail.replyto_name" /></strong>
+        <f:render section="help" /><f:translate key="{lll3}replyto_name.description" /><br><f:translate key="{lll3}replyto_name.details" /></span></a><br>
+        <f:form.textfield name="pageTS[replyto_name]" value="{implodedParams.replyto_name}" />
+        <br>
+
+        <strong><f:translate key="{lll2}sys_dmail.return_path" /></strong>
+        <f:render section="help" /><f:translate key="{lll3}return_path.description" /><br><f:translate key="{lll3}return_path.details" /></span></a><br>
+        <f:form.textfield name="pageTS[return_path]" value="{implodedParams.return_path}" />
+        <br>
+
+        <strong><f:translate key="{lll2}sys_dmail.organisation" /></strong>
+        <f:render section="help" /><f:translate key="{lll3}organisation.description" /><br><f:translate key="{lll3}organisation.details" /></span></a><br>
+        <f:form.textfield name="pageTS[organisation]" value="{implodedParams.organisation}" />
+        <br>
+
+        <strong><f:translate key="{lll2}sys_dmail.priority" /></strong>
+        <f:render section="help" /><f:translate key="{lll3}priority.description" /><br><f:translate key="{lll3}priority.details" /></span></a><br>
+        <f:form.select name="pageTS[priority]" value="{implodedParams.priority}">
+            <f:form.select.option value="3"><f:translate key="{lll}configure_priority_normal" /></f:form.select.option>
+            <f:form.select.option value="1"><f:translate key="{lll}configure_priority_high" /></f:form.select.option>
+            <f:form.select.option value="5"><f:translate key="{lll}configure_priority_low" /></f:form.select.option>
+        </f:form.select>
+        <br>
     </div>
 </f:section>
 
