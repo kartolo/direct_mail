@@ -41,4 +41,31 @@ class SysDmailRepository extends MainRepository {
         ->execute()
         ->fetchAllAssociative();
     }
+    
+    public function selectForPageInfo(int $id): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+        ->getRestrictions()
+        ->removeAll()
+        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        
+        return $queryBuilder->selectLiteral('sys_dmail.uid', 'sys_dmail.subject', 'sys_dmail.scheduled', 'sys_dmail.scheduled_begin', 'sys_dmail.scheduled_end', 'COUNT(sys_dmail_maillog.mid) AS count')
+        ->from('sys_dmail','sys_dmail')
+        ->leftJoin(
+            'sys_dmail',
+            'sys_dmail_maillog',
+            'sys_dmail_maillog',
+            $queryBuilder->expr()->eq('sys_dmail.uid', $queryBuilder->quoteIdentifier('sys_dmail_maillog.mid'))
+        )
+        ->add('where','sys_dmail.pid = ' . $id .
+                ' AND sys_dmail.type IN (0,1)' .
+                ' AND sys_dmail.issent = 1'.
+                ' AND sys_dmail_maillog.response_type = 0'.
+                ' AND sys_dmail_maillog.html_sent > 0')
+        ->groupBy('sys_dmail_maillog.mid')
+        ->orderBy('sys_dmail.scheduled','DESC')
+        ->addOrderBy('sys_dmail.scheduled_begin','DESC')
+        ->execute()
+        ->fetchAll();
+    }
 }

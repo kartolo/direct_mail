@@ -30,7 +30,6 @@ class StatisticsController extends MainController
         $this->view = $this->configureTemplatePaths('Statistics');
         
         $this->init($request);
-        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
         
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $module = $this->getModulName();
@@ -38,10 +37,10 @@ class StatisticsController extends MainController
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
-                    $formcontent = $this->moduleContent();
+                    $data = $this->moduleContent();
                     $this->view->assignMultiple(
                         [
-                            'formcontent' => $formcontent,
+                            'data' => $data,
                             'show' => true
                         ]
                     );
@@ -72,14 +71,13 @@ class StatisticsController extends MainController
     
     protected function moduleContent()
     {
-        $theOutput = '';
+        $theOutput = [];
         
         if (!$this->sys_dmail_uid) {
-            $theOutput = $this->displayPageInfo();
+            $theOutput['dataPageInfo'] = $this->displayPageInfo();
         } 
         else {
-            $row = GeneralUtility::makeInstance(SysDmailRepository::class)
-            ->selectSysDmailById($this->sys_dmail_uid, $this->id);
+            $row = GeneralUtility::makeInstance(SysDmailRepository::class)->selectSysDmailById($this->sys_dmail_uid, $this->id);
             
 //          $this->noView = 0;
             if (is_array($row)) {
@@ -89,17 +87,17 @@ class StatisticsController extends MainController
                 // COMMAND:
                 switch ($this->cmd) {
                     case 'displayUserInfo':
-                        $theOutput = $this->displayUserInfo();
+                        $theOutput['dataUserInfo'] = $this->displayUserInfo();
                         break;
                     case 'stats':
-                        $theOutput = $this->stats($row);
+                        $theOutput['dataStats'] = $this->stats($row);
                         break;
                     default:
                         // Hook for handling of custom direct mail commands:
                         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd])) {
                             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd] as $funcRef) {
                                 $params = ['pObj' => &$this];
-                                $theOutput = GeneralUtility::callUserFunction($funcRef, $params, $this);
+                                $theOutput['dataHook'] = GeneralUtility::callUserFunction($funcRef, $params, $this);
                             }
                         }
                 }
@@ -116,72 +114,36 @@ class StatisticsController extends MainController
     protected function displayPageInfo()
     {
         // Here the dmail list is rendered:
-        $table = 'sys_dmail';
-        $queryBuilder = $this->getQueryBuilder($table);
-        $queryBuilder
-        ->getRestrictions()
-        ->removeAll()
-        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        
-        $res = $queryBuilder
-        ->selectLiteral('sys_dmail.uid', 'sys_dmail.subject', 'sys_dmail.scheduled', 'sys_dmail.scheduled_begin', 'sys_dmail.scheduled_end', 'COUNT(sys_dmail_maillog.mid) AS count')
-        ->from('sys_dmail','sys_dmail')
-        ->leftJoin(
-            'sys_dmail',
-            'sys_dmail_maillog',
-            'sys_dmail_maillog',
-            $queryBuilder->expr()->eq('sys_dmail.uid', $queryBuilder->quoteIdentifier('sys_dmail_maillog.mid'))
-        )
-        ->add('where','sys_dmail.pid = ' . intval($this->id) .
-            ' AND sys_dmail.type IN (0,1)' .
-            ' AND sys_dmail.issent = 1'.
-            ' AND sys_dmail_maillog.response_type = 0'.
-            ' AND sys_dmail_maillog.html_sent > 0')
-            ->groupBy('sys_dmail_maillog.mid')
-            ->orderBy('sys_dmail.scheduled','DESC')
-            ->addOrderBy('sys_dmail.scheduled_begin','DESC')
-            ->execute()
-            ->fetchAll();
-
-        $out ='<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">';
-        $out .='<thead>
-					<th>&nbsp;</th>
-					<th><b>' . $this->getLanguageService()->getLL('stats_overview_subject') . '</b></th>
-					<th><b>' . $this->getLanguageService()->getLL('stats_overview_scheduled') . '</b></th>
-					<th><b>' . $this->getLanguageService()->getLL('stats_overview_delivery_begun') . '</b></th>
-					<th><b>' . $this->getLanguageService()->getLL('stats_overview_delivery_ended') . '</b></th>
-					<th nowrap="nowrap"><b>' . $this->getLanguageService()->getLL('stats_overview_total_sent') . '</b></th>
-					<th><b>' . $this->getLanguageService()->getLL('stats_overview_status') . '</b></th>
-				</thead>';
-        
-        if ($res) {
-            foreach ($res as $row)  {
-                if (!empty($row['scheduled_begin'])) {
-                    if (!empty($row['scheduled_end'])) {
-                        $sent = $this->getLanguageService()->getLL('stats_overview_sent');
-                    } else {
-                        $sent = $this->getLanguageService()->getLL('stats_overview_sending');
-                    }
-                } else {
-                    $sent = $this->getLanguageService()->getLL('stats_overview_queuing');
-                }
-                
-                $out .= '<tr class="db_list_normal">
-					<td>' .  $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '</td>
-					<td>' . $this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'], 30) . '  ', $row['uid'], $row['subject']) . '&nbsp;&nbsp;</td>
-					<td>' . BackendUtility::datetime($row['scheduled']) . '</td>
-					<td>' . ($row['scheduled_begin']?BackendUtility::datetime($row['scheduled_begin']):'&nbsp;') . '</td>
-					<td>' . ($row['scheduled_end']?BackendUtility::datetime($row['scheduled_end']):'&nbsp;') . '</td>
-					<td>' . ($row['count']?$row['count']:'&nbsp;') . '</td>
-					<td>' . $sent . '</td>
-				</tr>';
+        $rows = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForPageInfo($this->id);
+        $data = [];
+        if (is_array($rows)) {
+            foreach ($rows as $row)  {
+                $data[] = [
+                    'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+                    'subject'         => $this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'], 30) . '  ', $row['uid'], $row['subject']),
+                    'scheduled'       => BackendUtility::datetime($row['scheduled']),
+                    'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
+                    'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
+                    'sent'            => $row['count'] ? $row['count'] : '',
+                    'status'          => $this->getSentStatus($row)
+                ];
             }
         }
-        $out .= '</table>';
-        $out = '<h3>' . $this->getLanguageService()->getLL('stats_overview_choose') . '</h3>' .$out;
-        $out .= '<div style="padding-top: 20px;"></div>';
 
-        return $out;
+        return $data;
+    }
+    
+    protected function getSentStatus(array $row): string {
+        if (!empty($row['scheduled_begin'])) {
+            if (!empty($row['scheduled_end'])) {
+                $sent = $this->getLanguageService()->getLL('stats_overview_sent');
+            } else {
+                $sent = $this->getLanguageService()->getLL('stats_overview_sending');
+            }
+        } else {
+            $sent = $this->getLanguageService()->getLL('stats_overview_queuing');
+        }
+        return $sent;
     }
     
     /**
