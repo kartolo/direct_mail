@@ -26,4 +26,19 @@ class SysDmailRepository extends MainRepository {
         ->execute()
         ->fetch();
     }
+    
+    public function selectSysDmailsByPid(int $pid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+        ->getRestrictions()
+        ->removeAll()
+        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
+        return $queryBuilder->select('uid', 'pid', 'subject', 'scheduled', 'scheduled_begin', 'scheduled_end')
+        ->from($this->table)
+        ->add('where','pid = ' . intval($pid) .' AND scheduled > 0')
+        ->orderBy('scheduled','DESC')
+        ->execute()
+        ->fetchAllAssociative();
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Dmailer;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -185,32 +186,6 @@ class MailerEngineController extends MainController
         }
     }
     
-    protected function getSysDmails() {
-        $queryBuilder = $this->getQueryBuilder('sys_dmail');
-        $queryBuilder
-            ->getRestrictions()
-            ->removeAll()
-            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        
-        $statement = $queryBuilder->select('uid', 'pid', 'subject', 'scheduled', 'scheduled_begin', 'scheduled_end')
-            ->from('sys_dmail')
-            ->add('where','pid = ' . intval($this->id) .' AND scheduled > 0')
-            ->orderBy('scheduled','DESC')
-            ->execute();
-        
-        return $statement;
-    }
-    
-    protected function countSysDmailMaillogs($uid) {
-        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
-        return $queryBuilder->count('*')
-        ->from('sys_dmail_maillog')
-        ->add('where', 'mid = ' . intval($uid) .
-            ' AND response_type = 0' .
-            ' AND html_sent > 0')
-            ->execute();
-    }
-    
     /**
      * Shows the status of the mailer engine.
      * TODO: Should really only show some entries, or provide a browsing interface.
@@ -246,17 +221,19 @@ class MailerEngineController extends MainController
         }
 
         $data = [];
-        $rows = $this->getSysDmails();
-        while (($row = $rows->fetchAssociative()) !== false) {
-            $data[] = [
-                'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-                'subject'         => $this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)), $row['uid']),
-                'scheduled'       => BackendUtility::datetime($row['scheduled']),
-                'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
-                'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
-                'sent'            => $this->getSysDmailMaillogsCountres($row['uid']),
-                'delete'          => $this->deleteLink($row['uid'])
-            ];
+        $rows = GeneralUtility::makeInstance(SysDmailRepository::class)->selectSysDmailsByPid($this->id);
+        if(is_array($rows)) {
+            foreach($rows as $row) {
+                $data[] = [
+                    'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+                    'subject'         => $this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)), $row['uid']),
+                    'scheduled'       => BackendUtility::datetime($row['scheduled']),
+                    'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
+                    'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
+                    'sent'            => $this->getSysDmailMaillogsCountres($row['uid']),
+                    'delete'          => $this->deleteLink($row['uid'])
+                ];
+            }
         }
         unset($rows);
         
@@ -265,11 +242,13 @@ class MailerEngineController extends MainController
     
     private function getSysDmailMaillogsCountres(int $uid): int
     {
-        $countres = $this->countSysDmailMaillogs($uid);
+        $countres = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogs($uid);
         $count = 0;
         //@TODO
-        foreach($countres as $cRow) {
-            $count = (int)$cRow['COUNT(*)'];
+        if(is_array($countres)) {
+            foreach($countres as $cRow) {
+                $count = (int)$cRow['COUNT(*)'];
+            }
         }
         
         return $count;

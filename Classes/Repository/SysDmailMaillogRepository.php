@@ -10,7 +10,7 @@ class SysDmailMaillogRepository extends MainRepository {
     
     public function countSysDmailMaillogAllByMid(int $mid): array|bool {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder
         ->count('*')
         ->addSelect('html_sent')
@@ -23,7 +23,7 @@ class SysDmailMaillogRepository extends MainRepository {
     
     public function countSysDmailMaillogHtmlByMid(int $mid): array|bool {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder
         ->count('*')
         ->from($this->table)
@@ -37,7 +37,7 @@ class SysDmailMaillogRepository extends MainRepository {
     
     public function countSysDmailMaillogPlainByMid(int $mid): array|bool {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder
         ->count('*')
         ->from($this->table)
@@ -51,7 +51,7 @@ class SysDmailMaillogRepository extends MainRepository {
     
     public function countSysDmailMaillogPingByMid(int $mid): array|bool {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder
         ->count('*')
         ->from($this->table)
@@ -68,9 +68,21 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return $queryBuilder
         ->select('uid', 'tstamp')
-        ->from('sys_dmail_maillog')
+        ->from($this->table)
         ->where($queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter($responseType, \PDO::PARAM_INT)))
         ->orderBy('tstamp','DESC')
+        ->execute()
+        ->fetchAll();
+    }
+    
+    public function countSysDmailMaillogs(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->count('*')
+        ->from($this->table)
+        ->add('where', 'mid = ' . intval($uid) .
+            ' AND response_type = 0' .
+            ' AND html_sent > 0')
         ->execute()
         ->fetchAll();
     }
