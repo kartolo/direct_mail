@@ -18,6 +18,15 @@
             
 </f:if>
 <table class="table table-striped table-hover">
+    <tr class="t3-row-header">
+        <td>&nbsp;</td>
+        <td><b><f:translate key="{lll}dmail_mailerengine_subject" />&nbsp;&nbsp;</b></td>
+        <td><b><f:translate key="{lll}dmail_mailerengine_scheduled" />&nbsp;&nbsp;</b></td>
+        <td><b><f:translate key="{lll}dmail_mailerengine_delivery_begun" />&nbsp;&nbsp;</b></td>
+        <td><b><f:translate key="{lll}dmail_mailerengine_delivery_ended" />&nbsp;&nbsp;</b></td>
+        <td style="text-align: center;"><b>&nbsp;<f:translate key="{lll}dmail_mailerengine_number_sent" />&nbsp;</b></td>
+        <td style="text-align: center;"><b>&nbsp;<f:translate key="{lll}dmail_mailerengine_delete" />&nbsp;</b></td>
+    </tr>
 <f:format.raw>{mailerEngine}</f:format.raw>
 </table>
 </f:if>
