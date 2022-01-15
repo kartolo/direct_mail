@@ -1336,11 +1336,7 @@ class StatisticsController extends MainController
         $fromInfo = $this->getLanguageService()->getLL('view_replyto') . ' ' . htmlspecialchars($row['replyto_name'] . ' <' . $row['replyto_email'] . '>') . '; ' . LF .
             DirectMailUtility::fName('organisation') . ' ' . htmlspecialchars($row['organisation']) . '; ' . LF .
             DirectMailUtility::fName('return_path') . ' ' . htmlspecialchars($row['return_path']);
-                
-        $mailInfo = DirectMailUtility::fName('priority') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'priority', $row['priority']) . '; ' . LF .
-            DirectMailUtility::fName('encoding') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']) . '; ' . LF .
-            DirectMailUtility::fName('charset') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']);
-            
+
         // count total recipient from the query_info
         $totalRecip = 0;
         $idLists = unserialize($row['query_info']);
@@ -1361,9 +1357,11 @@ class StatisticsController extends MainController
             'type'        => BackendUtility::getProcessedValue('sys_dmail', 'type', $row['type']),
             'dmailData'   => $dmailData,
             'dmailInfo'   => $dmailInfo,
+            'priority'    => BackendUtility::getProcessedValue('sys_dmail', 'priority', $row['priority']),
+            'encoding'    => BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']),
+            'charset'     => BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']),
             'sendOptions' => BackendUtility::getProcessedValue('sys_dmail', 'sendOptions', $row['sendOptions']) . ($row['attachment']?'; ':''),
             'attachment'  => BackendUtility::getProcessedValue('sys_dmail', 'attachment', $row['attachment']),
-            'mailInfo'    => $mailInfo,
             'delBegin'    => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
             'delEnd'      => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
             'totalRecip'  => $totalRecip,

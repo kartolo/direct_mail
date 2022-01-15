@@ -56,7 +56,12 @@
 </f:section>
 
 <f:section name="compactView">
-    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="lll2" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:" />
+    
+    <f:variable name="mailInfo"><f:translate key="{lll2}sys_dmail.priority" /> {row.priority};
+<f:translate key="{lll2}sys_dmail.transfer_encoding" /> {row.encoding};
+<f:translate key="{lll2}sys_dmail.charset" /> {row.charset}</f:variable>
     <h3><f:translate key="{lll}stats_direct_mail" /></h3>
     <table class="table table-striped table-hover">
         <tr class="t3-row-header">
@@ -75,7 +80,7 @@
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_mail" /></td>
             <td>{row.sendOptions}{row.attachment}</td>
-            <td><span title="{row.mailInfo -> f:format.html()}"><f:format.html>{row.iconInfo}</f:format.html></span></td>
+            <td><span title="{mailInfo -> f:format.html()}"><f:format.html>{row.iconInfo}</f:format.html></span></td>
         </tr>
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_delivery_begin_end" /></td>
