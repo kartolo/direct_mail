@@ -61,8 +61,6 @@ if (TYPO3_MODE == 'BE') {
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangDirectMail.xlf',
             ],
-//             'navigationFrameModule' => 'DirectMailNavFrame',
-//             'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_DirectMail'],
         ]
     );
 
@@ -81,8 +79,6 @@ if (TYPO3_MODE == 'BE') {
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangRecipientList.xlf',
             ],
-//             'navigationFrameModule' => 'DirectMailNavFrame',
-//             'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_RecipientList'],
         ]
     );
 
@@ -101,8 +97,6 @@ if (TYPO3_MODE == 'BE') {
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangStatistics.xlf',
             ],
-//             'navigationFrameModule' => 'DirectMailNavFrame',
-//             'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_Statistics'],
         ]
     );
 
@@ -121,8 +115,6 @@ if (TYPO3_MODE == 'BE') {
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangMailerEngine.xlf',
             ],
-//             'navigationFrameModule' => 'DirectMailNavFrame',
-//             'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_MailerEngine'],
         ]
     );
 
@@ -141,8 +133,6 @@ if (TYPO3_MODE == 'BE') {
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangConfiguration.xlf',
             ],
-//             'navigationFrameModule' => 'DirectMailNavFrame',
-//             'navigationFrameModuleParameters' => ['currentModule' => 'DirectMailNavFrame_Configuration'],
         ]
     );
 }
