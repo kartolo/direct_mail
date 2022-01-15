@@ -65,7 +65,7 @@ class MailerEngineController extends MainController
                     $this->view->assignMultiple(
                         [
                             'cronMonitor' => $cronMonitor,
-                            'mailerEngine' => $mailerEngine['data'],
+                            'data' => $mailerEngine['data'],
                             'invoke' => $mailerEngine['invoke'],
                             'moduleUrl' => $mailerEngine['moduleUrl'],
                             'show' => true
@@ -244,33 +244,35 @@ class MailerEngineController extends MainController
             
             $invoke = true;
         }
-        
-        // Display mailer engine status
-        $out = '';
 
+        $data = [];
         $rows = $this->getSysDmails();
         while (($row = $rows->fetchAssociative()) !== false) {
-            $countres = $this->countSysDmailMaillogs($row['uid']);
-            
-            //@TODO
-            foreach($countres as $cRow) {
-                $count = $cRow['COUNT(*)'];
-            }
-            unset($countres);
-            
-            $out .='<tr class="db_list_normal">
-					<td>' . $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '</td>
-					<td>' . $this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)) . '&nbsp;&nbsp;', $row['uid']) . '</td>
-					<td>' . BackendUtility::datetime($row['scheduled']) . '&nbsp;&nbsp;</td>
-					<td>' . ($row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '') . '&nbsp;&nbsp;</td>
-					<td>' . ($row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '') . '&nbsp;&nbsp;</td>
-					<td style="text-align: center;">' . ($count ? $count : '&nbsp;') . '</td>
-					<td style="text-align: center;">' . $this->deleteLink($row['uid']) . '</td>
-				</tr>';
+            $data[] = [
+                'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+                'subject'         => $this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)), $row['uid']),
+                'scheduled'       => BackendUtility::datetime($row['scheduled']),
+                'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
+                'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
+                'sent'            => $this->getSysDmailMaillogsCountres($row['uid']),
+                'delete'          => $this->deleteLink($row['uid'])
+            ];
         }
         unset($rows);
         
-        return ['invoke' => $invoke, 'moduleUrl' => $moduleUrl, 'data' => $out];
+        return ['invoke' => $invoke, 'moduleUrl' => $moduleUrl, 'data' => $data];
+    }
+    
+    private function getSysDmailMaillogsCountres(int $uid): int
+    {
+        $countres = $this->countSysDmailMaillogs($uid);
+        $count = 0;
+        //@TODO
+        foreach($countres as $cRow) {
+            $count = (int)$cRow['COUNT(*)'];
+        }
+        
+        return $count;
     }
     
     /**
