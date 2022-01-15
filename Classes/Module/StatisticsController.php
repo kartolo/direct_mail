@@ -25,11 +25,31 @@ class StatisticsController extends MainController
      */
     protected $moduleName = 'DirectMailNavFrame_Statistics';
     
+    private int $uid = 0;
+    private string $table = '';
+    private array $tables = ['tt_address', 'fe_users'];
+    private bool $recalcCache = false;
+    
+    protected function initStatistics(ServerRequestInterface $request): void {
+        $queryParams = $request->getQueryParams();
+        $parsedBody = $request->getParsedBody();
+        
+        $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
+        
+        $table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
+        if(in_array($table, $this->tables)) {
+            $this->table = (string)($table);
+        }
+        
+        $this->recalcCache = (bool)($parsedBody['recalcCache'] ?? $queryParams['recalcCache'] ?? false);
+    }
+    
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('Statistics');
         
         $this->init($request);
+        $this->initStatistics($request);
         
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $module = $this->getModulName();
@@ -153,16 +173,15 @@ class StatisticsController extends MainController
      */
     protected function displayUserInfo()
     {
-        $uid = intval(GeneralUtility::_GP('uid'));
+        $uid = $this->uid;
+        $table = $this->table;
         $indata = GeneralUtility::_GP('indata');
-        $table = GeneralUtility::_GP('table');
-        
+
         $mmTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
         
         if (GeneralUtility::_GP('submit')) {
-            $indata = GeneralUtility::_GP('indata');
             if (!$indata) {
-                $indata['html']= 0;
+                $indata['html'] = 0;
             }
         }
         
@@ -301,7 +320,7 @@ class StatisticsController extends MainController
      */
     protected function stats($row)
     {
-        if (GeneralUtility::_GP('recalcCache')) {
+        if ($this->recalcCache) {
             $this->makeStatTempTableContent($row);
         }
         
