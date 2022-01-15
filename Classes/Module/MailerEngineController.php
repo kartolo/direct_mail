@@ -101,7 +101,6 @@ class MailerEngineController extends MainController
      */
     public function cronMonitor()
     {
-        $content = '';
         $mailerStatus = 0;
         $lastExecutionTime = 0;
         $logContent = '';
