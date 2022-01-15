@@ -3,10 +3,22 @@
 <f:section name="content">
 <f:flashMessages />
 <f:if condition="{show}">
-<h1><f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:header_mailer" /></h1>
+<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+<h1><f:translate key="{lll}header_mailer" /></h1>
 <f:format.raw>{cronMonitor}</f:format.raw>
+<h3><f:translate key="{lll}dmail_mailerengine_status" /></h3>
+
+<f:if condition="{invoke}">
+<h3><f:translate key="{lll}dmail_mailerengine_manual_invoke" /></h3>
+<p>
+    <f:translate key="{lll}dmail_mailerengine_manual_explain" /><br /><br />
+    <a class="t3-link" href="{moduleUrl}"><strong><f:translate key="{lll}dmail_mailerengine_invoke_now" /></strong></a>
+</p>
+<div style="padding-top: 20px;"></div>
+            
+</f:if>
+<table class="table table-striped table-hover">
 <f:format.raw>{mailerEngine}</f:format.raw>
-<form action="" method="post" name="dmailform" enctype="multipart/form-data">
-</form>
+</table>
 </f:if>
 </f:section>

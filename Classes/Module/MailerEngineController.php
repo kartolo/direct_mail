@@ -61,11 +61,13 @@ class MailerEngineController extends MainController
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $cronMonitor = $this->cronMonitor();
                     $mailerEngine = $this->mailerengine();
-                    
+
                     $this->view->assignMultiple(
                         [
                             'cronMonitor' => $cronMonitor,
-                            'mailerEngine' => $mailerEngine,
+                            'mailerEngine' => $mailerEngine['data'],
+                            'invoke' => $mailerEngine['invoke'],
+                            'moduleUrl' => $mailerEngine['moduleUrl'],
                             'show' => true
                         ]
                     );
@@ -218,7 +220,8 @@ class MailerEngineController extends MainController
      */
     public function mailerengine()
     {
-        $invokeMessage = '';
+        $invoke = false;
+        $moduleUrl = '';
         
         // enable manual invocation of mailer engine; enabled by default
         $enableTrigger = ! (isset($this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']) && $this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']);
@@ -238,12 +241,8 @@ class MailerEngineController extends MainController
                     'invokeMailerEngine' => 1
                 ]
             );
-
-            $invokeMessage .= '<h3>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_invoke') . '</h3>' .
-                '<p>' . $this->getLanguageService()->getLL('dmail_mailerengine_manual_explain') . '<br /><br />' .
-                '<a class="t3-link" href="' . $moduleUrl . '"><strong>' . $this->getLanguageService()->getLL('dmail_mailerengine_invoke_now') . '</strong></a>'.
-                '</p>';
-            $invokeMessage .= '<div style="padding-top: 20px;"></div>';
+            
+            $invoke = true;
         }
         
         // Display mailer engine status
@@ -278,8 +277,8 @@ class MailerEngineController extends MainController
 				</tr>';
         }
         unset($rows);
-        $out = $invokeMessage . '<table class="table table-striped table-hover">' . $out . '</table>';
-        return '<h3>' .  $this->getLanguageService()->getLL('dmail_mailerengine_status') .'</h3>' . $out;
+        
+        return ['invoke' => $invoke, 'moduleUrl' => $moduleUrl, 'data' => $out];
     }
     
     /**
