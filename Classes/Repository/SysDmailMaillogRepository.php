@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-#use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SysDmailMaillogRepository extends MainRepository {
@@ -60,6 +59,18 @@ class SysDmailMaillogRepository extends MainRepository {
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
+        ->execute()
+        ->fetchAll();
+    }
+    
+    public function selectByResponseType(int $responseType): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+        ->select('uid', 'tstamp')
+        ->from('sys_dmail_maillog')
+        ->where($queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter($responseType, \PDO::PARAM_INT)))
+        ->orderBy('tstamp','DESC')
         ->execute()
         ->fetchAll();
     }

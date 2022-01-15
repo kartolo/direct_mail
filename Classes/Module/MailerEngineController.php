@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Dmailer;
+use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -124,15 +125,8 @@ class MailerEngineController extends MainController
          * cron running or error (die function in dmailer_log)
          */
         if (file_exists($this->getDmailerLockFilePath())) {
-            $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
 
-            $res = $queryBuilder
-            ->select('uid', 'tstamp')
-            ->from('sys_dmail_maillog')
-            ->where($queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter(0)))
-            ->orderBy('tstamp','DESC')
-            ->execute()
-            ->fetchAll();
+            $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectByResponseType(0);
 
             foreach($res as $lastSend) {
                 if (($lastSend['tstamp'] < time()) && ($lastSend['tstamp'] > $lastCronjobShouldBeNewThan)) {
