@@ -264,23 +264,23 @@ class MailerEngineController extends MainController
      */
     public function deleteLink($uid)
     {
-        $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
         
         // show delete icon if newsletter hasn't been sent, or not yet finished sending
         if (!($dmail['scheduled_begin']) ||
             ($dmail['scheduled_begin'] && $dmail['scheduled_end'] === 0)) {
-                $moduleUrl = $this->buildUriFromRoute(
-                    $this->moduleName,
-                    [
-                        'id' => $this->id,
-                        'uid' => $uid,
-                        'cmd' => 'delete'
-                    ]
-                );
-                return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
-            }
-            return '';
+            $moduleUrl = $this->buildUriFromRoute(
+                $this->moduleName,
+                [
+                    'id' => $this->id,
+                    'uid' => $uid,
+                    'cmd' => 'delete'
+                ]
+            );
+            $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
+            return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
+        }
+        return '';
     }
     
     /**
