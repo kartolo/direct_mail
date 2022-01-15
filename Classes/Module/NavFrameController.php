@@ -78,7 +78,7 @@ class NavFrameController extends MainController
         $this->setDocHeader('index');
         
         //$this->moduleTemplate->addJavaScriptCode($this->getJS($currentModule, $currentSubScript));
-        $this->pageRenderer->addJsInlineCode($currentModule, $this->getJS($currentModule, $currentSubScript));
+        $this->pageRenderer->addJsInlineCode($currentModule, $this->getJSNavFrame($currentModule, $currentSubScript));
             
         $this->view->assignMultiple(
             [
@@ -93,7 +93,7 @@ class NavFrameController extends MainController
         return new HtmlResponse($this->moduleTemplate->renderContent());
     }
     
-    protected function getJS($currentModule, $currentSubScript) {
+    protected function getJSNavFrame($currentModule, $currentSubScript) {
         // @TODO Uncaught Error: Writing to fsMod is not possible anymore, use ModuleStateStorage instead.
         // https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/11.4/Deprecation-94762-DeprecateJavaScriptTopfsModState.html
         // https://github.com/typo3/typo3/commit/ca4afee813
