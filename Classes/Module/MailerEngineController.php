@@ -7,7 +7,6 @@ use DirectMailTeam\DirectMail\Dmailer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
@@ -48,7 +47,7 @@ class MailerEngineController extends MainController
         
         $this->init($request);
         $this->initMailerEngine($request);
-        
+
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $module = $this->getModulName();
 
@@ -59,8 +58,8 @@ class MailerEngineController extends MainController
 
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
-                    $cronMonitor = $this->cmd_cronMonitor();
-                    $mailerEngine = $this->cmd_mailerengine();
+                    $cronMonitor = $this->cronMonitor();
+                    $mailerEngine = $this->mailerengine();
                     
                     $this->view->assignMultiple(
                         [
@@ -99,7 +98,7 @@ class MailerEngineController extends MainController
      *
      * @return	string		status of the cronjob in HTML Tableformat
      */
-    public function cmd_cronMonitor()
+    public function cronMonitor()
     {
         $content = '';
         $mailerStatus = 0;
@@ -108,10 +107,9 @@ class MailerEngineController extends MainController
         $error = '';
         
         // seconds
-        $cronInterval = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronInt'] * 60;
+        $cronInterval = $this->getValueFromTYPO3_CONF_VARS('cronInt') * 60;
         $lastCronjobShouldBeNewThan = (time() - $cronInterval);
-        
-        $filename = Environment::getPublicPath() . '/typo3temp/tx_directmail_dmailer_log.txt';
+        $filename = $this->getDmailerLogFilePath();
         if (file_exists($filename)) {
             $logContent = file_get_contents($filename);
             $lastExecutionTime = substr($logContent, 0, 10);
@@ -122,10 +120,10 @@ class MailerEngineController extends MainController
          * 	1 = ok
          * 	0 = check
          * 	-1 = cron stopped
+         * 
+         * cron running or error (die function in dmailer_log)
          */
-
-        // cron running or error (die function in dmailer_log)
-        if (file_exists(Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock')) {
+        if (file_exists($this->getDmailerLockFilePath())) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
 
             $res = $queryBuilder
@@ -225,7 +223,7 @@ class MailerEngineController extends MainController
      * @return	string		List of the mailing status
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    public function cmd_mailerengine()
+    public function mailerengine()
     {
         $invokeMessage = '';
         

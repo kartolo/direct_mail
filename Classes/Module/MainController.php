@@ -8,6 +8,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -189,6 +190,11 @@ class MainController {
         return $GLOBALS['BE_USER']->getTSConfig();
     }
 
+    protected function getValueFromTYPO3_CONF_VARS(string $name)
+    {
+        return $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail'][$name] ?? 0;
+    }
+    
     protected function getConnection(string $table): Connection
     {
         return GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
@@ -207,6 +213,21 @@ class MainController {
             $name,
             $parameters
         );
+    }
+    
+    protected function getTempPath(): string
+    {
+        return Environment::getPublicPath() . '/typo3temp/';
+    }
+    
+    protected function getDmailerLogFilePath(): string
+    {
+        return $this->getTempPath() . 'tx_directmail_dmailer_log.txt';
+    }
+    
+    protected function getDmailerLockFilePath(): string
+    {
+        return $this->getTempPath() . 'tx_directmail_cron.lock';
     }
     
     protected function getJS($sys_dmail_uid) 
