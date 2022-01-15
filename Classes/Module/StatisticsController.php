@@ -1332,10 +1332,6 @@ class StatisticsController extends MainController
         
         $dmailInfo .= $this->getLanguageService()->getLL('view_media') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'includeMedia', $row['includeMedia']) . '; ' . LF .
         $this->getLanguageService()->getLL('view_flowed') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'flowedFormat', $row['flowedFormat']);
-            
-        $fromInfo = $this->getLanguageService()->getLL('view_replyto') . ' ' . htmlspecialchars($row['replyto_name'] . ' <' . $row['replyto_email'] . '>') . '; ' . LF .
-            DirectMailUtility::fName('organisation') . ' ' . htmlspecialchars($row['organisation']) . '; ' . LF .
-            DirectMailUtility::fName('return_path') . ' ' . htmlspecialchars($row['return_path']);
 
         // count total recipient from the query_info
         $totalRecip = 0;
@@ -1348,24 +1344,27 @@ class StatisticsController extends MainController
         $sentRecip = count($res);
         
         $data = [
-            'icon'        => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-            'iconInfo'    => $this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL)->render(),
-            'subject'     => htmlspecialchars($row['subject']),
-            'from_name'   => htmlspecialchars($row['from_name']),
-            'from_email'  => htmlspecialchars($row['from_email']),
-            'fromInfo'    => $fromInfo,
-            'type'        => BackendUtility::getProcessedValue('sys_dmail', 'type', $row['type']),
-            'dmailData'   => $dmailData,
-            'dmailInfo'   => $dmailInfo,
-            'priority'    => BackendUtility::getProcessedValue('sys_dmail', 'priority', $row['priority']),
-            'encoding'    => BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']),
-            'charset'     => BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']),
-            'sendOptions' => BackendUtility::getProcessedValue('sys_dmail', 'sendOptions', $row['sendOptions']) . ($row['attachment']?'; ':''),
-            'attachment'  => BackendUtility::getProcessedValue('sys_dmail', 'attachment', $row['attachment']),
-            'delBegin'    => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
-            'delEnd'      => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
-            'totalRecip'  => $totalRecip,
-            'sentRecip'   => $sentRecip
+            'icon'          => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+            'iconInfo'      => $this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL)->render(),
+            'subject'       => htmlspecialchars($row['subject']),
+            'from_name'     => htmlspecialchars($row['from_name']),
+            'from_email'    => htmlspecialchars($row['from_email']),
+            'replyto_name'  => htmlspecialchars($row['replyto_name']),
+            'replyto_email' => htmlspecialchars($row['replyto_email']),
+            'type'          => BackendUtility::getProcessedValue('sys_dmail', 'type', $row['type']),
+            'dmailData'     => $dmailData,
+            'dmailInfo'     => $dmailInfo,
+            'priority'      => BackendUtility::getProcessedValue('sys_dmail', 'priority', $row['priority']),
+            'encoding'      => BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']),
+            'charset'       => BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']),
+            'sendOptions'   => BackendUtility::getProcessedValue('sys_dmail', 'sendOptions', $row['sendOptions']) . ($row['attachment']?'; ':''),
+            'attachment'    => BackendUtility::getProcessedValue('sys_dmail', 'attachment', $row['attachment']),
+            'delBegin'      => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
+            'delEnd'        => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
+            'totalRecip'    => $totalRecip,
+            'sentRecip'     => $sentRecip,
+            'organisation'  => htmlspecialchars($row['organisation']),
+            'return_path'   => htmlspecialchars($row['return_path'])
         ];
         return $data;
     }
