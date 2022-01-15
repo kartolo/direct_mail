@@ -86,4 +86,16 @@ class SysDmailMaillogRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+    
+    public function selectSysDmailMaillogsCompactView(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->select('uid')
+        ->from($this->table)
+        ->add('where', 'mid=' . intval($uid) . 
+            ' AND response_type = 0')
+        ->orderBy('rid','ASC')
+        ->execute()
+        ->fetchAll();
+    }
 }

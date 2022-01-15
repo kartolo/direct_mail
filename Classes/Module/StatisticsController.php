@@ -333,8 +333,9 @@ class StatisticsController extends MainController
                 'recalcCache' => 1
             ]
         );
-        $output = $this->directMail_compactView($row);
-        
+
+        $output = '';
+        $compactView = $this->directMail_compactView($row);
         // *****************************
         // Mail responses, general:
         // *****************************
@@ -351,8 +352,7 @@ class StatisticsController extends MainController
         $table = $this->getQueryRows($queryArray, 'response_type');
         
         // Plaintext/HTML       
-        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)
-        ->countSysDmailMaillogAllByMid($mailingId);
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogAllByMid($mailingId);
 
         /* this function is called to change the key from 'COUNT(*)' to 'counter' */
         $res = $this->changekeyname($res,'counter','COUNT(*)');
@@ -364,18 +364,15 @@ class StatisticsController extends MainController
         }
         
         // Unique responses, html
-        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)
-        ->countSysDmailMaillogHtmlByMid($mailingId);
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogHtmlByMid($mailingId);
         $uniqueHtmlResponses = count($res);//sql_num_rows($res);
         
         // Unique responses, Plain
-        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)
-        ->countSysDmailMaillogPlainByMid($mailingId);
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogPlainByMid($mailingId);
         $uniquePlainResponses = count($res); //sql_num_rows($res);
         
         // Unique responses, pings
-        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)
-        ->countSysDmailMaillogPingByMid($mailingId);
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogPingByMid($mailingId);
         $uniquePingResponses = count($res); //sql_num_rows($res);
         
         $tblLines = [];
@@ -540,7 +537,14 @@ class StatisticsController extends MainController
         reset($urlCounter['total']);
         
         $tblLines = [];
-        $tblLines[] = ['',$this->getLanguageService()->getLL('stats_HTML_link_nr'),$this->getLanguageService()->getLL('stats_plaintext_link_nr'),$this->getLanguageService()->getLL('stats_total'),$this->getLanguageService()->getLL('stats_HTML'),$this->getLanguageService()->getLL('stats_plaintext'),''];
+        $tblLines[] = [
+            '',
+            $this->getLanguageService()->getLL('stats_HTML_link_nr'),
+            $this->getLanguageService()->getLL('stats_plaintext_link_nr'),
+            $this->getLanguageService()->getLL('stats_total'),$this->getLanguageService()->getLL('stats_HTML'),
+            $this->getLanguageService()->getLL('stats_plaintext'),
+            ''
+        ];
         
         // HTML mails
         if (intval($row['sendOptions']) & 0x2) {
@@ -960,24 +964,24 @@ class StatisticsController extends MainController
                 }
                 if (GeneralUtility::_GP('fullDisable')) {
                     if (is_array($idLists['tt_address'])) {
-                        $c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                        $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
                         $output.='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                     }
                     if (is_array($idLists['fe_users'])) {
-                        $c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                        $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
                         $output.='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                     }
                 }
                 if (GeneralUtility::_GP('fullCSV')) {
                     $emails=[];
                     if (is_array($idLists['tt_address'])) {
-                        $arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                        $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                         foreach ($arr as $v) {
                             $emails[]=$v['email'];
                         }
                     }
                     if (is_array($idLists['fe_users'])) {
-                        $arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                        $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                         foreach ($arr as $v) {
                             $emails[]=$v['email'];
                         }
@@ -1231,12 +1235,12 @@ class StatisticsController extends MainController
         
         $this->noView = 1;
         // put all the stats tables in a section
-        $theOutput = '<h3>' . $this->getLanguageService()->getLL('stats_direct_mail') .'</h3>' . $output;
+        $theOutput = $output;
         $theOutput .= '<div style="padding-top: 20px;"></div>';
         
         $theOutput .= '<h3>' . $this->getLanguageService()->getLL('stats_recalculate_cached_data') . '</h3>' .
             '<p><a style="text-decoration: underline;" href="' . $thisurl . '">' . $this->getLanguageService()->getLL('stats_recalculate_stats') . '</a></p>';
-        return $theOutput;
+        return ['out' => $theOutput, 'compactView' => $compactView];
     }
     
     /**
@@ -1323,72 +1327,49 @@ class StatisticsController extends MainController
         } else {
             $page = BackendUtility::getRecord('pages', $row['page'], 'title');
             $dmailData = $row['page'] . ', ' . htmlspecialchars($page['title']);
-            
             $dmailInfo = DirectMailUtility::fName('plainParams') . ' ' . htmlspecialchars($row['plainParams'] . LF . DirectMailUtility::fName('HTMLParams') . $row['HTMLParams']) . '; ' . LF;
         }
         
         $dmailInfo .= $this->getLanguageService()->getLL('view_media') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'includeMedia', $row['includeMedia']) . '; ' . LF .
         $this->getLanguageService()->getLL('view_flowed') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'flowedFormat', $row['flowedFormat']);
-        
-        $dmailInfo = '<span title="' . $dmailInfo . '">' .
-            $this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL) .
-            '</span>';
             
         $fromInfo = $this->getLanguageService()->getLL('view_replyto') . ' ' . htmlspecialchars($row['replyto_name'] . ' <' . $row['replyto_email'] . '>') . '; ' . LF .
             DirectMailUtility::fName('organisation') . ' ' . htmlspecialchars($row['organisation']) . '; ' . LF .
             DirectMailUtility::fName('return_path') . ' ' . htmlspecialchars($row['return_path']);
-        $fromInfo = '<span title="' . $fromInfo . '">' .
-                $this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL) .
-                '</span>';
                 
-                $mailInfo = DirectMailUtility::fName('priority') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'priority', $row['priority']) . '; ' . LF .
-                DirectMailUtility::fName('encoding') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']) . '; ' . LF .
-                DirectMailUtility::fName('charset') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']);
-        $mailInfo = '<span title="' . $mailInfo . '">' .
-            $this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL) .
-            '</span>';
+        $mailInfo = DirectMailUtility::fName('priority') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'priority', $row['priority']) . '; ' . LF .
+            DirectMailUtility::fName('encoding') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']) . '; ' . LF .
+            DirectMailUtility::fName('charset') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']);
             
-            $delBegin = ($row['scheduled_begin']?BackendUtility::datetime($row['scheduled_begin']):'-');
-            $delEnd = ($row['scheduled_end']?BackendUtility::datetime($row['scheduled_begin']):'-');
-            
-            // count total recipient from the query_info
-            $totalRecip = 0;
-            $idLists = unserialize($row['query_info']);
-            foreach ($idLists['id_lists'] as $idArray) {
-                $totalRecip += count($idArray);
-            }
+        // count total recipient from the query_info
+        $totalRecip = 0;
+        $idLists = unserialize($row['query_info']);
+        foreach ($idLists['id_lists'] as $idArray) {
+            $totalRecip += count($idArray);
+        }
         
-        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
-        $res = $queryBuilder->select('*')
-        ->from('sys_dmail_maillog')
-        ->add('where', 'mid=' . $row['uid'] . ' AND response_type = 0')
-        ->orderBy('rid','ASC')
-        ->execute()
-        ->fetchAll();
-        
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectSysDmailMaillogsCompactView($row['uid']);
         $sentRecip = count($res);
-                    
-        $out = '<table class="table table-striped table-hover">';
-        $out .= '<tr class="t3-row-header"><td colspan="3">' . $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . htmlspecialchars($row['subject']) . '</td></tr>';
-        $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_from') . '</td>' .
-            '<td>' . htmlspecialchars($row['from_name'] . ' <' . htmlspecialchars($row['from_email']) . '>') . '</td>' .
-            '<td>' . $fromInfo . '</td></tr>';
-        $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_dmail') . '</td>' .
-            '<td>' . BackendUtility::getProcessedValue('sys_dmail', 'type', $row['type']) . ': ' . $dmailData . '</td>' .
-            '<td>' . $dmailInfo . '</td></tr>';
-        $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_mail') . '</td>' .
-            '<td>' . BackendUtility::getProcessedValue('sys_dmail', 'sendOptions', $row['sendOptions']) . ($row['attachment']?'; ':'') . BackendUtility::getProcessedValue('sys_dmail', 'attachment', $row['attachment']) . '</td>' .
-            '<td>' . $mailInfo . '</td></tr>';
-        $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_delivery_begin_end') . '</td>' .
-            '<td>' . $delBegin . ' / ' . $delEnd . '</td>' .
-            '<td>&nbsp;</td></tr>';
-        $out .= '<tr class="db_list_normal"><td>' . $this->getLanguageService()->getLL('view_recipient_total_sent') . '</td>' .
-            '<td>' . $totalRecip . ' / ' . $sentRecip . '</td>' .
-            '<td>&nbsp;</td></tr>';
-        $out .= '</table>';
-        $out .= '<div style="padding-top: 5px;"></div>';
         
-        return $out;
+        $data = [
+            'icon'        => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+            'iconInfo'    => $this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL)->render(),
+            'subject'     => htmlspecialchars($row['subject']),
+            'from_name'   => htmlspecialchars($row['from_name']),
+            'from_email'  => htmlspecialchars($row['from_email']),
+            'fromInfo'    => $fromInfo,
+            'type'        => BackendUtility::getProcessedValue('sys_dmail', 'type', $row['type']),
+            'dmailData'   => $dmailData,
+            'dmailInfo'   => $dmailInfo,
+            'sendOptions' => BackendUtility::getProcessedValue('sys_dmail', 'sendOptions', $row['sendOptions']) . ($row['attachment']?'; ':''),
+            'attachment'  => BackendUtility::getProcessedValue('sys_dmail', 'attachment', $row['attachment']),
+            'mailInfo'    => $mailInfo,
+            'delBegin'    => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
+            'delEnd'      => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
+            'totalRecip'  => $totalRecip,
+            'sentRecip'   => $sentRecip
+        ];
+        return $data;
     }
     
     /**
