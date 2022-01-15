@@ -1329,9 +1329,6 @@ class StatisticsController extends MainController
             $dmailData = $row['page'] . ', ' . htmlspecialchars($page['title']);
             $dmailInfo = DirectMailUtility::fName('plainParams') . ' ' . htmlspecialchars($row['plainParams'] . LF . DirectMailUtility::fName('HTMLParams') . $row['HTMLParams']) . '; ' . LF;
         }
-        
-        $dmailInfo .= $this->getLanguageService()->getLL('view_media') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'includeMedia', $row['includeMedia']) . '; ' . LF .
-        $this->getLanguageService()->getLL('view_flowed') . ' ' . BackendUtility::getProcessedValue('sys_dmail', 'flowedFormat', $row['flowedFormat']);
 
         // count total recipient from the query_info
         $totalRecip = 0;
@@ -1356,8 +1353,10 @@ class StatisticsController extends MainController
             'priority'      => BackendUtility::getProcessedValue('sys_dmail', 'priority', $row['priority']),
             'encoding'      => BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']),
             'charset'       => BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']),
-            'sendOptions'   => BackendUtility::getProcessedValue('sys_dmail', 'sendOptions', $row['sendOptions']) . ($row['attachment']?'; ':''),
+            'sendOptions'   => BackendUtility::getProcessedValue('sys_dmail', 'sendOptions', $row['sendOptions']) . ($row['attachment'] ? '; ' : ''),
             'attachment'    => BackendUtility::getProcessedValue('sys_dmail', 'attachment', $row['attachment']),
+            'flowedFormat'  => BackendUtility::getProcessedValue('sys_dmail', 'flowedFormat', $row['flowedFormat']),
+            'includeMedia'  => BackendUtility::getProcessedValue('sys_dmail', 'includeMedia', $row['includeMedia']),
             'delBegin'      => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
             'delEnd'        => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
             'totalRecip'    => $totalRecip,

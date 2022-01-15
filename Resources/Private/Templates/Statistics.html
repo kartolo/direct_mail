@@ -63,6 +63,10 @@
 <f:translate key="{lll2}sys_dmail.transfer_encoding" /> {row.encoding};
 <f:translate key="{lll2}sys_dmail.charset" /> {row.charset}</f:variable>
 
+    <f:variable name="dmailInfo">{row.dmailInfo}<f:translate key="{lll}view_media" /> {row.includeMedia};
+<f:translate key="{lll}view_flowed" /> {row.flowedFormat}
+</f:variable>
+
     <f:variable name="fromInfo"><f:translate key="{lll}view_replyto" /> {row.replyto_name} &lt;{row.replyto_email}&gt;;
 <f:translate key="{lll2}sys_dmail.organisation" /> {row.organisation};
 <f:translate key="{lll2}sys_dmail.return_path" /> {row.return_path}
@@ -81,7 +85,7 @@
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_dmail" /></td>
             <td>{row.type} : {row.dmailData}</td>
-            <td><span title="{row.dmailInfo -> f:format.html()}"><f:format.html>{row.iconInfo}</f:format.html></span></td>
+            <td><span title="{dmailInfo -> f:format.html()}"><f:format.html>{row.iconInfo}</f:format.html></span></td>
         </tr>
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_mail" /></td>
