@@ -1312,6 +1312,21 @@ class StatisticsController extends MainController
     }
     
     /**
+     * count total recipient from the query_info
+     */
+    protected function countTotalRecipientFromQueryInfo(string $queryInfo): int
+    {
+        $totalRecip = 0;
+        $idLists = unserialize($queryInfo);
+        if(is_array($idLists)) {
+            foreach ($idLists['id_lists'] as $idArray) {
+                $totalRecip += count($idArray);
+            }
+        }
+        return $totalRecip;
+    }
+    
+    /**
      * Show the compact information of a direct mail record
      *
      * @param array $row Direct mail record
@@ -1330,13 +1345,6 @@ class StatisticsController extends MainController
             $dmailInfo = DirectMailUtility::fName('plainParams') . ' ' . htmlspecialchars($row['plainParams'] . LF . DirectMailUtility::fName('HTMLParams') . $row['HTMLParams']) . '; ' . LF;
         }
 
-        // count total recipient from the query_info
-        $totalRecip = 0;
-        $idLists = unserialize($row['query_info']);
-        foreach ($idLists['id_lists'] as $idArray) {
-            $totalRecip += count($idArray);
-        }
-        
         $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectSysDmailMaillogsCompactView($row['uid']);
         
         $data = [
@@ -1359,7 +1367,7 @@ class StatisticsController extends MainController
             'includeMedia'  => BackendUtility::getProcessedValue('sys_dmail', 'includeMedia', $row['includeMedia']),
             'delBegin'      => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
             'delEnd'        => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
-            'totalRecip'    => $totalRecip,
+            'totalRecip'    => $this->countTotalRecipientFromQueryInfo($row['query_info']),
             'sentRecip'     => count($res),
             'organisation'  => htmlspecialchars($row['organisation']),
             'return_path'   => htmlspecialchars($row['return_path'])
