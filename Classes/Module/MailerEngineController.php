@@ -127,16 +127,16 @@ class MailerEngineController extends MainController
          * cron running or error (die function in dmailer_log)
          */
         if (file_exists($this->getDmailerLockFilePath())) {
-
             $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectByResponseType(0);
-
-            foreach($res as $lastSend) {
-                if (($lastSend['tstamp'] < time()) && ($lastSend['tstamp'] > $lastCronjobShouldBeNewThan)) {
-                    // cron is sending
-                    $mailerStatus = 1;
-                } else {
-                    // there's lock file but cron is not sending
-                    $mailerStatus = -1;
+            if(is_array($res)) {
+                foreach($res as $lastSend) {
+                    if (($lastSend['tstamp'] < time()) && ($lastSend['tstamp'] > $lastCronjobShouldBeNewThan)) {
+                        // cron is sending
+                        $mailerStatus = 1;
+                    } else {
+                        // there's lock file but cron is not sending
+                        $mailerStatus = -1;
+                    }
                 }
             }
             // cron is idle or no cron
