@@ -1341,7 +1341,6 @@ class StatisticsController extends MainController
         }
         
         $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectSysDmailMaillogsCompactView($row['uid']);
-        $sentRecip = count($res);
         
         $data = [
             'icon'          => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
@@ -1362,7 +1361,7 @@ class StatisticsController extends MainController
             'delBegin'      => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
             'delEnd'        => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
             'totalRecip'    => $totalRecip,
-            'sentRecip'     => $sentRecip,
+            'sentRecip'     => count($res),
             'organisation'  => htmlspecialchars($row['organisation']),
             'return_path'   => htmlspecialchars($row['return_path'])
         ];
