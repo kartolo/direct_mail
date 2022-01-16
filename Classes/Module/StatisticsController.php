@@ -6,6 +6,8 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
+use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
+use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -216,45 +218,18 @@ class StatisticsController extends MainController
                 // do nothing
         }
         
-        switch ($table) {
+        switch ($this->table) {
             case 'tt_address':
-                $queryBuilder = $this->getQueryBuilder('sys_language');
-                $res = $queryBuilder
-                ->select('tt_address.*')
-                ->from('tt_address','tt_address')
-                ->leftjoin(
-                    'tt_address',
-                    'pages',
-                    'pages',
-                    $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('tt_address.pid'))
-                    )
-                    ->add('where','tt_address.uid=' . intval($uid) .
-                        ' AND ' . $this->perms_clause . ' AND pages.deleted = 0')
-                        ->execute();
-                        break;
+                $rows = GeneralUtility::makeInstance(TtAddressRepository::class)->selectTtAddressByUid($this->uid, $this->perms_clause);
+                break;
             case 'fe_users':
-                $queryBuilder = $this->getQueryBuilder('fe_users');
-                $res = $queryBuilder
-                ->select('fe_users.*')
-                ->from('fe_users','fe_users')
-                ->leftjoin(
-                    'fe_users',
-                    'pages',
-                    'pages',
-                    $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('fe_users.pid'))
-                    )
-                    ->add('where','fe_users.uid=' . intval($uid) .
-                        ' AND ' . $this->perms_clause . ' AND pages.deleted = 0')
-                        ->execute();
-                        break;
+                $rows = GeneralUtility::makeInstance(FeUsersRepository::class)->selectFeUsersByUid($this->uid, $this->perms_clause);
+                break;
             default:
                 // do nothing
         }
         
-        $row = [];
-        if ($res) {
-            $row = $res->fetch();
-        }
+        $row = $rows[0] ?? [];
         
         $theOutput = '';
         if (is_array($row)) {
@@ -794,10 +769,10 @@ class StatisticsController extends MainController
                 while (($rrow = $res->fetch())) {
                     switch ($rrow['rtbl']) {
                         case 't':
-                            $idLists['tt_address'][]=$rrow['rid'];
+                            $idLists['tt_address'][] = $rrow['rid'];
                             break;
                         case 'f':
-                            $idLists['fe_users'][]=$rrow['rid'];
+                            $idLists['fe_users'][] = $rrow['rid'];
                             break;
                         case 'P':
                             $idLists['PLAINLIST'][] = $rrow['email'];
@@ -936,16 +911,16 @@ class StatisticsController extends MainController
                 while (($rrow = $res->fetch())) {
                     switch ($rrow['rtbl']) {
                         case 't':
-                            $idLists['tt_address'][]=$rrow['rid'];
+                            $idLists['tt_address'][] = $rrow['rid'];
                             break;
                         case 'f':
-                            $idLists['fe_users'][]=$rrow['rid'];
+                            $idLists['fe_users'][] = $rrow['rid'];
                             break;
                         case 'P':
                             $idLists['PLAINLIST'][] = $rrow['email'];
                             break;
                         default:
-                            $idLists[$rrow['rtbl']][]=$rrow['rid'];
+                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
                     }
                 }
                 
