@@ -50,11 +50,53 @@
     <div style="padding-top: 20px;"></div>
 </f:section>
 
+<f:section name="table">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr class="t3-row-header">
+                <f:for each="{table.head}" as="head">
+                    <th>
+                       <f:if condition="{head}"><f:translate key="{lll}{head}" /></f:if>
+                    </th>
+                </f:for>
+            </tr>
+        </thead>
+        <tbody>
+            <f:for each="{table.body}" as="body">
+                <tr>
+                    <f:for each="{body}" as="cell" iteration="fooIterator">
+                        <td>
+                        <f:if condition="{fooIterator.cycle} == 1">
+                            <f:then>
+                                <f:if condition="{cell} != ''"><f:translate key="{lll}{cell}" /></f:if>
+                            </f:then>
+                            <f:else>{cell}</f:else>
+                        </f:if>
+                        </td>
+                    </f:for>
+                </tr>
+            </f:for>
+        </tbody>
+    </table>
+</f:section>
+
 <f:section name="dataStats">
-    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <f:render section="compactView" arguments="{row:dataStats.compactView}" />
     <br />
-    <h2><f:translate key="{lll}stats_general_information" /></h2>
+    
+    <f:if condition="{dataStats.tables.1}">
+        <h2><f:translate key="{lll}stats_general_information" /></h2>
+        <f:render section="table" arguments="{table:dataStats.tables.1}" />
+    </f:if>
+    
+    <f:if condition="{dataStats.tables.2}">
+        <br />
+        <h2><f:translate key="{lll}stats_response" /></h2>
+        <f:render section="table" arguments="{table:dataStats.tables.2}" />
+    </f:if>
+
     <f:format.raw>{dataStats.out}</f:format.raw>
     <div style="padding-top: 20px;"></div>
     <h3><f:translate key="{lll}stats_recalculate_cached_data" /></h3>

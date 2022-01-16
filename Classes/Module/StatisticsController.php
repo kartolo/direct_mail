@@ -283,6 +283,85 @@ class StatisticsController extends MainController
         return $data;
     }
     
+    protected function mailResponsesGeneral(int $mailingId): array {
+        $fieldRows = 'response_type';
+        $addFieldRows = '*';
+        $tableRows =  'sys_dmail_maillog';
+        $whereRows = 'mid=' . $mailingId;
+        $groupByRows = 'response_type';
+        $orderByRows = '';
+        $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
+        
+        $table = $this->getQueryRows($queryArray, 'response_type');
+        
+        // Plaintext/HTML
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogAllByMid($mailingId);
+        
+        /* this function is called to change the key from 'COUNT(*)' to 'counter' */
+        $res = $this->changekeyname($res,'counter','COUNT(*)');
+        
+        $textHtml = [];
+        foreach($res as $row2){
+            // 0:No mail; 1:HTML; 2:TEXT; 3:HTML+TEXT
+            $textHtml[$row2['html_sent']] = $row2['counter'];
+        }
+        
+        // Unique responses, html
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogHtmlByMid($mailingId);
+        $uniqueHtmlResponses = count($res);//sql_num_rows($res);
+        
+        // Unique responses, Plain
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogPlainByMid($mailingId);
+        $uniquePlainResponses = count($res); //sql_num_rows($res);
+        
+        // Unique responses, pings
+        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogPingByMid($mailingId);
+        $uniquePingResponses = count($res); //sql_num_rows($res);
+        
+        $totalSent = intval(($textHtml['1'] ?? 0) + ($textHtml['2'] ?? 0) + ($textHtml['3'] ?? 0));
+        $htmlSent  = intval(($textHtml['1'] ?? 0) + ($textHtml['3'] ?? 0));
+        $plainSent = intval(($textHtml['2'] ?? 0));
+        
+        return [
+            'table' => [
+                'head' => [
+                    '', 'stats_total', 'stats_HTML', 'stats_plaintext'
+                ],
+                'body' => [
+                    [
+                        'stats_mails_sent',
+                        $totalSent,
+                        $htmlSent,
+                        $plainSent
+                    ],
+                    [
+                        'stats_mails_returned',
+                        $this->showWithPercent($table['-127']['counter'] ?? 0, $totalSent),
+                        '',
+                        ''
+                    ],
+                    [
+                        'stats_HTML_mails_viewed',
+                        '',
+                        $this->showWithPercent($uniquePingResponses, $htmlSent),
+                        ''
+                    ],
+                    [
+                        'stats_unique_responses',
+                        $this->showWithPercent($uniqueHtmlResponses + $uniquePlainResponses, $totalSent),
+                        $this->showWithPercent($uniqueHtmlResponses, $htmlSent),
+                        $this->showWithPercent($uniquePlainResponses, $plainSent ? $plainSent : $htmlSent)
+                    ]
+                ]
+            ],
+            'uniqueHtmlResponses' => $uniqueHtmlResponses,
+            'uniquePlainResponses' => $uniquePlainResponses,
+            'totalSent' => $totalSent,
+            'htmlSent' => $htmlSent,
+            'plainSent' => $plainSent 
+        ];
+    }
+    
     /**
      * Get statistics from DB and compile them.
      *
@@ -308,79 +387,17 @@ class StatisticsController extends MainController
         );
 
         $compactView = $this->directMail_compactView($row);
-        // *****************************
-        // Mail responses, general:
-        // *****************************
         
-        $mailingId = intval($row['uid']);
-        $fieldRows = 'response_type';
-        $addFieldRows = '*';
-        $tableRows =  'sys_dmail_maillog';
-        $whereRows = 'mid=' . $mailingId;
-        $groupByRows = 'response_type';
-        $orderByRows = '';
-        $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
+        $mailResponsesGeneral = $this->mailResponsesGeneral($row['uid']);
+        $tables = [];
+        $tables[1] = $mailResponsesGeneral['table'];
+        $uniqueHtmlResponses = $mailResponsesGeneral['uniqueHtmlResponses'];
+        $uniquePlainResponses = $mailResponsesGeneral['uniquePlainResponses'];
+        $totalSent = $mailResponsesGeneral['totalSent'];
+        $htmlSent = $mailResponsesGeneral['htmlSent']; 
+        $plainSent =  $mailResponsesGeneral['plainSent'];
         
-        $table = $this->getQueryRows($queryArray, 'response_type');
-        
-        // Plaintext/HTML       
-        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogAllByMid($mailingId);
-
-        /* this function is called to change the key from 'COUNT(*)' to 'counter' */
-        $res = $this->changekeyname($res,'counter','COUNT(*)');
-        
-        $textHtml = [];
-        foreach($res as $row2){
-            // 0:No mail; 1:HTML; 2:TEXT; 3:HTML+TEXT
-            $textHtml[$row2['html_sent']] = $row2['counter'];
-        }
-        
-        // Unique responses, html
-        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogHtmlByMid($mailingId);
-        $uniqueHtmlResponses = count($res);//sql_num_rows($res);
-        
-        // Unique responses, Plain
-        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogPlainByMid($mailingId);
-        $uniquePlainResponses = count($res); //sql_num_rows($res);
-        
-        // Unique responses, pings
-        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogPingByMid($mailingId);
-        $uniquePingResponses = count($res); //sql_num_rows($res);
-        
-        $tblLines = [];
-        $tblLines[] = [
-            '',
-            $this->getLanguageService()->getLL('stats_total'),
-            $this->getLanguageService()->getLL('stats_HTML'),
-            $this->getLanguageService()->getLL('stats_plaintext')
-        ];
-
-        $totalSent = intval(($textHtml['1'] ?? 0) + ($textHtml['2'] ?? 0) + ($textHtml['3'] ?? 0));
-        $htmlSent  = intval(($textHtml['1'] ?? 0) + ($textHtml['3'] ?? 0));
-        $plainSent = intval(($textHtml['2'] ?? 0));
-        
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_mails_sent'),
-            $totalSent,
-            $htmlSent,
-            $plainSent
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_mails_returned'),
-            $this->showWithPercent($table['-127']['counter'] ?? 0, $totalSent)
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_HTML_mails_viewed'),
-            '',
-            $this->showWithPercent($uniquePingResponses, $htmlSent)
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_unique_responses'),
-            $this->showWithPercent($uniqueHtmlResponses+$uniquePlainResponses, $totalSent),
-            $this->showWithPercent($uniqueHtmlResponses, $htmlSent),
-            $this->showWithPercent($uniquePlainResponses, $plainSent?$plainSent:$htmlSent)];
-        
-        $output = DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, []);
+        $output = '';
         
         // ******************
         // Links:
@@ -472,36 +489,32 @@ class StatisticsController extends MainController
                 $urlCounter['total'][$id]['counter'] = $urlCounter['total'][$id]['counter'] + $c['counter'];
             }
         }
-        
-        $tblLines = [];
-        $tblLines[] = [
-            '',
-            $this->getLanguageService()->getLL('stats_total'),
-            $this->getLanguageService()->getLL('stats_HTML'),
-            $this->getLanguageService()->getLL('stats_plaintext')
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_total_responses'),
-            ($table['1']['counter'] ?? 0) + ($table['2']['counter'] ?? 0),
-            $table['1']['counter'] ?? '0',
-            $table['2']['counter'] ?? '0'
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_unique_responses'),
-            $this->showWithPercent($uniqueHtmlResponses + $uniquePlainResponses, $totalSent), 
-            $this->showWithPercent($uniqueHtmlResponses, $htmlSent), 
-            $this->showWithPercent($uniquePlainResponses, $plainSent ? $plainSent : $htmlSent)
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_links_clicked_per_respondent'),
-            ($uniqueHtmlResponses+$uniquePlainResponses ? number_format(($table['1']['counter']+$table['2']['counter'])/($uniqueHtmlResponses+$uniquePlainResponses), 2) : '-'),
-            ($uniqueHtmlResponses  ? number_format(($table['1']['counter'])/($uniqueHtmlResponses), 2)  : '-'),
-            ($uniquePlainResponses ? number_format(($table['2']['counter'])/($uniquePlainResponses), 2) : '-')
-        ];
-        
-        $output .= '<br /><h2>' . $this->getLanguageService()->getLL('stats_response') . '</h2>';
-        $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, [0, 0, 0, 0]);
-        
+
+        $tables[2] = [
+            'head' => [
+                '', 'stats_total', 'stats_HTML', 'stats_plaintext'
+            ],
+            'body' => [
+                [
+                    'stats_total_responses',
+                    ($table['1']['counter'] ?? 0) + ($table['2']['counter'] ?? 0),
+                    $table['1']['counter'] ?? '0',
+                    $table['2']['counter'] ?? '0'
+                ],
+                [
+                    'stats_unique_responses',
+                    $this->showWithPercent($uniqueHtmlResponses + $uniquePlainResponses, $totalSent),
+                    $this->showWithPercent($uniqueHtmlResponses, $htmlSent),
+                    $this->showWithPercent($uniquePlainResponses, $plainSent ? $plainSent : $htmlSent)
+                ],
+                [
+                    'stats_links_clicked_per_respondent',
+                    ($uniqueHtmlResponses+$uniquePlainResponses ? number_format(($table['1']['counter'] + $table['2']['counter']) / ($uniqueHtmlResponses+$uniquePlainResponses), 2) : '-'),
+                    ($uniqueHtmlResponses  ? number_format(($table['1']['counter']) / ($uniqueHtmlResponses), 2)  : '-'),
+                    ($uniquePlainResponses ? number_format(($table['2']['counter']) / ($uniquePlainResponses), 2) : '-')
+                ]
+            ]
+        ]; 
         arsort($urlCounter['total']);
         arsort($urlCounter['html']);
         arsort($urlCounter['plain']);
@@ -1226,7 +1239,7 @@ class StatisticsController extends MainController
         
         $this->noView = 1;
 
-        return ['out' => $output, 'compactView' => $compactView, 'thisurl' => $thisurl];
+        return ['out' => $output, 'compactView' => $compactView, 'thisurl' => $thisurl, 'tables' => $tables];
     }
     
     /**
