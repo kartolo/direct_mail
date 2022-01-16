@@ -334,7 +334,6 @@ class StatisticsController extends MainController
             ]
         );
 
-        $output = '';
         $compactView = $this->directMail_compactView($row);
         // *****************************
         // Mail responses, general:
@@ -408,7 +407,7 @@ class StatisticsController extends MainController
             $this->showWithPercent($uniqueHtmlResponses, $htmlSent),
             $this->showWithPercent($uniquePlainResponses, $plainSent?$plainSent:$htmlSent)];
         
-        $output .= '<br /><h2>' . $this->getLanguageService()->getLL('stats_general_information') . '</h2>';
+        $output = '<br /><h2>' . $this->getLanguageService()->getLL('stats_general_information') . '</h2>';
         $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, []);
         
         // ******************
@@ -777,7 +776,7 @@ class StatisticsController extends MainController
             implode('&nbsp;', $iconsUnknownReason)
         ];
         
-        $output.='<br /><h2>' . $this->getLanguageService()->getLL('stats_mails_returned') . '</h2>';
+        $output .= '<br /><h2>' . $this->getLanguageService()->getLL('stats_mails_returned') . '</h2>';
         $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', ''], 1, [0, 0, 1]);
         
         // Find all returned mail
@@ -822,26 +821,26 @@ class StatisticsController extends MainController
                 }
                 if (GeneralUtility::_GP('returnDisable')) {
                     if (is_array($idLists['tt_address'])) {
-                        $c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
-                        $output.='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                        $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                     }
                     if (is_array($idLists['fe_users'])) {
-                        $c=$this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
-                        $output.='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                        $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                     }
                 }
                 if (GeneralUtility::_GP('returnCSV')) {
                     $emails=[];
                     if (is_array($idLists['tt_address'])) {
-                        $arr=DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                        $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                         foreach ($arr as $v) {
-                            $emails[]=$v['email'];
+                            $emails[] = $v['email'];
                         }
                     }
                     if (is_array($idLists['fe_users'])) {
                         $arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                         foreach ($arr as $v) {
-                            $emails[]=$v['email'];
+                            $emails[] = $v['email'];
                         }
                     }
                     if (is_array($idLists['PLAINLIST'])) {
@@ -866,22 +865,22 @@ class StatisticsController extends MainController
                 while (($rrow = $res->fetch())) {
                     switch ($rrow['rtbl']) {
                         case 't':
-                            $idLists['tt_address'][]=$rrow['rid'];
+                            $idLists['tt_address'][] = $rrow['rid'];
                             break;
                         case 'f':
-                            $idLists['fe_users'][]=$rrow['rid'];
+                            $idLists['fe_users'][] = $rrow['rid'];
                             break;
                         case 'P':
                             $idLists['PLAINLIST'][] = $rrow['email'];
                             break;
                         default:
-                            $idLists[$rrow['rtbl']][]=$rrow['rid'];
+                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
                     }
                 }
                 
                 if (GeneralUtility::_GP('unknownList')) {
                     if (is_array($idLists['tt_address'])) {
-                        $output .='<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                     }
                     if (is_array($idLists['fe_users'])) {
                         $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
@@ -894,11 +893,11 @@ class StatisticsController extends MainController
                 if (GeneralUtility::_GP('unknownDisable')) {
                     if (is_array($idLists['tt_address'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
-                        $output .='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                     }
                     if (is_array($idLists['fe_users'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
-                        $output .='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                     }
                 }
                 if (GeneralUtility::_GP('unknownCSV')) {
@@ -906,20 +905,20 @@ class StatisticsController extends MainController
                     if (is_array($idLists['tt_address'])) {
                         $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                         foreach ($arr as $v) {
-                            $emails[]=$v['email'];
+                            $emails[] = $v['email'];
                         }
                     }
                     if (is_array($idLists['fe_users'])) {
                         $arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                         foreach ($arr as $v) {
-                            $emails[]=$v['email'];
+                            $emails[] = $v['email'];
                         }
                     }
                     if (is_array($idLists['PLAINLIST'])) {
                         $emails = array_merge($emails, $idLists['PLAINLIST']);
                     }
-                    $output .='<br />' . $this->getLanguageService()->getLL('stats_emails_returned_unknown_recipient_list') . '<br />';
-                    $output .='<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_unknown_recipient_list') . '<br />';
+                    $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
                 }
         }
         
@@ -952,10 +951,10 @@ class StatisticsController extends MainController
                 
                 if (GeneralUtility::_GP('fullList')) {
                     if (is_array($idLists['tt_address'])) {
-                        $output .='<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                     }
                     if (is_array($idLists['fe_users'])) {
-                        $output.= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
+                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
                     }
                     if (is_array($idLists['PLAINLIST'])) {
                         $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
@@ -965,11 +964,11 @@ class StatisticsController extends MainController
                 if (GeneralUtility::_GP('fullDisable')) {
                     if (is_array($idLists['tt_address'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
-                        $output.='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                     }
                     if (is_array($idLists['fe_users'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
-                        $output.='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                     }
                 }
                 if (GeneralUtility::_GP('fullCSV')) {
@@ -977,20 +976,20 @@ class StatisticsController extends MainController
                     if (is_array($idLists['tt_address'])) {
                         $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                         foreach ($arr as $v) {
-                            $emails[]=$v['email'];
+                            $emails[] = $v['email'];
                         }
                     }
                     if (is_array($idLists['fe_users'])) {
                         $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                         foreach ($arr as $v) {
-                            $emails[]=$v['email'];
+                            $emails[] = $v['email'];
                         }
                     }
                     if (is_array($idLists['PLAINLIST'])) {
                         $emails = array_merge($emails, $idLists['PLAINLIST']);
                     }
-                    $output .='<br />' . $this->getLanguageService()->getLL('stats_emails_returned_mailbox_full_list') . '<br />';
-                    $output .='<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_mailbox_full_list') . '<br />';
+                    $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
                 }
         }
         
@@ -1008,22 +1007,22 @@ class StatisticsController extends MainController
                 while (($rrow = $res->fetch())) {
                     switch ($rrow['rtbl']) {
                         case 't':
-                            $idLists['tt_address'][]=$rrow['rid'];
+                            $idLists['tt_address'][] = $rrow['rid'];
                             break;
                         case 'f':
-                            $idLists['fe_users'][]=$rrow['rid'];
+                            $idLists['fe_users'][] = $rrow['rid'];
                             break;
                         case 'P':
                             $idLists['PLAINLIST'][] = $rrow['email'];
                             break;
                         default:
-                            $idLists[$rrow['rtbl']][]=$rrow['rid'];
+                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
                     }
                 }
                 
                 if (GeneralUtility::_GP('badHostList')) {
                     if (is_array($idLists['tt_address'])) {
-                        $output .='<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                     }
                     if (is_array($idLists['fe_users'])) {
                         $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
@@ -1036,7 +1035,7 @@ class StatisticsController extends MainController
                 if (GeneralUtility::_GP('badHostDisable')) {
                     if (is_array($idLists['tt_address'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
-                        $output .='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                     }
                     if (is_array($idLists['fe_users'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
@@ -1095,7 +1094,7 @@ class StatisticsController extends MainController
                 
                 if (GeneralUtility::_GP('badHeaderList')) {
                     if (is_array($idLists['tt_address'])) {
-                        $output .='<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                     }
                     if (is_array($idLists['fe_users'])) {
                         $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
@@ -1109,11 +1108,11 @@ class StatisticsController extends MainController
                 if (GeneralUtility::_GP('badHeaderDisable')) {
                     if (is_array($idLists['tt_address'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
-                        $output .='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                     }
                     if (is_array($idLists['fe_users'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
-                        $output .='<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                     }
                 }
                 if (GeneralUtility::_GP('badHeaderCSV')) {
@@ -1168,7 +1167,7 @@ class StatisticsController extends MainController
                 
                 if (GeneralUtility::_GP('reasonUnknownList')) {
                     if (is_array($idLists['tt_address'])) {
-                        $output .='<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                     }
                     if (is_array($idLists['fe_users'])) {
                         $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
@@ -1193,13 +1192,13 @@ class StatisticsController extends MainController
                     if (is_array($idLists['tt_address'])) {
                         $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                         foreach ($arr as $v) {
-                            $emails[]=$v['email'];
+                            $emails[] = $v['email'];
                         }
                     }
                     if (is_array($idLists['fe_users'])) {
                         $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                         foreach ($arr as $v) {
-                            $emails[]=$v['email'];
+                            $emails[] = $v['email'];
                         }
                     }
                     if (is_array($idLists['PLAINLIST'])) {
@@ -1234,13 +1233,8 @@ class StatisticsController extends MainController
         }
         
         $this->noView = 1;
-        // put all the stats tables in a section
-        $theOutput = $output;
-        $theOutput .= '<div style="padding-top: 20px;"></div>';
-        
-        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('stats_recalculate_cached_data') . '</h3>' .
-            '<p><a style="text-decoration: underline;" href="' . $thisurl . '">' . $this->getLanguageService()->getLL('stats_recalculate_stats') . '</a></p>';
-        return ['out' => $theOutput, 'compactView' => $compactView];
+
+        return ['out' => $output, 'compactView' => $compactView, 'thisurl' => $thisurl];
     }
     
     /**

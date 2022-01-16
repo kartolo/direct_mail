@@ -51,8 +51,12 @@
 </f:section>
 
 <f:section name="dataStats">
+    <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <f:render section="compactView" arguments="{row:dataStats.compactView}" />
     <f:format.raw>{dataStats.out}</f:format.raw>
+    <div style="padding-top: 20px;"></div>
+    <h3><f:translate key="{lll}stats_recalculate_cached_data" /></h3>
+    <p><a style="text-decoration: underline;" href="{dataStats.thisurl}"><f:translate key="{lll}stats_recalculate_stats" /></a></p>
 </f:section>
 
 <f:section name="compactView">
