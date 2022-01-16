@@ -31,6 +31,7 @@ class StatisticsController extends MainController
     private string $table = '';
     private array $tables = ['tt_address', 'fe_users'];
     private bool $recalcCache = false;
+    private bool $submit = false;
     
     protected function initStatistics(ServerRequestInterface $request): void {
         $queryParams = $request->getQueryParams();
@@ -44,6 +45,7 @@ class StatisticsController extends MainController
         }
         
         $this->recalcCache = (bool)($parsedBody['recalcCache'] ?? $queryParams['recalcCache'] ?? false);
+        $this->submit = (bool)($parsedBody['submit'] ?? $queryParams['submit'] ?? false);
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -175,13 +177,11 @@ class StatisticsController extends MainController
      */
     protected function displayUserInfo()
     {
-        $uid = $this->uid;
-        $table = $this->table;
         $indata = GeneralUtility::_GP('indata');
 
         $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
         
-        if (GeneralUtility::_GP('submit')) {
+        if ($this->submit) {
             if (!$indata) {
                 $indata['html'] = 0;
             }
@@ -202,10 +202,10 @@ class StatisticsController extends MainController
                                     $enabled[] = $k;
                                 }
                             }
-                            $data[$this->table][$uid]['module_sys_dmail_category'] = implode(',', $enabled);
+                            $data[$this->table][$this->uid]['module_sys_dmail_category'] = implode(',', $enabled);
                         }
                     }
-                    $data[$this->table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
+                    $data[$this->table][$this->uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
                     
                     /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
                     $tce = GeneralUtility::makeInstance(DataHandler::class);
@@ -230,9 +230,9 @@ class StatisticsController extends MainController
         }
         
         $row = $rows[0] ?? [];
-        
-        $theOutput = '';
+
         if (is_array($row)) {
+            //@TODO
             $categories = '';
             $queryBuilder = $this->getQueryBuilder($mmTable);
             $resCat = $queryBuilder
@@ -240,49 +240,47 @@ class StatisticsController extends MainController
             ->from($mmTable)
             ->add('where','uid_local=' . $row['uid'])
             ->execute();
-            while (($rowCat = $resCat->fetch())) {
+            while ($rowCat = $resCat->fetch()) {
                 $categories .= $rowCat['uid_foreign'] . ',';
             }
             $categories = rtrim($categories, ',');
             
             $editOnClickLink = DirectMailUtility::getEditOnClickLink([
                 'edit' => [
-                    $table => [
+                    $this->table => [
                         $row['uid'] => 'edit',
                     ],
                 ],
                 'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
             ]);
+
+            $this->categories = DirectMailUtility::makeCategories($this->table, $row, $this->sys_language_uid);
             
-            $out = '';
-            $out .=  $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name'] . ' <' . $row['email'] . '>');
-            $out .= '&nbsp;&nbsp;<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
-                $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
-                $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' . $out;
-                
-                $out = '';
-                
-                $this->categories = DirectMailUtility::makeCategories($table, $row, $this->sys_language_uid);
-                
-                foreach ($this->categories as $pKey => $pVal) {
-                    $out .='<input type="hidden" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="0" />' .
-                        '<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categories, $pKey)?' checked="checked"':'') . ' /> ' .
-                        htmlspecialchars($pVal) . '<br />';
-                }
-                $out .= '<br /><br /><input type="checkbox" name="indata[html]" value="1"' . ($row['module_sys_dmail_html']?' checked="checked"':'') . ' /> ';
-                $out .= $this->getLanguageService()->getLL('subscriber_profile_htmlemail') . '<br />';
-                
-                $out .= '<input type="hidden" name="table" value="' . $table . '" />' .
-                    '<input type="hidden" name="uid" value="' . $uid . '" />' .
-                    '<input type="hidden" name="cmd" value="' . $this->cmd . '" /><br />' .
-                    '<input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
-                $theOutput .= '<div style="padding-top: 20px;"></div>';
-                $theOutput .= '<h3>' . $this->getLanguageService()->getLL('subscriber_profile') . '</h3>' .
-                    $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out;
+            $data = [
+                'icon'            => $this->iconFactory->getIconForRecord($this->table, $row)->render(),
+                'iconActionsOpen' => $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL),
+                'name'            => htmlspecialchars($row['name']),
+                'email'           => htmlspecialchars($row['email']),
+                'uid'             => $row['uid'],
+                'editOnClickLink' => $editOnClickLink,
+                'categories'      => [],
+                'catChecked'      => 0,
+                'table'           => $this->table,
+                'thisID'          => $this->uid,
+                'cmd'             => $this->cmd,
+                'html'            => $row['module_sys_dmail_html'] ? true : false
+            ];
+
+            foreach ($this->categories as $pKey => $pVal) {
+                $data['categories'][] = [
+                    'pkey'    => $pKey,
+                    'pVal'    => htmlspecialchars($pVal),
+                    'checked' => GeneralUtility::inList($categories, $pKey) ? true : false
+                ];
+            }
         }
         
-        return $theOutput;
+        return $data;
     }
     
     /**
