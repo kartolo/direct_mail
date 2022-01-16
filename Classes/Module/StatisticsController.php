@@ -380,8 +380,7 @@ class StatisticsController extends MainController
             $this->showWithPercent($uniqueHtmlResponses, $htmlSent),
             $this->showWithPercent($uniquePlainResponses, $plainSent?$plainSent:$htmlSent)];
         
-        $output = '<br /><h2>' . $this->getLanguageService()->getLL('stats_general_information') . '</h2>';
-        $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, []);
+        $output = DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, []);
         
         // ******************
         // Links:
@@ -403,7 +402,7 @@ class StatisticsController extends MainController
         //$queryArray = ['url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=1', 'url_id', 'counter'];
         $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
         $htmlUrlsTable = $this->getQueryRows($queryArray, 'url_id');
-        
+
         // Most popular links, plain:
         $fieldRows = 'url_id';
         $addFieldRows = '*';
@@ -414,7 +413,7 @@ class StatisticsController extends MainController
         //$queryArray = ['url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=2', 'url_id', 'counter'];
         $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
         $plainUrlsTable = $this->getQueryRows($queryArray, 'url_id');
-        
+
         // Find urls:
         $unpackedMail = unserialize(base64_decode($row['mailContent']));
         // this array will include a unique list of all URLs that are used in the mailing
@@ -579,6 +578,8 @@ class StatisticsController extends MainController
             }
         }
         
+        $iconAppsToolbarMenuSearch = $this->iconFactory->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL)->render();
+        
         foreach ($urlCounter['total'] as $id => $_) {
             // $id is the jumpurl ID
             $origId = $id;
@@ -590,7 +591,7 @@ class StatisticsController extends MainController
             
             $label = $this->getLinkLabel($url, $urlstr, false, $htmlLinks[$id]['label']);
             
-            $img = '<a href="' . $urlstr . '" target="_blank">' .  $this->iconFactory->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL) . '</a>';
+            $img = '<a href="' . $urlstr . '" target="_blank">' .  $iconAppsToolbarMenuSearch . '</a>';
             
             if (isset($urlCounter['html'][$id]['plainId'])) {
                 $tblLines[] = [
@@ -626,7 +627,7 @@ class StatisticsController extends MainController
                 $urlstr = $this->getUrlStr($uParts);
                 
                 $label = $htmlLinks[$id]['label'] . ' (' . ($urlstr ? $urlstr : '/') . ')';
-                $img = '<a href="' . htmlspecialchars($link) . '" target="_blank">' .  $this->iconFactory->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL) . '</a>';
+                $img = '<a href="' . htmlspecialchars($link) . '" target="_blank">' .  $iconAppsToolbarMenuSearch . '</a>';
                 $tblLines[] = [
                     $label,
                     ($html ? $id : '-'),
@@ -711,7 +712,7 @@ class StatisticsController extends MainController
         $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
         //$queryArray = ['COUNT(*) as counter'.','.'return_code', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=-127', 'return_code'];
         $responseResult = $this->getQueryRows($queryArray, 'return_code');
-        
+
         $tblLines = [];
         $tblLines[] = [
             '',
@@ -753,7 +754,10 @@ class StatisticsController extends MainController
         $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', ''], 1, [0, 0, 1]);
         
         // Find all returned mail
-        if (GeneralUtility::_GP('returnList')||GeneralUtility::_GP('returnDisable')||GeneralUtility::_GP('returnCSV')) {
+        if (GeneralUtility::_GP('returnList') ||
+            GeneralUtility::_GP('returnDisable') ||
+            GeneralUtility::_GP('returnCSV')) {
+            
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -762,70 +766,73 @@ class StatisticsController extends MainController
                 ' AND response_type=-127')
                 ->execute();
                 
-                $idLists = [];
+            $idLists = [];
                 
-                while (($rrow = $res->fetch())) {
-                    switch ($rrow['rtbl']) {
-                        case 't':
-                            $idLists['tt_address'][] = $rrow['rid'];
-                            break;
-                        case 'f':
-                            $idLists['fe_users'][] = $rrow['rid'];
-                            break;
-                        case 'P':
-                            $idLists['PLAINLIST'][] = $rrow['email'];
-                            break;
-                        default:
-                            $idLists[$rrow['rtbl']][]=$rrow['rid'];
-                    }
+            while ($rrow = $res->fetch()) {
+                switch ($rrow['rtbl']) {
+                    case 't':
+                        $idLists['tt_address'][] = $rrow['rid'];
+                        break;
+                    case 'f':
+                        $idLists['fe_users'][] = $rrow['rid'];
+                        break;
+                    case 'P':
+                        $idLists['PLAINLIST'][] = $rrow['email'];
+                        break;
+                    default:
+                        $idLists[$rrow['rtbl']][]=$rrow['rid'];
                 }
+            }
                 
-                if (GeneralUtility::_GP('returnList')) {
-                    if (is_array($idLists['tt_address'])) {
-                        $output .= '<h3>' . $this->getLanguageService()->getLL('stats_emails') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
-                    }
-                    if (is_array($idLists['fe_users'])) {
-                        $output .= '<h3>' . $this->getLanguageService()->getLL('stats_website_users') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
-                    }
-                    if (is_array($idLists['PLAINLIST'])) {
-                        $output .= '<h3>' . $this->getLanguageService()->getLL('stats_plainlist') . '</h3>';
-                        $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+            if (GeneralUtility::_GP('returnList')) {
+                if (is_array($idLists['tt_address'])) {
+                    $output .= '<h3>' . $this->getLanguageService()->getLL('stats_emails') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                }
+                if (is_array($idLists['fe_users'])) {
+                    $output .= '<h3>' . $this->getLanguageService()->getLL('stats_website_users') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
+                }
+                if (is_array($idLists['PLAINLIST'])) {
+                    $output .= '<h3>' . $this->getLanguageService()->getLL('stats_plainlist') . '</h3>';
+                    $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+                }
+            }
+            if (GeneralUtility::_GP('returnDisable')) {
+                if (is_array($idLists['tt_address'])) {
+                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                }
+                if (is_array($idLists['fe_users'])) {
+                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                }
+            }
+            if (GeneralUtility::_GP('returnCSV')) {
+                $emails=[];
+                if (is_array($idLists['tt_address'])) {
+                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    foreach ($arr as $v) {
+                        $emails[] = $v['email'];
                     }
                 }
-                if (GeneralUtility::_GP('returnDisable')) {
-                    if (is_array($idLists['tt_address'])) {
-                        $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
-                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
-                    }
-                    if (is_array($idLists['fe_users'])) {
-                        $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
-                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                if (is_array($idLists['fe_users'])) {
+                    $arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    foreach ($arr as $v) {
+                        $emails[] = $v['email'];
                     }
                 }
-                if (GeneralUtility::_GP('returnCSV')) {
-                    $emails=[];
-                    if (is_array($idLists['tt_address'])) {
-                        $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                        foreach ($arr as $v) {
-                            $emails[] = $v['email'];
-                        }
-                    }
-                    if (is_array($idLists['fe_users'])) {
-                        $arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                        foreach ($arr as $v) {
-                            $emails[] = $v['email'];
-                        }
-                    }
-                    if (is_array($idLists['PLAINLIST'])) {
-                        $emails = array_merge($emails, $idLists['PLAINLIST']);
-                    }
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_list') . '<br />';
-                    $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                if (is_array($idLists['PLAINLIST'])) {
+                    $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
+                $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_list') . '<br />';
+                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+            }
         }
         
         // Find Unknown Recipient
-        if (GeneralUtility::_GP('unknownList')||GeneralUtility::_GP('unknownDisable')||GeneralUtility::_GP('unknownCSV')) {
+        if (GeneralUtility::_GP('unknownList') ||
+            GeneralUtility::_GP('unknownDisable') ||
+            GeneralUtility::_GP('unknownCSV')
+            ) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -896,7 +903,10 @@ class StatisticsController extends MainController
         }
         
         // Mailbox Full
-        if (GeneralUtility::_GP('fullList')||GeneralUtility::_GP('fullDisable')||GeneralUtility::_GP('fullCSV')) {
+        if (GeneralUtility::_GP('fullList') ||
+            GeneralUtility::_GP('fullDisable') ||
+            GeneralUtility::_GP('fullCSV')
+            ) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -905,69 +915,72 @@ class StatisticsController extends MainController
                 ' AND response_type=-127' .
                 ' AND return_code=551')
                 ->execute();
-                $idLists = [];
-                while (($rrow = $res->fetch())) {
-                    switch ($rrow['rtbl']) {
-                        case 't':
-                            $idLists['tt_address'][] = $rrow['rid'];
-                            break;
-                        case 'f':
-                            $idLists['fe_users'][] = $rrow['rid'];
-                            break;
-                        case 'P':
-                            $idLists['PLAINLIST'][] = $rrow['email'];
-                            break;
-                        default:
-                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
-                    }
+            $idLists = [];
+            while (($rrow = $res->fetch())) {
+                switch ($rrow['rtbl']) {
+                    case 't':
+                        $idLists['tt_address'][] = $rrow['rid'];
+                        break;
+                    case 'f':
+                        $idLists['fe_users'][] = $rrow['rid'];
+                        break;
+                    case 'P':
+                        $idLists['PLAINLIST'][] = $rrow['email'];
+                        break;
+                    default:
+                        $idLists[$rrow['rtbl']][] = $rrow['rid'];
                 }
+            }
                 
-                if (GeneralUtility::_GP('fullList')) {
-                    if (is_array($idLists['tt_address'])) {
-                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
-                    }
-                    if (is_array($idLists['fe_users'])) {
-                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
-                    }
-                    if (is_array($idLists['PLAINLIST'])) {
-                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
-                        $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+            if (GeneralUtility::_GP('fullList')) {
+                if (is_array($idLists['tt_address'])) {
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                }
+                if (is_array($idLists['fe_users'])) {
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
+                }
+                if (is_array($idLists['PLAINLIST'])) {
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
+                    $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+                }
+            }
+            if (GeneralUtility::_GP('fullDisable')) {
+                if (is_array($idLists['tt_address'])) {
+                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                }
+                if (is_array($idLists['fe_users'])) {
+                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                }
+            }
+            if (GeneralUtility::_GP('fullCSV')) {
+                $emails=[];
+                if (is_array($idLists['tt_address'])) {
+                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    foreach ($arr as $v) {
+                        $emails[] = $v['email'];
                     }
                 }
-                if (GeneralUtility::_GP('fullDisable')) {
-                    if (is_array($idLists['tt_address'])) {
-                        $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
-                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
-                    }
-                    if (is_array($idLists['fe_users'])) {
-                        $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
-                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                if (is_array($idLists['fe_users'])) {
+                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    foreach ($arr as $v) {
+                        $emails[] = $v['email'];
                     }
                 }
-                if (GeneralUtility::_GP('fullCSV')) {
-                    $emails=[];
-                    if (is_array($idLists['tt_address'])) {
-                        $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                        foreach ($arr as $v) {
-                            $emails[] = $v['email'];
-                        }
-                    }
-                    if (is_array($idLists['fe_users'])) {
-                        $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                        foreach ($arr as $v) {
-                            $emails[] = $v['email'];
-                        }
-                    }
-                    if (is_array($idLists['PLAINLIST'])) {
-                        $emails = array_merge($emails, $idLists['PLAINLIST']);
-                    }
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_mailbox_full_list') . '<br />';
-                    $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                if (is_array($idLists['PLAINLIST'])) {
+                    $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
+                $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_mailbox_full_list') . '<br />';
+                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+            }
         }
         
         // find Bad Host
-        if (GeneralUtility::_GP('badHostList')||GeneralUtility::_GP('badHostDisable')||GeneralUtility::_GP('badHostCSV')) {
+        if (GeneralUtility::_GP('badHostList') ||
+            GeneralUtility::_GP('badHostDisable') || 
+            GeneralUtility::_GP('badHostCSV')
+            ) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -1038,7 +1051,10 @@ class StatisticsController extends MainController
         }
         
         // find Bad Header
-        if (GeneralUtility::_GP('badHeaderList')||GeneralUtility::_GP('badHeaderDisable')||GeneralUtility::_GP('badHeaderCSV')) {
+        if (GeneralUtility::_GP('badHeaderList') || 
+            GeneralUtility::_GP('badHeaderDisable') || 
+            GeneralUtility::_GP('badHeaderCSV')
+            ) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -1112,7 +1128,10 @@ class StatisticsController extends MainController
         
         // find Unknown Reasons
         // TODO: list all reason
-        if (GeneralUtility::_GP('reasonUnknownList')||GeneralUtility::_GP('reasonUnknownDisable')||GeneralUtility::_GP('reasonUnknownCSV')) {
+        if (GeneralUtility::_GP('reasonUnknownList') || 
+            GeneralUtility::_GP('reasonUnknownDisable') ||
+            GeneralUtility::_GP('reasonUnknownCSV')
+            ) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -1121,65 +1140,65 @@ class StatisticsController extends MainController
                 ' AND response_type=-127' .
                 ' AND return_code=-1')
                 ->execute();
-                $idLists = [];
-                while (($rrow = $res->fetch())) {
-                    switch ($rrow['rtbl']) {
-                        case 't':
-                            $idLists['tt_address'][] = $rrow['rid'];
-                            break;
-                        case 'f':
-                            $idLists['fe_users'][] = $rrow['rid'];
-                            break;
-                        case 'P':
-                            $idLists['PLAINLIST'][] = $rrow['email'];
-                            break;
-                        default:
-                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
-                    }
+            $idLists = [];
+            while (($rrow = $res->fetch())) {
+                switch ($rrow['rtbl']) {
+                    case 't':
+                        $idLists['tt_address'][] = $rrow['rid'];
+                        break;
+                    case 'f':
+                        $idLists['fe_users'][] = $rrow['rid'];
+                        break;
+                    case 'P':
+                        $idLists['PLAINLIST'][] = $rrow['email'];
+                        break;
+                    default:
+                        $idLists[$rrow['rtbl']][] = $rrow['rid'];
                 }
+            }
                 
-                if (GeneralUtility::_GP('reasonUnknownList')) {
-                    if (is_array($idLists['tt_address'])) {
-                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
-                    }
-                    if (is_array($idLists['fe_users'])) {
-                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
-                    }
-                    if (is_array($idLists['PLAINLIST'])) {
-                        $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
-                        $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+            if (GeneralUtility::_GP('reasonUnknownList')) {
+                if (is_array($idLists['tt_address'])) {
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                }
+                if (is_array($idLists['fe_users'])) {
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
+                }
+                if (is_array($idLists['PLAINLIST'])) {
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
+                    $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+                }
+            }
+            if (GeneralUtility::_GP('reasonUnknownDisable')) {
+                if (is_array($idLists['tt_address'])) {
+                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                }
+                if (is_array($idLists['fe_users'])) {
+                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                }
+            }
+            if (GeneralUtility::_GP('reasonUnknownCSV')) {
+                $emails = [];
+                if (is_array($idLists['tt_address'])) {
+                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    foreach ($arr as $v) {
+                        $emails[] = $v['email'];
                     }
                 }
-                if (GeneralUtility::_GP('reasonUnknownDisable')) {
-                    if (is_array($idLists['tt_address'])) {
-                        $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
-                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
-                    }
-                    if (is_array($idLists['fe_users'])) {
-                        $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
-                        $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                if (is_array($idLists['fe_users'])) {
+                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    foreach ($arr as $v) {
+                        $emails[] = $v['email'];
                     }
                 }
-                if (GeneralUtility::_GP('reasonUnknownCSV')) {
-                    $emails = [];
-                    if (is_array($idLists['tt_address'])) {
-                        $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                        foreach ($arr as $v) {
-                            $emails[] = $v['email'];
-                        }
-                    }
-                    if (is_array($idLists['fe_users'])) {
-                        $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                        foreach ($arr as $v) {
-                            $emails[] = $v['email'];
-                        }
-                    }
-                    if (is_array($idLists['PLAINLIST'])) {
-                        $emails = array_merge($emails, $idLists['PLAINLIST']);
-                    }
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_reason_unknown_list') . '<br />';
-                    $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                if (is_array($idLists['PLAINLIST'])) {
+                    $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
+                $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_reason_unknown_list') . '<br />';
+                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+            }
         }
         
         /**
