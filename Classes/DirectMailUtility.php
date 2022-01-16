@@ -679,7 +679,7 @@ class DirectMailUtility
 
         $pageTsConfig = BackendUtility::getTCEFORM_TSconfig($table, $row);
         if (is_array($pageTsConfig[$mmField])) {
-            $pidList = $pageTsConfig[$mmField]['PAGE_TSCONFIG_IDLIST'];
+            $pidList = $pageTsConfig[$mmField]['PAGE_TSCONFIG_IDLIST'] ?? [];
             if ($pidList) {
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
                 $res = $queryBuilder->select('*')

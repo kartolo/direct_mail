@@ -179,7 +179,7 @@ class StatisticsController extends MainController
         $table = $this->table;
         $indata = GeneralUtility::_GP('indata');
 
-        $mmTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
+        $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
         
         if (GeneralUtility::_GP('submit')) {
             if (!$indata) {
@@ -187,7 +187,7 @@ class StatisticsController extends MainController
             }
         }
         
-        switch ($table) {
+        switch ($this->table) {
             case 'tt_address':
                 // see fe_users
             case 'fe_users':
@@ -202,10 +202,10 @@ class StatisticsController extends MainController
                                     $enabled[] = $k;
                                 }
                             }
-                            $data[$table][$uid]['module_sys_dmail_category'] = implode(',', $enabled);
+                            $data[$this->table][$uid]['module_sys_dmail_category'] = implode(',', $enabled);
                         }
                     }
-                    $data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
+                    $data[$this->table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
                     
                     /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
                     $tce = GeneralUtility::makeInstance(DataHandler::class);
