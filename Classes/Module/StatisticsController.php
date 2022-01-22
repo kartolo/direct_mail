@@ -745,17 +745,10 @@ class StatisticsController extends MainController
         $iconsUnknownReason[] = '<a href="' . $thisurl . '&reasonUnknownDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_reason_unknown') . '"> ' . $hideIcons . '</span></a>';
         $iconsUnknownReason[] = '<a href="' . $thisurl . '&reasonUnknownCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_reason_unknown') . '"> ' . $csvIcons . '</span></a>';
         
-        // Table with Icon
-        $fieldRows = 'return_code';
-        $addFieldRows = '*';
-        $tableRows =  'sys_dmail_maillog';
-        $whereRows = 'mid=' . intval($row['uid']) . ' AND response_type=-127';
-        $groupByRows = 'return_code';
-        $orderByRows = '';
-        $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
-        //$queryArray = ['COUNT(*) as counter'.','.'return_code', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=-127', 'return_code'];
-        $responseResult = $this->getQueryRows($queryArray, 'return_code');
-
+        // Table with Icon        
+        $responseResult = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countReturnCode($row['uid']);
+        $responseResult = $this->changekeyname($responseResult, 'counter', 'COUNT(*)');
+        
         $tblLines = [];
         $tblLines[] = [
             '',
@@ -1396,54 +1389,6 @@ class StatisticsController extends MainController
             'return_path'   => htmlspecialchars($row['return_path'])
         ];
         return $data;
-    }
-    
-    /**
-     * Make a select query
-     *
-     * @param array $queryArray Part of select-statement in an array
-     * @param string $fieldName DB fieldname to be the array keys
-     *
-     * @return array Result of the Select-query
-     */
-    protected function getQueryRows(array $queryArray, $fieldName)
-    {
-        $queryBuilder = $this->getQueryBuilder($queryArray[2]);
-        
-        if (empty($queryArray[5])) {
-            $res = $queryBuilder
-            ->count($queryArray[1])
-            ->addSelect($queryArray[0])
-            ->from($queryArray[2])
-            ->add('where',$queryArray[3])
-            ->groupBy($queryArray[4])
-            ->execute()
-            ->fetchAll();
-        }
-        else {
-            $res = $queryBuilder
-            ->count($queryArray[1])
-            ->addSelect($queryArray[0])
-            ->from($queryArray[2])
-            ->add('where',$queryArray[3])
-            ->groupBy($queryArray[4])
-            ->orderBy($queryArray[5])
-            ->execute()
-            ->fetchAll();
-        }
-
-        /*questa funzione viene chiamata per cambiare la key 'COUNT(*)' in 'counter'*/
-        $res = $this->changekeyname($res, 'counter', 'COUNT(*)');
-        
-        $lines = [];
-        foreach($res as $row){
-            if ($fieldName) {
-                $lines[$row[$fieldName]] = $row;
-            } else {
-                $lines[] = $row;
-            }
-        }
-        return $lines;
     }
     
     /**

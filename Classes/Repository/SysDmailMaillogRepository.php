@@ -139,6 +139,20 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
+    public function countReturnCode(int $uid, int $responseType = -127): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->count('*')
+        ->addSelect('return_code')
+        ->from($this->table)
+        ->add('where', 'mid=' . intval($uid) .
+            ' AND response_type = '. intval($responseType))
+        ->groupBy('return_code')
+        ->orderBy('COUNT(*)')
+        ->execute()
+        ->fetchAll();
+    }
+    
     public function selectStatTempTableContent(int $uid): array|bool {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
