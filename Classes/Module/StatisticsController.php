@@ -1521,72 +1521,66 @@ class StatisticsController extends MainController
             [ 'mid' => intval($mrow['uid']) ] // where
         );
         
-        $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
-        $res = $queryBuilder
-        ->select('rid','rtbl','tstamp','response_type','url_id','html_sent','size')
-        ->from('sys_dmail_maillog')
-        ->add('where', 'mid=' . intval($mrow['uid']))
-        ->orderBy('rtbl')
-        ->addOrderBy('rid')
-        ->addOrderBy('tstamp')
-        ->execute();
+        $rows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectStatTempTableContent($mrow['uid']);
         
         $currentRec = '';
         $recRec = [];
 
-        while (($row = $res->fetch())) {
-            $thisRecPointer = $row['rtbl'] . $row['rid'];
-            
-            if ($thisRecPointer != $currentRec) {
-                $recRec = [
-                    'mid'            => intval($mrow['uid']),
-                    'rid'            => $row['rid'],
-                    'rtbl'            => $row['rtbl'],
-                    'pings'            => [],
-                    'plain_links'    => [],
-                    'html_links'    => [],
-                    'response'        => [],
-                    'links'            => []
-                ];
-                $currentRec = $thisRecPointer;
-            }
-            switch ($row['response_type']) {
-                case '-1':
-                    $recRec['pings'][] = $row['tstamp'];
-                    $recRec['response'][] = $row['tstamp'];
-                    break;
-                case '0':
-                    $recRec['recieved_html'] = $row['html_sent']&1;
-                    $recRec['recieved_plain'] = $row['html_sent']&2;
-                    $recRec['size'] = $row['size'];
-                    $recRec['tstamp'] = $row['tstamp'];
-                    break;
-                case '1':
-                    // treat html links like plain text
-                case '2':
-                    // plain text link response
-                    $recRec[($row['response_type']==1?'html_links':'plain_links')][] = $row['tstamp'];
-                    $recRec['links'][] = $row['tstamp'];
-                    if (!$recRec['firstlink']) {
-                        $recRec['firstlink'] = $row['url_id'];
-                        $recRec['firstlink_time'] = intval(@max($recRec['pings']));
-                        $recRec['firstlink_time'] = $recRec['firstlink_time'] ? $row['tstamp']-$recRec['firstlink_time'] : 0;
-                    } elseif (!$recRec['secondlink']) {
-                        $recRec['secondlink'] = $row['url_id'];
-                        $recRec['secondlink_time'] = intval(@max($recRec['pings']));
-                        $recRec['secondlink_time'] = $recRec['secondlink_time'] ? $row['tstamp']-$recRec['secondlink_time'] : 0;
-                    } elseif (!$recRec['thirdlink']) {
-                        $recRec['thirdlink'] = $row['url_id'];
-                        $recRec['thirdlink_time'] = intval(@max($recRec['pings']));
-                        $recRec['thirdlink_time'] = $recRec['thirdlink_time'] ? $row['tstamp']-$recRec['thirdlink_time'] : 0;
-                    }
-                    $recRec['response'][] = $row['tstamp'];
-                    break;
-                case '-127':
-                    $recRec['returned'] = 1;
-                    break;
-                default:
-                    // do nothing
+        if(is_array($rows)) {
+            foreach($rows as $row) {
+                $thisRecPointer = $row['rtbl'] . $row['rid'];
+                
+                if ($thisRecPointer != $currentRec) {
+                    $recRec = [
+                        'mid'         => intval($mrow['uid']),
+                        'rid'         => $row['rid'],
+                        'rtbl'        => $row['rtbl'],
+                        'pings'       => [],
+                        'plain_links' => [],
+                        'html_links'  => [],
+                        'response'    => [],
+                        'links'       => []
+                    ];
+                    $currentRec = $thisRecPointer;
+                }
+                switch ($row['response_type']) {
+                    case '-1':
+                        $recRec['pings'][] = $row['tstamp'];
+                        $recRec['response'][] = $row['tstamp'];
+                        break;
+                    case '0':
+                        $recRec['recieved_html'] = $row['html_sent']&1;
+                        $recRec['recieved_plain'] = $row['html_sent']&2;
+                        $recRec['size'] = $row['size'];
+                        $recRec['tstamp'] = $row['tstamp'];
+                        break;
+                    case '1':
+                        // treat html links like plain text
+                    case '2':
+                        // plain text link response
+                        $recRec[($row['response_type']==1?'html_links':'plain_links')][] = $row['tstamp'];
+                        $recRec['links'][] = $row['tstamp'];
+                        if (!$recRec['firstlink']) {
+                            $recRec['firstlink'] = $row['url_id'];
+                            $recRec['firstlink_time'] = intval(@max($recRec['pings']));
+                            $recRec['firstlink_time'] = $recRec['firstlink_time'] ? $row['tstamp']-$recRec['firstlink_time'] : 0;
+                        } elseif (!$recRec['secondlink']) {
+                            $recRec['secondlink'] = $row['url_id'];
+                            $recRec['secondlink_time'] = intval(@max($recRec['pings']));
+                            $recRec['secondlink_time'] = $recRec['secondlink_time'] ? $row['tstamp']-$recRec['secondlink_time'] : 0;
+                        } elseif (!$recRec['thirdlink']) {
+                            $recRec['thirdlink'] = $row['url_id'];
+                            $recRec['thirdlink_time'] = intval(@max($recRec['pings']));
+                            $recRec['thirdlink_time'] = $recRec['thirdlink_time'] ? $row['tstamp']-$recRec['thirdlink_time'] : 0;
+                        }
+                        $recRec['response'][] = $row['tstamp'];
+                        break;
+                    case '-127':
+                        $recRec['returned'] = 1;
+                        break;
+                    default:
+                        // do nothing
+                }
             }
         }
         

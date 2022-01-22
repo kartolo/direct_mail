@@ -99,6 +99,19 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
+    public function selectStatTempTableContent(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->select('rid','rtbl','tstamp','response_type','url_id','html_sent','size')
+        ->from($this->table)
+        ->add('where', 'mid=' . intval($uid))
+        ->orderBy('rtbl')
+        ->addOrderBy('rid')
+        ->addOrderBy('tstamp')
+        ->execute()
+        ->fetchAll();
+    }
+    
     public function findAllReturnedMail(int $uid): array|bool {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
