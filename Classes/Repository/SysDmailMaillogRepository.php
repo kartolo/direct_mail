@@ -98,4 +98,75 @@ class SysDmailMaillogRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+    
+    public function findAllReturnedMail(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->select('rid','rtbl','email')
+        ->from($this->table)
+        ->add('where','mid=' . intval($uid) .
+            ' AND response_type=-127')
+        ->execute()
+        ->fetchAll();
+    }
+    
+    public function findUnknownRecipient(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->select('rid','rtbl','email')
+        ->from($this->table)
+        ->add('where','mid=' . intval($uid) .
+            ' AND response_type=-127' .
+            ' AND (return_code=550 OR return_code=553)')
+        ->execute()
+        ->fetchAll();
+    }
+    
+    public function findMailboxFull(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->select('rid','rtbl','email')
+        ->from($this->table)
+        ->add('where','mid=' . intval($uid) .
+            ' AND response_type=-127' .
+            ' AND return_code=551')
+        ->execute()
+        ->fetchAll();
+    }
+    
+    public function findBadHost(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->select('rid','rtbl','email')
+        ->from($this->table)
+        ->add('where','mid=' . intval($uid) .
+            ' AND response_type=-127' .
+            ' AND return_code=552')
+        ->execute()
+        ->fetchAll();
+    }
+    
+    public function findBadHeader(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->select('rid','rtbl','email')
+        ->from($this->table)
+        ->add('where','mid=' . intval($uid) .
+            ' AND response_type=-127' .
+            ' AND return_code=554')
+        ->execute()
+        ->fetchAll();
+    }
+    
+    public function findUnknownReasons(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->select('rid','rtbl','email')
+        ->from($this->table)
+        ->add('where','mid=' . intval($uid) .
+            ' AND response_type=-127' .
+            ' AND return_code=-1')
+        ->execute()
+        ->fetchAll();
+    }
 }
