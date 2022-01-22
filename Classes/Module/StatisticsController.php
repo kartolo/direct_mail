@@ -32,7 +32,32 @@ class StatisticsController extends MainController
     private array $tables = ['tt_address', 'fe_users'];
     private bool $recalcCache = false;
     private bool $submit = false;
+    private array $indata = [];
     
+    private bool $returnList    = false;
+    private bool $returnDisable = false;
+    private bool $returnCSV     = false;
+    
+    private bool $unknownList    = false;
+    private bool $unknownDisable = false;
+    private bool $unknownCSV     = false;
+    
+    private bool $fullList    = false;
+    private bool $fullDisable = false;
+    private bool $fullCSV     = false;
+    
+    private bool $badHostList    = false;
+    private bool $badHostDisable = false;
+    private bool $badHostCSV     = false;
+    
+    private bool $badHeaderList    = false;
+    private bool $badHeaderDisable = false;
+    private bool $badHeaderCSV     = false;
+    
+    private bool $reasonUnknownList    = false;
+    private bool $reasonUnknownDisable = false;
+    private bool $reasonUnknownCSV     = false;
+        
     protected function initStatistics(ServerRequestInterface $request): void {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
@@ -46,6 +71,32 @@ class StatisticsController extends MainController
         
         $this->recalcCache = (bool)($parsedBody['recalcCache'] ?? $queryParams['recalcCache'] ?? false);
         $this->submit = (bool)($parsedBody['submit'] ?? $queryParams['submit'] ?? false);
+        
+        $this->indata = $parsedBody['indata'] ?? $queryParams['indata'] ?? [];
+        
+        $this->returnList    = (bool)($parsedBody['returnList'] ?? $queryParams['returnList'] ?? false);
+        $this->returnDisable = (bool)($parsedBody['returnDisable'] ?? $queryParams['returnDisable'] ?? false);
+        $this->returnCSV     = (bool)($parsedBody['returnCSV'] ?? $queryParams['returnCSV'] ?? false);
+        
+        $this->unknownList    = (bool)($parsedBody['unknownList'] ?? $queryParams['unknownList'] ?? false);
+        $this->unknownDisable = (bool)($parsedBody['unknownDisable'] ?? $queryParams['unknownDisable'] ?? false);
+        $this->unknownCSV     = (bool)($parsedBody['unknownCSV'] ?? $queryParams['unknownCSV'] ?? false);
+        
+        $this->fullList    = (bool)($parsedBody['fullList'] ?? $queryParams['fullList'] ?? false);
+        $this->fullDisable = (bool)($parsedBody['fullDisable'] ?? $queryParams['fullDisable'] ?? false);
+        $this->fullCSV     = (bool)($parsedBody['fullCSV'] ?? $queryParams['fullCSV'] ?? false);
+            
+        $this->badHostList    = (bool)($parsedBody['badHostList'] ?? $queryParams['badHostList'] ?? false);
+        $this->badHostDisable = (bool)($parsedBody['badHostDisable'] ?? $queryParams['badHostDisable'] ?? false);
+        $this->badHostCSV     = (bool)($parsedBody['badHostCSV'] ?? $queryParams['badHostCSV'] ?? false);
+            
+        $this->badHeaderList    = (bool)($parsedBody['badHeaderList'] ?? $queryParams['badHeaderList'] ?? false);
+        $this->badHeaderDisable = (bool)($parsedBody['badHeaderDisable'] ?? $queryParams['badHeaderDisable'] ?? false);
+        $this->badHeaderCSV     = (bool)($parsedBody['badHeaderCSV'] ?? $queryParams['badHeaderCSV'] ?? false);
+            
+        $this->reasonUnknownList    = (bool)($parsedBody['reasonUnknownList'] ?? $queryParams['reasonUnknownList'] ?? false);
+        $this->reasonUnknownDisable = (bool)($parsedBody['reasonUnknownDisable'] ?? $queryParams['reasonUnknownDisable'] ?? false);
+        $this->reasonUnknownCSV     = (bool)($parsedBody['reasonUnknownCSV'] ?? $queryParams['reasonUnknownCSV'] ?? false);
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -177,13 +228,13 @@ class StatisticsController extends MainController
      */
     protected function displayUserInfo()
     {
-        $indata = GeneralUtility::_GP('indata');
+        $indata = $this->indata;
 
         $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
         
         if ($this->submit) {
-            if (!$indata) {
-                $indata['html'] = 0;
+            if (count($this->indata) < 1) {
+                $this->indata['html'] = 0;
             }
         }
         
@@ -191,11 +242,11 @@ class StatisticsController extends MainController
             case 'tt_address':
                 // see fe_users
             case 'fe_users':
-                if (is_array($indata)) {
+                if (is_array($this->indata) && count($this->indata)) {
                     $data = [];
-                    if (is_array($indata['categories'])) {
-                        reset($indata['categories']);
-                        foreach ($indata['categories'] as $recValues) {
+                    if (is_array($this->indata['categories'])) {
+                        reset($this->indata['categories']);
+                        foreach ($this->indata['categories'] as $recValues) {
                             $enabled = [];
                             foreach ($recValues as $k => $b) {
                                 if ($b) {
@@ -205,7 +256,7 @@ class StatisticsController extends MainController
                             $data[$this->table][$this->uid]['module_sys_dmail_category'] = implode(',', $enabled);
                         }
                     }
-                    $data[$this->table][$this->uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
+                    $data[$this->table][$this->uid]['module_sys_dmail_html'] = $this->indata['html'] ? 1 : 0;
                     
                     /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
                     $tce = GeneralUtility::makeInstance(DataHandler::class);
@@ -767,9 +818,7 @@ class StatisticsController extends MainController
         $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', ''], 1, [0, 0, 1]);
         
         // Find all returned mail
-        if (GeneralUtility::_GP('returnList') ||
-            GeneralUtility::_GP('returnDisable') ||
-            GeneralUtility::_GP('returnCSV')) {
+        if ($this->returnList || $this->returnDisable || $this->returnCSV) {
             
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
@@ -797,7 +846,7 @@ class StatisticsController extends MainController
                 }
             }
                 
-            if (GeneralUtility::_GP('returnList')) {
+            if ($this->returnList) {
                 if (is_array($idLists['tt_address'])) {
                     $output .= '<h3>' . $this->getLanguageService()->getLL('stats_emails') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                 }
@@ -809,7 +858,7 @@ class StatisticsController extends MainController
                     $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
                 }
             }
-            if (GeneralUtility::_GP('returnDisable')) {
+            if ($this->returnDisable) {
                 if (is_array($idLists['tt_address'])) {
                     $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
@@ -819,8 +868,8 @@ class StatisticsController extends MainController
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                 }
             }
-            if (GeneralUtility::_GP('returnCSV')) {
-                $emails=[];
+            if ($this->returnCSV) {
+                $emails = [];
                 if (is_array($idLists['tt_address'])) {
                     $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
@@ -842,10 +891,7 @@ class StatisticsController extends MainController
         }
         
         // Find Unknown Recipient
-        if (GeneralUtility::_GP('unknownList') ||
-            GeneralUtility::_GP('unknownDisable') ||
-            GeneralUtility::_GP('unknownCSV')
-            ) {
+        if ($this->unknownList || $this->unknownDisable || $this->unknownCSV) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -871,7 +917,7 @@ class StatisticsController extends MainController
                     }
                 }
                 
-                if (GeneralUtility::_GP('unknownList')) {
+                if ($this->unknownList) {
                     if (is_array($idLists['tt_address'])) {
                         $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                     }
@@ -883,7 +929,7 @@ class StatisticsController extends MainController
                         $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
                     }
                 }
-                if (GeneralUtility::_GP('unknownDisable')) {
+                if ($this->unknownDisable) {
                     if (is_array($idLists['tt_address'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
                         $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
@@ -893,7 +939,7 @@ class StatisticsController extends MainController
                         $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                     }
                 }
-                if (GeneralUtility::_GP('unknownCSV')) {
+                if ($this->unknownCSV) {
                     $emails = [];
                     if (is_array($idLists['tt_address'])) {
                         $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
@@ -916,10 +962,7 @@ class StatisticsController extends MainController
         }
         
         // Mailbox Full
-        if (GeneralUtility::_GP('fullList') ||
-            GeneralUtility::_GP('fullDisable') ||
-            GeneralUtility::_GP('fullCSV')
-            ) {
+        if ($this->fullList || $this->fullDisable || $this->fullCSV) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -945,7 +988,7 @@ class StatisticsController extends MainController
                 }
             }
                 
-            if (GeneralUtility::_GP('fullList')) {
+            if ($this->fullList) {
                 if (is_array($idLists['tt_address'])) {
                     $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                 }
@@ -957,7 +1000,7 @@ class StatisticsController extends MainController
                     $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
                 }
             }
-            if (GeneralUtility::_GP('fullDisable')) {
+            if ($this->fullDisable) {
                 if (is_array($idLists['tt_address'])) {
                     $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
@@ -967,7 +1010,7 @@ class StatisticsController extends MainController
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                 }
             }
-            if (GeneralUtility::_GP('fullCSV')) {
+            if ($this->fullCSV) {
                 $emails=[];
                 if (is_array($idLists['tt_address'])) {
                     $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
@@ -990,10 +1033,7 @@ class StatisticsController extends MainController
         }
         
         // find Bad Host
-        if (GeneralUtility::_GP('badHostList') ||
-            GeneralUtility::_GP('badHostDisable') || 
-            GeneralUtility::_GP('badHostCSV')
-            ) {
+        if ($this->badHostList || $this->badHostDisable || $this->badHostCSV) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -1019,7 +1059,7 @@ class StatisticsController extends MainController
                     }
                 }
                 
-                if (GeneralUtility::_GP('badHostList')) {
+                if ($this->badHostList) {
                     if (is_array($idLists['tt_address'])) {
                         $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                     }
@@ -1031,7 +1071,7 @@ class StatisticsController extends MainController
                         $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
                     }
                 }
-                if (GeneralUtility::_GP('badHostDisable')) {
+                if ($this->badHostDisable) {
                     if (is_array($idLists['tt_address'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
                         $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
@@ -1041,7 +1081,7 @@ class StatisticsController extends MainController
                         $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                     }
                 }
-                if (GeneralUtility::_GP('badHostCSV')) {
+                if ($this->badHostCSV) {
                     $emails = [];
                     if (is_array($idLists['tt_address'])) {
                         $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
@@ -1064,10 +1104,7 @@ class StatisticsController extends MainController
         }
         
         // find Bad Header
-        if (GeneralUtility::_GP('badHeaderList') || 
-            GeneralUtility::_GP('badHeaderDisable') || 
-            GeneralUtility::_GP('badHeaderCSV')
-            ) {
+        if ($this->badHeaderList || $this->badHeaderDisable || $this->badHeaderCSV) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -1094,7 +1131,7 @@ class StatisticsController extends MainController
                     }
                 }
                 
-                if (GeneralUtility::_GP('badHeaderList')) {
+                if ($this->badHeaderList) {
                     if (is_array($idLists['tt_address'])) {
                         $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                     }
@@ -1107,7 +1144,7 @@ class StatisticsController extends MainController
                     }
                 }
                 
-                if (GeneralUtility::_GP('badHeaderDisable')) {
+                if ($this->badHeaderDisable) {
                     if (is_array($idLists['tt_address'])) {
                         $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
                         $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
@@ -1117,7 +1154,7 @@ class StatisticsController extends MainController
                         $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                     }
                 }
-                if (GeneralUtility::_GP('badHeaderCSV')) {
+                if ($this->badHeaderCSV) {
                     $emails = [];
                     if (is_array($idLists['tt_address'])) {
                         $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
@@ -1141,10 +1178,7 @@ class StatisticsController extends MainController
         
         // find Unknown Reasons
         // TODO: list all reason
-        if (GeneralUtility::_GP('reasonUnknownList') || 
-            GeneralUtility::_GP('reasonUnknownDisable') ||
-            GeneralUtility::_GP('reasonUnknownCSV')
-            ) {
+        if ($this->reasonUnknownList || $this->reasonUnknownDisable || $this->reasonUnknownCSV) {
             $queryBuilder = $this->getQueryBuilder('sys_dmail_maillog');
             $res =  $queryBuilder
             ->select('rid','rtbl','email')
@@ -1170,7 +1204,7 @@ class StatisticsController extends MainController
                 }
             }
                 
-            if (GeneralUtility::_GP('reasonUnknownList')) {
+            if ($this->reasonUnknownList) {
                 if (is_array($idLists['tt_address'])) {
                     $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                 }
@@ -1182,7 +1216,7 @@ class StatisticsController extends MainController
                     $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
                 }
             }
-            if (GeneralUtility::_GP('reasonUnknownDisable')) {
+            if ($this->reasonUnknownDisable) {
                 if (is_array($idLists['tt_address'])) {
                     $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
@@ -1192,7 +1226,7 @@ class StatisticsController extends MainController
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                 }
             }
-            if (GeneralUtility::_GP('reasonUnknownCSV')) {
+            if ($this->reasonUnknownCSV) {
                 $emails = [];
                 if (is_array($idLists['tt_address'])) {
                     $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
