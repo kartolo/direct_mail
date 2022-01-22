@@ -102,6 +102,7 @@ class StatisticsController extends MainController
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('Statistics');
+        $this->pageRenderer->addCssInlineBlock('DMStatistics', $this->getInlineCSS(), false, true);
         
         $this->init($request);
         $this->initStatistics($request);
@@ -142,6 +143,16 @@ class StatisticsController extends MainController
          */
         $this->moduleTemplate->setContent($this->view->render());
         return new HtmlResponse($this->moduleTemplate->renderContent());
+    }
+    
+    private function getInlineCSS() {
+        return '
+		a.bubble {position:relative; z-index:24; color:#000; text-decoration:none}
+		a.bubble:hover {z-index:25; background-color: #e6e8ea;}
+		a.bubble span.help {display: none;}
+		a.bubble:hover span.help {display:block; position:absolute; top:2em; left:2em; width:25em; border:1px solid #0cf; background-color:#cff; padding: 2px;}
+		td { vertical-align: top; }
+		';
     }
     
     protected function moduleContent()
