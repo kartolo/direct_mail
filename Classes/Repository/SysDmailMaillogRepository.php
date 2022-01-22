@@ -87,6 +87,18 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
+    public function countSysDmailMaillogsResponseTypeByMid(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->count('*')
+            ->addSelect('response_type')
+            ->from($this->table)
+            ->add('where', 'mid = ' . intval($uid))
+            ->groupBy('response_type')
+            ->execute()
+            ->fetchAll();
+    }
+    
     public function selectSysDmailMaillogsCompactView(int $uid): array|bool {
         $queryBuilder = $this->getQueryBuilder($this->table);
         

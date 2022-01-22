@@ -335,16 +335,9 @@ class StatisticsController extends MainController
     }
     
     protected function mailResponsesGeneral(int $mailingId): array {
-        $fieldRows = 'response_type';
-        $addFieldRows = '*';
-        $tableRows =  'sys_dmail_maillog';
-        $whereRows = 'mid=' . $mailingId;
-        $groupByRows = 'response_type';
-        $orderByRows = '';
-        $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
-        
-        $table = $this->getQueryRows($queryArray, 'response_type');
-        
+        $table = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogsResponseTypeByMid($mailingId);
+        $table = $this->changekeyname($table,'counter','COUNT(*)');
+
         // Plaintext/HTML
         $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogAllByMid($mailingId);
         
@@ -1431,7 +1424,7 @@ class StatisticsController extends MainController
     {
         $queryBuilder = $this->getQueryBuilder($queryArray[2]);
         
-        if (empty($queryArray[5])){
+        if (empty($queryArray[5])) {
             $res = $queryBuilder
             ->count($queryArray[1])
             ->addSelect($queryArray[0])
@@ -1440,7 +1433,8 @@ class StatisticsController extends MainController
             ->groupBy($queryArray[4])
             ->execute()
             ->fetchAll();
-        }else{
+        }
+        else {
             $res = $queryBuilder
             ->count($queryArray[1])
             ->addSelect($queryArray[0])
@@ -1453,7 +1447,7 @@ class StatisticsController extends MainController
         }
 
         /*questa funzione viene chiamata per cambiare la key 'COUNT(*)' in 'counter'*/
-        $res = $this->changekeyname($res,'counter','COUNT(*)');
+        $res = $this->changekeyname($res, 'counter', 'COUNT(*)');
         
         $lines = [];
         foreach($res as $row){
@@ -1563,15 +1557,15 @@ class StatisticsController extends MainController
                         if (!$recRec['firstlink']) {
                             $recRec['firstlink'] = $row['url_id'];
                             $recRec['firstlink_time'] = intval(@max($recRec['pings']));
-                            $recRec['firstlink_time'] = $recRec['firstlink_time'] ? $row['tstamp']-$recRec['firstlink_time'] : 0;
+                            $recRec['firstlink_time'] = $recRec['firstlink_time'] ? $row['tstamp'] - $recRec['firstlink_time'] : 0;
                         } elseif (!$recRec['secondlink']) {
                             $recRec['secondlink'] = $row['url_id'];
                             $recRec['secondlink_time'] = intval(@max($recRec['pings']));
-                            $recRec['secondlink_time'] = $recRec['secondlink_time'] ? $row['tstamp']-$recRec['secondlink_time'] : 0;
+                            $recRec['secondlink_time'] = $recRec['secondlink_time'] ? $row['tstamp'] - $recRec['secondlink_time'] : 0;
                         } elseif (!$recRec['thirdlink']) {
                             $recRec['thirdlink'] = $row['url_id'];
                             $recRec['thirdlink_time'] = intval(@max($recRec['pings']));
-                            $recRec['thirdlink_time'] = $recRec['thirdlink_time'] ? $row['tstamp']-$recRec['thirdlink_time'] : 0;
+                            $recRec['thirdlink_time'] = $recRec['thirdlink_time'] ? $row['tstamp'] - $recRec['thirdlink_time'] : 0;
                         }
                         $recRec['response'][] = $row['tstamp'];
                         break;
@@ -1613,15 +1607,15 @@ class StatisticsController extends MainController
             $recRec['links_last']  = empty($recRec['links']) ? 0 : intval(@max($recRec['links']));
             $recRec['links'] = count($recRec['links']);
             
-            $recRec['response_first'] = DirectMailUtility::intInRangeWrapper((int)((int)(empty($recRec['response']) ? 0 : @min($recRec['response']))-$recRec['tstamp']), 0);
-            $recRec['response_last']  = DirectMailUtility::intInRangeWrapper((int)((int)(empty($recRec['response']) ? 0 : @max($recRec['response']))-$recRec['tstamp']), 0);
+            $recRec['response_first'] = DirectMailUtility::intInRangeWrapper((int)((int)(empty($recRec['response']) ? 0 : @min($recRec['response'])) - $recRec['tstamp']), 0);
+            $recRec['response_last']  = DirectMailUtility::intInRangeWrapper((int)((int)(empty($recRec['response']) ? 0 : @max($recRec['response'])) - $recRec['tstamp']), 0);
             $recRec['response'] = count($recRec['response']);
             
-            $recRec['time_firstping'] = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_first']-$recRec['tstamp']), 0);
-            $recRec['time_lastping']  = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_last']-$recRec['tstamp']), 0);
+            $recRec['time_firstping'] = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_first'] - $recRec['tstamp']), 0);
+            $recRec['time_lastping']  = DirectMailUtility::intInRangeWrapper((int)($recRec['pings_last'] - $recRec['tstamp']), 0);
             
-            $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_first']-$recRec['tstamp']), 0);
-            $recRec['time_last_link']  = DirectMailUtility::intInRangeWrapper((int)($recRec['links_last']-$recRec['tstamp']), 0);
+            $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_first'] - $recRec['tstamp']), 0);
+            $recRec['time_last_link']  = DirectMailUtility::intInRangeWrapper((int)($recRec['links_last'] - $recRec['tstamp']), 0);
             
             $connection = $this->getConnection('cache_sys_dmail_stat');
             $connection->insert(
