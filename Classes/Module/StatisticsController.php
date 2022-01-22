@@ -454,26 +454,12 @@ class StatisticsController extends MainController
             'html' => [],
         ];
         // Most popular links, html:
-        $fieldRows = 'url_id';
-        $addFieldRows = '*';
-        $tableRows =  'sys_dmail_maillog';
-        $whereRows = 'mid=' . intval($row['uid']) . ' AND response_type=1';
-        $groupByRows = 'url_id';
-        $orderByRows = 'COUNT(*)';
-        //$queryArray = ['url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=1', 'url_id', 'counter'];
-        $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
-        $htmlUrlsTable = $this->getQueryRows($queryArray, 'url_id');
+        $htmlUrlsTable = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectMostPopularLinksHtml($row['uid']);
+        $htmlUrlsTable = $this->changekeyname($htmlUrlsTable, 'counter', 'COUNT(*)');
 
         // Most popular links, plain:
-        $fieldRows = 'url_id';
-        $addFieldRows = '*';
-        $tableRows =  'sys_dmail_maillog';
-        $whereRows = 'mid=' . intval($row['uid']) . ' AND response_type=2';
-        $groupByRows = 'url_id';
-        $orderByRows = 'COUNT(*)';
-        //$queryArray = ['url_id,count(*) as counter', 'sys_dmail_maillog', 'mid=' . intval($row['uid']) . ' AND response_type=2', 'url_id', 'counter'];
-        $queryArray = [$fieldRows, $addFieldRows, $tableRows, $whereRows, $groupByRows, $orderByRows];
-        $plainUrlsTable = $this->getQueryRows($queryArray, 'url_id');
+        $plainUrlsTable = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectMostPopularLinksPlain($row['uid']);
+        $plainUrlsTable = $this->changekeyname($plainUrlsTable, 'counter', 'COUNT(*)');
 
         // Find urls:
         $unpackedMail = unserialize(base64_decode($row['mailContent']));

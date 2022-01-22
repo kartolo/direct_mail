@@ -111,6 +111,34 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
+    public function selectMostPopularLinksHtml(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->count('*')
+        ->addSelect('url_id')
+        ->from($this->table)
+        ->add('where', 'mid=' . intval($uid) .
+            ' AND response_type = 1')
+        ->groupBy('url_id')
+        ->orderBy('COUNT(*)')
+        ->execute()
+        ->fetchAll();
+    }
+    
+    public function selectMostPopularLinksPlain(int $uid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->count('*')
+        ->addSelect('url_id')
+        ->from($this->table)
+        ->add('where', 'mid=' . intval($uid) .
+            ' AND response_type = 2')
+        ->groupBy('url_id')
+        ->orderBy('COUNT(*)')
+        ->execute()
+        ->fetchAll();
+    }
+    
     public function selectStatTempTableContent(int $uid): array|bool {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
