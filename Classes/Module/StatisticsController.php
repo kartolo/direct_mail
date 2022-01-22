@@ -402,7 +402,8 @@ class StatisticsController extends MainController
             'uniquePlainResponses' => $uniquePlainResponses,
             'totalSent' => $totalSent,
             'htmlSent' => $htmlSent,
-            'plainSent' => $plainSent 
+            'plainSent' => $plainSent,
+            'db' => $table
         ];
     }
     
@@ -440,6 +441,7 @@ class StatisticsController extends MainController
         $totalSent = $mailResponsesGeneral['totalSent'];
         $htmlSent = $mailResponsesGeneral['htmlSent']; 
         $plainSent =  $mailResponsesGeneral['plainSent'];
+        $table = $mailResponsesGeneral['db'];
         
         $output = '';
         
@@ -613,7 +615,8 @@ class StatisticsController extends MainController
                 if (!empty($title)) {
                     // no title attribute
                     $label = '<span title="' . $title . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
-                } else {
+                } 
+                else {
                     $label = '<span title="' . $targetUrl . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
                 }
                 
@@ -748,46 +751,45 @@ class StatisticsController extends MainController
         // Table with Icon        
         $responseResult = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countReturnCode($row['uid']);
         $responseResult = $this->changekeyname($responseResult, 'counter', 'COUNT(*)');
+
+        $tables[4] = [
+            'head' => [
+                '', 'stats_count', ''
+            ],
+            'body' => [
+                [
+                    'stats_total_mails_returned',
+                    number_format(intval($table['-127']['counter'] ?? 0)),
+                    implode('&nbsp;', $iconsMailReturned)
+                ],
+                [
+                    'stats_recipient_unknown',
+                    $this->showWithPercent(($responseResult['550']['counter'] ?? 0) + ($responseResult['553']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+                    implode('&nbsp;', $iconsUnknownRecip)
+                ],
+                [
+                    'stats_mailbox_full',
+                    $this->showWithPercent(($responseResult['551']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+                    implode('&nbsp;', $iconsMailbox)
+                ],
+                [
+                    'stats_bad_host',
+                    $this->showWithPercent(($responseResult['552']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+                    implode('&nbsp;', $iconsBadhost)
+                ],
+                [
+                    'stats_error_in_header',
+                    $this->showWithPercent(($responseResult['554']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+                    implode('&nbsp;', $iconsBadheader)
+                ],
+                [
+                    'stats_reason_unkown',
+                    $this->showWithPercent(($responseResult['-1']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+                    implode('&nbsp;', $iconsUnknownReason)
+                ]
+            ]
+        ]; 
         
-        $tblLines = [];
-        $tblLines[] = [
-            '',
-            $this->getLanguageService()->getLL('stats_count'),
-            ''
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_total_mails_returned'), 
-            number_format(intval($table['-127']['counter'] ?? 0)), 
-            implode('&nbsp;', $iconsMailReturned)
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_recipient_unknown'), 
-            $this->showWithPercent(($responseResult['550']['counter'] ?? 0) + ($responseResult['553']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)), 
-            implode('&nbsp;', $iconsUnknownRecip)
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_mailbox_full'), 
-            $this->showWithPercent(($responseResult['551']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)), 
-            implode('&nbsp;', $iconsMailbox)
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_bad_host'), 
-            $this->showWithPercent(($responseResult['552']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)), 
-            implode('&nbsp;', $iconsBadhost)
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_error_in_header'), 
-            $this->showWithPercent(($responseResult['554']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
-            implode('&nbsp;', $iconsBadheader)
-        ];
-        $tblLines[] = [
-            $this->getLanguageService()->getLL('stats_reason_unkown'), 
-            $this->showWithPercent(($responseResult['-1']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
-            implode('&nbsp;', $iconsUnknownReason)
-        ];
-        
-        $output .= '<br /><h2>' . $this->getLanguageService()->getLL('stats_mails_returned') . '</h2>';
-        $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap', ''], 1, [0, 0, 1]);
         
         // Find all returned mail
         if ($this->returnList || $this->returnDisable || $this->returnCSV) {

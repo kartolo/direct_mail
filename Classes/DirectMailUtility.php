@@ -783,7 +783,7 @@ class DirectMailUtility
 
         reset($tableLines);
         $lines = [];
-        $first = $header?1:0;
+        $first = $header ? 1 : 0;
 
         foreach ($tableLines as $r) {
             $rowA = [];

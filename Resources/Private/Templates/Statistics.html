@@ -71,7 +71,7 @@
                             <f:then>
                                 <f:if condition="{cell} != ''"><f:translate key="{lll}{cell}" /></f:if>
                             </f:then>
-                            <f:else>{cell}</f:else>
+                            <f:else><f:format.html>{cell}</f:format.html></f:else>
                         </f:if>
                         </td>
                     </f:for>
@@ -97,6 +97,12 @@
         <f:render section="table" arguments="{table:dataStats.tables.2}" />
     </f:if>
 
+    <f:if condition="{dataStats.tables.4}">
+        <br />
+        <h2><f:translate key="{lll}stats_mails_returned" /></h2>
+        <f:render section="table" arguments="{table:dataStats.tables.4}" />
+    </f:if>
+    
     <f:format.raw>{dataStats.out}</f:format.raw>
     <div style="padding-top: 20px;"></div>
     <h3><f:translate key="{lll}stats_recalculate_cached_data" /></h3>
