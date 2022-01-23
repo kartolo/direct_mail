@@ -122,7 +122,7 @@ class Importer
                 $this->indata['newFile'] = rtrim($storageConfig['basePath'], '/') . '/' . ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
             }
         } elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
-            if (((strpos($currentFileInfo['file'], 'import')=== false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt')) {
+            if (((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt')) {
                 // do nothing
             } else {
                 unset($this->indata['newFile']);
@@ -154,7 +154,7 @@ class Importer
             // check noMap
             $newMap = ArrayUtility::removeArrayEntryByValue(array_unique($map), 'noMap');
             if (empty($newMap)) {
-                $error[]='noMap';
+                $error[] = 'noMap';
             } elseif (!in_array('email', $map)) {
                 $error[] = 'email';
             }
@@ -187,26 +187,26 @@ class Importer
                 $optStorage = [];
                 while (($row = $statement->fetch())) {
                     if (BackendUtility::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1))) {
-                        $optStorage[] = [$row['uid'],$row['title'] . ' [uid:' . $row['uid'] . ']'];
+                        $optStorage[] = [$row['uid'], $row['title'] . ' [uid:' . $row['uid'] . ']'];
                     }
                 }
 
                 $optDelimiter = [
-                    ['comma',$this->getLanguageService()->getLL('mailgroup_import_separator_comma')],
-                    ['semicolon',$this->getLanguageService()->getLL('mailgroup_import_separator_semicolon')],
-                    ['colon',$this->getLanguageService()->getLL('mailgroup_import_separator_colon')],
-                    ['tab',$this->getLanguageService()->getLL('mailgroup_import_separator_tab')]
+                    ['comma', $this->getLanguageService()->getLL('mailgroup_import_separator_comma')],
+                    ['semicolon', $this->getLanguageService()->getLL('mailgroup_import_separator_semicolon')],
+                    ['colon', $this->getLanguageService()->getLL('mailgroup_import_separator_colon')],
+                    ['tab', $this->getLanguageService()->getLL('mailgroup_import_separator_tab')]
                 ];
 
                 $optEncap = [
-                    ['doubleQuote',' " '],
-                    ['singleQuote'," ' "],
+                    ['doubleQuote', ' " '],
+                    ['singleQuote', " ' "],
                 ];
 
                 // TODO: make it variable?
                 $optUnique = [
-                    ['email','email'],
-                    ['name','name']
+                    ['email', 'email'],
+                    ['name', 'name']
                 ];
 
                 ($this->params['inputDisable'] == 1) ? $disableInput = 'disabled="disabled"' : $disableInput = '';
@@ -274,7 +274,7 @@ class Importer
                 $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '" />
 						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_next') . '" />' .
                         $this->makeHidden([
-                            'CMD' => 'displayImport',
+                            'cmd' => 'displayImport',
                             'importStep[next]' => 'mapping',
                             'importStep[back]' => 'upload',
                             'CSV_IMPORT[newFile]' => $this->indata['newFile']]);
@@ -293,8 +293,8 @@ class Importer
                 }
                 $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_charset') . '</h3>';
                 $tblLines = [];
-                $tblLines[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_charset_choose'), $this->makeDropdown('CSV_IMPORT[charset]', $charSets, $this->indata['charset']));
-                $out .= $this->formatTable($tblLines, array('nowrap', 'nowrap'), 0, array(1, 1), 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
+                $tblLines[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_charset_choose'), $this->makeDropdown('CSV_IMPORT[charset]', $charSets, $this->indata['charset'])];
+                $out .= $this->formatTable($tblLines, ['nowrap', 'nowrap'], 0, [1, 1], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
                 $out .= '<input type="submit" name="CSV_IMPORT[update]" value="' . $this->getLanguageService()->getLL('mailgroup_import_update') . '"/>';
                 unset($tblLines);
 
@@ -324,23 +324,23 @@ class Importer
                 }
                 $mapFields = [];
                 foreach ($ttAddressFields as $map) {
-                    $mapFields[] = array($map, str_replace(':', '', $this->getLanguageService()->sL($GLOBALS['TCA']['tt_address']['columns'][$map]['label'])));
+                    $mapFields[] = [$map, str_replace(':', '', $this->getLanguageService()->sL($GLOBALS['TCA']['tt_address']['columns'][$map]['label']))];
                 }
                 // add 'no value'
-                array_unshift($mapFields, array('noMap', $this->getLanguageService()->getLL('mailgroup_import_mapping_mapTo')));
-                $mapFields[] = array('cats',$this->getLanguageService()->getLL('mailgroup_import_mapping_categories'));
+                array_unshift($mapFields, ['noMap', $this->getLanguageService()->getLL('mailgroup_import_mapping_mapTo')]);
+                $mapFields[] = ['cats', $this->getLanguageService()->getLL('mailgroup_import_mapping_categories')];
                 reset($csv_firstRow);
                 reset($csvData);
 
                 $tblLines = [];
-                $tblLines[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_number'),$this->getLanguageService()->getLL('mailgroup_import_mapping_description'),$this->getLanguageService()->getLL('mailgroup_import_mapping_mapping'),$this->getLanguageService()->getLL('mailgroup_import_mapping_value'));
-                for ($i=0; $i<(count($csv_firstRow)); $i++) {
+                $tblLines[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_number'),$this->getLanguageService()->getLL('mailgroup_import_mapping_description'),$this->getLanguageService()->getLL('mailgroup_import_mapping_mapping'),$this->getLanguageService()->getLL('mailgroup_import_mapping_value')];
+                for ($i = 0; $i < (count($csv_firstRow)); $i++) {
                     // example CSV
                     $exampleLines = [];
-                    for ($j=0;$j<(count($csvData));$j++) {
-                        $exampleLines[] = array($csvData[$j][$i]);
+                    for ($j = 0; $j < (count($csvData)); $j++) {
+                        $exampleLines[] = [$csvData[$j][$i]];
                     }
-                    $tblLines[] = array($i+1,$csv_firstRow[$i],$this->makeDropdown('CSV_IMPORT[map][' . ($i) . ']', $mapFields, $this->indata['map'][$i]), $this->formatTable($exampleLines, array('nowrap'), 0, array(0), 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover" style="width:100%; border:0px; margin:0px;"'));
+                    $tblLines[] = [$i+1, $csv_firstRow[$i], $this->makeDropdown('CSV_IMPORT[map][' . ($i) . ']', $mapFields, $this->indata['map'][$i]), $this->formatTable($exampleLines, ['nowrap'], 0, [0], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover" style="width:100%; border:0px; margin:0px;"')];
                 }
 
                 if ($error) {
@@ -356,7 +356,7 @@ class Importer
                 $tblLinesAdd = [];
 
                 // header
-                $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"' . (!$this->indata['all_html']?'':' checked="checked"') . '/> ');
+                $tblLinesAdd[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"' . (!$this->indata['all_html']?'':' checked="checked"') . '/> '];
                 // get categories
                 $temp['value'] = BackendUtility::getPagesTSconfig($this->parent->id)['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
                 if (is_numeric($temp['value'])) {
@@ -374,25 +374,25 @@ class Importer
                         ->fetchAll();
 
                     if (!empty($rowCat)) {
-                        $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_cats'), '');
+                        $tblLinesAdd[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_cats'), ''];
                         if ($this->indata['update_unique']) {
-                            $tblLinesAdd[] = array($this->getLanguageService()->getLL('mailgroup_import_mapping_cats_add'), '<input type="checkbox" name="CSV_IMPORT[add_cat]" value="1"' . ($this->indata['add_cat']?' checked="checked"':'') . '/> ');
+                            $tblLinesAdd[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_cats_add'), '<input type="checkbox" name="CSV_IMPORT[add_cat]" value="1"' . ($this->indata['add_cat']?' checked="checked"':'') . '/> '];
                         }
                         foreach ($rowCat as $k => $v) {
-                            $tblLinesAdd[] = array('&nbsp;&nbsp;&nbsp;' . htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat][' . $k . ']" value="' . $v['uid'] . '"' . (($this->indata['cat'][$k]!=$v['uid'])?'':' checked="checked"') . '/> ');
+                            $tblLinesAdd[] = ['&nbsp;&nbsp;&nbsp;' . htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat][' . $k . ']" value="' . $v['uid'] . '"' . (($this->indata['cat'][$k] != $v['uid']) ? '' :' checked="checked"') . '/> '];
                         }
                     }
                 }
 
-                $out .= $this->formatTable($tblLines, array('nowrap', 'nowrap', 'nowrap', 'nowrap'), 1, array(0, 0, 1, 1), 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
+                $out .= $this->formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, [0, 0, 1, 1], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
                 $out .= '<br /><br />';
                 // additional options
                 $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_conf_add') . '</h3>';
-                $out .= $this->formatTable($tblLinesAdd, array('nowrap', 'nowrap'), 0, array(1, 1), 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
+                $out .= $this->formatTable($tblLinesAdd, ['nowrap', 'nowrap'], 0, [1, 1], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
                 $out .= '<br /><br />';
                 $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '"/>
 						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_next') . '"/>' .
-                        $this->makeHidden(array(
+                        $this->makeHidden([
                             'CMD' => 'displayImport',
                             'importStep[next]' => 'import',
                             'importStep[back]' => 'conf',
@@ -406,7 +406,7 @@ class Importer
                             'CSV_IMPORT[remove_dublette]' => $this->indata['remove_dublette'],
                             'CSV_IMPORT[update_unique]' => $this->indata['update_unique'],
                             'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
-                        ));
+                        ]);
                 break;
 
             case 'import':
@@ -416,7 +416,7 @@ class Importer
 
                 $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '" />
 						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_import') . '" />' .
-                        $this->makeHidden(array(
+                        $this->makeHidden([
                             'CMD' => 'displayImport',
                             'importStep[next]' => 'startImport',
                             'importStep[back]' => 'mapping',
@@ -433,7 +433,7 @@ class Importer
                             'CSV_IMPORT[all_html]' => $this->indata['all_html'],
                             'CSV_IMPORT[add_cat]' => $this->indata['add_cat'],
                             'CSV_IMPORT[charset]' => $this->indata['charset'],
-                        ));
+                        ]);
                 $hiddenMapped = [];
                 foreach ($this->indata['map'] as $fieldNr => $fieldMapped) {
                     $hiddenMapped[]    = $this->makeHidden('CSV_IMPORT[map][' . $fieldNr . ']', $fieldMapped);
@@ -462,7 +462,7 @@ class Importer
                 $result = $this->doImport($csvData);
                 $out = '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_done') . '</h3>';
 
-                $defaultOrder = array('new','update','invalid_email','double');
+                $defaultOrder = ['new','update','invalid_email','double'];
 
                 if (!empty($this->params['resultOrder'])) {
                     $resultOrder = GeneralUtility::trimExplode(',', $this->params['resultOrder']);
@@ -475,18 +475,18 @@ class Importer
 
                 foreach ($endOrder as $order) {
                     $tblLines = [];
-                    $tblLines[] = array($this->getLanguageService()->getLL('mailgroup_import_report_' . $order));
+                    $tblLines[] = [$this->getLanguageService()->getLL('mailgroup_import_report_' . $order)];
                     if (is_array($result[$order])) {
                         foreach ($result[$order] as $k => $v) {
                             $mapKeys = array_keys($v);
-                            $tblLines[]= array($k+1, $v[$mapKeys[0]], $v['email']);
+                            $tblLines[] = [$k+1, $v[$mapKeys[0]], $v['email']];
                         }
                     }
-                    $out .= $this->formatTable($tblLines, array('nowrap', 'first' => 'colspan="3"'), 1, array(1));
+                    $out .= $this->formatTable($tblLines, ['nowrap', 'first' => 'colspan="3"'], 1, [1]);
                 }
 
                 // back button
-                $out .= $this->makeHidden(array(
+                $out .= $this->makeHidden([
                             'CMD' => 'displayImport',
                             'importStep[back]' => 'import',
                             'CSV_IMPORT[newFile]' => $this->indata['newFile'],
@@ -501,7 +501,7 @@ class Importer
                             'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
                             'CSV_IMPORT[all_html]' => $this->indata['all_html'],
                             'CSV_IMPORT[charset]' => $this->indata['charset'],
-                        ));
+                        ]);
                 $hiddenMapped = [];
                 foreach ($this->indata['map'] as $fieldNr => $fieldMapped) {
                     $hiddenMapped[]    = $this->makeHidden('CSV_IMPORT[map][' . $fieldNr . ']', $fieldMapped);
@@ -511,7 +511,7 @@ class Importer
                         $hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat][' . $k . ']', $catUid);
                     }
                 }
-                $out .=implode('', $hiddenMapped);
+                $out .= implode('', $hiddenMapped);
                 break;
 
             case 'upload':
@@ -521,7 +521,7 @@ class Importer
                 $tempDir = $this->userTempFolder();
 
                 $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_upload_file') . '<input type="file" name="upload_1" size="30" />';
-                if (($this->indata['mode'] === 'file') && !(((strpos($currentFileInfo['file'], 'import')=== false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt'))) {
+                if (($this->indata['mode'] === 'file') && !(((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt'))) {
                     $currentFileMessage = '';
                     $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_current_file') . '<b>' . $currentFileMessage . '</b>';
                 }
@@ -935,7 +935,7 @@ class Importer
             $this->indata['newFile'] = Environment::getPublicPath() . '/' . $this->indata['newFile'];
         }
         $handle = fopen($this->indata['newFile'], 'r');
-	if($handle === false) {
+	   if($handle === false) {
             return $mydata;
         }
         $i = 0;
