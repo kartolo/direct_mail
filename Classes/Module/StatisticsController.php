@@ -824,33 +824,11 @@ class StatisticsController extends MainController
             ]
         ]; 
         
-        
         // Find all returned mail
         if ($this->returnList || $this->returnDisable || $this->returnCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findAllReturnedMail($row['uid']);
-            $idLists = [
-                'tt_address' => [], 
-                'fe_users' => [], 
-                'PLAINLIST' => []
-            ];
-
-            if(is_array($rrows)) {
-                foreach($rrows as $rrow) {
-                    switch ($rrow['rtbl']) {
-                        case 't':
-                            $idLists['tt_address'][] = $rrow['rid'];
-                            break;
-                        case 'f':
-                            $idLists['fe_users'][] = $rrow['rid'];
-                            break;
-                        case 'P':
-                            $idLists['PLAINLIST'][] = $rrow['email'];
-                            break;
-                        default:
-                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
-                    }
-                }
-            }
+            
+            $idLists = $this->getIdLists($rrows);
 
             if ($this->returnList) {
                 if (count($idLists['tt_address'])) {
@@ -901,29 +879,8 @@ class StatisticsController extends MainController
         // Find Unknown Recipient
         if ($this->unknownList || $this->unknownDisable || $this->unknownCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findUnknownRecipient($row['uid']);
-            $idLists = [
-                'tt_address' => [],
-                'fe_users' => [],
-                'PLAINLIST' => []
-            ];
-
-            if(is_array($rrows)) {
-                foreach($rrows as $rrow) {
-                    switch ($rrow['rtbl']) {
-                        case 't':
-                            $idLists['tt_address'][] = $rrow['rid'];
-                            break;
-                        case 'f':
-                            $idLists['fe_users'][] = $rrow['rid'];
-                            break;
-                        case 'P':
-                            $idLists['PLAINLIST'][] = $rrow['email'];
-                            break;
-                        default:
-                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
-                    }
-                }
-            }
+            
+            $idLists = $this->getIdLists($rrows);
                 
             if ($this->unknownList) {
                 if (count($idLists['tt_address'])) {
@@ -974,29 +931,8 @@ class StatisticsController extends MainController
         // Mailbox Full
         if ($this->fullList || $this->fullDisable || $this->fullCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findMailboxFull($row['uid']);
-            $idLists = [
-                'tt_address' => [],
-                'fe_users' => [],
-                'PLAINLIST' => []
-            ];
             
-            if(is_array($rrows)) {
-                foreach($rrows as $rrow) {
-                    switch ($rrow['rtbl']) {
-                        case 't':
-                            $idLists['tt_address'][] = $rrow['rid'];
-                            break;
-                        case 'f':
-                            $idLists['fe_users'][] = $rrow['rid'];
-                            break;
-                        case 'P':
-                            $idLists['PLAINLIST'][] = $rrow['email'];
-                            break;
-                        default:
-                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
-                    }
-                }
-            }
+            $idLists = $this->getIdLists($rrows);
                 
             if ($this->fullList) {
                 if (count($idLists['tt_address'])) {
@@ -1047,29 +983,8 @@ class StatisticsController extends MainController
         // find Bad Host
         if ($this->badHostList || $this->badHostDisable || $this->badHostCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findBadHost($row['uid']);
-            $idLists = [
-                'tt_address' => [],
-                'fe_users' => [],
-                'PLAINLIST' => []
-            ];
-
-            if(is_array($rrows)) {
-                foreach($rrows as $rrow) {
-                    switch ($rrow['rtbl']) {
-                        case 't':
-                            $idLists['tt_address'][] = $rrow['rid'];
-                            break;
-                        case 'f':
-                            $idLists['fe_users'][] = $rrow['rid'];
-                            break;
-                        case 'P':
-                            $idLists['PLAINLIST'][] = $rrow['email'];
-                            break;
-                        default:
-                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
-                    }
-                }
-            }
+            
+            $idLists = $this->getIdLists($rrows);
                 
             if ($this->badHostList) {
                 if (count($idLists['tt_address'])) {
@@ -1123,29 +1038,8 @@ class StatisticsController extends MainController
         // find Bad Header
         if ($this->badHeaderList || $this->badHeaderDisable || $this->badHeaderCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findBadHeader($row['uid']);
-            $idLists = [
-                'tt_address' => [],
-                'fe_users' => [],
-                'PLAINLIST' => []
-            ];
-
-            if(is_array($rrows)) {
-                foreach($rrows as $rrow) {
-                    switch ($rrow['rtbl']) {
-                        case 't':
-                            $idLists['tt_address'][] = $rrow['rid'];
-                            break;
-                        case 'f':
-                            $idLists['fe_users'][] = $rrow['rid'];
-                            break;
-                        case 'P':
-                            $idLists['PLAINLIST'][] = $rrow['email'];
-                            break;
-                        default:
-                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
-                    }
-                }
-            }
+            
+            $idLists = $this->getIdLists($rrows);
                 
             if ($this->badHeaderList) {
                 if (count($idLists['tt_address'])) {
@@ -1197,29 +1091,8 @@ class StatisticsController extends MainController
         // TODO: list all reason
         if ($this->reasonUnknownList || $this->reasonUnknownDisable || $this->reasonUnknownCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findUnknownReasons($row['uid']);
-            $idLists = [
-                'tt_address' => [],
-                'fe_users' => [],
-                'PLAINLIST' => []
-            ];
-
-            if(is_array($rrows)) {
-                foreach($rrows as $rrow) {
-                    switch ($rrow['rtbl']) {
-                        case 't':
-                            $idLists['tt_address'][] = $rrow['rid'];
-                            break;
-                        case 'f':
-                            $idLists['fe_users'][] = $rrow['rid'];
-                            break;
-                        case 'P':
-                            $idLists['PLAINLIST'][] = $rrow['email'];
-                            break;
-                        default:
-                            $idLists[$rrow['rtbl']][] = $rrow['rid'];
-                    }
-                }
-            }
+            
+            $idLists = $this->getIdLists($rrows);
                 
             if ($this->reasonUnknownList) {
                 if (count($idLists['tt_address'])) {
@@ -1293,6 +1166,35 @@ class StatisticsController extends MainController
         $this->noView = 1;
 
         return ['out' => $output, 'compactView' => $compactView, 'thisurl' => $thisurl, 'tables' => $tables];
+    }
+    
+    private function getIdLists($rrows): array
+    {
+        $idLists = [
+            'tt_address' => [],
+            'fe_users' => [],
+            'PLAINLIST' => []
+        ];
+        
+        if(is_array($rrows)) {
+            foreach($rrows as $rrow) {
+                switch ($rrow['rtbl']) {
+                    case 't':
+                        $idLists['tt_address'][] = $rrow['rid'];
+                        break;
+                    case 'f':
+                        $idLists['fe_users'][] = $rrow['rid'];
+                        break;
+                    case 'P':
+                        $idLists['PLAINLIST'][] = $rrow['email'];
+                        break;
+                    default:
+                        $idLists[$rrow['rtbl']][] = $rrow['rid'];
+                }
+            }
+        }
+
+        return $idLists;
     }
     
     private function createBubbleLinks($url, array $iconConfs): array
