@@ -291,7 +291,7 @@ class RecipientListController extends MainController
                         }
                         break;
                     case 4:
-                        $groups = array_unique(DirectMailUtility::getMailGroups($mailGroup['mail_groups'], array($mailGroup['uid']), $this->perms_clause));
+                        $groups = array_unique(DirectMailUtility::getMailGroups($mailGroup['mail_groups'], [$mailGroup['uid']], $this->perms_clause));
                         foreach ($groups as $group) {
                             $collect = $this->cmd_compileMailGroup($group);
                             if (is_array($collect['queryInfo']['id_lists'])) {
@@ -420,7 +420,8 @@ class RecipientListController extends MainController
         }
 
         $group = BackendUtility::getRecord('sys_dmail_group', $this->group_uid);
-        $out = $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL) . htmlspecialchars($group['title']);
+        $group = is_array($group) ? $group : [];
+        $out = $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL) . htmlspecialchars($group['title'] ?? '');
 
         $mainC = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' <strong>' . $totalRecipients . '</strong>';
         if (!$this->lCmd) {
@@ -454,7 +455,7 @@ class RecipientListController extends MainController
             
         switch ($this->lCmd) {
             case 'listall':
-                if (is_array($idLists['tt_address'])) {
+                if (is_array($idLists['tt_address'] ?? false)) {
                     $theOutput.= '<h3>' . $this->getLanguageService()->getLL('mailgroup_table_address') . '</h3>' .
                         DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id);
                         $theOutput.= '<div style="padding-top: 20px;"></div>';
@@ -504,7 +505,7 @@ class RecipientListController extends MainController
                     $theOutput .= '<div style="padding-top: 20px;"></div>';
                 }
                         
-                if ($group['type'] == 3) {
+                if (($group['type'] ?? false) == 3) {
                     if ($this->getBackendUser()->check('tables_modify', 'sys_dmail_group')) {
                         $theOutput .= $this->cmd_specialQuery($group);
                     }
