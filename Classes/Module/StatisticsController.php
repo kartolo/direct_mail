@@ -431,16 +431,6 @@ class StatisticsController extends MainController
         if ($this->recalcCache) {
             $this->makeStatTempTableContent($row);
         }
-        
-        $thisurl = $this->buildUriFromRoute(
-            $this->moduleName,
-            [
-                'id' => $this->id,
-                'sys_dmail_uid' => $row['uid'],
-                'cmd' => $this->cmd,
-                'recalcCache' => 1
-            ]
-        );
 
         $compactView = $this->directMail_compactView($row);
         
@@ -722,6 +712,15 @@ class StatisticsController extends MainController
         // ******************
         // Returned mails
         // ******************
+        $thisurl = $this->buildUriFromRoute(
+            $this->moduleName,
+            [
+                'id' => $this->id,
+                'sys_dmail_uid' => $row['uid'],
+                'cmd' => $this->cmd,
+                'recalcCache' => 1
+            ]
+        );
         
         // The icons:
         $listIcons = $this->iconFactory->getIcon('actions-system-list-open', Icon::SIZE_SMALL);
@@ -729,35 +728,59 @@ class StatisticsController extends MainController
         $hideIcons = $this->iconFactory->getIcon('actions-lock', Icon::SIZE_SMALL);
         
         // Icons mails returned
-        $iconsMailReturned[] = '<a href="' . $thisurl . '&returnList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned') . '"> ' . $listIcons . '</span></a>';
-        $iconsMailReturned[] = '<a href="' . $thisurl . '&returnDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned') . '"> ' . $hideIcons . '</span></a>';
-        $iconsMailReturned[] = '<a href="' . $thisurl . '&returnCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned') . '"> ' . $csvIcons . '</span></a>';
-        
+        $iconConfs = [
+            ['getAttr' => 'returnList', 'lang' => 'stats_list_returned', 'icon' => $listIcons],
+            ['getAttr' => 'returnDisable', 'lang' => 'stats_disable_returned', 'icon' => $hideIcons],
+            ['getAttr' => 'returnCSV', 'lang' => 'stats_CSV_returned', 'icon' => $csvIcons]
+        ];
+
+        $iconsMailReturned = $this->createBubbleLinks($thisurl, $iconConfs);
+
         // Icons unknown recip
-        $iconsUnknownRecip[] = '<a href="' . $thisurl . '&unknownList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned_unknown_recipient') . '"> ' . $listIcons . '</span></a>';
-        $iconsUnknownRecip[] = '<a href="' . $thisurl . '&unknownDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_unknown_recipient') . '"> ' . $hideIcons . '</span></a>';
-        $iconsUnknownRecip[] = '<a href="' . $thisurl . '&unknownCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_unknown_recipient') . '"> ' . $csvIcons . '</span></a>';
+        $iconConfs = [
+            ['getAttr' => 'unknownList', 'lang' => 'stats_list_returned_unknown_recipient', 'icon' => $listIcons],
+            ['getAttr' => 'unknownDisable', 'lang' => 'stats_disable_returned_unknown_recipient', 'icon' => $hideIcons],
+            ['getAttr' => 'unknownCSV', 'lang' => 'stats_CSV_returned_unknown_recipient', 'icon' => $csvIcons]
+        ];
+        
+        $iconsUnknownRecip = $this->createBubbleLinks($thisurl, $iconConfs);
         
         // Icons mailbox full
-        $iconsMailbox[] = '<a href="' . $thisurl . '&fullList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned_mailbox_full') . '"> ' . $listIcons . '</span></a>';
-        $iconsMailbox[] = '<a href="' . $thisurl . '&fullDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_mailbox_full') . '"> ' . $hideIcons . '</span></a>';
-        $iconsMailbox[] = '<a href="' . $thisurl . '&fullCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_mailbox_full') . '"> ' . $csvIcons . '</span></a>';
+        $iconConfs = [
+            ['getAttr' => 'fullList', 'lang' => 'stats_list_returned_mailbox_full', 'icon' => $listIcons],
+            ['getAttr' => 'fullDisable', 'lang' => 'stats_disable_returned_mailbox_full', 'icon' => $hideIcons],
+            ['getAttr' => 'fullCSV', 'lang' => 'stats_CSV_returned_mailbox_full', 'icon' => $csvIcons]
+        ];
+        
+        $iconsMailbox = $this->createBubbleLinks($thisurl, $iconConfs);
         
         // Icons bad host
-        $iconsBadhost[] = '<a href="' . $thisurl . '&badHostList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned_bad_host') . '"> ' . $listIcons . '</span></a>';
-        $iconsBadhost[] = '<a href="' . $thisurl . '&badHostDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_bad_host') . '"> ' . $hideIcons . '</span></a>';
-        $iconsBadhost[] = '<a href="' . $thisurl . '&badHostCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_bad_host') . '"> ' . $csvIcons . '</span></a>';
+        $iconConfs = [
+            ['getAttr' => 'badHostList', 'lang' => 'stats_list_returned_bad_host', 'icon' => $listIcons],
+            ['getAttr' => 'badHostDisable', 'lang' => 'stats_disable_returned_bad_host', 'icon' => $hideIcons],
+            ['getAttr' => 'badHostCSV', 'lang' => 'stats_CSV_returned_bad_host', 'icon' => $csvIcons]
+        ];
         
-        // Icons bad header
-        $iconsBadheader[] = '<a href="' . $thisurl . '&badHeaderList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned_bad_header') . '"> ' . $listIcons . '</span></a>';
-        $iconsBadheader[] = '<a href="' . $thisurl . '&badHeaderDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_bad_header') . '"> ' . $hideIcons . '</span></a>';
-        $iconsBadheader[] = '<a href="' . $thisurl . '&badHeaderCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_bad_header') . '"> ' . $csvIcons . '</span></a>';
+        $iconsBadhost = $this->createBubbleLinks($thisurl, $iconConfs);
+        
+        // Icons bad header        
+        $iconConfs = [
+            ['getAttr' => 'badHeaderList', 'lang' => 'stats_list_returned_bad_header', 'icon' => $listIcons],
+            ['getAttr' => 'badHeaderDisable', 'lang' => 'stats_disable_returned_bad_header', 'icon' => $hideIcons],
+            ['getAttr' => 'badHeaderCSV', 'lang' => 'stats_CSV_returned_bad_header', 'icon' => $csvIcons]
+        ];
+        
+        $iconsBadheader = $this->createBubbleLinks($thisurl, $iconConfs);
         
         // Icons unknown reasons
         // TODO: link to show all reason
-        $iconsUnknownReason[] = '<a href="' . $thisurl . '&reasonUnknownList=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_list_returned_reason_unknown') . '"> ' . $listIcons . '</span></a>';
-        $iconsUnknownReason[] = '<a href="' . $thisurl . '&reasonUnknownDisable=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_disable_returned_reason_unknown') . '"> ' . $hideIcons . '</span></a>';
-        $iconsUnknownReason[] = '<a href="' . $thisurl . '&reasonUnknownCSV=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL('stats_CSV_returned_reason_unknown') . '"> ' . $csvIcons . '</span></a>';
+        $iconConfs = [
+            ['getAttr' => 'reasonUnknownList', 'lang' => 'stats_list_returned_reason_unknown', 'icon' => $listIcons],
+            ['getAttr' => 'reasonUnknownDisable', 'lang' => 'stats_disable_returned_reason_unknown', 'icon' => $hideIcons],
+            ['getAttr' => 'reasonUnknownCSV', 'lang' => 'stats_CSV_returned_reason_unknown', 'icon' => $csvIcons]
+        ];
+        
+        $iconsUnknownReason = $this->createBubbleLinks($thisurl, $iconConfs);
         
         // Table with Icon        
         $responseResult = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countReturnCode($row['uid']);
@@ -1270,6 +1293,17 @@ class StatisticsController extends MainController
         $this->noView = 1;
 
         return ['out' => $output, 'compactView' => $compactView, 'thisurl' => $thisurl, 'tables' => $tables];
+    }
+    
+    private function createBubbleLinks($url, array $iconConfs): array
+    {
+        $res = [];
+        if(count($iconConfs)) {
+            foreach($iconConfs as $iconConf) {
+                $res[] = '<a href="' . $url . '&' . $iconConf['getAttr'] . '=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL($iconConf['lang']) . '"> ' . $iconConf['icon'] . '</span></a>';
+            }
+        }
+        return $res;
     }
     
     /**
