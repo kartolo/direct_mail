@@ -14,9 +14,9 @@ use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\CsvUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
 
 class RecipientListController extends MainController
 {
@@ -58,10 +58,12 @@ class RecipientListController extends MainController
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
-                    $formcontent = $this->moduleContent();
+                    $data = $this->moduleContent();
                     $this->view->assignMultiple(
                         [
-                            'formcontent' => $formcontent,
+                            'data' => $data['data'],
+                            'type' => $data['type'],
+                            'formcontent' => $data['content'],
                             'show' => true
                         ]
                     );
@@ -97,26 +99,33 @@ class RecipientListController extends MainController
      */
     protected function moduleContent()
     {
+        $theOutput = '';
+        $data = [];
         // COMMAND:
         switch ($this->cmd) {
             case 'displayUserInfo': //@TODO ???
                 $theOutput = $this->cmd_displayUserInfo();
+                $type = 1;
                 break;
             case 'displayMailGroup':
                 $result = $this->cmd_compileMailGroup($this->group_uid);
                 $theOutput = $this->cmd_displayMailGroup($result);
+                $type = 2;
                 break;
             case 'displayImport':
                 /* @var $importer \DirectMailTeam\DirectMail\Importer */
                 $importer = GeneralUtility::makeInstance(Importer::class);
                 $importer->init($this);
                 $theOutput = $importer->cmd_displayImport();
+                $type = 3;
                 break;
             default:
-                $theOutput = $this->showExistingRecipientLists();
+                $data = $this->showExistingRecipientLists();
+                $theOutput = '';
+                $type = 4;
         }
         
-        return $theOutput;
+        return ['data' => $data, 'content' => $theOutput, 'type' => $type];
     }
     
     /**
@@ -127,38 +136,17 @@ class RecipientListController extends MainController
      */
     protected function showExistingRecipientLists()
     {
+        $data = [
+            'rows' => []
+        ];
         
-        $out = '<thead>
-					<th colspan="2">&nbsp;</th>
-                    <th>' . $this->getLanguageService()->sL(BackendUtility::getItemLabel('sys_dmail_group', 'title')) . '</th>
-                    <th>' . $this->getLanguageService()->sL(BackendUtility::getItemLabel('sys_dmail_group', 'type')) . '</th>
-					<th>' . $this->getLanguageService()->sL(BackendUtility::getItemLabel('sys_dmail_group', 'description')) . '</th>
-					<th>' . $this->getLanguageService()->getLL('recip_group_amount') . '</th>
-				</thead>';
+        $rows = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selecetSysDmailGroupByPid($this->id, trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby']));
         
-        $queryBuilder = $this->getQueryBuilder('sys_dmail_group');
-        $queryBuilder
-        ->getRestrictions()
-        ->removeAll()
-        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        $res = $queryBuilder->select('uid','pid','title','description','type')
-        ->from('sys_dmail_group')
-        ->where(
-            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->id,\PDO::PARAM_INT))
-            )
-            ->orderBy(
-                preg_replace(
-                    '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
-                    trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
-                    )
-                )
-                ->execute()
-                ->fetchAll();
-                
-        foreach($res as $row) {
+        foreach($rows as $row) {
             $result = $this->cmd_compileMailGroup(intval($row['uid']));
             $count = 0;
             $idLists = $result['queryInfo']['id_lists'];
+            
             if (is_array($idLists['tt_address'] ?? false)) {
                 $count += count($idLists['tt_address']);
             }
@@ -172,49 +160,37 @@ class RecipientListController extends MainController
                 $count += count($idLists[$this->userTable]);
             }
             
-            $out .= '<tr class="db_list_normal">
-			<td nowrap="nowrap">' .  $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render() . '</td>
-			<td>' . $this->editLink('sys_dmail_group', $row['uid']) . '</td>
-			<td nowrap="nowrap">' . $this->linkRecip_record('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']) . '</td>
-			<td nowrap="nowrap">' . htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])) . '&nbsp;&nbsp;</td>
-			<td>' . BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'])) . '&nbsp;&nbsp;</td>
-			<td>' . $count . '</td>
-		</tr>';
+            $data['rows'][] = [
+                'icon'        => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render(),
+                'editLink'    => $this->editLink('sys_dmail_group', $row['uid']),
+                'reciplink'   => $this->linkRecip_record('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']),
+                'type'        => htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])),
+                'description' => BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'])),
+                'count'       => $count
+            ];
         }
-                
-        $out = ' <table class="table table-striped table-hover">' . $out . '</table>';
-        $theOutput = '<h3>' . $this->getLanguageService()->getLL('recip_select_mailgroup') . '</h3>' .
-            $out;
-            
-            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
-                'edit' => [
-                    'sys_dmail_group' => [
-                        $this->id => 'new'
-                    ]
-                ],
-                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
-            ]);
-                    
-        // New:
-        $out = '<a href="#" class="t3-link" onClick="' . $editOnClickLink . '">' .
-            $this->iconFactory->getIconForRecord('sys_dmail_group', [], Icon::SIZE_SMALL) .
-            $this->getLanguageService()->getLL('recip_create_mailgroup_msg') . '</a>';
-            $theOutput .= '<div style="padding-top: 20px;"></div>';
-            $theOutput .= '<h3>' . $this->getLanguageService()->getLL('recip_select_mailgroup') . '</h3>' .
-                $out;
+        
+        $data['editOnClickLink'] = DirectMailUtility::getEditOnClickLink([
+            'edit' => [
+                'sys_dmail_group' => [
+                    $this->id => 'new'
+                ]
+            ],
+            'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+        ]);
+        
+        $data['sysDmailGroupIcon'] = $this->iconFactory->getIconForRecord('sys_dmail_group', [], Icon::SIZE_SMALL);
             
         // Import
-        $moduleUrl = $this->buildUriFromRoute(
+        $data['moduleUrl'] = $this->buildUriFromRoute(
             $this->moduleName,
             [
                 'id' => $this->id,
                 'cmd' => 'displayImport'
             ]
         );
-        $out = '<a class="t3-link" href="' . $moduleUrl . '">' . $this->getLanguageService()->getLL('recip_import_mailgroup_msg') . '</a>';
-        $theOutput .= '<div style="padding-top: 20px;"></div>';
-        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('mailgroup_import') . '</h3>' . $out;
-        return $theOutput;
+
+        return $data;
     }
     
     /**

@@ -240,8 +240,6 @@ class StatisticsController extends MainController
     protected function displayUserInfo()
     {
         $indata = $this->indata;
-
-        $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
         
         if ($this->submit) {
             if (count($this->indata) < 1) {
@@ -294,18 +292,22 @@ class StatisticsController extends MainController
         $row = $rows[0] ?? [];
 
         if (is_array($row)) {
-            //@TODO
             $categories = '';
-            $queryBuilder = $this->getQueryBuilder($mmTable);
-            $resCat = $queryBuilder
-            ->select('uid_foreign')
-            ->from($mmTable)
-            ->add('where','uid_local=' . $row['uid'])
-            ->execute();
-            while ($rowCat = $resCat->fetch()) {
-                $categories .= $rowCat['uid_foreign'] . ',';
+            
+            if($GLOBALS['TCA'][$this->table] ?? false) {
+                $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
+                //@TODO
+                $queryBuilder = $this->getQueryBuilder($mmTable);
+                $resCat = $queryBuilder
+                ->select('uid_foreign')
+                ->from($mmTable)
+                ->add('where','uid_local=' . $row['uid'])
+                ->execute();
+                while ($rowCat = $resCat->fetch()) {
+                    $categories .= $rowCat['uid_foreign'] . ',';
+                }
+                $categories = rtrim($categories, ',');
             }
-            $categories = rtrim($categories, ',');
             
             $editOnClickLink = DirectMailUtility::getEditOnClickLink([
                 'edit' => [
@@ -1387,8 +1389,7 @@ class StatisticsController extends MainController
      */
     protected function makeStatTempTableContent(array $mrow)
     {
-        // Remove old:
-        
+        // Remove old: 
         $connection = $this->getConnection('cache_sys_dmail_stat');
         $connection->delete(
             'cache_sys_dmail_stat', // from
