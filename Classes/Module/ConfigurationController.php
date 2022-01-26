@@ -3,15 +3,12 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Module;
 
+use DirectMailTeam\DirectMail\DirectMailUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Template\Components\ButtonBar;
-use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use DirectMailTeam\DirectMail\DirectMailUtility;
 
 class ConfigurationController extends MainController
 {
@@ -37,12 +34,9 @@ class ConfigurationController extends MainController
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $this->pageRenderer->addJsInlineCode($currentModule, $this->getJS($this->sys_dmail_uid));
                     $this->setDefaultValues();
-                    $this->view->assignMultiple(
-                        [
-                            'show' => true,
+                    $this->view->assignMultiple([
                             'implodedParams' => $this->implodedParams
-                        ]
-                    );
+                    ]);
                 }
                 elseif ($this->id != 0) {
                     $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
