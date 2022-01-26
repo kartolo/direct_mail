@@ -214,7 +214,7 @@
 				<source>Current time:</source>
 			</trans-unit>
 			<trans-unit id="dmail_mailerengine_delete">
-				<source>delete</source>
+				<source>Delete</source>
 			</trans-unit>
 			<trans-unit id="dmail_mailerengine_delivery_begun">
 				<source>Delivery begun</source>

@@ -35,7 +35,13 @@
 		    <td>{row.scheduled_begin}</td>
 		    <td>{row.scheduled_end}</td>
 		    <td style="text-align: center;"><f:if condition="{row.sent}">{row.sent}</f:if></td>
-		    <td style="text-align: center;">{row.delete}</td>
+		    <td style="text-align: center;">
+                <f:if condition="{row.delete}">
+                    <f:be.link parameters="{id: id, uid: row.uid, cmd: 'delete'}" route="{moduleName}">
+                        <core:icon identifier="actions-edit-delete"/>
+                    </f:be.link>
+                </f:if>
+            </td>
         </tr>
 	</f:for>
 
