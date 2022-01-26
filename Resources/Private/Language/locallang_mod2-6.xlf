@@ -358,10 +358,10 @@
 				<source>Mass Send</source>
 			</trans-unit>
 			<trans-unit id="dmail_wiz_back">
-				<source>back</source>
+				<source>Back</source>
 			</trans-unit>
 			<trans-unit id="dmail_wiz_next">
-				<source>next</source>
+				<source>Next</source>
 			</trans-unit>
 			<trans-unit id="dmail_write_subject">
 				<source>[write subject]</source>
