@@ -14,7 +14,16 @@
             <br /><br /><strong><a class="t3-link" href="{data.group_link_listall}"><f:translate key="{lll}mailgroup_list_all" /></a></strong>
         </f:if>
         <div style="padding-top: 20px;"></div>
-
+        <f:if condition="{data.title_table}">
+            <h3><f:translate key="{lll}{data.title_table}" />{data.table_custom}</h3>
+            <div style="padding-top: 20px;"></div>
+        </f:if>
+        <f:if condition="{data.title_recip}">
+            <f:translate key="{lll}{data.title_recip}" />{data.recip_counter}
+            <br />
+            <a href="{data.mailgroup_download_link}" class="t3-link"><f:translate key="{lll}mailgroup_download" /></a>
+        </f:if>
+        <f:format.html>{data.recip_list}</f:format.html>
     </f:if>
     <f:if condition="{type} == 4">
         <h3><f:translate key="{lll}recip_select_mailgroup" /></h3>
