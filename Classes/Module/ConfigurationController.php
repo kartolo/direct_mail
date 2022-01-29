@@ -32,7 +32,6 @@ class ConfigurationController extends MainController
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
-                    $this->pageRenderer->addJsInlineCode($currentModule, $this->getJS($this->sys_dmail_uid));
                     $this->setDefaultValues();
                     $this->view->assignMultiple([
                             'implodedParams' => $this->implodedParams
