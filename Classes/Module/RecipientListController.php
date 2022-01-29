@@ -109,7 +109,9 @@ class RecipientListController extends MainController
                 break;
             case 'displayMailGroup':
                 $result = $this->cmd_compileMailGroup($this->group_uid);
-                $theOutput = $this->cmd_displayMailGroup($result);
+                $temp = $this->displayMailGroup($result);
+                $theOutput = $temp['out'];
+                $data = $temp['data'];
                 $type = 2;
                 break;
             case 'displayImport':
@@ -258,7 +260,7 @@ class RecipientListController extends MainController
                         break;
                     case 1:
                         // List of mails
-                        if ($mailGroup['csv']==1) {
+                        if ($mailGroup['csv'] == 1) {
                             $recipients = DirectMailUtility::rearrangeCsvValues(DirectMailUtility::getCsvValues($mailGroup['list']), $this->fieldList);
                         } else {
                             $recipients = DirectMailUtility::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroup['list'])));
@@ -402,7 +404,7 @@ class RecipientListController extends MainController
      *
      * @return string list of all recipient (HTML)
      */
-    protected function cmd_displayMailGroup($result)
+    protected function displayMailGroup($result)
     {
         $totalRecipients = 0;
         $idLists = $result['queryInfo']['id_lists'];
@@ -421,15 +423,15 @@ class RecipientListController extends MainController
 
         $group = BackendUtility::getRecord('sys_dmail_group', $this->group_uid);
         $group = is_array($group) ? $group : [];
-        $out = $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL) . htmlspecialchars($group['title'] ?? '');
 
-        $mainC = $this->getLanguageService()->getLL('mailgroup_recip_number') . ' <strong>' . $totalRecipients . '</strong>';
-        if (!$this->lCmd) {
-            $mainC.= '<br /><br /><strong><a class="t3-link" href="' . GeneralUtility::linkThisScript(['lCmd'=>'listall']) . '">' . $this->getLanguageService()->getLL('mailgroup_list_all') . '</a></strong>';
+        $data = [];
+        $data['group_icon'] = $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL);
+        $data['group_title'] = htmlspecialchars($group['title'] ?? '');
+        $data['group_totalRecipients'] = $totalRecipients;
+        $data['group_link_listall'] = '';
+        if ($this->lCmd == '') {
+            $data['group_link_listall'] = GeneralUtility::linkThisScript(['lCmd'=>'listall']);
         }
-        
-        $theOutput = '<h3>' . $this->getLanguageService()->getLL('mailgroup_recip_from') . ' ' . $out . '</h3>' . $mainC;
-        $theOutput .= '<div style="padding-top: 20px;"></div>';
 
         // do the CSV export
         $csvValue = $this->csv;
@@ -452,7 +454,7 @@ class RecipientListController extends MainController
                 }
             }
         }
-            
+        $theOutput = '';
         switch ($this->lCmd) {
             case 'listall':
                 if (is_array($idLists['tt_address'] ?? false)) {
@@ -511,7 +513,7 @@ class RecipientListController extends MainController
                     }
                 }
         }
-        return $theOutput;
+        return ['out' => $theOutput, 'data' => $data];
     }
     
     /**
@@ -650,7 +652,7 @@ class RecipientListController extends MainController
         if (GeneralUtility::_GP('submit')) {
             $indata = GeneralUtility::_GP('indata');
             if (!$indata) {
-                $indata['html']= 0;
+                $indata['html'] = 0;
             }
         }
         
@@ -659,7 +661,7 @@ class RecipientListController extends MainController
                 // see fe_users
             case 'fe_users':
                 if (is_array($indata)) {
-                    $data=[];
+                    $data = [];
                     if (is_array($indata['categories'])) {
                         reset($indata['categories']);
                         foreach ($indata['categories'] as $recValues) {
