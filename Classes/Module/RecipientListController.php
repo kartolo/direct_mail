@@ -429,12 +429,7 @@ class RecipientListController extends MainController
             'group_title' => htmlspecialchars($group['title'] ?? ''),
             'group_totalRecipients' => $totalRecipients,
             'group_link_listall' => ($this->lCmd == '') ? GeneralUtility::linkThisScript(['lCmd'=>'listall']) : '',
-            'title_table' => '',
-            'table_custom' => '',
-            'title_recip' => '',
-            'recip_counter' => 0,
-            'mailgroup_download_link' => '',
-            'recip_list' => ''
+            'tables' => []
         ];
 
         // do the CSV export
@@ -465,50 +460,69 @@ class RecipientListController extends MainController
         switch ($this->lCmd) {
             case 'listall':
                 if (is_array($idLists['tt_address'] ?? false)) {
-                    $data['title_table'] = 'mailgroup_table_address';
-                    $data['recip_list'] = DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id);
+                    $data['tables'][] = [
+                        'title_table' => 'mailgroup_table_address',
+                        'recip_list' => DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id),
+                        'table_custom' => ''
+                    ];
                 }
                 if (is_array($idLists['fe_users'] ?? false)) {
-                    $data['title_table'] = 'mailgroup_table_fe_users';
-                    $data['recip_list'] = DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id);
+                    $data['tables'][] = [
+                        'title_table' => 'mailgroup_table_fe_users',
+                        'recip_list' => DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id),
+                        'table_custom' => ''
+                    ];
                 }
                 if (is_array($idLists['PLAINLIST'] ?? false)) {
-                    $data['title_table'] = 'mailgroup_plain_list';
-                    $data['recip_list'] = DirectMailUtility::getRecordList($idLists['PLAINLIST'], 'sys_dmail_group', $this->id);
+                    $data['tables'][] = [
+                        'title_table' => 'mailgroup_plain_list',
+                        'recip_list' => DirectMailUtility::getRecordList($idLists['PLAINLIST'], 'sys_dmail_group', $this->id),
+                        'table_custom' => ''
+                    ];
                 }
                 if (is_array($idLists[$this->userTable] ?? false)) {
-                    $data['title_table'] = 'mailgroup_table_custom';
-                    $data['table_custom'] = ' '.$this->userTable;
-                    $data['recip_list'] = DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable], $this->userTable), $this->userTable, $this->id);
+                    $data['tables'][] = [
+                        'title_table' => 'mailgroup_table_custom',
+                        'recip_list' => DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable], $this->userTable), $this->userTable, $this->id),
+                        'table_custom' => ' '.$this->userTable
+                    ];
                 }
                 break;
             default:
                 if (is_array($idLists['tt_address'] ?? false) && count($idLists['tt_address'])) {
-                    $data['title_table'] = 'mailgroup_table_address';
-                    $data['title_recip'] = 'mailgroup_recip_number';
-                    $data['recip_counter'] = ' ' . count($idLists['tt_address']);
-                    $data['mailgroup_download_link'] = GeneralUtility::linkThisScript(['csv'=>'tt_address']);
+                    $data['tables'][] = [
+                        'title_table' => 'mailgroup_table_address',
+                        'title_recip' => 'mailgroup_recip_number',
+                        'recip_counter' => ' ' . count($idLists['tt_address']),
+                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv'=>'tt_address'])
+                    ];
                 }
                 
                 if (is_array($idLists['fe_users'] ?? false) && count($idLists['fe_users'])) {
-                    $data['title_table'] = 'mailgroup_table_fe_users';
-                    $data['title_recip'] = 'mailgroup_recip_number';
-                    $data['recip_counter'] = ' ' . count($idLists['fe_users']);
-                    $data['mailgroup_download_link'] = GeneralUtility::linkThisScript(['csv'=>'fe_users']);
+                    $data['tables'][] = [
+                        'title_table' => 'mailgroup_table_fe_users',
+                        'title_recip' => 'mailgroup_recip_number',
+                        'recip_counter' => ' ' . count($idLists['fe_users']),
+                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv'=>'fe_users'])
+                    ];
                 }
                         
                 if (is_array($idLists['PLAINLIST'] ?? false) && count($idLists['PLAINLIST'])) {
-                    $data['title_table'] = 'mailgroup_plain_list';
-                    $data['title_recip'] = 'mailgroup_recip_number';
-                    $data['recip_counter'] = ' ' . count($idLists['PLAINLIST']);
-                    $data['mailgroup_download_link'] = GeneralUtility::linkThisScript(['csv'=>'PLAINLIST']);
+                    $data['tables'][] = [
+                        'title_table' => 'mailgroup_plain_list',
+                        'title_recip' => 'mailgroup_recip_number',
+                        'recip_counter' => ' ' . count($idLists['PLAINLIST']),
+                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv'=>'PLAINLIST'])
+                    ];
                 }
                 
                 if (is_array($idLists[$this->userTable] ?? false) && count($idLists[$this->userTable])) {
-                    $data['title_table'] = 'mailgroup_table_custom';
-                    $data['title_recip'] = 'mailgroup_recip_number';
-                    $data['recip_counter'] = ' ' . count($idLists[$this->userTable]);
-                    $data['mailgroup_download_link'] = GeneralUtility::linkThisScript(['csv' => $this->userTable]);
+                    $data['tables'][] = [
+                        'title_table' => 'mailgroup_table_custom',
+                        'title_recip' => 'mailgroup_recip_number',
+                        'recip_counter' => ' ' . count($idLists[$this->userTable]),
+                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv' => $this->userTable])
+                    ];
                 }
                         
                 if (($group['type'] ?? false) == 3) {
