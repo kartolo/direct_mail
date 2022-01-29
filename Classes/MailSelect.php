@@ -14,6 +14,10 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+/*
+ * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.0/Deprecation-92080-DeprecatedQueryGeneratorAndQueryView.html 
+ */
+
 use TYPO3\CMS\Core\Database\QueryGenerator;
 
 /**

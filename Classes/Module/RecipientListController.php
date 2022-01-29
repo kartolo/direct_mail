@@ -33,6 +33,9 @@ class RecipientListController extends MainController
     protected array $set = [];
     protected string $fieldList = 'uid,name,first_name,middle_name,last_name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
     
+    protected $queryGenerator;
+    protected $MOD_SETTINGS;
+    
     protected function initRecipientList(ServerRequestInterface $request): void {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
@@ -41,6 +44,8 @@ class RecipientListController extends MainController
         $this->lCmd = $parsedBody['lCmd'] ?? $queryParams['lCmd'] ?? '';
         $this->csv = $parsedBody['csv'] ?? $queryParams['csv'] ?? '';
         $this->set = is_array($parsedBody['csv'] ?? '') ? $parsedBody['csv'] : (is_array($queryParams['csv'] ?? '') ? $queryParams['csv'] : []);
+        
+        $this->queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -109,9 +114,7 @@ class RecipientListController extends MainController
                 break;
             case 'displayMailGroup':
                 $result = $this->cmd_compileMailGroup($this->group_uid);
-                $temp = $this->displayMailGroup($result);
-                $theOutput = $temp['out'];
-                $data = $temp['data'];
+                $data = $this->displayMailGroup($result);
                 $type = 2;
                 break;
             case 'displayImport':
@@ -423,13 +426,15 @@ class RecipientListController extends MainController
 
         $group = BackendUtility::getRecord('sys_dmail_group', $this->group_uid);
         $group = is_array($group) ? $group : [];
-
+        
         $data = [
+            'group_id' => $this->group_uid,
             'group_icon' => $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL),
             'group_title' => htmlspecialchars($group['title'] ?? ''),
             'group_totalRecipients' => $totalRecipients,
             'group_link_listall' => ($this->lCmd == '') ? GeneralUtility::linkThisScript(['lCmd'=>'listall']) : '',
-            'tables' => []
+            'tables' => [],
+            'special' => []
         ];
 
         // do the CSV export
@@ -524,14 +529,14 @@ class RecipientListController extends MainController
                         'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv' => $this->userTable])
                     ];
                 }
-                        
+
                 if (($group['type'] ?? false) == 3) {
                     if ($this->getBackendUser()->check('tables_modify', 'sys_dmail_group')) {
-                        $theOutput = $this->cmd_specialQuery($group);
+                        $data['special'] = $this->specialQuery($group);
                     }
                 }
         }
-        return ['out' => $theOutput, 'data' => $data];
+        return $data;
     }
     
     /**
@@ -599,30 +604,25 @@ class RecipientListController extends MainController
      *
      * @return string HTML form to make a special query
      */
-    protected function cmd_specialQuery($mailGroup)
+    protected function specialQuery($mailGroup)
     {
-        $out = '';
+        $special = [];
+
         $this->queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
         
         if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
             $this->queryGenerator->queryConfig = $this->queryGenerator->cleanUpQueryConfig(unserialize($this->MOD_SETTINGS['queryConfig']));
             $this->queryGenerator->extFieldLists['queryFields'] = 'uid';
-            $out .= $this->queryGenerator->getSelectQuery();
-            $out .= '<div style="padding-top: 20px;"></div>';
+            $special['selected'] = $this->queryGenerator->getSelectQuery();
         }
         
-        $this->queryGenerator->setFormName($this->formname);
+        $this->queryGenerator->setFormName('dmailform');
         $this->queryGenerator->noWrap = '';
         $this->queryGenerator->allowedTables = $this->allowedTables;
-        $tmpCode = $this->queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
-        $tmpCode .= '<input type="hidden" name="cmd" value="displayMailGroup" /><input type="hidden" name="group_uid" value="' . $mailGroup['uid'] . '" />';
-        $tmpCode .= '<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_updateQuery') . '" />';
-        $out .= '<h3>' . $this->getLanguageService()->getLL('dmail_makeQuery') . '</h3>' . $tmpCode;
-            
-        $theOutput = '<div style="padding-top: 20px;"></div>';
-        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('dmail_query') . '</h3>' . $out;
-            
-        return $theOutput;
+
+        $special['selectTables'] = $this->queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
+
+        return $special;
     }
     
     /**

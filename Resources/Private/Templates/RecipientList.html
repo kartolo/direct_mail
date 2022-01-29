@@ -14,7 +14,7 @@
             <br /><br /><strong><a class="t3-link" href="{data.group_link_listall}"><f:translate key="{lll}mailgroup_list_all" /></a></strong>
         </f:if>
         <div style="padding-top: 20px;"></div>
-        <f:if condition="data.tables -> f:count()}">
+        <f:if condition="{data.tables -> f:count()}">
             <f:for each="{data.tables}" as="table">
 		        <f:if condition="{table.title_table}">
 		            <h3><f:translate key="{lll}{table.title_table}" />{table.table_custom}</h3>
@@ -27,6 +27,23 @@
 		        </f:if>
 		        <f:format.html>{table.recip_list}</f:format.html>
             </f:for>
+        </f:if>
+        <f:if condition="{data.special}">
+            <div style="padding-top: 20px;"></div>
+            <h3><f:translate key="{lll}dmail_query" /></h3>
+            
+            <h3><f:translate key="{lll}dmail_makeQuery" /></h3>
+            
+            <f:form action="" method="post" name="dmailform" enctype="multipart/form-data">
+                <f:if condition="{data.special.selected}">
+                    {data.special.selected}
+                    <div style="padding-top: 20px;"></div>
+                </f:if>
+                {data.special.selectTables}
+                <f:form.hidden name="cmd" value="displayMailGroup" />
+                <f:form.hidden name="group_uid" value="{data.group_id}" />
+	            <f:form.submit value="{f:translate(key: '{lll}dmail_updateQuery')}" />
+            </f:form>
         </f:if>
     </f:if>
     <f:if condition="{type} == 4">
