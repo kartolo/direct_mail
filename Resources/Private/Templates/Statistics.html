@@ -177,7 +177,7 @@
         <br /><br />
 
         <f:for each="{dataUserInfo.categories}" as="cat">
-            <f:form.checkbox name="indata[categories][{dataUserInfo.data.uid}][{cat.pkey}]" value="1" checked="{cat.checked} == 1" /> <f:format.html>{cat.pVal}</f:format.html>
+            <f:form.checkbox name="indata[categories][{dataUserInfo.uid}][{cat.pkey}]" value="1" checked="{cat.checked} == 1" /> <f:format.html>{cat.pVal}</f:format.html>
             <br />
         </f:for>
         <br /><br />

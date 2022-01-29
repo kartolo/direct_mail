@@ -7,6 +7,33 @@
     <f:variable name="lll4" value="LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:" />
     
     <h1><f:translate key="{lll}mailgroup_header" /></h1>
+    <f:if condition="{type} == 1">
+        <h3><f:translate key="{lll}subscriber_info" /></h3>
+        <f:format.html>{data.icon}</f:format.html> <f:format.html>{data.name}</f:format.html> &lt;<f:format.html>{data.email}</f:format.html>&gt;
+        &nbsp;&nbsp;
+        <a href="#" onClick="{data.editOnClickLink}" title="{f:translate(key: '{lll}dmail_edit')}'">
+            <f:format.html>{data.iconActionsOpen}</f:format.html>
+            <b><f:translate key="{lll}dmail_edit" /></b>
+        </a>
+        <div style="padding-top: 20px;"></div>
+        <h3><f:translate key="{lll}subscriber_profile" /></h3>
+        <f:translate key="{lll}subscriber_profile_instructions" />
+        <br /><br />
+        <f:form method="post" name="dmailform" enctype="multipart/form-data">
+	        <f:for each="{data.categories}" as="cat">
+	            <f:form.checkbox name="indata[categories][{data.uid}][{cat.pkey}]" value="1" checked="{cat.checked} == 1" /> <f:format.html>{cat.pVal}</f:format.html>
+	            <br />
+	        </f:for>
+            <br /><br />
+            <f:form.checkbox name="indata[html]" value="1" checked="{data.html} == 1" /> <f:translate key="{lll}subscriber_profile_htmlemail" />
+            <br />
+            <f:form.hidden name="table" value="{data.table}" />
+            <f:form.hidden name="uid" value="{data.thisID}" />
+            <f:form.hidden name="cmd" value="{data.cmd}" />
+            <br />
+            <f:form.submit value="{f:translate(key: '{lll}subscriber_profile_update')}" />
+        </f:form>
+    </f:if>
     <f:if condition="{type} == 2">
         <h3><f:translate key="{lll}mailgroup_recip_from" /> <f:format.html>{data.group_icon} {data.group_title}</f:format.html></h3>
         <f:translate key="{lll}mailgroup_recip_number" /> <strong>{data.group_totalRecipients}</strong>

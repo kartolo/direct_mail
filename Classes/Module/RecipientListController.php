@@ -10,6 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -17,6 +18,8 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 use TYPO3\CMS\Core\Utility\CsvUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
+use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
+use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 
 class RecipientListController extends MainController
 {
@@ -36,6 +39,11 @@ class RecipientListController extends MainController
     protected $queryGenerator;
     protected $MOD_SETTINGS;
     
+    protected int $uid = 0; 
+    protected string $table = '';
+    protected array $indata = [];
+    private bool $submit = false;
+    
     protected function initRecipientList(ServerRequestInterface $request): void {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
@@ -45,6 +53,11 @@ class RecipientListController extends MainController
         $this->csv = $parsedBody['csv'] ?? $queryParams['csv'] ?? '';
         $this->set = is_array($parsedBody['csv'] ?? '') ? $parsedBody['csv'] : (is_array($queryParams['csv'] ?? '') ? $queryParams['csv'] : []);
         
+        $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
+        $this->table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
+        $this->indata = $parsedBody['indata'] ?? $queryParams['indata'] ?? [];
+        $this->submit = (bool)($parsedBody['submit'] ?? $queryParams['submit'] ?? false);
+
         $this->queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
     }
     
@@ -109,7 +122,7 @@ class RecipientListController extends MainController
         // COMMAND:
         switch ($this->cmd) {
             case 'displayUserInfo': //@TODO ???
-                $theOutput = $this->cmd_displayUserInfo();
+                $data = $this->displayUserInfo();
                 $type = 1;
                 break;
             case 'displayMailGroup':
@@ -659,30 +672,26 @@ class RecipientListController extends MainController
      *
      * @return	string HTML showing user's info and the categories
      */
-    protected function cmd_displayUserInfo()
+    protected function displayUserInfo()
     {
-        $uid = intval(GeneralUtility::_GP('uid'));
-        $indata = GeneralUtility::_GP('indata');
-        $table = GeneralUtility::_GP('table');
-        
-        $mmTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
-        
-        if (GeneralUtility::_GP('submit')) {
-            $indata = GeneralUtility::_GP('indata');
-            if (!$indata) {
-                $indata['html'] = 0;
+        if(!in_array($this->table, ['tt_address', 'fe_users'])) {
+            return [];
+        }
+        if ($this->submit) {
+            if (count($this->indata) < 1) {
+                $this->indata['html'] = 0;
             }
         }
         
-        switch ($table) {
+        switch ($this->table) {
             case 'tt_address':
                 // see fe_users
             case 'fe_users':
-                if (is_array($indata)) {
+                if (is_array($this->indata) && count($this->indata)) {
                     $data = [];
-                    if (is_array($indata['categories'])) {
-                        reset($indata['categories']);
-                        foreach ($indata['categories'] as $recValues) {
+                    if (is_array($this->indata['categories'] ?? false)) {
+                        reset($this->indata['categories']);
+                        foreach ($this->indata['categories'] as $recValues) {
                             reset($recValues);
                             $enabled = [];
                             foreach ($recValues as $k => $b) {
@@ -690,10 +699,10 @@ class RecipientListController extends MainController
                                     $enabled[] = $k;
                                 }
                             }
-                            $data[$table][$uid]['module_sys_dmail_category'] = implode(',', $enabled);
+                            $data[$this->table][$this->uid]['module_sys_dmail_category'] = implode(',', $enabled);
                         }
                     }
-                    $data[$table][$uid]['module_sys_dmail_html'] = $indata['html'] ? 1 : 0;
+                    $data[$this->table][$this->uid]['module_sys_dmail_html'] = $this->indata['html'] ? 1 : 0;
                     /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler*/
                     $tce = GeneralUtility::makeInstance(DataHandler::class);
                     $tce->stripslashes_values = 0;
@@ -704,104 +713,75 @@ class RecipientListController extends MainController
             default:
                 // do nothing
         }
-        
-        switch ($table) {
-            case 'tt_address':
-                $queryBuilder = $this->getQueryBuilder('tt_address');
-                $res = $queryBuilder
-                ->select('tt_address.*')
-                ->from('tt_address')
-                ->leftJoin(
-                    'tt_address',
-                    'pages',
-                    'pages',
-                    $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('tt_address.pid'))
-                    )
-                    ->add('where','tt_address.uid=' . intval($uid) .
-                        ' AND ' . $this->perms_clause )
-                        ->execute()
-                        ->fetchAll();
 
+        $rows = [];
+        switch ($this->table) {
+            case 'tt_address':
+                $rows = GeneralUtility::makeInstance(TtAddressRepository::class)->selectTtAddressByUid($this->uid, $this->perms_clause);
                 break;
             case 'fe_users':
-                $queryBuilder = $this->getQueryBuilder('fe_users');
-                $res = $queryBuilder
-                ->select('fe_users.*')
-                ->from('fe_users')
-                ->leftJoin(
-                    'fe_users',
-                    'pages',
-                    'pages',
-                    $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('fe_users.pid'))
-                    )
-                    ->add('where','fe_users.uid=' . intval($uid) .
-                        ' AND ' . $this->perms_clause )
-                        ->execute()
-                        ->fetchAll();
-                        
-                        break;
+                $rows = GeneralUtility::makeInstance(FeUsersRepository::class)->selectFeUsersByUid($this->uid, $this->perms_clause);
+                break;
             default:
                 // do nothing
         }
         
         $theOutput = '';
         
-        if (is_array($res)) {
-            foreach($res as $row){
-                $queryBuilder = $this->getQueryBuilder($mmTable);
-                $resCat = $queryBuilder
-                ->select('uid_foreign')
-                ->from($mmTable)
-                ->where($queryBuilder->expr()->eq('uid_local', $queryBuilder->createNamedParameter($row['uid'])))
-                ->execute()
-                ->fetchAll();
-                
-                foreach ($resCat as $rowCat) {
-                    $categoriesArray[] = $rowCat['uid_foreign'];
-                }
-                
-                $categories = implode($categoriesArray, ',');
-                
-                $editOnClickLink = DirectMailUtility::getEditOnClickLink([
-                    'edit' => [
-                        $table => [
-                            $row['uid'] => 'edit'
-                        ]
-                    ],
-                    'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
-                ]);
-                
-                $out = '';
-                $out .= $this->iconFactory->getIconForRecord($table, $row)->render() . htmlspecialchars($row['name']) . htmlspecialchars(' <' . $row['email'] . '>');
-                $out .= '&nbsp;&nbsp;<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                    $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
-                    '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
-                    $theOutput = '<h3>' . $this->getLanguageService()->getLL('subscriber_info') . '</h3>' .
-                        $out;
-                        
-                        $out = '';
-                        $outCheckBox = '';
-                        
-                        $this->categories = DirectMailUtility::makeCategories($table, $row, $this->sys_language_uid);
-                        
-                        reset($this->categories);
-                        foreach ($this->categories as $pKey => $pVal) {
-                            $outCheckBox .= '<input type="hidden" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="0" />' .
-                                '<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categories, $pKey) ? ' checked="checked"' : '') . ' /> ' . htmlspecialchars($pVal) . '<br />';
-                        }
-                        $outCheckBox .= '<br /><br /><input type="checkbox" name="indata[html]" value="1"' . ($row['module_sys_dmail_html'] ? ' checked="checked"' : '') . ' /> ';
-                        $outCheckBox .= $this->getLanguageService()->getLL('subscriber_profile_htmlemail') . '<br />';
-                        $out .= $outCheckBox;
-                        
-                        $out .= '<input type="hidden" name="table" value="' . $table . '" />' .
-                            '<input type="hidden" name="uid" value="' . $uid . '" />' .
-                            '<input type="hidden" name="cmd" value="' . $this->cmd . '" />' .
-                            '<br /><input type="submit" name="submit" value="' . htmlspecialchars($this->getLanguageService()->getLL('subscriber_profile_update')) . '" />';
-                        $theOutput .= '<div style="padding-top: 20px;"></div>';
-                        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('subscriber_profile') . '</h3>' .
-                            $this->getLanguageService()->getLL('subscriber_profile_instructions') . '<br /><br />' . $out;
+        $row = $rows[0] ?? [];
+        
+        if (is_array($row) && count($row)) {
+            $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
+
+            $queryBuilder = $this->getQueryBuilder($mmTable);
+            $resCat = $queryBuilder
+            ->select('uid_foreign')
+            ->from($mmTable)
+            ->where($queryBuilder->expr()->eq('uid_local', $queryBuilder->createNamedParameter($row['uid'])))
+            ->execute()
+            ->fetchAll();
+            
+            $categoriesArray = [];
+            foreach ($resCat as $rowCat) {
+                $categoriesArray[] = $rowCat['uid_foreign'];
+            }
+            
+            $categories = implode(',', $categoriesArray);
+            
+            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+                'edit' => [
+                    $this->table => [
+                        $row['uid'] => 'edit'
+                    ]
+                ],
+                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+            ]);
+            
+            $dataout = [
+                'icon' => $this->iconFactory->getIconForRecord($this->table, $row)->render(),
+                'iconActionsOpen' => $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL),
+                'name' => htmlspecialchars($row['name']),
+                'email' => htmlspecialchars($row['email']),
+                'uid' => $row['uid'],
+                'editOnClickLink' => $editOnClickLink,
+                'categories' => [],
+                'table' => $this->table,
+                'thisID' => $this->uid,
+                'cmd' => $this->cmd,
+                'html' => $row['module_sys_dmail_html'] ? true : false
+            ];
+                    
+            $this->categories = DirectMailUtility::makeCategories($this->table, $row, $this->sys_language_uid);
+                    
+            reset($this->categories);
+            foreach ($this->categories as $pKey => $pVal) {
+                $dataout['categories'][] = [
+                    'pkey'    => $pKey,
+                    'pVal'    => htmlspecialchars($pVal),
+                    'checked' => GeneralUtility::inList($categories, $pKey) ? true : false
+                ];
             }
         }
-        return $theOutput;
+        return $dataout;
     }
 }

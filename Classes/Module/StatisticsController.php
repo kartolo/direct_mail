@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -239,8 +240,6 @@ class StatisticsController extends MainController
      */
     protected function displayUserInfo()
     {
-        $indata = $this->indata;
-        
         if ($this->submit) {
             if (count($this->indata) < 1) {
                 $this->indata['html'] = 0;
@@ -253,7 +252,7 @@ class StatisticsController extends MainController
             case 'fe_users':
                 if (is_array($this->indata) && count($this->indata)) {
                     $data = [];
-                    if (is_array($this->indata['categories'])) {
+                    if (is_array($this->indata['categories'] ?? false)) {
                         reset($this->indata['categories']);
                         foreach ($this->indata['categories'] as $recValues) {
                             $enabled = [];
@@ -291,7 +290,7 @@ class StatisticsController extends MainController
         
         $row = $rows[0] ?? [];
 
-        if (is_array($row)) {
+        if (is_array($row) && count($row)) {
             $categories = '';
             
             if($GLOBALS['TCA'][$this->table] ?? false) {
