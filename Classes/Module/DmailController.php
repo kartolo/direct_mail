@@ -456,7 +456,6 @@ class DmailController extends MainController
                             break;
                         default:
                     }
-                    $i++;
                 }
             $theOutput .= '<input type="hidden" name="cmd" value="info" />';
         }
