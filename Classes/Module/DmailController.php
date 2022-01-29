@@ -121,7 +121,6 @@ class DmailController extends MainController
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
-                    $this->pageRenderer->addJsInlineCode($currentModule, $this->getJS($this->sys_dmail_uid));
                     $markers = $this->moduleContent();
                     $formcontent = $markers['CONTENT'];
 
@@ -439,26 +438,21 @@ class DmailController extends MainController
                 if (!isset($tsconfig['tx_directmail.']['defaultTab'])) {
                     $tsconfig['tx_directmail.']['defaultTab'] = 'dmail';
                 }
-                
-                $i = 1;
-                $countTabs = count($showTabs);
+
                 foreach ($showTabs as $showTab) {
-                    $open = false;
-                    if ($tsconfig['tx_directmail.']['defaultTab'] == $showTab) {
-                        $open = true;
-                    }
+                    $open = ($tsconfig['tx_directmail.']['defaultTab'] == $showTab);
                     switch ($showTab) {
                         case 'int':
-                            $theOutput .= $this->makeFormInternal('box-' . $i, $countTabs, $open);
+                            $theOutput .= $this->makeFormInternal($open);
                             break;
                         case 'ext':
-                            $theOutput .= $this->makeFormExternal('box-' . $i, $countTabs, $open);
+                            $theOutput .= $this->makeFormExternal($open);
                             break;
                         case 'quick':
-                            $theOutput .= $this->makeFormQuickMail('box-' . $i, $countTabs, $open);
+                            $theOutput .= $this->makeFormQuickMail($open);
                             break;
                         case 'dmail':
-                            $theOutput .= $this->makeListDMail('box-' . $i, $countTabs, $open);
+                            $theOutput .= $this->makeListDMail($open);
                             break;
                         default:
                     }
@@ -490,27 +484,58 @@ class DmailController extends MainController
         
         return '<div class="typo3-message message-ok t3-wizard-steps">' . $content . '</div>';
     }
-    
+
+    /**
+     * Makes expandable section using TYPO3-typical markup.
+     *
+     * @param int $sectionId
+     * @param string $title
+     * @param string $content
+     * @return string
+     */
+    protected function makeSection(string $title, string $content, bool $isOpen): string
+    {
+        static $sectionId = 1;
+
+        return sprintf(
+            '<div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading%1$d">
+                    <h4 class="panel-title">
+                        <a role="button" data-bs-toggle="collapse" data-bs-parent="#accordion" href="#collapse%1$d" aria-expanded="' . ($isOpen ? 'true' : 'false') . '" aria-controls="collapse%1$d" class="' . (!$isOpen ? 'collapsed' : '') . '">
+                            <span class="caret"></span>
+                            %2$s
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse%1$d" class="panel-collapse collapse' . ($isOpen ? ' show' : '') . '" role="tabpanel" aria-labelledby="heading%1$d">
+                    <div class="panel-body">
+                        %3$s
+                    </div>
+                </div>
+            </div>
+            ',
+            $sectionId++,
+            $this->getLanguageService()->getLL($title),
+            $content
+        );
+    }
+
     /**
      * Makes box for internal page. (first step)
      *
-     * @param string $boxId ID name for the HTML element
-     * @param int $totalBox Total of all boxes
      * @param bool $open State of the box
      *
      * @return string HTML with list of internal pages
      */
-    protected function makeFormInternal($boxId, $totalBox, $open = false)
+    protected function makeFormInternal($open)
     {
-        $imgSrc = $this->getNewsletterTabIcon($open);
-        $output = '<div class="box"><div class="toggleTitle">';
-        $output .= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_internal_page') . '</a>';
-        $output .= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
-        $output .= $this->cmd_news();
-        $output .= '</div></div>';
-        return $output;
+        return $this->makeSection(
+            'dmail_wiz1_internal_page',
+            $this->cmd_news(),
+            $open
+        );
     }
-    
+
     /**
      * The icon for the source tab
      *
@@ -722,22 +747,16 @@ class DmailController extends MainController
     /**
      * Make input form for external URL (first step)
      *
-     * @param string $boxId ID name for the HTML element
-     * @param int $totalBox Total of the boxes
      * @param bool $open State of the box
      *
      * @return string HTML input form for inputing the external page information
      */
-    protected function makeFormExternal($boxId, $totalBox, $open = false)
+    protected function makeFormExternal($open)
     {
-        $imgSrc = $this->getNewsletterTabIcon($open);
-        
-        $output = '<div class="box"><div class="toggleTitle">';
-        $output .= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_external_page') . '</a>';
-        $output .= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
-        
-        // Create
-        $out = $this->getLanguageService()->getLL('dmail_HTML_url') . '<br />
+        $content = '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromUrl') .
+            BackendUtility::cshItem($this->cshTable, 'create_directmail_from_url', $GLOBALS['BACK_PATH'] ?? '') .
+            '</h3>' .
+            $this->getLanguageService()->getLL('dmail_HTML_url') . '<br />
 			<input type="text" value="http://" name="createMailFrom_HTMLUrl" style="width: 384px;" /><br />' .
 			$this->getLanguageService()->getLL('dmail_plaintext_url') . '<br />
 			<input type="text" value="http://" name="createMailFrom_plainUrl" style="width: 384px;" /><br />' .
@@ -745,35 +764,32 @@ class DmailController extends MainController
 			'<input type="text" value="' . $this->getLanguageService()->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';" style="width: 384px;" /><br />' .
 			(($this->error == 'no_valid_url')?('<br /><b>' . $this->getLanguageService()->getLL('dmail_no_valid_url') . '</b><br /><br />'):'') .
 			'<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_createMail') . '" />
-			<input type="hidden" name="fetchAtOnce" value="1">';
-			$output .= '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromUrl') . BackendUtility::cshItem($this->cshTable, 'create_directmail_from_url', $GLOBALS['BACK_PATH'] ?? '') . '</h3>';
-			$output .= $out;
-			$output .= '</div></div>';
-		return $output;
+			<input type="hidden" name="fetchAtOnce" value="1">'
+        ;
+
+        return $this->makeSection(
+            'dmail_wiz1_external_page',
+            $content,
+            $open
+        );
     }
-    
+
     /**
      * Makes input form for the quickmail (first step)
      *
-     * @param string $boxId ID name for the HTML element
-     * @param int $totalBox Total of the boxes
      * @param bool $open State of the box
      *
      * @return string HTML input form for the quickmail
      */
-    protected function makeFormQuickMail($boxId, $totalBox, $open = false)
+    protected function makeFormQuickMail($open)
     {
-        $imgSrc = $this->getNewsletterTabIcon($open);
-        
-        $output = '<div class="box"><div class="toggleTitle">';
-        $output .= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_quickmail') . '</a>';
-        $output .= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
-        $output .= '<h3>' . $this->getLanguageService()->getLL('dmail_wiz1_quickmail_header') . '</h3>';
-        $output .= $this->cmd_quickmail();
-        $output .= '</div></div>';
-        return $output;
+        return $this->makeSection(
+            'dmail_wiz1_quickmail',
+            $this->cmd_quickmail(),
+            $open
+        );
     }
-    
+
     /**
      * Show the quickmail input form (first step)
      *
@@ -803,13 +819,11 @@ class DmailController extends MainController
     /**
      * List all direct mail, which have not been sent (first step)
      *
-     * @param string $boxId ID name for the HTML element
-     * @param int $totalBox Total of the boxes
      * @param bool $open State of the box
      *
      * @return string HTML lists of all existing dmail records
      */
-    protected function makeListDMail($boxId, $totalBox, $open=false)
+    protected function makeListDMail($open = false)
     {
         $sOrder = preg_replace(
             '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
@@ -837,43 +851,39 @@ class DmailController extends MainController
             ->orderBy($sOrder,$ascDesc)
             ->execute()
             ->fetchAll();
-            
-            $tblLines = [];
+
+        $tblLines = [];
+        $tblLines[] = [
+            '',
+            $this->getLanguageService()->getLL('nl_l_subject'),
+            $this->getLanguageService()->getLL('nl_l_lastM'),
+            $this->getLanguageService()->getLL('nl_l_sent'),
+            $this->getLanguageService()->getLL('nl_l_size'),
+            $this->getLanguageService()->getLL('nl_l_attach'),
+            $this->getLanguageService()->getLL('nl_l_type'),
+            ''
+        ];
+
+        foreach ($res as $row) {
             $tblLines[] = [
-                '',
-                $this->getLanguageService()->getLL('nl_l_subject'),
-                $this->getLanguageService()->getLL('nl_l_lastM'),
-                $this->getLanguageService()->getLL('nl_l_sent'),
-                $this->getLanguageService()->getLL('nl_l_size'),
-                $this->getLanguageService()->getLL('nl_l_attach'),
-                $this->getLanguageService()->getLL('nl_l_type'),
-                ''
+                $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+                $this->linkDMail_record($row['subject'], $row['uid']),
+                BackendUtility::date($row['tstamp']),
+                ($row['issent'] ? $this->getLanguageService()->getLL('dmail_yes') : $this->getLanguageService()->getLL('dmail_no')),
+                ($row['renderedsize'] ? GeneralUtility::formatSize($row['renderedsize']) : ''),
+                ($row['attachment'] ? $this->iconFactory->getIcon('directmail-attachment', Icon::SIZE_SMALL) : ''),
+                ($row['type'] & 0x1 ? $this->getLanguageService()->getLL('nl_l_tUrl') : $this->getLanguageService()->getLL('nl_l_tPage')) . ($row['type']  & 0x2 ? ' (' . $this->getLanguageService()->getLL('nl_l_tDraft') . ')' : ''),
+                $this->deleteLink($row['uid'])
             ];
-            
-            foreach ($res as $row) {
-                $tblLines[] = [
-                    $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-                    $this->linkDMail_record($row['subject'], $row['uid']),
-                    BackendUtility::date($row['tstamp']),
-                    ($row['issent'] ? $this->getLanguageService()->getLL('dmail_yes') : $this->getLanguageService()->getLL('dmail_no')),
-                    ($row['renderedsize'] ? GeneralUtility::formatSize($row['renderedsize']) : ''),
-                    ($row['attachment'] ? $this->iconFactory->getIcon('directmail-attachment', Icon::SIZE_SMALL) : ''),
-                    ($row['type'] & 0x1 ? $this->getLanguageService()->getLL('nl_l_tUrl') : $this->getLanguageService()->getLL('nl_l_tPage')) . ($row['type']  & 0x2 ? ' (' . $this->getLanguageService()->getLL('nl_l_tDraft') . ')' : ''),
-                    $this->deleteLink($row['uid'])
-                ];
-            }
-            
-            $imgSrc = $this->getNewsletterTabIcon($open);
-            
-            $output = '<div id="header" class="box"><div class="toggleTitle">';
-            $output.= '<a href="#" onclick="toggleDisplay(\'' . $boxId . '\', event, ' . $totalBox . ')">' . $imgSrc . $this->getLanguageService()->getLL('dmail_wiz1_list_dmail') . '</a>';
-            $output.= '</div><div id="' . $boxId . '" class="toggleBox" style="display:' . ($open?'block':'none') . '">';
-            $output.= '<h3>' . $this->getLanguageService()->getLL('dmail_wiz1_list_header') . '</h3>';
-            $output.= DirectMailUtility::formatTable($tblLines, [], 1, [1, 1, 1, 0, 0, 1, 0, 1]);
-            $output.= '</div></div>';
-            return $output;
+        }
+
+        return $this->makeSection(
+            'dmail_wiz1_list_dmail',
+            DirectMailUtility::formatTable($tblLines, [], 1, [1, 1, 1, 0, 0, 1, 0, 1]),
+            $open
+        );
     }
-    
+
     /**
      * Creates a directmail entry in th DB.
      * used only for quickmail.

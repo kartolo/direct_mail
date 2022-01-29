@@ -17,13 +17,13 @@
 				<source>The specified parameters will be added to the URL used to fetch the HTML content of the direct mail from a TYPO3 page. If in doubt, leave it blank.</source>
 			</trans-unit>
 			<trans-unit id="configure_default_content">
-				<source>Set default values for mail content format:</source>
+				<source>Default values for mail content format</source>
 			</trans-unit>
 			<trans-unit id="configure_default_fetching">
-				<source>Set default values for mail content fetching options:</source>
+				<source>Default values for mail content fetching options</source>
 			</trans-unit>
 			<trans-unit id="configure_default_headers">
-				<source>Set default values for Direct Mails headers:</source>
+				<source>Default values for Direct Mails headers</source>
 			</trans-unit>
 			<trans-unit id="configure_direct_mail_module">
 				<source>Configure direct mail module</source>
@@ -66,13 +66,13 @@
 				<source>Set this option, to anonymize click statistics </source>
 			</trans-unit>
 			<trans-unit id="configure_options_additional">
-				<source>Set additional module options:</source>
+				<source>Additional module options</source>
 			</trans-unit>
 			<trans-unit id="configure_options_encoding">
-				<source>Set options for content transfer encoding and character set:</source>
+				<source>Options for content transfer encoding and character set</source>
 			</trans-unit>
 			<trans-unit id="configure_options_links">
-				<source>Set options for links in mail content:</source>
+				<source>Options for links in mail content</source>
 			</trans-unit>
 			<trans-unit id="configure_options_links_jumpurl">
 				<source>Enable jump URL's:</source>
@@ -214,7 +214,7 @@
 				<source>Current time:</source>
 			</trans-unit>
 			<trans-unit id="dmail_mailerengine_delete">
-				<source>delete</source>
+				<source>Delete</source>
 			</trans-unit>
 			<trans-unit id="dmail_mailerengine_delivery_begun">
 				<source>Delivery begun</source>
@@ -358,10 +358,10 @@
 				<source>Mass Send</source>
 			</trans-unit>
 			<trans-unit id="dmail_wiz_back">
-				<source>back</source>
+				<source>Back</source>
 			</trans-unit>
 			<trans-unit id="dmail_wiz_next">
-				<source>next</source>
+				<source>Next</source>
 			</trans-unit>
 			<trans-unit id="dmail_write_subject">
 				<source>[write subject]</source>

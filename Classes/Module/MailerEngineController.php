@@ -67,7 +67,9 @@ class MailerEngineController extends MainController
                         [
                             'cronMonitor' => $cronMonitor,
                             'data' => $mailerEngine['data'],
+                            'id' => $this->id,
                             'invoke' => $mailerEngine['invoke'],
+                            'moduleName' => $this->moduleName,
                             'moduleUrl' => $mailerEngine['moduleUrl'],
                             'show' => true
                         ]
@@ -225,21 +227,22 @@ class MailerEngineController extends MainController
         if(is_array($rows)) {
             foreach($rows as $row) {
                 $data[] = [
+                    'uid'             => $row['uid'],
                     'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
                     'subject'         => $this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)), $row['uid']),
                     'scheduled'       => BackendUtility::datetime($row['scheduled']),
                     'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
                     'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
                     'sent'            => $this->getSysDmailMaillogsCountres($row['uid']),
-                    'delete'          => $this->deleteLink($row['uid'])
+                    'delete'          => $this->canDelete($row['uid'])
                 ];
             }
         }
         unset($rows);
-        
+
         return ['invoke' => $invoke, 'moduleUrl' => $moduleUrl, 'data' => $data];
     }
-    
+
     private function getSysDmailMaillogsCountres(int $uid): int
     {
         $countres = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogs($uid);
@@ -253,36 +256,21 @@ class MailerEngineController extends MainController
         
         return $count;
     }
-    
+
     /**
-     * Create delete link with trash icon
+     * Checks if the record can be deleted
      *
      * @param int $uid Uid of the record
-     *
-     * @return string Link with the trash icon
-     * @throws RouteNotFoundException If the named route doesn't exist
+     * @return bool
      */
-    public function deleteLink($uid)
+    public function canDelete($uid)
     {
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
-        
+
         // show delete icon if newsletter hasn't been sent, or not yet finished sending
-        if (!($dmail['scheduled_begin']) ||
-            ($dmail['scheduled_begin'] && $dmail['scheduled_end'] === 0)) {
-            $moduleUrl = $this->buildUriFromRoute(
-                $this->moduleName,
-                [
-                    'id' => $this->id,
-                    'uid' => $uid,
-                    'cmd' => 'delete'
-                ]
-            );
-            $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
-            return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
-        }
-        return '';
+        return ($dmail['scheduled_begin'] === 0 || $dmail['scheduled_end'] === 0);
     }
-    
+
     /**
      * Delete existing dmail record
      *
