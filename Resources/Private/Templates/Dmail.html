@@ -12,16 +12,30 @@
 			<f:format.raw>{flashmessages}</f:format.raw>
 			<h3><f:format.raw>{title}</f:format.raw></h3>
 			<f:format.raw>{content}</f:format.raw>
+			
+			
+			
 			<f:if condition="{data.default.quick}">
                 <f:render
-                arguments="{
-                    data: data.default.quick,
-                    index: 5,
-                    section: 'DefaultQuick',
-                    title: 'dmail_wiz1_quickmail'
-                }"
-                section="Panel"
-            />
+                    arguments="{
+                        data: data.default.external,
+                        index: 5,
+                        section: 'DefaultExternal',
+                        title: 'dmail_wiz1_external_page'
+                    }"
+                    section="Panel"
+                />
+			</f:if>
+			<f:if condition="{data.default.quick}">
+                <f:render
+	                arguments="{
+	                    data: data.default.quick,
+	                    index: 6,
+	                    section: 'DefaultQuick',
+	                    title: 'dmail_wiz1_quickmail'
+	                }"
+	                section="Panel"
+                />
 			</f:if>
 		</form>
 	</div>
@@ -62,6 +76,32 @@
             </div>
         </div>
     </div>
+</f:section>
+
+<f:section name="DefaultExternal">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <h3>
+        <f:translate key="{lll}{data.title}"/> <f:format.html>{data.cshItem}</f:format.html>
+    </h3>
+    <f:translate key="{lll}dmail_HTML_url"/>
+    <br />
+    <input type="text" value="http://" name="createMailFrom_HTMLUrl" class="form-control" />
+    <br />
+    <f:translate key="{lll}dmail_plaintext_url"/>
+    <br />
+    <input type="text" value="http://" name="createMailFrom_plainUrl" class="form-control" />
+    <br />
+    <f:translate key="{lll}dmail_subject"/>
+    <br />
+    <input type="text" value="{f:translate(key: '{lll}dmail_write_subject')}" name="createMailFrom_URL" class="form-control" />
+    <br />
+    <f:if condition="{data.no_valid_url}">
+        <br />
+        <b><f:translate key="{lll}dmail_no_valid_url"/></b>
+        <br /><br />
+    </f:if>
+    <input type="hidden" name="fetchAtOnce" value="1">
+    <input type="submit" value="{f:translate(key: '{lll}dmail_createMail')}" />
 </f:section>
 
 <f:section name="DefaultQuick">

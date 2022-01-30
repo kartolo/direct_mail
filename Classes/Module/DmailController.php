@@ -451,7 +451,9 @@ class DmailController extends MainController
                             $theOutput .= $this->makeFormInternal($open);
                             break;
                         case 'ext':
-                            $theOutput .= $this->makeFormExternal($open);
+                            $temp = $this->getConfigFormExternal();
+                            $temp['open'] = $open;
+                            $data['default']['external'] = $temp;
                             break;
                         case 'quick':
                             $temp = $this->getConfigFormQuickMail();
@@ -752,33 +754,17 @@ class DmailController extends MainController
     }
     
     /**
-     * Make input form for external URL (first step)
+     * Makes config for form for external URL (first step)
      *
-     * @param bool $open State of the box
-     *
-     * @return string HTML input form for inputing the external page information
+     * @return array config for form for inputing the external page information
      */
-    protected function makeFormExternal($open)
+    protected function getConfigFormExternal()
     {
-        $content = '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromUrl') .
-            BackendUtility::cshItem($this->cshTable, 'create_directmail_from_url', $GLOBALS['BACK_PATH'] ?? '') .
-            '</h3>' .
-            $this->getLanguageService()->getLL('dmail_HTML_url') . '<br />
-			<input type="text" value="http://" name="createMailFrom_HTMLUrl" style="width: 384px;" /><br />' .
-			$this->getLanguageService()->getLL('dmail_plaintext_url') . '<br />
-			<input type="text" value="http://" name="createMailFrom_plainUrl" style="width: 384px;" /><br />' .
-			$this->getLanguageService()->getLL('dmail_subject') . '<br />' .
-			'<input type="text" value="' . $this->getLanguageService()->getLL('dmail_write_subject') . '" name="createMailFrom_URL" onFocus="this.value=\'\';" style="width: 384px;" /><br />' .
-			(($this->error == 'no_valid_url')?('<br /><b>' . $this->getLanguageService()->getLL('dmail_no_valid_url') . '</b><br /><br />'):'') .
-			'<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_createMail') . '" />
-			<input type="hidden" name="fetchAtOnce" value="1">'
-        ;
-
-        return $this->makeSection(
-            'dmail_wiz1_external_page',
-            $content,
-            $open
-        );
+        return [
+            'title' => 'dmail_dovsk_crFromUrl',
+            'cshItem' => BackendUtility::cshItem($this->cshTable, 'create_directmail_from_url', $GLOBALS['BACK_PATH'] ?? ''),
+            'no_valid_url' => (bool)($this->error == 'no_valid_url')
+        ];
     }
 
     /**
@@ -810,7 +796,7 @@ class DmailController extends MainController
         $sOrder = preg_replace(
             '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
             trim($GLOBALS['TCA']['sys_dmail']['ctrl']['default_sortby'])
-            );
+        );
         if (!empty($sOrder)){
             if (substr_count($sOrder, 'ASC') > 0 ){
                 $sOrder = trim(str_replace('ASC','',$sOrder));
