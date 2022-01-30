@@ -216,7 +216,8 @@ class JumpurlController implements MiddlewareInterface
      */
     protected function shouldProcess(): bool
     {
-        return ($this->request->getQueryParams()['mid'] !== null);
+        $mid = $this->request->getQueryParams()['mid'] ?? null;
+        return ($mid !== null);
     }
 
     /**
