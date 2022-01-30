@@ -236,4 +236,32 @@ class SysDmailMaillogRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+    
+    public function selectForAnalyzeBounceMail(int $rid, string $rtbl, int $mid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        $row = $queryBuilder
+        ->select('uid','email')
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq(
+                    'rid',
+                    $queryBuilder->createNamedParameter((int)$rid, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'rtbl',
+                    $queryBuilder->createNamedParameter($rtbl, \PDO::PARAM_STR)
+                ),
+                $queryBuilder->expr()->eq(
+                    'mid',
+                    $queryBuilder->createNamedParameter((int)$mid, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq('response_type', 0)
+            )
+        )
+        ->setMaxResults(1)
+        ->execute()
+        ->fetchAssociative();
+    }
 }
