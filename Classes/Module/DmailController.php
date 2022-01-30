@@ -461,7 +461,9 @@ class DmailController extends MainController
                             $data['default']['quick'] = $temp;
                             break;
                         case 'dmail':
-                            $theOutput .= $this->makeListDMail($open);
+                            $temp = $this->getConfigFormDMail();
+                            $temp['open'] = $open;
+                            $data['default']['dmail'] = $temp;
                             break;
                         default:
                     }
@@ -787,11 +789,9 @@ class DmailController extends MainController
     /**
      * List all direct mail, which have not been sent (first step)
      *
-     * @param bool $open State of the box
-     *
-     * @return string HTML lists of all existing dmail records
+     * @return array config for form lists of all existing dmail records
      */
-    protected function makeListDMail($open = false)
+    protected function getConfigFormDMail()
     {
         $sOrder = preg_replace(
             '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
@@ -809,36 +809,21 @@ class DmailController extends MainController
         }
         $rows = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForMkeListDMail($this->id, $sOrder, $ascDesc);
 
-        $tblLines = [];
-        $tblLines[] = [
-            '',
-            $this->getLanguageService()->getLL('nl_l_subject'),
-            $this->getLanguageService()->getLL('nl_l_lastM'),
-            $this->getLanguageService()->getLL('nl_l_sent'),
-            $this->getLanguageService()->getLL('nl_l_size'),
-            $this->getLanguageService()->getLL('nl_l_attach'),
-            $this->getLanguageService()->getLL('nl_l_type'),
-            ''
-        ];
-
+        $data = [];
         foreach ($rows as $row) {
-            $tblLines[] = [
-                $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-                $this->linkDMail_record($row['subject'], $row['uid']),
-                BackendUtility::date($row['tstamp']),
-                ($row['issent'] ? $this->getLanguageService()->getLL('dmail_yes') : $this->getLanguageService()->getLL('dmail_no')),
-                ($row['renderedsize'] ? GeneralUtility::formatSize($row['renderedsize']) : ''),
-                ($row['attachment'] ? $this->iconFactory->getIcon('directmail-attachment', Icon::SIZE_SMALL) : ''),
-                ($row['type'] & 0x1 ? $this->getLanguageService()->getLL('nl_l_tUrl') : $this->getLanguageService()->getLL('nl_l_tPage')) . ($row['type']  & 0x2 ? ' (' . $this->getLanguageService()->getLL('nl_l_tDraft') . ')' : ''),
-                $this->deleteLink($row['uid'])
+            $data[] = [
+                'icon' => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+                'link' => $this->linkDMail_record($row['subject'] ?: '_', $row['uid']),
+                'tstamp' => BackendUtility::date($row['tstamp']),
+                'issent' => ($row['issent'] ? $this->getLanguageService()->getLL('dmail_yes') : $this->getLanguageService()->getLL('dmail_no')),
+                'renderedsize' => ($row['renderedsize'] ? GeneralUtility::formatSize($row['renderedsize']) : ''),
+                'attachment' => ($row['attachment'] ? $this->iconFactory->getIcon('directmail-attachment', Icon::SIZE_SMALL) : ''),
+                'type' => ($row['type'] & 0x1 ? $this->getLanguageService()->getLL('nl_l_tUrl') : $this->getLanguageService()->getLL('nl_l_tPage')) . ($row['type']  & 0x2 ? ' (' . $this->getLanguageService()->getLL('nl_l_tDraft') . ')' : ''),
+                'deleteLink' => $this->deleteLink($row['uid'])
             ];
         }
-
-        return $this->makeSection(
-            'dmail_wiz1_list_dmail',
-            DirectMailUtility::formatTable($tblLines, [], 1, [1, 1, 1, 0, 0, 1, 0, 1]),
-            $open
-        );
+        
+        return $data;
     }
 
     /**
