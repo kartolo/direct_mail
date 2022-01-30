@@ -5,6 +5,7 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
@@ -838,18 +839,7 @@ class DmailController extends MainController
                 $ascDesc = 'DESC';
             }
         }
-        $queryBuilder = $this->getQueryBuilder('sys_dmail');
-        $queryBuilder
-        ->getRestrictions()
-        ->removeAll()
-        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        $res = $queryBuilder->select('uid','pid','subject','tstamp','issent','renderedsize','attachment','type')
-        ->from('sys_dmail')
-        ->add('where','pid = ' . intval($this->id) .
-            ' AND scheduled=0 AND issent=0')
-            ->orderBy($sOrder,$ascDesc)
-            ->execute()
-            ->fetchAll();
+        $rows = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForMkeListDMail($this->id, $sOrder, $ascDesc);
 
         $tblLines = [];
         $tblLines[] = [
@@ -863,7 +853,7 @@ class DmailController extends MainController
             ''
         ];
 
-        foreach ($res as $row) {
+        foreach ($rows as $row) {
             $tblLines[] = [
                 $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
                 $this->linkDMail_record($row['subject'], $row['uid']),

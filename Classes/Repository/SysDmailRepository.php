@@ -50,7 +50,7 @@ class SysDmailRepository extends MainRepository {
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         
         return $queryBuilder->selectLiteral('sys_dmail.uid', 'sys_dmail.subject', 'sys_dmail.scheduled', 'sys_dmail.scheduled_begin', 'sys_dmail.scheduled_end', 'COUNT(sys_dmail_maillog.mid) AS count')
-        ->from('sys_dmail','sys_dmail')
+        ->from($this->table, $this->table)
         ->leftJoin(
             'sys_dmail',
             'sys_dmail_maillog',
@@ -65,6 +65,23 @@ class SysDmailRepository extends MainRepository {
         ->groupBy('sys_dmail_maillog.mid')
         ->orderBy('sys_dmail.scheduled','DESC')
         ->addOrderBy('sys_dmail.scheduled_begin','DESC')
+        ->execute()
+        ->fetchAll();
+    }
+    
+    public function selectForMkeListDMail(int $id, string $sOrder, string $ascDesc): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        $queryBuilder
+        ->getRestrictions()
+        ->removeAll()
+        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        
+        return $queryBuilder->select('uid','pid','subject','tstamp','issent','renderedsize','attachment','type')
+        ->from($this->table)
+        ->add('where','pid = ' . intval($id) .
+            ' AND scheduled=0 AND issent=0')
+        ->orderBy($sOrder,$ascDesc)
         ->execute()
         ->fetchAll();
     }
