@@ -27,8 +27,7 @@ $EM_CONF[$_EXTKEY] = [
     ],
     'autoload' => [
         'psr-4' => [
-            'DirectMailTeam\\DirectMail\\' => 'Classes/',
-            'Fetch\\' => 'Resources/Private/Php/Fetch/src/Fetch/'
+            'DirectMailTeam\\DirectMail\\' => 'Classes/'
         ]
     ],
 ];

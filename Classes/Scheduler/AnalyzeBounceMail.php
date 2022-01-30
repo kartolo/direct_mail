@@ -176,7 +176,7 @@ class AnalyzeBounceMail extends AbstractTask
             // get unread mails
             $messages = $mailServer->search('UNSEEN', $this->maxProcessed);
             /** @var Message $message The message object */
-            foreach ($messages as $i => $message) {
+            foreach ($messages as $message) {
                 // process the mail
                 if ($this->processBounceMail($message)) {
                     // set delete
