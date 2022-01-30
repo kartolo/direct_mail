@@ -131,7 +131,8 @@ class DmailController extends MainController
                             'navigation'  => $markers['NAVIGATION'],
                             'flashmessages' => $markers['FLASHMESSAGES'],
                             'title' => $markers['TITLE'],
-                            'content' => $formcontent
+                            'content' => $formcontent,
+                            'data' => $markers['data']
                         ]
                     );
                 }
@@ -168,7 +169,8 @@ class DmailController extends MainController
             'WIZARDSTEPS' => '',
             'FLASHMESSAGES' => '',
             'NAVIGATION' => '',
-            'TITLE' => ''
+            'TITLE' => '',
+            'data' => []
         ];
         
         if ($this->cmd == 'delete') {
@@ -230,6 +232,8 @@ class DmailController extends MainController
             }
         }
 
+        $data = [];
+        
         $navigationButtons = '';
         switch ($this->cmd) {
             case 'info':
@@ -450,7 +454,9 @@ class DmailController extends MainController
                             $theOutput .= $this->makeFormExternal($open);
                             break;
                         case 'quick':
-                            $theOutput .= $this->makeFormQuickMail($open);
+                            $temp = $this->getConfigFormQuickMail();
+                            $temp['open'] = $open;
+                            $data['default']['quick'] = $temp;
                             break;
                         case 'dmail':
                             $theOutput .= $this->makeListDMail($open);
@@ -464,6 +470,7 @@ class DmailController extends MainController
         $markers['NAVIGATION'] = $navigationButtons;
         $markers['CONTENT'] = $theOutput;
         $markers['WIZARDSTEPS'] = $this->showSteps($totalSteps);
+        $markers['data'] = $data;
         return $markers;
     }
     
@@ -775,45 +782,20 @@ class DmailController extends MainController
     }
 
     /**
-     * Makes input form for the quickmail (first step)
+     * Makes config for form for the quickmail (first step)
      *
-     * @param bool $open State of the box
-     *
-     * @return string HTML input form for the quickmail
+     * @return array config for form for the quickmail
      */
-    protected function makeFormQuickMail($open)
+    protected function getConfigFormQuickMail()
     {
-        return $this->makeSection(
-            'dmail_wiz1_quickmail',
-            $this->cmd_quickmail(),
-            $open
-        );
-    }
-
-    /**
-     * Show the quickmail input form (first step)
-     *
-     * @return	string HTML input form
-     */
-    protected function cmd_quickmail()
-    {
-        $theOutput = '';
-        $indata = $this->quickmail;
-
-        $senderName = ($indata['senderName'] ?? $this->getBackendUser()->user['realName']);
-        $senderMail = ($indata['senderEmail'] ?? $this->getBackendUser()->user['email']);
-        
-        $breakLines = $indata['breakLines'] ?? false;
-        // Set up form:
-        $theOutput .= '<input type="hidden" name="id" value="' . $this->id . '" />';
-        $theOutput .= $this->getLanguageService()->getLL('quickmail_sender_name') . '<br /><input type="text" name="quickmail[senderName]" value="' . htmlspecialchars($senderName) . '" style="width: 460px;" /><br />';
-        $theOutput .= $this->getLanguageService()->getLL('quickmail_sender_email') . '<br /><input type="text" name="quickmail[senderEmail]" value="' . htmlspecialchars($senderMail) . '" style="width: 460px;" /><br />';
-        $theOutput .= $this->getLanguageService()->getLL('dmail_subject') . '<br /><input type="text" name="quickmail[subject]" value="' . htmlspecialchars($indata['subject'] ?? '') . '" style="width: 460px;" /><br />';
-        $theOutput .= $this->getLanguageService()->getLL('quickmail_message') . '<br /><textarea rows="20" name="quickmail[message]" style="width: 460px;">' . LF . htmlspecialchars($indata['message'] ?? '') . '</textarea><br />';
-        $theOutput .= $this->getLanguageService()->getLL('quickmail_break_lines') . ' <input type="checkbox" name="quickmail[breakLines]" value="1"' . ($breakLines ? ' checked="checked"' : '') . ' /><br /><br />';
-        $theOutput .= '<input type="Submit" name="quickmail[send]" value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '" />';
-        
-        return $theOutput;
+        return [
+            'id' => $this->id,
+            'senderName' => htmlspecialchars($this->quickmail['senderName'] ?? $this->getBackendUser()->user['realName']),
+            'senderMail' => htmlspecialchars($this->quickmail['senderEmail'] ?? $this->getBackendUser()->user['email']),
+            'subject' => htmlspecialchars($this->quickmail['subject'] ?? ''),
+            'message' => htmlspecialchars($this->quickmail['message'] ?? ''),
+            'breakLines' => (bool)($this->quickmail['breakLines'] ?? false)
+        ];
     }
     
     /**

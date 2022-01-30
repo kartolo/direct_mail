@@ -12,7 +12,79 @@
 			<f:format.raw>{flashmessages}</f:format.raw>
 			<h3><f:format.raw>{title}</f:format.raw></h3>
 			<f:format.raw>{content}</f:format.raw>
+			<f:if condition="{data.default.quick}">
+                <f:render
+                arguments="{
+                    data: data.default.quick,
+                    index: 5,
+                    section: 'DefaultQuick',
+                    title: 'dmail_wiz1_quickmail'
+                }"
+                section="Panel"
+            />
+			</f:if>
 		</form>
 	</div>
 </div>
+</f:section>
+
+
+<f:comment><!--
+    Parameters:
+    - data: all configuration options
+    - index: numeric section index
+    - title: panel title
+    - section: section that renders content
+--></f:comment>
+<f:section name="Panel">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="aria-expanded" value="false" />
+    <f:variable name="classCollapsed" value="collapsed" />
+    <f:variable name="classShow" value="" />
+    <f:if condition="{data.open}">
+        <f:variable name="aria-expanded" value="true" />
+        <f:variable name="classCollapsed" value="" />
+        <f:variable name="classShow" value=" show" />
+    </f:if>
+    
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading{index}">
+            <h4 class="panel-title">
+                <a role="button" data-bs-toggle="collapse" data-bs-parent="#accordion" href="#collapse{index}" aria-expanded="{aria-expanded}" aria-controls="collapse{index}" class="{classCollapsed}">
+                    <span class="caret"></span>
+                    <f:translate key="{lll}{title}"/>
+                </a>
+            </h4>
+        </div>
+        <div id="collapse{index}" class="panel-collapse collapse{classShow}" role="tabpanel" aria-labelledby="heading{index}">
+            <div class="panel-body">
+                <f:render section="{section}" arguments="{data: data}"/>
+            </div>
+        </div>
+    </div>
+</f:section>
+
+<f:section name="DefaultQuick">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <input type="hidden" name="id" value="{data.id}" />
+    <f:translate key="{lll}quickmail_sender_name"/>
+    <br />
+    <input type="text" name="quickmail[senderName]" value="{data.senderName}" style="width: 460px;" />
+    <br />
+    <f:translate key="{lll}quickmail_sender_email"/>
+    <br />
+    <input type="text" name="quickmail[senderEmail]" value="{data.senderMail}" style="width: 460px;" />
+    <br />
+    <f:translate key="{lll}dmail_subject"/>
+    <br />
+    <input type="text" name="quickmail[subject]" value="{data.subject}" style="width: 460px;" />
+    <br />
+    <f:translate key="{lll}quickmail_message"/>
+    <br />
+    <textarea rows="20" name="quickmail[message]" style="width: 460px;"><f:format.html>{data.message}</f:format.html></textarea>
+    <br />
+    <f:translate key="{lll}quickmail_break_lines"/>
+    <input type="checkbox" name="quickmail[breakLines]" value="1" {f:if(condition: '{data.breakLines}', then: 'checked="checked"', else: '')} />
+    <br /><br />
+    <input type="Submit" name="quickmail[send]" value="{f:translate(key: '{lll}dmail_wiz_next')}" />
 </f:section>
