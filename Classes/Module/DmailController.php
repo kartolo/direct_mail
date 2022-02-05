@@ -564,10 +564,10 @@ class DmailController extends MainController
     /**
      * Show the list of existing directmail records, which haven't been sent
      *
-     * @return	string		HTML
+     * @return	array
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function getNews()
+    protected function getNews(): array
     {
         $rows = GeneralUtility::makeInstance(PagesRepository::class)->selectPagesForDmail($this->id, $this->perms_clause);
         $data = [];
@@ -629,8 +629,8 @@ class DmailController extends MainController
                             'title' => htmlentities($this->getLanguageService()->getLL('nl_viewPage_TXT') . $langTitle)
                         ], true);
 
-                        $previewTextLink .= '<a href="#" ' . $serializedAttributes . '>' . $plainIcon . '</a>';
-                        $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_create') . $langTitle) . '">' . $createIcon . '</a>';
+                    $previewTextLink .= '<a href="#" ' . $serializedAttributes . '>' . $plainIcon . '</a>';
+                    $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_create') . $langTitle) . '">' . $createIcon . '</a>';
                 }
                     
                 switch ($this->params['sendOptions'] ?? 0) {
