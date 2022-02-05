@@ -8,7 +8,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class SysDmailMaillogRepository extends MainRepository {
     protected string $table = 'sys_dmail_maillog';
     
-    public function countSysDmailMaillogAllByMid(int $mid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function countSysDmailMaillogAllByMid(int $mid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
@@ -21,7 +25,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function countSysDmailMaillogHtmlByMid(int $mid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function countSysDmailMaillogHtmlByMid(int $mid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
@@ -35,7 +43,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function countSysDmailMaillogPlainByMid(int $mid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function countSysDmailMaillogPlainByMid(int $mid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
@@ -49,7 +61,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function countSysDmailMaillogPingByMid(int $mid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function countSysDmailMaillogPingByMid(int $mid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
@@ -63,7 +79,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function selectByResponseType(int $responseType): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectByResponseType(int $responseType) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
@@ -75,7 +95,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function countSysDmailMaillogs(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function countSysDmailMaillogs(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->count('*')
@@ -87,7 +111,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function countSysDmailMaillogsResponseTypeByMid(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function countSysDmailMaillogsResponseTypeByMid(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->count('*')
@@ -99,7 +127,11 @@ class SysDmailMaillogRepository extends MainRepository {
             ->fetchAll();
     }
     
-    public function selectSysDmailMaillogsCompactView(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectSysDmailMaillogsCompactView(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->select('uid')
@@ -111,7 +143,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function selectMostPopularLinksHtml(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectMostPopularLinksHtml(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->count('*')
@@ -125,7 +161,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function selectMostPopularLinksPlain(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectMostPopularLinksPlain(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->count('*')
@@ -139,7 +179,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function countReturnCode(int $uid, int $responseType = -127): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function countReturnCode(int $uid, int $responseType = -127) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->count('*')
@@ -153,7 +197,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function selectStatTempTableContent(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectStatTempTableContent(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->select('rid','rtbl','tstamp','response_type','url_id','html_sent','size')
@@ -166,7 +214,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function findAllReturnedMail(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function findAllReturnedMail(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->select('rid','rtbl','email')
@@ -177,7 +229,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function findUnknownRecipient(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function findUnknownRecipient(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->select('rid','rtbl','email')
@@ -189,7 +245,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function findMailboxFull(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function findMailboxFull(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->select('rid','rtbl','email')
@@ -201,7 +261,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function findBadHost(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function findBadHost(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->select('rid','rtbl','email')
@@ -213,7 +277,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function findBadHeader(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function findBadHeader(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->select('rid','rtbl','email')
@@ -225,7 +293,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function findUnknownReasons(int $uid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function findUnknownReasons(int $uid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder->select('rid','rtbl','email')
@@ -237,7 +309,11 @@ class SysDmailMaillogRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function selectForAnalyzeBounceMail(int $rid, string $rtbl, int $mid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectForAnalyzeBounceMail(int $rid, string $rtbl, int $mid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         $row = $queryBuilder

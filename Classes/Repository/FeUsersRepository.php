@@ -6,7 +6,11 @@ namespace DirectMailTeam\DirectMail\Repository;
 class FeUsersRepository extends MainRepository {
     protected string $table = 'fe_users';
     
-    public function selectFeUsersByUid(int $uid, string $permsClause): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectFeUsersByUid(int $uid, string $permsClause) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder

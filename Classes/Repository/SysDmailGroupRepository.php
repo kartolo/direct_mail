@@ -9,7 +9,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class SysDmailGroupRepository extends MainRepository {
     protected string $table = 'sys_dmail_group';
     
-    public function selecetSysDmailGroupByPid(int $pid, string $defaultSortBy): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selecetSysDmailGroupByPid(int $pid, string $defaultSortBy) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
         ->getRestrictions()

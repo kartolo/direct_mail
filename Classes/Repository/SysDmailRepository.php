@@ -9,7 +9,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class SysDmailRepository extends MainRepository {
     protected string $table = 'sys_dmail';
     
-    public function selectSysDmailById(int $sys_dmail_uid, int $pid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectSysDmailById(int $sys_dmail_uid, int $pid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
         ->getRestrictions()
@@ -27,7 +31,11 @@ class SysDmailRepository extends MainRepository {
         ->fetch();
     }
     
-    public function selectSysDmailsByPid(int $pid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectSysDmailsByPid(int $pid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
         ->getRestrictions()
@@ -42,7 +50,11 @@ class SysDmailRepository extends MainRepository {
         ->fetchAllAssociative();
     }
     
-    public function selectForPageInfo(int $id): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectForPageInfo(int $id) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
         ->getRestrictions()
@@ -69,7 +81,11 @@ class SysDmailRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function selectForMkeListDMail(int $id, string $sOrder, string $ascDesc): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectForMkeListDMail(int $id, string $sOrder, string $ascDesc) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         $queryBuilder

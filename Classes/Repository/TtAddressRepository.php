@@ -6,7 +6,11 @@ namespace DirectMailTeam\DirectMail\Repository;
 class TtAddressRepository extends MainRepository {
     protected string $table = 'tt_address';
     
-    public function selectTtAddressByUid(int $uid, string $permsClause): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectTtAddressByUid(int $uid, string $permsClause) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder

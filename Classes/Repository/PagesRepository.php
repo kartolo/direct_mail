@@ -6,7 +6,11 @@ namespace DirectMailTeam\DirectMail\Repository;
 class PagesRepository extends MainRepository {
     protected string $table = 'pages';
     
-    public function selectPagesForDmail(int $pid, string $permsClause): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectPagesForDmail(int $pid, string $permsClause) //: array|bool 
+    {
         // Here the list of subpages, news, is rendered
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
@@ -41,7 +45,11 @@ class PagesRepository extends MainRepository {
         ->fetchAll();
     }
     
-    public function selectPageByL10nAndSysLanguageUid(int $pageUid, int $langUid): array|bool {
+    /**
+     * @return array|bool
+     */
+    public function selectPageByL10nAndSysLanguageUid(int $pageUid, int $langUid) //: array|bool 
+    {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
         return $queryBuilder
