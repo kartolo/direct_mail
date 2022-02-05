@@ -541,7 +541,7 @@ class DmailController extends MainController
     {
         return [
             'title' => 'dmail_dovsk_crFromNL',
-            'news' => $this->cmd_news(),
+            'news' => $this->getNews(),
             'cshItem' => BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH'] ?? ''),
         ];
     }
@@ -566,7 +566,7 @@ class DmailController extends MainController
      * @return	string		HTML
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function cmd_news()
+    protected function getNews()
     {
         // Here the list of subpages, news, is rendered
         $queryBuilder = $this->getQueryBuilder('pages');
@@ -580,7 +580,8 @@ class DmailController extends MainController
                 ),
             $queryBuilder->expr()->eq('l10n_parent', 0), // Exclude translated page records from list
             $this->perms_clause
-            );
+        );
+
         /**
          * Postbone Breaking: #82803 - Global configuration option "content_doktypes" removed in TYPO3 v9
          * Regards custom configurations, otherwise ignores spacers (199), recyclers (255) and folders (254)
@@ -588,76 +589,81 @@ class DmailController extends MainController
          * @deprecated since TYPO3 v9.
          **/
         if (isset($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
-            && !empty($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
-            ) {
-                $queryBuilder->andWhere(
-                    $queryBuilder->expr()->in(
-                        'doktype',
-                        GeneralUtility::intExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
-                        )
-                    );
-            } else {
-                $queryBuilder->andWhere(
-                    $queryBuilder->expr()->notIn(
-                        'doktype',
-                        [199,254,255]
-                        )
-                    );
-            }
-            $rows = $queryBuilder->orderBy('sorting')->execute()->fetchAll();
-            
-            if (empty($rows)) {
-                $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_select') . '</h3>' . $this->getLanguageService()->getLL('nl_select_msg1');
-            } else {
-                $outLines = [];
+            && !empty($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes']) ) 
+        {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->in(
+                    'doktype',
+                    GeneralUtility::intExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
+                    )
+                );
+        } 
+        else {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->notIn(
+                    'doktype',
+                    [199,254,255]
+                    )
+                );
+        }
+        
+        $rows = $queryBuilder->orderBy('sorting')->execute()->fetchAll();
 
-                foreach ($rows as $row) {
-                    $languages = $this->getAvailablePageLanguages($row['uid']);
-                    $createDmailLink = $this->buildUriFromRoute(
-                        $this->moduleName, 
-                        [
-                            'id' => $this->id,
-                            'createMailFrom_UID' => $row['uid'],
-                            'fetchAtOnce' => 1,
-                            'cmd' => 'info'
-                        ]
-                    );
-                    $pageIcon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
+        $out = '';
+        $empty = false;
+        if (empty($rows)) {
+            $empty = true;
+        } 
+        else {
+            $outLines = [];
+
+            foreach ($rows as $row) {
+                $languages = $this->getAvailablePageLanguages($row['uid']);
+                $createDmailLink = $this->buildUriFromRoute(
+                    $this->moduleName, 
+                    [
+                        'id' => $this->id,
+                        'createMailFrom_UID' => $row['uid'],
+                        'fetchAtOnce' => 1,
+                        'cmd' => 'info'
+                    ]
+                );
+                $pageIcon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
                     
-                    $previewHTMLLink = $previewTextLink = $createLink = '';
-                    foreach ($languages as $languageUid => $lang) {
-                        $langParam = DirectMailUtility::getLanguageParam($languageUid, $this->params);
-                        $createLangParam = ($languageUid ? '&createMailFrom_LANG=' . $languageUid : '');
-                        $langIconOverlay = (count($languages) > 1 ? $lang['flagIcon'] : null);
-                        $langTitle = (count($languages) > 1 ? ' - ' . $lang['title'] : '');
-                        $plainParams = $this->implodedParams['plainParams'] ?? '' . $langParam;
-                        $htmlParams = $this->implodedParams['HTMLParams'] ?? '' . $langParam;
-                        $htmlIcon = $this->iconFactory->getIcon('directmail-dmail-preview-html', Icon::SIZE_SMALL, $langIconOverlay);
-                        $plainIcon = $this->iconFactory->getIcon('directmail-dmail-preview-text', Icon::SIZE_SMALL, $langIconOverlay);
-                        $createIcon = $this->iconFactory->getIcon('directmail-dmail-new', Icon::SIZE_SMALL, $langIconOverlay);
+                $previewHTMLLink = $previewTextLink = $createLink = '';
+                foreach ($languages as $languageUid => $lang) {
+                    $langParam = DirectMailUtility::getLanguageParam($languageUid, $this->params);
+                    $createLangParam = ($languageUid ? '&createMailFrom_LANG=' . $languageUid : '');
+                    $langIconOverlay = (count($languages) > 1 ? $lang['flagIcon'] : null);
+                    $langTitle = (count($languages) > 1 ? ' - ' . $lang['title'] : '');
+                    $plainParams = $this->implodedParams['plainParams'] ?? '' . $langParam;
+                    $htmlParams = $this->implodedParams['HTMLParams'] ?? '' . $langParam;
+                    $htmlIcon = $this->iconFactory->getIcon('directmail-dmail-preview-html', Icon::SIZE_SMALL, $langIconOverlay);
+                    $plainIcon = $this->iconFactory->getIcon('directmail-dmail-preview-text', Icon::SIZE_SMALL, $langIconOverlay);
+                    $createIcon = $this->iconFactory->getIcon('directmail-dmail-new', Icon::SIZE_SMALL, $langIconOverlay);
                         
-                        $attributes = \TYPO3\CMS\Backend\Routing\PreviewUriBuilder::create($row['uid'], '')
+                    $attributes = \TYPO3\CMS\Backend\Routing\PreviewUriBuilder::create($row['uid'], '')
                         ->withRootLine(BackendUtility::BEgetRootLine($row['uid']))
                         //->withSection('')
                         ->withAdditionalQueryParameters($htmlParams)
                          ->buildDispatcherDataAttributes([]);
 
-                        $serializedAttributes = GeneralUtility::implodeAttributes([
-                            'href' => '#',
-                            'data-dispatch-action' => $attributes['dispatch-action'],
-                            'data-dispatch-args' => $attributes['dispatch-args'],
-                            'title' => htmlentities($this->getLanguageService()->getLL('nl_viewPage_HTML') . $langTitle)
-                        ], true);
+                    $serializedAttributes = GeneralUtility::implodeAttributes([
+                        'href' => '#',
+                        'data-dispatch-action' => $attributes['dispatch-action'],
+                        'data-dispatch-args' => $attributes['dispatch-args'],
+                        'title' => htmlentities($this->getLanguageService()->getLL('nl_viewPage_HTML') . $langTitle)
+                    ], true);
                         
-                        $previewHTMLLink .= '<a ' . $serializedAttributes . '>' . $htmlIcon . '</a>';
+                    $previewHTMLLink .= '<a ' . $serializedAttributes . '>' . $htmlIcon . '</a>';
                         
-                        $attributes = \TYPO3\CMS\Backend\Routing\PreviewUriBuilder::create($row['uid'], '')
+                    $attributes = \TYPO3\CMS\Backend\Routing\PreviewUriBuilder::create($row['uid'], '')
                         ->withRootLine(BackendUtility::BEgetRootLine($row['uid']))
                         //->withSection('')
                         ->withAdditionalQueryParameters($plainParams)
                         ->buildDispatcherDataAttributes([]);
 
-                        $serializedAttributes = GeneralUtility::implodeAttributes([
+                    $serializedAttributes = GeneralUtility::implodeAttributes([
                             'href' => '#',
                             'data-dispatch-action' => $attributes['dispatch-action'],
                             'data-dispatch-args' => $attributes['dispatch-args'],
@@ -698,12 +704,11 @@ class DmailController extends MainController
                         $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
                         $previewLink
                     ];
-                }
-                $out = DirectMailUtility::formatTable($outLines, [], 0, [1, 1, 1, 1]);
-                $theOutput = $out;
             }
+            $out = DirectMailUtility::formatTable($outLines, [], 0, [1, 1, 1, 1]);
+        }
             
-            return $theOutput;
+        return ['out' => $out, 'empty' => $empty];
     }
     
     /**

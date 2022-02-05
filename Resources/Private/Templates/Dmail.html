@@ -108,7 +108,11 @@
     <h3>
         <f:translate key="{lll}{data.title}"/> <f:format.html>{data.cshItem}</f:format.html>
     </h3>
-    <f:format.raw>{data.news}</f:format.raw>
+    <f:if condition="{data.news.empty}">
+    	<h3><f:translate key="{lll}nl_select"/></h3>
+    	<f:translate key="{lll}nl_select_msg1"/>
+    </f:if>
+    <f:format.raw>{data.news.out}</f:format.raw>
 </f:section>
 
 <f:section name="DefaultExternal">
