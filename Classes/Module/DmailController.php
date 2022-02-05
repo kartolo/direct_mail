@@ -494,11 +494,10 @@ class DmailController extends MainController
     {
         $content = '';
         for ($i = 1; $i <= $totalSteps; $i++) {
-            $cssClass = ($i == $this->currentStep) ? 't3-wizard-item t3-wizard-item-active' : 't3-wizard-item';
-            $content .= '<span class="' . $cssClass . '">&nbsp;' . $i . '&nbsp;</span>';
+            $cssClass = ($i == $this->currentStep) ? 't3-wizard-item-active' : '';
+            $content .= '<span class="t3-wizard-item ' . $cssClass . '">&nbsp;' . $i . '&nbsp;</span>';
         }
-        
-        return '<div class="typo3-message message-ok t3-wizard-steps">' . $content . '</div>';
+        return $content;
     }
 
     /**
