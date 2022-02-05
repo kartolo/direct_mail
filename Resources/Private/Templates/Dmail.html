@@ -1,6 +1,7 @@
 <f:layout name="Default" />
 
 <f:section name="content">
+<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
 <f:flashMessages />
 <div class="typo3-fullDoc">
     <div class="module-body t3js-module-body">
@@ -13,38 +14,53 @@
 			<h3><f:format.raw>{title}</f:format.raw></h3>
 			<f:format.raw>{content}</f:format.raw>		
 			
-			<f:if condition="{data.default.external}">
-                <f:render
-                    arguments="{
-                        data: data.default.external,
-                        index: 5,
-                        section: 'DefaultExternal',
-                        title: 'dmail_wiz1_external_page'
-                    }"
-                    section="Panel"
-                />
-			</f:if>
-			<f:if condition="{data.default.quick}">
-                <f:render
-	                arguments="{
-	                    data: data.default.quick,
-	                    index: 6,
-	                    section: 'DefaultQuick',
-	                    title: 'dmail_wiz1_quickmail'
-	                }"
-	                section="Panel"
-                />
-			</f:if>
-			<f:if condition="{data.default.dmail}">
-                <f:render
-                    arguments="{
-                        data: data.default.dmail,
-                        index: 7,
-                        section: 'DefaultDmail',
-                        title: 'dmail_wiz1_list_dmail'
-                    }"
-                    section="Panel"
-                />
+			<f:if condition="{data.default}">
+				<h3><f:translate key="{lll}dmail_wiz1_new_newsletter"/> - <f:translate key="{lll}dmail_wiz1_select_nl_source"/></h3>
+				<f:if condition="{data.default.internal}">
+	                <f:render
+	                    arguments="{
+	                        data: data.default.internal,
+	                        index: 4,
+	                        section: 'DefaultInternal',
+	                        title: 'dmail_wiz1_internal_page'
+	                    }"
+	                    section="Panel"
+	                />
+				</f:if>
+				<f:if condition="{data.default.external}">
+	                <f:render
+	                    arguments="{
+	                        data: data.default.external,
+	                        index: 5,
+	                        section: 'DefaultExternal',
+	                        title: 'dmail_wiz1_external_page'
+	                    }"
+	                    section="Panel"
+	                />
+				</f:if>
+				<f:if condition="{data.default.quick}">
+	                <f:render
+		                arguments="{
+		                    data: data.default.quick,
+		                    index: 6,
+		                    section: 'DefaultQuick',
+		                    title: 'dmail_wiz1_quickmail'
+		                }"
+		                section="Panel"
+	                />
+				</f:if>
+				<f:if condition="{data.default.dmail}">
+	                <f:render
+	                    arguments="{
+	                        data: data.default.dmail,
+	                        index: 7,
+	                        section: 'DefaultDmail',
+	                        title: 'dmail_wiz1_list_dmail'
+	                    }"
+	                    section="Panel"
+	                />
+	            </f:if>
+	            <input type="hidden" name="cmd" value="info" />
             </f:if>
 		</form>
 	</div>
@@ -85,6 +101,14 @@
             </div>
         </div>
     </div>
+</f:section>
+
+<f:section name="DefaultInternal">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <h3>
+        <f:translate key="{lll}{data.title}"/> <f:format.html>{data.cshItem}</f:format.html>
+    </h3>
+    <f:format.raw>{data.news}</f:format.raw>
 </f:section>
 
 <f:section name="DefaultExternal">

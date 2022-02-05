@@ -431,7 +431,6 @@ class DmailController extends MainController
             default:
                 // choose source newsletter
                 $this->currentStep = 1;
-                $markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz1_new_newsletter') . ' - ' . $this->getLanguageService()->getLL('dmail_wiz1_select_nl_source');
                 
                 $showTabs = ['int', 'ext', 'quick', 'dmail'];
                 if(isset($tsconfig['tx_directmail.']['hideTabs'])) {
@@ -448,7 +447,9 @@ class DmailController extends MainController
                     $open = ($tsconfig['tx_directmail.']['defaultTab'] == $showTab);
                     switch ($showTab) {
                         case 'int':
-                            $theOutput .= $this->makeFormInternal($open);
+                            $temp = $this->getConfigFormInternal();
+                            $temp['open'] = $open;
+                            $data['default']['internal'] = $temp;
                             break;
                         case 'ext':
                             $temp = $this->getConfigFormExternal();
@@ -468,7 +469,6 @@ class DmailController extends MainController
                         default:
                     }
                 }
-            $theOutput .= '<input type="hidden" name="cmd" value="info" />';
         }
             
         $markers['NAVIGATION'] = $navigationButtons;
@@ -504,6 +504,7 @@ class DmailController extends MainController
      * @param string $content
      * @return string
      */
+/**    
     protected function makeSection(string $title, string $content, bool $isOpen): string
     {
         static $sectionId = 1;
@@ -530,21 +531,19 @@ class DmailController extends MainController
             $content
         );
     }
-
+*/
     /**
      * Makes box for internal page. (first step)
      *
-     * @param bool $open State of the box
-     *
-     * @return string HTML with list of internal pages
+     * @return array config for form list of internal pages
      */
-    protected function makeFormInternal($open)
+    protected function getConfigFormInternal()
     {
-        return $this->makeSection(
-            'dmail_wiz1_internal_page',
-            $this->cmd_news(),
-            $open
-        );
+        return [
+            'title' => 'dmail_dovsk_crFromNL',
+            'news' => $this->cmd_news(),
+            'cshItem' => BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH'] ?? ''),
+        ];
     }
 
     /**
@@ -701,10 +700,7 @@ class DmailController extends MainController
                     ];
                 }
                 $out = DirectMailUtility::formatTable($outLines, [], 0, [1, 1, 1, 1]);
-                $theOutput = '<h3>' . $this->getLanguageService()->getLL('dmail_dovsk_crFromNL') .
-                BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH'] ?? '#') .
-                '</h3>' .
-                $out;
+                $theOutput = $out;
             }
             
             return $theOutput;
