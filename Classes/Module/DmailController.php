@@ -129,7 +129,6 @@ class DmailController extends MainController
                     $this->view->assignMultiple(
                         [
                             'wizardsteps' => $markers['WIZARDSTEPS'],
-                            'navigation'  => $markers['NAVIGATION'],
                             'flashmessages' => $markers['FLASHMESSAGES'],
                             'title' => $markers['TITLE'],
                             'content' => $formcontent,
@@ -169,7 +168,6 @@ class DmailController extends MainController
         $markers = [
             'WIZARDSTEPS' => '',
             'FLASHMESSAGES' => '',
-            'NAVIGATION' => '',
             'TITLE' => '',
             'data' => []
         ];
@@ -233,9 +231,14 @@ class DmailController extends MainController
             }
         }
 
-        $data = [];
+        $data = [
+            'navigation' => [
+                'back' => false,
+                'next' => false,
+                'next_error' => false
+            ]
+        ];
         
-        $navigationButtons = '';
         switch ($this->cmd) {
             case 'info':
                 // step 2: create the Direct Mail record, or use existing
@@ -304,9 +307,10 @@ class DmailController extends MainController
                     $theOutput .= '<input type="hidden" name="quickmail[message]" value="' . htmlspecialchars($quickmail['message'] ?? '') . '" />';
                     if($quickmail['breakLines'] ?? false) {
                         $theOutput .= '<input type="hidden" name="quickmail[breakLines]" value="'. (int)$quickmail['breakLines'] . '" />';
-                    }
-                    // existing dmail
-                } elseif ($row) {
+                    } 
+                } 
+                // existing dmail
+                elseif ($row) {
                     if ($row['type'] == '1' && ((empty($row['HTMLParams'])) || (empty($row['plainParams'])))) {
                         
                         // it's a quickmail
@@ -330,8 +334,9 @@ class DmailController extends MainController
                     }
                 }
                 
-                $navigationButtons = '<input type="submit" class="btn btn-default" value="' . $this->getLanguageService()->getLL('dmail_wiz_back') . '" name="back"> &nbsp;';
-                $navigationButtons .= '<input type="submit" value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '" ' . ($fetchError ? 'disabled="disabled" class="next btn btn-default disabled"' : ' class="btn btn-default"') . '>';
+                $data['navigation']['back'] = true;
+                $data['navigation']['next'] = true;
+                $data['navigation']['next_error'] = $fetchError;
                 
                 if ($fetchMessage) {
                     $markers['FLASHMESSAGES'] = $fetchMessage;
@@ -362,8 +367,8 @@ class DmailController extends MainController
                 $this->currentStep = 3;
                 $markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz3_cats');
                 
-                $navigationButtons = '<input type="submit" class="btn btn-default " value="' . $this->getLanguageService()->getLL('dmail_wiz_back') . '" name="back">&nbsp;';
-                $navigationButtons .= '<input type="submit" class="btn btn-default " value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '">';
+                $data['navigation']['back'] = true;
+                $data['navigation']['next'] = true;
                 
                 $theOutput .= '<div id="box-1" class="toggleBox">';
                 $theOutput .= $this->makeCategoriesForm($row);
@@ -382,8 +387,8 @@ class DmailController extends MainController
                 $this->currentStep = (4 - (5 - $totalSteps));
                 $markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz4_testmail');
                 
-                $navigationButtons = '<input type="submit" class="btn btn-default" value="' . $this->getLanguageService()->getLL('dmail_wiz_back') . '" name="back">&nbsp;';
-                $navigationButtons.= '<input type="submit" class="btn btn-default" value="' . $this->getLanguageService()->getLL('dmail_wiz_next') . '">';
+                $data['navigation']['back'] = true;
+                $data['navigation']['next'] = true;
                 
                 if ($this->cmd == 'send_mail_test') {
                     // using Flashmessages to show sent test mail
@@ -405,7 +410,7 @@ class DmailController extends MainController
                 $this->currentStep = (5 - (5 - $totalSteps));
                 
                 if ($this->cmd == 'send_mass') {
-                    $navigationButtons = '<input type="submit" class="btn btn-default" value="' . $this->getLanguageService()->getLL('dmail_wiz_back') . '" name="back">';
+                    $data['navigation']['back'] = true;
                 }
                 
                 if ($this->cmd == 'send_mail_final') {
@@ -471,8 +476,7 @@ class DmailController extends MainController
                     }
                 }
         }
-            
-        $markers['NAVIGATION'] = $navigationButtons;
+
         $markers['CONTENT'] = $theOutput;
         $markers['WIZARDSTEPS'] = $this->showSteps($totalSteps);
         $markers['data'] = $data;

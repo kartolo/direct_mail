@@ -7,7 +7,13 @@
     <div class="module-body t3js-module-body">
         <form action="" method="post" name="dmailform" enctype="multipart/form-data">
 	        <f:format.raw>{wizardsteps}</f:format.raw>
-	        <f:format.raw>{navigation}</f:format.raw>
+			<f:if condition="{data.navigation.back}">
+				<input type="submit" class="btn btn-default" value="{f:translate(key: '{lll}dmail_wiz_back')}" name="back">&nbsp;
+	        </f:if>
+	        <f:if condition="{data.navigation.next}">
+	        	<input type="submit" class="{f:if(condition: '{data.navigation.next_error}', then: 'next btn btn-default disabled', else: 'btn btn-default')}" {f:if(condition: '{data.navigation.next_error}', then: 'disabled="disabled"', else: '')} value="{f:translate(key: '{lll}dmail_wiz_next')}">
+	        </f:if>
+
 	        <br clear="all" />
 	        <br />
 			<f:format.raw>{flashmessages}</f:format.raw>
