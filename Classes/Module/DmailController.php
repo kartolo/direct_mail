@@ -570,15 +570,13 @@ class DmailController extends MainController
     protected function getNews()
     {
         $rows = GeneralUtility::makeInstance(PagesRepository::class)->selectPagesForDmail($this->id, $this->perms_clause);
-        
-        $out = '';
+        $data = [];
         $empty = false;
+        $iconActionsOpen = $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL);
         if (empty($rows)) {
             $empty = true;
         } 
         else {
-            $outLines = [];
-
             foreach ($rows as $row) {
                 $languages = $this->getAvailablePageLanguages($row['uid']);
                 $createDmailLink = $this->buildUriFromRoute(
@@ -634,43 +632,43 @@ class DmailController extends MainController
 
                         $previewTextLink .= '<a href="#" ' . $serializedAttributes . '>' . $plainIcon . '</a>';
                         $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_create') . $langTitle) . '">' . $createIcon . '</a>';
-                    }
+                }
                     
-                    switch ($this->params['sendOptions'] ?? 0) {
-                        case 1:
-                            $previewLink = $previewTextLink;
-                            break;
-                        case 2:
-                            $previewLink = $previewHTMLLink;
-                            break;
-                        case 3:
-                            // also as default
-                        default:
-                            $previewLink = $previewHTMLLink . '&nbsp;&nbsp;' . $previewTextLink;
-                    }
-                    
-                    $params = [
-                        'edit' => [
-                            'pages' => [
-                                $row['uid'] => 'edit',
-                            ]
-                        ],
-                        'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
-                    ];
-                    $editOnClickLink = DirectMailUtility::getEditOnClickLink($params);
-                    
-                    $outLines[] = [
-                        '<a href="' . $createDmailLink . '">' . $pageIcon . '</a>',
-                        $createLink,
-                        '<a onclick="' . $editOnClickLink . '" href="#" title="' . $this->getLanguageService()->getLL('nl_editPage') . '">' . 
-                        $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '</a>',
-                        $previewLink
-                    ];
+                switch ($this->params['sendOptions'] ?? 0) {
+                    case 1:
+                        $previewLink = $previewTextLink;
+                        break;
+                    case 2:
+                        $previewLink = $previewHTMLLink;
+                        break;
+                    case 3:
+                        // also as default
+                    default:
+                        $previewLink = $previewHTMLLink . '&nbsp;&nbsp;' . $previewTextLink;
+                }
+                
+                $params = [
+                    'edit' => [
+                        'pages' => [
+                            $row['uid'] => 'edit',
+                        ]
+                    ],
+                    'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+                ];
+                $editOnClickLink = DirectMailUtility::getEditOnClickLink($params);
+                
+                $data[] = [
+                    'pageIcon' => $pageIcon,
+                    'createDmailLink' => $createDmailLink,
+                    'createLink' => $createLink,
+                    'editOnClickLink' => $editOnClickLink,
+                    'iconActionsOpen' => $iconActionsOpen,
+                    'previewLink' => $previewLink
+                ];
             }
-            $out = DirectMailUtility::formatTable($outLines, [], 0, [1, 1, 1, 1]);
         }
             
-        return ['out' => $out, 'empty' => $empty];
+        return ['empty' => $empty, 'rows' => $data];
     }
     
     /**

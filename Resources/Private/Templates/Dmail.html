@@ -112,7 +112,30 @@
     	<h3><f:translate key="{lll}nl_select"/></h3>
     	<f:translate key="{lll}nl_select_msg1"/>
     </f:if>
-    <f:format.raw>{data.news.out}</f:format.raw>
+    <f:if condition="{data.news.rows}">
+    	<f:if condition="{data.news.rows -> f:count()}">
+		    <table class="table table-striped table-hover">
+		    	<tbody>
+		    		<f:for each="{data.news.rows}" as="row">
+		    			<tr class="db_list_normal">
+		    				<td>
+		    					<a href="{row.createDmailLink -> f:format.html()}"><f:format.html>{row.pageIcon}</f:format.html></a>
+		    				</td>
+		    				<td>
+								<f:format.html>{row.createLink}</f:format.html>
+                        	</td>
+                        	<td>
+                        		<a onclick="{row.editOnClickLink -> f:format.html()}" href="#" title="{f:translate(key: '{lll}nl_editPage')}">
+                        			<f:format.html>{row.iconActionsOpen}</f:format.html>
+								</a>
+                        	</td>
+                        	<td><f:format.html>{row.previewLink}</f:format.html></td>
+		    			</tr>
+		    		</f:for>
+		    	</tbody>
+			</table>
+		</f:if>
+	</f:if>
 </f:section>
 
 <f:section name="DefaultExternal">
