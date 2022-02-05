@@ -5,6 +5,7 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -568,47 +569,8 @@ class DmailController extends MainController
      */
     protected function getNews()
     {
-        // Here the list of subpages, news, is rendered
-        $queryBuilder = $this->getQueryBuilder('pages');
-        $queryBuilder
-        ->select('uid', 'doktype', 'title', 'abstract')
-        ->from('pages')
-        ->where(
-            $queryBuilder->expr()->eq(
-                'pid',
-                $queryBuilder->createNamedParameter($this->id, \PDO::PARAM_INT)
-                ),
-            $queryBuilder->expr()->eq('l10n_parent', 0), // Exclude translated page records from list
-            $this->perms_clause
-        );
-
-        /**
-         * Postbone Breaking: #82803 - Global configuration option "content_doktypes" removed in TYPO3 v9
-         * Regards custom configurations, otherwise ignores spacers (199), recyclers (255) and folders (254)
-         *
-         * @deprecated since TYPO3 v9.
-         **/
-        if (isset($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
-            && !empty($GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes']) ) 
-        {
-            $queryBuilder->andWhere(
-                $queryBuilder->expr()->in(
-                    'doktype',
-                    GeneralUtility::intExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['content_doktypes'])
-                    )
-                );
-        } 
-        else {
-            $queryBuilder->andWhere(
-                $queryBuilder->expr()->notIn(
-                    'doktype',
-                    [199,254,255]
-                    )
-                );
-        }
+        $rows = GeneralUtility::makeInstance(PagesRepository::class)->selectPagesForDmail($this->id, $this->perms_clause);
         
-        $rows = $queryBuilder->orderBy('sorting')->execute()->fetchAll();
-
         $out = '';
         $empty = false;
         if (empty($rows)) {
