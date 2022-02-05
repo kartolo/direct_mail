@@ -40,4 +40,16 @@ class PagesRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+    
+    public function selectPageByL10nAndSysLanguageUid(int $pageUid, int $langUid): array|bool {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder
+        ->select('sys_language_uid')
+        ->from($this->table)
+        ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)))
+        ->andWhere($queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)))
+        ->execute()
+        ->fetchAll();
+    }
 }

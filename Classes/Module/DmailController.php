@@ -688,7 +688,7 @@ class DmailController extends MainController
         if ($languages === null) {
             $languages = GeneralUtility::makeInstance(TranslationConfigurationProvider::class)->getSystemLanguages();
         }
-        
+
         // loop trough all sys languages and check if there is matching page translation
         foreach ($languages as $lang) {
             // we skip -1
@@ -697,18 +697,10 @@ class DmailController extends MainController
             }
             
             // 0 is always present so only for > 0
-            if ((int)$lang['uid'] > 0) {
-                $queryBuilder = $this->getQueryBuilder('pages');
+            if ((int)$lang['uid'] > 0) {                
+                $langRow = GeneralUtility::makeInstance(PagesRepository::class)->selectPageByL10nAndSysLanguageUid($pageUid, $lang['uid']);
 
-                $langRow = $queryBuilder
-                ->select('sys_language_uid')
-                ->from('pages')
-                ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)))
-                ->andWhere($queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($lang['uid'], \PDO::PARAM_INT)))
-                ->execute()
-                ->fetchAll();
-                
-                if (empty($langRow)) {
+                if (!$langRow || empty($langRow)) {
                     continue;
                 }
             }
