@@ -588,7 +588,6 @@ class DmailController extends MainController
                         'cmd' => 'info'
                     ]
                 );
-                $pageIcon = $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL) . '&nbsp;' .  htmlspecialchars($row['title']);
                     
                 $previewHTMLLink = $previewTextLink = $createLink = '';
                 foreach ($languages as $languageUid => $lang) {
@@ -655,13 +654,13 @@ class DmailController extends MainController
                     ],
                     'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
                 ];
-                $editOnClickLink = DirectMailUtility::getEditOnClickLink($params);
                 
                 $data[] = [
-                    'pageIcon' => $pageIcon,
+                    'pageIcon' => $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL),
+                    'title' => htmlspecialchars($row['title']),
                     'createDmailLink' => $createDmailLink,
                     'createLink' => $createLink,
-                    'editOnClickLink' => $editOnClickLink,
+                    'editOnClickLink' => DirectMailUtility::getEditOnClickLink($params),
                     'iconActionsOpen' => $iconActionsOpen,
                     'previewLink' => $previewLink
                 ];

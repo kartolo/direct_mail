@@ -119,7 +119,7 @@
 		    		<f:for each="{data.news.rows}" as="row">
 		    			<tr class="db_list_normal">
 		    				<td>
-		    					<a href="{row.createDmailLink -> f:format.html()}"><f:format.html>{row.pageIcon}</f:format.html></a>
+		    					<a href="{row.createDmailLink -> f:format.html()}"><f:format.html>{row.pageIcon}&nbsp;{row.title}</f:format.html></a>
 		    				</td>
 		    				<td>
 								<f:format.html>{row.createLink}</f:format.html>
