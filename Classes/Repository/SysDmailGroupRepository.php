@@ -62,4 +62,30 @@ class SysDmailGroupRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+    
+    /**
+     * @return array|bool
+     */
+    public function selectSysDmailGroupForTestmail(string $intList, string $permsClause) //: array|bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+        ->getRestrictions()
+        ->removeAll()
+        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        
+        return $queryBuilder
+        ->select($this->table.'.*')
+        ->from($this->table)
+        ->leftJoin(
+            $this->table,
+            'pages',
+            'pages',
+            $queryBuilder->expr()->eq($this->table.'.pid', $queryBuilder->quoteIdentifier('pages.uid'))
+        )
+        ->add('where', $this->table.'.uid IN (' . $intList . ')' .
+                ' AND ' . $permsClause )
+        ->execute()
+        ->fetchAll();
+    }
 }

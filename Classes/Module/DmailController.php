@@ -8,10 +8,12 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
+use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Routing\PreviewUriBuilder;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
@@ -1074,66 +1076,32 @@ class DmailController extends MainController
     protected function cmd_testmail()
     {
         $theOutput = '';
-        
+
         if ($this->params['test_tt_address_uids'] ?? false) {
-            $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_tt_address_uids']));
-            $queryBuilder = $this->getQueryBuilder('tt_address');
-            $res = $queryBuilder
-            ->select('tt_address.*')
-            ->from('tt_address')
-            ->leftJoin(
-                'tt_address',
-                'pages',
-                'pages',
-                $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('tt_address.pid'))
-                )
-                ->add('where','tt_address.uid IN (' . $intList . ')' .
-                    ' AND ' . $this->perms_clause )
-                    ->execute()
-                    ->fetchAll();
+            $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_tt_address_uids']));            
+            $res = GeneralUtility::makeInstance(TtAddressRepository::class)->selectTtAddressForTestmail($intList, $this->perms_clause);
+        
+            $ids = [];
                     
-                    $msg = $this->getLanguageService()->getLL('testmail_individual_msg') . '<br /><br />';
+            foreach ($res as $row) {
+                $ids[] = $row['uid'];
+            }
+            
+            $msg = $this->getLanguageService()->getLL('testmail_individual_msg') . '<br /><br />';
+            $msg .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids, 'tt_address'), 'tt_address', 1, 1);
                     
-                    $ids = [];
-                    
-                    foreach ($res as $row) {
-                        $ids[] = $row['uid'];
-                    }
-                    
-                    $msg .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids, 'tt_address'), 'tt_address', 1, 1);
-                    
-            $theOutput.= '<h3>' . $this->getLanguageService()->getLL('testmail_individual') . '</h3>' .
-                $msg;
-                
-            $theOutput.= '<div style="padding-top: 20px;"></div>';
+            $theOutput .= '<h3>' . $this->getLanguageService()->getLL('testmail_individual') . '</h3>' . $msg;
+            $theOutput .= '<div style="padding-top: 20px;"></div>';
         }
         
         if ($this->params['test_dmail_group_uids'] ?? false) {
             $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_dmail_group_uids']));
-            
-            $queryBuilder = $this->getQueryBuilder('sys_dmail_group');
-            $queryBuilder
-            ->getRestrictions()
-            ->removeAll()
-            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-            $res = $queryBuilder
-            ->select('sys_dmail_group.*')
-            ->from('sys_dmail_group')
-            ->leftJoin(
-                'sys_dmail_group',
-                'pages',
-                'pages',
-                $queryBuilder->expr()->eq('sys_dmail_group.pid', $queryBuilder->quoteIdentifier('pages.uid'))
-                )
-                ->add('where','sys_dmail_group.uid IN (' . $intList . ')' .
-                    ' AND ' . $this->perms_clause )
-                    ->execute()
-                    ->fetchAll();
+            $res = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupForTestmail($intList, $this->perms_clause);
+
+            $msg = $this->getLanguageService()->getLL('testmail_mailgroup_msg') . '<br /><br />';
                     
-                    $msg = $this->getLanguageService()->getLL('testmail_mailgroup_msg') . '<br /><br />';
-                    
-                    foreach ($res as $row) {
-                        $moduleUrl = $this->buildUriFromRoute(
+            foreach ($res as $row) {
+                $moduleUrl = $this->buildUriFromRoute(
                             $this->moduleName,
                             [
                                 'id' => $this->id,
@@ -1152,27 +1120,52 @@ class DmailController extends MainController
 					<td>' . $this->cmd_displayMailGroup_test($result) . '</td>
 				</tr>
 				</table>';
-                    }
+            }
                     
-            $theOutput.= '<h3>' . $this->getLanguageService()->getLL('testmail_mailgroup') . '</h3>' .
-                $msg;
-                $theOutput.= '<div style="padding-top: 20px;"></div>';
+            $theOutput .= '<h3>' . $this->getLanguageService()->getLL('testmail_mailgroup') . '</h3>' . $msg;
+            $theOutput .= '<div style="padding-top: 20px;"></div>';
         }
         
         $msg = '';
-        $msg.= $this->getLanguageService()->getLL('testmail_simple_msg') . '<br /><br />';
-        $msg.= '<input style="width: 460px;" type="text" name="SET[dmail_test_email]" value="' . ($this->MOD_SETTINGS['dmail_test_email'] ?? '') . '" /><br /><br />';
+        $msg .= $this->getLanguageService()->getLL('testmail_simple_msg') . '<br /><br />';
+        $msg .= '<input style="width: 460px;" type="text" name="SET[dmail_test_email]" value="' . ($this->MOD_SETTINGS['dmail_test_email'] ?? '') . '" /><br /><br />';
         
-        $msg.= '<input type="hidden" name="id" value="' . $this->id . '" />';
-        $msg.= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '" />';
-        $msg.= '<input type="hidden" name="cmd" value="send_mail_test" />';
-        $msg.= '<input type="submit" name="mailingMode_simple" value="' . $this->getLanguageService()->getLL('dmail_send') . '" />';
+        $msg .= '<input type="hidden" name="id" value="' . $this->id . '" />';
+        $msg .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '" />';
+        $msg .= '<input type="hidden" name="cmd" value="send_mail_test" />';
+        $msg .= '<input type="submit" name="mailingMode_simple" value="' . $this->getLanguageService()->getLL('dmail_send') . '" />';
         
-        $theOutput.= '<h3>' . $this->getLanguageService()->getLL('testmail_simple') . '</h3>' .
-            $msg;
+        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('testmail_simple') . '</h3>' . $msg;
             
         $this->noView = 1;
         return $theOutput;
+    }
+
+    /**
+     * Display the test mail group, which configured in the configuration module
+     *
+     * @param array $result Lists of the recipient IDs based on directmail DB record
+     *
+     * @return string List of the recipient (in HTML)
+     */
+    public function cmd_displayMailGroup_test($result)
+    {
+        $idLists = $result['queryInfo']['id_lists'];
+        $out = '';
+        if (is_array($idLists['tt_address'] ?? false)) {
+            $out .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+        }
+        if (is_array($idLists['fe_users'] ?? false)) {
+            $out .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+        }
+        if (is_array($idLists['PLAINLIST'] ?? false)) {
+            $out.=$this->getRecordList($idLists['PLAINLIST'], 'default');
+        }
+        if (is_array($idLists[$this->userTable] ?? false)) {
+            $out.=$this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable], $this->userTable), $this->userTable);
+        }
+        
+        return $out;
     }
     
     /**
@@ -1236,7 +1229,7 @@ class DmailController extends MainController
             // step 4, sending test personalized test emails
             // setting Testmail flag
             $htmlmail->testmail = $this->params['testmail'];
-            
+
             if ($this->tt_address_uid) {
                 // personalized to tt_address
                 $queryBuilder = $this->getQueryBuilder('tt_address');
@@ -1249,6 +1242,7 @@ class DmailController extends MainController
                 ->execute()
                 ->fetchAll();
                 
+
                 if (!empty($res)) {
                     foreach ($res as $recipRow) {
                         $recipRow = Dmailer::convertFields($recipRow);
@@ -1361,6 +1355,83 @@ class DmailController extends MainController
                 [ 'uid' => intval($this->sys_dmail_uid) ] // where
             );
         }
+    }
+
+    /**
+     * Show the recipient info and a link to edit it
+     *
+     * @param array $listArr List of recipients ID
+     * @param string $table Table name
+     * @param bool|int $editLinkFlag If set, edit link is showed
+     * @param bool|int $testMailLink If set, send mail link is showed
+     *
+     * @return string HTML, the table showing the recipient's info
+     * @throws RouteNotFoundException If the named route doesn't exist
+     */
+    public function getRecordList(array $listArr, $table, $editLinkFlag=1, $testMailLink=0)
+    {
+        $count = 0;
+        $lines = [];
+        $out = '';
+        if (is_array($listArr)) {
+            $count = count($listArr);
+            /** @var UriBuilder $uriBuilder */
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            foreach ($listArr as $row) {
+                $tableIcon = '';
+                $editLink = '';
+                $testLink = '';
+                
+                if ($row['uid']) {
+                    $tableIcon = '<td>' . $this->iconFactory->getIconForRecord($table, $row, Icon::SIZE_SMALL) . '</td>';
+                    if ($editLinkFlag) {
+                        $requestUri = GeneralUtility::getIndpEnv('REQUEST_URI') . '&CMD=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid;
+                        
+                        $params = [
+                            'edit' => [
+                                $table => [
+                                    $row['uid'] => 'edit',
+                                ]
+                            ],
+                            'returnUrl' => $requestUri
+                        ];
+                        
+                        $editOnClick = DirectMailUtility::getEditOnClickLink($params);
+                        
+                        $editLink = '<td><a href="#" onClick="' . $editOnClick . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
+                            $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
+                            '</a></td>';
+                    }
+                    
+                    if ($testMailLink) {
+                        $moduleUrl = $uriBuilder->buildUriFromRoute(
+                            $this->moduleName,
+                            [
+                                'id' => $this->id,
+                                'sys_dmail_uid' => $this->sys_dmail_uid,
+                                'CMD' => 'send_mail_test',
+                                'tt_address_uid' => $row['uid']
+                            ]
+                            );
+                        $testLink = '<a href="' . $moduleUrl . '">' . htmlspecialchars($row['email']) . '</a>';
+                    } else {
+                        $testLink = htmlspecialchars($row['email']);
+                    }
+                }
+                
+                $lines[] = '<tr class="db_list_normal">
+				' . $tableIcon . '
+				' . $editLink . '
+				<td nowrap> ' . $testLink . ' </td>
+				<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>
+				</tr>';
+            }
+        }
+        if (count($lines)) {
+            $out= $this->getLanguageService()->getLL('dmail_number_records') . '<strong>' . $count . '</strong><br />';
+            $out.='<table border="0" cellspacing="1" cellpadding="0" class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
+        }
+        return $out;
     }
     
     /**
