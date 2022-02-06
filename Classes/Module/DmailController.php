@@ -961,7 +961,8 @@ class DmailController extends MainController
         
         if (!$message || !$htmlmail->theParts['plain']['content']) {
             $errorMsg .= '&nbsp;<strong>' . $this->getLanguageService()->getLL('dmail_no_plain_content') . '</strong>';
-        } elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']), '<!--DMAILER_SECTION_BOUNDARY')) {
+        } 
+        elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']), '<!--DMAILER_SECTION_BOUNDARY')) {
             $warningMsg .= '&nbsp;<strong>' . $this->getLanguageService()->getLL('dmail_no_plain_boundaries') . '</strong>';
         }
         
@@ -971,21 +972,9 @@ class DmailController extends MainController
             // Update the record:
             $htmlmail->theParts['messageid'] = $htmlmail->messageid;
             $mailContent = base64_encode(serialize($htmlmail->theParts));
-            $queryBuilder = $this->getQueryBuilder('sys_dmail');
-            $queryBuilder
-            ->update('sys_dmail')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'uid',
-                    intval($this->sys_dmail_uid)
-                    )
-                )
-                ->set('issent', 0)
-                ->set('charset', $htmlmail->charset)
-                ->set('mailContent', $mailContent)
-                ->set('renderedSize', strlen($mailContent))
-                ->execute();
-                
+
+            GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmail(intval($this->sys_dmail_uid), $htmlmail->charset, $mailContent);
+            
             if ($warningMsg) {
                 return '<h3>' . $this->getLanguageService()->getLL('dmail_warning') . '</h3>' . $warningMsg . '<br /><br />';
             }
@@ -1110,12 +1099,12 @@ class DmailController extends MainController
                                 'sys_dmail_group_uid[]' => $row['uid']
                             ]
                         );
-                        $msg .='<a href="' . $moduleUrl . '">' .
+                $msg .= '<a href="' . $moduleUrl . '">' .
                             $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL) .
                             htmlspecialchars($row['title']) . '</a><br />';
-                            // Members:
-                            $result = $this->cmd_compileMailGroup([$row['uid']]);
-                            $msg.='<table border="0" class="table table-striped table-hover">
+                // Members:
+                $result = $this->cmd_compileMailGroup([$row['uid']]);
+                $msg .= '<table border="0" class="table table-striped table-hover">
 				<tr>
 					<td>' . $this->cmd_displayMailGroup_test($result) . '</td>
 				</tr>

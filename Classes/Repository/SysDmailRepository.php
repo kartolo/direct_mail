@@ -101,4 +101,23 @@ class SysDmailRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+
+    /**
+     * @return int
+     */
+    public function updateSysDmail(int $uid, string $charset, string $mailContent): int
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+        ->update($this->table)
+        ->where(
+            $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT))
+        )
+        ->set('issent', 0)
+        ->set('charset', $charset)
+        ->set('mailContent', $mailContent)
+        ->set('renderedSize', strlen($mailContent))
+        ->execute();
+    }
 }
