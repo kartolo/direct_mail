@@ -1176,7 +1176,7 @@ class DmailController extends MainController
         $htmlmail->start();
         $htmlmail->dmailer_prepare($row);
         $sentFlag = false;
-        
+
         // send out non-personalized emails
         if ($this->mailingMode_simple) {
             // step 4, sending simple test emails
@@ -1221,16 +1221,7 @@ class DmailController extends MainController
 
             if ($this->tt_address_uid) {
                 // personalized to tt_address
-                $queryBuilder = $this->getQueryBuilder('tt_address');
-                $res = $queryBuilder
-                ->select('a.*')
-                ->from('tt_address', 'a')
-                ->leftJoin('a', 'pages', 'pages', $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('a.pid')))
-                ->where($queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter($this->tt_address_uid, \PDO::PARAM_INT)))
-                ->andWhere($this->perms_clause)
-                ->execute()
-                ->fetchAll();
-                
+                $res = GeneralUtility::makeInstance(TtAddressRepository::class)->selectTtAddressForSendMailTest($this->tt_address_uid, $this->perms_clause);
 
                 if (!empty($res)) {
                     foreach ($res as $recipRow) {

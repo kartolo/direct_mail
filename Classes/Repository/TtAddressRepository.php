@@ -52,4 +52,28 @@ class TtAddressRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+    
+    /**
+     * @return array|bool
+     */
+    public function selectTtAddressForSendMailTest(int $ttAddressUid, string $permsClause) //: array|bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder
+        ->select('a.*')
+        ->from($this->table, 'a')
+        ->leftJoin(
+            'a', 
+            'pages', 
+            'pages', 
+            $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('a.pid'))
+        )
+        ->where(
+            $queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter($ttAddressUid, \PDO::PARAM_INT))
+        )
+        ->andWhere($permsClause)
+        ->execute()
+        ->fetchAll();
+    }
 }
