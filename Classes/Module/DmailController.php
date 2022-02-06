@@ -6,6 +6,7 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -1389,53 +1390,33 @@ class DmailController extends MainController
             }
         }
         
-        // Mail groups
-        $queryBuilder = $this->getQueryBuilder('sys_dmail_group');
-        $statement = $queryBuilder
-        ->select('uid','pid','title')
-        ->from('sys_dmail_group')
-        ->where(
-            $queryBuilder->expr()->eq(
-                'pid',
-                intval($this->id)
-                )
-            )
-            ->andWhere(
-                $queryBuilder->expr()->in(
-                    'sys_language_uid',
-                    '-1, ' . $direct_mail_row['sys_language_uid']
-                    )
-                )
-            ->orderBy(
-                preg_replace(
-                    '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
-                    trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
-                    )
-                )
-            ->execute();
-                    
+        // Mail groups        
+        $groups = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupForFinalMail($this->id, (int)$direct_mail_row['sys_language_uid'], trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby']));
+
         $opt = [];
         $lastGroup = null;
-        while (($group = $statement->fetch())) {
-            $result = $this->cmd_compileMailGroup([$group['uid']]);
-            $count = 0;
-            $idLists = $result['queryInfo']['id_lists'];
-            if (is_array($idLists['tt_address'] ?? false)) {
-                $count += count($idLists['tt_address']);
+        if($groups) {
+            foreach($groups as $group)  {
+                $result = $this->cmd_compileMailGroup([$group['uid']]);
+                $count = 0;
+                $idLists = $result['queryInfo']['id_lists'];
+                if (is_array($idLists['tt_address'] ?? false)) {
+                    $count += count($idLists['tt_address']);
+                }
+                if (is_array($idLists['fe_users'] ?? false)) {
+                    $count += count($idLists['fe_users']);
+                }
+                if (is_array($idLists['PLAINLIST'] ?? false)) {
+                    $count += count($idLists['PLAINLIST']);
+                }
+                if (is_array($idLists[$this->userTable] ?? false)) {
+                    $count += count($idLists[$this->userTable]);
+                }
+                $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
+                $lastGroup = $group;
             }
-            if (is_array($idLists['fe_users'] ?? false)) {
-                $count += count($idLists['fe_users']);
-            }
-            if (is_array($idLists['PLAINLIST'] ?? false)) {
-                $count += count($idLists['PLAINLIST']);
-            }
-            if (is_array($idLists[$this->userTable] ?? false)) {
-                $count += count($idLists[$this->userTable]);
-            }
-            $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
-            $lastGroup = $group;
         }
-        
+
         $groupInput = '';
         // added disabled. see hook
         if (count($opt) === 0) {

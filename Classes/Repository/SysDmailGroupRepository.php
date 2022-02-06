@@ -12,7 +12,7 @@ class SysDmailGroupRepository extends MainRepository {
     /**
      * @return array|bool
      */
-    public function selecetSysDmailGroupByPid(int $pid, string $defaultSortBy) //: array|bool 
+    public function selectSysDmailGroupByPid(int $pid, string $defaultSortBy) //: array|bool 
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
@@ -31,6 +31,34 @@ class SysDmailGroupRepository extends MainRepository {
                 $defaultSortBy
             )
         )
+        ->execute()
+        ->fetchAll();
+    }
+
+    /**
+     * @return array|bool
+     */
+    public function selectSysDmailGroupForFinalMail(int $pid, int $sysLanguageUid, string $defaultSortBy) //: array|bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder->select('uid','pid','title')
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT))
+        )
+        ->andWhere(
+                $queryBuilder->expr()->in(
+                    'sys_language_uid',
+                    '-1, ' . $sysLanguageUid
+                    )
+                )
+        ->orderBy(
+            preg_replace(
+                    '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
+                    $defaultSortBy
+                )
+            )
         ->execute()
         ->fetchAll();
     }

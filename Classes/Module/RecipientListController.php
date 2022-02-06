@@ -158,7 +158,7 @@ class RecipientListController extends MainController
             'rows' => []
         ];
         
-        $rows = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selecetSysDmailGroupByPid($this->id, trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby']));
+        $rows = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupByPid($this->id, trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby']));
         
         foreach($rows as $row) {
             $result = $this->cmd_compileMailGroup(intval($row['uid']));
