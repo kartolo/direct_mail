@@ -130,7 +130,6 @@ class DmailController extends MainController
 
                     $this->view->assignMultiple(
                         [
-                            'wizardsteps' => $markers['WIZARDSTEPS'],
                             'flashmessages' => $markers['FLASHMESSAGES'],
                             'content' => $markers['CONTENT'],
                             'data' => $markers['data']
@@ -167,7 +166,6 @@ class DmailController extends MainController
         $isExternalDirectMailRecord = false;
         
         $markers = [
-            'WIZARDSTEPS' => '',
             'FLASHMESSAGES' => '',
             'data' => []
         ];
@@ -235,7 +233,10 @@ class DmailController extends MainController
             'navigation' => [
                 'back' => false,
                 'next' => false,
-                'next_error' => false
+                'next_error' => false,
+                'totalSteps' => $totalSteps,
+                'currentStep' => 1,
+                'steps' => array_fill(1, $totalSteps, '')
             ]
         ];
         
@@ -243,9 +244,9 @@ class DmailController extends MainController
             case 'info':
                 // step 2: create the Direct Mail record, or use existing
                 $this->currentStep = 2;
-                
+                $data['navigation']['currentStep'] = $this->currentStep;
                 $data['info'] = [
-                    'currentStep' => 2
+                    'currentStep' => $this->currentStep
                 ];
                 
                 $fetchMessage = '';
@@ -368,8 +369,9 @@ class DmailController extends MainController
             case 'cats':
                 // shows category if content-based cat
                 $this->currentStep = 3;
+                $data['navigation']['currentStep'] = $this->currentStep;
                 $data['cats'] = [
-                    'currentStep' => 3
+                    'currentStep' => $this->currentStep
                 ];
                 
                 $data['navigation']['back'] = true;
@@ -390,6 +392,7 @@ class DmailController extends MainController
             case 'send_mail_test':
                 // send test mail
                 $this->currentStep = (4 - (5 - $totalSteps));
+                $data['navigation']['currentStep'] = $this->currentStep;
                 $data['test'] = [
                     'currentStep' => $this->currentStep
                 ];
@@ -415,6 +418,7 @@ class DmailController extends MainController
                 // same as send_mass
             case 'send_mass':
                 $this->currentStep = (5 - (5 - $totalSteps));
+                $data['navigation']['currentStep'] = $this->currentStep;
                 $data['final'] = [
                     'currentStep' => $this->currentStep
                 ];
@@ -485,7 +489,6 @@ class DmailController extends MainController
         }
 
         $markers['CONTENT'] = $theOutput;
-        $markers['WIZARDSTEPS'] = $this->showSteps($totalSteps);
         $markers['data'] = $data;
         return $markers;
     }
@@ -497,6 +500,7 @@ class DmailController extends MainController
      *
      * @return string HTML
      */
+/**    
     protected function showSteps($totalSteps)
     {
         $content = '';
@@ -506,7 +510,7 @@ class DmailController extends MainController
         }
         return $content;
     }
-
+*/
     /**
      * Makes expandable section using TYPO3-typical markup.
      *

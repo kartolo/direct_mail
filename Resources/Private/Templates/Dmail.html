@@ -5,19 +5,8 @@
 <f:flashMessages />
 <div class="typo3-fullDoc">
     <div class="module-body t3js-module-body">
-        <form action="" method="post" name="dmailform" enctype="multipart/form-data">
-			<div class="typo3-message message-ok t3-wizard-steps">
-	        	<f:format.raw>{wizardsteps}</f:format.raw>
-	        </div>
-			<f:if condition="{data.navigation.back}">
-				<input type="submit" class="btn btn-default" value="{f:translate(key: '{lll}dmail_wiz_back')}" name="back">&nbsp;
-	        </f:if>
-	        <f:if condition="{data.navigation.next}">
-	        	<input type="submit" class="{f:if(condition: '{data.navigation.next_error}', then: 'next btn btn-default disabled', else: 'btn btn-default')}" {f:if(condition: '{data.navigation.next_error}', then: 'disabled="disabled"', else: '')} value="{f:translate(key: '{lll}dmail_wiz_next')}">
-	        </f:if>
-
-	        <br clear="all" />
-	        <br />
+        <form action="" method="post" name="dmailform" enctype="multipart/form-data">	        
+	        <f:render arguments="{navigation: data.navigation}" section="Navigation" />
 			<f:format.raw>{flashmessages}</f:format.raw>
 
 			<f:if condition="{data.info}">
@@ -33,7 +22,6 @@
 				<h3><f:translate key="{lll}dmail_wiz5_sendmass"/></h3>
 			</f:if>
 			<f:format.raw>{content}</f:format.raw>
-
 			<f:if condition="{data.default}">
 				<h3><f:translate key="{lll}dmail_wiz1_new_newsletter"/> - <f:translate key="{lll}dmail_wiz1_select_nl_source"/></h3>
 				<f:if condition="{data.default.internal}">
@@ -87,6 +75,22 @@
 </div>
 </f:section>
 
+<f:section name="Navigation">
+	<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+	<div class="typo3-message message-ok t3-wizard-steps">
+			<f:for each="{navigation.steps}" key="step" as="val">
+				<span class="t3-wizard-item {f:if(condition: '{navigation.currentStep} == {step}', then: 't3-wizard-item-active', else: '')}">&nbsp;{step}&nbsp;</span>
+			</f:for>
+	</div>
+	<f:if condition="{navigation.back}">
+		<input type="submit" class="btn btn-default" value="{f:translate(key: '{lll}dmail_wiz_back')}" name="back">&nbsp;
+       </f:if>
+       <f:if condition="{navigation.next}">
+       	<input type="submit" class="{f:if(condition: '{navigation.next_error}', then: 'next btn btn-default disabled', else: 'btn btn-default')}" {f:if(condition: '{navigation.next_error}', then: 'disabled="disabled"', else: '')} value="{f:translate(key: '{lll}dmail_wiz_next')}">
+       </f:if>
+       <br clear="all" />
+       <br />
+</f:section>
 
 <f:comment><!--
     Parameters:
