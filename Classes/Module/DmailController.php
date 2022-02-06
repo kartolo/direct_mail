@@ -127,14 +127,12 @@ class DmailController extends MainController
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $markers = $this->moduleContent();
-                    $formcontent = $markers['CONTENT'];
 
                     $this->view->assignMultiple(
                         [
                             'wizardsteps' => $markers['WIZARDSTEPS'],
                             'flashmessages' => $markers['FLASHMESSAGES'],
-                            'title' => $markers['TITLE'],
-                            'content' => $formcontent,
+                            'content' => $markers['CONTENT'],
                             'data' => $markers['data']
                         ]
                     );
@@ -171,7 +169,6 @@ class DmailController extends MainController
         $markers = [
             'WIZARDSTEPS' => '',
             'FLASHMESSAGES' => '',
-            'TITLE' => '',
             'data' => []
         ];
         
@@ -246,7 +243,10 @@ class DmailController extends MainController
             case 'info':
                 // step 2: create the Direct Mail record, or use existing
                 $this->currentStep = 2;
-                $markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz2_detail');
+                
+                $data['info'] = [
+                    'currentStep' => 2
+                ];
                 
                 $fetchMessage = '';
                 
@@ -368,7 +368,9 @@ class DmailController extends MainController
             case 'cats':
                 // shows category if content-based cat
                 $this->currentStep = 3;
-                $markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz3_cats');
+                $data['cats'] = [
+                    'currentStep' => 3
+                ];
                 
                 $data['navigation']['back'] = true;
                 $data['navigation']['next'] = true;
@@ -388,7 +390,9 @@ class DmailController extends MainController
             case 'send_mail_test':
                 // send test mail
                 $this->currentStep = (4 - (5 - $totalSteps));
-                $markers['TITLE'] = $this->getLanguageService()->getLL('dmail_wiz4_testmail');
+                $data['test'] = [
+                    'currentStep' => $this->currentStep
+                ];
                 
                 $data['navigation']['back'] = true;
                 $data['navigation']['next'] = true;
@@ -411,6 +415,9 @@ class DmailController extends MainController
                 // same as send_mass
             case 'send_mass':
                 $this->currentStep = (5 - (5 - $totalSteps));
+                $data['final'] = [
+                    'currentStep' => $this->currentStep
+                ];
                 
                 if ($this->cmd == 'send_mass') {
                     $data['navigation']['back'] = true;
@@ -428,9 +435,6 @@ class DmailController extends MainController
                 $theOutput .= '<div id="box-1" class="toggleBox">';
                 $theOutput .= $this->cmd_finalmail($row);
                 $theOutput .= '</div>';
-                
-                $theOutput = '<h3>' . $this->getLanguageService()->getLL('dmail_wiz5_sendmass') . '</h3>' . $theOutput;
-                    
                 $theOutput .= '<input type="hidden" name="cmd" value="send_mail_final">';
                 $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
                 $theOutput .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">';

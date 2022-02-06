@@ -19,9 +19,21 @@
 	        <br clear="all" />
 	        <br />
 			<f:format.raw>{flashmessages}</f:format.raw>
-			<h3><f:format.raw>{title}</f:format.raw></h3>
-			<f:format.raw>{content}</f:format.raw>		
-			
+
+			<f:if condition="{data.info}">
+				<h3><f:translate key="{lll}dmail_wiz2_detail"/></h3>
+			</f:if>
+			<f:if condition="{data.cats}">
+				<h3><f:translate key="{lll}dmail_wiz3_cats"/></h3>
+			</f:if>
+			<f:if condition="{data.test}">
+				<h3><f:translate key="{lll}dmail_wiz4_testmail"/></h3>
+			</f:if>
+			<f:if condition="{data.final}">
+				<h3><f:translate key="{lll}dmail_wiz5_sendmass"/></h3>
+			</f:if>
+			<f:format.raw>{content}</f:format.raw>
+
 			<f:if condition="{data.default}">
 				<h3><f:translate key="{lll}dmail_wiz1_new_newsletter"/> - <f:translate key="{lll}dmail_wiz1_select_nl_source"/></h3>
 				<f:if condition="{data.default.internal}">
