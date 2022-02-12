@@ -270,7 +270,8 @@ class DmailController extends MainController
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
                             $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                         }
-                        $theOutput .= '<input type="hidden" name="cmd" value="' . ($nextCmd ? $nextCmd : 'cats') . '">';
+
+                        $data['info']['internal']['cmd'] = $nextCmd ? $nextCmd : 'cats';
                     } else {
                         // TODO: Error message - Error while adding the DB set
                     }
@@ -293,7 +294,8 @@ class DmailController extends MainController
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
                             $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                         }
-                        $theOutput .= '<input type="hidden" name="cmd" value="send_test">';
+
+                        $data['info']['external']['cmd'] = 'send_test';
                     } else {
                         // TODO: Error message - Error while adding the DB set
                         $this->error = 'no_valid_url';
@@ -304,37 +306,32 @@ class DmailController extends MainController
                     $fetchMessage = $this->createDMail_quick($quickmail);
                     $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                     $row = BackendUtility::getRecord('sys_dmail', $this->sys_dmail_uid);
-                    $theOutput .= '<input type="hidden" name="cmd" value="send_test">';
-                    $theOutput .= '<input type="hidden" name="quickmail[senderName]" value="' . htmlspecialchars($quickmail['senderName'] ?? '') . '" />';
-                    $theOutput .= '<input type="hidden" name="quickmail[senderEmail]" value="' . htmlspecialchars($quickmail['senderEmail'] ?? '') . '" />';
-                    $theOutput .= '<input type="hidden" name="quickmail[subject]" value="' . htmlspecialchars($quickmail['subject'] ?? '') . '" />';
-                    $theOutput .= '<input type="hidden" name="quickmail[message]" value="' . htmlspecialchars($quickmail['message'] ?? '') . '" />';
-                    if($quickmail['breakLines'] ?? false) {
-                        $theOutput .= '<input type="hidden" name="quickmail[breakLines]" value="'. (int)$quickmail['breakLines'] . '" />';
-                    } 
+                    
+                    $data['info']['quickmail']['cmd'] = 'send_test';
+                    $data['info']['quickmail']['senderName'] = htmlspecialchars($quickmail['senderName'] ?? '');
+                    $data['info']['quickmail']['senderEmail'] = htmlspecialchars($quickmail['senderEmail'] ?? '');
+                    $data['info']['quickmail']['subject'] = htmlspecialchars($quickmail['subject'] ?? '');
+                    $data['info']['quickmail']['message'] = htmlspecialchars($quickmail['message'] ?? '');
+                    $data['info']['quickmail']['breakLines'] = ($quickmail['breakLines'] ?? false) ? (int)$quickmail['breakLines'] : 0;
                 } 
                 // existing dmail
                 elseif ($row) {
                     if ($row['type'] == '1' && ((empty($row['HTMLParams'])) || (empty($row['plainParams'])))) {
-                        
                         // it's a quickmail
                         $fetchError = false;
-                        $theOutput .= '<input type="hidden" name="cmd" value="send_test">';
+                        
+                        $data['info']['dmail']['cmd'] = 'send_test';
                         
                         // add attachment here, since attachment added in 2nd step
                         $unserializedMailContent = unserialize(base64_decode($row['mailContent']));
-                        $theOutput .= $this->compileQuickMail($row, $unserializedMailContent['plain']['content'], false);
+                        $data['info']['dmail']['warning'] = $this->compileQuickMail($row, $unserializedMailContent['plain']['content'], false);
                     } else {
                         if ($this->fetchAtOnce) {
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
                             $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                         }
                         
-                        if ($row['type'] == 0) {
-                            $theOutput .= '<input type="hidden" name="cmd" value="' . $nextCmd . '">';
-                        } else {
-                            $theOutput .= '<input type="hidden" name="cmd" value="send_test">';
-                        }
+                        $data['info']['dmail']['cmd'] = ($row['type'] == 0) ? $nextCmd : 'send_test';
                     }
                 }
                 
@@ -354,16 +351,11 @@ class DmailController extends MainController
                     );
                     $this->messageQueue->addMessage($message);
                 }
-                
-                if (is_array($row)) {
-                    $theOutput .= '<div id="box-1" class="toggleBox">';
-                    $theOutput .= $this->renderRecordDetailsTable($row);
-                    $theOutput .= '</div>';
-                }
-                
-                $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
-                $theOutput .= !empty($row['page'])?'<input type="hidden" name="pages_uid" value="' . $row['page'] . '">':'';
-                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->cmd . '">';
+
+                $data['info']['table'] = is_array($row) ? $this->renderRecordDetailsTable($row) : '';
+                $data['info']['sys_dmail_uid'] = $this->sys_dmail_uid;
+                $data['info']['pages_uid'] = $row['page'] ?: '';
+                $data['info']['currentCMD'] = $this->cmd;
                 break;
                 
             case 'cats':
@@ -377,14 +369,11 @@ class DmailController extends MainController
                 $data['navigation']['back'] = true;
                 $data['navigation']['next'] = true;
                 
-                $theOutput .= '<div id="box-1" class="toggleBox">';
-                $theOutput .= $this->makeCategoriesForm($row);
-                $theOutput .= '</div></div>';
-                
-                $theOutput .= '<input type="hidden" name="cmd" value="send_test">';
-                $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
-                $theOutput .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">';
-                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->cmd . '">';
+                $data['cats']['catsForm'] = $this->makeCategoriesForm($row);
+                $data['cats']['cmd'] = 'send_test';
+                $data['cats']['sys_dmail_uid'] = $this->sys_dmail_uid;
+                $data['cats']['pages_uid'] = $this->pages_uid;
+                $data['cats']['currentCMD'] = $this->cmd;
                 break;
                     
             case 'send_test':
@@ -404,14 +393,11 @@ class DmailController extends MainController
                     // using Flashmessages to show sent test mail
                     $markers['FLASHMESSAGES'] = $this->cmd_send_mail($row);
                 }
-                $theOutput .= '<br /><div id="box-1" class="toggleBox">';
-                $theOutput .= $this->cmd_testmail();
-                $theOutput .= '</div></div>';
-                
-                $theOutput .= '<input type="hidden" name="cmd" value="send_mass">';
-                $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
-                $theOutput .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">';
-                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->cmd . '">';
+                $data['test']['testForm'] = $this->cmd_testmail();
+                $data['test']['cmd'] = 'send_mass';
+                $data['test']['sys_dmail_uid'] = $this->sys_dmail_uid;
+                $data['test']['pages_uid'] = $this->pages_uid;
+                $data['test']['currentCMD'] = $this->cmd;
                 break;
                     
             case 'send_mail_final':
@@ -432,17 +418,15 @@ class DmailController extends MainController
                         $markers['FLASHMESSAGES'] = $this->cmd_send_mail($row);
                         break;
                     } else {
-                        $theOutput .= 'no recipients';
+                        $theOutput .= 'no recipients'; //@TODO
                     }
                 }
                 // send mass, show calendar
-                $theOutput .= '<div id="box-1" class="toggleBox">';
-                $theOutput .= $this->cmd_finalmail($row);
-                $theOutput .= '</div>';
-                $theOutput .= '<input type="hidden" name="cmd" value="send_mail_final">';
-                $theOutput .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '">';
-                $theOutput .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">';
-                $theOutput .= '<input type="hidden" name="currentCMD" value="' . $this->cmd . '">';
+                $data['final']['finalForm'] = $this->cmd_finalmail($row);
+                $data['final']['cmd'] = 'send_mail_final';
+                $data['final']['sys_dmail_uid'] = $this->sys_dmail_uid;
+                $data['final']['pages_uid'] = $this->pages_uid;
+                $data['final']['currentCMD'] = $this->cmd;
                 break;
                         
             default:

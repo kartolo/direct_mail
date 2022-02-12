@@ -11,15 +11,65 @@
 
 			<f:if condition="{data.info}">
 				<h3><f:translate key="{lll}dmail_wiz2_detail"/></h3>
+				<f:if condition="{data.info.internal}">
+					<input type="hidden" name="cmd" value="{data.info.internal.cmd}">
+				</f:if>
+				<f:if condition="{data.info.external}">
+					<input type="hidden" name="cmd" value="{data.info.external.cmd}">
+				</f:if>
+				<f:if condition="{data.info.quickmail}">
+					<input type="hidden" name="cmd" value="{data.info.quickmail.cmd}">
+                    <input type="hidden" name="quickmail[senderName]" value="{data.info.quickmail.senderName}" />
+                    <input type="hidden" name="quickmail[senderEmail]" value="{data.info.quickmail.senderEmail}" />
+                    <input type="hidden" name="quickmail[subject]" value="{data.info.quickmail.subject}" />
+                    <input type="hidden" name="quickmail[message]" value="{data.info.quickmail.message}" />
+					<input type="hidden" name="quickmail[breakLines]" value="{data.info.quickmail.breakLines}" />
+				</f:if>
+				<f:if condition="{data.info.dmail}">
+					<input type="hidden" name="cmd" value="{data.info.dmail.cmd}">
+					<f:format.html>{data.info.dmail.warning}</f:format.html>
+				</f:if>
+
+				<f:if condition="{data.info.table}">
+					<div id="box-1" class="toggleBox">
+						<f:format.html>{data.info.table}</f:format.html>
+					</div>
+				</f:if>
+				<input type="hidden" name="sys_dmail_uid" value="{data.info.sys_dmail_uid}">
+				<f:if condition="{data.info.pages_uid}">
+					<input type="hidden" name="pages_uid" value="{data.info.pages_uid}">
+				</f:if>
+				<input type="hidden" name="currentCMD" value="{data.info.currentCMD}">
 			</f:if>
 			<f:if condition="{data.cats}">
 				<h3><f:translate key="{lll}dmail_wiz3_cats"/></h3>
+				<div id="box-1" class="toggleBox">
+					<f:format.html>{data.cats.catsForm}</f:format.html>
+				</div>
+				<input type="hidden" name="cmd" value="{data.cats.cmd}">
+                <input type="hidden" name="sys_dmail_uid" value="{data.cats.sys_dmail_uid}">
+                <input type="hidden" name="pages_uid" value="{data.cats.pages_uid}">
+                <input type="hidden" name="currentCMD" value="{data.cats.currentCMD}">
 			</f:if>
 			<f:if condition="{data.test}">
 				<h3><f:translate key="{lll}dmail_wiz4_testmail"/></h3>
+				<div id="box-1" class="toggleBox">
+					<f:format.html>{data.test.testForm}</f:format.html>
+                </div>
+                <input type="hidden" name="cmd" value="{data.test.cmd}">
+                <input type="hidden" name="sys_dmail_uid" value="{data.test.sys_dmail_uid}">
+                <input type="hidden" name="pages_uid" value="{data.test.pages_uid}">
+                <input type="hidden" name="currentCMD" value="{data.test.currentCMD}">
 			</f:if>
 			<f:if condition="{data.final}">
 				<h3><f:translate key="{lll}dmail_wiz5_sendmass"/></h3>
+				<div id="box-1" class="toggleBox">
+					<f:format.html>{data.final.finalForm}</f:format.html>
+                </div>
+                <input type="hidden" name="cmd" value="{data.final.cmd}">
+                <input type="hidden" name="sys_dmail_uid" value="{data.final.sys_dmail_uid}">
+                <input type="hidden" name="pages_uid" value="{data.final.pages_uid}">
+                <input type="hidden" name="currentCMD" value="{data.final.currentCMD}">
 			</f:if>
 			<f:format.raw>{content}</f:format.raw>
 			<f:if condition="{data.default}">
