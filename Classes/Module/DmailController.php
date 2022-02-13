@@ -393,7 +393,7 @@ class DmailController extends MainController
                     // using Flashmessages to show sent test mail
                     $markers['FLASHMESSAGES'] = $this->cmd_send_mail($row);
                 }
-                $data['test']['testForm'] = $this->cmd_testmail();
+                $data['test']['testFormData'] = $this->getTestMailConfig();
                 $data['test']['cmd'] = 'send_mass';
                 $data['test']['sys_dmail_uid'] = $this->sys_dmail_uid;
                 $data['test']['pages_uid'] = $this->pages_uid;
@@ -1051,75 +1051,63 @@ class DmailController extends MainController
     /**
      * Show the step of sending a test mail
      *
-     * @return string the HTML form
+     * @return config for form
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function cmd_testmail()
+    protected function getTestMailConfig(): array
     {
-        $theOutput = '';
+        $data = [
+            'test_tt_address'  => '',
+            'test_dmail_group_table' => []
+        ];
 
         if ($this->params['test_tt_address_uids'] ?? false) {
             $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_tt_address_uids']));            
-            $res = GeneralUtility::makeInstance(TtAddressRepository::class)->selectTtAddressForTestmail($intList, $this->perms_clause);
+            $rows = GeneralUtility::makeInstance(TtAddressRepository::class)->selectTtAddressForTestmail($intList, $this->perms_clause);
         
             $ids = [];
                     
-            foreach ($res as $row) {
+            foreach ($rows as $row) {
                 $ids[] = $row['uid'];
             }
-            
-            $msg = $this->getLanguageService()->getLL('testmail_individual_msg') . '<br /><br />';
-            $msg .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids, 'tt_address'), 'tt_address', 1, 1);
-                    
-            $theOutput .= '<h3>' . $this->getLanguageService()->getLL('testmail_individual') . '</h3>' . $msg;
-            $theOutput .= '<div style="padding-top: 20px;"></div>';
+
+            $data['test_tt_address'] = $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids, 'tt_address'), 'tt_address', 1, 1);
         }
-        
+
         if ($this->params['test_dmail_group_uids'] ?? false) {
             $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_dmail_group_uids']));
-            $res = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupForTestmail($intList, $this->perms_clause);
-
-            $msg = $this->getLanguageService()->getLL('testmail_mailgroup_msg') . '<br /><br />';
-                    
-            foreach ($res as $row) {
+            $rows = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupForTestmail($intList, $this->perms_clause);
+       
+            foreach ($rows as $row) {
                 $moduleUrl = $this->buildUriFromRoute(
-                            $this->moduleName,
-                            [
-                                'id' => $this->id,
-                                'sys_dmail_uid' => $this->sys_dmail_uid,
-                                'CMD' => 'send_mail_test',
-                                'sys_dmail_group_uid[]' => $row['uid']
-                            ]
-                        );
-                $msg .= '<a href="' . $moduleUrl . '">' .
-                            $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL) .
-                            htmlspecialchars($row['title']) . '</a><br />';
+                    $this->moduleName,
+                    [
+                        'id' => $this->id,
+                        'sys_dmail_uid' => $this->sys_dmail_uid,
+                        'CMD' => 'send_mail_test',
+                        'sys_dmail_group_uid[]' => $row['uid']
+                    ]
+                );
+
                 // Members:
                 $result = $this->cmd_compileMailGroup([$row['uid']]);
-                $msg .= '<table border="0" class="table table-striped table-hover">
-				<tr>
-					<td>' . $this->cmd_displayMailGroup_test($result) . '</td>
-				</tr>
-				</table>';
+                
+                $data['test_dmail_group_table'][] = [
+                    'moduleUrl' => $moduleUrl,
+                    'iconFactory' => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL),
+                    'title' => htmlspecialchars($row['title']),
+                    'tds' => $this->displayMailGroup_test($result)
+                ];
             }
-                    
-            $theOutput .= '<h3>' . $this->getLanguageService()->getLL('testmail_mailgroup') . '</h3>' . $msg;
-            $theOutput .= '<div style="padding-top: 20px;"></div>';
         }
         
-        $msg = '';
-        $msg .= $this->getLanguageService()->getLL('testmail_simple_msg') . '<br /><br />';
-        $msg .= '<input style="width: 460px;" type="text" name="SET[dmail_test_email]" value="' . ($this->MOD_SETTINGS['dmail_test_email'] ?? '') . '" /><br /><br />';
-        
-        $msg .= '<input type="hidden" name="id" value="' . $this->id . '" />';
-        $msg .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '" />';
-        $msg .= '<input type="hidden" name="cmd" value="send_mail_test" />';
-        $msg .= '<input type="submit" name="mailingMode_simple" value="' . $this->getLanguageService()->getLL('dmail_send') . '" />';
-        
-        $theOutput .= '<h3>' . $this->getLanguageService()->getLL('testmail_simple') . '</h3>' . $msg;
-            
+        $data['dmail_test_email'] = $this->MOD_SETTINGS['dmail_test_email'] ?? '';
+        $data['id'] = $this->id;
+        $data['cmd'] = 'send_mail_test';
+        $data['sys_dmail_uid'] = $this->sys_dmail_uid;
+
         $this->noView = 1;
-        return $theOutput;
+        return $data;
     }
 
     /**
@@ -1129,7 +1117,7 @@ class DmailController extends MainController
      *
      * @return string List of the recipient (in HTML)
      */
-    public function cmd_displayMailGroup_test($result)
+    public function displayMailGroup_test($result)
     {
         $idLists = $result['queryInfo']['id_lists'];
         $out = '';
@@ -1357,7 +1345,7 @@ class DmailController extends MainController
                 if ($row['uid']) {
                     $tableIcon = '<td>' . $this->iconFactory->getIconForRecord($table, $row, Icon::SIZE_SMALL) . '</td>';
                     if ($editLinkFlag) {
-                        $requestUri = GeneralUtility::getIndpEnv('REQUEST_URI') . '&CMD=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid;
+                        $requestUri = GeneralUtility::getIndpEnv('REQUEST_URI') . '&cmd=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid;
                         
                         $params = [
                             'edit' => [
@@ -1381,7 +1369,7 @@ class DmailController extends MainController
                             [
                                 'id' => $this->id,
                                 'sys_dmail_uid' => $this->sys_dmail_uid,
-                                'CMD' => 'send_mail_test',
+                                'cmd' => 'send_mail_test',
                                 'tt_address_uid' => $row['uid']
                             ]
                             );
@@ -1400,8 +1388,8 @@ class DmailController extends MainController
             }
         }
         if (count($lines)) {
-            $out= $this->getLanguageService()->getLL('dmail_number_records') . '<strong>' . $count . '</strong><br />';
-            $out.='<table border="0" cellspacing="1" cellpadding="0" class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
+            $out = '<p>'.$this->getLanguageService()->getLL('dmail_number_records') . ' <strong>' . $count . '</strong></p><br />';
+            $out .= '<table border="0" cellspacing="1" cellpadding="0" class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
         }
         return $out;
     }
