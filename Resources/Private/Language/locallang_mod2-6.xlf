@@ -1043,6 +1043,9 @@
 			<trans-unit id="mod.no_access" resname="mod.no_access">
 				<source>no access</source>
 			</trans-unit>
+			<trans-unit id="mod.no_recipients" resname="mod.no_recipients">
+				<source>no recipients</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -131,7 +131,6 @@ class DmailController extends MainController
                     $this->view->assignMultiple(
                         [
                             'flashmessages' => $markers['FLASHMESSAGES'],
-                            'content' => $markers['CONTENT'],
                             'data' => $markers['data']
                         ]
                     );
@@ -162,7 +161,6 @@ class DmailController extends MainController
     
     protected function moduleContent()
     {
-        $theOutput = '';
         $isExternalDirectMailRecord = false;
         
         $markers = [
@@ -413,11 +411,18 @@ class DmailController extends MainController
                 }
                 
                 if ($this->cmd == 'send_mail_final') {
-                    if (is_array($this->mailgroup_uid)) {
+                    if (is_array($this->mailgroup_uid) && count($this->mailgroup_uid)) {
                         $this->cmd_send_mail($row);
                         break;
-                    } else {
-                        $theOutput .= 'no recipients'; //@TODO
+                    } 
+                    else {
+                        $message = $this->createFlashMessage(
+                            $this->getLanguageService()->getLL('mod.no_recipients'),
+                            '',
+                            1,
+                            false
+                        );
+                        $this->messageQueue->addMessage($message);
                     }
                 }
                 // send mass, show calendar
@@ -471,7 +476,6 @@ class DmailController extends MainController
                 }
         }
 
-        $markers['CONTENT'] = $theOutput;
         $markers['data'] = $data;
         return $markers;
     }
