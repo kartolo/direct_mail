@@ -390,8 +390,7 @@ class DmailController extends MainController
                 $data['navigation']['next'] = true;
                 
                 if ($this->cmd == 'send_mail_test') {
-                    // using Flashmessages to show sent test mail
-                    $markers['FLASHMESSAGES'] = $this->cmd_send_mail($row);
+                    $this->cmd_send_mail($row);
                 }
                 $data['test']['testFormData'] = $this->getTestMailConfig();
                 $data['test']['cmd'] = 'send_mass';
@@ -415,7 +414,7 @@ class DmailController extends MainController
                 
                 if ($this->cmd == 'send_mail_final') {
                     if (is_array($this->mailgroup_uid)) {
-                        $markers['FLASHMESSAGES'] = $this->cmd_send_mail($row);
+                        $this->cmd_send_mail($row);
                         break;
                     } else {
                         $theOutput .= 'no recipients'; //@TODO
