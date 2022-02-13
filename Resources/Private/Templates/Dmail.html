@@ -93,7 +93,20 @@
 			<f:if condition="{data.final}">
 				<h3><f:translate key="{lll}dmail_wiz5_sendmass"/></h3>
 				<div id="box-1" class="toggleBox">
+					<h3><f:translate key="{lll}schedule_select_mailgroup"/></h3>
 					<f:format.html>{data.final.finalForm}</f:format.html>
+					<br />
+					<br/>
+					<label for="tx-directmail-sendtestmail-check">
+						<input type="checkbox" name="testmail" id="tx-directmail-sendtestmail-check" value="1" />&nbsp;<f:translate key="{lll}schedule_testmail"/>
+					</label>
+        			<br/>
+        			<label for="tx-directmail-savedraft-check">
+        				<input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;<f:translate key="{lll}schedule_draft"/>
+					</label>
+					<br /><br />
+					<input class="btn btn-default" type="Submit" name="mailingMode_mailGroup" value="{f:translate(key: '{lll}schedule_send_all')}" />
+					<div style="padding-top: 20px;"></div>
                 </div>
                 <input type="hidden" name="cmd" value="{data.final.cmd}">
                 <input type="hidden" name="sys_dmail_uid" value="{data.final.sys_dmail_uid}">
