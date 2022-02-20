@@ -349,7 +349,6 @@ class DmailController extends MainController
                     );
                     $this->messageQueue->addMessage($message);
                 }
-
                 $data['info']['table'] = is_array($row) ? $this->renderRecordDetailsTable($row) : '';
                 $data['info']['sys_dmail_uid'] = $this->sys_dmail_uid;
                 $data['info']['pages_uid'] = $row['page'] ?: '';
@@ -983,7 +982,7 @@ class DmailController extends MainController
      *
      * @param array $row DirectMail DB record
      *
-     * @return string the HTML output
+     * @return array 
      * @throws RouteNotFoundException If the named route doesn't exist
      */
     protected function renderRecordDetailsTable(array $row)
@@ -1011,8 +1010,7 @@ class DmailController extends MainController
                     'returnUrl' => $requestUri->__toString(),
                 ]);
                 
-                $content = '<a href="#" onClick="' . $editParams . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                    $iconActionsOpen . '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
+                $content = '<a href="#" onClick="' . $editParams . '">' . $iconActionsOpen . '<b> ' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
             } 
             else {
                 $content = $iconActionsOpen . ' (' . $this->getLanguageService()->getLL('dmail_noEdit_noPerms') . ')';
@@ -1021,36 +1019,40 @@ class DmailController extends MainController
         else {
             $content = $iconActionsOpen . '(' . $this->getLanguageService()->getLL('dmail_noEdit_isSent') . ')';
         }
-        
-        $content = '<thead >
-			<th>' . DirectMailUtility::fName('subject') . ' <b>' . GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject'] ?? ''), 60) . '</b></th>
-			<th style="text-align: right;">' . $content . '</th>
-		</thead>';
-        
-        $nameArr = explode(',', 'from_name,from_email,replyto_name,replyto_email,organisation,return_path,priority,type,page,sendOptions,includeMedia,flowedFormat,sys_language_uid,plainParams,HTMLParams,encoding,charset,issent,renderedsize');
+
+        $trs = [];
+        $nameArr = ['from_name','from_email','replyto_name','replyto_email','organisation','return_path','priority','type','page',
+            'sendOptions','includeMedia','flowedFormat','sys_language_uid','plainParams','HTMLParams','encoding','charset','issent','renderedsize'];
         foreach ($nameArr as $name) {
-            $content .= '
-			<tr class="db_list_normal">
-				<td>' . DirectMailUtility::fName($name) . '</td>
-				<td>' . htmlspecialchars((string)BackendUtility::getProcessedValue('sys_dmail', $name, ($row[$name] ?? false))) . '</td>
-			</tr>';
+            $trs[] = [
+                'title' => DirectMailUtility::fName($name),
+                'value' => htmlspecialchars((string)BackendUtility::getProcessedValue('sys_dmail', $name, ($row[$name] ?? false)))
+            ];
         }
+        
         // attachments need to be fetched manually as BackendUtility::getProcessedValue can't do that
         $fileNames = [];
         $attachments = DirectMailUtility::getAttachments($row['uid'] ?? 0);
         /** @var FileReference $attachment */
-        foreach ($attachments as $attachment) {
-            $fileNames[] = $attachment->getName();
+        if(count($attachments)) {
+            foreach ($attachments as $attachment) {
+                $fileNames[] = $attachment->getName();
+            }
         }
-        $content .= '
-			<tr class="db_list_normal">
-				<td>' . DirectMailUtility::fName('attachment') . '</td>
-				<td>' . implode(', ', $fileNames) . '</td>
-			</tr>';
-        $content = '<table width="460" class="table table-striped table-hover">' . $content . '</table>';
         
-        $sectionTitle = $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render() . '&nbsp;' . htmlspecialchars($row['subject'] ?? '');
-        return '<h3>' . $sectionTitle . '</h3>' . $content;
+        $trs[] = [
+            'title' => DirectMailUtility::fName('attachment'),
+            'value' => implode(', ', $fileNames)
+        ];
+        
+        return [
+            'icon' => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL),
+            'title' => htmlspecialchars($row['subject'] ?? ''),
+            'theadTitle1' => DirectMailUtility::fName('subject'),
+            'theadTitle2' => GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject'] ?? ''), 60),
+            'trs' => $trs,
+            'out'  => $content
+        ];
     }
     
     /**
