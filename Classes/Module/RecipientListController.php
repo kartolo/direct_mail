@@ -371,7 +371,6 @@ class RecipientListController extends MainController
     protected function editLink($table, $uid)
     {
         $str = '';
-        
         // check if the user has the right to modify the table
         if ($this->getBackendUser()->check('tables_modify', $table)) {
             $editOnClickLink = DirectMailUtility::getEditOnClickLink([
@@ -383,7 +382,7 @@ class RecipientListController extends MainController
                 'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
             ]);
             $str = '<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
+                $this->getIconActionsOpen() .
                 '</a>';
         }
         
@@ -756,10 +755,10 @@ class RecipientListController extends MainController
                 ],
                 'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
             ]);
-            
+
             $dataout = [
                 'icon' => $this->iconFactory->getIconForRecord($this->table, $row)->render(),
-                'iconActionsOpen' => $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL),
+                'iconActionsOpen' => $this->getIconActionsOpen(),
                 'name' => htmlspecialchars($row['name']),
                 'email' => htmlspecialchars($row['email']),
                 'uid' => $row['uid'],

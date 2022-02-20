@@ -322,7 +322,7 @@ class DmailController extends MainController
                         
                         // add attachment here, since attachment added in 2nd step
                         $unserializedMailContent = unserialize(base64_decode($row['mailContent']));
-                        $data['info']['dmail']['warning'] = $this->compileQuickMail($row, $unserializedMailContent['plain']['content'], false);
+                        $data['info']['dmail']['warning'] = $this->compileQuickMail($row, $unserializedMailContent['plain']['content'] ?? '', false);
                     } else {
                         if ($this->fetchAtOnce) {
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
@@ -573,11 +573,11 @@ class DmailController extends MainController
         $rows = GeneralUtility::makeInstance(PagesRepository::class)->selectPagesForDmail($this->id, $this->perms_clause);
         $data = [];
         $empty = false;
-        $iconActionsOpen = $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL);
         if (empty($rows)) {
             $empty = true;
         } 
         else {
+            $iconActionsOpen = $this->getIconActionsOpen();
             foreach ($rows as $row) {
                 $languages = $this->getAvailablePageLanguages($row['uid']);
                 $createDmailLink = $this->buildUriFromRoute(
@@ -988,6 +988,7 @@ class DmailController extends MainController
      */
     protected function renderRecordDetailsTable(array $row)
     {
+        $iconActionsOpen = $this->getIconActionsOpen();
         if (isset($row['issent']) && !$row['issent']) {
             if ($this->getBackendUser()->check('tables_modify', 'sys_dmail')) {
                 // $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
@@ -1011,13 +1012,14 @@ class DmailController extends MainController
                 ]);
                 
                 $content = '<a href="#" onClick="' . $editParams . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                    $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
-                    '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
-            } else {
-                $content = $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . ' (' . $this->getLanguageService()->getLL('dmail_noEdit_noPerms') . ')';
+                    $iconActionsOpen . '<b>' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
+            } 
+            else {
+                $content = $iconActionsOpen . ' (' . $this->getLanguageService()->getLL('dmail_noEdit_noPerms') . ')';
             }
-        } else {
-            $content = $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) . '(' . $this->getLanguageService()->getLL('dmail_noEdit_isSent') . ')';
+        } 
+        else {
+            $content = $iconActionsOpen . '(' . $this->getLanguageService()->getLL('dmail_noEdit_isSent') . ')';
         }
         
         $content = '<thead >
@@ -1337,6 +1339,7 @@ class DmailController extends MainController
         $lines = [];
         $out = '';
         if (is_array($listArr)) {
+            $iconActionsOpen = $this->getIconActionsOpen();
             $count = count($listArr);
             /** @var UriBuilder $uriBuilder */
             $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
@@ -1360,9 +1363,8 @@ class DmailController extends MainController
                         ];
                         
                         $editOnClick = DirectMailUtility::getEditOnClickLink($params);
-                        
                         $editLink = '<td><a href="#" onClick="' . $editOnClick . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                            $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL) .
+                            $iconActionsOpen .
                             '</a></td>';
                     }
                     

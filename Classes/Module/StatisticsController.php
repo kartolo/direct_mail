@@ -321,7 +321,7 @@ class StatisticsController extends MainController
             
             $data = [
                 'icon'            => $this->iconFactory->getIconForRecord($this->table, $row)->render(),
-                'iconActionsOpen' => $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL),
+                'iconActionsOpen' => $iconActionsOpen = $this->getIconActionsOpen(),
                 'name'            => htmlspecialchars($row['name']),
                 'email'           => htmlspecialchars($row['email']),
                 'uid'             => $row['uid'],

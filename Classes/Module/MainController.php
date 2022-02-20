@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Http\Uri;
+use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
@@ -228,6 +229,11 @@ class MainController {
     protected function getDmailerLockFilePath(): string
     {
         return $this->getTempPath() . 'tx_directmail_cron.lock';
+    }
+    
+    protected function getIconActionsOpen(): Icon
+    {
+        return $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL);
     }
     
     protected function getJS($sys_dmail_uid) 
