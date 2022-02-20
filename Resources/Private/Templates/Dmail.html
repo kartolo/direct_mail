@@ -104,11 +104,36 @@
                 <input type="hidden" name="pages_uid" value="{data.test.pages_uid}">
                 <input type="hidden" name="currentCMD" value="{data.test.currentCMD}">
 			</f:if>
-			<f:if condition="{data.final}">
+			<f:if condition="{data.final.finalForm}">
 				<h3><f:translate key="{lll}dmail_wiz5_sendmass"/></h3>
 				<div id="box-1" class="toggleBox">
 					<h3><f:translate key="{lll}schedule_select_mailgroup"/></h3>
-					<f:format.html>{data.final.finalForm}</f:format.html>
+					<input type="hidden" name="id" value="{data.final.finalForm.id}" />
+					<input type="hidden" name="sys_dmail_uid" value="{data.final.finalForm.sys_dmail_uid}" />
+					<input type="hidden" name="cmd" value="send_mail_final" />
+					<f:translate key="{lll}schedule_mailgroup"/>
+					<br />
+					<f:format.html>{data.final.finalForm.groupInput}</f:format.html>
+					<br /><br />
+					<f:format.html>{data.final.finalForm.hookContents}</f:format.html>
+					<f:translate key="{lll}schedule_time"/>
+					<br />
+					<div class="form-control-wrap">
+						<div class="input-group">
+							<input class="form-control t3js-datetimepicker t3js-clearable" 
+								data-date-type="datetime" 
+								data-date-offset="0" 
+								type="text" 
+								id="tceforms-datetimefield-startdate" 
+								name="send_mail_datetime_hr" value="{data.final.finalForm.send_mail_datetime_hr}">
+							<input name="send_mail_datetime" value="{data.final.finalForm.send_mail_datetime}" type="hidden">
+							<span class="input-group-btn">
+								<label class="btn btn-default" for="tceforms-datetimefield-startdate">
+									<span class="fa fa-calendar"></span>
+								</label>
+							</span>
+						</div>
+					</div>
 					<br />
 					<br/>
 					<label for="tx-directmail-sendtestmail-check">

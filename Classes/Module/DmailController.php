@@ -1405,7 +1405,7 @@ class DmailController extends MainController
      * Shows the final steps of the process. Show recipient list and calendar library
      *
      * @param array $direct_mail_row
-     * @return	string		HTML
+     * @return	array		HTML
      */
     protected function cmd_finalmail($direct_mail_row)
     {
@@ -1465,7 +1465,7 @@ class DmailController extends MainController
                 false
             );
             $this->messageQueue->addMessage($message);
-        } 
+        }
         elseif (count($opt) === 1) {
             if (!$hookSelectDisabled) {
                 $groupInput .= '<input type="hidden" name="mailgroup_uid[]" value="' . $lastGroup['uid'] . '" />';
@@ -1476,25 +1476,18 @@ class DmailController extends MainController
             }
         } 
         else {
-            $groupInput = '<select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10),$opt).'</select>';
+            $groupInput = '<select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10), $opt).'</select>';
         }
-        // Set up form:
-        $msg = '<input type="hidden" name="id" value="' . $this->id . '" />';
-        $msg .= '<input type="hidden" name="sys_dmail_uid" value="' . $this->sys_dmail_uid . '" />';
-        $msg .= '<input type="hidden" name="CMD" value="send_mail_final" />';
-        $msg .= $this->getLanguageService()->getLL('schedule_mailgroup') . '<br />' . $groupInput . '<br /><br />';
-        
-        // put content from hook
-        $msg .= $hookContents;
-        $msg .= $this->getLanguageService()->getLL('schedule_time') .
-        '<br /><div class="form-control-wrap"><div class="input-group">' .
-        '<input class="form-control t3js-datetimepicker t3js-clearable" data-date-type="datetime" data-date-offset="0" type="text" id="tceforms-datetimefield-startdate" name="send_mail_datetime_hr" value="' . strftime('%H:%M %d-%m-%Y', time()) . '">' .
-        '<input name="send_mail_datetime" value="' . strftime('%H:%M %d-%m-%Y', time()) . '" type="hidden">' .
-        '<span class="input-group-btn"><label class="btn btn-default" for="tceforms-datetimefield-startdate"><span class="fa fa-calendar"></span></label></span>' .
-        '</div></div>';
-                        
+
         $this->noView = 1;
-        return $msg;
+        return [
+            'id' => $this->id,
+            'sys_dmail_uid' => $this->sys_dmail_uid,
+            'groupInput' => $groupInput,
+            'hookContents' => $hookContents, // put content from hook
+            'send_mail_datetime_hr' => strftime('%H:%M %d-%m-%Y', time()),
+            'send_mail_datetime' => strftime('%H:%M %d-%m-%Y', time())
+        ];
     }
     
     /**
