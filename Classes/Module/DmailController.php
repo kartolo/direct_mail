@@ -1132,10 +1132,10 @@ class DmailController extends MainController
             $out .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
         }
         if (is_array($idLists['PLAINLIST'] ?? false)) {
-            $out.=$this->getRecordList($idLists['PLAINLIST'], 'default');
+            $out .= $this->getRecordList($idLists['PLAINLIST'], 'default');
         }
         if (is_array($idLists[$this->userTable] ?? false)) {
-            $out.=$this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable], $this->userTable), $this->userTable);
+            $out .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable], $this->userTable), $this->userTable);
         }
         
         return $out;
