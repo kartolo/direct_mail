@@ -366,7 +366,7 @@
 		        <td><f:format.html>{row.renderedsize}</f:format.html></td>
 		        <td><f:format.html>{row.attachment}</f:format.html></td>
 		        <td><f:format.html>{row.type}</f:format.html></td>
-		        <td><f:format.html>{row.deleteLink}</f:format.html></td>
+		        <td><f:if condition="{row.deleteLink}"><a href="{row.deleteLink -> f:format.html()}"><core:icon identifier="actions-edit-delete" size="small" /></a></f:if></td>
 		    </tr>
 		</f:for>
     </table>

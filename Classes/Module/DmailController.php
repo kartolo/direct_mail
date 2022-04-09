@@ -301,7 +301,7 @@ class DmailController extends MainController
                 } 
                 // Quickmail
                 elseif ($quickmail['send']) {
-                    $fetchMessage = $this->createDMail_quick($quickmail);
+                    $fetchMessage = $this->createDMailQuick($quickmail);
                     $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
                     $row = BackendUtility::getRecord('sys_dmail', $this->sys_dmail_uid);
                     
@@ -787,7 +787,7 @@ class DmailController extends MainController
      *
      * @return string error or warning message produced during the process
      */
-    protected function createDMail_quick(array $indata)
+    protected function createDMailQuick(array $indata)
     {
         $theOutput = '';
         // Set default values:
@@ -892,8 +892,7 @@ class DmailController extends MainController
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
         
         if (!$dmail['scheduled_begin']) {
-            $icon = $this->iconFactory->getIcon('actions-edit-delete', Icon::SIZE_SMALL);
-            $moduleUrl = $this->buildUriFromRoute(
+            return $this->buildUriFromRoute(
                 $this->moduleName,
                 [
                     'id' => $this->id,
@@ -901,7 +900,6 @@ class DmailController extends MainController
                     'cmd' => 'delete'
                 ]
             );
-            return '<a href="' . $moduleUrl . '">' . $icon . '</a>';
         }
         
         return '';
