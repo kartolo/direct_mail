@@ -765,7 +765,8 @@ class DmailController extends MainController
         foreach ($rows as $row) {
             $data[] = [
                 'icon' => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-                'link' => $this->linkDMail_record($row['subject'] ?: '_', $row['uid']),
+                'link' => $this->linkDMailRecord($row['uid']),
+                'linkText' => htmlspecialchars($row['subject'] ?: '_'),
                 'tstamp' => BackendUtility::date($row['tstamp']),
                 'issent' => ($row['issent'] ? $this->getLanguageService()->getLL('dmail_yes') : $this->getLanguageService()->getLL('dmail_no')),
                 'renderedsize' => ($row['renderedsize'] ? GeneralUtility::formatSize($row['renderedsize']) : ''),
@@ -860,15 +861,14 @@ class DmailController extends MainController
     /**
      * Wrap a string as a link
      *
-     * @param string $str String to be linked
      * @param int $uid UID of the directmail record
      *
      * @return string the link
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function linkDMail_record($str, $uid)
+    protected function linkDMailRecord($uid)
     {
-        $moduleUrl = $this->buildUriFromRoute(
+        return $this->buildUriFromRoute(
             $this->moduleName,
             [
                 'id' => $this->id,
@@ -877,7 +877,6 @@ class DmailController extends MainController
                 'cmd' => 'info'
             ]
         );
-        return '<a class="t3-link" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
     }
     
     /**
