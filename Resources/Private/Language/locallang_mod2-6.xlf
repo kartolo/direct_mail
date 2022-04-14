@@ -1028,6 +1028,12 @@
 			<trans-unit id="scheduler.bounceMail.csh.maxProcessed" resname="scheduler.bounceMail.csh.maxProcessed">
 				<source>Maximum number of bounce mail to be processed on one scheduler cycle</source>
 			</trans-unit>
+			<trans-unit id="scheduler.bounceMail.keepMailsOnServer">
+				<source>Keep mails on server after processing</source>
+			</trans-unit>
+			<trans-unit id="scheduler.bounceMail.csh.keepMailsOnServer">
+				<source>Useful for testing purposes or in non-production environments</source>
+			</trans-unit>
 			<trans-unit id="scheduler.bounceMail.dataVerification" resname="scheduler.bounceMail.dataVerification">
 				<source><![CDATA[Connection using the given data is failed. Error message: ]]></source>
 			</trans-unit>

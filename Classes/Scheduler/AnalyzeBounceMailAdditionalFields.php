@@ -61,6 +61,9 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
         $passwordHTML = '<input type="password" name="tx_scheduler[bouncePassword]" value="' . ($task ? $task->getPassword() : '') . '"/>';
         $maxProcessedHTML = '<input type="text" name="tx_scheduler[bounceProcessed]" value="' . ($task ? $task->getMaxProcessed() : '') . '"/>';
 
+        $keepMailsOnServer = '<input type="checkbox" name="tx_scheduler[bounceKeepMailsOnServer]" ' . ($task && $task->isKeepMailsOnServer(
+            ) ? 'checked' : '') . '/>';
+
         if($task){
             $serviceHTML = '<select name="tx_scheduler[bounceService]" id="bounceService">' .
                 '<option value="imap" ' . ($task->getService() === 'imap'? 'selected="selected"' : '') . '>IMAP</option>' .
@@ -81,6 +84,7 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
         $additionalFields['password'] = $this->createAdditionalFields('password', $passwordHTML);
         $additionalFields['service'] = $this->createAdditionalFields('service', $serviceHTML);
         $additionalFields['maxProcessed'] = $this->createAdditionalFields('maxProcessed', $maxProcessedHTML);
+        $additionalFields['keepMailsOnServer'] = $this->createAdditionalFields('keepMailsOnServer', $keepMailsOnServer);
 
         return $additionalFields;
     }
@@ -100,6 +104,7 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
         $task->setPassword($submittedData['bouncePassword']);
         $task->setService($submittedData['bounceService']);
         $task->setMaxProcessed($submittedData['bounceProcessed']);
+        $task->setKeepMailsOnServer($submittedData['bounceKeepMailsOnServer']);
     }
 
     /**
