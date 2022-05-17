@@ -135,7 +135,7 @@ CREATE TABLE sys_dmail_maillog (
   email varchar(255) DEFAULT '' NOT NULL,
   rtbl char(1) DEFAULT '' NOT NULL,
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
-  url tinyblob NULL,
+  url blob NULL,
   size int(11) unsigned DEFAULT '0' NOT NULL,
   parsetime int(11) unsigned DEFAULT '0' NOT NULL,
   response_type tinyint(4) DEFAULT '0' NOT NULL,
