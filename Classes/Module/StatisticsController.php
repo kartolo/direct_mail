@@ -13,6 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -58,11 +59,15 @@ class StatisticsController extends MainController
     private bool $reasonUnknownList    = false;
     private bool $reasonUnknownDisable = false;
     private bool $reasonUnknownCSV     = false;
-        
+
+    private string $siteUrl = '';
+    
     protected function initStatistics(ServerRequestInterface $request): void {
+        $this->siteUrl = $request->getAttribute('normalizedParams')->getSiteUrl();
+        
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
-        
+
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
         
         $table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
@@ -1503,5 +1508,144 @@ class StatisticsController extends MainController
                 $recRec
             );
         }
+    }
+    
+    /**
+     * Generates a string for the URL
+     *
+     * @param array $urlParts The parts of the URL
+     *
+     * @return string The URL string
+     */
+    public function getUrlStr(array $urlParts): string
+    {
+        $baseUrl = $this->getBaseURL();
+        
+        if (is_array($urlParts) && $this->siteUrl == $urlParts['host']) {
+            $m = [];
+            // do we have an id?
+            if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $urlParts['query'], $m)) {
+                $isInt = MathUtility::canBeInterpretedAsInteger($m[1]);
+                if ($isInt) {
+                    $uid = intval($m[1]);
+                } 
+//                @TODO
+//                 else {
+//                     // initialize the page selector
+//                     /** @var PageRepository $sys_page */
+//                     $sys_page = GeneralUtility::makeInstance(PageRepository::class);
+//                     $sys_page->init(true);
+//                     $uid = $sys_page->getPageIdFromAlias($m[1]);
+//                 }
+                $rootLine = BackendUtility::BEgetRootLine($uid);
+                $pages = array_shift($rootLine);
+                // array_shift reverses the array (rootline has numeric index in the wrong order!)
+                $rootLine = array_reverse($rootLine);
+                $query = preg_replace('/(?:^|&)id=([0-9a-z_]+)/', '', $urlParts['query']);
+                $urlstr = GeneralUtility::fixed_lgd_cs($pages['title'], 50) . GeneralUtility::fixed_lgd_cs(($query ? ' / ' . $query : ''), 20);
+            } else {
+                $urlstr = $baseUrl . substr($urlParts['path'], 1);
+                $urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
+                $urlstr .= $urlParts['fragment'] ? '#' . $urlParts['fragment'] : '';
+            }
+        } else {
+            $urlstr =  ($urlParts['host'] ? $urlParts['scheme'] . '://' . $urlParts['host'] : $baseUrl) . $urlParts['path'];
+            $urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
+            $urlstr .= $urlParts['fragment'] ? '#' . $urlParts['fragment'] : '';
+        }
+        
+        return $urlstr;
+    }
+    
+    /**
+     * Get baseURL of the FE
+     * force http if UseHttpToFetch is set
+     *
+     * @return string the baseURL
+     */
+    public function getBaseURL(): string
+    {
+        $baseUrl = $this->siteUrl;
+        
+        // if fetching the newsletter using http, set the url to http here
+        if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
+            $baseUrl = str_replace('https', 'http', $baseUrl);
+        }
+        
+        return $baseUrl;
+    }
+    
+    /**
+     * This method returns the label for a specified URL.
+     * If the page is local and contains a fragment it returns the label of the content element linked to.
+     * In any other case it simply fetches the page and extracts the <title> tag content as label
+     *
+     * @param string $url The statistics click-URL for which to return a label
+     * @param string $urlStr  A processed variant of the url string. This could get appended to the label???
+     * @param bool $forceFetch When this parameter is set to true the "fetch and extract <title> tag" method will get used
+     * @param string $linkedWord The word to be linked
+     *
+     * @return string The label for the passed $url parameter
+     */
+    public function getLinkLabel($url, $urlStr, $forceFetch = false, $linkedWord = '')
+    {
+        $pathSite = $this->getBaseURL();
+        $label = $linkedWord;
+        $contentTitle = '';
+        
+        $urlParts = parse_url($url);
+        if (!$forceFetch && (substr($url, 0, strlen($pathSite)) === $pathSite)) {
+            if ($urlParts['fragment'] && (substr($urlParts['fragment'], 0, 1) == 'c')) {
+                // linking directly to a content
+                $elementUid = intval(substr($urlParts['fragment'], 1));
+                $row = BackendUtility::getRecord('tt_content', $elementUid);
+                if ($row) {
+                    $contentTitle = BackendUtility::getRecordTitle('tt_content', $row, false, true);
+                }
+            } else {
+                $contentTitle = $this->getLinkLabel($url, $urlStr, true);
+            }
+        } else {
+            if (empty($urlParts['host']) && (substr($url, 0, strlen($pathSite)) !== $pathSite)) {
+                // it's internal
+                $url = $pathSite . $url;
+            }
+            
+            $content = GeneralUtility::getURL($url);
+            if (is_string($content) && preg_match('/\<\s*title\s*\>(.*)\<\s*\/\s*title\s*\>/i', $content, $matches)) {
+                // get the page title
+                $contentTitle = GeneralUtility::fixed_lgd_cs(trim($matches[1]), 50);
+            } else {
+                // file?
+                $file = GeneralUtility::split_fileref($url);
+                $contentTitle = $file['file'];
+            }
+        }
+        
+        if ($this->params['showContentTitle'] == 1) {
+            $label = $contentTitle;
+        }
+        
+        if ($this->params['prependContentTitle'] == 1) {
+            $label =  $contentTitle . ' (' . $linkedWord . ')';
+        }
+        
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] as $funcRef) {
+                $params = ['pObj' => &$this, 'url' => $url, 'urlStr' => $urlStr, 'label' => $label];
+                $label = GeneralUtility::callUserFunction($funcRef, $params, $this);
+            }
+        }
+        
+        // Fallback to url
+        if ($label === '') {
+            $label = $url;
+        }
+        
+        if (isset($this->params['maxLabelLength']) && ($this->params['maxLabelLength'] > 0)) {
+            $label = GeneralUtility::fixed_lgd_cs($label, $this->params['maxLabelLength']);
+        }
+        
+        return $label;
     }
 }
