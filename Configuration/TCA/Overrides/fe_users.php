@@ -1,5 +1,5 @@
 <?php
-defined('TYPO3_MODE') or die();
+defined('TYPO3') || die();
 
 // fe_users modified
 $feUsersCols = [

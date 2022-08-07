@@ -1,5 +1,4 @@
 <?php
-
 return [
     'ctrl' => [
         'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category',

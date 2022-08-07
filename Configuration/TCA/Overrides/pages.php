@@ -1,5 +1,5 @@
 <?php
-defined('TYPO3_MODE') or die();
+defined('TYPO3') || die();
 
 // pages modified
 $GLOBALS['TCA']['pages']['columns']['module']['config']['items'][] = [
