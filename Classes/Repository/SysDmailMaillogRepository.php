@@ -150,39 +150,29 @@ class SysDmailMaillogRepository extends MainRepository {
     }
     
     /**
-     * @return array|bool
+     * 
+     * @param int $uid
+     * @param int $responseType: 1 for html, 2 for plain
+     * @return array
      */
-    public function selectMostPopularLinksHtml(int $uid) //: array|bool 
+    public function selectMostPopularLinks(int $uid, int $responseType = 1): array
     {
+        $popularLinks = [];
         $queryBuilder = $this->getQueryBuilder($this->table);
         
-        return $queryBuilder->count('*')
-        ->addSelect('url_id')
-        ->from($this->table)
-        ->add('where', 'mid=' . intval($uid) .
-            ' AND response_type = 1')
-        ->groupBy('url_id')
-        ->orderBy('COUNT(*)')
-        ->execute()
-        ->fetchAll();
-    }
-    
-    /**
-     * @return array|bool
-     */
-    public function selectMostPopularLinksPlain(int $uid) //: array|bool 
-    {
-        $queryBuilder = $this->getQueryBuilder($this->table);
-        
-        return $queryBuilder->count('*')
-        ->addSelect('url_id')
-        ->from($this->table)
-        ->add('where', 'mid=' . intval($uid) .
-            ' AND response_type = 2')
-        ->groupBy('url_id')
-        ->orderBy('COUNT(*)')
-        ->execute()
-        ->fetchAll();
+        $statement = $queryBuilder->count('*')
+            ->addSelect('url_id')
+            ->from($this->table)
+            ->add('where', 'mid=' . intval($uid) .
+            ' AND response_type = '. intval($responseType))
+            ->groupBy('url_id')
+            ->orderBy('COUNT(*)')
+            ->execute();
+            
+        while ($row = $statement->fetchAssociative()) {
+            $popularLinks[$row['url_id']] = $row;
+        }
+        return $popularLinks;
     }
     
     /**

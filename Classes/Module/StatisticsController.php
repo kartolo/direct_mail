@@ -469,11 +469,11 @@ class StatisticsController extends MainController
             'html' => [],
         ];
         // Most popular links, html:
-        $htmlUrlsTable = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectMostPopularLinksHtml($row['uid']);
+        $htmlUrlsTable = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectMostPopularLinks($row['uid'], 1);
         $htmlUrlsTable = $this->changekeyname($htmlUrlsTable, 'counter', 'COUNT(*)');
 
         // Most popular links, plain:
-        $plainUrlsTable = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectMostPopularLinksPlain($row['uid']);
+        $plainUrlsTable = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectMostPopularLinks($row['uid'], 2);
         $plainUrlsTable = $this->changekeyname($plainUrlsTable, 'counter', 'COUNT(*)');
 
         // Find urls:
