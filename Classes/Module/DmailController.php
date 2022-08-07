@@ -1089,7 +1089,7 @@ class DmailController extends MainController
                     [
                         'id' => $this->id,
                         'sys_dmail_uid' => $this->sys_dmail_uid,
-                        'CMD' => 'send_mail_test',
+                        'cmd' => 'send_mail_test',
                         'sys_dmail_group_uid[]' => $row['uid']
                     ]
                 );
@@ -1845,7 +1845,7 @@ class DmailController extends MainController
 
             $out = '<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">' . $out . '</table>';
             $out .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">' .
-                '<input type="hidden" name="CMD" value="' . $this->CMD . '"><br />' .
+                '<input type="hidden" name="cmd" value="' . $this->CMD . '"><br />' .
                 '<input type="submit" name="update_cats" value="' . $this->getLanguageService()->getLL('nl_l_update') . '">';
 
             $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_cat') . '</h3>' .
