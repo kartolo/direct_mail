@@ -44,7 +44,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * Static class.
  * Functions in this class are used by more than one modules.
  *
- * @author		Kasper Sk�rh�j <kasper@typo3.com>
+ * @author		Kasper Skaarhoj <kasperYYYY@typo3.com>
  * @author  	Jan-Erik Revsbech <jer@moccompany.com>
  * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
@@ -1251,11 +1251,7 @@ class DirectMailUtility
         // Make sure long_link_rdct_url is consistent with baseUrl.
         $row['long_link_rdct_url'] = $urlBase;
 
-        if (strpos($urlBase, '?') !== false ) {
-            $glue = '&';
-        } else {
-            $glue = '?';
-        }
+        $glue = (strpos($urlBase, '?') !== false ) ? '&' : '?';
 
         // Compile the mail
         /* @var $htmlmail Dmailer */
@@ -1289,7 +1285,6 @@ class DirectMailUtility
 
         // fetch the HTML url
         if ($htmlUrl) {
-
             // Username and password is added in htmlmail object
             $success = $htmlmail->addHTML(self::addUserPass($htmlUrl, $params));
             // If type = 1, we have an external page.
