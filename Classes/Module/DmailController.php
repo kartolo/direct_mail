@@ -258,7 +258,7 @@ class DmailController extends MainController
                 // internal page
                 if ($this->createMailFrom_UID && !$quickmail['send']) {
                     $newUid = DirectMailUtility::createDirectMailRecordFromPage($this->createMailFrom_UID, $this->params, $this->createMailFrom_LANG);
-                    
+
                     if (is_numeric($newUid)) {
                         $this->sys_dmail_uid = $newUid;
                         // Read new record (necessary because TCEmain sets default field values)
@@ -1819,9 +1819,10 @@ class DmailController extends MainController
                     $colPosVal = $row['colPos'];
                 }
                 $out .= '<tr>';
-                $out .= '<td valign="top" width="75%">' . $this->iconFactory->getIconForRecord('tt_content', $row, Icon::SIZE_SMALL) .
-                    $row['header'] . '<br />' . GeneralUtility::fixed_lgd_cs(strip_tags($row['bodytext']), 200) . '<br /></td>';
-
+                $out .= '<td valign="top" width="75%">' . $this->iconFactory->getIconForRecord('tt_content', $row, Icon::SIZE_SMALL);
+                $out .= $row['header'] . '<br />';
+                $out .= empty($row['bodytext']) ? '' : GeneralUtility::fixed_lgd_cs(strip_tags($row['bodytext']), 200);
+                $out .= '<br /></td>';
                 $out .= '<td nowrap valign="top">';
                 $checkBox = '';
                 if ($row['module_sys_dmail_category']) {
