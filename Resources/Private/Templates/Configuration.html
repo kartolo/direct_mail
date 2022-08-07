@@ -105,37 +105,37 @@
 
     <strong><f:translate key="{lll2}sys_dmail.from_email" /></strong>
     <f:render section="help" /><f:translate key="{lll3}from_email.description" /><br><f:translate key="{lll3}from_email.details" /></span></a><br>
-    <f:form.textfield name="pageTS[from_email]" value="{implodedParams.from_email}" />
+    <f:form.textfield name="pageTS[from_email]" value="{implodedParams.from_email}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll2}sys_dmail.from_name" /></strong>
     <f:render section="help" /><f:translate key="{lll3}from_name.description" /><br><f:translate key="{lll3}from_name.details" /></span></a><br>
-    <f:form.textfield name="pageTS[from_name]" value="{implodedParams.from_name}" />
+    <f:form.textfield name="pageTS[from_name]" value="{implodedParams.from_name}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll2}sys_dmail.replyto_email" /></strong>
     <f:render section="help" /><f:translate key="{lll3}replyto_email.description" /><br><f:translate key="{lll3}replyto_email.details" /></span></a><br>
-    <f:form.textfield name="pageTS[replyto_email]" value="{implodedParams.replyto_email}" />
+    <f:form.textfield name="pageTS[replyto_email]" value="{implodedParams.replyto_email}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll2}sys_dmail.replyto_name" /></strong>
     <f:render section="help" /><f:translate key="{lll3}replyto_name.description" /><br><f:translate key="{lll3}replyto_name.details" /></span></a><br>
-    <f:form.textfield name="pageTS[replyto_name]" value="{implodedParams.replyto_name}" />
+    <f:form.textfield name="pageTS[replyto_name]" value="{implodedParams.replyto_name}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll2}sys_dmail.return_path" /></strong>
     <f:render section="help" /><f:translate key="{lll3}return_path.description" /><br><f:translate key="{lll3}return_path.details" /></span></a><br>
-    <f:form.textfield name="pageTS[return_path]" value="{implodedParams.return_path}" />
+    <f:form.textfield name="pageTS[return_path]" value="{implodedParams.return_path}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll2}sys_dmail.organisation" /></strong>
     <f:render section="help" /><f:translate key="{lll3}organisation.description" /><br><f:translate key="{lll3}organisation.details" /></span></a><br>
-    <f:form.textfield name="pageTS[organisation]" value="{implodedParams.organisation}" />
+    <f:form.textfield name="pageTS[organisation]" value="{implodedParams.organisation}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll2}sys_dmail.priority" /></strong>
     <f:render section="help" /><f:translate key="{lll3}priority.description" /><br><f:translate key="{lll3}priority.details" /></span></a><br>
-    <f:form.select name="pageTS[priority]" value="{implodedParams.priority}">
+    <f:form.select name="pageTS[priority]" value="{implodedParams.priority}" class="form-select form-control">
         <f:form.select.option value="3"><f:translate key="{lll}configure_priority_normal" /></f:form.select.option>
         <f:form.select.option value="1"><f:translate key="{lll}configure_priority_high" /></f:form.select.option>
         <f:form.select.option value="5"><f:translate key="{lll}configure_priority_low" /></f:form.select.option>
