@@ -238,7 +238,7 @@ class DirectMail extends AbstractPlugin
      */
     public function getHtml($str = [])
     {
-        return $this->breakContent(strip_tags(preg_replace('/<br\s*\/?>/i', LF, $this->parseBody(is_string($str)?$str:$this->cObj->data['bodytext']))));
+        return $this->breakContent(strip_tags(preg_replace('/<br\s*\/?>/i', LF, $this->parseBody(is_string($str) ? $str: $this->cObj->data['bodytext']))));
     }
 
     /**
@@ -309,7 +309,7 @@ class DirectMail extends AbstractPlugin
      *
      * @return	string		Processed content
      */
-    public function parseBody($str, $altConf='bodytext')
+    public function parseBody($str, $altConf = 'bodytext')
     {
         if ($this->conf[$altConf . '.']['doubleLF']) {
             $str = preg_replace("/\n/", "\n\n", $str);
@@ -341,7 +341,7 @@ class DirectMail extends AbstractPlugin
      *
      * @return	string		Content
      */
-    public function renderUploads($str, $uploadPath='uploads/media/')
+    public function renderUploads($str, $uploadPath = 'uploads/media/')
     {
         $files = explode(',', $str);
         $lines = [];
