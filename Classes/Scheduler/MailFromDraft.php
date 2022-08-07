@@ -16,6 +16,7 @@ namespace DirectMailTeam\DirectMail\Scheduler;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
@@ -79,7 +80,7 @@ class MailFromDraft extends AbstractTask
             $draftRecord['query_info'] = serialize($newRecipients['queryInfo']);
 
             // check if domain record is set
-            if ((TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI)
+            if (Environment::isCli()
                 && (int)$draftRecord['type'] !== 1
                 && empty(DirectMailUtility::getUrlBase((int)$draftRecord['page']))
             ) {
@@ -97,7 +98,6 @@ class MailFromDraft extends AbstractTask
                 $draftRecord
             );
             $this->dmailUid = (int)$databaseConnectionSysDmailMail->lastInsertId('sys_dmail');
-
 
             // Call a hook after insertion of the cloned dmail record
             // This hook can get used to modify fields of the direct mail.
