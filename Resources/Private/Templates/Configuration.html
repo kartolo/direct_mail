@@ -151,7 +151,7 @@
 
     <strong><f:translate key="{lll2}sys_dmail.sendOptions" /></strong>
     <f:render section="help" /><f:translate key="{lll3}sendOptions.description" /><br><f:translate key="{lll3}sendOptions.details" /></span></a><br>
-    <f:form.select name="pageTS[sendOptions]" value="{implodedParams.sendOptions}">
+    <f:form.select name="pageTS[sendOptions]" value="{implodedParams.sendOptions}"  class="form-select form-control">
         <f:form.select.option value="3"><f:translate key="{lll}configure_plain_and_html" /></f:form.select.option>
         <f:form.select.option value="1"><f:translate key="{lll}configure_plain_only" /></f:form.select.option>
         <f:form.select.option value="2"><f:translate key="{lll}configure_html_only" /></f:form.select.option>
@@ -178,12 +178,12 @@
 
     <strong><f:translate key="{lll2}sys_dmail.HTMLParams" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_HTMLParams_description" /><br><f:translate key="{lll}configure_HTMLParams_details" /></span></a><br>
-    <f:form.textfield name="pageTS[HTMLParams]" value="{implodedParams.HTMLParams}" />
+    <f:form.textfield name="pageTS[HTMLParams]" value="{implodedParams.HTMLParams}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll2}sys_dmail.plainParams" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_plainParams_description" /><br><f:translate key="{lll}configure_plainParams_details" /></span></a><br>
-    <f:form.textfield name="pageTS[plainParams]" value="{implodedParams.plainParams}" />
+    <f:form.textfield name="pageTS[plainParams]" value="{implodedParams.plainParams}" class="form-control" />
     <br>
 
 </f:section>
@@ -193,22 +193,22 @@
 
     <strong><f:translate key="{lll}configure_options_encoding" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_quickmail_encoding" /><f:translate key="{lll}configure_quickmail_encoding_description" /></span></a><br>
-    <f:form.select name="pageTS[quick_mail_encoding]" options="{quoted-printable: 'quoted-printable', base64: 'base64'}" value="{implodedParams.quick_mail_encoding}" />
+    <f:form.select name="pageTS[quick_mail_encoding]" options="{quoted-printable: 'quoted-printable', base64: 'base64'}" value="{implodedParams.quick_mail_encoding}"  class="form-select form-control" />
     <br>
 
     <strong><f:translate key="{lll}configure_directmail_encoding" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_directmail_encoding_description" /></span></a><br>
-    <f:form.select name="pageTS[direct_mail_encoding]" options="{quoted-printable:'quoted-printable', base64:'base64', 8bit:'8bit'}" value="{implodedParams.direct_mail_encoding}" />
+    <f:form.select name="pageTS[direct_mail_encoding]" options="{quoted-printable:'quoted-printable', base64:'base64', 8bit:'8bit'}" value="{implodedParams.direct_mail_encoding}"  class="form-select form-control" />
     <br>
 
     <strong><f:translate key="{lll}configure_quickmail_charset" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_quickmail_charset_description" /></span></a><br>
-    <f:form.textfield name="pageTS[quick_mail_charset]" value="{implodedParams.quick_mail_charset}" />
+    <f:form.textfield name="pageTS[quick_mail_charset]" value="{implodedParams.quick_mail_charset}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll}configure_directmail_charset" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_directmail_charset_description" /></span></a><br>
-    <f:form.textfield name="pageTS[direct_mail_charset]" value="{implodedParams.direct_mail_charset}" />
+    <f:form.textfield name="pageTS[direct_mail_charset]" value="{implodedParams.direct_mail_charset}" class="form-control" />
     <br>
 
 </f:section>
@@ -250,7 +250,7 @@
 
     <strong><f:translate key="{lll2}sys_dmail.authcode_fieldList" /></strong>
     <f:render section="help" /><f:translate key="{lll3}authcode_fieldList.description" /></span></a><br>
-    <f:form.textfield name="pageTS[authcode_fieldList]" value="{implodedParams.authcode_fieldList}" />
+    <f:form.textfield name="pageTS[authcode_fieldList]" value="{implodedParams.authcode_fieldList}" class="form-control" />
     <br>
 
 </f:section>
@@ -260,36 +260,36 @@
 
     <strong><f:translate key="{lll}configure_http_username" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_http_username_description" /><br><f:translate key="{lll}configure_http_username_details" /></span></a><br>
-    <f:form.textfield name="pageTS[http_username]" value="{implodedParams.http_username}" />
+    <f:form.textfield name="pageTS[http_username]" value="{implodedParams.http_username}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll}configure_http_password" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_http_password_description" /></span></a><br>
-    <f:form.textfield name="pageTS[http_password]" value="{implodedParams.http_password}" />
+    <f:form.textfield name="pageTS[http_password]" value="{implodedParams.http_password}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll}configure_simulate_usergroup" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_simulate_usergroup_description" /><br><f:translate key="{lll}configure_simulate_usergroup_details" /></span></a><br>
-    <f:form.textfield name="pageTS[simulate_usergroup]" value="{implodedParams.simulate_usergroup}" />
+    <f:form.textfield name="pageTS[simulate_usergroup]" value="{implodedParams.simulate_usergroup}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll}configure_user_table" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_user_table_description" /></span></a><br>
-    <f:form.textfield name="pageTS[userTable]" value="{implodedParams.userTable}" />
+    <f:form.textfield name="pageTS[userTable]" value="{implodedParams.userTable}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll}configure_test_tt_address_uids" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_test_tt_address_uids_description" /></span></a><br>
-    <f:form.textfield name="pageTS[test_tt_address_uids]" value="{implodedParams.test_tt_address_uids}" />
+    <f:form.textfield name="pageTS[test_tt_address_uids]" value="{implodedParams.test_tt_address_uids}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll}configure_test_dmail_group_uids" /></strong>
     <f:render section="help" /><f:translate key="{lll}configure_test_dmail_group_uids_description" /></span></a><br>
-    <f:form.textfield name="pageTS[test_dmail_group_uids]" value="{implodedParams.test_dmail_group_uids}" />
+    <f:form.textfield name="pageTS[test_dmail_group_uids]" value="{implodedParams.test_dmail_group_uids}" class="form-control" />
     <br>
 
     <strong><f:translate key="{lll}configure_testmail" /></strong><f:render section="help" /><f:translate key="{lll}configure_testmail_description" /></span></a><br>
-    <f:form.textfield name="pageTS[testmail]" value="{implodedParams.testmail}" />
+    <f:form.textfield name="pageTS[testmail]" value="{implodedParams.testmail}" class="form-control" />
     <br>
 
 </f:section>
