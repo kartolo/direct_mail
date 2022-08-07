@@ -352,6 +352,11 @@ class StatisticsController extends MainController
         return $data;
     }
     
+    /**
+     * 
+     * @param int $mailingId
+     * @return array
+     */
     protected function mailResponsesGeneral(int $mailingId): array {
         $table = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogsResponseTypeByMid($mailingId);
         $table = $this->changekeyname($table,'counter','COUNT(*)');
