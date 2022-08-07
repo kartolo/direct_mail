@@ -1343,7 +1343,7 @@ class StatisticsController extends MainController
             'flowedFormat'  => BackendUtility::getProcessedValue('sys_dmail', 'flowedFormat', $row['flowedFormat']),
             'includeMedia'  => BackendUtility::getProcessedValue('sys_dmail', 'includeMedia', $row['includeMedia']),
             'delBegin'      => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
-            'delEnd'        => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
+            'delEnd'        => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '-',
             'totalRecip'    => $this->countTotalRecipientFromQueryInfo($row['query_info']),
             'sentRecip'     => count($res),
             'organisation'  => htmlspecialchars($row['organisation']),
