@@ -1678,6 +1678,63 @@ class DmailController extends MainController
         return $idLists;
     }
 
+    /**
+     * Update the mailgroup DB record
+     *
+     * @param array $mailGroup Mailgroup DB record
+     *
+     * @return array Mailgroup DB record after updated
+     */
+    public function update_specialQuery(array $mailGroup)
+    {
+        $set = GeneralUtility::_GP('SET');
+        $queryTable = $set['queryTable'];
+        $queryConfig = GeneralUtility::_GP('dmail_queryConfig');
+        $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
+        
+        $whichTables = intval($mailGroup['whichtables']);
+        $table = '';
+        if ($whichTables&1) {
+            $table = 'tt_address';
+        } elseif ($whichTables&2) {
+            $table = 'fe_users';
+        } elseif ($this->userTable && ($whichTables&4)) {
+            $table = $this->userTable;
+        }
+        
+        $this->MOD_SETTINGS['queryTable'] = $queryTable ? $queryTable : $table;
+        $this->MOD_SETTINGS['queryConfig'] = $queryConfig ? serialize($queryConfig) : $mailGroup['query'];
+        $this->MOD_SETTINGS['search_query_smallparts'] = 1;
+        
+        if ($this->MOD_SETTINGS['queryTable'] != $table) {
+            $this->MOD_SETTINGS['queryConfig'] = '';
+        }
+        
+        if ($this->MOD_SETTINGS['queryTable'] != $table || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query']) {
+            $whichTables = 0;
+            if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
+                $whichTables = 1;
+            } elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
+                $whichTables = 2;
+            } elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
+                $whichTables = 4;
+            }
+            $updateFields = [
+                'whichtables' => intval($whichTables),
+                'query' => $this->MOD_SETTINGS['queryConfig']
+            ];
+
+            $connection = $this->getConnection('sys_dmail_group');
+            
+            $connection->update(
+                'sys_dmail_group', // table
+                $updateFields,
+                [ 'uid' => intval($mailGroup['uid']) ] // where
+            );
+            $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
+        }
+        return $mailGroup;
+    }
 
     /**
      * Show the categories table for user to categorize the directmail content
