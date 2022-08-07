@@ -323,19 +323,19 @@
     <input type="hidden" name="id" value="{data.id}" />
     <f:translate key="{lll}quickmail_sender_name"/>
     <br />
-    <input type="text" name="quickmail[senderName]" value="{data.senderName}" style="width: 460px;" />
+    <input type="text" name="quickmail[senderName]" value="{data.senderName}" class="form-control" />
     <br />
     <f:translate key="{lll}quickmail_sender_email"/>
     <br />
-    <input type="text" name="quickmail[senderEmail]" value="{data.senderMail}" style="width: 460px;" />
+    <input type="text" name="quickmail[senderEmail]" value="{data.senderMail}" class="form-control" />
     <br />
     <f:translate key="{lll}dmail_subject"/>
     <br />
-    <input type="text" name="quickmail[subject]" value="{data.subject}" style="width: 460px;" />
+    <input type="text" name="quickmail[subject]" value="{data.subject}" class="form-control" />
     <br />
     <f:translate key="{lll}quickmail_message"/>
     <br />
-    <textarea rows="20" name="quickmail[message]" style="width: 460px;"><f:format.html>{data.message}</f:format.html></textarea>
+    <textarea rows="20" name="quickmail[message]" class="form-control"><f:format.html>{data.message}</f:format.html></textarea>
     <br />
     <f:translate key="{lll}quickmail_break_lines"/>
     <input type="checkbox" name="quickmail[breakLines]" value="1" {f:if(condition: '{data.breakLines}', then: 'checked="checked"', else: '')} />
