@@ -99,15 +99,23 @@ tx_directmail_pi1.config {
 	disableAllHeaderCode = 1
 	additionalHeaders = Content-type:text/plain
 }
-tx_directmail_pi1.10 = TEMPLATE
-tx_directmail_pi1.10 {
-    # FLUIDTEMPLATE is a workaround to avoid template migration. As FILE
-    # was removed in TYPO3 10, this keeps the old templates alive for the time being
-	template = FLUIDTEMPLATE
-	template.file = EXT:direct_mail/Resources/Private/Plaintext/tx_directmail_pi1_plaintext.tmpl
-	marks.CONTENT < styles.content.get
-	marks.CONTENT.renderObj = < plugin.tx_directmail_pi1
-	marks.DATE = TEXT
-	marks.DATE.data = date:U
-	marks.DATE.strftime = %e. %B %Y
+
+tx_directmail_pi1 {
+	10 = FLUIDTEMPLATE
+	10 {
+		templateName = Plain
+		templateRootPaths {
+			10 = EXT:direct_mail/Resources/Private/Plaintext/Templates/
+		}
+		layoutRootPaths {
+			10 = EXT:direct_mail/Resources/Private/Plaintext/Layouts/
+		}
+		variables {
+			contentNormal < styles.content.get
+			contentNormal.select.where = {#colPos}=0
+			date = TEXT
+			date.data = date:U
+			date.strftime = %e. %B %Y
+		}
+	}
 }
