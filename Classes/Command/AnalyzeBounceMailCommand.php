@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -191,7 +192,7 @@ class AnalyzeBounceMailCommand extends Command
             try {
                 $midArray['email'] = $row['email'];
                 $insertFields = [
-                    'tstamp' => $this->getEXEC_TIME(),
+                    'tstamp' => $this->getTimestampFromAspect(),
                     'response_type' => -127,
                     'mid' => (int)$midArray['mid'],
                     'rid' => (int)$midArray['rid'],
@@ -249,10 +250,11 @@ class AnalyzeBounceMailCommand extends Command
     }
     
     /**
-     * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Context/Index.html#example
-     * @TODO
+     * 
+     * @return int
      */
-    private function getEXEC_TIME() {
-        return $GLOBALS['EXEC_TIME'];
+    private function getTimestampFromAspect(): int {
+        $context = GeneralUtility::makeInstance(Context::class);
+        return $context->getPropertyFromAspect('date', 'timestamp');
     }
 }
