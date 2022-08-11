@@ -12,6 +12,8 @@ services:
       - name: 'console.command'
         command: 'directmail:invokemailerengine'
         description: 'Invoke Mailer Engine of EXT:directmail'
-        # not required, defaults to false
-        #hidden: false
-        #schedulable: false
+  DirectMailTeam\DirectMail\Command\DirectmailCommand:
+    tags:
+      - name: 'console.command'
+        command: 'directmail:mailingqueue'
+        description: 'This command invokes dmailer in order to process queued messages.'
