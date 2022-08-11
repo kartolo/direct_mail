@@ -243,4 +243,8 @@ class AnalyzeBounceMailCommand extends Command
             return false;
         }
     }
+    
+    private function getEXEC_TIME() {
+        return $GLOBALS['EXEC_TIME'];
+    }
 }
