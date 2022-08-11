@@ -72,7 +72,7 @@ like the recommended scheduler task or BE module for invoking maler engine will 
             // If the lock is not older than 1 day, skip:
             if (filemtime($lockfile) > (time() - (60 * 60 * 24))) {
                 $io->warning('TYPO3 Direct Mail Cron: Aborting, another process is already running!');
-                return 0;
+                return Command::FAILURE;
             } else {
                 $io->writeln('TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...');
             }
@@ -91,6 +91,6 @@ like the recommended scheduler task or BE module for invoking maler engine will 
         $htmlmail->runcron();
 
         unlink($lockfile);
-        return 0;
+        return Command::SUCCESS;
     }
 }
