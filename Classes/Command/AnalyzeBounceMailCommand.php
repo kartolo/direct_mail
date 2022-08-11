@@ -12,10 +12,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class AnalyzeBounceMailCommand extends Command
 {
+    private ?LanguageService $languageService = null;
+
     /**
      * Configure the command by defining the name, options and arguments
      */
@@ -70,7 +74,8 @@ class AnalyzeBounceMailCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $io->title($this->getDescription());
-        
+        $this->setLanguageService();
+
         $server = '';
         $port = 0;
         $user = '';
@@ -79,7 +84,7 @@ class AnalyzeBounceMailCommand extends Command
         $count = 0;
         // check if PHP IMAP is installed
         if (!extension_loaded('imap')) {
-            $io->error('Please install PHP IMAP extension'); //scheduler.bounceMail.phpImapError
+            $io->error($this->languageService->getLL('scheduler.bounceMail.phpImapError'));
             return Command::FAILURE;
         }
         
@@ -244,7 +249,7 @@ class AnalyzeBounceMailCommand extends Command
             $imapStream = $mailServer->getImapStream();
             return $mailServer;
         } catch (\Exception $e) {
-            $io->error('Connection using the given data is failed. Error message: '.$e->getMessage()); //scheduler.bounceMail.dataVerification
+            $io->error($this->languageService->getLL('scheduler.bounceMail.dataVerification').$e->getMessage());
             return false;
         }
     }
@@ -256,5 +261,14 @@ class AnalyzeBounceMailCommand extends Command
     private function getTimestampFromAspect(): int {
         $context = GeneralUtility::makeInstance(Context::class);
         return $context->getPropertyFromAspect('date', 'timestamp');
+    }
+    
+    /**
+     * @return void
+     */
+    private function setLanguageService(): void {
+        $languageServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
+        $this->languageService = $languageServiceFactory->create('en'); //@TODO
+        $this->languageService->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
     }
 }
