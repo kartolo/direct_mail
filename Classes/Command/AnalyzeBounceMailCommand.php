@@ -101,7 +101,7 @@ class AnalyzeBounceMailCommand extends Command
         if ($input->getOption('type')) {
             $type = $input->getOption('type');
             //$io->writeln($type);
-            if(in_array($type, ['imap', 'pop3'])) {
+            if(!in_array($type, ['imap', 'pop3'])) {
                 $io->warning('Type: only imap or pop3');
                 return Command::FAILURE;
             }
