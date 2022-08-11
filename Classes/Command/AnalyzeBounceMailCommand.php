@@ -122,9 +122,11 @@ class AnalyzeBounceMailCommand extends Command
                 foreach ($messages as $message) {
                     // process the mail
                     if ($this->processBounceMail($message)) {
+                        //$io->writeln($message->getSubject());
                         // set delete
                         $message->delete();
-                    } else {
+                    } 
+                    else {
                         $message->setFlag('SEEN');
                     }
                 }
@@ -132,7 +134,7 @@ class AnalyzeBounceMailCommand extends Command
             // expunge to delete permanently
             $mailServer->expunge();
             imap_close($mailServer->getImapStream());
-            return true;
+            return Command::SUCCESS;
         }
         else {
             return Command::FAILURE;
@@ -165,7 +167,8 @@ class AnalyzeBounceMailCommand extends Command
                     break;
                 }
             }
-        } else {
+        } 
+        else {
             // search in MessageBody (see rfc822-headers as Attachments placed )
             $midArray = $readMail->find_XTypo3MID($message->getMessageBody());
         }
@@ -182,8 +185,9 @@ class AnalyzeBounceMailCommand extends Command
         
         // only write to log table, if we found a corresponding recipient record
         if (!empty($row)) {
+            $tableMaillog = 'sys_dmail_maillog';
             /** @var Connection $connection */
-            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('sys_dmail_maillog');
+            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($tableMaillog);
             try {
                 $midArray['email'] = $row['email'];
                 $insertFields = [
@@ -196,8 +200,8 @@ class AnalyzeBounceMailCommand extends Command
                     'return_content' => serialize($cp),
                     'return_code' => (int)$cp['reason']
                 ];
-                $connection->insert('sys_dmail_maillog', $insertFields);
-                $sql_insert_id = $connection->lastInsertId('sys_dmail_maillog');
+                $connection->insert($tableMaillog, $insertFields);
+                $sql_insert_id = $connection->lastInsertId($tableMaillog);
                 return (bool)$sql_insert_id;
             } catch (\Doctrine\DBAL\DBALException $e) {
                 // Log $e->getMessage();
@@ -244,6 +248,10 @@ class AnalyzeBounceMailCommand extends Command
         }
     }
     
+    /**
+     * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Context/Index.html#example
+     * @TODO
+     */
     private function getEXEC_TIME() {
         return $GLOBALS['EXEC_TIME'];
     }
