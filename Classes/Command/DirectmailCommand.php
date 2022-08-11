@@ -29,7 +29,6 @@ class DirectmailCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $io->title($this->getDescription());
-        $io->warning('start');
         /**
          * The direct_mail engine
          * @var $htmlmail Dmailer
@@ -37,7 +36,6 @@ class DirectmailCommand extends Command
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         $htmlmail->start();
         $htmlmail->runcron();
-        $io->warning('end');
         return Command::SUCCESS;
     }
 }
