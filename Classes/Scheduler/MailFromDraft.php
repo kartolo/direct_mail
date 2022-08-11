@@ -118,10 +118,10 @@ class MailFromDraft extends AbstractTask
 
             $mailRecord = BackendUtility::getRecord('sys_dmail', $this->dmailUid);
             if ($mailRecord['mailContent'] && $mailRecord['renderedsize'] > 0) {
-                $updateData = array(
+                $updateData = [
                     'scheduled' => time(),
                     'issent'    => 1
-                );
+                ];
                 // Call a hook before enqueuing the cloned dmail record into
                 // the direct mail delivery queue
                 $hookParams['mailRecord'] = &$mailRecord;

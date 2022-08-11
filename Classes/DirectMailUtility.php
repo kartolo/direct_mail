@@ -138,17 +138,16 @@ class DirectMailUtility
         /**
          * $plainlist is a multidimensional array.
          * this method only remove if a value has the same array
-         * $plainlist = array(
-         * 		0 => array(
-         * 				name => '',
-         * 				email => '',
-         * 			),
-         * 		1 => array(
-         * 				name => '',
-         * 				email => '',
-         * 			),
-         *
-         * );
+         * $plainlist = [
+         * 		0 => [
+         * 			name => '',
+         * 			email => '',
+         * 		],
+         * 		1 => [
+         * 			name => '',
+         * 			email => '',
+         * 		],
+         * ];
          */
         $plainlist = array_map('unserialize', array_unique(array_map('serialize', $plainlist)));
 
@@ -201,8 +200,6 @@ class DirectMailUtility
         // even when fe_users.usergroup is defined as varchar(255) instead of tinyblob
         // $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
         // The following will work but INSTR and CONCAT are available only in mySQL
-
-
 
         $mmTable = $GLOBALS['TCA'][$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
         $cat = intval($cat);
@@ -591,7 +588,7 @@ class DirectMailUtility
                 list($fName, $fConf) = preg_split('|[\[\]]|', $v);
                 $fName = trim($fName);
                 $fConf = trim($fConf);
-                $fieldOrder[] = array($fName,$fConf);
+                $fieldOrder[] = [$fName, $fConf];
                 if ($fName && substr($fName, 0, 5) != 'user_' && !in_array($fName, $fieldListArr)) {
                     $fieldName = 0;
                     break;
@@ -599,7 +596,10 @@ class DirectMailUtility
             }
             // If not field list, then:
             if (!$fieldName) {
-                $fieldOrder = array(array('name'),array('email'));
+                $fieldOrder = [
+                    ['name'],
+                    ['email']
+                ];
             }
             // Re-map values
             reset($lines);
@@ -615,7 +615,6 @@ class DirectMailUtility
                 if (count($data)>1 || $data[0]) {
                     // Traverse fieldOrder and map values over
                     foreach ($fieldOrder as $kk => $fN) {
-                        // print "Checking $kk::".t3lib_div::view_array($fN).'<br />';
                         if ($fN[0]) {
                             if ($fN[1]) {
                                 // If is true
