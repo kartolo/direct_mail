@@ -20,8 +20,6 @@ class DirectmailCommand extends Command
     }
     
     /**
-     * Executes the command for showing sys_log entries
-     *
      * @param InputInterface $input
      * @param OutputInterface $output
      */

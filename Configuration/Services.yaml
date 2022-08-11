@@ -17,3 +17,8 @@ services:
       - name: 'console.command'
         command: 'directmail:mailingqueue'
         description: 'This command invokes dmailer in order to process queued messages.'
+  DirectMailTeam\DirectMail\Command\AnalyzeBounceMailCommand:
+    tags:
+      - name: 'console.command'
+        command: 'directmail:analyzebouncemail'
+        description: 'This command will get bounce mail from the configured mailbox.'

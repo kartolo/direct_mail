@@ -56,8 +56,6 @@ like the recommended scheduler task or BE module for invoking maler engine will 
     }
 
     /**
-     * Executes the command for showing sys_log entries
-     *
      * @param InputInterface $input
      * @param OutputInterface $output
      */
