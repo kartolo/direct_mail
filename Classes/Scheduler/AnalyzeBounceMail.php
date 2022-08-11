@@ -290,6 +290,10 @@ class AnalyzeBounceMail extends AbstractTask
         }
     }
     
+    /**
+     * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Context/Index.html#example
+     * @TODO
+     */
     private function getEXEC_TIME() {
         return $GLOBALS['EXEC_TIME'];
     }
