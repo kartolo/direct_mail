@@ -1637,7 +1637,8 @@ class DirectMailUtility
     }
 
     /**
-     * Takes a clear-text message body for a plain text email, finds all 'http://' links and if they are longer than 76 chars they are converted to a shorter URL with a hash parameter. The real parameter is stored in the database and the hash-parameter/URL will be redirected to the real parameter when the link is clicked.
+     * Takes a clear-text message body for a plain text email, finds all 'http://' links and if they are longer than 76 chars they are converted to a shorter URL with a hash parameter. 
+     * The real parameter is stored in the database and the hash-parameter/URL will be redirected to the real parameter when the link is clicked.
      * This function is about preserving long links in messages.
      *
      * @param string $message Message content
