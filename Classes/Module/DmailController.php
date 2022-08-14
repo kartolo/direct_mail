@@ -10,6 +10,7 @@ use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
+use DirectMailTeam\DirectMail\Repository\TtContentRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
@@ -384,7 +385,11 @@ class DmailController extends MainController
                 $data['navigation']['back'] = true;
                 $data['navigation']['next'] = true;
                 
-                $data['cats']['catsForm'] = $this->makeCategoriesForm($row);
+                $indata = GeneralUtility::_GP('indata');
+                $temp = $this->makeCategoriesForm($row, $indata);
+                $data['cats']['output'] = $temp['output'];;
+                $data['cats']['catsForm'] = $temp['theOutput'];
+
                 $data['cats']['cmd'] = 'send_test';
                 $data['cats']['sys_dmail_uid'] = $this->sys_dmail_uid;
                 $data['cats']['pages_uid'] = $this->pages_uid;
@@ -1763,12 +1768,24 @@ class DmailController extends MainController
      * TYPO3 content)
      *
      * @param array $row The dmail row.
+     * @param $indata
      *
      * @return string HTML form showing the categories
      */
-    public function makeCategoriesForm(array $row)
+    public function makeCategoriesForm(array $row, $indata)
     {
-        $indata = GeneralUtility::_GP('indata');
+        $output = [
+            'title' => $this->getLanguageService()->getLL('nl_cat'), 
+            'subtitle' => '',
+            'rowsFound' => false,
+            'rows' => [],
+            'pages_uid' => $this->pages_uid,
+            'cmd' => $this->CMD,
+            'update_cats' => $this->getLanguageService()->getLL('nl_l_update'),
+            'output' => ''
+        ];
+        $theOutput = '';
+        
         if (is_array($indata['categories'])) {
             $data = [];
             foreach ($indata['categories'] as $recUid => $recValues) {
@@ -1789,36 +1806,23 @@ class DmailController extends MainController
 
             // remove cache
             $tce->clear_cacheCmd($this->pages_uid);
-            $out = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
+            $theOutput = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
         }
 
-        // Todo Perhaps we should here check if TV is installed and fetch content from that instead of the old Columns...
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('tt_content');
-        $res = $queryBuilder
-            ->select('colPos', 'CType', 'uid', 'pid', 'header', 'bodytext', 'module_sys_dmail_category')
-            ->from('tt_content')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'pid',
-                    $queryBuilder->createNamedParameter($this->pages_uid, \PDO::PARAM_INT)
-                ),
-                $queryBuilder->expr()->eq(
-                    'sys_language_uid',
-                    $queryBuilder->createNamedParameter($row['sys_language_uid'], \PDO::PARAM_INT)
-                )
-            )
-            ->orderBy('colPos')
-            ->addOrderBy('sorting')
-            ->execute()
-            ->fetchAll();
-
-        if (empty($res)) {
-            $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_cat') . '</h3>' . $this->getLanguageService()->getLL('nl_cat_msg1');
-        } else {
-            $out = '';
+        // @TODO Perhaps we should here check if TV is installed and fetch content from that instead of the old Columns...
+        $rows = GeneralUtility::makeInstance(TtContentRepository::class)->selectTtContentByPidAndSysLanguageUid(
+            (int)$this->pages_uid, 
+            (int)$row['sys_language_uid']
+        );
+        if (empty($rows)) {
+            $output['subtitle'] = $this->getLanguageService()->getLL('nl_cat_msg1');
+        } 
+        else {
+            $output['subtitle'] = BackendUtility::cshItem($this->cshTable, 'assign_categories', $GLOBALS['BACK_PATH'] ?? ''); //@TODO
+            $output['rowsFound'] = true;
+            
             $colPosVal = 99;
-            foreach ($res as $row) {
+            foreach ($rows as $row) {
                 $categoriesRow = '';
 
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
@@ -1833,47 +1837,42 @@ class DmailController extends MainController
                 foreach ($resCat as $rowCat) {
                     $categoriesRow .= $rowCat['uid_foreign'] . ',';
                 }
-
                 $categoriesRow = rtrim($categoriesRow, ',');
 
                 if ($colPosVal != $row['colPos']) {
-                    $out .= '<tr><td colspan="3" bgcolor="' . $this->doc->bgColor5 . '">' . $this->getLanguageService()->getLL('nl_l_column') . ': <strong>' . BackendUtility::getProcessedValue('tt_content', 'colPos', $row['colPos']) . '</strong></td></tr>';
+                    $output['rows'][] = [
+                        'separator' => true,
+                        'bgcolor' => $this->doc->bgColor5,
+                        'title' => $this->getLanguageService()->getLL('nl_l_column'),
+                        'value' => BackendUtility::getProcessedValue('tt_content', 'colPos', $row['colPos']) 
+                    ];
                     $colPosVal = $row['colPos'];
                 }
-                $out .= '<tr>';
-                $out .= '<td valign="top" width="75%">' . $this->iconFactory->getIconForRecord('tt_content', $row, Icon::SIZE_SMALL);
-                $out .= $row['header'] . '<br />';
-                $out .= empty($row['bodytext']) ? '' : GeneralUtility::fixed_lgd_cs(strip_tags($row['bodytext']), 200);
-                $out .= '<br /></td>';
-                $out .= '<td nowrap valign="top">';
-                $checkBox = '';
-                if ($row['module_sys_dmail_category']) {
-                    $checkBox .= '<strong style="color:red;">' . $this->getLanguageService()->getLL('nl_l_ONLY') . '</strong>';
-                } else {
-                    $checkBox .= '<strong style="color:green">' . $this->getLanguageService()->getLL('nl_l_ALL') . '</strong>';
-                }
-                $checkBox .= '<br />';
-
+                
                 $this->categories = DirectMailUtility::makeCategories('tt_content', $row, $this->sys_language_uid);
                 reset($this->categories);
+                $cboxes = [];
                 foreach ($this->categories as $pKey => $pVal) {
-                    $checkBox .= '<input type="hidden" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="0">' .
-                        '<input type="checkbox" name="indata[categories][' . $row['uid'] . '][' . $pKey . ']" value="1"' . (GeneralUtility::inList($categoriesRow, $pKey) ?' checked':'') . '> ' .
-                        htmlspecialchars($pVal) . '<br />';
+                    $cboxes[] = [
+                        'pKey' => $pKey,
+                        'checked' => GeneralUtility::inList($categoriesRow, $pKey) ? true : false,
+                        'pVal' => htmlspecialchars($pVal)
+                    ];
                 }
-                $out .= $checkBox . '</td></tr>';
+
+                $output['rows'][] = [
+                    'uid' => $row['uid'],
+                    'icon' => $this->iconFactory->getIconForRecord('tt_content', $row, Icon::SIZE_SMALL),
+                    'header' => $row['header'],
+                    'CType' => $row['CType'],
+                    'list_type' => $row['list_type'],
+                    'bodytext' => empty($row['bodytext']) ? '' : GeneralUtility::fixed_lgd_cs(strip_tags($row['bodytext']), 200),
+                    'color' => $row['module_sys_dmail_category'] ? 'red' : 'green',
+                    'labelOnlyAll' => $row['module_sys_dmail_category'] ? $this->getLanguageService()->getLL('nl_l_ONLY') : $this->getLanguageService()->getLL('nl_l_ALL'),
+                    'checkboxes' => $cboxes
+                ];
             }
-
-            $out = '<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">' . $out . '</table>';
-            $out .= '<input type="hidden" name="pages_uid" value="' . $this->pages_uid . '">' .
-                '<input type="hidden" name="cmd" value="' . $this->CMD . '"><br />' .
-                '<input type="submit" name="update_cats" value="' . $this->getLanguageService()->getLL('nl_l_update') . '">';
-
-            $theOutput = '<h3>' . $this->getLanguageService()->getLL('nl_cat') . '</h3>' .
-                BackendUtility::cshItem($this->cshTable, 'assign_categories', $GLOBALS['BACK_PATH']) .
-                $out;
-
         }
-        return $theOutput;
+        return ['output' => $output, 'theOutput' => $theOutput];
     }
 }
