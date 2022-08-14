@@ -566,7 +566,7 @@ class DmailController extends MainController
         return [
             'title' => 'dmail_dovsk_crFromNL',
             'news' => $this->getNews(),
-            'cshItem' => BackendUtility::cshItem($this->cshTable, 'select_newsletter', $GLOBALS['BACK_PATH'] ?? ''),
+            'cshItem' => BackendUtility::cshItem($this->cshTable, 'select_newsletter'),
         ];
     }
 
@@ -739,7 +739,7 @@ class DmailController extends MainController
     {
         return [
             'title' => 'dmail_dovsk_crFromUrl',
-            'cshItem' => BackendUtility::cshItem($this->cshTable, 'create_directmail_from_url', $GLOBALS['BACK_PATH'] ?? ''),
+            'cshItem' => BackendUtility::cshItem($this->cshTable, 'create_directmail_from_url'),
             'no_valid_url' => (bool)($this->error == 'no_valid_url')
         ];
     }
@@ -1818,7 +1818,8 @@ class DmailController extends MainController
             $output['subtitle'] = $this->getLanguageService()->getLL('nl_cat_msg1');
         } 
         else {
-            $output['subtitle'] = BackendUtility::cshItem($this->cshTable, 'assign_categories', $GLOBALS['BACK_PATH'] ?? ''); //@TODO
+            //https://api.typo3.org/master/class_t_y_p_o3_1_1_c_m_s_1_1_backend_1_1_utility_1_1_backend_utility.html#a5522e461e5ce3b1b5c87ee7546af449d
+            $output['subtitle'] = BackendUtility::cshItem($this->cshTable, 'assign_categories');
             $output['rowsFound'] = true;
             
             $colPosVal = 99;

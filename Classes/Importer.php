@@ -548,10 +548,9 @@ class Importer
 						<input type="hidden" name="CSV_IMPORT[newFile]" value ="' . $this->indata['newFile'] . '">';
         }
 
-        //@TODO $this->cshTable =>  Undefined property; $GLOBALS['BACK_PATH'] => Undefined array key
         $theOutput = sprintf(
             '<div><h2>%s</h2>%s</div>',
-            $this->getLanguageService()->getLL('mailgroup_import') . BackendUtility::cshItem($this->cshTable ?? '', 'mailgroup_import', $GLOBALS['BACK_PATH'] ?? ''),
+            $this->getLanguageService()->getLL('mailgroup_import') . BackendUtility::cshItem($this->cshTable ?? '', 'mailgroup_import'),
             $out
         );
 
