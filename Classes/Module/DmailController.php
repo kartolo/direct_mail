@@ -405,7 +405,7 @@ class DmailController extends MainController
                 $data['navigation']['next'] = true;
                 
                 if ($this->cmd == 'send_mail_test') {
-                    $this->cmd_send_mail($row);
+                    $this->sendMail($row);
                 }
                 $data['test']['testFormData'] = $this->getTestMailConfig();
                 $data['test']['cmd'] = 'send_mass';
@@ -429,7 +429,7 @@ class DmailController extends MainController
                 
                 if ($this->cmd == 'send_mail_final') {
                     if (is_array($this->mailgroup_uid) && count($this->mailgroup_uid)) {
-                        $this->cmd_send_mail($row);
+                        $this->sendMail($row);
                         break;
                     } 
                     else {
@@ -1128,7 +1128,7 @@ class DmailController extends MainController
         $data['cmd'] = 'send_mail_test';
         $data['sys_dmail_uid'] = $this->sys_dmail_uid;
 
-        $this->noView = 1;
+        //$this->noView = 1;
         return $data;
     }
 
@@ -1169,7 +1169,7 @@ class DmailController extends MainController
      * @return string Messages if the mail is sent or planned to sent
      * @todo	remove htmlmail. sending test mail
      */
-    protected function cmd_send_mail($row)
+    protected function sendMail($row)
     {
         // Preparing mailer
         /* @var $htmlmail Dmailer */
@@ -1213,7 +1213,7 @@ class DmailController extends MainController
                 );
                 $this->messageQueue->addMessage($message);
                 
-                $this->noView = 1;
+                //$this->noView = 1;
             }
         } 
         elseif ($this->cmd == 'send_mail_test') {
@@ -1444,7 +1444,11 @@ class DmailController extends MainController
         }
         
         // Mail groups        
-        $groups = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupForFinalMail($this->id, (int)$direct_mail_row['sys_language_uid'], trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby']));
+        $groups = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupForFinalMail(
+            $this->id, 
+            (int)$direct_mail_row['sys_language_uid'], 
+            trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
+        );
 
         $opt = [];
         $lastGroup = null;
@@ -1494,7 +1498,7 @@ class DmailController extends MainController
             $groupInput = '<select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10), $opt).'</select>';
         }
 
-        $this->noView = 1;
+        //$this->noView = 1;
         return [
             'id' => $this->id,
             'sys_dmail_uid' => $this->sys_dmail_uid,
