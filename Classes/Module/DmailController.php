@@ -10,6 +10,7 @@ use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
+use DirectMailTeam\DirectMail\Repository\TtContentCategoryMmRepository;
 use DirectMailTeam\DirectMail\Repository\TtContentRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -19,8 +20,8 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+//use TYPO3\CMS\Core\Database\ConnectionPool;
+//use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -1825,15 +1826,7 @@ class DmailController extends MainController
             $colPosVal = 99;
             foreach ($rows as $row) {
                 $categoriesRow = '';
-
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                    ->getQueryBuilderForTable('sys_dmail_ttcontent_category_mm');
-                $resCat = $queryBuilder
-                    ->select('uid_foreign')
-                    ->from('sys_dmail_ttcontent_category_mm')
-                    ->add('where','uid_local=' . $row['uid'])
-                    ->execute()
-                    ->fetchAll();
+                $resCat = GeneralUtility::makeInstance(TtContentCategoryMmRepository::class)->selectUidForeignByUid($row['uid']);
 
                 foreach ($resCat as $rowCat) {
                     $categoriesRow .= $rowCat['uid_foreign'] . ',';
