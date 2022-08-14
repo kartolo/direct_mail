@@ -303,8 +303,17 @@ class DmailController extends MainController
                 } 
                 // Quickmail
                 elseif ($quickmail['send']) {
-                    $fetchMessage = $this->createDMailQuick($quickmail);
-                    $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
+                    $temp = $this->createDMailQuick($quickmail);
+                    if(!$temp['errorTitle']) {
+                        $fetchError = false;
+                    }
+                    if($temp['errorTitle']) {
+                        $this->messageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], 2, false));
+                    }
+                    if($temp['warningTitle']) {
+                        $this->messageQueue->addMessage($this->createFlashMessage($temp['warningText'], $temp['warningTitle'], 1, false));
+                    }
+
                     $row = BackendUtility::getRecord('sys_dmail', $this->sys_dmail_uid);
                     
                     $data['info']['quickmail']['cmd'] = 'send_test';
@@ -316,7 +325,7 @@ class DmailController extends MainController
                 } 
                 // existing dmail
                 elseif ($row) {
-                    if ($row['type'] == '1' && ((empty($row['HTMLParams'])) || (empty($row['plainParams'])))) {
+                    if ($row['type'] == '1' && (empty($row['HTMLParams']) || empty($row['plainParams']))) {
                         // it's a quickmail
                         $fetchError = false;
                         
@@ -324,8 +333,15 @@ class DmailController extends MainController
                         
                         // add attachment here, since attachment added in 2nd step
                         $unserializedMailContent = unserialize(base64_decode($row['mailContent']));
-                        $data['info']['dmail']['warning'] = $this->compileQuickMail($row, $unserializedMailContent['plain']['content'] ?? '', false);
-                    } else {
+                        $temp = $this->compileQuickMail($row, $unserializedMailContent['plain']['content'] ?? '', false);
+                        if($temp['errorTitle']) {
+                            $this->messageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], 2, false));
+                        }
+                        if($temp['warningTitle']) {
+                            $this->messageQueue->addMessage($this->createFlashMessage($temp['warningText'], $temp['warningTitle'], 1, false));
+                        }
+                    } 
+                    else {
                         if ($this->fetchAtOnce) {
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
                             $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
@@ -787,11 +803,11 @@ class DmailController extends MainController
      *
      * @param array $indata Quickmail data (quickmail content, etc.)
      *
-     * @return string error or warning message produced during the process
+     * @return array error or warning message produced during the process
      */
     protected function createDMailQuick(array $indata)
     {
-        $theOutput = '';
+        $theOutput = [];
         // Set default values:
         $dmail = [];
         $dmail['sys_dmail']['NEW'] = [
@@ -941,8 +957,7 @@ class DmailController extends MainController
      */
     protected function compileQuickMail(array $row, $message)
     {
-        $errorMsg = '';
-        $warningMsg = '';
+        $erg = ['errorTitle' => '', 'errorText' => '', 'warningTitle' => '', 'warningText' => ''];
         
         // Compile the mail
         /* @var $htmlmail Dmailer */
@@ -951,29 +966,30 @@ class DmailController extends MainController
         $htmlmail->start();
         $htmlmail->charset = $row['charset'];
         $htmlmail->addPlain($message);
-        
+
         if (!$message || !$htmlmail->theParts['plain']['content']) {
-            $errorMsg .= '&nbsp;<strong>' . $this->getLanguageService()->getLL('dmail_no_plain_content') . '</strong>';
+            $erg['errorTitle'] = $this->getLanguageService()->getLL('dmail_error');
+            $erg['errorText'] = $this->getLanguageService()->getLL('dmail_no_plain_content');
         } 
         elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']), '<!--DMAILER_SECTION_BOUNDARY')) {
-            $warningMsg .= '&nbsp;<strong>' . $this->getLanguageService()->getLL('dmail_no_plain_boundaries') . '</strong>';
+            $erg['warningTitle'] = $this->getLanguageService()->getLL('dmail_warning');
+            $erg['warningText'] = $this->getLanguageService()->getLL('dmail_no_plain_boundaries');
         }
-        
+
         // add attachment is removed. since it will be add during sending
         
-        if (!$errorMsg) {
+        if (!$erg['errorTitle']) {
             // Update the record:
             $htmlmail->theParts['messageid'] = $htmlmail->messageid;
             $mailContent = base64_encode(serialize($htmlmail->theParts));
 
-            GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmail(intval($this->sys_dmail_uid), $htmlmail->charset, $mailContent);
-            
-            if ($warningMsg) {
-                return '<h3>' . $this->getLanguageService()->getLL('dmail_warning') . '</h3>' . $warningMsg . '<br /><br />';
-            }
+            GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmail(
+                intval($this->sys_dmail_uid), 
+                $htmlmail->charset, $mailContent
+            );
         }
         
-        return '';
+        return $erg;
     }
     
     /**

@@ -129,7 +129,6 @@ class MailFromDraft extends AbstractTask
                 $this->callHooks('enqueueClonedDmail', $hookParams);
                 // Update the cloned dmail so it will get sent upon next
                 // invocation of the mailer engine
-                //$GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail', 'uid = ' . intval($this->dmailUid), $updateData);
                 $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
                 $connection = $connectionPool->getConnectionForTable('sys_dmail');
                 $connection->update(

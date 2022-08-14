@@ -8,7 +8,6 @@
         <form action="" method="post" name="dmailform" enctype="multipart/form-data">	        
 	        <f:render arguments="{navigation: data.navigation}" section="Navigation" />
 			<f:format.raw>{flashmessages}</f:format.raw>
-
 			<f:if condition="{data.info}">
 				<h3><f:translate key="{lll}dmail_wiz2_detail"/></h3>
 				<f:if condition="{data.info.internal}">
@@ -27,7 +26,6 @@
 				</f:if>
 				<f:if condition="{data.info.dmail}">
 					<input type="hidden" name="cmd" value="{data.info.dmail.cmd}">
-					<f:format.html>{data.info.dmail.warning}</f:format.html>
 				</f:if>
 
 				<f:if condition="{data.info.table.out}">
