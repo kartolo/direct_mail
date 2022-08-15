@@ -134,7 +134,7 @@ class RecipientListController extends MainController
                 /* @var $importer \DirectMailTeam\DirectMail\Importer */
                 $importer = GeneralUtility::makeInstance(Importer::class);
                 $importer->init($this);
-                $theOutput = $importer->cmd_displayImport();
+                $theOutput = $importer->displayImport();
                 $type = 3;
                 break;
             default:

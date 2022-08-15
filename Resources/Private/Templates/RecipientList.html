@@ -103,11 +103,33 @@
         <h3><f:translate key="{lll}mailgroup_import" /></h3>
         <a class="t3-link" href="{data.moduleUrl}"> <f:translate key="{lll}recip_import_mailgroup_msg" /></a>
     </f:if>
-    <f:if condition="{formcontent}">
-    	<f:form action="" method="post" name="dmailform" enctype="multipart/form-data">
-        	<f:format.raw>{formcontent}</f:format.raw>
-        </f:form>
+    <f:if condition="{type} == 3">
+		<div>
+			<h2>{formcontent.output.title}</h2>
+			<hr style="border:solid;"/>
+			<h3>{formcontent.output.subtitle}</h3>
+			<f:form action="" method="post" name="dmailform" enctype="multipart/form-data">
+				<f:if condition="{formcontent.output.upload.show}">
+					<f:translate key="{lll}mailgroup_import_upload_file" /> <f:form.upload name="upload_1" /><br>
+					<f:if condition="{formcontent.output.upload.current}">
+						<f:translate key="{lll}mailgroup_import_current_file" /><br>
+					</f:if>
+					<br>
+					<p><b><f:translate key="{lll}mailgroup_import_or" /></b></p><br>
+					<f:translate key="{lll}mailgroup_import_paste_csv" /><br>
+					<f:form.textarea name="CSV_IMPORT[csv]" class="form-control formengine-textarea">{formcontent.output.upload.csv}</f:form.textarea><br><br>
+					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" />
+					<f:form.hidden name="cmd" value="displayImport" />
+					<f:form.hidden name="importStep[next]" value="conf" />
+					<f:form.hidden name="file[upload][1][data]" value="1" />
+					<input type="hidden" name="file[upload][1][target]" value="{formcontent.output.upload.target}" {f:if(condition: '{formcontent.output.upload.target_disabled}', then: 'disabled')} />
+					<f:form.hidden name="CSV_IMPORT[newFile]" value ="{formcontent.output.upload.newFile}" />
+				</f:if>
+				<f:if condition="{formcontent.theOutput}">
+					<f:format.raw>{formcontent.theOutput}</f:format.raw>
+				</f:if>
+	        </f:form>
+        </div>
     </f:if>
-
 </f:if>
 </f:section>

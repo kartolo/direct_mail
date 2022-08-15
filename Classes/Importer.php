@@ -77,10 +77,23 @@ class Importer
     /**
      * Import CSV-Data in step-by-step mode
      *
-     * @return	string		HTML form
+     * @return	array		HTML form
      */
-    public function cmd_displayImport()
+    public function displayImport()
     {
+        $output = [
+            'title' => '',
+            'subtitle' => '',
+            'upload' => [
+                'show' => false,
+                'current' => false,
+                'csv' => '',
+                'target' => '',
+                'target_disabled' => '',
+                'newFile' => ''
+            ]
+        ];
+        
         $beUser = $this->getBeUser();
         $step = GeneralUtility::_GP('importStep');
         $defaultConf = [
@@ -205,7 +218,8 @@ class Importer
                 ($this->params['inputDisable'] == 1) ? $disableInput = 'disabled="disabled"' : $disableInput = '';
 
                 // show configuration
-                $out = '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_header_conf') . '</h3>';
+                $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_header_conf');
+
                 $tblLines = [];
 
                 // get the all sysfolder
@@ -284,7 +298,8 @@ class Importer
                 if (!isset($this->indata['charset'])) {
                     $this->indata['charset'] = 'ISO-8859-1';
                 }
-                $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_charset') . '</h3>';
+                $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_mapping_charset');
+
                 $tblLines = [];
                 $tblLines[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_charset_choose'), $this->makeDropdown('CSV_IMPORT[charset]', $charSets, $this->indata['charset'])];
                 $out .= $this->formatTable($tblLines, ['nowrap', 'nowrap'], 0, [1, 1], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
@@ -386,7 +401,7 @@ class Importer
                 $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '"/>
 						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_next') . '"/>' .
                         $this->makeHidden([
-                            'CMD' => 'displayImport',
+                            'cmd' => 'displayImport',
                             'importStep[next]' => 'import',
                             'importStep[back]' => 'conf',
                             'CSV_IMPORT[newFile]' => $this->indata['newFile'],
@@ -404,7 +419,8 @@ class Importer
 
             case 'import':
                 // show import messages
-                $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_ready_import') . '</h3>';
+                $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_ready_import');
+
                 $out .= $this->getLanguageService()->getLL('mailgroup_import_ready_import_label') . '<br /><br />';
 
                 $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '" />
@@ -453,7 +469,7 @@ class Importer
 
                 // show not imported record and reasons,
                 $result = $this->doImport($csvData);
-                $out = '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_done') . '</h3>';
+                $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_done');
 
                 $defaultOrder = ['new','update','invalid_email','double'];
 
@@ -510,63 +526,49 @@ class Importer
             case 'upload':
             default:
                 // show upload file form
-                $out = '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_header_upload') . '</h3>';
-                $tempDir = $this->userTempFolder();
+                $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_header_upload');
 
-                $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_upload_file') . '<input type="file" name="upload_1" size="30" />';
                 if (($this->indata['mode'] === 'file') && !(((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt'))) {
-                    $currentFileMessage = '';
-                    $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_current_file') . '<b>' . $currentFileMessage . '</b>';
+                    $output['upload']['current'] = true;
+                    // @TODO add $currentFileMessage after 'mailgroup_import_current_file'
                 }
-                
+
                 if (((strpos(($currentFileInfo['file'] ?? ''), 'import') === false) ? 0 : 1) && (($currentFileInfo['realFileext'] ?? '') === 'txt')) {
                     $handleCsv = fopen($this->indata['newFile'], 'r');
                     $this->indata['csv'] = fread($handleCsv, filesize($this->indata['newFile']));
                     fclose($handleCsv);
                 }
                 
-                $tblLines[] = '';
-                $tblLines[] = '<b>' . $this->getLanguageService()->getLL('mailgroup_import_or') . '</b>';
-                $tblLines[] = '';
-                $tblLines[] = $this->getLanguageService()->getLL('mailgroup_import_paste_csv');
-                $tblLines[] = '<textarea name="CSV_IMPORT[csv]" rows="25" wrap="off" style="width:460px;">' . LF . htmlspecialchars($this->indata['csv'] ?? '') . '</textarea>';
-                $tblLines[] = '<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_next') . '" />';
-
-                $out .= implode('<br />', $tblLines);
-
-                $out .= '<input type="hidden" name="cmd" value="displayImport" />
-						<input type="hidden" name="importStep[next]" value="conf" />
-						<input type="hidden" name="file[upload][1][target]" value="' . htmlspecialchars($tempDir) . '" ' . (GeneralUtility::_POST('importNow') ? 'disabled' : '') . '/>
-						<input type="hidden" name="file[upload][1][data]" value="1" />
-						<input type="hidden" name="CSV_IMPORT[newFile]" value ="' . $this->indata['newFile'] . '">';
+                $output['upload']['show'] = true;
+                $output['upload']['csv'] = htmlspecialchars($this->indata['csv'] ?? '');
+                $output['upload']['target'] = htmlspecialchars($this->userTempFolder());
+                $output['upload']['target_disabled'] = GeneralUtility::_POST('importNow') ? 'disabled' : '';
+                $output['upload']['newFile'] = $this->indata['newFile'];
         }
 
-        $theOutput = sprintf(
-            '<div><h2>%s</h2>%s</div>',
-            $this->getLanguageService()->getLL('mailgroup_import') . BackendUtility::cshItem($this->cshTable ?? '', 'mailgroup_import'),
-            $out
-        );
+        $output['title'] = $this->getLanguageService()->getLL('mailgroup_import') . BackendUtility::cshItem($this->cshTable ?? '', 'mailgroup_import');
+        $theOutput = sprintf('%s', $out);
 
         /**
-         *  Hook for cmd_displayImport
+         *  Hook for displayImport
          *  use it to manipulate the steps in the import process
          */
         $hookObjectsArr = [];
-        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport']) && 
-            is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport'])) {
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport'] as $classRef) {
+        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport']) && 
+            is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'] as $classRef) {
                 $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
         }
         if (count($hookObjectsArr)) {
             foreach ($hookObjectsArr as $hookObj) {
-                if (method_exists($hookObj, 'cmd_displayImport')) {
-                    $theOutput = $hookObj->cmd_displayImport($this);
+                if (method_exists($hookObj, 'displayImport')) {
+                    $theOutput = $hookObj->displayImport($this);
                 }
             }
         }
 
-        return $theOutput;
+        return ['output' => $output, 'theOutput' => $theOutput];
     }
 
     /*****
