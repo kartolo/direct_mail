@@ -15,6 +15,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use DirectMailTeam\DirectMail\Module\RecipientList;
+use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -80,8 +81,8 @@ class Importer
      */
     public function cmd_displayImport()
     {
+        $beUser = $this->getBeUser();
         $step = GeneralUtility::_GP('importStep');
-
         $defaultConf = [
             'remove_existing' => 0,
             'first_fieldname' => 0,
@@ -167,27 +168,19 @@ class Importer
         $out = '';
         switch ($stepCurrent) {
             case 'conf':
+                $pagePermsClause3 = $beUser->getPagePermsClause(3);
+                $pagePermsClause1 = $beUser->getPagePermsClause(1);
                 // get list of sysfolder
                 // TODO: maybe only subtree von this->id??
 
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
-                $statement = $queryBuilder
-                    ->select('uid', 'title')
-                    ->from('pages')
-                    ->where(
-                        $GLOBALS['BE_USER']->getPagePermsClause(3),
-                        $queryBuilder->expr()->eq(
-                            'doktype',
-                            '254'
-                        )
-                    )
-                    ->orderBy('uid')
-                    ->execute();
-
                 $optStorage = [];
-                while (($row = $statement->fetch())) {
-                    if (BackendUtility::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1))) {
-                        $optStorage[] = [$row['uid'], $row['title'] . ' [uid:' . $row['uid'] . ']'];
+                $subfolders = GeneralUtility::makeInstance(PagesRepository::class)->selectSubfolders($pagePermsClause3);
+
+                if($subfolders && count($subfolders)) {
+                    foreach($subfolders as $subfolder) {
+                        if (BackendUtility::readPageAccess($subfolder['uid'], $pagePermsClause1)) {
+                            $optStorage[] = [$subfolder['uid'], $subfolder['title'] . ' [uid:' . $subfolder['uid'] . ']'];
+                        }
                     }
                 }
 
@@ -248,19 +241,19 @@ class Importer
                 // import only valid email
                 $tblLines[] = [
                     $this->getLanguageService()->getLL('mailgroup_import_csv_validemail-description'),
-                    '<input type="checkbox" name="CSV_IMPORT[valid_email]" value="1"' . (!$this->indata['valid_email']?'':' checked="checked"') . ' ' . $disableInput . '/> '
+                    '<input type="checkbox" name="CSV_IMPORT[valid_email]" value="1"' . (!$this->indata['valid_email'] ? '' :' checked="checked"') . ' ' . $disableInput . '/> '
                 ];
 
                 // only import distinct records
                 $tblLines[] = [
                     $this->getLanguageService()->getLL('mailgroup_import_csv_dublette-description'),
-                    '<input type="checkbox" name="CSV_IMPORT[remove_dublette]" value="1"' . (!$this->indata['remove_dublette']?'':' checked="checked"') . ' ' . $disableInput . '/> '
+                    '<input type="checkbox" name="CSV_IMPORT[remove_dublette]" value="1"' . (!$this->indata['remove_dublette'] ? '' : ' checked="checked"') . ' ' . $disableInput . '/> '
                 ];
 
                 // update the record instead renaming the new one
                 $tblLines[] = [
                     $this->getLanguageService()->getLL('mailgroup_import_update_unique'),
-                    '<input type="checkbox" name="CSV_IMPORT[update_unique]" value="1"' . (!$this->indata['update_unique']?'':' checked="checked"') . ' ' . $disableInput . '/>'
+                    '<input type="checkbox" name="CSV_IMPORT[update_unique]" value="1"' . (!$this->indata['update_unique'] ? '' : ' checked="checked"') . ' ' . $disableInput . '/>'
                 ];
 
                 // which field should be use to show uniqueness of the records
@@ -417,7 +410,7 @@ class Importer
                 $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '" />
 						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_import') . '" />' .
                         $this->makeHidden([
-                            'CMD' => 'displayImport',
+                            'cmd' => 'displayImport',
                             'importStep[next]' => 'startImport',
                             'importStep[back]' => 'mapping',
                             'CSV_IMPORT[newFile]' => $this->indata['newFile'],
@@ -487,7 +480,7 @@ class Importer
 
                 // back button
                 $out .= $this->makeHidden([
-                            'CMD' => 'displayImport',
+                            'cmd' => 'displayImport',
                             'importStep[back]' => 'import',
                             'CSV_IMPORT[newFile]' => $this->indata['newFile'],
                             'CSV_IMPORT[storage]' => $this->indata['storage'],
@@ -541,7 +534,7 @@ class Importer
 
                 $out .= implode('<br />', $tblLines);
 
-                $out .= '<input type="hidden" name="CMD" value="displayImport" />
+                $out .= '<input type="hidden" name="cmd" value="displayImport" />
 						<input type="hidden" name="importStep[next]" value="conf" />
 						<input type="hidden" name="file[upload][1][target]" value="' . htmlspecialchars($tempDir) . '" ' . (GeneralUtility::_POST('importNow') ? 'disabled' : '') . '/>
 						<input type="hidden" name="file[upload][1][data]" value="1" />
@@ -1158,5 +1151,14 @@ class Importer
     protected function getLanguageService()
     {
         return $GLOBALS['LANG'];
+    }
+    
+    /**
+     * 
+     * @return BackendUserAuthentication
+     */
+    protected function getBeUser()
+    {
+        return $GLOBALS['BE_USER'];
     }
 }

@@ -60,4 +60,26 @@ class PagesRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+    
+    /**
+     * @return array|bool
+     */
+    public function selectSubfolders(string $permsClause) //: array|bool 
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder
+        ->select('uid', 'title')
+        ->from($this->table)
+        ->where(
+            $permsClause,
+            $queryBuilder->expr()->eq(
+                'doktype',
+                '254'
+            )
+        )
+        ->orderBy('uid')
+        ->execute()
+        ->fetchAll();
+    }
 }
