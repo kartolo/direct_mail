@@ -934,7 +934,7 @@ class Importer
             $this->indata['newFile'] = Environment::getPublicPath() . '/' . $this->indata['newFile'];
         }
         $handle = fopen($this->indata['newFile'], 'r');
-	   if($handle === false) {
+        if($handle === false) {
             return $mydata;
         }
         $i = 0;

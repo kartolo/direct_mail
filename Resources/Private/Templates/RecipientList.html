@@ -104,7 +104,9 @@
         <a class="t3-link" href="{data.moduleUrl}"> <f:translate key="{lll}recip_import_mailgroup_msg" /></a>
     </f:if>
     <f:if condition="{formcontent}">
-        <f:format.raw>{formcontent}</f:format.raw>
+    	<f:form action="" method="post" name="dmailform" enctype="multipart/form-data">
+        	<f:format.raw>{formcontent}</f:format.raw>
+        </f:form>
     </f:if>
 
 </f:if>
