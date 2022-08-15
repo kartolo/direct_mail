@@ -125,6 +125,20 @@
 					<input type="hidden" name="file[upload][1][target]" value="{formcontent.output.upload.target}" {f:if(condition: '{formcontent.output.upload.target_disabled}', then: 'disabled')} />
 					<f:form.hidden name="CSV_IMPORT[newFile]" value ="{formcontent.output.upload.newFile}" />
 				</f:if>
+				<f:if condition="{formcontent.output.conf.show}">
+					<table class="table table-striped table-hover">
+						<tbody>
+							<tr class="db_list_normal">
+								<td width="300">
+									<f:translate key="{lll}mailgroup_import_header_conf" />
+								</td>
+								<td nowrap="">
+									<f:format.html>{formcontent.output.conf.storage}</f:format.html>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</f:if>
 				<f:if condition="{formcontent.theOutput}">
 					<f:format.raw>{formcontent.theOutput}</f:format.raw>
 				</f:if>
