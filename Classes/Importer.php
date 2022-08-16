@@ -104,6 +104,10 @@ class Importer
                 'record_unique' => '',
                 'newFile' => '',
                 'disableInput' => false
+            ],
+            'mapping' => [
+                'show' => false,
+                'charset' => '',
             ]
         ];
         
@@ -165,7 +169,7 @@ class Importer
             $stepCurrent = 'mapping';
         }
 
-        if (strlen($this->indata['csv'] ?? 0) > 0) {
+        if (strlen($this->indata['csv'] ?? '') > 0) {
             $this->indata['mode'] = 'csv';
             $this->indata['newFile'] = $this->writeTempFile();
         } elseif (!empty($this->indata['newFile'])) {
@@ -266,6 +270,7 @@ class Importer
                 break;
 
             case 'mapping':
+                $output['mapping']['show'] = true;
                 // show charset selector
                 $cs = array_unique(array_values(mb_list_encodings()));
                 $charSets = [];
@@ -277,27 +282,21 @@ class Importer
                     $this->indata['charset'] = 'ISO-8859-1';
                 }
                 $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_mapping_charset');
-
-                $tblLines = [];
-                $tblLines[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_charset_choose'), $this->makeDropdown('CSV_IMPORT[charset]', $charSets, $this->indata['charset'])];
-                $out .= $this->formatTable($tblLines, ['nowrap', 'nowrap'], 0, [1, 1], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
-                $out .= '<input type="submit" name="CSV_IMPORT[update]" value="' . $this->getLanguageService()->getLL('mailgroup_import_update') . '"/>';
-                unset($tblLines);
+                $output['mapping']['charset'] = $this->makeDropdown('CSV_IMPORT[charset]', $charSets, $this->indata['charset']);
 
                 // show mapping form
-                $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_conf') . '</h3>';
-
                 if ($this->indata['first_fieldname']) {
                     // read csv
                     $csvData = $this->readExampleCSV(4);
                     $csv_firstRow = $csvData[0];
                     $csvData = array_slice($csvData, 1);
-                } else {
+                } 
+                else {
                     // read csv
                     $csvData = $this->readExampleCSV(3);
-                    $fieldsAmount = count($csvData[0]);
+                    $fieldsAmount = count($csvData[0] ?? []);
                     $csv_firstRow = [];
-                    for ($i=0; $i<$fieldsAmount; $i++) {
+                    for ($i = 0; $i < $fieldsAmount; $i++) {
                         $csv_firstRow[] = 'field_' . $i;
                     }
                 }
@@ -344,7 +343,8 @@ class Importer
                 // header
                 $tblLinesAdd[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"' . (!$this->indata['all_html']?'':' checked="checked"') . '/> '];
                 // get categories
-                $temp['value'] = BackendUtility::getPagesTSconfig($this->parent->id)['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
+                //$temp['value'] = BackendUtility::getPagesTSconfig($this->parent->id)['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
+                $temp['value'] = BackendUtility::getPagesTSconfig($this->parent->getId())['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
                 if (is_numeric($temp['value'])) {
                     $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
                     $rowCat = $queryBuilder
@@ -1027,8 +1027,8 @@ class Importer
     public function writeTempFile()
     {
         $newfile = '';
-        $userPermissions = $GLOBALS['BE_USER']->getFilePermissions();
-
+        $beUser = $this->getBeUser();
+        $userPermissions = $beUser->getFilePermissions();
         unset($this->fileProcessor);
 
         // add uploads/tx_directmail to user filemounts
@@ -1047,7 +1047,8 @@ class Importer
         if (is_array($GLOBALS['FILEMOUNTS']) && !empty($GLOBALS['FILEMOUNTS'])) {
             // we have a filemount
             // do something here
-        } else {
+        } 
+        else {
             // we don't have a valid file mount
             // should be fixed
 
