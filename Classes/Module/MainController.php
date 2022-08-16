@@ -164,6 +164,11 @@ class MainController {
         return $module;
     }
     
+    public function getId(): int 
+    {
+        return $this->id;
+    }
+    
     /**
      * @return LanguageService
      */

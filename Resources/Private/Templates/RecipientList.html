@@ -210,6 +210,23 @@
 					<f:form.hidden name="importStep[back]" value="upload" />
 					<f:form.hidden name="CSV_IMPORT[newFile]" value="{formcontent.output.conf.newFile}" />
 				</f:if>
+				<f:if condition="{formcontent.output.mapping.show}">
+					<table class="table table-striped table-hover">
+						<tbody>
+							<tr class="db_list_normal">
+								<td nowrap="">
+									<f:translate key="{lll}mailgroup_import_mapping_charset_choose" />
+								</td>
+								<td nowrap="">
+									<f:format.html>{formcontent.output.mapping.charset}</f:format.html>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<f:form.submit name="CSV_IMPORT[update]" value="{f:translate(key: '{lll}mailgroup_import_update')}" />
+					<hr style="border:solid;"/>
+					<h3><f:translate key="{lll}mailgroup_import_mapping_conf" /></h3>
+				</f:if>
 				<f:if condition="{formcontent.theOutput}">
 					<f:format.raw>{formcontent.theOutput}</f:format.raw>
 				</f:if>
