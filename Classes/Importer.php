@@ -16,6 +16,7 @@ namespace DirectMailTeam\DirectMail;
 
 use DirectMailTeam\DirectMail\Module\RecipientList;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Context\Context;
@@ -109,6 +110,20 @@ class Importer
             'mapping' => [
                 'show' => false,
                 'charset' => '',
+                'newFile' => '',
+                'storage' => '',
+                'remove_existing' => false,
+                'first_fieldname' => false,
+                'delimiter' => '',
+                'encapsulation' => '',
+                'valid_email' => false,
+                'remove_dublette' => false,
+                'update_unique' => false,
+                'record_unique' => '',
+                'all_html' => false,
+                'mapping_cats' => [],
+                'show_add_cat' => false,
+                'add_cat' => false
             ]
         ];
         
@@ -272,6 +287,18 @@ class Importer
 
             case 'mapping':
                 $output['mapping']['show'] = true;
+                $output['mapping']['newFile'] = $this->indata['newFile'];
+                $output['mapping']['storage'] = $this->indata['storage'];
+                $output['mapping']['remove_existing'] = $this->indata['remove_existing'];
+                $output['mapping']['first_fieldname'] = $this->indata['first_fieldname'];
+                $output['mapping']['delimiter'] = $this->indata['delimiter'];
+                $output['mapping']['encapsulation'] = $this->indata['encapsulation'];
+                $output['mapping']['valid_email'] = $this->indata['valid_email'];
+                $output['mapping']['remove_dublette'] = $this->indata['remove_dublette'];
+                $output['mapping']['update_unique'] = $this->indata['update_unique'];
+                $output['mapping']['record_unique'] = $this->indata['record_unique'];
+                $output['mapping']['all_html'] = !$this->indata['all_html'] ? false : true;
+
                 // show charset selector
                 $cs = array_unique(array_values(mb_list_encodings()));
                 $charSets = [];
@@ -353,72 +380,31 @@ class Importer
                     }
                     $out.= '</ul>';
                 }
-
-                // additional options
-                $tblLinesAdd = [];
-
-                // header
-                $tblLinesAdd[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_mapping_all_html'), 
-                    '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"' . (!$this->indata['all_html']?'':' checked="checked"') . '/> '
-                ];
+                
+                $out .= $this->formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, [0, 0, 1, 1], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
+                
                 // get categories
-                //$temp['value'] = BackendUtility::getPagesTSconfig($this->parent->id)['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
                 $temp['value'] = BackendUtility::getPagesTSconfig($this->parent->getId())['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
                 if (is_numeric($temp['value'])) {
-                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
-                    $rowCat = $queryBuilder
-                        ->select('*')
-                        ->from('sys_dmail_category')
-                        ->where(
-                            $queryBuilder->expr()->in(
-                                'pid',
-                                $temp
-                            )
-                        )
-                        ->execute()
-                        ->fetchAll();
-
+                    $rowCat = GeneralUtility::makeInstance(SysDmailCategoryRepository::class)->selectSysDmailCategoryByPid((int)$temp['value']);
+                        
                     if (!empty($rowCat)) {
-                        $tblLinesAdd[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_cats'), ''];
-                        if ($this->indata['update_unique']) {
-                            $tblLinesAdd[] = [
-                                $this->getLanguageService()->getLL('mailgroup_import_mapping_cats_add'), 
-                                '<input type="checkbox" name="CSV_IMPORT[add_cat]" value="1"' . ($this->indata['add_cat']?' checked="checked"':'') . '/> '
-                            ];
+                        // additional options
+                        if ($output['mapping']['update_unique']) {
+                            $output['mapping']['show_add_cat'] = true;
+                            $output['mapping']['add_cat'] = $this->indata['add_cat'] ? true : false;
                         }
                         foreach ($rowCat as $k => $v) {
-                            $tblLinesAdd[] = [
-                                '&nbsp;&nbsp;&nbsp;' . htmlspecialchars($v['category']), 
-                                '<input type="checkbox" name="CSV_IMPORT[cat][' . $k . ']" value="' . $v['uid'] . '"' . (($this->indata['cat'][$k] != $v['uid']) ? '' :' checked="checked"') . '/> '
+                            $output['mapping']['mapping_cats'][] = [
+                                'cat' => htmlspecialchars($v['category']),
+                                'k' => $k,
+                                'vUid' => $v['uid'],
+                                'checked' => $this->indata['cat'][$k] != $v['uid'] ? false : true
                             ];
                         }
                     }
                 }
 
-                $out .= $this->formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, [0, 0, 1, 1], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
-                $out .= '<br /><br />';
-                // additional options
-                $out .= '<hr /><h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_conf_add') . '</h3>';
-                $out .= $this->formatTable($tblLinesAdd, ['nowrap', 'nowrap'], 0, [1, 1], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
-                $out .= '<br /><br />';
-                $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '"/>
-						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_next') . '"/>' .
-                        $this->makeHidden([
-                            'cmd' => 'displayImport',
-                            'importStep[next]' => 'import',
-                            'importStep[back]' => 'conf',
-                            'CSV_IMPORT[newFile]' => $this->indata['newFile'],
-                            'CSV_IMPORT[storage]' => $this->indata['storage'],
-                            'CSV_IMPORT[remove_existing]' => $this->indata['remove_existing'],
-                            'CSV_IMPORT[first_fieldname]' => $this->indata['first_fieldname'],
-                            'CSV_IMPORT[delimiter]' => $this->indata['delimiter'],
-                            'CSV_IMPORT[encapsulation]' => $this->indata['encapsulation'],
-                            'CSV_IMPORT[valid_email]' => $this->indata['valid_email'],
-                            'CSV_IMPORT[remove_dublette]' => $this->indata['remove_dublette'],
-                            'CSV_IMPORT[update_unique]' => $this->indata['update_unique'],
-                            'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
-                        ]);
                 break;
 
             case 'import':
@@ -433,6 +419,7 @@ class Importer
                             'cmd' => 'displayImport',
                             'importStep[next]' => 'startImport',
                             'importStep[back]' => 'mapping',
+                            
                             'CSV_IMPORT[newFile]' => $this->indata['newFile'],
                             'CSV_IMPORT[storage]' => $this->indata['storage'],
                             'CSV_IMPORT[remove_existing]' => $this->indata['remove_existing'],
