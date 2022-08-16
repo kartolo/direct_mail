@@ -16,17 +16,18 @@ namespace DirectMailTeam\DirectMail;
 
 use DirectMailTeam\DirectMail\Module\RecipientList;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
+use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 
 /**
  * Recipient list module for tx_directmail extension
@@ -1020,6 +1021,15 @@ class Importer
     }
 
     /**
+     *
+     * @return int
+     */
+    private function getTimestampFromAspect(): int {
+        $context = GeneralUtility::makeInstance(Context::class);
+        return $context->getPropertyFromAspect('date', 'timestamp');
+    }
+    
+    /**
      * Write CSV Data to a temporary file and will be used for the import
      *
      * @return	string		path of the temp file
@@ -1065,7 +1075,7 @@ class Importer
         if (empty($this->indata['newFile'])) {
             // new file
             $file['newfile']['1']['target']=$this->userTempFolder();
-            $file['newfile']['1']['data']='import_' . $GLOBALS['EXEC_TIME'] . '.txt';
+            $file['newfile']['1']['data']='import_' . $this->getTimestampFromAspect() . '.txt';
             if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
                 $this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
             } else {
