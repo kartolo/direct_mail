@@ -1194,7 +1194,7 @@ class DmailController extends MainController
             // Fixing addresses:
             $addresses = GeneralUtility::_GP('SET');
             $addressList = $addresses['dmail_test_email'] ? $addresses['dmail_test_email'] : $this->MOD_SETTINGS['dmail_test_email'];
-            $addresses = preg_split('|[' . LF . ',;]|', $addressList);
+            $addresses = preg_split('|[' . LF . ',;]|', $addressList ?? '');
             
             foreach ($addresses as $key => $val) {
                 $addresses[$key] = trim($val);
@@ -1246,7 +1246,8 @@ class DmailController extends MainController
                         );
                         $this->messageQueue->addMessage($message);
                     }
-                } else {
+                } 
+                else {
                     $message = $this->createFlashMessage(
                         'Error: No valid recipient found to send test mail to. #1579209279', 
                         $this->getLanguageService()->getLL('send_sending'), 
@@ -1255,8 +1256,8 @@ class DmailController extends MainController
                     );
                     $this->messageQueue->addMessage($message);
                 }
-                
-            } elseif (is_array(GeneralUtility::_GP('sys_dmail_group_uid'))) {
+            } 
+            elseif (is_array(GeneralUtility::_GP('sys_dmail_group_uid'))) {
                 // personalized to group
                 $result = $this->cmd_compileMailGroup(GeneralUtility::_GP('sys_dmail_group_uid'));
                 
@@ -1266,7 +1267,6 @@ class DmailController extends MainController
                 $sendFlag += $this->sendTestMailToTable($idLists, 'fe_users', $htmlmail);
                 $sendFlag += $this->sendTestMailToTable($idLists, 'PLAINLIST', $htmlmail);
                 $sendFlag += $this->sendTestMailToTable($idLists, $this->userTable, $htmlmail);
-                
                 $message = $this->createFlashMessage(
                     sprintf($this->getLanguageService()->getLL('send_was_sent_to_number'), $sendFlag), 
                     $this->getLanguageService()->getLL('send_sending'), 
@@ -1275,7 +1275,8 @@ class DmailController extends MainController
                 );
                 $this->messageQueue->addMessage($message);
             }
-        } else {
+        } 
+        else {
             // step 5, sending personalized emails to the mailqueue
             
             // prepare the email for sending with the mailqueue
@@ -1343,6 +1344,39 @@ class DmailController extends MainController
                 [ 'uid' => intval($this->sys_dmail_uid) ] // where
             );
         }
+    }
+
+    /**
+     * Send mail to recipient based on table.
+     *
+     * @param array $idLists List of recipient ID
+     * @param string $table Table name
+     * @param Dmailer $htmlmail Object of the dmailer script
+     *
+     * @return int Total of sent mail
+     * @todo: remove htmlmail. sending mails to table
+     */
+    protected function sendTestMailToTable(array $idLists, $table, Dmailer $htmlmail): int
+    {
+        $sentFlag = 0;
+        if (is_array($idLists[$table])) {
+            if ($table != 'PLAINLIST') {
+                $recs = DirectMailUtility::fetchRecordsListValues($idLists[$table], $table, '*');
+            } 
+            else {
+                $recs = $idLists['PLAINLIST'];
+            }
+            foreach ($recs as $rec) {
+                $recipRow = $htmlmail->convertFields($rec);
+                $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table, $recipRow['uid']);
+                $kc = substr($table, 0, 1);
+                $returnCode = $htmlmail->dmailer_sendAdvanced($recipRow, $kc == 'p' ? 'P' : $kc);
+                if ($returnCode) {
+                    $sentFlag++;
+                }
+            }
+        }
+        return $sentFlag;
     }
 
     /**
