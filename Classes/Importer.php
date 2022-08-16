@@ -310,23 +310,39 @@ class Importer
                 }
                 $mapFields = [];
                 foreach ($ttAddressFields as $map) {
-                    $mapFields[] = [$map, str_replace(':', '', $this->getLanguageService()->sL($GLOBALS['TCA']['tt_address']['columns'][$map]['label']))];
+                    $mapFields[] = [
+                        $map, 
+                        str_replace(':', '', $this->getLanguageService()->sL($GLOBALS['TCA']['tt_address']['columns'][$map]['label']))
+                    ];
                 }
                 // add 'no value'
                 array_unshift($mapFields, ['noMap', $this->getLanguageService()->getLL('mailgroup_import_mapping_mapTo')]);
-                $mapFields[] = ['cats', $this->getLanguageService()->getLL('mailgroup_import_mapping_categories')];
+                $mapFields[] = [
+                    'cats', 
+                    $this->getLanguageService()->getLL('mailgroup_import_mapping_categories')
+                ];
                 reset($csv_firstRow);
                 reset($csvData);
 
                 $tblLines = [];
-                $tblLines[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_number'),$this->getLanguageService()->getLL('mailgroup_import_mapping_description'),$this->getLanguageService()->getLL('mailgroup_import_mapping_mapping'),$this->getLanguageService()->getLL('mailgroup_import_mapping_value')];
+                $tblLines[] = [
+                    $this->getLanguageService()->getLL('mailgroup_import_mapping_number'),
+                    $this->getLanguageService()->getLL('mailgroup_import_mapping_description'),
+                    $this->getLanguageService()->getLL('mailgroup_import_mapping_mapping'),
+                    $this->getLanguageService()->getLL('mailgroup_import_mapping_value')
+                ];
                 for ($i = 0; $i < (count($csv_firstRow)); $i++) {
                     // example CSV
                     $exampleLines = [];
                     for ($j = 0; $j < (count($csvData)); $j++) {
                         $exampleLines[] = [$csvData[$j][$i]];
                     }
-                    $tblLines[] = [$i+1, $csv_firstRow[$i], $this->makeDropdown('CSV_IMPORT[map][' . ($i) . ']', $mapFields, $this->indata['map'][$i]), $this->formatTable($exampleLines, ['nowrap'], 0, [0], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover" style="width:100%; border:0px; margin:0px;"')];
+                    $tblLines[] = [
+                        $i+1, 
+                        $csv_firstRow[$i], 
+                        $this->makeDropdown('CSV_IMPORT[map][' . ($i) . ']', $mapFields, $this->indata['map'][$i]), 
+                        $this->formatTable($exampleLines, ['nowrap'], 0, [0], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover" style="width:100%; border:0px; margin:0px;"')
+                    ];
                 }
 
                 if ($error) {
@@ -342,7 +358,10 @@ class Importer
                 $tblLinesAdd = [];
 
                 // header
-                $tblLinesAdd[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_all_html'), '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"' . (!$this->indata['all_html']?'':' checked="checked"') . '/> '];
+                $tblLinesAdd[] = [
+                    $this->getLanguageService()->getLL('mailgroup_import_mapping_all_html'), 
+                    '<input type="checkbox" name="CSV_IMPORT[all_html]" value="1"' . (!$this->indata['all_html']?'':' checked="checked"') . '/> '
+                ];
                 // get categories
                 //$temp['value'] = BackendUtility::getPagesTSconfig($this->parent->id)['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
                 $temp['value'] = BackendUtility::getPagesTSconfig($this->parent->getId())['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
@@ -363,10 +382,16 @@ class Importer
                     if (!empty($rowCat)) {
                         $tblLinesAdd[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_cats'), ''];
                         if ($this->indata['update_unique']) {
-                            $tblLinesAdd[] = [$this->getLanguageService()->getLL('mailgroup_import_mapping_cats_add'), '<input type="checkbox" name="CSV_IMPORT[add_cat]" value="1"' . ($this->indata['add_cat']?' checked="checked"':'') . '/> '];
+                            $tblLinesAdd[] = [
+                                $this->getLanguageService()->getLL('mailgroup_import_mapping_cats_add'), 
+                                '<input type="checkbox" name="CSV_IMPORT[add_cat]" value="1"' . ($this->indata['add_cat']?' checked="checked"':'') . '/> '
+                            ];
                         }
                         foreach ($rowCat as $k => $v) {
-                            $tblLinesAdd[] = ['&nbsp;&nbsp;&nbsp;' . htmlspecialchars($v['category']), '<input type="checkbox" name="CSV_IMPORT[cat][' . $k . ']" value="' . $v['uid'] . '"' . (($this->indata['cat'][$k] != $v['uid']) ? '' :' checked="checked"') . '/> '];
+                            $tblLinesAdd[] = [
+                                '&nbsp;&nbsp;&nbsp;' . htmlspecialchars($v['category']), 
+                                '<input type="checkbox" name="CSV_IMPORT[cat][' . $k . ']" value="' . $v['uid'] . '"' . (($this->indata['cat'][$k] != $v['uid']) ? '' :' checked="checked"') . '/> '
+                            ];
                         }
                     }
                 }
@@ -1068,17 +1093,18 @@ class Importer
             $file['upload']['1']['target'] = GeneralUtility::getFileAbsFileName('uploads/tx_directmail/');
         }
 
-        // Checking referer / executing:
-        $refInfo = parse_url(GeneralUtility::getIndpEnv('HTTP_REFERER'));
-        $httpHost = GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY');
-
         if (empty($this->indata['newFile'])) {
+            // Checking referer / executing:
+            $refInfo = parse_url(GeneralUtility::getIndpEnv('HTTP_REFERER'));
+            $httpHost = GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY');
+            
             // new file
-            $file['newfile']['1']['target']=$this->userTempFolder();
-            $file['newfile']['1']['data']='import_' . $this->getTimestampFromAspect() . '.txt';
+            $file['newfile']['1']['target'] = $this->userTempFolder();
+            $file['newfile']['1']['data'] = 'import_' . $this->getTimestampFromAspect() . '.txt';
             if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
                 $this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
-            } else {
+            } 
+            else {
                 $this->fileProcessor->start($file);
                 $newfileObj = $this->fileProcessor->func_newfile($file['newfile']['1']);
                 // in TYPO3 6.0 func_newfile returns an object, but we need the path to the new file name later on!
@@ -1113,7 +1139,7 @@ class Importer
         $tempFolder = $this->userTempFolder();
         $array = explode('/', trim($tempFolder, '/'));
         $fm = [
-            $GLOBALS['EXEC_TIME'] => [
+            $this->getTimestampFromAspect() => [
                 'path' => $tempFolder,
                 'name' => array_pop($array) .  '/',
             ]
