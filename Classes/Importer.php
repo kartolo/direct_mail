@@ -91,6 +91,19 @@ class Importer
                 'target' => '',
                 'target_disabled' => '',
                 'newFile' => ''
+            ],
+            'conf' => [
+                'show' => false,
+                'remove_existing' => false,
+                'first_fieldname' => false,
+                'delimiter' => '',
+                'encapsulation' => '',
+                'valid_email' => false,
+                'remove_dublette' => false,
+                'update_unique' => false,
+                'record_unique' => '',
+                'newFile' => '',
+                'disableInput' => false
             ]
         ];
         
@@ -181,6 +194,8 @@ class Importer
         $out = '';
         switch ($stepCurrent) {
             case 'conf':
+                $output['conf']['show'] = true;
+                $output['conf']['newFile'] = $this->indata['newFile'];
                 $pagePermsClause3 = $beUser->getPagePermsClause(3);
                 $pagePermsClause1 = $beUser->getPagePermsClause(1);
                 // get list of sysfolder
@@ -188,7 +203,6 @@ class Importer
 
                 $optStorage = [];
                 $subfolders = GeneralUtility::makeInstance(PagesRepository::class)->selectSubfolders($pagePermsClause3);
-
                 if($subfolders && count($subfolders)) {
                     foreach($subfolders as $subfolder) {
                         if (BackendUtility::readPageAccess($subfolder['uid'], $pagePermsClause1)) {
@@ -215,76 +229,40 @@ class Importer
                     ['name', 'name']
                 ];
 
+                $output['conf']['disableInput'] = $this->params['inputDisable'] == 1 ? true : false;
+                
                 ($this->params['inputDisable'] == 1) ? $disableInput = 'disabled="disabled"' : $disableInput = '';
 
                 // show configuration
                 $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_header_conf');
 
-                $tblLines = [];
-
                 // get the all sysfolder
-                $tblLines[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_storage'),
-                    $this->makeDropdown('CSV_IMPORT[storage]', $optStorage, $this->indata['storage'])
-                ];
+                $output['conf']['storage'] = $this->makeDropdown('CSV_IMPORT[storage]', $optStorage, $this->indata['storage']);
 
                 // remove existing option
-                $tblLines[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_remove_existing'),
-                    '<input type="checkbox" name="CSV_IMPORT[remove_existing]" value="1"' . (!$this->indata['remove_existing']?'':' checked="checked"') . ' ' . $disableInput . '/> '
-                ];
+                $output['conf']['remove_existing'] = !$this->indata['remove_existing'] ? false : true;
 
                 // first line in csv is to be ignored
-                $tblLines[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_first_fieldnames'),
-                    '<input type="checkbox" name="CSV_IMPORT[first_fieldname]" value="1"' . (!$this->indata['first_fieldname']?'':' checked="checked"') . ' ' . $disableInput . '/> '
-                ];
+                $output['conf']['first_fieldname'] = !$this->indata['first_fieldname'] ? false : true;
 
                 // csv separator
-                $tblLines[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_separator'),
-                    $this->makeDropdown('CSV_IMPORT[delimiter]', $optDelimiter, $this->indata['delimiter'], $disableInput)
-                ];
+                $output['conf']['delimiter'] = $this->makeDropdown('CSV_IMPORT[delimiter]', $optDelimiter, $this->indata['delimiter'], $disableInput);
 
                 // csv encapsulation
-                $tblLines[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_encapsulation'),
-                    $this->makeDropdown('CSV_IMPORT[encapsulation]', $optEncap, $this->indata['encapsulation'], $disableInput)
-                ];
+                $output['conf']['encapsulation'] = $this->makeDropdown('CSV_IMPORT[encapsulation]', $optEncap, $this->indata['encapsulation'], $disableInput);
 
                 // import only valid email
-                $tblLines[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_csv_validemail-description'),
-                    '<input type="checkbox" name="CSV_IMPORT[valid_email]" value="1"' . (!$this->indata['valid_email'] ? '' :' checked="checked"') . ' ' . $disableInput . '/> '
-                ];
+                $output['conf']['valid_email'] = !$this->indata['valid_email'] ? false : true;
 
                 // only import distinct records
-                $tblLines[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_csv_dublette-description'),
-                    '<input type="checkbox" name="CSV_IMPORT[remove_dublette]" value="1"' . (!$this->indata['remove_dublette'] ? '' : ' checked="checked"') . ' ' . $disableInput . '/> '
-                ];
+                $output['conf']['remove_dublette'] = !$this->indata['remove_dublette'] ? false : true;
 
                 // update the record instead renaming the new one
-                $tblLines[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_update_unique'),
-                    '<input type="checkbox" name="CSV_IMPORT[update_unique]" value="1"' . (!$this->indata['update_unique'] ? '' : ' checked="checked"') . ' ' . $disableInput . '/>'
-                ];
+                $output['conf']['update_unique'] = !$this->indata['update_unique'] ? false : true;
 
                 // which field should be use to show uniqueness of the records
-                $tblLines[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_record_unique'),
-                    $this->makeDropdown('CSV_IMPORT[record_unique]', $optUnique, $this->indata['record_unique'], $disableInput)
-                ];
+                $output['conf']['record_unique'] = $this->makeDropdown('CSV_IMPORT[record_unique]', $optUnique, $this->indata['record_unique'], $disableInput);
 
-                $out .= $this->formatTable($tblLines, ['width=300', 'nowrap'], 0, [0, 1]);
-                $out .= '<br /><br />';
-                $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '" />
-						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_next') . '" />' .
-                        $this->makeHidden([
-                            'cmd' => 'displayImport',
-                            'importStep[next]' => 'mapping',
-                            'importStep[back]' => 'upload',
-                            'CSV_IMPORT[newFile]' => $this->indata['newFile']]);
                 break;
 
             case 'mapping':
@@ -990,7 +968,12 @@ class Importer
      *
      * @return	string		HTML the table
      */
-    public function formatTable(array $tableLines, array $cellParams, $header, array $cellcmd = [], $tableParams='border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"')
+    public function formatTable(
+        array $tableLines, 
+        array $cellParams, 
+        $header, 
+        array $cellcmd = [], 
+        $tableParams = 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"')
     {
         $lines = [];
         $first = $header?1:0;
@@ -1003,7 +986,7 @@ class Importer
                 $v = $r[$k];
                 $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : '&nbsp;';
                 if ($first) {
-                    $v = '<B>' . $v . '</B>';
+                    $v = '<b>' . $v . '</b>';
                 }
 
                 $cellParam = [];
@@ -1017,7 +1000,7 @@ class Importer
                 $rowA[] = '<td ' . implode(' ', $cellParam) . '>' . $v . '</td>';
             }
 
-            $lines[] = '<tr class="' . ($first?'t3-row-header':'db_list_normal') . '">' . implode('', $rowA) . '</tr>';
+            $lines[] = '<tr class="' . ($first ? 't3-row-header' : 'db_list_normal') . '">' . implode('', $rowA) . '</tr>';
             $first = 0;
             $c++;
         }

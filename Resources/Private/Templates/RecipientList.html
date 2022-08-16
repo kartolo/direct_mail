@@ -136,8 +136,79 @@
 									<f:format.html>{formcontent.output.conf.storage}</f:format.html>
 								</td>
 							</tr>
+							<tr class="db_list_normal">
+								<td width="300">
+									<f:translate key="{lll}mailgroup_import_remove_existing" />
+								</td>
+								<td nowrap="">
+									<f:form.checkbox name="CSV_IMPORT[remove_existing]" value="1" checked="{formcontent.output.conf.remove_existing} == 1" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}" />
+								</td>
+							</tr>
+							<tr class="db_list_normal">
+								<td width="300">
+									<f:translate key="{lll}mailgroup_import_first_fieldnames" />
+								</td>
+								<td nowrap="">
+									<f:form.checkbox name="CSV_IMPORT[first_fieldname]" value="1" checked="{formcontent.output.conf.first_fieldname} == 1" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}" />
+								</td>
+							</tr>
+							<tr class="db_list_normal">
+								<td width="300">
+									<f:translate key="{lll}mailgroup_import_separator" />
+								</td>
+								<td nowrap="">
+									<f:format.html>{formcontent.output.conf.delimiter}</f:format.html>
+								</td>
+							</tr>
+							<tr class="db_list_normal">
+								<td width="300">
+									<f:translate key="{lll}mailgroup_import_encapsulation" />
+								</td>
+								<td nowrap="">
+									<f:format.html>{formcontent.output.conf.encapsulation}</f:format.html>
+								</td>
+							</tr>
+							<tr class="db_list_normal">
+								<td width="300">
+									<f:translate key="{lll}mailgroup_import_csv_validemail-description" />
+								</td>
+								<td nowrap="">
+									<f:form.checkbox name="CSV_IMPORT[valid_email]" value="1" checked="{formcontent.output.conf.valid_email} == 1" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}" />
+								</td>
+							</tr>
+							<tr class="db_list_normal">
+								<td width="300">
+									<f:translate key="{lll}mailgroup_import_csv_dublette-description" />
+								</td>
+								<td nowrap="">
+									<f:form.checkbox name="CSV_IMPORT[remove_dublette]" value="1" checked="{formcontent.output.conf.remove_dublette} == 1" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}" />
+								</td>
+							</tr>
+							<tr class="db_list_normal">
+								<td width="300">
+									<f:translate key="{lll}mailgroup_import_update_unique" />
+								</td>
+								<td nowrap="">
+									<f:form.checkbox name="CSV_IMPORT[update_unique]" value="1" checked="{formcontent.output.conf.update_unique} == 1" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}" />
+								</td>
+							</tr>
+							<tr class="db_list_normal">
+								<td width="300">
+									<f:translate key="{lll}mailgroup_import_record_unique" />
+								</td>
+								<td nowrap="">
+									<f:format.html>{formcontent.output.conf.record_unique}</f:format.html>
+								</td>
+							</tr>
 						</tbody>
 					</table>
+					<br />
+					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" />
+					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" />
+					<f:form.hidden name="cmd" value="displayImport" />
+					<f:form.hidden name="importStep[next]" value="mapping" />
+					<f:form.hidden name="importStep[back]" value="upload" />
+					<f:form.hidden name="CSV_IMPORT[newFile]" value="{formcontent.output.conf.newFile}" />
 				</f:if>
 				<f:if condition="{formcontent.theOutput}">
 					<f:format.raw>{formcontent.theOutput}</f:format.raw>
