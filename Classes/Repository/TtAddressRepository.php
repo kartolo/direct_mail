@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 class TtAddressRepository extends MainRepository {
     protected string $table = 'tt_address';
     
@@ -27,6 +30,35 @@ class TtAddressRepository extends MainRepository {
 
 //         debug($queryBuilder->getSQL());
 //         debug($queryBuilder->getParameters());
+        ->execute()
+        ->fetchAll();
+    }
+    
+    /**
+     * @return array|bool
+     */
+    public function selectTtAddressByPid(int $pid, string $recordUnique) //: array|bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        // only add deleteClause
+        //https://github.com/FriendsOfTYPO3/tt_address/blob/master/Configuration/TCA/tt_address.php
+        $queryBuilder
+        ->getRestrictions()
+        ->removeAll()
+        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        
+        return $queryBuilder
+        ->select(
+            'uid',
+            $recordUnique
+        )
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->eq(
+                'pid',
+                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+            )
+        )
         ->execute()
         ->fetchAll();
     }
@@ -75,5 +107,23 @@ class TtAddressRepository extends MainRepository {
         ->andWhere($permsClause)
         ->execute()
         ->fetchAll();
+    }
+    
+    /**
+     * @return array|bool
+     */
+    public function deleteRowsByPid(int $pid) //: array|bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+        ->delete($this->table)
+        ->where(
+            $queryBuilder->expr()->eq(
+                'pid',
+                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+            )
+        )
+        ->execute();
     }
 }

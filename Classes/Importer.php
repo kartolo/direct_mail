@@ -17,12 +17,12 @@ namespace DirectMailTeam\DirectMail;
 use DirectMailTeam\DirectMail\Module\RecipientList;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
+use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
@@ -598,16 +598,7 @@ class Importer
 
         //empty table if flag is set
         if ($this->indata['remove_existing']) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_address');
-            $queryBuilder
-                ->delete('tt_address')
-                ->where(
-                    $queryBuilder->expr()->eq(
-                        'pid',
-                        $queryBuilder->createNamedParameter($this->indata['storage'])
-                    )
-                )
-                ->execute();
+            GeneralUtility::makeInstance(TtAddressRepository::class)->deleteRowsByPid((int)$this->indata['storage']);
         }
 
         $mappedCSV = [];
@@ -618,12 +609,14 @@ class Importer
             foreach ($dataArray as $kk => $fieldData) {
                 if ($this->indata['map'][$kk] !== 'noMap') {
                     if (($this->indata['valid_email']) && ($this->indata['map'][$kk] === 'email')) {
-                        $invalidEmail = GeneralUtility::validEmail(trim($fieldData))?0:1;
+                        $invalidEmail = GeneralUtility::validEmail(trim($fieldData)) ? 0 : 1;
                         $tempData[$this->indata['map'][$kk]] = trim($fieldData);
-                    } else {
+                    } 
+                    else {
                         if ($this->indata['map'][$kk] !== 'cats') {
                             $tempData[$this->indata['map'][$kk]] = $fieldData;
-                        } else {
+                        } 
+                        else {
                             $tempCats = explode(',', $fieldData);
                             foreach ($tempCats as $catC => $tempCat) {
                                 $tempData['module_sys_dmail_category'][$catC] = $tempCat;
@@ -634,8 +627,9 @@ class Importer
             }
             if ($invalidEmail) {
                 $invalidEmailCSV[] = $tempData;
-            } else {
-                $mappedCSV[]=$tempData;
+            } 
+            else {
+                $mappedCSV[] = $tempData;
             }
         }
 
@@ -652,30 +646,13 @@ class Importer
             $user = [];
             $userID = [];
 
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_address');
-            // only add deleteClause
-            $queryBuilder
-                ->getRestrictions()
-                ->removeAll()
-                ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-
-            $statement = $queryBuilder
-                ->select(
-                    'uid',
-                    $this->indata['record_unique']
-                )
-                ->from('tt_address')
-                ->where(
-                    $queryBuilder->expr()->eq(
-                        'pid',
-                        $this->indata['storage']
-                    )
-                )
-                ->execute();
-
-            while (($row = $statement->fetch())) {
-                $user[] = $row[1];
-                $userID[] = $row[0];
+            $rows = GeneralUtility::makeInstance(TtAddressRepository::class)->selectTtAddressByPid((int)$this->indata['storage'], $this->indata['record_unique']);
+            
+            if(is_array($rows)) {
+                foreach ($rows as $row) {
+                    $user[] = $row['email'];
+                    $userID[] = $row['uid'];
+                }
             }
 
             // check user one by one, new or update
@@ -718,7 +695,8 @@ class Importer
                             }
                         }
                         $resultImport['update'][]=$dataArray;
-                    } else {
+                    } 
+                    else {
                         // which one to update? all?
                         foreach ($foundUser as $kk => $_) {
                             $data['tt_address'][$userID[$foundUser[$kk]]]= $dataArray;
@@ -726,7 +704,8 @@ class Importer
                         }
                         $resultImport['update'][]=$dataArray;
                     }
-                } else {
+                } 
+                else {
                     // write new user
                     $this->addDataArray($data, 'NEW' . $c, $dataArray);
                     $resultImport['new'][] = $dataArray;
@@ -734,7 +713,8 @@ class Importer
                     $c++;
                 }
             }
-        } else {
+        } 
+        else {
             // no update, import all
             $c = 1;
             foreach ($mappedCSV as $dataArray) {
@@ -813,7 +793,7 @@ class Importer
         $opt = [];
         foreach ($option as $v) {
             if (is_array($v)) {
-                $opt[] = '<option value="' . htmlspecialchars($v[0]) . '" ' . ($selected==$v[0]?' selected="selected"':'') . '>' .
+                $opt[] = '<option value="' . htmlspecialchars($v[0]) . '" ' . ($selected == $v[0] ? ' selected="selected"' : '') . '>' .
                     htmlspecialchars($v[1]) .
                     '</option>';
             }
@@ -1080,7 +1060,8 @@ class Importer
                     $newfile = $storageConfig['basePath'] . ltrim($newfileObj->getIdentifier(), '/');
                 }
             }
-        } else {
+        } 
+        else {
             $newfile = $this->indata['newFile'];
         }
 
