@@ -823,6 +823,18 @@ class Importer
     }
 
     /**
+     * 
+     * @param int $fileUid
+     * @return string
+     */
+    private function getFileAbsolutePath(int $fileUid): string
+    {
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+        $file = $resourceFactory->getFileObject($fileUid);
+        return Environment::getPublicPath() . '/' . str_replace('//', '/', $file->getStorage()->getConfiguration()['basePath'] . $file->getProperty('identifier'));
+    }
+    
+    /**
      * Read in the given CSV file. The function is used during the final file import.
      * Removes first the first data row if the CSV has fieldnames.
      *
@@ -836,10 +848,7 @@ class Importer
             return $mydata;
         }
 
-        $publicPath = Environment::getPublicPath();
-        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        $file = $resourceFactory->getFileObject((int)$this->indata['newFileUid']);
-        $fileAbsolutePath = Environment::getPublicPath() . '/' . str_replace('//', '/', $file->getStorage()->getConfiguration()['basePath'] . $file->getProperty('identifier'));
+        $fileAbsolutePath = $this->getFileAbsolutePath((int)$this->indata['newFileUid']);
 
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
@@ -879,17 +888,14 @@ class Importer
      */
     public function readExampleCSV($records = 3)
     {
-        ini_set('auto_detect_line_endings', true);
-
         $mydata = [];
-        // TYPO3 6.0 works with relative path, we need absolute here
-        if (!is_file($this->indata['newFile']) && (strpos($this->indata['newFile'], Environment::getPublicPath() . '/') === false)) {
-            $this->indata['newFile'] = Environment::getPublicPath() . '/' . $this->indata['newFile'];
-        }
-        $handle = fopen($this->indata['newFile'], 'r');
-        if($handle === false) {
+        
+        if((int)$this->indata['newFileUid'] < 1) {
             return $mydata;
         }
+        
+        $fileAbsolutePath = $this->getFileAbsolutePath((int)$this->indata['newFileUid']);
+
         $i = 0;
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
@@ -899,6 +905,13 @@ class Importer
         $delimiter = ($delimiter === 'tab') ? "\t" : $delimiter;
         $encaps = ($encaps === 'singleQuote') ? "'" : $encaps;
         $encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
+        
+        ini_set('auto_detect_line_endings', true);
+        $handle = fopen($fileAbsolutePath, 'r');
+        if($handle === false) {
+            return $mydata;
+        }
+
         while ((($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== false)) {
             // remove empty line in csv
             if ((count($data) >= 1)) {
