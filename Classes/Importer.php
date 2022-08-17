@@ -1008,7 +1008,7 @@ class Importer
     public function userTempFolder()
     {
         /** @var \TYPO3\CMS\Core\Resource\Folder $folder */
-        $folder = $GLOBALS['BE_USER']->getDefaultUploadTemporaryFolder();
+        $folder = $this->getBeUser()->getDefaultUploadTemporaryFolder();
         return $folder->getPublicUrl();
     }
 
