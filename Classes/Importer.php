@@ -423,46 +423,6 @@ class Importer
                     }
                 }
                 break;
-
-//             case 'import':
-                // show import messages
-//                 $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_ready_import');
-
-//                 $out .= $this->getLanguageService()->getLL('mailgroup_import_ready_import_label') . '<br /><br />';
-
-//                 $out .= '<input type="submit" name="CSV_IMPORT[back]" value="' . $this->getLanguageService()->getLL('mailgroup_import_back') . '" />
-// 						<input type="submit" name="CSV_IMPORT[next]" value="' . $this->getLanguageService()->getLL('mailgroup_import_import') . '" />' .
-//                         $this->makeHidden([
-//                             'cmd' => 'displayImport',
-//                             'importStep[next]' => 'startImport',
-//                             'importStep[back]' => 'mapping',
-                            
-//                             'CSV_IMPORT[newFile]' => $this->indata['newFile'],
-//                             'CSV_IMPORT[storage]' => $this->indata['storage'],
-//                             'CSV_IMPORT[remove_existing]' => $this->indata['remove_existing'],
-//                             'CSV_IMPORT[first_fieldname]' => $this->indata['first_fieldname'],
-//                             'CSV_IMPORT[delimiter]' => $this->indata['delimiter'],
-//                             'CSV_IMPORT[encapsulation]' => $this->indata['encapsulation'],
-//                             'CSV_IMPORT[valid_email]' => $this->indata['valid_email'],
-//                             'CSV_IMPORT[remove_dublette]' => $this->indata['remove_dublette'],
-//                             'CSV_IMPORT[update_unique]' => $this->indata['update_unique'],
-//                             'CSV_IMPORT[record_unique]' => $this->indata['record_unique'],
-//                             'CSV_IMPORT[all_html]' => $this->indata['all_html'],
-//                             'CSV_IMPORT[add_cat]' => $this->indata['add_cat'],
-//                             'CSV_IMPORT[charset]' => $this->indata['charset'],
-//                         ]);
-//                 $hiddenMapped = [];
-//                 foreach ($this->indata['map'] as $fieldNr => $fieldMapped) {
-//                     $hiddenMapped[]    = $this->makeHidden('CSV_IMPORT[map][' . $fieldNr . ']', $fieldMapped);
-//                 }
-//                 if (is_array($this->indata['cat'])) {
-//                     foreach ($this->indata['cat'] as $k => $catUid) {
-//                         $hiddenMapped[] = $this->makeHidden('CSV_IMPORT[cat][' . $k . ']', $catUid);
-//                     }
-//                 }
-//                 $out .= implode('', $hiddenMapped);
-//                 break;
-
             case 'startImport':
                 $output['startImport']['show'] = true;
 
