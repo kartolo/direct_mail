@@ -302,8 +302,6 @@
 									</tr>
 								</f:for>
 							</f:if>
-							
-							<!-- @TODO -->
 						</tbody>
 					</table>
 					<br /><br />
@@ -326,7 +324,7 @@
 					<f:form.hidden name="CSV_IMPORT[record_unique]" value="{formcontent.output.mapping.record_unique}" />
 					<f:form.hidden name="CSV_IMPORT[all_html]" value="{formcontent.output.mapping.all_html}" />
 					<f:form.hidden name="CSV_IMPORT[add_cat]" value="{formcontent.output.mapping.add_cat}" />
-					<f:form.hidden name="CSV_IMPORT[charset]" value="{formcontent.output.mapping.charset}" />
+					<f:form.hidden name="CSV_IMPORT[charset]" value="{formcontent.output.mapping.charsetSelected}" />
 				</f:if>
 				<f:if condition="{formcontent.theOutput}">
 					<f:format.raw>{formcontent.theOutput}</f:format.raw>

@@ -113,6 +113,7 @@ class Importer
             'mapping' => [
                 'show' => false,
                 'charset' => '',
+                'charsetSelected' => '',
                 'newFile' => '',
                 'newFileUid' => 0,
                 'storage' => '',
@@ -326,6 +327,7 @@ class Importer
                 }
                 $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_mapping_charset');
                 $output['mapping']['charset'] = $this->makeDropdown('CSV_IMPORT[charset]', $charSets, $this->indata['charset']);
+                $output['mapping']['charsetSelected'] = $this->indata['charset'];
 
                 // show mapping form
                 if ($this->indata['first_fieldname']) {
