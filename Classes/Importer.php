@@ -101,6 +101,7 @@ class Importer
                 'remove_existing' => false,
                 'first_fieldname' => false,
                 'delimiter' => '',
+                'delimiterSelected' => '',
                 'encapsulation' => '',
                 'valid_email' => false,
                 'remove_dublette' => false,
@@ -268,10 +269,10 @@ class Importer
                 }
 
                 $optDelimiter = [
-                    ['comma', $this->getLanguageService()->getLL('mailgroup_import_separator_comma')],
-                    ['semicolon', $this->getLanguageService()->getLL('mailgroup_import_separator_semicolon')],
-                    ['colon', $this->getLanguageService()->getLL('mailgroup_import_separator_colon')],
-                    ['tab', $this->getLanguageService()->getLL('mailgroup_import_separator_tab')]
+                    ['val' => 'comma', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_comma')],
+                    ['val' => 'semicolon', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_semicolon')],
+                    ['val' => 'colon', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_colon')],
+                    ['val' => 'tab', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_tab')]
                 ];
 
                 $optEncap = [
@@ -300,8 +301,9 @@ class Importer
                 $output['conf']['first_fieldname'] = !$this->indata['first_fieldname'] ? false : true;
 
                 // csv separator
-                $output['conf']['delimiter'] = $this->makeDropdown('CSV_IMPORT[delimiter]', $optDelimiter, $this->indata['delimiter'], $output['conf']['disableInput']);
-
+                $output['conf']['delimiter'] = $optDelimiter;
+                $output['conf']['delimiterSelected'] = $this->indata['delimiter'] ?? '';
+                
                 // csv encapsulation
                 $output['conf']['encapsulation'] = $this->makeDropdown('CSV_IMPORT[encapsulation]', $optEncap, $this->indata['encapsulation'], $output['conf']['disableInput']);
 
@@ -699,7 +701,7 @@ class Importer
                     else {
                         // which one to update? all?
                         foreach ($foundUser as $kk => $_) {
-                            $data['tt_address'][$userID[$foundUser[$kk]]]= $dataArray;
+                            $data['tt_address'][$userID[$foundUser[$kk]]] = $dataArray;
                             $data['tt_address'][$userID[$foundUser[$kk]]]['pid'] = $this->indata['storage'];
                         }
                         $resultImport['update'][]=$dataArray;
@@ -725,7 +727,7 @@ class Importer
         }
 
         $resultImport['invalid_email'] = $invalidEmailCSV;
-        $resultImport['double'] = (is_array($filteredCSV['double']))?$filteredCSV['double']: [];
+        $resultImport['double'] = is_array($filteredCSV['double']) ? $filteredCSV['double'] : [];
 
         // start importing
         /* @var $tce DataHandler */
@@ -799,7 +801,7 @@ class Importer
             }
         }
 
-        return '<select name="' . $name . '" ' . $disableInput . '>' . implode('', $opt) . '</select>';
+        return '<select class="form-select form-control" name="' . $name . '" ' . $disableInput . '>' . implode('', $opt) . '</select>';
     }
 
     /**
@@ -830,7 +832,7 @@ class Importer
 
         $fileAbsolutePath = $this->getFileAbsolutePath((int)$this->indata['newFileUid']);
 
-        $delimiter = $this->indata['delimiter'];
+        $delimiter = $this->indata['delimiter'] ?: 'comma';
         $encaps = $this->indata['encapsulation'];
         $delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
         $delimiter = ($delimiter === 'semicolon') ? ';' : $delimiter;
@@ -877,7 +879,7 @@ class Importer
         $fileAbsolutePath = $this->getFileAbsolutePath((int)$this->indata['newFileUid']);
 
         $i = 0;
-        $delimiter = $this->indata['delimiter'];
+        $delimiter = $this->indata['delimiter'] ?: 'comma';
         $encaps = $this->indata['encapsulation'];
         $delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
         $delimiter = ($delimiter === 'semicolon') ? ';' : $delimiter;

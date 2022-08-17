@@ -159,7 +159,13 @@
 									<f:translate key="{lll}mailgroup_import_separator" />
 								</td>
 								<td nowrap="">
-									<f:format.html>{formcontent.output.conf.delimiter}</f:format.html>
+									<f:if condition="{formcontent.output.conf.delimiter -> f:count()}">
+										<f:form.select class="form-select form-control" name="CSV_IMPORT[delimiter]" value="{formcontent.output.conf.delimiterSelected}" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
+											<f:for each="{formcontent.output.conf.delimiter}" as="del">
+												<f:form.select.option value="{del.val}">{del.text}</f:form.select.option>
+											</f:for>
+										</f:form.select>
+									</f:if>
 								</td>
 							</tr>
 							<tr class="db_list_normal">
