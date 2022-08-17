@@ -123,7 +123,9 @@ class Importer
                 'all_html' => false,
                 'mapping_cats' => [],
                 'show_add_cat' => false,
-                'add_cat' => false
+                'add_cat' => false,
+                'error' => [],
+                'table' => []
             ]
         ];
         
@@ -202,10 +204,10 @@ class Importer
             $newMap = ArrayUtility::removeArrayEntryByValue(array_unique($map), 'noMap');
             if (empty($newMap)) {
                 $error[] = 'noMap';
-            } elseif (!in_array('email', $map)) {
+            } 
+            elseif (!in_array('email', $map)) {
                 $error[] = 'email';
             }
-
             if ($error) {
                 $stepCurrent = 'mapping';
             }
@@ -298,7 +300,8 @@ class Importer
                 $output['mapping']['update_unique'] = $this->indata['update_unique'];
                 $output['mapping']['record_unique'] = $this->indata['record_unique'];
                 $output['mapping']['all_html'] = !$this->indata['all_html'] ? false : true;
-
+                $output['mapping']['error'] = $error;
+                
                 // show charset selector
                 $cs = array_unique(array_values(mb_list_encodings()));
                 $charSets = [];
@@ -351,37 +354,18 @@ class Importer
                 reset($csv_firstRow);
                 reset($csvData);
 
-                $tblLines = [];
-                $tblLines[] = [
-                    $this->getLanguageService()->getLL('mailgroup_import_mapping_number'),
-                    $this->getLanguageService()->getLL('mailgroup_import_mapping_description'),
-                    $this->getLanguageService()->getLL('mailgroup_import_mapping_mapping'),
-                    $this->getLanguageService()->getLL('mailgroup_import_mapping_value')
-                ];
                 for ($i = 0; $i < (count($csv_firstRow)); $i++) {
                     // example CSV
                     $exampleLines = [];
                     for ($j = 0; $j < (count($csvData)); $j++) {
                         $exampleLines[] = [$csvData[$j][$i]];
                     }
-                    $tblLines[] = [
-                        $i+1, 
-                        $csv_firstRow[$i], 
-                        $this->makeDropdown('CSV_IMPORT[map][' . ($i) . ']', $mapFields, $this->indata['map'][$i]), 
-                        $this->formatTable($exampleLines, ['nowrap'], 0, [0], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover" style="width:100%; border:0px; margin:0px;"')
+                    $output['mapping']['table'][] = [
+                        'mapping_description' => $csv_firstRow[$i],
+                        'mapping_mapping' => $this->makeDropdown('CSV_IMPORT[map][' . ($i) . ']', $mapFields, $this->indata['map'][$i]),
+                        'mapping_value' => $this->formatTable($exampleLines, ['nowrap'], 0, [0], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover" style="width:100%; border:0px; margin:0px;"')
                     ];
                 }
-
-                if ($error) {
-                    $out .= '<h3>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_error') . '</h3>';
-                    $out .= $this->getLanguageService()->getLL('mailgroup_import_mapping_error_detail') . '<br /><ul>';
-                    foreach ($error as $errorDetail) {
-                        $out .= '<li>' . $this->getLanguageService()->getLL('mailgroup_import_mapping_error_' . $errorDetail) . '</li>';
-                    }
-                    $out.= '</ul>';
-                }
-                
-                $out .= $this->formatTable($tblLines, ['nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, [0, 0, 1, 1], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"');
                 
                 // get categories
                 $temp['value'] = BackendUtility::getPagesTSconfig($this->parent->getId())['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
@@ -404,7 +388,6 @@ class Importer
                         }
                     }
                 }
-
                 break;
 
             case 'import':
