@@ -26,6 +26,7 @@ use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -92,7 +93,8 @@ class Importer
                 'csv' => '',
                 'target' => '',
                 'target_disabled' => '',
-                'newFile' => ''
+                'newFile' => '',
+                'newFileUid' => 0
             ],
             'conf' => [
                 'show' => false,
@@ -105,12 +107,14 @@ class Importer
                 'update_unique' => false,
                 'record_unique' => '',
                 'newFile' => '',
+                'newFileUid' => 0,
                 'disableInput' => false
             ],
             'mapping' => [
                 'show' => false,
                 'charset' => '',
                 'newFile' => '',
+                'newFileUid' => 0,
                 'storage' => '',
                 'remove_existing' => false,
                 'first_fieldname' => false,
@@ -165,34 +169,41 @@ class Importer
 
         if (empty($this->indata['csv']) && !empty($_FILES['upload_1']['name'])) {
             $this->indata['newFile'] = $this->checkUpload();
-            // TYPO3 6.0 returns an object...
             if (is_object($this->indata['newFile'][0])) {
                 $storageConfig = $this->indata['newFile'][0]->getStorage()->getConfiguration();
+                $this->indata['newFileUid'] = $this->indata['newFile'][0]->getUid();
                 $this->indata['newFile'] = rtrim($storageConfig['basePath'], '/') . '/' . ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
             }
-        } elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
+        }
+        elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
             if (((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt')) {
                 // do nothing
-            } else {
+            } 
+            else {
                 unset($this->indata['newFile']);
+                unset($this->indata['newFileUid']);
             }
         }
-
+        
         $stepCurrent = '';
         if ($this->indata['back'] ?? false) {
             $stepCurrent = $step['back'];
-        } elseif ($this->indata['next'] ?? false) {
+        } 
+        elseif ($this->indata['next'] ?? false) {
             $stepCurrent = $step['next'];
-        } elseif ($this->indata['update'] ?? false) {
+        } 
+        elseif ($this->indata['update'] ?? false) {
             $stepCurrent = 'mapping';
         }
 
         if (strlen($this->indata['csv'] ?? '') > 0) {
             $this->indata['mode'] = 'csv';
             $this->indata['newFile'] = $this->writeTempFile();
-        } elseif (!empty($this->indata['newFile'])) {
+        } 
+        elseif (!empty($this->indata['newFile'])) {
             $this->indata['mode'] = 'file';
-        } else {
+        } 
+        else {
             unset($stepCurrent);
         }
 
@@ -218,6 +229,8 @@ class Importer
             case 'conf':
                 $output['conf']['show'] = true;
                 $output['conf']['newFile'] = $this->indata['newFile'];
+                $output['conf']['newFileUid'] = $this->indata['newFileUid'];
+                
                 $pagePermsClause3 = $beUser->getPagePermsClause(3);
                 $pagePermsClause1 = $beUser->getPagePermsClause(1);
                 // get list of sysfolder
@@ -252,8 +265,6 @@ class Importer
                 ];
 
                 $output['conf']['disableInput'] = $this->params['inputDisable'] == 1 ? true : false;
-                
-                ($this->params['inputDisable'] == 1) ? $disableInput = 'disabled="disabled"' : $disableInput = '';
 
                 // show configuration
                 $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_header_conf');
@@ -268,10 +279,10 @@ class Importer
                 $output['conf']['first_fieldname'] = !$this->indata['first_fieldname'] ? false : true;
 
                 // csv separator
-                $output['conf']['delimiter'] = $this->makeDropdown('CSV_IMPORT[delimiter]', $optDelimiter, $this->indata['delimiter'], $disableInput);
+                $output['conf']['delimiter'] = $this->makeDropdown('CSV_IMPORT[delimiter]', $optDelimiter, $this->indata['delimiter'], $output['conf']['disableInput']);
 
                 // csv encapsulation
-                $output['conf']['encapsulation'] = $this->makeDropdown('CSV_IMPORT[encapsulation]', $optEncap, $this->indata['encapsulation'], $disableInput);
+                $output['conf']['encapsulation'] = $this->makeDropdown('CSV_IMPORT[encapsulation]', $optEncap, $this->indata['encapsulation'], $output['conf']['disableInput']);
 
                 // import only valid email
                 $output['conf']['valid_email'] = !$this->indata['valid_email'] ? false : true;
@@ -283,13 +294,14 @@ class Importer
                 $output['conf']['update_unique'] = !$this->indata['update_unique'] ? false : true;
 
                 // which field should be use to show uniqueness of the records
-                $output['conf']['record_unique'] = $this->makeDropdown('CSV_IMPORT[record_unique]', $optUnique, $this->indata['record_unique'], $disableInput);
+                $output['conf']['record_unique'] = $this->makeDropdown('CSV_IMPORT[record_unique]', $optUnique, $this->indata['record_unique'], $output['conf']['disableInput']);
 
                 break;
 
             case 'mapping':
                 $output['mapping']['show'] = true;
                 $output['mapping']['newFile'] = $this->indata['newFile'];
+                $output['mapping']['newFileUid'] = $this->indata['newFileUid'];
                 $output['mapping']['storage'] = $this->indata['storage'];
                 $output['mapping']['remove_existing'] = $this->indata['remove_existing'];
                 $output['mapping']['first_fieldname'] = $this->indata['first_fieldname'];
@@ -432,25 +444,20 @@ class Importer
             case 'startImport':
                 // starting import & show errors
                 // read csv
+                $csvData = $this->readCSV();
                 if ($this->indata['first_fieldname']) {
-                    // read csv
-                    $csvData = $this->readCSV();
                     $csvData = array_slice($csvData, 1);
-                } else {
-                    // read csv
-                    $csvData = $this->readCSV();
                 }
 
                 // show not imported record and reasons,
                 $result = $this->doImport($csvData);
                 $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_done');
 
-                $defaultOrder = ['new','update','invalid_email','double'];
+                $defaultOrder = ['new', 'update', 'invalid_email', 'double'];
 
+                $resultOrder = [];
                 if (!empty($this->params['resultOrder'])) {
                     $resultOrder = GeneralUtility::trimExplode(',', $this->params['resultOrder']);
-                } else {
-                    $resultOrder = [];
                 }
 
                 $diffOrder = array_diff($defaultOrder, $resultOrder);
@@ -858,12 +865,17 @@ class Importer
      */
     public function readCSV()
     {
-        ini_set('auto_detect_line_endings', true);
         $mydata = [];
-        $handle = fopen($this->indata['newFile'], 'r');
-	if($handle === false) {
+        
+        if((int)$this->indata['newFileUid'] < 1) {
             return $mydata;
         }
+
+        $publicPath = Environment::getPublicPath();
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+        $file = $resourceFactory->getFileObject((int)$this->indata['newFileUid']);
+        $fileAbsolutePath = Environment::getPublicPath() . '/' . str_replace('//', '/', $file->getStorage()->getConfiguration()['basePath'] . $file->getProperty('identifier'));
+
         $delimiter = $this->indata['delimiter'];
         $encaps = $this->indata['encapsulation'];
         $delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
@@ -872,6 +884,13 @@ class Importer
         $delimiter = ($delimiter === 'tab') ? "\t" : $delimiter;
         $encaps = ($encaps === 'singleQuote') ? "'" : $encaps;
         $encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
+        
+        ini_set('auto_detect_line_endings', true);
+        $handle = fopen($fileAbsolutePath, 'r');
+        if($handle === false) {
+            return $mydata;
+        }
+
         while (($data = fgetcsv($handle, 10000, $delimiter, $encaps)) !== false) {
             // remove empty line in csv
             if ((count($data) >= 1)) {
@@ -1098,7 +1117,7 @@ class Importer
     /**
      * Checks if a file has been uploaded and returns the complete physical fileinfo if so.
      *
-     * @return	string		the complete physical file name, including path info.
+     * @return	array	\TYPO3\CMS\Core\Resource\File	the complete physical file name, including path info.
      * @throws \Exception
      */
     public function checkUpload()
@@ -1127,7 +1146,8 @@ class Importer
 
         if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
             $this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
-        } else {
+        } 
+        else {
             $this->fileProcessor->start($file);
             $this->fileProcessor->setExistingFilesConflictMode(DuplicationBehavior::cast(DuplicationBehavior::REPLACE));
             $newfile = $this->fileProcessor->func_upload($file['upload']['1']);

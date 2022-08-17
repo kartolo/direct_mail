@@ -117,13 +117,15 @@
 					<br>
 					<p><b><f:translate key="{lll}mailgroup_import_or" /></b></p><br>
 					<f:translate key="{lll}mailgroup_import_paste_csv" /><br>
-					<f:form.textarea name="CSV_IMPORT[csv]" class="form-control formengine-textarea">{formcontent.output.upload.csv}</f:form.textarea><br><br>
-					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" />
 					<f:form.hidden name="cmd" value="displayImport" />
 					<f:form.hidden name="importStep[next]" value="conf" />
 					<f:form.hidden name="file[upload][1][data]" value="1" />
+					
+					<f:form.textarea name="CSV_IMPORT[csv]" class="form-control formengine-textarea">{formcontent.output.upload.csv}</f:form.textarea><br><br>
+					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" />
 					<input type="hidden" name="file[upload][1][target]" value="{formcontent.output.upload.target}" {f:if(condition: '{formcontent.output.upload.target_disabled}', then: 'disabled')} />
 					<f:form.hidden name="CSV_IMPORT[newFile]" value ="{formcontent.output.upload.newFile}" />
+					<f:form.hidden name="CSV_IMPORT[newFileUid]" value ="{formcontent.output.upload.newFileUid}" />
 				</f:if>
 				<f:if condition="{formcontent.output.conf.show}">
 					<table class="table table-striped table-hover">
@@ -203,13 +205,14 @@
 						</tbody>
 					</table>
 					<br />
-					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" />
-					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" />
-
 					<f:form.hidden name="cmd" value="displayImport" />
 					<f:form.hidden name="importStep[next]" value="mapping" />
 					<f:form.hidden name="importStep[back]" value="upload" />
+
+					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" />
+					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" />
 					<f:form.hidden name="CSV_IMPORT[newFile]" value="{formcontent.output.conf.newFile}" />
+					<f:form.hidden name="CSV_IMPORT[newFileUid]" value="{formcontent.output.conf.newFileUid}" />
 				</f:if>
 				<f:if condition="{formcontent.output.mapping.show}">
 					<table class="table table-striped table-hover">
@@ -304,13 +307,14 @@
 						</tbody>
 					</table>
 					<br /><br />
-					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" />
-					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" />
-
 					<f:form.hidden name="cmd" value="displayImport" />
 					<f:form.hidden name="importStep[next]" value="startImport" />
 					<f:form.hidden name="importStep[back]" value="mapping" />
+
+					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" />
+					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" />
 					<f:form.hidden name="CSV_IMPORT[newFile]" value="{formcontent.output.mapping.newFile}" />
+					<f:form.hidden name="CSV_IMPORT[newFileUid]" value="{formcontent.output.mapping.newFileUid}" />
 					<f:form.hidden name="CSV_IMPORT[storage]" value="{formcontent.output.mapping.storage}" />
 					<f:form.hidden name="CSV_IMPORT[remove_existing]" value="{formcontent.output.mapping.remove_existing}" />
 					<f:form.hidden name="CSV_IMPORT[first_fieldname]" value="{formcontent.output.mapping.first_fieldname}" />
