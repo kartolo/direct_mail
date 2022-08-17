@@ -823,29 +823,6 @@ class Importer
     }
 
     /**
-     * Make hidden field
-     *
-     * @param mixed $name Name of the hidden field (string) or name => value (array)
-     * @param string $value Value of the hidden field
-     *
-     * @return	string		HTML code
-     */
-    public function makeHidden($name, $value='')
-    {
-        if (is_array($name)) {
-            $hiddenFields = [];
-            foreach ($name as $n=>$v) {
-                $hiddenFields[] = '<input type="hidden" name="' . htmlspecialchars($n) . '" value="' . htmlspecialchars($v) . '" />';
-            }
-            $inputFields = implode('', $hiddenFields);
-        } else {
-            $inputFields = '<input type="hidden" name="' . htmlspecialchars($name) . '" value="' . htmlspecialchars($value) . '" />';
-        }
-
-        return $inputFields;
-    }
-
-    /**
      * Read in the given CSV file. The function is used during the final file import.
      * Removes first the first data row if the CSV has fieldnames.
      *
