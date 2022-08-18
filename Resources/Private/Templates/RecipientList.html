@@ -141,7 +141,13 @@
 										<f:translate key="{lll}mailgroup_import_header_conf" />
 									</td>
 									<td nowrap="">
-										<f:format.html>{formcontent.output.conf.storage}</f:format.html>
+										<f:if condition="{formcontent.output.conf.storage -> f:count()}">
+											<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[storage]" value="{formcontent.output.conf.storageSelected}">
+												<f:for each="{formcontent.output.conf.storage}" as="st">
+													<f:form.select.option value="{st.val}">{st.text}</f:form.select.option>
+												</f:for>
+											</f:form.select>
+										</f:if>
 									</td>
 								</tr>
 								<tr class="db_list_normal">

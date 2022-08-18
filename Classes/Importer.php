@@ -263,7 +263,10 @@ class Importer
                 if($subfolders && count($subfolders)) {
                     foreach($subfolders as $subfolder) {
                         if (BackendUtility::readPageAccess($subfolder['uid'], $pagePermsClause1)) {
-                            $optStorage[] = [$subfolder['uid'], $subfolder['title'] . ' [uid:' . $subfolder['uid'] . ']'];
+                            $optStorage[] = [
+                                'val' => $subfolder['uid'], 
+                                'text' => $subfolder['title'] . ' [uid:' . $subfolder['uid'] . ']'
+                            ];
                         }
                     }
                 }
@@ -292,7 +295,8 @@ class Importer
                 $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_header_conf');
 
                 // get the all sysfolder
-                $output['conf']['storage'] = $this->makeDropdown('CSV_IMPORT[storage]', $optStorage, $this->indata['storage']);
+                $output['conf']['storage'] = $optStorage;
+                $output['conf']['storageSelected'] = $this->indata['storage'] ?? '';
 
                 // remove existing option
                 $output['conf']['remove_existing'] = !$this->indata['remove_existing'] ? false : true;
