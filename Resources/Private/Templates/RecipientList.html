@@ -113,9 +113,14 @@
 					<f:translate key="{lll}mailgroup_import_upload_file" />
 					<fieldset class="form-section">
 						<f:form.upload name="upload_1" />
+						<br /><br />
 					</fieldset>
 					<f:if condition="{formcontent.output.upload.current}">
-						<f:translate key="{lll}mailgroup_import_current_file" /><br />
+						<f:translate key="{lll}mailgroup_import_current_file" />
+						<f:if condition="{formcontent.output.upload.fileInfo -> f:count()}">
+							{formcontent.output.upload.fileInfo.name} ({formcontent.output.upload.fileInfo.extension}; {formcontent.output.upload.fileInfo.size})
+						</f:if>
+						<br />
 					</f:if>
 					<br />
 					<p><b><f:translate key="{lll}mailgroup_import_or" /></b></p><br />
