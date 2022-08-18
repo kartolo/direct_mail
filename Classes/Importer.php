@@ -282,8 +282,8 @@ class Importer
 
                 // TODO: make it variable?
                 $optUnique = [
-                    ['email', 'email'],
-                    ['name', 'name']
+                    ['val' => 'email', 'text' => 'email'],
+                    ['val' =>'name', 'text' => 'name']
                 ];
 
                 $output['conf']['disableInput'] = $this->params['inputDisable'] == 1 ? true : false;
@@ -318,7 +318,9 @@ class Importer
                 $output['conf']['update_unique'] = !$this->indata['update_unique'] ? false : true;
 
                 // which field should be use to show uniqueness of the records
-                $output['conf']['record_unique'] = $this->makeDropdown('CSV_IMPORT[record_unique]', $optUnique, $this->indata['record_unique'], $output['conf']['disableInput']);
+                $output['conf']['record_unique'] = $optUnique;
+                $output['conf']['record_uniqueSelected'] = $this->indata['record_unique'] ?? '';
+                #$output['conf']['record_unique'] = $this->makeDropdown('CSV_IMPORT[record_unique]', $optUnique, $this->indata['record_unique'], $output['conf']['disableInput']);
 
                 break;
 
@@ -802,7 +804,7 @@ class Importer
             }
         }
 
-        return '<select class="form-select form-control" name="' . $name . '" ' . $disableInput . '>' . implode('', $opt) . '</select>';
+        return '<select class="form-select form-control-adapt" name="' . $name . '" ' . $disableInput . '>' . implode('', $opt) . '</select>';
     }
 
     /**
