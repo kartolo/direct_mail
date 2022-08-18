@@ -740,12 +740,12 @@ class Importer
         $resultImport['double'] = is_array($filteredCSV['double']) ? $filteredCSV['double'] : [];
 
         // start importing
-        /* @var $tce DataHandler */
-        $tce = GeneralUtility::makeInstance(DataHandler::class);
-        $tce->stripslashes_values = 0;
-        $tce->enableLogging = 0;
-        $tce->start($data, []);
-        $tce->process_datamap();
+        /* @var $dataHandler DataHandler */
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->stripslashes_values = 0;
+        $dataHandler->enableLogging = 0;
+        $dataHandler->start($data, []);
+        $dataHandler->process_datamap();
 
         /**
          * Hook for doImport Mail
