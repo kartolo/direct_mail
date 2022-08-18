@@ -90,6 +90,7 @@ class Importer
             'upload' => [
                 'show' => false,
                 'current' => false,
+                'fileInfo' => [],
                 'csv' => '',
                 'target' => '',
                 'target_disabled' => '',
@@ -184,12 +185,6 @@ class Importer
         }
         // merge it with inData, but inData has priority.
         $this->indata += $this->params;
-
-        //		$currentFileInfo = BasicFileUtility::getTotalFileInfo($this->indata['newFile']);
-        //		$currentFileName = $currentFileInfo['file'];
-        //		$currentFileSize = GeneralUtility::formatSize($currentFileInfo['size']);
-        //		$currentFileMessage = $currentFileName . ' (' . $currentFileSize . ')';
-
         if (empty($this->indata['csv']) && !empty($_FILES['upload_1']['name'])) {
             $this->indata['newFile'] = $this->checkUpload();
             if (is_object($this->indata['newFile'][0])) {
@@ -207,7 +202,6 @@ class Importer
                 unset($this->indata['newFileUid']);
             }
         }
-        
         $stepCurrent = '';
         if ($this->indata['back'] ?? false) {
             $stepCurrent = $step['back'];
@@ -511,7 +505,14 @@ class Importer
 
                 if (($this->indata['mode'] === 'file') && !(((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt'))) {
                     $output['upload']['current'] = true;
-                    // @TODO add $currentFileMessage after 'mailgroup_import_current_file'
+                    $file = $this->getFileById((int)$this->indata['newFileUid']);
+                    if(is_object($file)) {
+                        $output['upload']['fileInfo'] = [
+                            'name' => $file->getName(),
+                            'extension' => $file->getProperty('extension'),
+                            'size' => GeneralUtility::formatSize($file->getProperty('size'))
+                        ];
+                    }
                 }
 
                 if (((strpos(($currentFileInfo['file'] ?? ''), 'import') === false) ? 0 : 1) && (($currentFileInfo['realFileext'] ?? '') === 'txt')) {
@@ -525,6 +526,7 @@ class Importer
                 $output['upload']['target'] = htmlspecialchars($this->userTempFolder());
                 $output['upload']['target_disabled'] = GeneralUtility::_POST('importNow') ? 'disabled' : '';
                 $output['upload']['newFile'] = $this->indata['newFile'];
+                $output['upload']['newFileUid'] = $this->indata['newFileUid'];
         }
 
         $output['title'] = $this->getLanguageService()->getLL('mailgroup_import') . BackendUtility::cshItem($this->cshTable ?? '', 'mailgroup_import');
@@ -793,12 +795,28 @@ class Importer
     /**
      * 
      * @param int $fileUid
+     * @return \TYPO3\CMS\Core\Resource\File|bool
+     */
+    private function getFileById(int $fileUid) //: \TYPO3\CMS\Core\Resource\File|bool
+    {
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+        try {
+            return $resourceFactory->getFileObject($fileUid);
+        }
+        catch(\TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException $e) {
+            
+        }
+        return false;
+    }
+    
+    /**
+     * 
+     * @param int $fileUid
      * @return string
      */
     private function getFileAbsolutePath(int $fileUid): string
     {
-        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        $file = $resourceFactory->getFileObject($fileUid);
+        $file = $this->getFileById($fileUid);
         return Environment::getPublicPath() . '/' . str_replace('//', '/', $file->getStorage()->getConfiguration()['basePath'] . $file->getProperty('identifier'));
     }
     
