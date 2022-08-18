@@ -791,30 +791,6 @@ class Importer
     }
 
     /**
-     * Make dropdown menu
-     *
-     * @param string $name Name of the dropdown
-     * @param array $option Array of array (v,k)
-     * @param string $selected Set selected flag
-     * @param string $disableInput Flag to disable the input field
-     *
-     * @return	string	HTML code of the dropdown
-     */
-    public function makeDropdown($name, array $option, $selected, $disableInput='')
-    {
-        $opt = [];
-        foreach ($option as $v) {
-            if (is_array($v)) {
-                $opt[] = '<option value="' . htmlspecialchars($v[0]) . '" ' . ($selected == $v[0] ? ' selected="selected"' : '') . '>' .
-                    htmlspecialchars($v[1]) .
-                    '</option>';
-            }
-        }
-
-        return '<select class="form-select form-control-adapt" name="' . $name . '" ' . $disableInput . '>' . implode('', $opt) . '</select>';
-    }
-
-    /**
      * 
      * @param int $fileUid
      * @return string
