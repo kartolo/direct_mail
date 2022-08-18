@@ -294,7 +294,19 @@
 											<td nowrap="">{iterator.cycle}</td>
 											<td nowrap=""><f:format.html>{row.mapping_description}</f:format.html></td>
 											<td nowrap=""><f:format.html>{row.mapping_mapping}</f:format.html></td>
-											<td nowrap=""><f:format.html>{row.mapping_value}</f:format.html></td>
+											<td nowrap="">
+												<f:if condition="{row.mapping_value -> f:count()}">
+													<table class="table table-striped table-hover">
+														<f:for each="{row.mapping_value}" as="mv">
+															<tr nowrap="">
+																<td>
+																	<f:format.html>{mv}</f:format.html>
+																</td>
+															</tr>
+														</f:for>
+													</table>
+												</f:if>
+											</td>
 										</tr>
 									</f:for>
 								</f:if>

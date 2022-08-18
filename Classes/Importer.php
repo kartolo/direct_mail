@@ -401,12 +401,12 @@ class Importer
                     // example CSV
                     $exampleLines = [];
                     for ($j = 0; $j < (count($csvData)); $j++) {
-                        $exampleLines[] = [$csvData[$j][$i]];
+                        $exampleLines[] = $csvData[$j][$i];
                     }
                     $output['mapping']['table'][] = [
                         'mapping_description' => $csv_firstRow[$i],
                         'mapping_mapping' => $this->makeDropdown('CSV_IMPORT[map][' . ($i) . ']', $mapFields, $this->indata['map'][$i]),
-                        'mapping_value' => $this->formatTable($exampleLines, ['nowrap'], 0, [0], 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover" style="width:100%; border:0px; margin:0px;"')
+                        'mapping_value' => $exampleLines
                     ];
                 }
                 
@@ -936,57 +936,6 @@ class Importer
             }
         }
         return $data;
-    }
-
-
-    /**
-     * Formating the given array in to HTML table
-     *
-     * @param array $tableLines Array of table row -> array of cells
-     * @param array $cellParams Cells' parameter
-     * @param bool $header First tableLines is table header
-     * @param array $cellcmd Escaped cells' value
-     * @param string $tableParams Table's parameter
-     *
-     * @return	string		HTML the table
-     */
-    public function formatTable(
-        array $tableLines, 
-        array $cellParams, 
-        $header, 
-        array $cellcmd = [], 
-        $tableParams = 'border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover"')
-    {
-        $lines = [];
-        $first = $header?1:0;
-        $c = 0;
-
-        reset($tableLines);
-        foreach ($tableLines as $r) {
-            $rowA = [];
-            for ($k = 0, $kMax = count($r); $k < $kMax; $k++) {
-                $v = $r[$k];
-                $v = strlen($v) ? ($cellcmd[$k]?$v:htmlspecialchars($v)) : '&nbsp;';
-                if ($first) {
-                    $v = '<b>' . $v . '</b>';
-                }
-
-                $cellParam = [];
-                if ($cellParams[$k]) {
-                    $cellParam[] = $cellParams[$k];
-                }
-
-                if ($first && isset($cellParams['first'])) {
-                    $cellParam[] = $cellParams['first'];
-                }
-                $rowA[] = '<td ' . implode(' ', $cellParam) . '>' . $v . '</td>';
-            }
-
-            $lines[] = '<tr class="' . ($first ? 't3-row-header' : 'db_list_normal') . '">' . implode('', $rowA) . '</tr>';
-            $first = 0;
-            $c++;
-        }
-        return '<table ' . $tableParams . '>' . implode('', $lines) . '</table>';
     }
 
     /**
