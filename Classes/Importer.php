@@ -131,7 +131,8 @@ class Importer
                 'show_add_cat' => false,
                 'add_cat' => false,
                 'error' => [],
-                'table' => []
+                'table' => [],
+                'fields' => []
             ],
             'startImport' => [
                 'show' => false,
@@ -397,6 +398,7 @@ class Importer
                 reset($csv_firstRow);
                 reset($csvData);
 
+                $output['mapping']['fields'] = $mapFields;
                 for ($i = 0; $i < (count($csv_firstRow)); $i++) {
                     // example CSV
                     $exampleLines = [];
@@ -405,7 +407,8 @@ class Importer
                     }
                     $output['mapping']['table'][] = [
                         'mapping_description' => $csv_firstRow[$i],
-                        'mapping_mapping' => $this->makeDropdown('CSV_IMPORT[map][' . ($i) . ']', $mapFields, $this->indata['map'][$i]),
+                        'mapping_i' => $i,
+                        'mapping_mappingSelected' => $this->indata['map'][$i],
                         'mapping_value' => $exampleLines
                     ];
                 }

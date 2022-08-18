@@ -293,7 +293,15 @@
 										<tr class="db_list_normal">
 											<td nowrap="">{iterator.cycle}</td>
 											<td nowrap=""><f:format.html>{row.mapping_description}</f:format.html></td>
-											<td nowrap=""><f:format.html>{row.mapping_mapping}</f:format.html></td>
+											<td nowrap="">
+												<f:if condition="{formcontent.output.mapping.fields -> f:count()}">
+													<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[map][{row.mapping_i}]" value="{row.mapping_mappingSelected}">
+														<f:for each="{formcontent.output.mapping.fields}" as="field">
+															<f:form.select.option value="{field.0}">{field.1}</f:form.select.option>
+														</f:for>
+													</f:form.select>
+												</f:if>
+											</td>
 											<td nowrap="">
 												<f:if condition="{row.mapping_value -> f:count()}">
 													<table class="table table-striped table-hover">
