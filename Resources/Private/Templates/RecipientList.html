@@ -254,7 +254,13 @@
 										<f:translate key="{lll}mailgroup_import_mapping_charset_choose" />
 									</td>
 									<td nowrap="">
-										<f:format.html>{formcontent.output.mapping.charset}</f:format.html>
+										<f:if condition="{formcontent.output.mapping.charset -> f:count()}">
+											<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[charset]" value="{formcontent.output.mapping.charsetSelected}">
+												<f:for each="{formcontent.output.mapping.charset}" as="cs">
+													<f:form.select.option value="{cs.val}">{cs.text}</f:form.select.option>
+												</f:for>
+											</f:form.select>
+										</f:if>
 									</td>
 								</tr>
 							</tbody>

@@ -324,7 +324,6 @@ class Importer
                 // which field should be use to show uniqueness of the records
                 $output['conf']['record_unique'] = $optUnique;
                 $output['conf']['record_uniqueSelected'] = $this->indata['record_unique'] ?? '';
-                #$output['conf']['record_unique'] = $this->makeDropdown('CSV_IMPORT[record_unique]', $optUnique, $this->indata['record_unique'], $output['conf']['disableInput']);
 
                 break;
 
@@ -348,15 +347,16 @@ class Importer
                 $cs = array_unique(array_values(mb_list_encodings()));
                 $charSets = [];
                 foreach ($cs as $charset) {
-                    $charSets[] = [$charset, $charset];
+                    $charSets[] = ['val' => $charset, 'text' => $charset];
                 }
 
                 if (!isset($this->indata['charset'])) {
                     $this->indata['charset'] = 'ISO-8859-1';
                 }
                 $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_mapping_charset');
+
+                $output['mapping']['charset'] = $charSets;
                 $output['mapping']['charsetSelected'] = $this->indata['charset'];
-                $output['mapping']['charset'] = $this->makeDropdown('CSV_IMPORT[charset]', $charSets, $this->indata['charset']);
 
                 // show mapping form
                 if ($this->indata['first_fieldname']) {
