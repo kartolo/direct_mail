@@ -276,8 +276,8 @@ class Importer
                 ];
 
                 $optEncap = [
-                    ['doubleQuote', ' " '],
-                    ['singleQuote', " ' "],
+                    ['val' => 'doubleQuote', 'text' => ' " '],
+                    ['val' => 'singleQuote', 'text' => " ' "],
                 ];
 
                 // TODO: make it variable?
@@ -305,7 +305,8 @@ class Importer
                 $output['conf']['delimiterSelected'] = $this->indata['delimiter'] ?? '';
                 
                 // csv encapsulation
-                $output['conf']['encapsulation'] = $this->makeDropdown('CSV_IMPORT[encapsulation]', $optEncap, $this->indata['encapsulation'], $output['conf']['disableInput']);
+                $output['conf']['encapsulation'] = $optEncap;
+                $output['conf']['encapsulationSelected'] = $this->indata['encapsulation'] ?? '';
 
                 // import only valid email
                 $output['conf']['valid_email'] = !$this->indata['valid_email'] ? false : true;
@@ -833,7 +834,7 @@ class Importer
         $fileAbsolutePath = $this->getFileAbsolutePath((int)$this->indata['newFileUid']);
 
         $delimiter = $this->indata['delimiter'] ?: 'comma';
-        $encaps = $this->indata['encapsulation'];
+        $encaps = $this->indata['encapsulation'] ?: 'doubleQuote';
         $delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
         $delimiter = ($delimiter === 'semicolon') ? ';' : $delimiter;
         $delimiter = ($delimiter === 'colon') ? ':' : $delimiter;
@@ -880,7 +881,7 @@ class Importer
 
         $i = 0;
         $delimiter = $this->indata['delimiter'] ?: 'comma';
-        $encaps = $this->indata['encapsulation'];
+        $encaps = $this->indata['encapsulation'] ?: 'doubleQuote';
         $delimiter = ($delimiter === 'comma') ? ',' : $delimiter;
         $delimiter = ($delimiter === 'semicolon') ? ';' : $delimiter;
         $delimiter = ($delimiter === 'colon') ? ':' : $delimiter;

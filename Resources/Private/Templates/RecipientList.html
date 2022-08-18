@@ -160,7 +160,7 @@
 								</td>
 								<td nowrap="">
 									<f:if condition="{formcontent.output.conf.delimiter -> f:count()}">
-										<f:form.select class="form-select form-control" name="CSV_IMPORT[delimiter]" value="{formcontent.output.conf.delimiterSelected}" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
+										<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[delimiter]" value="{formcontent.output.conf.delimiterSelected}" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
 											<f:for each="{formcontent.output.conf.delimiter}" as="del">
 												<f:form.select.option value="{del.val}">{del.text}</f:form.select.option>
 											</f:for>
@@ -173,7 +173,13 @@
 									<f:translate key="{lll}mailgroup_import_encapsulation" />
 								</td>
 								<td nowrap="">
-									<f:format.html>{formcontent.output.conf.encapsulation}</f:format.html>
+									<f:if condition="{formcontent.output.conf.encapsulation -> f:count()}">
+										<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[encapsulation]" value="{formcontent.output.conf.encapsulationSelected}" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
+											<f:for each="{formcontent.output.conf.encapsulation}" as="en">
+												<f:form.select.option value="{en.val}">{en.text}</f:form.select.option>
+											</f:for>
+										</f:form.select>
+									</f:if>
 								</td>
 							</tr>
 							<tr class="db_list_normal">
