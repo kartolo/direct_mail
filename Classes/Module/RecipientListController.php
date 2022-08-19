@@ -44,6 +44,7 @@ class RecipientListController extends MainController
     protected array $indata = [];
     
     protected $requestHostOnly = '';
+    protected $requestUri = '';
     protected $httpReferer = '';
     
     private bool $submit = false;
@@ -54,6 +55,7 @@ class RecipientListController extends MainController
         
         $normalizedParams = $request->getAttribute('normalizedParams');
         $this->requestHostOnly = $normalizedParams->getRequestHostOnly();
+        $this->requestUri = $normalizedParams->getRequestUri();
         $this->httpReferer = $request->getServerParams()['HTTP_REFERER'];
         
         $this->group_uid = (int)($parsedBody['group_uid'] ?? $queryParams['group_uid'] ?? 0);
@@ -202,7 +204,7 @@ class RecipientListController extends MainController
                     $this->id => 'new'
                 ]
             ],
-            'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+            'returnUrl' => $this->requestUri,
         ]);
         
         $data['sysDmailGroupIcon'] = $this->iconFactory->getIconForRecord('sys_dmail_group', [], Icon::SIZE_SMALL);
@@ -387,7 +389,7 @@ class RecipientListController extends MainController
                         $uid => 'edit',
                     ],
                 ],
-                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+                'returnUrl' => $this->requestUri,
             ]);
             $str = '<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                 $this->getIconActionsOpen() .
@@ -761,7 +763,7 @@ class RecipientListController extends MainController
                         $row['uid'] => 'edit'
                     ]
                 ],
-                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+                'returnUrl' => $this->requestUri,
             ]);
 
             $dataout = [
