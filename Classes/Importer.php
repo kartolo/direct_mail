@@ -56,13 +56,6 @@ class Importer
     public $parent;
 
     /**
-     * File Processor FAL
-     *
-     * @var ExtendedFileUtility
-     */
-    public $fileProcessor;
-
-    /**
      * Init the class
      *
      * @param $pObj $pObj The parent object
@@ -977,22 +970,22 @@ class Importer
         ];
 
         // Initializing:
-        /* @var $fileProcessor ExtendedFileUtility */
-        $this->fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
-        $this->fileProcessor->setActionPermissions();
-        $this->fileProcessor->dontCheckForUnique = 1;
-
+        /* @var $extendedFileUtility ExtendedFileUtility */
+        $extendedFileUtility = GeneralUtility::makeInstance(ExtendedFileUtility::class);
+        $extendedFileUtility->setActionPermissions();
+        $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::REPLACE);
+        
         // Checking referer / executing:
         $refInfo = parse_url(GeneralUtility::getIndpEnv('HTTP_REFERER'));
         $httpHost = GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY');
 
         if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
-            $this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
+            $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
         } 
         else {
-            $this->fileProcessor->start($file);
-            $this->fileProcessor->setExistingFilesConflictMode(DuplicationBehavior::cast(DuplicationBehavior::REPLACE));
-            $newfile = $this->fileProcessor->func_upload($file['upload']['1']);
+            $extendedFileUtility->start($file);
+            $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::cast(DuplicationBehavior::REPLACE));
+            $newfile = $extendedFileUtility->func_upload($file['upload']['1']);
         }
         return $newfile;
     }
