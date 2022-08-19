@@ -212,7 +212,7 @@ class Importer
         }
 
         // check if "email" is mapped
-        if (isset($stepCurrent) && $stepCurrent === 'import') {
+        if (isset($stepCurrent) && $stepCurrent === 'startImport') {
             $map = $this->indata['map'];
             $error = [];
             // check noMap
@@ -223,7 +223,7 @@ class Importer
             elseif (!in_array('email', $map)) {
                 $error[] = 'email';
             }
-            if ($error) {
+            if (count($error)) {
                 $stepCurrent = 'mapping';
             }
         }
@@ -552,7 +552,7 @@ class Importer
      *
      * @return array Filtered csv and double csv
      */
-    public function filterCSV(array $mappedCsv)
+    public function filterCSV(array $mappedCsv): array
     {
         $cmpCsv = $mappedCsv;
         $remove = [];
@@ -561,7 +561,7 @@ class Importer
 
         foreach ($mappedCsv as $k => $csvData) {
             if (!in_array($k, $remove)) {
-                $found=0;
+                $found = 0;
                 foreach ($cmpCsv as $kk =>$cmpData) {
                     if ($k != $kk) {
                         if ($csvData[$this->indata['record_unique']] == $cmpData[$this->indata['record_unique']]) {
@@ -569,8 +569,8 @@ class Importer
                             if (!$found) {
                                 $filtered[] = $csvData;
                             }
-                            $remove[]=$kk;
-                            $found=1;
+                            $remove[] = $kk;
+                            $found = 1;
                         }
                     }
                 }
