@@ -194,13 +194,8 @@ class Importer
             }
         }
         elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
-            if (((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt')) {
-                // do nothing
-            } 
-            else {
-                unset($this->indata['newFile']);
-                unset($this->indata['newFileUid']);
-            }
+            unset($this->indata['newFile']);
+            unset($this->indata['newFileUid']);
         }
         $stepCurrent = '';
         if ($this->indata['back'] ?? false) {
@@ -215,7 +210,9 @@ class Importer
 
         if (strlen($this->indata['csv'] ?? '') > 0) {
             $this->indata['mode'] = 'csv';
-            $this->indata['newFile'] = $this->writeTempFile();
+            $tempFile = $this->writeTempFile($this->indata['csv'] ?? '', $this->indata['newFile'] ?? '', $this->indata['newFileUid'] ?? 0);
+            $this->indata['newFile'] = $tempFile['newFile'];
+            $this->indata['newFileUid'] = $tempFile['newFileUid'];
         } 
         elseif (!empty($this->indata['newFile'])) {
             $this->indata['mode'] = 'file';
@@ -353,6 +350,7 @@ class Importer
                 $output['mapping']['charset'] = $charSets;
                 $output['mapping']['charsetSelected'] = $this->indata['charset'];
 
+                $csv_firstRow = [];
                 // show mapping form
                 if ($this->indata['first_fieldname']) {
                     // read csv
@@ -364,7 +362,6 @@ class Importer
                     // read csv
                     $csvData = $this->readExampleCSV(3);
                     $fieldsAmount = count($csvData[0] ?? []);
-                    $csv_firstRow = [];
                     for ($i = 0; $i < $fieldsAmount; $i++) {
                         $csv_firstRow[] = 'field_' . $i;
                     }
@@ -791,34 +788,6 @@ class Importer
             }
         }
     }
-
-    /**
-     * 
-     * @param int $fileUid
-     * @return \TYPO3\CMS\Core\Resource\File|bool
-     */
-    private function getFileById(int $fileUid) //: \TYPO3\CMS\Core\Resource\File|bool
-    {
-        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        try {
-            return $resourceFactory->getFileObject($fileUid);
-        }
-        catch(\TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException $e) {
-            
-        }
-        return false;
-    }
-    
-    /**
-     * 
-     * @param int $fileUid
-     * @return string
-     */
-    private function getFileAbsolutePath(int $fileUid): string
-    {
-        $file = $this->getFileById($fileUid);
-        return Environment::getPublicPath() . '/' . str_replace('//', '/', $file->getStorage()->getConfiguration()['basePath'] . $file->getProperty('identifier'));
-    }
     
     /**
      * Read in the given CSV file. The function is used during the final file import.
@@ -936,94 +905,53 @@ class Importer
     }
 
     /**
-     * Returns first temporary folder of the user account (from $FILEMOUNTS)
-     *
-     * @return	string Absolute path to first "_temp_" folder of the current user, otherwise blank.
-     */
-    public function userTempFolder()
-    {
-        /** @var \TYPO3\CMS\Core\Resource\Folder $folder */
-        $folder = $this->getBeUser()->getDefaultUploadTemporaryFolder();
-        return $folder->getPublicUrl();
-    }
-
-    /**
-     *
-     * @return int
-     */
-    private function getTimestampFromAspect(): int {
-        $context = GeneralUtility::makeInstance(Context::class);
-        return $context->getPropertyFromAspect('date', 'timestamp');
-    }
-    
-    /**
      * Write CSV Data to a temporary file and will be used for the import
      *
-     * @return	string		path of the temp file
+     * @return	array		path and uid of the temp file
      */
-    public function writeTempFile()
+    public function writeTempFile(string $csv, string $newFile, int $newFileUid)
     {
-        $newfile = '';
-        $beUser = $this->getBeUser();
-        $userPermissions = $beUser->getFilePermissions();
-        unset($this->fileProcessor);
+        $newfile = ['newFile' => '', 'newFileUid' => 0];
 
-        // add uploads/tx_directmail to user filemounts
-        $GLOBALS['FILEMOUNTS']['tx_directmail'] = [
-            'name' => 'direct_mail',
-            'path' => GeneralUtility::getFileAbsFileName('uploads/tx_directmail/'),
-            'type'
-        ];
-
+        $userPermissions = $this->getBeUser()->getFilePermissions();
         // Initializing:
-        /* @var $fileProcessor ExtendedFileUtility */
-        $this->fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
-        $this->fileProcessor->setActionPermissions($userPermissions);
-        $this->fileProcessor->dontCheckForUnique = 1;
-
-        if (is_array($GLOBALS['FILEMOUNTS']) && !empty($GLOBALS['FILEMOUNTS'])) {
-            // we have a filemount
-            // do something here
-        } 
-        else {
-            // we don't have a valid file mount
-            // should be fixed
-
-            // this throws a error message because we have no rights to upload files
-            // to our extension's own upload folder
-            // further investigation needed
-            $file['upload']['1']['target'] = GeneralUtility::getFileAbsFileName('uploads/tx_directmail/');
-        }
+        /* @var $extendedFileUtility ExtendedFileUtility */
+        $extendedFileUtility = GeneralUtility::makeInstance(ExtendedFileUtility::class);
+        $extendedFileUtility->setActionPermissions($userPermissions);
+        //https://docs.typo3.org/c/typo3/cms-core/11.5/en-us/Changelog/7.4/Deprecation-63603-ExtendedFileUtilitydontCheckForUniqueIsDeprecated.html
+        $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::REPLACE);
 
         if (empty($this->indata['newFile'])) {
             // Checking referer / executing:
             $refInfo = parse_url(GeneralUtility::getIndpEnv('HTTP_REFERER'));
             $httpHost = GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY');
             
-            // new file
-            $file['newfile']['1']['target'] = $this->userTempFolder();
-            $file['newfile']['1']['data'] = 'import_' . $this->getTimestampFromAspect() . '.txt';
             if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
-                $this->fileProcessor->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
+                $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
             } 
             else {
-                $this->fileProcessor->start($file);
-                $newfileObj = $this->fileProcessor->func_newfile($file['newfile']['1']);
-                // in TYPO3 6.0 func_newfile returns an object, but we need the path to the new file name later on!
+                // new file
+                $file['newfile']['target'] = $this->userTempFolder();
+                $file['newfile']['data'] = 'import_' . $this->getTimestampFromAspect() . '.txt';
+                $extendedFileUtility->start($file);
+                $newfileObj = $extendedFileUtility->func_newfile($file['newfile']);
                 if (is_object($newfileObj)) {
                     $storageConfig = $newfileObj->getStorage()->getConfiguration();
-                    $newfile = $storageConfig['basePath'] . ltrim($newfileObj->getIdentifier(), '/');
+                    $newfile['newFile'] = $storageConfig['basePath'] . ltrim($newfileObj->getIdentifier(), '/');
+                    $newfile['newFileUid'] = $newfileObj->getUid();
                 }
             }
         } 
         else {
-            $newfile = $this->indata['newFile'];
+            $newfile = ['newFile' => $newFile, 'newFileUid' => $newFileUid];
         }
 
-        if ($newfile) {
-            $csvFile['data'] = $this->indata['csv'] ?? '';
-            $csvFile['target'] = $newfile;
-            $write = $this->fileProcessor->func_edit($csvFile);
+        if ($newfile['newFile']) {
+            $csvFile = [
+                'data' => $csv,
+                'target' => $newfile['newFile']
+            ];
+            $write = $extendedFileUtility->func_edit($csvFile);
         }
         return $newfile;
     }
@@ -1069,6 +997,58 @@ class Importer
         return $newfile;
     }
 
+    /**
+     *
+     * @param int $fileUid
+     * @return \TYPO3\CMS\Core\Resource\File|bool
+     */
+    private function getFileById(int $fileUid) //: \TYPO3\CMS\Core\Resource\File|bool
+    {
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+        try {
+            return $resourceFactory->getFileObject($fileUid);
+        }
+        catch(\TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException $e) {
+            
+        }
+        return false;
+    }
+    
+    /**
+     *
+     * @param int $fileUid
+     * @return string
+     */
+    private function getFileAbsolutePath(int $fileUid): string
+    {
+        $file = $this->getFileById($fileUid);
+        if(!is_object($file)) {
+            return '';
+        }
+        return Environment::getPublicPath() . '/' . str_replace('//', '/', $file->getStorage()->getConfiguration()['basePath'] . $file->getProperty('identifier'));
+    }
+    
+    /**
+     * Returns first temporary folder of the user account
+     *
+     * @return	string Absolute path to first "_temp_" folder of the current user, otherwise blank.
+     */
+    public function userTempFolder()
+    {
+        /** @var \TYPO3\CMS\Core\Resource\Folder $folder */
+        $folder = $this->getBeUser()->getDefaultUploadTemporaryFolder();
+        return $folder->getPublicUrl();
+    }
+    
+    /**
+     *
+     * @return int
+     */
+    private function getTimestampFromAspect(): int {
+        $context = GeneralUtility::makeInstance(Context::class);
+        return $context->getPropertyFromAspect('date', 'timestamp');
+    }
+    
     /**
      * Returns LanguageService
      *
