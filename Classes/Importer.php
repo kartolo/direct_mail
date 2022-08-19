@@ -179,12 +179,9 @@ class Importer
         // merge it with inData, but inData has priority.
         $this->indata += $this->params;
         if (empty($this->indata['csv']) && !empty($_FILES['upload_1']['name'])) {
-            $this->indata['newFile'] = $this->checkUpload();
-            if (is_object($this->indata['newFile'][0])) {
-                $storageConfig = $this->indata['newFile'][0]->getStorage()->getConfiguration();
-                $this->indata['newFileUid'] = $this->indata['newFile'][0]->getUid();
-                $this->indata['newFile'] = rtrim($storageConfig['basePath'], '/') . '/' . ltrim($this->indata['newFile'][0]->getIdentifier(), '/');
-            }
+            $tempFile = $this->checkUpload();
+            $this->indata['newFile'] = $tempFile['newFile'];
+            $this->indata['newFileUid'] = $tempFile['newFileUid'];
         }
         elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
             unset($this->indata['newFile']);
@@ -957,18 +954,8 @@ class Importer
      */
     public function checkUpload()
     {
-        $file = GeneralUtility::_GP('file');
-        $fm = [];
-
-        $tempFolder = $this->userTempFolder();
-        $array = explode('/', trim($tempFolder, '/'));
-        $fm = [
-            $this->getTimestampFromAspect() => [
-                'path' => $tempFolder,
-                'name' => array_pop($array) .  '/',
-            ]
-        ];
-
+        $newfile = ['newFile' => '', 'newFileUid' => 0];
+        
         // Initializing:
         /* @var $extendedFileUtility ExtendedFileUtility */
         $extendedFileUtility = GeneralUtility::makeInstance(ExtendedFileUtility::class);
@@ -983,10 +970,20 @@ class Importer
             $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
         } 
         else {
+            $file = GeneralUtility::_GP('file');
             $extendedFileUtility->start($file);
             $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::cast(DuplicationBehavior::REPLACE));
-            $newfile = $extendedFileUtility->func_upload($file['upload']['1']);
+            $tempFile = $extendedFileUtility->func_upload($file['upload']['1']);
+
+            if (is_object($tempFile[0])) {
+                $storageConfig = $tempFile[0]->getStorage()->getConfiguration();
+                $newfile = [
+                    'newFile' => rtrim($storageConfig['basePath'], '/') . '/' . ltrim($tempFile[0]->getIdentifier(), '/'),
+                    'newFileUid' => $tempFile[0]->getUid()
+                ];
+            }
         }
+
         return $newfile;
     }
 
