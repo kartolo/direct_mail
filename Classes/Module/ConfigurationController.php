@@ -15,6 +15,8 @@ class ConfigurationController extends MainController
     protected string $TSconfPrefix = 'mod.web_modules.dmail.';
     protected array $pageTS = [];
     
+    protected $requestUri = '';
+    
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $currentModule = 'Configuration';
@@ -65,6 +67,9 @@ class ConfigurationController extends MainController
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
 
+        $normalizedParams = $request->getAttribute('normalizedParams');
+        $this->requestUri = $normalizedParams->getRequestUri();
+        
         $this->pageTS = $parsedBody['pageTS'] ?? $queryParams['pageTS'] ?? [];
     }
     
@@ -92,7 +97,7 @@ class ConfigurationController extends MainController
         if ($this->getBackendUser()->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
             if (is_array($this->pageTS) && count($this->pageTS)) {
                 DirectMailUtility::updatePagesTSconfig($this->id, $this->pageTS, $this->TSconfPrefix);
-                header('Location: ' . GeneralUtility::locationHeaderUrl(GeneralUtility::getIndpEnv('REQUEST_URI')));
+                header('Location: ' . GeneralUtility::locationHeaderUrl($this->requestUri));
             }
         }
     }

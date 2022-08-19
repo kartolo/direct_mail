@@ -60,6 +60,8 @@ class DmailController extends MainController
     protected bool $mailingMode_simple = false;
     protected int $tt_address_uid = 0;
     
+    protected $requestUri = '';
+    
     /**
      * The name of the module
      *
@@ -82,6 +84,9 @@ class DmailController extends MainController
     protected function initDmail(ServerRequestInterface $request): void {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
+        
+        $normalizedParams = $request->getAttribute('normalizedParams');
+        $this->requestUri = $normalizedParams->getRequestUri();
         
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
         
@@ -676,7 +681,7 @@ class DmailController extends MainController
                             $row['uid'] => 'edit',
                         ]
                     ],
-                    'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+                    'returnUrl' => $this->requestUri,
                 ];
                 
                 $data[] = [
@@ -1408,7 +1413,7 @@ class DmailController extends MainController
                 if ($row['uid']) {
                     $tableIcon = '<td>' . $this->iconFactory->getIconForRecord($table, $row, Icon::SIZE_SMALL) . '</td>';
                     if ($editLinkFlag) {
-                        $requestUri = GeneralUtility::getIndpEnv('REQUEST_URI') . '&cmd=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid;
+                        $requestUri = $this->requestUri . '&cmd=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid;
                         
                         $params = [
                             'edit' => [

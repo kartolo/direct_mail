@@ -30,6 +30,8 @@ class StatisticsController extends MainController
      */
     protected $moduleName = 'DirectMailNavFrame_Statistics';
     
+    protected $requestUri = '';
+    
     private int $uid = 0;
     private string $table = '';
     private array $tables = ['tt_address', 'fe_users'];
@@ -69,6 +71,9 @@ class StatisticsController extends MainController
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
 
+        $normalizedParams = $request->getAttribute('normalizedParams');
+        $this->requestUri = $normalizedParams->getRequestUri();
+        
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
         
         $table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
@@ -320,7 +325,7 @@ class StatisticsController extends MainController
                         $row['uid'] => 'edit',
                     ],
                 ],
-                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+                'returnUrl' => $this->requestUri,
             ]);
 
             $this->categories = DirectMailUtility::makeCategories($this->table, $row, $this->sys_language_uid);
