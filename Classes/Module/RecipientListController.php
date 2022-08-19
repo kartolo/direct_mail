@@ -42,11 +42,19 @@ class RecipientListController extends MainController
     protected int $uid = 0; 
     protected string $table = '';
     protected array $indata = [];
+    
+    protected $requestHostOnly = '';
+    protected $httpReferer = '';
+    
     private bool $submit = false;
     
     protected function initRecipientList(ServerRequestInterface $request): void {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
+        
+        $normalizedParams = $request->getAttribute('normalizedParams');
+        $this->requestHostOnly = $normalizedParams->getRequestHostOnly();
+        $this->httpReferer = $request->getServerParams()['HTTP_REFERER'];
         
         $this->group_uid = (int)($parsedBody['group_uid'] ?? $queryParams['group_uid'] ?? 0);
         $this->lCmd = $parsedBody['lCmd'] ?? $queryParams['lCmd'] ?? '';
@@ -782,5 +790,15 @@ class RecipientListController extends MainController
             }
         }
         return $dataout;
+    }
+    
+    public function getRequestHostOnly(): string
+    {
+        return $this->requestHostOnly;
+    }
+    
+    public function getHttpReferer(): string
+    {
+        return $this->httpReferer;
     }
 }

@@ -913,8 +913,8 @@ class Importer
 
         if (empty($this->indata['newFile'])) {
             // Checking referer / executing:
-            $refInfo = parse_url(GeneralUtility::getIndpEnv('HTTP_REFERER'));
-            $httpHost = GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY');
+            $refInfo = parse_url($this->parent->getHttpReferer());
+            $httpHost = $this->parent->getRequestHostOnly();
             
             if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
                 $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
@@ -963,8 +963,8 @@ class Importer
         $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::REPLACE);
         
         // Checking referer / executing:
-        $refInfo = parse_url(GeneralUtility::getIndpEnv('HTTP_REFERER'));
-        $httpHost = GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY');
+        $refInfo = parse_url($this->parent->getHttpReferer());
+        $httpHost = $this->parent->getRequestHostOnly();
 
         if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
             $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
