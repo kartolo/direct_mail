@@ -46,6 +46,7 @@ class RecipientListController extends MainController
     protected $requestHostOnly = '';
     protected $requestUri = '';
     protected $httpReferer = '';
+    protected $allowedTables = ['tt_address', 'fe_users'];
     
     private bool $submit = false;
     
