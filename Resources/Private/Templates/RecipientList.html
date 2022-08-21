@@ -66,7 +66,7 @@
                     {data.special.selected}
                     <div style="padding-top: 20px;"></div>
                 </f:if>
-                {data.special.selectTables}
+                <f:format.html>{data.special.selectTables}</f:format.html>
                 <f:form.hidden name="cmd" value="displayMailGroup" />
                 <f:form.hidden name="group_uid" value="{data.group_id}" />
 	            <f:form.submit value="{f:translate(key: '{lll}dmail_updateQuery')}" />
