@@ -389,7 +389,6 @@
 					<f:form.hidden name="CSV_IMPORT[update_unique]" value="{formcontent.output.mapping.update_unique}" />
 					<f:form.hidden name="CSV_IMPORT[record_unique]" value="{formcontent.output.mapping.record_unique}" />
 					<f:form.hidden name="CSV_IMPORT[all_html]" value="{formcontent.output.mapping.all_html}" />
-					<f:form.hidden name="CSV_IMPORT[add_cat]" value="{formcontent.output.mapping.add_cat}" />
 					<f:form.hidden name="CSV_IMPORT[charsetSelected]" value="{formcontent.output.mapping.charsetSelected}" />
 				</f:if>
 				<f:if condition="{formcontent.output.startImport.show}">
@@ -444,6 +443,7 @@
 					<f:form.hidden name="CSV_IMPORT[record_unique]" value="{formcontent.output.startImport.record_unique}" />
 					<f:form.hidden name="CSV_IMPORT[all_html]" value="{formcontent.output.startImport.all_html}" />
 					<f:form.hidden name="CSV_IMPORT[charset]" value="{formcontent.output.startImport.charsetSelected}" />
+					<f:form.hidden name="CSV_IMPORT[add_cat]" value="{formcontent.output.startImport.add_cat}" />
 				</f:if>
 				<f:if condition="{formcontent.theOutput}">
 					<f:format.raw>{formcontent.theOutput}</f:format.raw>

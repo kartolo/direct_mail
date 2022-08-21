@@ -23,7 +23,6 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
@@ -147,6 +146,7 @@ class Importer
                 'all_html' => false,
                 'hiddenMap' => [],
                 'hiddenCat' => [],
+                'add_cat' => false,
                 'tables' => []
             ]
         ];
@@ -399,7 +399,6 @@ class Importer
                 $temp['value'] = BackendUtility::getPagesTSconfig($this->parent->getId())['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
                 if (is_numeric($temp['value'])) {
                     $rowCat = GeneralUtility::makeInstance(SysDmailCategoryRepository::class)->selectSysDmailCategoryByPid((int)$temp['value']);
-                        
                     if (!empty($rowCat)) {
                         // additional options
                         if ($output['mapping']['update_unique']) {
@@ -433,8 +432,10 @@ class Importer
                 $output['startImport']['update_unique'] = $this->indata['update_unique'];
                 $output['startImport']['record_unique'] = $this->indata['record_unique'];
                 $output['startImport']['all_html'] = !$this->indata['all_html'] ? false : true;
-                $output['startImport']['error'] = $error;
+                $output['startImport']['add_cat'] = $this->indata['add_cat'] ? true : false;
                 
+                $output['startImport']['error'] = $error;
+
                 // starting import & show errors
                 // read csv
                 $csvData = $this->readCSV();
@@ -670,27 +671,11 @@ class Importer
                         }
                         if (is_array($this->indata['cat']) && !in_array('cats', $this->indata['map'])) {
                             if ($this->indata['add_cat']) {
-                                //@TODO
-                                //$rows = GeneralUtility::makeInstance(SysDmailTtAddressCategoryMmRepository::class)->selectUidsByUidLocal((int)$userID[$foundUser[0]]);
-                                // Load already assigned categories
-                                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_ttaddress_category_mm');
-                                $statement = $queryBuilder
-                                    ->select(
-                                        'uid_local',
-                                        'uid_foreign'
-                                    )
-                                    ->from('sys_dmail_ttaddress_category_mm')
-                                    ->where(
-                                        $queryBuilder->expr()->eq(
-                                            'uid_local',
-                                            $userID[$foundUser[0]]
-                                        )
-                                    )
-                                    ->orderBy('sorting')
-                                    ->execute();
-
-                                while (($row = $statement->fetch())) {
-                                    $data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][] = $row[1];
+                                $rows = GeneralUtility::makeInstance(SysDmailTtAddressCategoryMmRepository::class)->selectUidsByUidLocal((int)$userID[$foundUser[0]]);
+                                if(is_array($rows)) {
+                                    foreach($rows as $row) {
+                                        $data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][] = $row['uid_foreign'];
+                                    }
                                 }
                             }
                             // Add categories
@@ -698,7 +683,7 @@ class Importer
                                 $data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][] = $v;
                             }
                         }
-                        $resultImport['update'][]=$dataArray;
+                        $resultImport['update'][] = $dataArray;
                     } 
                     else {
                         // which one to update? all?
@@ -706,7 +691,7 @@ class Importer
                             $data['tt_address'][$userID[$foundUser[$kk]]] = $dataArray;
                             $data['tt_address'][$userID[$foundUser[$kk]]]['pid'] = $this->indata['storage'];
                         }
-                        $resultImport['update'][]=$dataArray;
+                        $resultImport['update'][] = $dataArray;
                     }
                 } 
                 else {
