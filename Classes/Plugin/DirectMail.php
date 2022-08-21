@@ -4,7 +4,7 @@ namespace DirectMailTeam\DirectMail\Plugin;
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 1999-2005 Kasper Skaarhoj (kasperYYYY@typo3.com)
+*  (c) 1999-2005 Kasper Skårhøj (kasperYYYY@typo3.com)
 *  (c) 2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 *  All rights reserved
 *
@@ -29,7 +29,7 @@ namespace DirectMailTeam\DirectMail\Plugin;
 ***************************************************************/
 
 /**
- * @author		Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @author		Kasper Skårhøj <kasperYYYY@typo3.com>
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
  * @package 	TYPO3

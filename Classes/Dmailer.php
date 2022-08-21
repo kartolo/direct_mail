@@ -30,7 +30,7 @@ use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
  *
- * @author		Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @author		Kasper Skårhøj <kasperYYYY@typo3.com>
  * @author      Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
  * @package 	TYPO3

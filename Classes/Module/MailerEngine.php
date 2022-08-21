@@ -34,7 +34,7 @@ use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 /**
  * Module Mailer-Engine for tx_directmail extension
  *
- * @author		Kasper Sk�rh�j <kasper@typo3.com>
+ * @author		Kasper Skårhøj <kasper@typo3.com>
  * @author  	Jan-Erik Revsbech <jer@moccompany.com>
  * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>

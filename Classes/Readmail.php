@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Analysis of return mail reason is enhanced by checking more possible reason texts.
  * Tested on mailing list of approx. 1500 members with most domains in M�xico and reason text in English or Spanish.
  *
- * @author  Kasper Sk�rh�j <kasper@typo3.com>
+ * @author  Kasper Skårhøj <kasper@typo3.com>
  * @author  Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
  * @package  TYPO3
