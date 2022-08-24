@@ -64,7 +64,7 @@ class DirectMailUtility
      *
      * @return array recipients' data
      */
-    public static function fetchRecordsListValues(array $listArr, $table, $fields='uid,name,email')
+    public static function fetchRecordsListValues(array $listArr, $table, $fields = 'uid,name,email')
     {
         $outListArr = [];
         if (is_array($listArr) && count($listArr)) {
