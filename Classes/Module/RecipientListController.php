@@ -19,6 +19,7 @@ use TYPO3\CMS\Core\Utility\CsvUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
 use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
+use DirectMailTeam\DirectMail\Repository\TempRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 
 class RecipientListController extends MainController
@@ -461,17 +462,18 @@ class RecipientListController extends MainController
         ];
 
         // do the CSV export
-        $csvValue = $this->csv;
+        $csvValue = $this->csv; //'tt_address', 'fe_users', 'PLAINLIST', $this->userTable
         if ($csvValue) {
             if ($csvValue == 'PLAINLIST') {
                 $this->downloadCSV($idLists['PLAINLIST']);
             } 
             elseif (GeneralUtility::inList('tt_address,fe_users,' . $this->userTable, $csvValue)) {
                 if($this->getBackendUser()->check('tables_select', $csvValue)) {
-                    $this->downloadCSV(DirectMailUtility::fetchRecordsListValues($idLists[$csvValue], $csvValue, (($csvValue == 'fe_users') 
-                        ? str_replace('phone', 'telephone', $this->fieldList) 
-                        : $this->fieldList) . ',tstamp')
-                    );
+                    $fields = $csvValue == 'fe_users' ? str_replace('phone', 'telephone', $this->fieldList) : $this->fieldList;
+                    $fields .= ',tstamp';
+
+                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$csvValue], $csvValue, $fields);
+                    $this->downloadCSV($rows);
                 } 
                 else {
                     $message = $this->createFlashMessage(
