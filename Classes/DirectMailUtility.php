@@ -120,17 +120,12 @@ class DirectMailUtility
     {
         $addWhere = '';
 
-        if ($table == 'fe_groups') {
-            $switchTable = 'fe_users';
-        } else {
-            $switchTable = $table;
-        }
+        $switchTable = $table == 'fe_groups' ? 'fe_users' : $table;
 
 		$pidArray = GeneralUtility::intExplode(',', $pidList);
 
 		/** @var \TYPO3\CMS\Core\Database\Connection $connection */
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getConnectionForTable($table);
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
         $queryBuilder = $connection->createQueryBuilder();
 
         if ($switchTable == 'fe_users') {
@@ -169,7 +164,8 @@ class DirectMailUtility
                     ->orderBy($switchTable . '.uid')
                     ->addOrderBy($switchTable . '.email')
                     ->execute();
-            } else {
+            } 
+            else {
                 $res = $queryBuilder
                     ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                     ->from($switchTable)
@@ -185,7 +181,8 @@ class DirectMailUtility
                     ->addOrderBy($switchTable . '.email')
                     ->execute();
             }
-        } else {
+        } 
+        else {
             if ($table == 'fe_groups') {
                 $res = $queryBuilder
                     ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
@@ -214,7 +211,8 @@ class DirectMailUtility
                     ->orderBy($switchTable . '.uid')
                     ->addOrderBy($switchTable . '.email')
                     ->execute();
-            } else {
+            } 
+            else {
                 $res = $queryBuilder
                     ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                     ->from('sys_dmail_group', 'sys_dmail_group')
@@ -243,7 +241,7 @@ class DirectMailUtility
             }
         }
         $outArr = [];
-        while (($row = $res->fetch())) {
+        while ($row = $res->fetch()) {
             $outArr[] = $row['uid'];
         }
         return $outArr;
