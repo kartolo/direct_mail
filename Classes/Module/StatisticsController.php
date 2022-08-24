@@ -7,6 +7,7 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
+use DirectMailTeam\DirectMail\Repository\TempRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -849,10 +850,12 @@ class StatisticsController extends MainController
 
             if ($this->returnList) {
                 if (count($idLists['tt_address'])) {
-                    $output .= '<h3>' . $this->getLanguageService()->getLL('stats_emails') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $output .= '<h3>' . $this->getLanguageService()->getLL('stats_emails') . '</h3>' . DirectMailUtility::getRecordList($tempRows, 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['fe_users'])) {
-                    $output .= '<h3>' . $this->getLanguageService()->getLL('stats_website_users') . '</h3>' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $output .= '<h3>' . $this->getLanguageService()->getLL('stats_website_users') . '</h3>' . DirectMailUtility::getRecordList($tempRows, 'fe_users', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $output .= '<h3>' . $this->getLanguageService()->getLL('stats_plainlist') . '</h3>';
@@ -862,11 +865,13 @@ class StatisticsController extends MainController
             
             if ($this->returnDisable) {
                 if (count($idLists['tt_address'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $c = $this->disableRecipients($tempRows, 'tt_address');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                 }
                 if (count($idLists['fe_users'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $c = $this->disableRecipients($tempRows, 'fe_users');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                 }
             }
@@ -874,13 +879,13 @@ class StatisticsController extends MainController
             if ($this->returnCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 if (count($idLists['fe_users'])) {
-                    $arr=DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -901,10 +906,12 @@ class StatisticsController extends MainController
                 
             if ($this->unknownList) {
                 if (count($idLists['tt_address'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList($tempRows, 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['fe_users'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList($tempRows, 'fe_users', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
@@ -914,11 +921,13 @@ class StatisticsController extends MainController
             
             if ($this->unknownDisable) {
                 if (count($idLists['tt_address'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $c = $this->disableRecipients($tempRows, 'tt_address');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                 }
                 if (count($idLists['fe_users'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $c = $this->disableRecipients($tempRows, 'fe_users');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                 }
             }
@@ -926,13 +935,13 @@ class StatisticsController extends MainController
             if ($this->unknownCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 if (count($idLists['fe_users'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -953,10 +962,12 @@ class StatisticsController extends MainController
                 
             if ($this->fullList) {
                 if (count($idLists['tt_address'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList($tempRows, 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['fe_users'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList($tempRows, 'fe_users', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
@@ -966,11 +977,13 @@ class StatisticsController extends MainController
             
             if ($this->fullDisable) {
                 if (count($idLists['tt_address'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $c = $this->disableRecipients($tempRows, 'tt_address');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                 }
                 if (count($idLists['fe_users'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $c = $this->disableRecipients($tempRows, 'fe_users');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                 }
             }
@@ -978,13 +991,13 @@ class StatisticsController extends MainController
             if ($this->fullCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 if (count($idLists['fe_users'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -1005,10 +1018,12 @@ class StatisticsController extends MainController
                 
             if ($this->badHostList) {
                 if (count($idLists['tt_address'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList($tempRows, 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['fe_users'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList($tempRows, 'fe_users', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
@@ -1018,11 +1033,13 @@ class StatisticsController extends MainController
             
             if ($this->badHostDisable) {
                 if (count($idLists['tt_address'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $c = $this->disableRecipients($tempRows, 'tt_address');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                 }
                 if (count($idLists['fe_users'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $c = $this->disableRecipients($tempRows, 'fe_users');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                 }
             }
@@ -1030,14 +1047,14 @@ class StatisticsController extends MainController
             if ($this->badHostCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 
                 if (count($idLists['fe_users'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -1060,10 +1077,12 @@ class StatisticsController extends MainController
                 
             if ($this->badHeaderList) {
                 if (count($idLists['tt_address'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList($tempRows, 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['fe_users'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList($tempRows, 'fe_users', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
@@ -1073,11 +1092,13 @@ class StatisticsController extends MainController
                 
             if ($this->badHeaderDisable) {
                 if (count($idLists['tt_address'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $c = $this->disableRecipients($tempRows, 'tt_address');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                 }
                 if (count($idLists['fe_users'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $c = $this->disableRecipients($tempRows, 'fe_users');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                 }
             }
@@ -1085,13 +1106,13 @@ class StatisticsController extends MainController
             if ($this->badHeaderCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 if (count($idLists['fe_users'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -1113,10 +1134,12 @@ class StatisticsController extends MainController
                 
             if ($this->reasonUnknownList) {
                 if (count($idLists['tt_address'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />' . DirectMailUtility::getRecordList($tempRows, 'tt_address', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['fe_users'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users', $this->id, 1, $this->sys_dmail_uid);
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users') . DirectMailUtility::getRecordList($tempRows, 'fe_users', $this->id, 1, $this->sys_dmail_uid);
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
@@ -1126,11 +1149,13 @@ class StatisticsController extends MainController
             
             if ($this->reasonUnknownDisable) {
                 if (count($idLists['tt_address'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $c = $this->disableRecipients($tempRows, 'tt_address');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
                 }
                 if (count($idLists['fe_users'])) {
-                    $c = $this->disableRecipients(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $c = $this->disableRecipients($tempRows, 'fe_users');
                     $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
                 }
             }
@@ -1138,13 +1163,13 @@ class StatisticsController extends MainController
             if ($this->reasonUnknownCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 if (count($idLists['fe_users'])) {
-                    $arr = DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
