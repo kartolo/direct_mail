@@ -9,6 +9,7 @@ use DirectMailTeam\DirectMail\MailSelect;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
+use DirectMailTeam\DirectMail\Repository\TempRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use DirectMailTeam\DirectMail\Repository\TtContentCategoryMmRepository;
 use DirectMailTeam\DirectMail\Repository\TtContentRepository;
@@ -1103,8 +1104,8 @@ class DmailController extends MainController
             foreach ($rows as $row) {
                 $ids[] = $row['uid'];
             }
-
-            $data['test_tt_address'] = $this->getRecordList(DirectMailUtility::fetchRecordsListValues($ids, 'tt_address'), 'tt_address', 1, 1);
+            $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($ids, 'tt_address');
+            $data['test_tt_address'] = $this->getRecordList($rows, 'tt_address', 1, 1);
         }
 
         if ($this->params['test_dmail_group_uids'] ?? false) {
@@ -1155,16 +1156,19 @@ class DmailController extends MainController
         $idLists = $result['queryInfo']['id_lists'];
         $out = '';
         if (is_array($idLists['tt_address'] ?? false)) {
-            $out .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['tt_address'], 'tt_address'), 'tt_address');
+            $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+            $out .= $this->getRecordList($rows, 'tt_address');
         }
         if (is_array($idLists['fe_users'] ?? false)) {
-            $out .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists['fe_users'], 'fe_users'), 'fe_users');
+            $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+            $out .= $this->getRecordList($rows, 'fe_users');
         }
         if (is_array($idLists['PLAINLIST'] ?? false)) {
             $out .= $this->getRecordList($idLists['PLAINLIST'], 'default');
         }
         if (is_array($idLists[$this->userTable] ?? false)) {
-            $out .= $this->getRecordList(DirectMailUtility::fetchRecordsListValues($idLists[$this->userTable], $this->userTable), $this->userTable);
+            $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$this->userTable], $this->userTable);
+            $out .= $this->getRecordList($rows, $this->userTable);
         }
         
         return $out;
@@ -1366,12 +1370,12 @@ class DmailController extends MainController
         $sentFlag = 0;
         if (is_array($idLists[$table])) {
             if ($table != 'PLAINLIST') {
-                $recs = DirectMailUtility::fetchRecordsListValues($idLists[$table], $table, '*');
+                $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$table], $table, '*');
             } 
             else {
-                $recs = $idLists['PLAINLIST'];
+                $rows = $idLists['PLAINLIST'];
             }
-            foreach ($recs as $rec) {
+            foreach ($rows as $rec) {
                 $recipRow = $htmlmail->convertFields($rec);
                 $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table, $recipRow['uid']);
                 $kc = substr($table, 0, 1);
