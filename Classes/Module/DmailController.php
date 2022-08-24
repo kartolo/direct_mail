@@ -1709,11 +1709,12 @@ class DmailController extends MainController
                         break;
                     case 2:
                         // Static MM list
-                        $idLists['tt_address'] = DirectMailUtility::getStaticIdList('tt_address', $groupUid);
-                        $idLists['fe_users'] = DirectMailUtility::getStaticIdList('fe_users', $groupUid);
-                        $idLists['fe_users'] = array_unique(array_merge($idLists['fe_users'], DirectMailUtility::getStaticIdList('fe_groups', $groupUid)));
+                        $idLists['tt_address'] = GeneralUtility::makeInstance(TempRepository::class)->getStaticIdList('tt_address', $groupUid);
+                        $idLists['fe_users'] = GeneralUtility::makeInstance(TempRepository::class)->getStaticIdList('fe_users', $groupUid);
+                        $tempGroups = GeneralUtility::makeInstance(TempRepository::class)->getStaticIdList('fe_groups', $groupUid);
+                        $idLists['fe_users'] = array_unique(array_merge($idLists['fe_users'], $tempGroups));
                         if ($this->userTable) {
-                            $idLists[$this->userTable] = DirectMailUtility::getStaticIdList($this->userTable, $groupUid);
+                            $idLists[$this->userTable] = GeneralUtility::makeInstance(TempRepository::class)->getStaticIdList($this->userTable, $groupUid);
                         }
                         break;
                     case 3:
