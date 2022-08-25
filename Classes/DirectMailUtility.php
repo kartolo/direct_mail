@@ -316,7 +316,7 @@ class DirectMailUtility
      *
      * @return array Parsed csv in an array
      */
-    public static function getCsvValues($str, $sep=',')
+    public static function getCsvValues(string $str, string $sep = ','): array
     {
         $fh = tmpfile();
         fwrite($fh, trim($str));
@@ -325,7 +325,7 @@ class DirectMailUtility
         if ($sep == 'tab') {
             $sep = "\t";
         }
-        while (($data = fgetcsv($fh, 1000, $sep))) {
+        while ($data = fgetcsv($fh, 1000, $sep)) {
             $lines[] = $data;
         }
 
