@@ -282,23 +282,23 @@ class TempRepository extends MainRepository {
                 'sys_dmail_group',
                 $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
                 )
-                ->innerJoin(
-                    'sys_dmail_group_mm',
-                    $switchTable,
-                    $switchTable,
-                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
-                    )
-                    ->andWhere(
-                        $queryBuilder->expr()->andX()
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($switchTable)))
-                        ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
-                        ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
-                        ->add($addWhere)
-                        )
-                        ->orderBy($switchTable . '.uid')
-                        ->addOrderBy($switchTable . '.email')
-                        ->execute();
+            ->innerJoin(
+                'sys_dmail_group_mm',
+                $switchTable,
+                $switchTable,
+                $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
+                )
+            ->andWhere(
+                $queryBuilder->expr()->andX()
+                ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+                ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($switchTable)))
+                ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
+                ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
+                ->add($addWhere)
+                )
+            ->orderBy($switchTable . '.uid')
+            ->addOrderBy($switchTable . '.email')
+            ->execute();
         }
         
         $outArr = [];
@@ -321,63 +321,115 @@ class TempRepository extends MainRepository {
                 'sys_dmail_group_mm',
                 'sys_dmail_group_mm',
                 $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
-                )
-                ->andWhere(
-                    $queryBuilder->expr()->andX()
-                    ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-                    ->add($queryBuilder->expr()->eq('fe_groups.uid', $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')))
-                    ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
+            )
+            ->andWhere(
+                $queryBuilder->expr()->andX()
+                ->add($queryBuilder->expr()->eq('sys_dmail_group.uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+                ->add($queryBuilder->expr()->eq('fe_groups.uid', $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')))
+                ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
+            )
+            ->execute();
+                    
+            list($groupId) = $res->fetchAll();
+                    
+            // recursively get all subgroups of this fe_group
+            $subgroups = $this->getFEgroupSubgroups($groupId);
+                    
+            if (!empty($subgroups)) {
+                $usergroupInList = null;
+                foreach ($subgroups as $subgroup) {
+                    $usergroupInList .= (($usergroupInList == null) ? null : ' OR') . ' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',' . intval($subgroup) . ',\') )';
+                }
+                $usergroupInList = '(' . $usergroupInList . ')';
+                
+                // fetch all fe_users from these subgroups
+                $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+                $queryBuilder = $connection->createQueryBuilder();
+                // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
+                if ($switchTable == 'fe_users') {
+                    $addWhere =  $queryBuilder->expr()->eq(
+                        $switchTable . '.module_sys_dmail_newsletter',
+                        1
+                        );
+                }
+                
+                $res = $queryBuilder
+                ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+                ->from($table, $table)
+                ->innerJoin(
+                    $table,
+                    $switchTable,
+                    $switchTable
                     )
-                    ->execute();
-                    
-                    list($groupId) = $res->fetchAll();
-                    
-                    // recursively get all subgroups of this fe_group
-                    $subgroups = self::getFEgroupSubgroups($groupId);
-                    
-                    if (!empty($subgroups)) {
-                        $usergroupInList = null;
-                        foreach ($subgroups as $subgroup) {
-                            $usergroupInList .= (($usergroupInList == null) ? null : ' OR') . ' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',' . intval($subgroup) . ',\') )';
-                        }
-                        $usergroupInList = '(' . $usergroupInList . ')';
+                    ->orWhere($usergroupInList)
+                    ->andWhere(
+                        $queryBuilder->expr()->andX()
+                        ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
+                        ->add($addWhere)
+                        )
+                ->orderBy($switchTable . '.uid')
+                ->addOrderBy($switchTable . '.email')
+                ->execute();
                         
-                        // fetch all fe_users from these subgroups
-                        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-                        $queryBuilder = $connection->createQueryBuilder();
-                        // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
-                        if ($switchTable == 'fe_users') {
-                            $addWhere =  $queryBuilder->expr()->eq(
-                                $switchTable . '.module_sys_dmail_newsletter',
-                                1
-                                );
-                        }
-                        
-                        $res = $queryBuilder
-                        ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
-                        ->from($table, $table)
-                        ->innerJoin(
-                            $table,
-                            $switchTable,
-                            $switchTable
-                            )
-                            ->orWhere($usergroupInList)
-                            ->andWhere(
-                                $queryBuilder->expr()->andX()
-                                ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
-                                ->add($addWhere)
-                                )
-                                ->orderBy($switchTable . '.uid')
-                                ->addOrderBy($switchTable . '.email')
-                                ->execute();
-                                
-                                while ($row = $res->fetch()) {
-                                    $outArr[] = $row['uid'];
-                                }
-                    }
+                while ($row = $res->fetch()) {
+                    $outArr[] = $row['uid'];
+                }
+            }
         }
         
         return $outArr;
+    }
+    
+    /**
+     * Get all subsgroups recursively.
+     *
+     * @param int $groupId Parent fe usergroup
+     *
+     * @return array The all id of fe_groups
+     */
+    public function getFEgroupSubgroups($groupId)
+    {
+        // get all subgroups of this fe_group
+        // fe_groups having this id in their subgroup field
+        
+        $table = 'fe_groups';
+        $mmTable = 'sys_dmail_group_mm';
+        $groupTable = 'sys_dmail_group';
+        
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        
+        $res = $queryBuilder->selectLiteral('DISTINCT fe_groups.uid')
+        ->from($table, $table)
+        ->join(
+            $table,
+            $mmTable,
+            $mmTable,
+            $queryBuilder->expr()->eq(
+                $mmTable . '.uid_local',
+                $queryBuilder->quoteIdentifier($table . '.uid')
+                )
+            )
+            ->join(
+                $mmTable,
+                $groupTable,
+                $groupTable,
+                $queryBuilder->expr()->eq(
+                    $mmTable . '.uid_local',
+                    $queryBuilder->quoteIdentifier($groupTable . '.uid')
+                    )
+                )
+        ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . intval($groupId) . ',\' )')
+        ->execute();
+        $groupArr = [];
+                
+        while ($row = $res->fetch()) {
+            $groupArr[] = $row['uid'];
+            
+            // add all subgroups recursively too
+            $groupArr = array_merge($groupArr, $this->getFEgroupSubgroups($row['uid']));
+        }
+                
+        return $groupArr;
     }
     
     /**

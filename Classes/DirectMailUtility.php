@@ -233,8 +233,8 @@ class DirectMailUtility
                     ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
                         ' AND l18n_parent=0')
                     ->execute();
-                while (($rowCat = $res->fetch())) {
-                    if (($localizedRowCat = self::getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid, ''))) {
+                while ($rowCat = $res->fetch()) {
+                    if ($localizedRowCat = self::getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid, '')) {
                         $categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
                     }
                 }
@@ -286,7 +286,8 @@ class DirectMailUtility
                                         }
                                     }
                                 }
-                            } elseif ($OLmode === 'hideNonTranslated' && $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] == 0) {
+                            } 
+                            elseif ($OLmode === 'hideNonTranslated' && $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] == 0) {
                                 // Unset, if non-translated records should be hidden.
                                 // ONLY done if the source record really is default language and not [All] in which case it is allowed.
                                 unset($row);
@@ -294,10 +295,12 @@ class DirectMailUtility
 
                             // Otherwise, check if sys_language_content is different from the value of the record
                             // that means a japanese site might try to display french content.
-                        } elseif ($sys_language_content!=$row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]) {
+                        } 
+                        elseif ($sys_language_content!=$row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]) {
                             unset($row);
                         }
-                    } else {
+                    } 
+                    else {
                         // When default language is displayed,
                         // we never want to return a record carrying another language!:
                         if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]>0) {
@@ -523,58 +526,6 @@ class DirectMailUtility
     }
 
     /**
-     * Get all subsgroups recursively.
-     *
-     * @param int $groupId Parent fe usergroup
-     *
-     * @return array The all id of fe_groups
-     */
-    public static function getFEgroupSubgroups($groupId)
-    {
-        // get all subgroups of this fe_group
-        // fe_groups having this id in their subgroup field
-
-        $table = 'fe_groups';
-        $mmTable = 'sys_dmail_group_mm';
-        $groupTable = 'sys_dmail_group';
-
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-
-        $res = $queryBuilder->selectLiteral('DISTINCT fe_groups.uid')
-            ->from($table, $table)
-            ->join(
-                $table,
-                $mmTable,
-                $mmTable,
-                $queryBuilder->expr()->eq(
-                    $mmTable . '.uid_local',
-                    $queryBuilder->quoteIdentifier($table . '.uid')
-                )
-            )
-            ->join(
-                $mmTable,
-                $groupTable,
-                $groupTable,
-                $queryBuilder->expr()->eq(
-                    $mmTable . '.uid_local',
-                    $queryBuilder->quoteIdentifier($groupTable . '.uid')
-                )
-            )
-            ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . intval($groupId) . ',\' )')
-            ->execute();
-        $groupArr = [];
-
-        while (($row = $res->fetch())) {
-            $groupArr[] = $row['uid'];
-
-            // add all subgroups recursively too
-            $groupArr = array_merge($groupArr, self::getFEgroupSubgroups($row['uid']));
-        }
-
-        return $groupArr;
-    }
-
-    /**
      * Creates a directmail entry in th DB.
      * Used only for internal pages
      *
@@ -685,7 +636,8 @@ class DirectMailUtility
             $param = $params['langParams.'][$sysLanguageUid];
 
         // fallback: L == sys_language_uid
-        } else {
+        } 
+        else {
             $param = '&L=' . $sysLanguageUid;
         }
 
@@ -741,7 +693,7 @@ class DirectMailUtility
         // No plain text url
         if (!$externalUrlPlain || $urlParts === false || !$urlParts['host']) {
             $newRecord['plainParams'] = '';
-            $newRecord['sendOptions']&=254;
+            $newRecord['sendOptions']&= 254;
         } else {
             $newRecord['plainParams'] = $externalUrlPlain;
         }
@@ -749,7 +701,7 @@ class DirectMailUtility
         // No html url
         $urlParts = @parse_url($externalUrlHtml);
         if (!$externalUrlHtml || $urlParts === false || !$urlParts['host']) {
-            $newRecord['sendOptions']&=253;
+            $newRecord['sendOptions']&= 253;
         } else {
             $newRecord['HTMLParams'] = $externalUrlHtml;
         }
@@ -1035,7 +987,8 @@ class DirectMailUtility
         if ($result['htmlUrl']) {
             if (!($row['sendOptions'] & 2)) {
                 $result['htmlUrl'] = '';
-            } else {
+            } 
+            else {
                 $urlParts = @parse_url($result['htmlUrl']);
                 if (!$urlParts['scheme']) {
                     $result['htmlUrl'] = 'http://' . $result['htmlUrl'];
