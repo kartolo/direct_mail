@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -426,7 +427,7 @@ class DirectMailUtility
      * @param int $sysLanguageUid
      * @return int|bool new record uid or FALSE if failed
      */
-    public static function createDirectMailRecordFromPage($pageUid, array $parameters, $sysLanguageUid = 0)
+    public static function createDirectMailRecordFromPage(int $pageUid, array $parameters, int $sysLanguageUid = 0)
     {
         $result = false;
 
@@ -470,19 +471,7 @@ class DirectMailUtility
         $pageRecord = BackendUtility::getRecord('pages', $pageUid);
         // Fetch page title from translated page
         if ($newRecord['sys_language_uid'] > 0) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
-            $queryBuilder
-                ->select('title')
-                ->from('pages')
-                ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)));
-
-            $pageRecordOverlay = $queryBuilder->andWhere(
-                $queryBuilder->expr()->eq(
-                    'sys_language_uid',
-                    $queryBuilder->createNamedParameter($newRecord['sys_language_uid'], \PDO::PARAM_INT)
-                )
-            )->execute()->fetch();
-
+            $pageRecordOverlay = GeneralUtility::makeInstance(PagesRepository::class)->selectTitleTranslatedPage($pageUid, (int)$newRecord['sys_language_uid']);
             if (is_array($pageRecordOverlay)) {
                 $pageRecord['title'] = $pageRecordOverlay['title'];
             }

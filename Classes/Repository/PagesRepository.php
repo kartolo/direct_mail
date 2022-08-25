@@ -82,4 +82,20 @@ class PagesRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+    
+    /**
+     * @return array|bool
+     */
+    public function selectTitleTranslatedPage(int $pageUid, int $langUid) //: array|bool 
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        
+        return $queryBuilder
+        ->select('title')
+        ->from('pages')
+        ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)))
+        ->andWhere($queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)))
+        ->execute()
+        ->fetch();
+    }
 }
