@@ -855,12 +855,12 @@ class DmailController extends MainController
         }
 
         if ($dmail['sys_dmail']['NEW']['pid'] && $dmail['sys_dmail']['NEW']['sendOptions']) {
-            /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $tce = GeneralUtility::makeInstance(DataHandler::class);
-            $tce->stripslashes_values = 0;
-            $tce->start($dmail, []);
-            $tce->process_datamap();
-            $this->sys_dmail_uid = $tce->substNEWwithIDs['NEW'];
+            /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
+            $dataHandler = $this->getDataHandler();
+            $dataHandler->stripslashes_values = 0;
+            $dataHandler->start($dmail, []);
+            $dataHandler->process_datamap();
+            $this->sys_dmail_uid = $dataHandler->substNEWwithIDs['NEW'];
             
             $row = BackendUtility::getRecord('sys_dmail', intval($this->sys_dmail_uid));
             // link in the mail
@@ -878,7 +878,8 @@ class DmailController extends MainController
             // fetch functions
             $theOutput = $this->compileQuickMail($row, $message);
             // end fetch function
-        } else {
+        } 
+        else {
             if (!$dmail['sys_dmail']['NEW']['sendOptions']) {
                 $this->error = 'no_valid_url';
             }
@@ -1843,14 +1844,14 @@ class DmailController extends MainController
                 $data['tt_content'][$recUid]['module_sys_dmail_category'] = implode(',', $enabled);
             }
 
-            /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $tce = GeneralUtility::makeInstance(DataHandler::class);
-            $tce->stripslashes_values = 0;
-            $tce->start($data, []);
-            $tce->process_datamap();
+            /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
+            $dataHandler = $this->getDataHandler();
+            $dataHandler->stripslashes_values = 0;
+            $dataHandler->start($data, []);
+            $dataHandler->process_datamap();
 
             // remove cache
-            $tce->clear_cacheCmd($this->pages_uid);
+            $dataHandler->clear_cacheCmd($this->pages_uid);
             $theOutput = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
         }
 

@@ -721,11 +721,12 @@ class RecipientListController extends MainController
                         }
                     }
                     $data[$this->table][$this->uid]['module_sys_dmail_html'] = $this->indata['html'] ? 1 : 0;
-                    /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler*/
-                    $tce = GeneralUtility::makeInstance(DataHandler::class);
-                    $tce->stripslashes_values = 0;
-                    $tce->start($data, []);
-                    $tce->process_datamap();
+                    
+                    /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler*/
+                    $dataHandler = $this->getDataHandler();
+                    $dataHandler->stripslashes_values = 0;
+                    $dataHandler->start($data, []);
+                    $dataHandler->process_datamap();
                 }
                 break;
             default:
