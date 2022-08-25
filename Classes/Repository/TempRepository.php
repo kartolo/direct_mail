@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use DirectMailTeam\DirectMail\MailSelect;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
@@ -376,6 +377,36 @@ class TempRepository extends MainRepository {
                     }
         }
         
+        return $outArr;
+    }
+    
+    /**
+     * Construct the array of uid's from $table selected
+     * by special query of mail group of such type
+     *
+     * @param MailSelect $queryGenerator The query generator object
+     * @param string $table The table to select from
+     * @param array $group The direct_mail group record
+     *
+     * @return array The resulting query.
+     */
+    public static function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group): array
+    {
+        $outArr = [];
+        if ($group['query']) {
+            $queryGenerator->init('dmail_queryConfig', $table);
+            $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
+            
+            $queryGenerator->extFieldLists['queryFields'] = 'uid';
+            $select = $queryGenerator->getSelectQuery();
+            /** @var Connection $connection */
+            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+            $recipients = $connection->executeQuery($select)->fetchAll();
+            
+            foreach ($recipients as $recipient) {
+                $outArr[] = $recipient['uid'];
+            }
+        }
         return $outArr;
     }
 }

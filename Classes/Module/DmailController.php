@@ -1732,7 +1732,7 @@ class DmailController extends MainController
                         if ($table) {
                             // initialize the query generator
                             $queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
-                            $idLists[$table] = DirectMailUtility::getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
+                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
                         }
                         break;
                     case 4:

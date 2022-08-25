@@ -319,7 +319,7 @@ class RecipientListController extends MainController
                             $table = $this->userTable;
                         }
                         if ($table) {
-                            $idLists[$table] = DirectMailUtility::getSpecialQueryIdList($this->queryGenerator, $table, $mailGroup);
+                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($this->queryGenerator, $table, $mailGroup);
                         }
                         break;
                     case 4:
