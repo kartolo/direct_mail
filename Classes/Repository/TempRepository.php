@@ -20,7 +20,7 @@ class TempRepository extends MainRepository {
      *
      * @return array recipients' data
      */
-    public static function fetchRecordsListValues(array $listArr, $table, $fields = 'uid,name,email')
+    public function fetchRecordsListValues(array $listArr, $table, $fields = 'uid,name,email')
     {
         $outListArr = [];
         if (is_array($listArr) && count($listArr)) {
@@ -77,7 +77,7 @@ class TempRepository extends MainRepository {
      *
      * @return	array The resulting array of uid's
      */
-    public static function getIdList($table, $pidList, $groupUid, $cat)
+    public function getIdList($table, $pidList, $groupUid, $cat)
     {
         $addWhere = '';
         
@@ -216,7 +216,7 @@ class TempRepository extends MainRepository {
      *
      * @return array The resulting array of uid's
      */
-    public static function getStaticIdList($table, $uid)
+    public function getStaticIdList($table, $uid)
     {
         $switchTable = $table == 'fe_groups' ? 'fe_users' : $table;
         
@@ -390,7 +390,7 @@ class TempRepository extends MainRepository {
      *
      * @return array The resulting query.
      */
-    public static function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group): array
+    public function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group): array
     {
         $outArr = [];
         if ($group['query']) {
@@ -408,5 +408,52 @@ class TempRepository extends MainRepository {
             }
         }
         return $outArr;
+    }
+    
+    /**
+     * Get all group IDs
+     *
+     * @param string $list Comma-separated ID
+     * @param array $parsedGroups Groups ID, which is already parsed
+     * @param string $perms_clause Permission clause (Where)
+     *
+     * @return array the new Group IDs
+     */
+    public function getMailGroups($list, array $parsedGroups, $permsClause)
+    {
+        $groupIdList = GeneralUtility::intExplode(',', $list);
+        $groups = [];
+        
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $res = $queryBuilder->select('sys_dmail_group.*')
+            ->from('sys_dmail_group', 'sys_dmail_group')
+            ->leftJoin(
+                'sys_dmail_group',
+                'pages',
+                'pages',
+                $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('sys_dmail_group.pid'))
+            )
+            ->add('where', 'sys_dmail_group.uid IN (' . implode(',', $groupIdList) . ')' .
+                ' AND ' . $permsClause)
+        ->execute();
+                
+        while ($row = $res->fetch()) {
+            if ($row['type'] == 4) {
+                // Other mail group...
+                if (!in_array($row['uid'], $parsedGroups)) {
+                    $parsedGroups[] = $row['uid'];
+                    $groups = array_merge($groups, $this->getMailGroups($row['mail_groups'], $parsedGroups, $permsClause));
+                }
+            }
+            else {
+                // Normal mail group, just add to list
+                $groups[] = $row['uid'];
+            }
+        }
+        return $groups;
     }
 }

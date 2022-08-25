@@ -1736,7 +1736,7 @@ class DmailController extends MainController
                         }
                         break;
                     case 4:
-                        $groups = array_unique(DirectMailUtility::getMailGroups($mailGroup['mail_groups'], [$mailGroup['uid']], $this->perms_clause));
+                        $groups = array_unique(GeneralUtility::makeInstance(TempRepository::class)->getMailGroups($mailGroup['mail_groups'], [$mailGroup['uid']], $this->perms_clause));
                         foreach ($groups as $v) {
                             $collect = $this->getSingleMailGroup($v);
                             if (is_array($collect)) {

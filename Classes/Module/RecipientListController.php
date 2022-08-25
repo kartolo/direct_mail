@@ -323,7 +323,8 @@ class RecipientListController extends MainController
                         }
                         break;
                     case 4:
-                        $groups = array_unique(DirectMailUtility::getMailGroups($mailGroup['mail_groups'], [$mailGroup['uid']], $this->perms_clause));
+                        $groups = array_unique(GeneralUtility::makeInstance(TempRepository::class)->getMailGroups($mailGroup['mail_groups'], [$mailGroup['uid']], $this->perms_clause));
+
                         foreach ($groups as $group) {
                             $collect = $this->cmd_compileMailGroup($group);
                             if (is_array($collect['queryInfo']['id_lists'])) {
