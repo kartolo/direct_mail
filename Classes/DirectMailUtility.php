@@ -28,6 +28,7 @@ use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\ImmediateResponseException;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\Resource\FileRepository;
@@ -304,7 +305,7 @@ class DirectMailUtility
      */
     public static function fName($name)
     {
-        return stripslashes($GLOBALS['LANG']->sL(BackendUtility::getItemLabel('sys_dmail', $name)));
+        return stripslashes(self::getLanguageService()->sL(BackendUtility::getItemLabel('sys_dmail', $name)));
     }
 
     /**
@@ -355,7 +356,8 @@ class DirectMailUtility
 
         $isAllowedDisplayTable = $GLOBALS['BE_USER']->check('tables_select', $table);
         $isAllowedEditTable = $GLOBALS['BE_USER']->check('tables_modify', $table);
-        $notAllowedPlaceholder = $GLOBALS['LANG']->getLL('mailgroup_table_disallowed_placeholder');
+        $lang = self::getLanguageService();
+        $notAllowedPlaceholder = $lang->getLL('mailgroup_table_disallowed_placeholder');
 
         if (is_array($listArr)) {
             $count = count($listArr);
@@ -379,7 +381,7 @@ class DirectMailUtility
                         $editLink = sprintf(
                             '<td><a class="t3-link" href="%s" title="%s">%s</a></td>',
                             $uriBuilder->buildUriFromRoute('record_edit', $urlParameters),
-                            $GLOBALS['LANG']->getLL('dmail_edit'),
+                            $lang->getLL('dmail_edit'),
                             $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL)
                         );
                     }
@@ -390,7 +392,8 @@ class DirectMailUtility
                         'email' => '<td nowrap> ' . htmlspecialchars($row['email']) . ' </td>',
                         'name' => '<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>'
                     ];
-                } else {
+                } 
+                else {
                     $exampleData = [
                         'email' => '<td nowrap>' . $notAllowedPlaceholder . '</td>',
                         'name' => ''
@@ -407,7 +410,7 @@ class DirectMailUtility
             }
         }
         if (count($lines)) {
-            $out = $GLOBALS['LANG']->getLL('dmail_number_records') . '<strong> ' . $count . '</strong><br />';
+            $out = $lang->getLL('dmail_number_records') . '<strong> ' . $count . '</strong><br />';
             $out .= '<table class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
         }
 
@@ -605,6 +608,14 @@ class DirectMailUtility
 
 
     /**
+     * @return LanguageService
+     */
+    public function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
+    }
+    
+    /**
      * Fetch content of a page (only internal and external page)
      *
      * @param array $row Directmail DB record
@@ -615,6 +626,7 @@ class DirectMailUtility
      */
     public static function fetchUrlContentsForDirectMailRecord(array $row, array $params, $returnArray = false)
     {
+        $lang = self::getLanguageService();
         $theOutput = '';
         $errorMsg = [];
         $warningMsg = [];
@@ -652,10 +664,10 @@ class DirectMailUtility
             $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
-                $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_no_plain_content');
+                $errorMsg[] = $lang->getLL('dmail_no_plain_content');
             } 
             elseif (!strstr($htmlmail->theParts['plain']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
-                $warningMsg[] = $GLOBALS['LANG']->getLL('dmail_no_plain_boundaries');
+                $warningMsg[] = $lang->getLL('dmail_no_plain_boundaries');
             }
         }
 
@@ -679,13 +691,13 @@ class DirectMailUtility
                 }
             }
             if ($htmlmail->extractFramesInfo()) {
-                $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_frames_not allowed');
+                $errorMsg[] = $lang->getLL('dmail_frames_not allowed');
             } 
             elseif (!$success || !$htmlmail->theParts['html']['content']) {
-                $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_no_html_content');
+                $errorMsg[] = $lang->getLL('dmail_no_html_content');
             } 
             elseif (!strstr($htmlmail->theParts['html']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
-                $warningMsg[] = $GLOBALS['LANG']->getLL('dmail_no_html_boundaries');
+                $warningMsg[] = $lang->getLL('dmail_no_html_boundaries');
             }
         }
 
@@ -712,7 +724,7 @@ class DirectMailUtility
                             GeneralUtility::makeInstance(
                                 FlashMessage::class,
                                 $warning,
-                                $GLOBALS['LANG']->getLL('dmail_warning'),
+                                $lang->getLL('dmail_warning'),
                                 FlashMessage::WARNING
                             )
                         ]);
@@ -727,7 +739,7 @@ class DirectMailUtility
                         GeneralUtility::makeInstance(
                             FlashMessage::class,
                             $error,
-                            $GLOBALS['LANG']->getLL('dmail_error'),
+                            $lang->getLL('dmail_error'),
                             FlashMessage::ERROR
                         )
                     ]);
@@ -763,11 +775,7 @@ class DirectMailUtility
             $url = $matches[0] . $user . ':' . $pass . '@' . substr($url, strlen($matches[0]));
         }
         if (($params['simulate_usergroup'] ?? false) && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
-            if (strpos($url, '?') !== false ) {
-                $glue = '&';
-            } else {
-                $glue = '?';
-            }
+            $glue = (strpos($url, '?') !== false) ? '&' : '?';
             $url = $url . $glue . 'dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' . self::createAndGetAccessToken();
         }
         return $url;

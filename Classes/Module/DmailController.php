@@ -268,7 +268,6 @@ class DmailController extends MainController
                 // internal page
                 if ($this->createMailFrom_UID && !$quickmail['send']) {
                     $newUid = DirectMailUtility::createDirectMailRecordFromPage($this->createMailFrom_UID, $this->params, $this->createMailFrom_LANG);
-
                     if (is_numeric($newUid)) {
                         $this->sys_dmail_uid = $newUid;
                         // Read new record (necessary because TCEmain sets default field values)
