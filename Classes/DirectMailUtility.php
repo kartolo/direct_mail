@@ -15,6 +15,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -34,10 +35,6 @@ use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
-use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -656,7 +653,8 @@ class DirectMailUtility
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
                 $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_no_plain_content');
-            } elseif (!strstr($htmlmail->theParts['plain']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
+            } 
+            elseif (!strstr($htmlmail->theParts['plain']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $GLOBALS['LANG']->getLL('dmail_no_plain_boundaries');
             }
         }
@@ -672,17 +670,21 @@ class DirectMailUtility
                 $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', ($htmlmail->theParts['html_content'] ?? ''), $matches);
                 if ($res == 1) {
                     $htmlmail->charset = $matches[1];
-                } elseif (isset($params['direct_mail_charset'])) {
+                } 
+                elseif (isset($params['direct_mail_charset'])) {
                     $htmlmail->charset = $params['direct_mail_charset'];
-                } else {
+                } 
+                else {
                     $htmlmail->charset = 'iso-8859-1';
                 }
             }
             if ($htmlmail->extractFramesInfo()) {
                 $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_frames_not allowed');
-            } elseif (!$success || !$htmlmail->theParts['html']['content']) {
+            } 
+            elseif (!$success || !$htmlmail->theParts['html']['content']) {
                 $errorMsg[] = $GLOBALS['LANG']->getLL('dmail_no_html_content');
-            } elseif (!strstr($htmlmail->theParts['html']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
+            } 
+            elseif (!strstr($htmlmail->theParts['html']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $GLOBALS['LANG']->getLL('dmail_no_html_boundaries');
             }
         }
@@ -700,13 +702,7 @@ class DirectMailUtility
                 'long_link_rdct_url' => $urlBase
             ];
 
-            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $connection = $connectionPool->getConnectionForTable('sys_dmail');
-            $connection->update(
-                'sys_dmail', // table
-                $updateData, // value array
-                [ 'uid' => intval($row['uid']) ] // where
-            );
+            $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$row['uid'], $updateData);
 
             if (count($warningMsg)) {
                 foreach ($warningMsg as $warning) {
@@ -722,7 +718,8 @@ class DirectMailUtility
                         ]);
                 }
             }
-        } else {
+        } 
+        else {
             foreach ($errorMsg as $error) {
                 $theOutput .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
                     ->resolve()
@@ -741,7 +738,8 @@ class DirectMailUtility
                 'errors' => $errorMsg,
                 'warnings' => $warningMsg
             ];
-        } else {
+        } 
+        else {
             return $theOutput;
         }
     }
