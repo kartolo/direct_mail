@@ -980,14 +980,7 @@ class DirectMailUtility
 
                 // store those changes
                 $tsConf = implode(LF, $tsLines);
-
-                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-                $connection = $connectionPool->getConnectionForTable('pages');
-                $connection->update(
-                    'pages', // table
-                    [ 'TSconfig' => $tsConf ],  // value array
-                    [ 'uid' => intval($id) ] // where
-                );
+                $done = GeneralUtility::makeInstance(PagesRepository::class)->updatePageTSconfig((int)$id, $tsConf);
             }
         }
     }

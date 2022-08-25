@@ -98,4 +98,19 @@ class PagesRepository extends MainRepository {
         ->execute()
         ->fetch();
     }
+    
+    /**
+     * 
+     * @param int $pageUid
+     * @param string $tsConf
+     * @return int
+     */
+    public function updatePageTSconfig(int $pageUid, string $tsConf) {
+        $connection = $this->getConnection($this->table);
+        return $connection->update(
+            $this->table,
+            [ 'TSconfig' => $tsConf ],
+            [ 'uid' => $pageUid ] // where
+        );
+    }
 }
