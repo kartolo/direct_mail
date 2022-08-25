@@ -1888,7 +1888,7 @@ class DmailController extends MainController
                     $colPosVal = $row['colPos'];
                 }
                 
-                $this->categories = DirectMailUtility::makeCategories('tt_content', $row, $this->sys_language_uid);
+                $this->categories = GeneralUtility::makeInstance(TempRepository::class)->makeCategories('tt_content', $row, $this->sys_language_uid);
                 reset($this->categories);
                 $cboxes = [];
                 foreach ($this->categories as $pKey => $pVal) {

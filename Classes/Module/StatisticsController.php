@@ -329,8 +329,7 @@ class StatisticsController extends MainController
                 'returnUrl' => $this->requestUri,
             ]);
 
-            $this->categories = DirectMailUtility::makeCategories($this->table, $row, $this->sys_language_uid);
-            
+            $this->categories = GeneralUtility::makeInstance(TempRepository::class)->makeCategories($this->table, $row, $this->sys_language_uid);
             $data = [
                 'icon'            => $this->iconFactory->getIconForRecord($this->table, $row)->render(),
                 'iconActionsOpen' => $iconActionsOpen = $this->getIconActionsOpen(),

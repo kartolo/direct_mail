@@ -788,8 +788,7 @@ class RecipientListController extends MainController
                 'cmd' => $this->cmd,
                 'html' => $row['module_sys_dmail_html'] ? true : false
             ];
-                    
-            $this->categories = DirectMailUtility::makeCategories($this->table, $row, $this->sys_language_uid);
+            $this->categories = GeneralUtility::makeInstance(TempRepository::class)->makeCategories($this->table, $row, $this->sys_language_uid);
                     
             reset($this->categories);
             foreach ($this->categories as $pKey => $pVal) {
