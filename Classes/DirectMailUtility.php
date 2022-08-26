@@ -123,46 +123,6 @@ class DirectMailUtility
     }
 
     /**
-     * Print out an array as a table
-     *
-     * @param array $tableLines Content of the cell
-     * @param array $cellParams The additional cell parameter
-     * @param bool $header If set, the first arrray is the header of the table
-     * @param array $cellcmd If set, the content is HTML escaped
-     * @param string $tableParams The additional table parameter
-     *
-     * @return string HTML table
-     */
-    public static function formatTable(array $tableLines, array $cellParams, $header, array $cellcmd = [], $tableParams = 'class="table table-striped table-hover"')
-    {
-        reset($tableLines);
-        $cols = empty($tableLines) ? 0 : count(current($tableLines));
-
-        reset($tableLines);
-        $lines = [];
-        $first = $header ? 1 : 0;
-
-        foreach ($tableLines as $r) {
-            $rowA = [];
-            for ($k = 0; $k < $cols; $k++) {
-                $v = $r[$k] ?? '';
-                $v = strlen($v) ? (($cellcmd[$k] ?? false) ? $v : htmlspecialchars($v)) : '&nbsp;';
-                if ($first) {
-                    $rowA[] = '<td>' . $v . '</td>';
-                } else {
-                    $cellParam = $cellParams[$k] ?? '';
-                    $cellParam = $cellParam != '' ? ' '.$cellParam : '';
-                    $rowA[] = '<td' . ($cellParam) . '>' . $v . '</td>';
-                }
-            }
-            $lines[] = '<tr class="' . ($first ? 't3-row-header' : 'db_list_normal') . '">' . implode('', $rowA) . '</tr>';
-            $first = 0;
-        }
-        $table = '<table ' . $tableParams . '>' . implode('', $lines) . '</table>';
-        return $table;
-    }
-
-    /**
      * Get the base URL
      *
      * @param int $pageId
