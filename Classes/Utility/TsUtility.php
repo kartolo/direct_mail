@@ -7,8 +7,8 @@ use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class TsUtility {
-
+class TsUtility 
+{
     /**
      * Implodes a multi dimensional TypoScript array, $p,
      * into a one-dimensional array (return value)

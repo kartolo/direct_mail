@@ -158,7 +158,7 @@ class DirectMailUtility
             foreach ($lines as $data) {
                 // Must be a line with content.
                 // This sorts out entries with one key which is empty. Those are empty lines.
-                if (count($data)>1 || $data[0]) {
+                if (count($data) > 1 || $data[0]) {
                     // Traverse fieldOrder and map values over
                     foreach ($fieldOrder as $kk => $fN) {
                         if ($fN[0]) {
@@ -190,7 +190,7 @@ class DirectMailUtility
      *
      * @return array a 2-dimensional array consisting email and name
      */
-    public static function rearrangePlainMails(array $plainMails)
+    public static function rearrangePlainMails(array $plainMails): array
     {
         $out = [];
         if (is_array($plainMails)) {
@@ -258,7 +258,6 @@ class DirectMailUtility
     public static function getUrlBase(int $pageId, bool $getFullUrl = false, string $htmlParams = '', string $plainParams = '')
     {
         if ($pageId > 0) {
-            $pageInfo = BackendUtility::getRecord('pages', $pageId, '*');
             /** @var SiteFinder $siteFinder */
             $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
             if (!empty($siteFinder->getAllSites())) {
@@ -270,30 +269,25 @@ class DirectMailUtility
                 $plainTextUrl = '';
 
                 if ($getFullUrl === true) {
+                    $pageInfo = BackendUtility::getRecord('pages', $pageId, '*');
                     $route = $site->getRouter()->generateUri($pageId, ['_language' => $pageInfo['sys_language_uid']]);
                     $htmlUrl = $route;
                     $plainTextUrl = $route;
                     // Parse htmlUrl as string \TYPO3\CMS\Core\Http\Uri::parseUri()
-                    if ($htmlParams !== '') {
-                        $htmlUrl .= '?' . $htmlParams;
-                    } else {
-                        $htmlUrl .= '';
-                    }
+                    $htmlUrl .= $htmlParams !== '' ? '?' . $htmlParams : '';
+
                     // Parse plainTextUrl as string \TYPO3\CMS\Core\Http\Uri::parseUri()
-                    if ($plainParams !== '') {
-                        $plainTextUrl .= '?' . $plainParams;
-                    } else {
-                        $plainTextUrl .= '';
-                    }
+                    $plainTextUrl .= $plainParams !== '' ? '?' . $plainParams : '';
                 }
 
                 return $htmlUrl !== '' ? [ 'baseUrl' => $baseUrl, 'htmlUrl' => $htmlUrl, 'plainTextUrl' => $plainTextUrl] : $baseUrl;
-            } else {
+            } 
+            else {
                 return ''; // No site found in root line of pageId
             }
-        } else {
-            return ''; // No valid pageId
-        }
+        } 
+
+        return ''; // No valid pageId
     }
 
     /**
@@ -307,32 +301,6 @@ class DirectMailUtility
     {
         return stripslashes(self::getLanguageService()->sL(BackendUtility::getItemLabel('sys_dmail', $name)));
     }
-
-    /**
-     * Parsing csv-formated text to an array
-     *
-     * @param string $str String in csv-format
-     * @param string $sep Separator
-     *
-     * @return array Parsed csv in an array
-     */
-    public static function getCsvValues(string $str, string $sep = ','): array
-    {
-        $fh = tmpfile();
-        fwrite($fh, trim($str));
-        fseek($fh, 0);
-        $lines = [];
-        if ($sep == 'tab') {
-            $sep = "\t";
-        }
-        while ($data = fgetcsv($fh, 1000, $sep)) {
-            $lines[] = $data;
-        }
-
-        fclose($fh);
-        return $lines;
-    }
-
 
     /**
      * Show DB record in HTML table format

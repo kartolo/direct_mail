@@ -5,6 +5,7 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Importer;
 use DirectMailTeam\DirectMail\MailSelect;
+use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -290,8 +291,9 @@ class RecipientListController extends MainController
                     case 1:
                         // List of mails
                         if ($mailGroup['csv'] == 1) {
-                            $recipients = DirectMailUtility::rearrangeCsvValues(DirectMailUtility::getCsvValues($mailGroup['list']), $this->fieldList);
-                        } else {
+                            $recipients = DirectMailUtility::rearrangeCsvValues(GeneralUtility::makeInstance(DmCsvUtility::class)->getCsvValues($mailGroup['list']), $this->fieldList);
+                        } 
+                        else {
                             $recipients = DirectMailUtility::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroup['list'])));
                         }
                         $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($recipients);
