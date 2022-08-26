@@ -524,89 +524,6 @@ class DirectMailUtility
         return $param;
     }
 
-
-    /**
-     * Creates a directmail entry in th DB.
-     * Used only for external pages
-     *
-     * @param string $subject Subject of the newsletter
-     * @param string $externalUrlHtml Link to the HTML version
-     * @param string $externalUrlPlain Linkt to the text version
-     * @param array $parameters Additional newsletter parameters
-     *
-     * @return	int/bool Error or warning message produced during the process
-     */
-    public static function createDirectMailRecordFromExternalURL($subject, $externalUrlHtml, $externalUrlPlain, array $parameters)
-    {
-        $result = false;
-
-        $newRecord = [
-            'type'                  => 1,
-            'pid'                   => $parameters['pid'] ?? 0,
-            'subject'               => $subject,
-            'from_email'            => $parameters['from_email'] ?? '',
-            'from_name'             => $parameters['from_name'] ?? '',
-            'replyto_email'         => $parameters['replyto_email'] ?? '',
-            'replyto_name'          => $parameters['replyto_name'] ?? '',
-            'return_path'           => $parameters['return_path'] ?? '',
-            'priority'              => $parameters['priority'] ?? 0,
-            'use_rdct'              => (!empty($parameters['use_rdct']) ? $parameters['use_rdct'] : 0),
-            'long_link_mode'        => $parameters['long_link_mode'] ?? '',
-            'organisation'          => $parameters['organisation'] ?? '',
-            'authcode_fieldList'    => $parameters['authcode_fieldList'] ?? '',
-            'sendOptions'           => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => self::getUrlBase((int)($parameters['page'] ?? 0))
-        ];
-
-        // If params set, set default values:
-        $paramsToOverride = ['sendOptions', 'includeMedia', 'flowedFormat', 'HTMLParams', 'plainParams'];
-        foreach ($paramsToOverride as $param) {
-            if (isset($parameters[$param])) {
-                $newRecord[$param] = $parameters[$param];
-            }
-        }
-        if (isset($parameters['direct_mail_encoding'])) {
-            $newRecord['encoding'] = $parameters['direct_mail_encoding'];
-        }
-
-        $urlParts = @parse_url($externalUrlPlain);
-        // No plain text url
-        if (!$externalUrlPlain || $urlParts === false || !$urlParts['host']) {
-            $newRecord['plainParams'] = '';
-            $newRecord['sendOptions']&= 254;
-        } else {
-            $newRecord['plainParams'] = $externalUrlPlain;
-        }
-
-        // No html url
-        $urlParts = @parse_url($externalUrlHtml);
-        if (!$externalUrlHtml || $urlParts === false || !$urlParts['host']) {
-            $newRecord['sendOptions']&= 253;
-        } else {
-            $newRecord['HTMLParams'] = $externalUrlHtml;
-        }
-
-        // save to database
-        if ($newRecord['pid'] && $newRecord['sendOptions']) {
-            $tcemainData = [
-                'sys_dmail' => [
-                    'NEW' => $newRecord
-                ]
-            ];
-
-            /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $tce = GeneralUtility::makeInstance(DataHandler::class);
-            $tce->stripslashes_values = 0;
-            $tce->start($tcemainData, []);
-            $tce->process_datamap();
-            $result = $tce->substNEWwithIDs['NEW'];
-        } elseif (!$newRecord['sendOptions']) {
-            $result = false;
-        }
-        return $result;
-    }
-
-
     /**
      * @return LanguageService
      */
@@ -822,7 +739,7 @@ class DirectMailUtility
      *
      * @return array $result Url_plain and url_html in an array
      */
-    public static function getFullUrlsForDirectMailRecord(array $row)
+    public static function getFullUrlsForDirectMailRecord(array $row): array
     {
         $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
         // Finding the domain to use

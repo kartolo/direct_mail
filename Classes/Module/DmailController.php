@@ -286,7 +286,7 @@ class DmailController extends MainController
                 // external URL
                 // $this->createMailFrom_URL is the External URL subject
                 elseif ($this->createMailFrom_URL != '' && !$quickmail['send']) {
-                    $newUid = DirectMailUtility::createDirectMailRecordFromExternalURL(
+                    $newUid = $this->createDirectMailRecordFromExternalURL(
                         $this->createMailFrom_URL, 
                         $this->createMailFrom_HTMLUrl, 
                         $this->createMailFrom_plainUrl, 
@@ -1913,5 +1913,89 @@ class DmailController extends MainController
             }
         }
         return ['output' => $output, 'theOutput' => $theOutput];
+    }
+    
+    /**
+     * Creates a directmail entry in th DB.
+     * Used only for external pages
+     *
+     * @param string $subject Subject of the newsletter
+     * @param string $externalUrlHtml Link to the HTML version
+     * @param string $externalUrlPlain Linkt to the text version
+     * @param array $parameters Additional newsletter parameters
+     *
+     * @return	int/bool Error or warning message produced during the process
+     */
+    public function createDirectMailRecordFromExternalURL($subject, $externalUrlHtml, $externalUrlPlain, array $parameters)
+    {
+        $result = false;
+        
+        $newRecord = [
+            'type'                  => 1,
+            'pid'                   => $parameters['pid'] ?? 0,
+            'subject'               => $subject,
+            'from_email'            => $parameters['from_email'] ?? '',
+            'from_name'             => $parameters['from_name'] ?? '',
+            'replyto_email'         => $parameters['replyto_email'] ?? '',
+            'replyto_name'          => $parameters['replyto_name'] ?? '',
+            'return_path'           => $parameters['return_path'] ?? '',
+            'priority'              => $parameters['priority'] ?? 0,
+            'use_rdct'              => (!empty($parameters['use_rdct']) ? $parameters['use_rdct'] : 0),
+            'long_link_mode'        => $parameters['long_link_mode'] ?? '',
+            'organisation'          => $parameters['organisation'] ?? '',
+            'authcode_fieldList'    => $parameters['authcode_fieldList'] ?? '',
+            'sendOptions'           => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
+            'long_link_rdct_url'    => DirectMailUtility::getUrlBase((int)($parameters['page'] ?? 0))
+        ];
+        
+        // If params set, set default values:
+        $paramsToOverride = ['sendOptions', 'includeMedia', 'flowedFormat', 'HTMLParams', 'plainParams'];
+        foreach ($paramsToOverride as $param) {
+            if (isset($parameters[$param])) {
+                $newRecord[$param] = $parameters[$param];
+            }
+        }
+        if (isset($parameters['direct_mail_encoding'])) {
+            $newRecord['encoding'] = $parameters['direct_mail_encoding'];
+        }
+        
+        $urlParts = @parse_url($externalUrlPlain);
+        // No plain text url
+        if (!$externalUrlPlain || $urlParts === false || !$urlParts['host']) {
+            $newRecord['plainParams'] = '';
+            $newRecord['sendOptions'] &= 254;
+        }
+        else {
+            $newRecord['plainParams'] = $externalUrlPlain;
+        }
+        
+        // No html url
+        $urlParts = @parse_url($externalUrlHtml);
+        if (!$externalUrlHtml || $urlParts === false || !$urlParts['host']) {
+            $newRecord['sendOptions'] &= 253;
+        }
+        else {
+            $newRecord['HTMLParams'] = $externalUrlHtml;
+        }
+        
+        // save to database
+        if ($newRecord['pid'] && $newRecord['sendOptions']) {
+            $tcemainData = [
+                'sys_dmail' => [
+                    'NEW' => $newRecord
+                ]
+            ];
+            
+            /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
+            $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+            $dataHandler->stripslashes_values = 0;
+            $dataHandler->start($tcemainData, []);
+            $dataHandler->process_datamap();
+            $result = $dataHandler->substNEWwithIDs['NEW'];
+        }
+        elseif (!$newRecord['sendOptions']) {
+            $result = false;
+        }
+        return $result;
     }
 }
