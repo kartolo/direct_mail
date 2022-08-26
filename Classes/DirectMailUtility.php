@@ -357,9 +357,9 @@ class DirectMailUtility
         $isAllowedDisplayTable = $GLOBALS['BE_USER']->check('tables_select', $table);
         $isAllowedEditTable = $GLOBALS['BE_USER']->check('tables_modify', $table);
         $lang = self::getLanguageService();
-        $notAllowedPlaceholder = $lang->getLL('mailgroup_table_disallowed_placeholder');
 
         if (is_array($listArr)) {
+            $notAllowedPlaceholder = $lang->getLL('mailgroup_table_disallowed_placeholder');
             $count = count($listArr);
             $returnUrl = GeneralUtility::getIndpEnv('REQUEST_URI');
             foreach ($listArr as $row) {
@@ -923,96 +923,6 @@ class DirectMailUtility
     public static function intInRangeWrapper(int $theInt, int $min, int $max = 2000000000, int $zeroValue = 0): int
     {
         return MathUtility::forceIntegerInRange($theInt, $min, $max, $zeroValue);
-    }
-
-
-    /**
-     * Updates Page TSconfig for a page with $id
-     * The function seems to take $pageTS as an array with properties
-     * and compare the values with those that already exists for the "object string",
-     * $TSconfPrefix, for the page, then sets those values which were not present.
-     * $impParams can be supplied as already known Page TSconfig, otherwise it's calculated.
-     *
-     * THIS DOES NOT CHECK ANY PERMISSIONS. SHOULD IT?
-     * More documentation is needed.
-     *
-     * @param int $id Page id
-     * @param array $pageTs Page TS array to write
-     * @param string $tsConfPrefix Prefix for object paths
-     * @param array|string $impParams [Description needed.]
-     *
-     * @return	void
-     *
-     * @see implodeTSParams(), getPagesTSconfig()
-     */
-    public static function updatePagesTSconfig($id, array $pageTs, $tsConfPrefix, $impParams = '')
-    {
-        $id = intval($id);
-        if (is_array($pageTs) && $id > 0) {
-            if (!is_array($impParams)) {
-                $impParams = DirectMailUtility::implodeTSParams(BackendUtility::getPagesTSconfig($id));
-            }
-            $set = [];
-            foreach ($pageTs as $f => $v) {
-                $v = trim($v);
-                $f = $tsConfPrefix . $f;
-                $tempF = isset($impParams[$f]) ? trim($impParams[$f]) : '';
-                if (strcmp($tempF, $v)) {
-                    $set[$f] = $v;
-                }
-            }
-            if (count($set)) {
-                // Get page record and TS config lines
-                $pRec = BackendUtility::getRecord('pages', $id);
-                $tsLines = explode(LF, $pRec['TSconfig']);
-                $tsLines = array_reverse($tsLines);
-                // Reset the set of changes.
-                foreach ($set as $f => $v) {
-                    $inserted = 0;
-                    foreach ($tsLines as $ki => $kv) {
-                        if (substr($kv, 0, strlen($f) + 1) == $f . '=') {
-                            $tsLines[$ki] = $f . '=' . $v;
-                            $inserted = 1;
-                            break;
-                        }
-                    }
-                    if (!$inserted) {
-                        $tsLines = array_reverse($tsLines);
-                        $tsLines[] = $f . '=' . $v;
-                        $tsLines = array_reverse($tsLines);
-                    }
-                }
-                $tsLines = array_reverse($tsLines);
-
-                // store those changes
-                $tsConf = implode(LF, $tsLines);
-                $done = GeneralUtility::makeInstance(PagesRepository::class)->updatePageTSconfig((int)$id, $tsConf);
-            }
-        }
-    }
-
-    /**
-     * Implodes a multi dimensional TypoScript array, $p,
-     * into a one-dimensional array (return value)
-     *
-     * @param array $p TypoScript structure
-     * @param string $k Prefix string
-     *
-     * @return array Imploded TypoScript objectstring/values
-     */
-    public static function implodeTSParams(array $p, $k = '')
-    {
-        $implodeParams = [];
-        if (is_array($p)) {
-            foreach ($p as $kb => $val) {
-                if (is_array($val)) {
-                    $implodeParams = array_merge($implodeParams, self::implodeTSParams($val, $k . $kb));
-                } else {
-                    $implodeParams[$k . $kb] = $val;
-                }
-            }
-        }
-        return $implodeParams;
     }
 
     /**
