@@ -377,13 +377,14 @@ class DirectMailUtility
                 ]
             ];
 
-            /* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $tce = GeneralUtility::makeInstance(DataHandler::class);
-            $tce->stripslashes_values = 0;
-            $tce->start($tcemainData, []);
-            $tce->process_datamap();
-            $result = $tce->substNEWwithIDs['NEW'];
-        } elseif (!$newRecord['sendOptions']) {
+            /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
+            $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+            $dataHandler->stripslashes_values = 0;
+            $dataHandler->start($tcemainData, []);
+            $dataHandler->process_datamap();
+            $result = $dataHandler->substNEWwithIDs['NEW'];
+        } 
+        elseif (!$newRecord['sendOptions']) {
             $result = false;
         }
         return $result;
@@ -612,7 +613,8 @@ class DirectMailUtility
         if (!empty($registeredAccessToken) && $registeredAccessToken === $accessToken) {
             $registry->remove('tx_directmail', 'accessToken');
             return true;
-        } else {
+        } 
+        else {
             $registry->remove('tx_directmail', 'accessToken');
             return false;
         }

@@ -461,8 +461,6 @@ class StatisticsController extends MainController
         $plainSent =  $mailResponsesGeneral['plainSent'];
         $table = $mailResponsesGeneral['db'];
         
-        $output = '';
-        
         // ******************
         // Links:
         // ******************
@@ -569,17 +567,7 @@ class StatisticsController extends MainController
         arsort($urlCounter['html']);
         arsort($urlCounter['plain']);
         reset($urlCounter['total']);
-        
-        $tblLines = [];
-        $tblLines[] = [
-            '',
-            $this->getLanguageService()->getLL('stats_HTML_link_nr'),
-            $this->getLanguageService()->getLL('stats_plaintext_link_nr'),
-            $this->getLanguageService()->getLL('stats_total'),$this->getLanguageService()->getLL('stats_HTML'),
-            $this->getLanguageService()->getLL('stats_plaintext'),
-            ''
-        ];
-        
+
         // HTML mails
         if (intval($row['sendOptions']) & 0x2) {
             $htmlContent = $unpackedMail['html']['content'];
@@ -643,6 +631,7 @@ class StatisticsController extends MainController
         }
         
         $iconAppsToolbarMenuSearch = $this->iconFactory->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL)->render();
+        $tblLines = [];
         
         foreach ($urlCounter['total'] as $id => $_) {
             // $id is the jumpurl ID
@@ -667,7 +656,8 @@ class StatisticsController extends MainController
                     $urlCounter['html'][$id]['plainCounter'],
                     $img
                 ];
-            } else {
+            } 
+            else {
                 $html = (empty($urlCounter['html'][$id]['counter']) ? 0 : 1);
                 $tblLines[] = [
                     $label,
@@ -680,7 +670,6 @@ class StatisticsController extends MainController
                 ];
             }
         }
-        
         
         // go through all links that were not clicked yet and that have a label
         $clickedLinks = array_keys($urlCounter['total']);
@@ -704,9 +693,20 @@ class StatisticsController extends MainController
             }
         }
         
+        $tables[5] = [
+            'head' => [
+                '',
+                'stats_HTML_link_nr',
+                'stats_plaintext_link_nr',
+                'stats_total',
+                'stats_HTML',
+                'stats_plaintext',
+                ''
+            ],
+            'body' => $tblLines
+        ];
+
         if ($urlCounter['total']) {
-            $output .= '<br /><h2>' . $this->getLanguageService()->getLL('stats_response_link') . '</h2>';
-            
             /**
              * Hook for cmd_stats_linkResponses
              */
@@ -718,13 +718,12 @@ class StatisticsController extends MainController
                 
                 foreach ($hookObjectsArr as $hookObj) {
                     if (method_exists($hookObj, 'cmd_stats_linkResponses')) {
-                        $output .= $hookObj->cmd_stats_linkResponses($tblLines, $this);
+                        $tables[5]['body'] = $hookObj->cmd_stats_linkResponses($tblLines, $this);
                     }
                 }
-            } else {
-                $output .= DirectMailUtility::formatTable($tblLines, ['nowrap', 'nowrap width="100"', 'nowrap width="100"', 'nowrap', 'nowrap', 'nowrap', 'nowrap'], 1, [1, 0, 0, 0, 0, 0, 1]);
             }
         }
+
 
         // ******************
         // Returned mails
@@ -841,6 +840,7 @@ class StatisticsController extends MainController
             ]
         ]; 
         
+        $output = '';
         // Find all returned mail
         if ($this->returnList || $this->returnDisable || $this->returnCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findAllReturnedMail($row['uid']);
