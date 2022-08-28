@@ -8,14 +8,12 @@ use DirectMailTeam\DirectMail\MailSelect;
 use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 use TYPO3\CMS\Core\Utility\CsvUtility;
@@ -504,7 +502,6 @@ class RecipientListController extends MainController
                         'recipListConfig' => $this->getRecordList($rows, 'tt_address'),
                         'table_custom' => ''
                     ];
-                   # debug(DirectMailUtility::getRecordList($rows, 'tt_address'));
                 }
                 if (is_array($idLists['fe_users'] ?? false)) {
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
@@ -807,61 +804,6 @@ class RecipientListController extends MainController
             }
         }
         return $dataout;
-    }
-    
-    /**
-     * Prepare DB record
-     *
-     * @param array $listArr All DB records to be formated
-     * @param string $table Table name
-     *
-     * @return	array		list of record
-     */
-    public function getRecordList(array $listArr, string $table)
-    {
-        $lang = self::getLanguageService();
-        //init iconFactory
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $output = [
-            'title' => $lang->getLL('dmail_number_records'),
-            'editLinkTitle' => $lang->getLL('dmail_edit'),
-            'actionsOpen' => $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL),
-            'counter' => is_array($listArr) ? count($listArr) : 0,
-            'rows' => []
-        ];
-        
-        $isAllowedDisplayTable = $this->getBackendUser()->check('tables_select', $table);
-        $isAllowedEditTable = $this->getBackendUser()->check('tables_modify', $table);
-
-        if (is_array($listArr)) {
-            $notAllowedPlaceholder = $lang->getLL('mailgroup_table_disallowed_placeholder');
-            $tableIcon = $iconFactory->getIconForRecord($table, []);
-            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-            foreach ($listArr as $row) {
-                $editLink = '';
-                if ($row['uid'] && $isAllowedEditTable) {
-                    $urlParameters = [
-                        'edit' => [
-                            $table => [
-                                $row['uid'] => 'edit'
-                            ]
-                        ],
-                        'returnUrl' => $this->requestUri
-                    ];
-
-                    $editLink = $uriBuilder->buildUriFromRoute('record_edit', $urlParameters);
-                }
-                
-                $output['rows'][] = [
-                    'icon' => $tableIcon,
-                    'editLink' => $editLink,
-                    'email' => $isAllowedDisplayTable ? htmlspecialchars($row['email']) : $notAllowedPlaceholder,
-                    'name' => $isAllowedDisplayTable ? htmlspecialchars($row['name']) : ''
-                ];
-            }
-        }
-        
-        return $output;
     }
     
     public function getRequestHostOnly(): string

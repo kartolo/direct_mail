@@ -128,6 +128,244 @@
 	        </tbody>
 	    </table>
     </f:if>
+    
+    <f:if condition="{dataStats.tables.6}">
+    
+    	<f:comment>returnList</f:comment>
+    	
+    	<f:if condition="{dataStats.tables.6.returnList.tt_address}">
+    		<h3>{dataStats.tables.6.returnList.tt_address.title}</h3>
+    		<f:render arguments="{returnConfig: dataStats.tables.6.returnList.tt_address.returnConfig}" section="returnConfig" />
+    	</f:if>
+    	<f:if condition="{dataStats.tables.6.returnList.fe_users}">
+    		<h3>{dataStats.tables.6.returnList.fe_users.title}</h3>
+    		<f:render arguments="{returnConfig: dataStats.tables.6.returnList.fe_users.returnConfig}" section="returnConfig" />
+    	</f:if>
+    	<f:if condition="{dataStats.tables.6.returnList.PLAINLIST}">
+			<h3>{dataStats.tables.6.returnList.PLAINLIST.title}</h3>
+			<ul><li><f:format.html>{dataStats.tables.6.returnList.PLAINLIST.PLAINLIST}</f:format.html></li></ul>
+    	</f:if>
+    	
+    	<f:comment>returnDisable</f:comment>
+    	
+    	<f:if condition="{dataStats.tables.6.returnDisable.tt_address}">
+			<br />
+			{dataStats.tables.6.returnDisable.tt_address.counter} {dataStats.tables.6.returnDisable.tt_address.title}
+    	</f:if>
+    	<f:if condition="{dataStats.tables.6.returnDisable.fe_users}">
+			<br />
+			{dataStats.tables.6.returnDisable.fe_users.counter} {dataStats.tables.6.returnDisable.fe_users.title}
+    	</f:if>
+    	
+    	<f:comment>returnCSV</f:comment>
+    	
+		<f:if condition="{dataStats.tables.6.returnCSV}">
+			<br />
+			{dataStats.tables.6.returnCSV.title}
+			<br />
+			<textarea style="width:460px;" rows="6" name="nothing"><f:format.html>{dataStats.tables.6.returnCSV.text}</f:format.html></textarea>
+		</f:if>
+		
+		<f:comment>unknownList</f:comment>
+		
+		<f:if condition="{dataStats.tables.6.unknownList.tt_address}">
+			<br />
+			{dataStats.tables.6.unknownList.tt_address.title}
+			<br />
+			<f:render arguments="{returnConfig: dataStats.tables.6.unknownList.tt_address.returnConfig}" section="returnConfig" />
+		</f:if>
+		<f:if condition="{dataStats.tables.6.unknownList.fe_users}">
+			<br />
+			{dataStats.tables.6.unknownList.fe_users.title}
+			<br />
+			<f:render arguments="{returnConfig: dataStats.tables.6.unknownList.fe_users.returnConfig}" section="returnConfig" />
+		</f:if>
+		<f:if condition="{dataStats.tables.6.unknownList.PLAINLIST}">
+			<h3>{dataStats.tables.6.unknownList.PLAINLIST.title}</h3>
+			<ul><li><f:format.html>{dataStats.tables.6.unknownList.PLAINLIST.PLAINLIST}</f:format.html></li></ul>
+		</f:if>
+		
+		<f:comment>unknownDisable</f:comment>
+		
+		<f:if condition="{dataStats.tables.6.unknownDisable.tt_address}">
+			<br />
+			{dataStats.tables.6.unknownDisable.tt_address.counter} {dataStats.tables.6.unknownDisable.tt_address.title}
+		</f:if>
+		<f:if condition="{dataStats.tables.6.unknownDisable.fe_users}">
+			<br />
+			{dataStats.tables.6.unknownDisable.fe_users.counter} {dataStats.tables.6.unknownDisable.fe_users.title}
+		</f:if>
+		
+		<f:comment>unknownCSV</f:comment>
+		
+		<f:if condition="{dataStats.tables.6.unknownCSV}">
+			<br />
+			{dataStats.tables.6.unknownCSV.title}
+			<br />
+			<textarea style="width:460px;" rows="6" name="nothing"><f:format.html>{dataStats.tables.6.unknownCSV.text}</f:format.html></textarea>
+		</f:if>
+		
+		<f:comment>fullList</f:comment>
+		
+		<f:if condition="{dataStats.tables.6.fullList.tt_address}">
+			<br />
+			{dataStats.tables.6.fullList.tt_address.title}
+			<br />
+			<f:render arguments="{returnConfig: dataStats.tables.6.fullList.tt_address.returnConfig}" section="returnConfig" />
+		</f:if>
+		<f:if condition="{dataStats.tables.6.fullList.fe_users}">
+			<br />
+			{dataStats.tables.6.fullList.fe_users.title}
+			<br />
+			<f:render arguments="{returnConfig: dataStats.tables.6.fullList.fe_users.returnConfig}" section="returnConfig" />
+		</f:if>
+		<f:if condition="{dataStats.tables.6.fullList.PLAINLIST}">
+			<br />
+			{dataStats.tables.6.fullList.PLAINLIST.title}
+			<ul><li><f:format.html>{dataStats.tables.6.fullList.PLAINLIST.PLAINLIST}</f:format.html></li></ul>
+		</f:if>
+		
+		<f:comment>fullDisable</f:comment>
+		
+    	<f:if condition="{dataStats.tables.6.fullDisable.tt_address}">
+			<br />
+			{dataStats.tables.6.fullDisable.tt_address.counter} {dataStats.tables.6.fullDisable.tt_address.title}
+    	</f:if>
+    	<f:if condition="{dataStats.tables.6.fullDisable.fe_users}">
+			<br />
+			{dataStats.tables.6.fullDisable.fe_users.counter} {dataStats.tables.6.fullDisable.fe_users.title}
+    	</f:if>
+
+		<f:comment>fullCSV</f:comment>
+
+ 		<f:if condition="{dataStats.tables.6.fullCSV}">
+			<br />
+			{dataStats.tables.6.fullCSV.title}
+			<br />
+			<textarea style="width:460px;" rows="6" name="nothing"><f:format.html>{dataStats.tables.6.fullCSV.text}</f:format.html></textarea>
+		</f:if>
+
+		<f:comment>badHostList</f:comment>
+
+		<f:if condition="{dataStats.tables.6.badHostList.tt_address}">
+			<br />
+			{dataStats.tables.6.badHostList.tt_address.title}
+			<br />
+			<f:render arguments="{returnConfig: dataStats.tables.6.badHostList.tt_address.returnConfig}" section="returnConfig" />
+		</f:if>
+		<f:if condition="{dataStats.tables.6.badHostList.fe_users}">
+			<br />
+			{dataStats.tables.6.badHostList.fe_users.title}
+			<br />
+			<f:render arguments="{returnConfig: dataStats.tables.6.badHostList.fe_users.returnConfig}" section="returnConfig" />
+		</f:if>
+		<f:if condition="{dataStats.tables.6.badHostList.PLAINLIST}">
+			<br />
+			{dataStats.tables.6.badHostList.PLAINLIST.title}
+			<ul><li><f:format.html>{dataStats.tables.6.badHostList.PLAINLIST.PLAINLIST}</f:format.html></li></ul>
+		</f:if>
+
+		<f:comment>badHostDisable</f:comment>
+		
+    	<f:if condition="{dataStats.tables.6.badHostDisable.tt_address}">
+			<br />
+			{dataStats.tables.6.badHostDisable.tt_address.counter} {dataStats.tables.6.badHostDisable.tt_address.title}
+    	</f:if>
+    	<f:if condition="{dataStats.tables.6.badHostDisable.fe_users}">
+			<br />
+			{dataStats.tables.6.badHostDisable.fe_users.counter} {dataStats.tables.6.badHostDisable.fe_users.title}
+    	</f:if>
+    	
+		<f:comment>badHostCSV</f:comment>
+		
+		<f:if condition="{dataStats.tables.6.badHostCSV}">
+			<br />
+			{dataStats.tables.6.badHostCSV.title}
+			<br />
+			<textarea style="width:460px;" rows="6" name="nothing"><f:format.html>{dataStats.tables.6.badHostCSV.text}</f:format.html></textarea>
+		</f:if>
+
+		<f:comment>badHeaderList</f:comment>
+
+		<f:if condition="{dataStats.tables.6.badHeaderList.tt_address}">
+			<br />
+			{dataStats.tables.6.badHeaderList.tt_address.title}
+			<br />
+			<f:render arguments="{returnConfig: dataStats.tables.6.badHeaderList.tt_address.returnConfig}" section="returnConfig" />
+		</f:if>
+		<f:if condition="{dataStats.tables.6.badHeaderList.fe_users}">
+			<br />
+			{dataStats.tables.6.badHeaderList.fe_users.title}
+			<br />
+			<f:render arguments="{returnConfig: dataStats.tables.6.badHeaderList.fe_users.returnConfig}" section="returnConfig" />
+		</f:if>
+		<f:if condition="{dataStats.tables.6.badHeaderList.PLAINLIST}">
+			<br />
+			{dataStats.tables.6.badHeaderList.PLAINLIST.title}
+			<ul><li><f:format.html>{dataStats.tables.6.badHeaderList.PLAINLIST.PLAINLIST}</f:format.html></li></ul>
+		</f:if>
+		
+		<f:comment>badHeaderDisable</f:comment>
+
+    	<f:if condition="{dataStats.tables.6.badHeaderDisable.tt_address}">
+			<br />
+			{dataStats.tables.6.badHeaderDisable.tt_address.counter} {dataStats.tables.6.badHeaderDisable.tt_address.title}
+    	</f:if>
+    	<f:if condition="{dataStats.tables.6.badHeaderDisable.fe_users}">
+			<br />
+			{dataStats.tables.6.badHeaderDisable.fe_users.counter} {dataStats.tables.6.badHeaderDisable.fe_users.title}
+    	</f:if>
+
+		<f:comment>badHeaderCSV</f:comment>
+
+		<f:if condition="{dataStats.tables.6.badHeaderCSV}">
+			<br />
+			{dataStats.tables.6.badHeaderCSV.title}
+			<br />
+			<textarea style="width:460px;" rows="6" name="nothing"><f:format.html>{dataStats.tables.6.badHeaderCSV.text}</f:format.html></textarea>
+		</f:if>
+		
+		<f:comment>reasonUnknownList</f:comment>
+
+		<f:if condition="{dataStats.tables.6.reasonUnknownList.tt_address}">
+			<br />
+			{dataStats.tables.6.reasonUnknownList.tt_address.title}
+			<br />
+			<f:render arguments="{returnConfig: dataStats.tables.6.reasonUnknownList.tt_address.returnConfig}" section="returnConfig" />
+		</f:if>
+		<f:if condition="{dataStats.tables.6.reasonUnknownList.fe_users}">
+			<br />
+			{dataStats.tables.6.reasonUnknownList.fe_users.title}
+			<br />
+			<f:render arguments="{returnConfig: dataStats.tables.6.reasonUnknownList.fe_users.returnConfig}" section="returnConfig" />
+		</f:if>
+		<f:if condition="{dataStats.tables.6.reasonUnknownList.PLAINLIST}">
+			<br />
+			{dataStats.tables.6.reasonUnknownList.PLAINLIST.title}
+			<ul><li><f:format.html>{dataStats.tables.6.reasonUnknownList.PLAINLIST.PLAINLIST}</f:format.html></li></ul>
+		</f:if>
+		
+		<f:comment>reasonUnknownDisable</f:comment>
+		
+		<f:if condition="{dataStats.tables.6.reasonUnknownDisable.tt_address}">
+			<br />
+			{dataStats.tables.6.reasonUnknownDisable.tt_address.counter} {dataStats.tables.6.reasonUnknownDisable.tt_address.title}
+    	</f:if>
+    	<f:if condition="{dataStats.tables.6.reasonUnknownDisable.fe_users}">
+			<br />
+			{dataStats.tables.6.reasonUnknownDisable.fe_users.counter} {dataStats.tables.6.reasonUnknownDisable.fe_users.title}
+    	</f:if>
+    	
+		<f:comment>reasonUnknownCSV</f:comment>
+
+		<f:if condition="{dataStats.tables.6.reasonUnknownCSV}">
+			<br />
+			{dataStats.tables.6.reasonUnknownCSV.title}
+			<br />
+			<textarea style="width:460px;" rows="6" name="nothing"><f:format.html>{dataStats.tables.6.reasonUnknownCSV.text}</f:format.html></textarea>
+		</f:if>
+    </f:if>
+
     <f:format.raw>{dataStats.out}</f:format.raw>
     <div style="padding-top: 20px;"></div>
     <h3><f:translate key="{lll}stats_recalculate_cached_data" /></h3>
@@ -214,4 +452,20 @@
         <br />
         <f:form.submit value="{f:translate(key: '{lll}subscriber_profile_update')}" />
     </f:form>
+</f:section>
+
+<f:section name="returnConfig">
+	<f:if condition="{returnConfig.counter}">
+		{returnConfig.title}<strong> {returnConfig.counter}</strong><br />
+		<table class="table table-striped table-hover">
+			<f:for each="{returnConfig.rows}" as="row">
+				<tr class="db_list_normal">
+					<td class="nowrap"><f:format.html>{row.icon}</f:format.html></td>
+					<td><a class="t3-link" href="{row.editLink}" title="{returnConfig.editLinkTitle}"><f:format.html>{returnConfig.actionsOpen}</f:format.html></a></td>
+					<td class="nowrap"><f:format.html>{row.email}</f:format.html></td>
+					<td class="nowrap"><f:format.html>{row.name}</f:format.html></td>
+				</tr>
+			</f:for>
+		</table>
+	</f:if>
 </f:section>

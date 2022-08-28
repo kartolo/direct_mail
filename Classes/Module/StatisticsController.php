@@ -724,7 +724,6 @@ class StatisticsController extends MainController
             }
         }
 
-
         // ******************
         // Returned mails
         // ******************
@@ -840,53 +839,62 @@ class StatisticsController extends MainController
             ]
         ]; 
         
-        $output = '';
+        $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
+
         // Find all returned mail
         if ($this->returnList || $this->returnDisable || $this->returnCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findAllReturnedMail($row['uid']);
-            
             $idLists = $this->getIdLists($rrows);
-
             if ($this->returnList) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $output .= '<h3>' . $this->getLanguageService()->getLL('stats_emails') . '</h3>';
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'tt_address');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['returnList']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $output .= '<h3>' . $this->getLanguageService()->getLL('stats_website_users') . '</h3>';
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'fe_users');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $tables[6]['returnList']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                    ];
                 }
                 if (count($idLists['PLAINLIST'])) {
-                    $output .= '<h3>' . $this->getLanguageService()->getLL('stats_plainlist') . '</h3>';
-                    $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+                    $tables[6]['returnList']['PLAINLIST'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
+                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                    ];
                 }
             }
             
             if ($this->returnDisable) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $c = $this->disableRecipients($tempRows, 'tt_address');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['returnDisable']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $c = $this->disableRecipients($tempRows, 'fe_users');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');                    
+                    $tables[6]['returnDisable']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                    ];
                 }
             }
             
             if ($this->returnCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 if (count($idLists['fe_users'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -894,57 +902,70 @@ class StatisticsController extends MainController
                 if (count($idLists['PLAINLIST'])) {
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
-                $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_list') . '<br />';
-                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                
+                $tables[6]['returnCSV'] = [
+                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_list'),
+                    'text' => htmlspecialchars(implode(LF, $emails))
+                ];
             }
         }
         
         // Find Unknown Recipient
         if ($this->unknownList || $this->unknownDisable || $this->unknownCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findUnknownRecipient($row['uid']);
-            
             $idLists = $this->getIdLists($rrows);
                 
             if ($this->unknownList) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />';
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'tt_address');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['unknownList']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users');
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'fe_users');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    
+                    $tables[6]['unknownList']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                    ];
                 }
                 if (count($idLists['PLAINLIST'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
-                    $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+                    $tables[6]['unknownList']['PLAINLIST'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
+                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                    ];
                 }
             }
             
             if ($this->unknownDisable) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $c = $this->disableRecipients($tempRows, 'tt_address');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['unknownDisable']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $c = $this->disableRecipients($tempRows, 'fe_users');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['unknownDisable']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                    ];
                 }
             }
             
             if ($this->unknownCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 if (count($idLists['fe_users'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -952,57 +973,69 @@ class StatisticsController extends MainController
                 if (count($idLists['PLAINLIST'])) {
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
-                $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_unknown_recipient_list') . '<br />';
-                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                
+                $tables[6]['unknownCSV'] = [
+                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_unknown_recipient_list'),
+                    'text' => htmlspecialchars(implode(LF, $emails))
+                ];
             }
         }
         
         // Mailbox Full
         if ($this->fullList || $this->fullDisable || $this->fullCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findMailboxFull($row['uid']);
-            
             $idLists = $this->getIdLists($rrows);
                 
             if ($this->fullList) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />';
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'tt_address');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['fullList']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users');
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'fe_users');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $tables[6]['fullList']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                    ];
                 }
                 if (count($idLists['PLAINLIST'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
-                    $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+                    $tables[6]['fullList']['PLAINLIST'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
+                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                    ];
                 }
             }
             
             if ($this->fullDisable) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $c = $this->disableRecipients($tempRows, 'tt_address');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['fullDisable']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $c = $this->disableRecipients($tempRows, 'fe_users');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $tables[6]['fullDisable']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                    ];
                 }
             }
 
             if ($this->fullCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 if (count($idLists['fe_users'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -1010,58 +1043,70 @@ class StatisticsController extends MainController
                 if (count($idLists['PLAINLIST'])) {
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
-                $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_mailbox_full_list') . '<br />';
-                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                
+                $tables[6]['fullCSV'] = [
+                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_mailbox_full_list'),
+                    'text' => htmlspecialchars(implode(LF, $emails))
+                ];
             }
         }
         
         // find Bad Host
         if ($this->badHostList || $this->badHostDisable || $this->badHostCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findBadHost($row['uid']);
-            
             $idLists = $this->getIdLists($rrows);
                 
             if ($this->badHostList) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />';
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'tt_address');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['badHostList']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users');
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'fe_users');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $tables[6]['badHostList']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                    ];
                 }
                 if (count($idLists['PLAINLIST'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
-                    $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+                    $tables[6]['badHostList']['PLAINLIST'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
+                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                    ];
                 }
             }
             
             if ($this->badHostDisable) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $c = $this->disableRecipients($tempRows, 'tt_address');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['badHostDisable']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $c = $this->disableRecipients($tempRows, 'fe_users');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $tables[6]['badHostDisable']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                    ];
                 }
             }
             
             if ($this->badHostCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 
                 if (count($idLists['fe_users'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -1071,57 +1116,68 @@ class StatisticsController extends MainController
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
                 
-                $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_bad_host_list') . '<br />';
-                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                $tables[6]['badHostCSV'] = [
+                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_bad_host_list'),
+                    'text' => htmlspecialchars(implode(LF, $emails))
+                ];
             }
         }
         
         // find Bad Header
         if ($this->badHeaderList || $this->badHeaderDisable || $this->badHeaderCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findBadHeader($row['uid']);
-            
             $idLists = $this->getIdLists($rrows);
                 
             if ($this->badHeaderList) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />';
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'tt_address');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['badHeaderList']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users');
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'fe_users');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $tables[6]['badHeaderList']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                    ];
                 }
                 if (count($idLists['PLAINLIST'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
-                    $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+                    $tables[6]['badHeaderList']['PLAINLIST'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
+                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                    ];
                 }
             }
                 
             if ($this->badHeaderDisable) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $c = $this->disableRecipients($tempRows, 'tt_address');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['badHeaderDisable']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $c = $this->disableRecipients($tempRows, 'fe_users');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $tables[6]['badHeaderDisable']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                    ];
                 }
             }
             
             if ($this->badHeaderCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 if (count($idLists['fe_users'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -1129,8 +1185,11 @@ class StatisticsController extends MainController
                 if (count($idLists['PLAINLIST'])) {
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
-                $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_bad_header_list') .  '<br />';
-                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+                
+                $tables[6]['badHeaderCSV'] = [
+                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_bad_header_list'),
+                    'text' => htmlspecialchars(implode(LF, $emails))
+                ];
             }
         }
         
@@ -1138,49 +1197,58 @@ class StatisticsController extends MainController
         // TODO: list all reason
         if ($this->reasonUnknownList || $this->reasonUnknownDisable || $this->reasonUnknownCSV) {
             $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findUnknownReasons($row['uid']);
-            
             $idLists = $this->getIdLists($rrows);
                 
             if ($this->reasonUnknownList) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails') . '<br />';
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'tt_address');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['reasonUnknownList']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_website_users');
-                    $output .= DirectMailUtility::getRecordList($tempRows, 'fe_users');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $tables[6]['reasonUnknownList']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                    ];
                 }
                 if (count($idLists['PLAINLIST'])) {
-                    $output .= '<br />' . $this->getLanguageService()->getLL('stats_plainlist');
-                    $output .= '<ul><li>' . join('</li><li>', $idLists['PLAINLIST']) . '</li></ul>';
+                    $tables[6]['reasonUnknownList']['PLAINLIST'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
+                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                    ];
                 }
             }
             
             if ($this->reasonUnknownDisable) {
                 if (count($idLists['tt_address'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-                    $c = $this->disableRecipients($tempRows, 'tt_address');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_emails_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $tables[6]['reasonUnknownDisable']['tt_address'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                    ];
                 }
                 if (count($idLists['fe_users'])) {
-                    $tempRows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    $c = $this->disableRecipients($tempRows, 'fe_users');
-                    $output .= '<br />' . $c . ' ' . $this->getLanguageService()->getLL('stats_website_users_disabled');
+                    $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $tables[6]['reasonUnknownDisable']['fe_users'] = [
+                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                    ];
                 }
             }
             
             if ($this->reasonUnknownCSV) {
                 $emails = [];
                 if (count($idLists['tt_address'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
                 }
                 if (count($idLists['fe_users'])) {
-                    $arr = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $arr = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     foreach ($arr as $v) {
                         $emails[] = $v['email'];
                     }
@@ -1188,8 +1256,11 @@ class StatisticsController extends MainController
                 if (count($idLists['PLAINLIST'])) {
                     $emails = array_merge($emails, $idLists['PLAINLIST']);
                 }
-                $output .= '<br />' . $this->getLanguageService()->getLL('stats_emails_returned_reason_unknown_list') . '<br />';
-                $output .= '<textarea style="width:460px;" rows="6" name="nothing">' . LF . htmlspecialchars(implode(LF, $emails)) . '</textarea>';
+
+                $tables[6]['reasonUnknownCSV'] = [
+                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_reason_unknown_list'),
+                    'text' => htmlspecialchars(implode(LF, $emails))
+                ];
             }
         }
         
@@ -1197,12 +1268,13 @@ class StatisticsController extends MainController
          * Hook for cmd_stats_postProcess
          * insert a link to open extended importer
          */
+        $output = '';
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] ?? false)) {
             $hookObjectsArr = [];
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats'] as $classRef) {
                 $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
-            
+            //@TODO
             // assigned $output to class property to make it acesssible inside hook
             $this->output = $output;
             
@@ -1694,5 +1766,41 @@ class StatisticsController extends MainController
         }
         
         return $label;
+    }
+    
+    /**
+     * Set disable=1 to all record in an array
+     *
+     * @param array $arr DB records
+     * @param string $table table name
+     *
+     * @return int total of disabled records
+     */
+    protected function disableRecipients(array $arr, $table): int
+    {
+        $count = 0;
+        if ($GLOBALS['TCA'][$table]) {
+            $values = [];
+            $enField = $GLOBALS['TCA'][$table]['ctrl']['enablecolumns']['disabled'];
+            if ($enField) {
+                $values[$enField] = 1;
+                $count = count($arr);
+                $uidList = array_keys($arr);
+                //@TODO
+                $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+                if (count($uidList)) {
+                    foreach ($uidList as $uid){
+                        $connection->update(
+                            $table,
+                            $values,
+                            [
+                                'uid' => $uid
+                            ]
+                            );
+                    }
+                }
+            }
+        }
+        return intval($count);
     }
 }

@@ -248,6 +248,58 @@ class MainController {
         return $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL);
     }
     
+    /**
+     * Prepare DB record
+     *
+     * @param array $listArr All DB records to be formated
+     * @param string $table Table name
+     *
+     * @return	array		list of record
+     */
+    protected function getRecordList(array $listArr, string $table)
+    {
+        $lang = $this->getLanguageService();
+        $output = [
+            'title' => $lang->getLL('dmail_number_records'),
+            'editLinkTitle' => $lang->getLL('dmail_edit'),
+            'actionsOpen' => $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL),
+            'counter' => is_array($listArr) ? count($listArr) : 0,
+            'rows' => []
+        ];
+        
+        $isAllowedDisplayTable = $this->getBackendUser()->check('tables_select', $table);
+        $isAllowedEditTable = $this->getBackendUser()->check('tables_modify', $table);
+        
+        if (is_array($listArr)) {
+            $notAllowedPlaceholder = $lang->getLL('mailgroup_table_disallowed_placeholder');
+            $tableIcon = $this->iconFactory->getIconForRecord($table, []);
+            foreach ($listArr as $row) {
+                $editLink = '';
+                if ($row['uid'] && $isAllowedEditTable) {
+                    $urlParameters = [
+                        'edit' => [
+                            $table => [
+                                $row['uid'] => 'edit'
+                            ]
+                        ],
+                        'returnUrl' => $this->requestUri
+                    ];
+                    
+                    $editLink = $this->buildUriFromRoute('record_edit', $urlParameters);
+                }
+                
+                $output['rows'][] = [
+                    'icon' => $tableIcon,
+                    'editLink' => $editLink,
+                    'email' => $isAllowedDisplayTable ? htmlspecialchars($row['email']) : $notAllowedPlaceholder,
+                    'name' => $isAllowedDisplayTable ? htmlspecialchars($row['name']) : ''
+                ];
+            }
+        }
+        
+        return $output;
+    }
+    
     protected function getJS($sys_dmail_uid) 
     {
         return '
