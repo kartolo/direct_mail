@@ -471,12 +471,15 @@ class StatisticsController extends MainController
             'plain' => [],
             'html' => [],
         ];
+        
+        $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
+        
         // Most popular links, html:
-        $htmlUrlsTable = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectMostPopularLinks($row['uid'], 1);
+        $htmlUrlsTable = $sysDmailMaillogRepository->selectMostPopularLinks($row['uid'], 1);
         $htmlUrlsTable = $this->changekeyname($htmlUrlsTable, 'counter', 'COUNT(*)');
 
         // Most popular links, plain:
-        $plainUrlsTable = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectMostPopularLinks($row['uid'], 2);
+        $plainUrlsTable = $sysDmailMaillogRepository->selectMostPopularLinks($row['uid'], 2);
         $plainUrlsTable = $this->changekeyname($plainUrlsTable, 'counter', 'COUNT(*)');
 
         // Find urls:
@@ -798,7 +801,7 @@ class StatisticsController extends MainController
         $iconsUnknownReason = $this->createBubbleLinks($thisurl, $iconConfs);
         
         // Table with Icon        
-        $responseResult = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countReturnCode($row['uid']);
+        $responseResult = $sysDmailMaillogRepository->countReturnCode($row['uid']);
         $responseResult = $this->changekeyname($responseResult, 'counter', 'COUNT(*)');
 
         $tables[4] = [
@@ -843,7 +846,7 @@ class StatisticsController extends MainController
 
         // Find all returned mail
         if ($this->returnList || $this->returnDisable || $this->returnCSV) {
-            $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findAllReturnedMail($row['uid']);
+            $rrows = $sysDmailMaillogRepository->findAllReturnedMail($row['uid']);
             $idLists = $this->getIdLists($rrows);
             if ($this->returnList) {
                 if (count($idLists['tt_address'])) {
@@ -912,7 +915,7 @@ class StatisticsController extends MainController
         
         // Find Unknown Recipient
         if ($this->unknownList || $this->unknownDisable || $this->unknownCSV) {
-            $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findUnknownRecipient($row['uid']);
+            $rrows = $sysDmailMaillogRepository->findUnknownRecipient($row['uid']);
             $idLists = $this->getIdLists($rrows);
                 
             if ($this->unknownList) {
@@ -983,7 +986,7 @@ class StatisticsController extends MainController
         
         // Mailbox Full
         if ($this->fullList || $this->fullDisable || $this->fullCSV) {
-            $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findMailboxFull($row['uid']);
+            $rrows = $sysDmailMaillogRepository->findMailboxFull($row['uid']);
             $idLists = $this->getIdLists($rrows);
                 
             if ($this->fullList) {
@@ -1053,7 +1056,7 @@ class StatisticsController extends MainController
         
         // find Bad Host
         if ($this->badHostList || $this->badHostDisable || $this->badHostCSV) {
-            $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findBadHost($row['uid']);
+            $rrows = $sysDmailMaillogRepository->findBadHost($row['uid']);
             $idLists = $this->getIdLists($rrows);
                 
             if ($this->badHostList) {
@@ -1125,7 +1128,7 @@ class StatisticsController extends MainController
         
         // find Bad Header
         if ($this->badHeaderList || $this->badHeaderDisable || $this->badHeaderCSV) {
-            $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findBadHeader($row['uid']);
+            $rrows = $sysDmailMaillogRepository->findBadHeader($row['uid']);
             $idLists = $this->getIdLists($rrows);
                 
             if ($this->badHeaderList) {
@@ -1196,7 +1199,7 @@ class StatisticsController extends MainController
         // find Unknown Reasons
         // TODO: list all reason
         if ($this->reasonUnknownList || $this->reasonUnknownDisable || $this->reasonUnknownCSV) {
-            $rrows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->findUnknownReasons($row['uid']);
+            $rrows = $sysDmailMaillogRepository->findUnknownReasons($row['uid']);
             $idLists = $this->getIdLists($rrows);
                 
             if ($this->reasonUnknownList) {
