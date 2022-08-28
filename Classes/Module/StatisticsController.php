@@ -852,20 +852,17 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['returnList']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails'),
                         'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['returnList']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
                         'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['returnList']['PLAINLIST'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
                         'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
                     ];
                 }
@@ -875,14 +872,12 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['returnDisable']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');                    
                     $tables[6]['returnDisable']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'fe_users')
                     ];
                 }
@@ -907,7 +902,6 @@ class StatisticsController extends MainController
                 }
                 
                 $tables[6]['returnCSV'] = [
-                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_list'),
                     'text' => htmlspecialchars(implode(LF, $emails))
                 ];
             }
@@ -922,21 +916,17 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['unknownList']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails'),
                         'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-                    
                     $tables[6]['unknownList']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
                         'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['unknownList']['PLAINLIST'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
                         'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
                     ];
                 }
@@ -946,14 +936,12 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['unknownDisable']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['unknownDisable']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'fe_users')
                     ];
                 }
@@ -978,7 +966,6 @@ class StatisticsController extends MainController
                 }
                 
                 $tables[6]['unknownCSV'] = [
-                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_unknown_recipient_list'),
                     'text' => htmlspecialchars(implode(LF, $emails))
                 ];
             }
@@ -993,20 +980,17 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['fullList']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails'),
                         'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['fullList']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
                         'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['fullList']['PLAINLIST'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
                         'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
                     ];
                 }
@@ -1016,14 +1000,12 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['fullDisable']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['fullDisable']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'fe_users')
                     ];
                 }
@@ -1048,7 +1030,6 @@ class StatisticsController extends MainController
                 }
                 
                 $tables[6]['fullCSV'] = [
-                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_mailbox_full_list'),
                     'text' => htmlspecialchars(implode(LF, $emails))
                 ];
             }
@@ -1063,20 +1044,17 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['badHostList']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails'),
                         'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['badHostList']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
                         'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['badHostList']['PLAINLIST'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
                         'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
                     ];
                 }
@@ -1086,14 +1064,12 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['badHostDisable']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['badHostDisable']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'fe_users')
                     ];
                 }
@@ -1120,7 +1096,6 @@ class StatisticsController extends MainController
                 }
                 
                 $tables[6]['badHostCSV'] = [
-                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_bad_host_list'),
                     'text' => htmlspecialchars(implode(LF, $emails))
                 ];
             }
@@ -1135,20 +1110,17 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['badHeaderList']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails'),
                         'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['badHeaderList']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
                         'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['badHeaderList']['PLAINLIST'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
                         'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
                     ];
                 }
@@ -1158,14 +1130,12 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['badHeaderDisable']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['badHeaderDisable']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'fe_users')
                     ];
                 }
@@ -1190,7 +1160,6 @@ class StatisticsController extends MainController
                 }
                 
                 $tables[6]['badHeaderCSV'] = [
-                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_bad_header_list'),
                     'text' => htmlspecialchars(implode(LF, $emails))
                 ];
             }
@@ -1206,20 +1175,17 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['reasonUnknownList']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails'),
                         'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['reasonUnknownList']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users'),
                         'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['reasonUnknownList']['PLAINLIST'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_plainlist'),
                         'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
                     ];
                 }
@@ -1229,14 +1195,12 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['reasonUnknownDisable']['tt_address'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_emails_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'tt_address')
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['reasonUnknownDisable']['fe_users'] = [
-                        'title' => $this->getLanguageService()->getLL('stats_website_users_disabled'),
                         'counter' => $this->disableRecipients($tempRows, 'fe_users')
                     ];
                 }
@@ -1261,7 +1225,6 @@ class StatisticsController extends MainController
                 }
 
                 $tables[6]['reasonUnknownCSV'] = [
-                    'title' => $this->getLanguageService()->getLL('stats_emails_returned_reason_unknown_list'),
                     'text' => htmlspecialchars(implode(LF, $emails))
                 ];
             }
