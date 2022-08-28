@@ -1769,26 +1769,26 @@ class StatisticsController extends MainController
     }
     
     /**
-     * Set disable=1 to all record in an array
+     * Set disable = 1 to all record in an array
      *
      * @param array $arr DB records
      * @param string $table table name
      *
      * @return int total of disabled records
      */
-    protected function disableRecipients(array $arr, $table): int
+    protected function disableRecipients(array $arr, string $table): int
     {
         $count = 0;
         if ($GLOBALS['TCA'][$table]) {
             $values = [];
             $enField = $GLOBALS['TCA'][$table]['ctrl']['enablecolumns']['disabled'];
             if ($enField) {
-                $values[$enField] = 1;
                 $count = count($arr);
                 $uidList = array_keys($arr);
-                //@TODO
-                $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
                 if (count($uidList)) {
+                    $values[$enField] = 1;
+                    //@TODO
+                    $connection = $this->getConnection($table);
                     foreach ($uidList as $uid){
                         $connection->update(
                             $table,
