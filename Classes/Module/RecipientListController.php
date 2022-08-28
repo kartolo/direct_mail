@@ -499,7 +499,7 @@ class RecipientListController extends MainController
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_address',
-                        'recip_list' => DirectMailUtility::getRecordList($rows, 'tt_address', $this->id),
+                        'recip_list' => DirectMailUtility::getRecordList($rows, 'tt_address'),
                         'table_custom' => ''
                     ];
                 }
@@ -507,14 +507,14 @@ class RecipientListController extends MainController
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_fe_users',
-                        'recip_list' => DirectMailUtility::getRecordList($rows, 'fe_users', $this->id),
+                        'recip_list' => DirectMailUtility::getRecordList($rows, 'fe_users'),
                         'table_custom' => ''
                     ];
                 }
                 if (is_array($idLists['PLAINLIST'] ?? false)) {
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_plain_list',
-                        'recip_list' => DirectMailUtility::getRecordList($idLists['PLAINLIST'], 'sys_dmail_group', $this->id),
+                        'recip_list' => DirectMailUtility::getRecordList($idLists['PLAINLIST'], 'sys_dmail_group'),
                         'table_custom' => ''
                     ];
                 }
@@ -522,7 +522,7 @@ class RecipientListController extends MainController
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$this->userTable], $this->userTable);
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_custom',
-                        'recip_list' => DirectMailUtility::getRecordList($rows, $this->userTable, $this->id),
+                        'recip_list' => DirectMailUtility::getRecordList($rows, $this->userTable),
                         'table_custom' => ' '.$this->userTable
                     ];
                 }
