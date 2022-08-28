@@ -185,11 +185,10 @@ class DirectMailUtility
      *
      * @param array $listArr All DB records to be formated
      * @param string $table Table name
-     * @param int $sys_dmail_uid ID of the sys_dmail object
      *
      * @return	string		list of record in HTML format
      */
-    public static function getRecordList(array $listArr, string $table, $sys_dmail_uid = 0)
+    public static function getRecordList(array $listArr, string $table)
     {
         $count = 0;
         $lines = [];
