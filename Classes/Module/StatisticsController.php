@@ -115,7 +115,6 @@ class StatisticsController extends MainController
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('Statistics');
-        $this->pageRenderer->addCssInlineBlock('DMStatistics', $this->getInlineCSS(), false, true);
         
         $this->init($request);
         $this->initStatistics($request);
@@ -156,16 +155,6 @@ class StatisticsController extends MainController
          */
         $this->moduleTemplate->setContent($this->view->render());
         return new HtmlResponse($this->moduleTemplate->renderContent());
-    }
-    
-    private function getInlineCSS() {
-        return '
-		a.bubble {position:relative; z-index:24; color:#000; text-decoration:none}
-		a.bubble:hover {z-index:25; background-color: #e6e8ea;}
-		a.bubble span.help {display: none;}
-		a.bubble:hover span.help {display:block; position:absolute; top:2em; left:2em; width:25em; border:1px solid #0cf; background-color:#cff; padding: 2px;}
-		td { vertical-align: top; }
-		';
     }
     
     protected function moduleContent()
@@ -745,61 +734,6 @@ class StatisticsController extends MainController
         $csvIcons  = $this->iconFactory->getIcon('actions-document-export-csv', Icon::SIZE_SMALL);
         $hideIcons = $this->iconFactory->getIcon('actions-lock', Icon::SIZE_SMALL);
         
-        // Icons mails returned
-        $iconConfs = [
-            ['getAttr' => 'returnList', 'lang' => 'stats_list_returned', 'icon' => $listIcons],
-            ['getAttr' => 'returnDisable', 'lang' => 'stats_disable_returned', 'icon' => $hideIcons],
-            ['getAttr' => 'returnCSV', 'lang' => 'stats_CSV_returned', 'icon' => $csvIcons]
-        ];
-
-        $iconsMailReturned = $this->createBubbleLinks($thisurl, $iconConfs);
-
-        // Icons unknown recip
-        $iconConfs = [
-            ['getAttr' => 'unknownList', 'lang' => 'stats_list_returned_unknown_recipient', 'icon' => $listIcons],
-            ['getAttr' => 'unknownDisable', 'lang' => 'stats_disable_returned_unknown_recipient', 'icon' => $hideIcons],
-            ['getAttr' => 'unknownCSV', 'lang' => 'stats_CSV_returned_unknown_recipient', 'icon' => $csvIcons]
-        ];
-        
-        $iconsUnknownRecip = $this->createBubbleLinks($thisurl, $iconConfs);
-        
-        // Icons mailbox full
-        $iconConfs = [
-            ['getAttr' => 'fullList', 'lang' => 'stats_list_returned_mailbox_full', 'icon' => $listIcons],
-            ['getAttr' => 'fullDisable', 'lang' => 'stats_disable_returned_mailbox_full', 'icon' => $hideIcons],
-            ['getAttr' => 'fullCSV', 'lang' => 'stats_CSV_returned_mailbox_full', 'icon' => $csvIcons]
-        ];
-        
-        $iconsMailbox = $this->createBubbleLinks($thisurl, $iconConfs);
-        
-        // Icons bad host
-        $iconConfs = [
-            ['getAttr' => 'badHostList', 'lang' => 'stats_list_returned_bad_host', 'icon' => $listIcons],
-            ['getAttr' => 'badHostDisable', 'lang' => 'stats_disable_returned_bad_host', 'icon' => $hideIcons],
-            ['getAttr' => 'badHostCSV', 'lang' => 'stats_CSV_returned_bad_host', 'icon' => $csvIcons]
-        ];
-        
-        $iconsBadhost = $this->createBubbleLinks($thisurl, $iconConfs);
-        
-        // Icons bad header        
-        $iconConfs = [
-            ['getAttr' => 'badHeaderList', 'lang' => 'stats_list_returned_bad_header', 'icon' => $listIcons],
-            ['getAttr' => 'badHeaderDisable', 'lang' => 'stats_disable_returned_bad_header', 'icon' => $hideIcons],
-            ['getAttr' => 'badHeaderCSV', 'lang' => 'stats_CSV_returned_bad_header', 'icon' => $csvIcons]
-        ];
-        
-        $iconsBadheader = $this->createBubbleLinks($thisurl, $iconConfs);
-        
-        // Icons unknown reasons
-        // TODO: link to show all reason
-        $iconConfs = [
-            ['getAttr' => 'reasonUnknownList', 'lang' => 'stats_list_returned_reason_unknown', 'icon' => $listIcons],
-            ['getAttr' => 'reasonUnknownDisable', 'lang' => 'stats_disable_returned_reason_unknown', 'icon' => $hideIcons],
-            ['getAttr' => 'reasonUnknownCSV', 'lang' => 'stats_CSV_returned_reason_unknown', 'icon' => $csvIcons]
-        ];
-        
-        $iconsUnknownReason = $this->createBubbleLinks($thisurl, $iconConfs);
-        
         // Table with Icon        
         $responseResult = $sysDmailMaillogRepository->countReturnCode($row['uid']);
         $responseResult = $this->changekeyname($responseResult, 'counter', 'COUNT(*)');
@@ -810,36 +744,61 @@ class StatisticsController extends MainController
             ],
             'body' => [
                 [
-                    'stats_total_mails_returned',
-                    number_format(intval($table['-127']['counter'] ?? 0)),
-                    implode('&nbsp;', $iconsMailReturned)
+                    'title' => 'stats_total_mails_returned',
+                    'counter' => number_format(intval($table['-127']['counter'] ?? 0)),
+                    'icons' => [// Icons mails returned
+                        ['getAttr' => 'returnList', 'lang' => 'stats_list_returned', 'icon' => $listIcons],
+                        ['getAttr' => 'returnDisable', 'lang' => 'stats_disable_returned', 'icon' => $hideIcons],
+                        ['getAttr' => 'returnCSV', 'lang' => 'stats_CSV_returned', 'icon' => $csvIcons]
+                    ]
                 ],
                 [
-                    'stats_recipient_unknown',
-                    $this->showWithPercent(($responseResult['550']['counter'] ?? 0) + ($responseResult['553']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
-                    implode('&nbsp;', $iconsUnknownRecip)
+                    'title' => 'stats_recipient_unknown',
+                    'counter' => $this->showWithPercent(($responseResult['550']['counter'] ?? 0) + ($responseResult['553']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+                    'icons' => [// Icons unknown recip
+                        ['getAttr' => 'unknownList', 'lang' => 'stats_list_returned_unknown_recipient', 'icon' => $listIcons],
+                        ['getAttr' => 'unknownDisable', 'lang' => 'stats_disable_returned_unknown_recipient', 'icon' => $hideIcons],
+                        ['getAttr' => 'unknownCSV', 'lang' => 'stats_CSV_returned_unknown_recipient', 'icon' => $csvIcons]
+                    ]
                 ],
                 [
-                    'stats_mailbox_full',
-                    $this->showWithPercent(($responseResult['551']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
-                    implode('&nbsp;', $iconsMailbox)
+                    'title' => 'stats_mailbox_full',
+                    'counter' => $this->showWithPercent(($responseResult['551']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+                    'icons' => [// Icons mailbox full
+                        ['getAttr' => 'fullList', 'lang' => 'stats_list_returned_mailbox_full', 'icon' => $listIcons],
+                        ['getAttr' => 'fullDisable', 'lang' => 'stats_disable_returned_mailbox_full', 'icon' => $hideIcons],
+                        ['getAttr' => 'fullCSV', 'lang' => 'stats_CSV_returned_mailbox_full', 'icon' => $csvIcons]
+                    ]
                 ],
                 [
-                    'stats_bad_host',
-                    $this->showWithPercent(($responseResult['552']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
-                    implode('&nbsp;', $iconsBadhost)
+                    'title' => 'stats_bad_host',
+                    'counter' => $this->showWithPercent(($responseResult['552']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+                    'icons' => [// Icons bad host
+                        ['getAttr' => 'badHostList', 'lang' => 'stats_list_returned_bad_host', 'icon' => $listIcons],
+                        ['getAttr' => 'badHostDisable', 'lang' => 'stats_disable_returned_bad_host', 'icon' => $hideIcons],
+                        ['getAttr' => 'badHostCSV', 'lang' => 'stats_CSV_returned_bad_host', 'icon' => $csvIcons]
+                    ]
                 ],
                 [
-                    'stats_error_in_header',
-                    $this->showWithPercent(($responseResult['554']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
-                    implode('&nbsp;', $iconsBadheader)
+                    'title' => 'stats_error_in_header',
+                    'counter' => $this->showWithPercent(($responseResult['554']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+                    'icons' => [//Icons bad header
+                        ['getAttr' => 'badHeaderList', 'lang' => 'stats_list_returned_bad_header', 'icon' => $listIcons],
+                        ['getAttr' => 'badHeaderDisable', 'lang' => 'stats_disable_returned_bad_header', 'icon' => $hideIcons],
+                        ['getAttr' => 'badHeaderCSV', 'lang' => 'stats_CSV_returned_bad_header', 'icon' => $csvIcons]
+                    ]
                 ],
                 [
-                    'stats_reason_unkown',
-                    $this->showWithPercent(($responseResult['-1']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
-                    implode('&nbsp;', $iconsUnknownReason)
+                    'title' => 'stats_reason_unkown',
+                    'counter' => $this->showWithPercent(($responseResult['-1']['counter'] ?? 0), ($table['-127']['counter'] ?? 0)),
+                    'icons' => [//Icons unknown reasons @TODO: link to show all reason
+                        ['getAttr' => 'reasonUnknownList', 'lang' => 'stats_list_returned_reason_unknown', 'icon' => $listIcons],
+                        ['getAttr' => 'reasonUnknownDisable', 'lang' => 'stats_disable_returned_reason_unknown', 'icon' => $hideIcons],
+                        ['getAttr' => 'reasonUnknownCSV', 'lang' => 'stats_CSV_returned_reason_unknown', 'icon' => $csvIcons]
+                    ]
                 ]
-            ]
+            ],
+            'url' => $thisurl
         ]; 
         
         $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
@@ -1286,17 +1245,6 @@ class StatisticsController extends MainController
         }
 
         return $idLists;
-    }
-    
-    private function createBubbleLinks($url, array $iconConfs): array
-    {
-        $res = [];
-        if(count($iconConfs)) {
-            foreach($iconConfs as $iconConf) {
-                $res[] = '<a href="' . $url . '&' . $iconConf['getAttr'] . '=1" class="bubble"><span class="help" title="' . $this->getLanguageService()->getLL($iconConf['lang']) . '"> ' . $iconConf['icon'] . '</span></a>';
-            }
-        }
-        return $res;
     }
     
     /**

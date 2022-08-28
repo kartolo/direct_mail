@@ -81,6 +81,40 @@
     </table>
 </f:section>
 
+<f:section name="table4">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr class="t3-row-header">
+                <f:for each="{table.head}" as="head">
+                    <th>
+                       <f:if condition="{head}"><f:translate key="{lll}{head}" /></f:if>
+                    </th>
+                </f:for>
+            </tr>
+        </thead>
+        <tbody>
+            <f:for each="{table.body}" as="tr">
+                <tr>
+					<td><f:translate key="{lll}{tr.title}" /></td>
+					<td>{tr.counter}</td>
+					<td>
+						<div class="btn-group">
+							<f:for each="{tr.icons}" as="icon">
+								<a href="{table.url}&{icon.getAttr}=1" class="btn btn-default" title="{f:translate(key: '{lll}{icon.lang}')}">
+									<span class="t3js-icon icon icon-size-small icon-state-default">
+										<f:format.html>{icon.icon}</f:format.html>
+									</span>
+								</a>
+							</f:for>
+						</div>
+					</td>
+                </tr>
+            </f:for>
+        </tbody>
+    </table>
+</f:section>
+
 <f:section name="dataStats">
     <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <f:render section="compactView" arguments="{row:dataStats.compactView}" />
@@ -100,7 +134,7 @@
     <f:if condition="{dataStats.tables.4}">
         <br />
         <h2><f:translate key="{lll}stats_mails_returned" /></h2>
-        <f:render section="table" arguments="{table:dataStats.tables.4}" />
+        <f:render section="table4" arguments="{table:dataStats.tables.4}" />
     </f:if>
     <f:if condition="{dataStats.tables.5}">
 		<br />
