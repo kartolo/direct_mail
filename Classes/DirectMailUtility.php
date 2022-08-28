@@ -185,12 +185,11 @@ class DirectMailUtility
      *
      * @param array $listArr All DB records to be formated
      * @param string $table Table name
-     * @param bool|int $editLinkFlag If set, edit link is showed
      * @param int $sys_dmail_uid ID of the sys_dmail object
      *
      * @return	string		list of record in HTML format
      */
-    public static function getRecordList(array $listArr, $table, $editLinkFlag = 1, $sys_dmail_uid = 0)
+    public static function getRecordList(array $listArr, string $table, $sys_dmail_uid = 0)
     {
         $count = 0;
         $lines = [];
@@ -207,12 +206,11 @@ class DirectMailUtility
             $notAllowedPlaceholder = $lang->getLL('mailgroup_table_disallowed_placeholder');
             $count = count($listArr);
             $returnUrl = GeneralUtility::getIndpEnv('REQUEST_URI');
+            $tableIcon = sprintf('<td>%s</td>', $iconFactory->getIconForRecord($table, []));
             foreach ($listArr as $row) {
-                $tableIcon = '';
                 $editLink = '';
                 if ($row['uid']) {
-                    $tableIcon = sprintf('<td>%s</td>', $iconFactory->getIconForRecord($table, []));
-                    if ($editLinkFlag && $isAllowedEditTable) {
+                    if ($isAllowedEditTable) {
                         $urlParameters = [
                             'edit' => [
                                 $table => [
