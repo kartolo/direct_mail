@@ -17,7 +17,7 @@ class DmCsvUtility
      *
      * @return array Parsed csv in an array
      */
-    public static function getCsvValues(string $str, string $sep = ','): array
+    public function getCsvValues(string $str, string $sep = ','): array
     {
         $fh = tmpfile();
         fwrite($fh, trim($str));

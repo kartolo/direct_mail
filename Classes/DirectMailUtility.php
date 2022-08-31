@@ -16,13 +16,13 @@ namespace DirectMailTeam\DirectMail;
 
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
+use DirectMailTeam\DirectMail\Utility\DmRegistryUtility;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Core\Crypto\Random;
 use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\ImmediateResponseException;
@@ -30,7 +30,6 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -447,7 +446,7 @@ class DirectMailUtility
      *
      * @return string The new URL with username and password
      */
-    protected static function addUserPass($url, array $params)
+    protected static function addUserPass($url, array $params): string
     {
         $user = $params['http_username'] ?? '';
         $pass = $params['http_password'] ?? '';
@@ -457,44 +456,9 @@ class DirectMailUtility
         }
         if (($params['simulate_usergroup'] ?? false) && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
             $glue = (strpos($url, '?') !== false) ? '&' : '?';
-            $url = $url . $glue . 'dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' . self::createAndGetAccessToken();
+            $url = $url . $glue . 'dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' .  GeneralUtility::makeInstance(DmRegistryUtility::class)->createAndGetAccessToken();
         }
         return $url;
-    }
-
-    /**
-     * Create an access token and save it in the Registry
-     */
-    public static function createAndGetAccessToken(): string
-    {
-        /* @var \TYPO3\CMS\Core\Registry $registry */
-        $registry = GeneralUtility::makeInstance(Registry::class);
-        $accessToken = GeneralUtility::makeInstance(Random::class)->generateRandomHexString(32);
-        $registry->set('tx_directmail', 'accessToken', $accessToken);
-
-        return $accessToken;
-    }
-
-    /**
-     * Create an access token and save it in the Registry
-     *
-     * @param string $accessToken The access token to validate
-     *
-     * @return string
-     */
-    public static function validateAndRemoveAccessToken($accessToken)
-    {
-        /* @var \TYPO3\CMS\Core\Registry $registry */
-        $registry = GeneralUtility::makeInstance(Registry::class);
-        $registeredAccessToken = $registry->get('tx_directmail', 'accessToken');
-        if (!empty($registeredAccessToken) && $registeredAccessToken === $accessToken) {
-            $registry->remove('tx_directmail', 'accessToken');
-            return true;
-        } 
-        else {
-            $registry->remove('tx_directmail', 'accessToken');
-            return false;
-        }
     }
 
     /**
