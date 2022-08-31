@@ -2002,7 +2002,7 @@ class DmailController extends MainController
         if ($pageRecord['doktype']) {
             $newRecord['subject'] = $pageRecord['title'];
             $newRecord['page']    = $pageRecord['uid'];
-            $newRecord['charset'] = self::getCharacterSet();
+            $newRecord['charset'] = DirectMailUtility::getCharacterSet();
         }
         
         // save to database
