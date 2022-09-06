@@ -15,7 +15,8 @@ namespace DirectMailTeam\DirectMail;
  */
 
 /*
- * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.0/Deprecation-92080-DeprecatedQueryGeneratorAndQueryView.html 
+ * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.0/Deprecation-92080-DeprecatedQueryGeneratorAndQueryView.html
+ * https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_database_1_1_query_generator.html
  */
 
 use TYPO3\CMS\Core\Database\QueryGenerator;
@@ -40,21 +41,19 @@ class MailSelect extends QueryGenerator
      * @param	string		$cur Table name, which is currently selected
      *
      * @return	string		HTML select-field
-     * @see t3lib_queryGenerator::mkTableSelect()
+     * @see QueryGenerator::mkTableSelect()
      */
     public function mkTableSelect($name, $cur)
     {
-        $out = '<select name="' . $name . '" onChange="submit();">';
-        $out .= '<option value=""></option>';
-        reset($GLOBALS['TCA']);
-        foreach ($GLOBALS['TCA'] as $tN => $_) {
-            if ($GLOBALS['BE_USER']->check('tables_select', $tN) && in_array($tN, $this->allowedTables)) {
-                $out .='<option value="' . $tN . '"' . ($tN == $cur ? ' selected':'') . '>' .
-                    $GLOBALS['LANG']->sl($GLOBALS['TCA'][$tN]['ctrl']['title']) .
-                    '</option>';
+        $out = [];
+        $out[] = '<select class="form-select t3js-submit-change" name="' . $name . '">';
+        $out[] = '<option value=""></option>';
+        foreach ($GLOBALS['TCA'] as $tN => $value) {
+            if ($this->‪getBackendUserAuthentication()->check('tables_select', $tN) && in_array($tN, $this->allowedTables)) {
+                $out[] = '<option value="' . htmlspecialchars($tN) . '"' . ($tN == $cur ? ' selected' : '') . '>' . htmlspecialchars($this->‪getLanguageService()->sl($GLOBALS['TCA'][$tN]['ctrl']['title'])) . '</option>';
             }
         }
-        $out .= '</select>';
-        return $out;
+        $out[] = '</select>';
+        return implode(LF, $out);
     }
 }
