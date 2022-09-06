@@ -182,7 +182,7 @@ class DirectMailUtility
     /**
      * @return LanguageService
      */
-    public function getLanguageService(): LanguageService
+    public static function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }
