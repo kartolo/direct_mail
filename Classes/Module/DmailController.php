@@ -838,7 +838,7 @@ class DmailController extends MainController
         
         // always plaintext
         $dmail['sys_dmail']['NEW']['sendOptions'] = 1;
-        $dmail['sys_dmail']['NEW']['long_link_rdct_url'] = DirectMailUtility::getUrlBase((int)$this->params['pid']);
+        $dmail['sys_dmail']['NEW']['long_link_rdct_url'] = $this->getUrlBase((int)$this->params['pid']);
         $dmail['sys_dmail']['NEW']['subject'] = $indata['subject'];
         $dmail['sys_dmail']['NEW']['type'] = 1;
         $dmail['sys_dmail']['NEW']['pid'] = $this->pageinfo['uid'];
@@ -870,7 +870,7 @@ class DmailController extends MainController
                 $message = DirectMailUtility::substUrlsInPlainText(
                     $message,
                     $this->params['long_link_mode'] ? 'all' : '76',
-                    DirectMailUtility::getUrlBase((int)$this->params['pid'])
+                    $this->getUrlBase((int)$this->params['pid'])
                 );
             }
             if ($indata['breakLines'] ?? false) {
@@ -1967,7 +1967,7 @@ class DmailController extends MainController
             'organisation'          => $parameters['organisation'] ?? '',
             'authcode_fieldList'    => $parameters['authcode_fieldList'] ?? '',
             'sendOptions'           => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => DirectMailUtility::getUrlBase((int)$pageUid),
+            'long_link_rdct_url'    => $this->getUrlBase((int)$pageUid),
             'sys_language_uid'      => (int)$sysLanguageUid,
             'attachment'            => '',
             'mailContent'           => ''
@@ -2056,7 +2056,7 @@ class DmailController extends MainController
             'organisation'          => $parameters['organisation'] ?? '',
             'authcode_fieldList'    => $parameters['authcode_fieldList'] ?? '',
             'sendOptions'           => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
-            'long_link_rdct_url'    => DirectMailUtility::getUrlBase((int)($parameters['page'] ?? 0))
+            'long_link_rdct_url'    => $this->getUrlBase((int)($parameters['page'] ?? 0))
         ];
         
         // If params set, set default values:
@@ -2108,5 +2108,32 @@ class DmailController extends MainController
             $result = false;
         }
         return $result;
+    }
+    
+    /**
+     * Get the base URL
+     *
+     * @param int $pageId
+     * @return string
+     * @throws SiteNotFoundException
+     * @throws InvalidRouteArgumentsException
+     */
+    protected function getUrlBase(int $pageId): string
+    {
+        if ($pageId > 0) {
+            /** @var SiteFinder $siteFinder */
+            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+            if (!empty($siteFinder->getAllSites())) {
+                $site = $siteFinder->getSiteByPageId($pageId);
+                $base = $site->getBase();
+                
+                return sprintf('%s://%s', $base->getScheme(), $base->getHost());
+            }
+            else {
+                return ''; // No site found in root line of pageId
+            }
+        }
+        
+        return ''; // No valid pageId
     }
 }

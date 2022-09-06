@@ -122,33 +122,6 @@ class DirectMailUtility
     }
 
     /**
-     * Get the base URL
-     *
-     * @param int $pageId
-     * @return string
-     * @throws SiteNotFoundException
-     * @throws InvalidRouteArgumentsException
-     */
-    public static function getUrlBase(int $pageId): string
-    {
-        if ($pageId > 0) {
-            /** @var SiteFinder $siteFinder */
-            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
-            if (!empty($siteFinder->getAllSites())) {
-                $site = $siteFinder->getSiteByPageId($pageId);
-                $base = $site->getBase();
-
-                return sprintf('%s://%s', $base->getScheme(), $base->getHost());
-            } 
-            else {
-                return ''; // No site found in root line of pageId
-            }
-        } 
-
-        return ''; // No valid pageId
-    }
-
-    /**
      * Get locallang label
      *
      * @param string $name Locallang label index
