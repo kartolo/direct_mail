@@ -24,15 +24,12 @@ use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
-use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\ImmediateResponseException;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Resource\FileRepository;
-use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
-use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -353,7 +350,8 @@ class DirectMailUtility
         if ($result['plainTextUrl']) {
             if (!($row['sendOptions'] & 1)) {
                 $result['plainTextUrl'] = '';
-            } else {
+            } 
+            else {
                 $urlParts = @parse_url($result['plainTextUrl']);
                 if (!$urlParts['scheme']) {
                     $result['plainTextUrl'] = 'http://' . $result['plainTextUrl'];
@@ -400,7 +398,8 @@ class DirectMailUtility
 
         if ($settings['config.']['metaCharset']) {
             $characterSet = $settings['config.']['metaCharset'];
-        } elseif ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) {
+        } 
+        elseif ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) {
             $characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
         }
 
