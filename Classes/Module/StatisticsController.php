@@ -1280,9 +1280,6 @@ class StatisticsController extends MainController
      */
     protected function setURLs(array $row)
     {
-        // Finding the domain to use
-        $this->urlbase = DirectMailUtility::getUrlBase((int)$row['page']);
-        
         // Finding the url to fetch content from
         switch ((string)$row['type']) {
             case 1:
@@ -1290,14 +1287,17 @@ class StatisticsController extends MainController
                 $this->url_plain = $row['plainParams'];
                 break;
             default:
-                $this->url_html = $this->urlbase . '?id=' . $row['page'] . $row['HTMLParams'];
-                $this->url_plain = $this->urlbase . '?id=' . $row['page'] . $row['plainParams'];
+                // Finding the domain to use
+                $urlbase = DirectMailUtility::getUrlBase((int)$row['page']);
+                $this->url_html = $urlbase . '?id=' . $row['page'] . $row['HTMLParams'];
+                $this->url_plain = $urlbase . '?id=' . $row['page'] . $row['plainParams'];
         }
         
         // plain
         if (!($row['sendOptions']&1) || !$this->url_plain) {
             $this->url_plain = '';
-        } else {
+        } 
+        else {
             $urlParts = @parse_url($this->url_plain);
             if (!$urlParts['scheme']) {
                 $this->url_plain = 'http://' . $this->url_plain;
@@ -1307,7 +1307,8 @@ class StatisticsController extends MainController
         // html
         if (!($row['sendOptions']&2) || !$this->url_html) {
             $this->url_html = '';
-        } else {
+        } 
+        else {
             $urlParts = @parse_url($this->url_html);
             if (!$urlParts['scheme']) {
                 $this->url_html = 'http://' . $this->url_html;

@@ -125,14 +125,11 @@ class DirectMailUtility
      * Get the base URL
      *
      * @param int $pageId
-     * @param bool $getFullUrl
-     * @param string $htmlParams
-     * @param string $plainParams
-     * @return array|string Array returns if getFullUrl is true
+     * @return string
      * @throws SiteNotFoundException
      * @throws InvalidRouteArgumentsException
      */
-    public static function getUrlBase(int $pageId, bool $getFullUrl = false, string $htmlParams = '', string $plainParams = '')
+    public static function getUrlBase(int $pageId): string
     {
         if ($pageId > 0) {
             /** @var SiteFinder $siteFinder */
@@ -141,23 +138,7 @@ class DirectMailUtility
                 $site = $siteFinder->getSiteByPageId($pageId);
                 $base = $site->getBase();
 
-                $baseUrl = sprintf('%s://%s', $base->getScheme(), $base->getHost());
-                $htmlUrl = '';
-                $plainTextUrl = '';
-
-                if ($getFullUrl === true) {
-                    $pageInfo = BackendUtility::getRecord('pages', $pageId, '*');
-                    $route = $site->getRouter()->generateUri($pageId, ['_language' => $pageInfo['sys_language_uid']]);
-                    $htmlUrl = $route;
-                    $plainTextUrl = $route;
-                    // Parse htmlUrl as string \TYPO3\CMS\Core\Http\Uri::parseUri()
-                    $htmlUrl .= $htmlParams !== '' ? '?' . $htmlParams : '';
-
-                    // Parse plainTextUrl as string \TYPO3\CMS\Core\Http\Uri::parseUri()
-                    $plainTextUrl .= $plainParams !== '' ? '?' . $plainParams : '';
-                }
-
-                return $htmlUrl !== '' ? [ 'baseUrl' => $baseUrl, 'htmlUrl' => $htmlUrl, 'plainTextUrl' => $plainTextUrl] : $baseUrl;
+                return sprintf('%s://%s', $base->getScheme(), $base->getHost());
             } 
             else {
                 return ''; // No site found in root line of pageId
