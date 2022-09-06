@@ -519,7 +519,7 @@ class TempRepository extends MainRepository {
      *
      * @return array the categories in an array with the cat id as keys
      */
-    public static function makeCategories(string $table, array $row, int $sysLanguageUid)
+    public function makeCategories(string $table, array $row, int $sysLanguageUid)
     {
         $categories = [];
         
@@ -534,12 +534,12 @@ class TempRepository extends MainRepository {
                 ->from('sys_dmail_category')
                 ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
                     ' AND l18n_parent=0')
-                    ->execute();
-                    while ($rowCat = $res->fetch()) {
-                        if ($localizedRowCat = $this->getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid, '')) {
-                            $categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
-                        }
+                ->execute();
+                while ($rowCat = $res->fetch()) {
+                    if ($localizedRowCat = $this->getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid, '')) {
+                        $categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
                     }
+                }
             }
         }
         return $categories;
@@ -557,7 +557,7 @@ class TempRepository extends MainRepository {
      *
      * @return mixed Returns the input record, possibly overlaid with a translation. But if $OLmode is "hideNonTranslated" then it will return false if no translation is found.
      */
-    public static function getRecordOverlay(string $table, array $row, int $sys_language_content, string $OLmode = '')
+    public function getRecordOverlay(string $table, array $row, int $sys_language_content, string $OLmode = '')
     {
         if ($row['uid'] > 0 && $row['pid'] > 0) {
             if ($GLOBALS['TCA'][$table] && $GLOBALS['TCA'][$table]['ctrl']['languageField'] && $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']) {
@@ -574,9 +574,9 @@ class TempRepository extends MainRepository {
                             ->add('where', 'pid=' . intval($row['pid']) .
                                 ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . intval($sys_language_content) .
                                 ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . intval($row['uid']))
-                                ->setMaxResults(1)/* LIMIT 1*/
-                                ->execute()
-                                ->fetch();
+                            ->setMaxResults(1)/* LIMIT 1*/
+                            ->execute()
+                            ->fetch();
                             
                             // Merge record content by traversing all fields:
                             if (is_array($olrow)) {
