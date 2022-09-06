@@ -18,6 +18,9 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
+use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
@@ -82,7 +85,7 @@ class MailFromDraft extends AbstractTask
             // check if domain record is set
             if (Environment::isCli()
                 && (int)$draftRecord['type'] !== 1
-                && empty(DirectMailUtility::getUrlBase((int)$draftRecord['page']))
+                && !$this->checkUrlBase((int)$draftRecord['page'])
             ) {
                 throw new \Exception('No site found in root line of page ' . $draftRecord['page'] . '!');
             }
@@ -141,6 +144,34 @@ class MailFromDraft extends AbstractTask
         return true;
     }
 
+    /**
+     * Get the base URL
+     *
+     * @param int $pageId
+     * @return bool
+     * @throws SiteNotFoundException
+     * @throws InvalidRouteArgumentsException
+     */
+    protected function checkUrlBase(int $pageId): bool
+    {
+        if ($pageId > 0) {
+            /** @var SiteFinder $siteFinder */
+            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+            if (!empty($siteFinder->getAllSites())) {
+                $site = $siteFinder->getSiteByPageId($pageId);
+                $base = $site->getBase();
+                if($base->getHost()) {
+                    return true;
+                }
+            }
+            else {
+                return false; // No site found in root line of pageId
+            }
+        }
+        
+        return false; // No valid pageId
+    }
+    
     /**
      * Calls the passed hook method of all configured hook object instances
      *
