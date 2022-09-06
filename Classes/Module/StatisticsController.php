@@ -166,12 +166,7 @@ class StatisticsController extends MainController
         } 
         else {
             $row = GeneralUtility::makeInstance(SysDmailRepository::class)->selectSysDmailById($this->sys_dmail_uid, $this->id);
-            
-//          $this->noView = 0;
             if (is_array($row)) {
-                // Set URL data for commands
-                $this->setURLs($row);
-                
                 // COMMAND:
                 switch ($this->cmd) {
                     case 'displayUserInfo':
@@ -1269,51 +1264,6 @@ class StatisticsController extends MainController
             ]
         );
         return '<a title="' . htmlspecialchars($aTitle) . '" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
-    }
-    
-    /**
-     * Set up URL variables for this $row.
-     *
-     * @param array $row DB records
-     *
-     * @return void
-     */
-    protected function setURLs(array $row)
-    {
-        // Finding the url to fetch content from
-        switch ((string)$row['type']) {
-            case 1:
-                $this->url_html = $row['HTMLParams'];
-                $this->url_plain = $row['plainParams'];
-                break;
-            default:
-                // Finding the domain to use
-                $urlbase = DirectMailUtility::getUrlBase((int)$row['page']);
-                $this->url_html = $urlbase . '?id=' . $row['page'] . $row['HTMLParams'];
-                $this->url_plain = $urlbase . '?id=' . $row['page'] . $row['plainParams'];
-        }
-        
-        // plain
-        if (!($row['sendOptions']&1) || !$this->url_plain) {
-            $this->url_plain = '';
-        } 
-        else {
-            $urlParts = @parse_url($this->url_plain);
-            if (!$urlParts['scheme']) {
-                $this->url_plain = 'http://' . $this->url_plain;
-            }
-        }
-        
-        // html
-        if (!($row['sendOptions']&2) || !$this->url_html) {
-            $this->url_html = '';
-        } 
-        else {
-            $urlParts = @parse_url($this->url_html);
-            if (!$urlParts['scheme']) {
-                $this->url_html = 'http://' . $this->url_html;
-            }
-        }
     }
     
     /**
