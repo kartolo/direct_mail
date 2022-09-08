@@ -55,7 +55,7 @@ class SelectCategories
             );
             if (is_array($rows)) {
                 foreach ($rows as $row) {
-                    $sys_language_uid = $row['uid'];
+                    $sys_language_uid = (int)$row['uid'];
                 }
             }
         }
@@ -68,7 +68,7 @@ class SelectCategories
                 $rows = $tempRepository->selectRowsByUid($table, intval($item[1]));
                 if (is_array($rows)) {
                     foreach ($rows as $rowCat) {
-                        if ($localizedRowCat = $tempRepository->getRecordOverlay($table, $rowCat, $sys_language_uid, '')) {
+                        if ($localizedRowCat = $tempRepository->getRecordOverlay($table, $rowCat, $sys_language_uid)) {
                             $params['items'][$k][0] = $localizedRowCat['category'];
                         }
                     }
