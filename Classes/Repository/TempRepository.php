@@ -614,4 +614,24 @@ class TempRepository extends MainRepository {
         
         return $row;
     }
+    
+    /**
+     * 
+     * @param string $table
+     * @param int $uid
+     * @return array|bool
+     */
+    public function selectRowsByUid(string $table, int $uid) 
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        
+        return $queryBuilder
+            ->select('*')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid))
+            )
+            ->execute()
+            ->fetchAll();
+    }
 }
