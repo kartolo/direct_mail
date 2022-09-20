@@ -1449,6 +1449,12 @@ class DirectMailUtility
     {
         $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
         // Finding the domain to use
+        if (!$_SERVER['HTTP_HOST']) {
+            // In CLI / Scheduler context, $_SERVER['HTTP_HOST'] can be null
+            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+            $site = $siteFinder->getSiteByPageId((int)$row['page']);
+            $_SERVER['HTTP_HOST'] = $site->getBase()->getHost();
+        }
         $result = [
             'baseUrl' => $cObj->typolink_URL([
                 'parameter' => 't3://page?uid=' . (int)$row['page'],
