@@ -24,7 +24,7 @@
   "require": {
     "typo3/cms-core": "^10.4",
     "friendsoftypo3/jumpurl": "^8.0",
-    "friendsoftypo3/tt-address": "^4.3 || ^5.0",
+    "friendsoftypo3/tt-address": "^4.3 || ^5.0 || ^6.0",
     "friendsoftypo3/rdct": "^2.0"
   },
   "require-dev": {
