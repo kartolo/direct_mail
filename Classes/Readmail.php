@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Analysis of return mail reason is enhanced by checking more possible reason texts.
  * Tested on mailing list of approx. 1500 members with most domains in M�xico and reason text in English or Spanish.
  *
- * @author  Kasper Sk�rh�j <kasper@typo3.com>
+ * @author  Kasper Skårhøj <kasper@typo3.com>
  * @author  Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
  * @package  TYPO3
@@ -30,14 +30,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class Readmail
 {
-    protected $reason_text = array(
+    protected $reason_text = [
         '550' => 'no mailbox|account does not exist|user unknown|Recipient unknown|recipient unknown|account that you tried to reach is disabled|User Unknown|User unknown|unknown in relay recipient table|user is unknown|unknown user|unknown local part|unrouteable address|does not have an account here|no such user|user not listed|account has been disabled or discontinued|user disabled|unknown recipient|invalid recipient|recipient problem|recipient name is not recognized|mailbox unavailable|550 5\.1\.1 recipient|status: 5\.1\.1|delivery failed 550|550 requested action not taken|receiver not found|unknown or illegal alias|is unknown at host|is not a valid mailbox|no mailbox here by that name|we do not relay|5\.7\.1 unable to relay|cuenta no activa|inactive user|user is inactive|mailaddress is administratively disabled|not found in directory|not listed in public name & address book|destination addresses were unknown|recipient address rejected|Recipient address rejected|Address rejected|rejected address|not listed in domino directory|domino directory entry does not|550-5\.1.1 The email account that you tried to reach does not exist|The email address you entered couldn',
         '551' => 'over quota|quota exceeded|mailbox full|mailbox is full|not enough space on the disk|mailfolder is over the allowed quota|recipient reached disk quota|temporalmente sobre utilizada|recipient storage full|mailbox lleno|user mailbox exceeds allowed size',
         '552' => 'connection refused|Connection refused|connection timed out|Connection timed out|timed out while|Host not found|host not found|Unable to connect to DNS|t find any host named|unrouteable mail domain|not reached for any host after a long failure period|domain invalid|host lookup did not complete: retry timeout exceeded|no es posible conectar correctamente',
         '554' => 'error in header|header error|invalid message|invalid structure|header line format error'
-    );
+    ];
 
-    public $dateAbbrevs = array(
+    public $dateAbbrevs = [
         'JAN' => 1,
         'FEB' => 2,
         'MAR' => 3,
@@ -50,7 +50,7 @@ class Readmail
         'OCT' => 10,
         'NOV' => 11,
         'DEC' => 12
-    );
+    ];
 
     public $serverGMToffsetMinutes = 60;
 
@@ -65,14 +65,14 @@ class Readmail
     public function find_MIDfromReturnPath($to)
     {
         $parts = explode('mid', strtolower($to));
-        $moreParts=explode('_', $parts[1]);
-        $out=array(
+        $moreParts = explode('_', $parts[1]);
+        $out = [
             'mid' => $moreParts[0],
             'rtbl' => substr($moreParts[1], 0, 1),
             'rid' => intval(substr($moreParts[1], 1))
-        );
-        if ($out['rtbl']=='p') {
-            $out['rtbl']='P';
+        ];
+        if ($out['rtbl'] == 'p') {
+            $out['rtbl'] = 'P';
         }
 
         return($out);
@@ -94,11 +94,11 @@ class Readmail
             list($mid, $hash) = GeneralUtility::trimExplode('-', $l[0]);
             if (md5($mid) == $hash) {
                 $moreParts = explode('_', substr($mid, 3));
-                $out = array(
+                $out = [
                     'mid' => $moreParts[0],
                     'rtbl' => substr($moreParts[1], 0, 1),
                     'rid' => substr($moreParts[1], 1)
-                );
+                ];
                 return($out);
             }
         }
@@ -119,13 +119,14 @@ class Readmail
         if (preg_match('/^Content-Type: message\/delivery-status/', substr($mailParts['CONTENT'], 0, 5000))) {
             // Don't break it, we're only looking for a reason
             $c = $mailParts['CONTENT'];
-        } elseif ($mailParts['content-type']) {
+        } 
+        elseif ($mailParts['content-type']) {
             $cType = $this->getCType($mailParts['content-type']);
             if ($cType['boundary']) {
                 $parts = $this->getMailBoundaryParts($cType['boundary'], $mailParts['CONTENT']);
                 $c = $this->getTextContent($parts[0]);
             } else {
-                $c=$this->getTextContent(
+                $c = $this->getTextContent(
                     'Content-Type: ' . $mailParts['content-type'] . '
      ' . $mailParts['CONTENT']
                 );
@@ -165,7 +166,7 @@ class Readmail
     {
         $mParts = explode('--' . $boundary, $content);
         unset($mParts[0]);
-        $new = array();
+        $new = [];
         foreach ($mParts as $val) {
             if (trim($val) == '--') {
                 break;
@@ -187,7 +188,7 @@ class Readmail
     public function getCType($str)
     {
         $parts = explode(';', $str);
-        $cTypes = array();
+        $cTypes = [];
         $cTypes['ContentType'] = $parts[0];
         next($parts);
         foreach ($parts as $ppstr) {
@@ -213,7 +214,7 @@ class Readmail
      */
     public function analyseReturnError($c)
     {
-        $cp = array();
+        $cp = [];
         // QMAIL
         if (preg_match('/' . preg_quote('--- Below this line is a copy of the message.') . '|' . preg_quote('------ This is a copy of the message, including all the headers.') . '/i', $c)) {
             if (preg_match('/' . preg_quote('--- Below this line is a copy of the message.') . '/i', $c)) {
@@ -253,15 +254,15 @@ class Readmail
             // whoever this is...
             $cp['content'] = trim($c);
             $cp['reason_text'] = trim(strstr($cp['content'], 'Your message cannot be delivered to the following recipients:'));
-            $cp['reason_text']=trim(substr($cp['reason_text'], 0, 500));
-            $cp['mailserver']='unknown';
+            $cp['reason_text'] = trim(substr($cp['reason_text'], 0, 500));
+            $cp['mailserver'] = 'unknown';
             $cp['reason'] = $this->extractReason($cp['reason_text']);
         } elseif (strstr($c, 'Diagnostic-Code: X-Notes')) {
             // Lotus Notes
             $cp['content'] = trim($c);
             $cp['reason_text'] = trim(strstr($cp['content'], 'Diagnostic-Code: X-Notes'));
             $cp['reason_text'] = trim(substr($cp['reason_text'], 0, 200));
-            $cp['mailserver']='Notes';
+            $cp['mailserver'] = 'Notes';
             $cp['reason'] = $this->extractReason($cp['reason_text']);
         } else {
             // No-named:
@@ -335,7 +336,7 @@ class Readmail
      */
     public function extractNameEmail($str)
     {
-        $outArr = array();
+        $outArr = [];
         // Email:
         $reg = '';
         preg_match('/<([^>]*)>/', $str, $reg);
@@ -368,7 +369,7 @@ class Readmail
      */
     public function getContentTypeData($contentTypeStr)
     {
-        $outValue = array();
+        $outValue = [];
         $cTypeParts = GeneralUtility::trimExplode(';', $contentTypeStr, 1);
         // Content type, first value is supposed to be the mime-type,
         // whatever after the first is something else.
@@ -441,7 +442,7 @@ class Readmail
             $content = substr($content, 0, $limit);
         }
         $lines = explode(LF, ltrim($content));
-        $headers = array();
+        $headers = [];
         $p = '';
         foreach ($lines as $k => $str) {
             if (!trim($str)) {
@@ -522,7 +523,7 @@ class Readmail
             case 'multipart':
                 if ($mailParts['_CONTENT_TYPE_DAT']['boundary']) {
                     $contentSectionParts = GeneralUtility::trimExplode('--' . $mailParts['_CONTENT_TYPE_DAT']['boundary'], $mailParts['CONTENT'], 1);
-                    $contentSectionParts_proc = array();
+                    $contentSectionParts_proc = [];
                     foreach ($contentSectionParts as $k => $v) {
                         if (substr($v, 0, 2) == '--') {
                             break;

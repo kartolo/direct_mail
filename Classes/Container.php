@@ -17,12 +17,13 @@ namespace DirectMailTeam\DirectMail;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Container class for auxilliary functions of tx_directmail
  *
- * @author		Kasper Sk�rh�j <kasperYYYY>@typo3.com>
+ * @author		Kasper Skårhøj <kasperYYYY>@typo3.com>
  * @author		Thorsten Kahler <thorsten.kahler@dkd.de>
  *
  * @package 	TYPO3
@@ -36,8 +37,18 @@ class Container
     /**
      * @var TypoScriptFrontendController
      */
-    public $cObj;
-
+    protected $cObj;
+    
+    /**
+     * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.4/Deprecation-94956-PublicCObj.html
+     * 
+     * @param ContentObjectRenderer $cObj
+     */
+    public function setContentObjectRenderer(ContentObjectRenderer $cObj): void
+    {
+        $this->cObj = $cObj;
+    }
+    
     /**
      * This function wraps HTML comments around the content.
      * The comments contain the uids of assigned direct mail categories.
@@ -48,7 +59,7 @@ class Container
      *
      * @return    string        content of the email with dmail boundaries
      */
-    public function insert_dMailer_boundaries($content, $conf = array())
+    public function insert_dMailer_boundaries($content, $conf = [])
     {
         if (isset($conf['useParentCObj']) && $conf['useParentCObj']) {
             $this->cObj = $conf['parentObj']->cObj;
@@ -95,7 +106,7 @@ class Container
                         ->execute();
 
 
-                    while (($row = $statement->fetch())) {
+                    while ($row = $statement->fetch()) {
                         $categoryList .= $row['uid'] . ',';
                     }
                     $categoryList = rtrim($categoryList, ',');
@@ -169,7 +180,7 @@ class Container
 
 
         if (count($categories) > 0) {
-            $categoryList = array();
+            $categoryList = [];
             foreach ($categories as $category) {
                 $categoryList[] = $category['uid_foreign'];
             }
