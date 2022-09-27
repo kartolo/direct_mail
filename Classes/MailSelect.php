@@ -49,8 +49,8 @@ class MailSelect extends QueryGenerator
         $out[] = '<select class="form-select t3js-submit-change" name="' . $name . '">';
         $out[] = '<option value=""></option>';
         foreach ($GLOBALS['TCA'] as $tN => $value) {
-            if ($this->‪getBackendUserAuthentication()->check('tables_select', $tN) && in_array($tN, $this->allowedTables)) {
-                $out[] = '<option value="' . htmlspecialchars($tN) . '"' . ($tN == $cur ? ' selected' : '') . '>' . htmlspecialchars($this->‪getLanguageService()->sl($GLOBALS['TCA'][$tN]['ctrl']['title'])) . '</option>';
+            if ($this->getBackendUserAuthentication()->check('tables_select', $tN) && in_array($tN, $this->allowedTables)) {
+                $out[] = '<option value="' . htmlspecialchars($tN) . '"' . ($tN == $cur ? ' selected' : '') . '>' . htmlspecialchars($this->getLanguageService()->sl($GLOBALS['TCA'][$tN]['ctrl']['title'])) . '</option>';
             }
         }
         $out[] = '</select>';
