@@ -1,5 +1,5 @@
 <?php
-defined('TYPO3_MODE') or die();
+defined('TYPO3') || die();
 
 // fe_users modified
 $feUsersCols = [
@@ -19,7 +19,7 @@ $feUsersCols = [
             'renderMode' => 'checkbox',
             'foreign_table' => 'sys_dmail_category',
             'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.sorting',
-            'itemsProcFunc' => 'DirectMailTeam\\DirectMail\\SelectCategories->get_localized_categories',
+            'itemsProcFunc' => DirectMailTeam\DirectMail\SelectCategories::Class.'->get_localized_categories',
             'itemsProcFunc_config' => [
                 'table' => 'sys_dmail_category',
                 'indexField' => 'uid',
@@ -40,5 +40,4 @@ $feUsersCols = [
 ];
 
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('fe_users', $feUsersCols);
-$GLOBALS['TCA']['fe_users']['feInterface']['fe_admin_fieldList'] .= ',module_sys_dmail_newsletter,module_sys_dmail_category,module_sys_dmail_html';
 TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCATypes('fe_users', '--div--;Direct mail,module_sys_dmail_newsletter,module_sys_dmail_category,module_sys_dmail_html');

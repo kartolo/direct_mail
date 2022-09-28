@@ -39,11 +39,11 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
         // also get added to the extracted hyperlinks
 
         // Create an instance of "dmailer" with only the "extractMediaLinks" being mocked.
-        $dmailer = $this->getMock('dmailer', array('extractMediaLinks'));
+        $dmailer = $this->getMock('dmailer', ['extractMediaLinks']);
         $dmailer->expects($this->once())->method('extractMediaLinks');
         $dmailer->theParts['html']['content'] = $content;
         $dmailer->theParts['html']['path'] = $path;
-        $dmailer->theParts['html']['media'] = array();
+        $dmailer->theParts['html']['media'] = [];
         $dmailer->extractHyperLinks();
 
         $this->assertEquals($expected, $dmailer->theParts['html']['hrefs']);
@@ -56,136 +56,136 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function extractHyperLinksDataProvider()
     {
-        return array(
-            'no hyperlinks found' => array('This is a simple test', '', null),
-            'no hyperlinks in anchor' => array('This is a <a name="anchor">simple</a> test', '', null),
-            'absolute url' => array('
+        return [
+            'no hyperlinks found' => ['This is a simple test', '', null],
+            'no hyperlinks in anchor' => ['This is a <a name="anchor">simple</a> test', '', null],
+            'absolute url' => ['
 				This is a <a name="link" href="http://google.com">simple</a> test',
                 'http://www.server.com/',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'http://google.com',
                         'quotes' => '"',
                         'subst_str' => '"http://google.com"',
                         'absRef' => 'http://google.com',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'absolute url (fails currently, #54459)' => array('
+                    ],
+                ]
+            ],
+            'absolute url (fails currently, #54459)' => ['
 				This is a <a title="Browse to http://google.com for more information" href="http://google.com">simple</a> test',
                 'http://www.server.com/',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'http://google.com',
                         'quotes' => '"',
                         'subst_str' => '"http://google.com"',
                         'absRef' => 'http://google.com',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'relative link #1' => array('
+                    ],
+                ]
+            ],
+            'relative link #1' => ['
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com/',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'relative link #2' => array('
+                    ],
+                ]
+            ],
+            'relative link #2' => ['
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'relative link #3' => array('
+                    ],
+                ]
+            ],
+            'relative link #3' => ['
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com/subdirectory/',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/subdirectory/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'relative link #4' => array('
+                    ],
+                ]
+            ],
+            'relative link #4' => ['
 				This is a <a name="link" href="fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com/subdirectory',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'absolute link #1' => array('
+                    ],
+                ]
+            ],
+            'absolute link #1' => ['
 				This is a <a name="link" href="/fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com/subdirectory',
-                array(
-                    array(
+                [
+                    [
                         'ref' => '/fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"/fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'absolute link #2' => array('
+                    ],
+                ]
+            ],
+            'absolute link #2' => ['
 				This is a <a name="link" href="/fileadmin/simple.pdf">simple</a> test',
                 'http://www.server.com/subdirectory/',
-                array(
-                    array(
+                [
+                    [
                         'ref' => '/fileadmin/simple.pdf',
                         'quotes' => '"',
                         'subst_str' => '"/fileadmin/simple.pdf"',
                         'absRef' => 'http://www.server.com/fileadmin/simple.pdf',
                         'tag' => 'a',
                         'no_jumpurl' => 0,
-                    ),
-                )
-            ),
-            'absolute link #3 (no_jumpurl)' => array('
+                    ],
+                ]
+            ],
+            'absolute link #3 (no_jumpurl)' => ['
 				This is a <a name="link" href="image.png" no_jumpurl="1">simple</a> test',
                 'http://www.server.com/subdirectory',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'image.png',
                         'quotes' => '"',
                         'subst_str' => '"image.png"',
                         'absRef' => 'http://www.server.com/image.png',
                         'tag' => 'a',
                         'no_jumpurl' => 1,
-                    ),
-                )
-            ),
-            'form action #1' => array('
+                    ],
+                ]
+            ],
+            'form action #1' => ['
 				Hello.<br />
 				Here you can send us your comment<br />
 				<form name="formname" action="index.php?id=123" method="POST" no_jumpurl=1>
@@ -193,17 +193,17 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
 				</form>
 				Thanks!',
                 'http://www.server.com/subdirectory/',
-                array(
-                    array(
+                [
+                    [
                         'ref' => 'index.php?id=123',
                         'quotes' => '"',
                         'subst_str' => '"index.php?id=123"',
                         'absRef' => 'http://www.server.com/subdirectory/index.php?id=123',
                         'tag' => 'form',
                         'no_jumpurl' => 1,
-                    ),
-                )
-            ),
-        );
+                    ],
+                ]
+            ],
+        ];
     }
 }

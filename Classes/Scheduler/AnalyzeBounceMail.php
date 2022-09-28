@@ -15,12 +15,11 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  */
 
 use DirectMailTeam\DirectMail\Readmail;
-use Doctrine\DBAL\FetchMode;
+use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use Fetch\Message;
 use Fetch\Server;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
@@ -177,7 +176,7 @@ class AnalyzeBounceMail extends AbstractTask
             // get unread mails
             $messages = $mailServer->search('UNSEEN', $this->maxProcessed);
             /** @var Message $message The message object */
-            foreach ($messages as $i => $message) {
+            foreach ($messages as $message) {
                 // process the mail
                 if ($this->processBounceMail($message)) {
                     // set delete
@@ -208,7 +207,7 @@ class AnalyzeBounceMail extends AbstractTask
 
         // get attachment
         $attachmentArray = $message->getAttachments();
-        $midArray = array();
+        $midArray = [];
         if (is_array($attachmentArray)) {
             // search in attachment
             foreach ($attachmentArray as $v => $attachment) {
@@ -233,41 +232,16 @@ class AnalyzeBounceMail extends AbstractTask
         // Extract text content
         $cp = $readMail->analyseReturnError($message->getMessageBody());
 
-        /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('sys_dmail_maillog');
-        $row = $queryBuilder
-            ->select('uid','email')
-            ->from('sys_dmail_maillog')
-            ->where(
-                $queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->eq(
-                        'rid',
-                        $queryBuilder->createNamedParameter((int)$midArray['rid'], \PDO::PARAM_INT)
-                    ),
-                    $queryBuilder->expr()->eq(
-                        'rtbl',
-                        $queryBuilder->createNamedParameter($midArray['rtbl'], \PDO::PARAM_STR)
-                    ),
-                    $queryBuilder->expr()->eq(
-                        'mid',
-                        $queryBuilder->createNamedParameter((int)$midArray['mid'], \PDO::PARAM_INT)
-                    ),
-                    $queryBuilder->expr()->eq('response_type', 0)
-                )
-            )
-            ->setMaxResults(1)
-            ->execute()
-            ->fetch(FetchMode::ASSOCIATIVE);
+        $row = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectForAnalyzeBounceMail($midArray['rid'], $midArray['rtbl'], $midArray['mid']);
+
         // only write to log table, if we found a corresponding recipient record
         if (!empty($row)) {
             /** @var Connection $connection */
-            $connection = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getConnectionForTable('sys_dmail_maillog');
+            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('sys_dmail_maillog');
             try {
                 $midArray['email'] = $row['email'];
                 $insertFields = [
-                    'tstamp' => $GLOBALS['EXEC_TIME'],
+                    'tstamp' => $this->getEXEC_TIME(),
                     'response_type' => -127,
                     'mid' => (int)$midArray['mid'],
                     'rid' => (int)$midArray['rid'],
@@ -314,5 +288,13 @@ class AnalyzeBounceMail extends AbstractTask
         } catch (\Exception $e) {
             return false;
         }
+    }
+    
+    /**
+     * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Context/Index.html#example
+     * @TODO
+     */
+    private function getEXEC_TIME() {
+        return $GLOBALS['EXEC_TIME'];
     }
 }

@@ -16,7 +16,11 @@ namespace DirectMailTeam\DirectMail\Scheduler;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
+use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
@@ -33,7 +37,7 @@ class MailFromDraft extends AbstractTask
 {
     public $draftUid = null;
 
-    protected $hookObjects = array();
+    protected $hookObjects = [];
 
     /**
      * Setter function to set the draft ID that the task should use
@@ -57,7 +61,7 @@ class MailFromDraft extends AbstractTask
     {
         if ($this->draftUid > 0) {
             $this->initializeHookObjects();
-            $hookParams = array();
+            $hookParams = [];
 
             $draftRecord = BackendUtility::getRecord('sys_dmail', $this->draftUid);
 
@@ -79,9 +83,9 @@ class MailFromDraft extends AbstractTask
             $draftRecord['query_info'] = serialize($newRecipients['queryInfo']);
 
             // check if domain record is set
-            if ((TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI)
+            if (Environment::isCli()
                 && (int)$draftRecord['type'] !== 1
-                && empty(DirectMailUtility::getUrlBase((int)$draftRecord['page']))
+                && !$this->checkUrlBase((int)$draftRecord['page'])
             ) {
                 throw new \Exception('No site found in root line of page ' . $draftRecord['page'] . '!');
             }
@@ -98,7 +102,6 @@ class MailFromDraft extends AbstractTask
             );
             $this->dmailUid = (int)$databaseConnectionSysDmailMail->lastInsertId('sys_dmail');
 
-
             // Call a hook after insertion of the cloned dmail record
             // This hook can get used to modify fields of the direct mail.
             // For example the current date could get appended to the subject.
@@ -112,16 +115,16 @@ class MailFromDraft extends AbstractTask
             // fetch mail content
             $result = DirectMailUtility::fetchUrlContentsForDirectMailRecord($mailRecord, $defaultParams, true);
 
-            if ($result['errors'] !== array()) {
+            if ($result['errors'] !== []) {
                 throw new \Exception('Failed to fetch contents: ' . implode(', ', $result['errors']));
             }
 
             $mailRecord = BackendUtility::getRecord('sys_dmail', $this->dmailUid);
             if ($mailRecord['mailContent'] && $mailRecord['renderedsize'] > 0) {
-                $updateData = array(
+                $updateData = [
                     'scheduled' => time(),
                     'issent'    => 1
-                );
+                ];
                 // Call a hook before enqueuing the cloned dmail record into
                 // the direct mail delivery queue
                 $hookParams['mailRecord'] = &$mailRecord;
@@ -129,7 +132,6 @@ class MailFromDraft extends AbstractTask
                 $this->callHooks('enqueueClonedDmail', $hookParams);
                 // Update the cloned dmail so it will get sent upon next
                 // invocation of the mailer engine
-                //$GLOBALS['TYPO3_DB']->exec_UPDATEquery('sys_dmail', 'uid = ' . intval($this->dmailUid), $updateData);
                 $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
                 $connection = $connectionPool->getConnectionForTable('sys_dmail');
                 $connection->update(
@@ -142,6 +144,34 @@ class MailFromDraft extends AbstractTask
         return true;
     }
 
+    /**
+     * Get the base URL
+     *
+     * @param int $pageId
+     * @return bool
+     * @throws SiteNotFoundException
+     * @throws InvalidRouteArgumentsException
+     */
+    protected function checkUrlBase(int $pageId): bool
+    {
+        if ($pageId > 0) {
+            /** @var SiteFinder $siteFinder */
+            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+            if (!empty($siteFinder->getAllSites())) {
+                $site = $siteFinder->getSiteByPageId($pageId);
+                $base = $site->getBase();
+                if($base->getHost()) {
+                    return true;
+                }
+            }
+            else {
+                return false; // No site found in root line of pageId
+            }
+        }
+        
+        return false; // No valid pageId
+    }
+    
     /**
      * Calls the passed hook method of all configured hook object instances
      *

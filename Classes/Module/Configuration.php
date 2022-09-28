@@ -29,7 +29,7 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Module Configuration for tx_directmail extension
  *
- * @author		Kasper Sk�rh�j <kasper@typo3.com>
+ * @author		Kasper Skårhøj <kasper@typo3.com>
  * @author  	Jan-Erik Revsbech <jer@moccompany.com>
  * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  * @author		Ivan-Dharma Kartolo <ivan.kartolo@dkd.de>
@@ -41,7 +41,7 @@ class Configuration extends BaseScriptClass
 {
     public $TSconfPrefix = 'mod.web_modules.dmail.';
     // Internal
-    public $params = array();
+    public $params = [];
     public $perms_clause = '';
     public $pageinfo = '';
     public $sys_dmail_uid;
@@ -49,11 +49,11 @@ class Configuration extends BaseScriptClass
     public $pages_uid;
     public $categories;
     public $id;
-    public $implodedParams = array();
+    public $implodedParams = [];
     // If set a valid user table is around
     public $userTable;
     public $sys_language_uid = 0;
-    public $allowedTables = array('tt_address','fe_users');
+    public $allowedTables = ['tt_address','fe_users'];
     public $MCONF;
     public $cshTable;
     public $formname = 'dmailform';
@@ -223,18 +223,17 @@ class Configuration extends BaseScriptClass
 				</script>
 			';
 
-
-            $markers = array(
+            $markers = [
                 'FLASHMESSAGES' => '',
                 'CONTENT' => '',
-            );
+            ];
 
-            $docHeaderButtons = array(
+            $docHeaderButtons = [
                 'PAGEPATH' => $this->getLanguageService()->getLL('labels.path') . ': ' .
                     GeneralUtility::fixed_lgd_cs($this->pageinfo['_thePath'], 50),
                 'SHORTCUT' => '',
                 'CSH' => BackendUtility::cshItem($this->cshTable, '', $GLOBALS['BACK_PATH'])
-            );
+            ];
             // shortcut icon
             if ($GLOBALS['BE_USER']->mayMakeShortcut()) {
                 $docHeaderButtons['SHORTCUT'] = $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
@@ -242,8 +241,8 @@ class Configuration extends BaseScriptClass
 
             $module = $this->pageinfo['module'];
             if (!$module) {
-                $pidrec=BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
-                $module=$pidrec['module'];
+                $pidrec = BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
+                $module = $pidrec['module'];
             }
 
             if ($module == 'dmail') {
@@ -276,9 +275,8 @@ class Configuration extends BaseScriptClass
                     ]);
             }
 
-
             $this->content = $this->doc->startPage($this->getLanguageService()->getLL('title'));
-            $this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, array());
+            $this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers, []);
         } else {
             // If no access or if ID == zero
 
@@ -309,7 +307,7 @@ class Configuration extends BaseScriptClass
      */
     protected function moduleContent()
     {
-        $configArray[1] = array(
+        $configArray[1] = [
             'box-1' => $this->getLanguageService()->getLL('configure_default_headers'),
             'from_email' => array('string', DirectMailUtility::fName('from_email'), $this->getLanguageService()->getLL('from_email.description') . '<br />' . $this->getLanguageService()->getLL('from_email.details')),
             'from_name' => array('string', DirectMailUtility::fName('from_name'), $this->getLanguageService()->getLL('from_name.description') . '<br />' . $this->getLanguageService()->getLL('from_name.details')),
@@ -318,7 +316,7 @@ class Configuration extends BaseScriptClass
             'return_path' => array('string', DirectMailUtility::fName('return_path'), $this->getLanguageService()->getLL('return_path.description') . '<br />' . $this->getLanguageService()->getLL('return_path.details')),
             'organisation' => array('string', DirectMailUtility::fName('organisation'), $this->getLanguageService()->getLL('organisation.description') . '<br />' . $this->getLanguageService()->getLL('organisation.details')),
             'priority' => array('select', DirectMailUtility::fName('priority'), $this->getLanguageService()->getLL('priority.description') . '<br />' . $this->getLanguageService()->getLL('priority.details'), array(3 => $this->getLanguageService()->getLL('configure_priority_normal'), 1 => $this->getLanguageService()->getLL('configure_priority_high'), 5 => $this->getLanguageService()->getLL('configure_priority_low'))),
-        );
+        ];
         $configArray[2] = array(
             'box-2' => $this->getLanguageService()->getLL('configure_default_content'),
             'sendOptions' => array('select', DirectMailUtility::fName('sendOptions'), $this->getLanguageService()->getLL('sendOptions.description') . '<br />' . $this->getLanguageService()->getLL('sendOptions.details'), array(3 => $this->getLanguageService()->getLL('configure_plain_and_html') ,1 => $this->getLanguageService()->getLL('configure_plain_only') ,2 => $this->getLanguageService()->getLL('configure_html_only'))),
@@ -387,7 +385,7 @@ class Configuration extends BaseScriptClass
      *
      * @return string The compiled input form
      */
-    public function makeConfigForm(array $configArray, array$params, $dataPrefix)
+    public function makeConfigForm(array $configArray, array $params, $dataPrefix)
     {
         $boxFlag = 0;
 
@@ -396,7 +394,7 @@ class Configuration extends BaseScriptClass
             ' <span class="help" id="sender_email_help">';
         $wrapHelp2 = '</span></a>';
 
-        $lines = array();
+        $lines = [];
         if (is_array($configArray)) {
             foreach ($configArray as $fname => $config) {
                 if (is_array($config)) {
@@ -416,7 +414,7 @@ class Configuration extends BaseScriptClass
                             $formEl = '';
                             break;
                         case 'select':
-                            $opt = array();
+                            $opt = [];
                             foreach ($config[3] as $k => $v) {
                                 $opt[]='<option value="' . htmlspecialchars($k) . '"' . ($params[$fname]==$k?' selected="selected"':'') . '>' . htmlspecialchars($v) . '</option>';
                             }
@@ -465,7 +463,7 @@ class Configuration extends BaseScriptClass
     public function updatePageTS()
     {
         if ($GLOBALS['BE_USER']->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
-            $pageTypoScript= GeneralUtility::_GP('pageTS');
+            $pageTypoScript = GeneralUtility::_GP('pageTS');
             if (is_array($pageTypoScript)) {
                 DirectMailUtility::updatePagesTSconfig($this->id, $pageTypoScript, $this->TSconfPrefix);
                 header('Location: ' . GeneralUtility::locationHeaderUrl(GeneralUtility::getIndpEnv('REQUEST_URI')));

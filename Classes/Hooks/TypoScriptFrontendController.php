@@ -14,7 +14,7 @@ namespace DirectMailTeam\DirectMail\Hooks;
  * The TYPO3 project - inspiring people to share!
  */
 
-use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Utility\DmRegistryUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -36,17 +36,18 @@ class TypoScriptFrontendController
      *
      * @return void
      */
-    public function simulateUsergroup($parameters, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $typoScriptFrontendController)
+    public function simulateUsergroup($parameters, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $typoScriptFrontendController): void
     {
         $directMailFeGroup = (int)GeneralUtility::_GET('dmail_fe_group');
-        $accessToken = GeneralUtility::_GET('access_token');
-        if ($directMailFeGroup > 0 && DirectMailUtility::validateAndRemoveAccessToken($accessToken)) {
+        $accessToken = (string)GeneralUtility::_GET('access_token');
+        if ($directMailFeGroup > 0 && GeneralUtility::makeInstance(DmRegistryUtility::class)->validateAndRemoveAccessToken($accessToken)) {
             if ($typoScriptFrontendController->fe_user->user) {
                 $typoScriptFrontendController->fe_user->user[$typoScriptFrontendController->usergroup_column] = $directMailFeGroup;
-            } else {
-                $typoScriptFrontendController->fe_user->user = array(
+            } 
+            else {
+                $typoScriptFrontendController->fe_user->user = [
                     $typoScriptFrontendController->fe_user->usergroup_column => $directMailFeGroup
-                );
+                ];
             }
         }
     }

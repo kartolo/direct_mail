@@ -74,7 +74,7 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
                 '</select>';
         }
 
-        $additionalFields = array();
+        $additionalFields = [];
         $additionalFields['server'] = $this->createAdditionalFields('server', $serverHTML);
         $additionalFields['port'] = $this->createAdditionalFields('port', $portHTML);
         $additionalFields['user'] = $this->createAdditionalFields('user', $userHTML);
@@ -149,12 +149,12 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
     protected function createAdditionalFields($fieldName, $fieldHTML)
     {
         // create server input field
-        return array(
+        return [
             'code'     => $fieldHTML,
             'label'    => $this->getLanguangeService()->getLL('scheduler.bounceMail.' . $fieldName),
             'cshKey'   => $fieldName,
             'cshLabel' => $this->getLanguangeService()->getLL('scheduler.bounceMail.csh.' . $fieldName)
-        );
+        ];
     }
 
     /**

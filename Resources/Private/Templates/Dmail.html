@@ -1,0 +1,408 @@
+<f:layout name="Default" />
+
+<f:section name="content">
+<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+<f:flashMessages />
+<div class="typo3-fullDoc">
+    <div class="module-body t3js-module-body">
+        <form action="" method="post" name="dmailform" enctype="multipart/form-data">	        
+	        <f:render arguments="{navigation: data.navigation}" section="Navigation" />
+			<f:format.raw>{flashmessages}</f:format.raw>
+			<f:if condition="{data.info}">
+				<h3><f:translate key="{lll}dmail_wiz2_detail"/></h3>
+				<f:if condition="{data.info.internal}">
+					<input type="hidden" name="cmd" value="{data.info.internal.cmd}">
+				</f:if>
+				<f:if condition="{data.info.external}">
+					<input type="hidden" name="cmd" value="{data.info.external.cmd}">
+				</f:if>
+				<f:if condition="{data.info.quickmail}">
+					<input type="hidden" name="cmd" value="{data.info.quickmail.cmd}">
+                    <input type="hidden" name="quickmail[senderName]" value="{data.info.quickmail.senderName}" />
+                    <input type="hidden" name="quickmail[senderEmail]" value="{data.info.quickmail.senderEmail}" />
+                    <input type="hidden" name="quickmail[subject]" value="{data.info.quickmail.subject}" />
+                    <input type="hidden" name="quickmail[message]" value="{data.info.quickmail.message}" />
+					<input type="hidden" name="quickmail[breakLines]" value="{data.info.quickmail.breakLines}" />
+				</f:if>
+				<f:if condition="{data.info.dmail}">
+					<input type="hidden" name="cmd" value="{data.info.dmail.cmd}">
+				</f:if>
+
+				<f:if condition="{data.info.table.out}">
+					<div id="box-1" class="toggleBox">
+						<h3><f:format.html>{data.info.table.icon}&nbsp;{data.info.table.title}</f:format.html></h3>
+						<table width="460" class="table table-striped table-hover">
+							<thead >
+							<th>{data.info.table.theadTitle1} <b>{data.info.table.theadTitle2}</b></th>
+							<th style="text-align: right;"><f:format.html>{data.info.table.out}</f:format.html></th>
+							</thead>
+							<f:if condition="{data.info.table.trs -> f:count()}">
+								<f:for each="{data.info.table.trs}" as="tr">
+									<tr class="db_list_normal">
+										<td>{tr.title}</td>
+										<td>{tr.value}</td>
+									</tr>
+								</f:for>
+							</f:if>
+						</table>
+					</div>
+				</f:if>
+				<input type="hidden" name="sys_dmail_uid" value="{data.info.sys_dmail_uid}">
+				<f:if condition="{data.info.pages_uid}">
+					<input type="hidden" name="pages_uid" value="{data.info.pages_uid}">
+				</f:if>
+				<input type="hidden" name="currentCMD" value="{data.info.currentCMD}">
+			</f:if>
+			<f:if condition="{data.cats}">
+				<h3><f:translate key="{lll}dmail_wiz3_cats"/></h3>
+				<div id="box-1" class="toggleBox">
+					<h4>{data.cats.output.title}</h4>
+					<p><f:format.html>{data.cats.output.subtitle}</f:format.html></p>
+					<f:if condition="{data.cats.output.rowsFound}">
+						<f:if condition="{data.cats.output.rows -> f:count()}">
+							<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">
+								<f:for each="{data.cats.output.rows}" as="row">
+									<tr>
+										<f:if condition="{row.separator}">
+											<f:then>
+												<td colspan="3" bgcolor="{row.bgcolor}">{row.title}: <strong><f:format.html>{row.value}</f:format.html></strong></td>
+											</f:then>
+											<f:else>
+												<td valign="top" width="75%">
+													<f:format.html>{row.icon}{row.header}</f:format.html>
+													[{row.CType}<f:if condition="{row.list_type}">; {row.list_type}</f:if>]
+													<br><f:format.html>{row.bodytext}</f:format.html><br />
+												</td>
+												<td nowrap valign="top">
+													<strong style="color:{row.color};">{row.labelOnlyAll}</strong><br />
+													<f:if condition="{row.checkboxes -> f:count()}">
+														<f:for each="{row.checkboxes}" as="checkbox">
+															<input type="hidden" name="indata[categories][{row.uid}][{checkbox.pKey}]" value="0">
+															<input type="checkbox" name="indata[categories][{row.uid}][{checkbox.pKey}]" value="1" {f:if(condition: '{checkbox.checked} == 1', then: 'checked')}>
+															{checkbox.pVal}<br />
+														</f:for>
+													</f:if>
+												</td>
+											</f:else>
+										</f:if>
+									</tr>
+								</f:for>
+								<f:format.html>{data.cats.catsForm}</f:format.html>
+							</table>
+						</f:if>
+						<input type="hidden" name="pages_uid" value="{data.cats.output.pages_uid}">
+						<input type="hidden" name="cmd" value="{data.cats.output.cmd}"><br />
+						<input type="submit" name="update_cats" value="{data.cats.output.update_cats -> f:format.html()}">
+					</f:if>
+				</div>
+				<input type="hidden" name="cmd" value="{data.cats.cmd}">
+                <input type="hidden" name="sys_dmail_uid" value="{data.cats.sys_dmail_uid}">
+                <input type="hidden" name="pages_uid" value="{data.cats.pages_uid}">
+                <input type="hidden" name="currentCMD" value="{data.cats.currentCMD}">
+			</f:if>
+			<f:if condition="{data.test}">
+				<h3><f:translate key="{lll}dmail_wiz4_testmail"/></h3>
+				<div id="box-1" class="toggleBox">
+					<f:if condition="{data.test.testFormData.test_tt_address}">
+	            		<h3><f:translate key="{lll}testmail_individual"/></h3>
+	            		<f:translate key="{lll}testmail_individual_msg"/>
+	            		<br /><br />
+	            		<f:format.html>{data.test.testFormData.test_tt_address}</f:format.html>
+						<div style="padding-top: 20px;"></div>
+					</f:if>
+					<f:if condition="{data.test.testFormData.test_dmail_group_table -> f:count()}">
+						<h3><f:translate key="{lll}testmail_mailgroup"/></h3>
+						<f:translate key="{lll}testmail_mailgroup_msg"/>
+						<br /><br />					
+						<f:for each="{data.test.testFormData.test_dmail_group_table}" as="table">
+							<a href="{table.moduleUrl}"><f:format.html>{table.iconFactory}</f:format.html> <f:format.html>{table.title}</f:format.html></a>
+							<br /><br />
+							<table border="0" class="table table-striped table-hover">
+								<tr>
+									<td><f:format.html>{table.tds}</f:format.html></td>
+								</tr>
+							</table>
+						</f:for>
+						<div style="padding-top: 20px;"></div>
+					</f:if>
+					<h3><f:translate key="{lll}testmail_simple"/></h3>
+					<f:translate key="{lll}testmail_simple_msg"/>
+					<br /><br />
+					<input style="width: 460px;" type="text" name="SET[dmail_test_email]" value="{data.test.testFormData.dmail_test_email}" /><br /><br />
+					<input type="hidden" name="id" value="{data.test.testFormData.id}" />
+					<input type="hidden" name="sys_dmail_uid" value="{data.test.testFormData.sys_dmail_uid}" />
+					<input type="hidden" name="cmd" value="{data.test.testFormData.cmd}" />
+					<input type="submit" name="mailingMode_simple" value="{f:translate(key: '{lll}dmail_send')}" />
+                </div>
+                <input type="hidden" name="cmd" value="{data.test.cmd}">
+                <input type="hidden" name="sys_dmail_uid" value="{data.test.sys_dmail_uid}">
+                <input type="hidden" name="pages_uid" value="{data.test.pages_uid}">
+                <input type="hidden" name="currentCMD" value="{data.test.currentCMD}">
+			</f:if>
+			<f:if condition="{data.final.finalForm}">
+				<h3><f:translate key="{lll}dmail_wiz5_sendmass"/></h3>
+				<div id="box-1" class="toggleBox">
+					<h3><f:translate key="{lll}schedule_select_mailgroup"/></h3>
+					<input type="hidden" name="id" value="{data.final.finalForm.id}" />
+					<input type="hidden" name="sys_dmail_uid" value="{data.final.finalForm.sys_dmail_uid}" />
+					<input type="hidden" name="cmd" value="send_mail_final" />
+					<f:translate key="{lll}schedule_mailgroup"/>
+					<br />
+					<f:format.html>{data.final.finalForm.groupInput}</f:format.html>
+					<br /><br />
+					<f:format.html>{data.final.finalForm.hookContents}</f:format.html>
+					<f:translate key="{lll}schedule_time"/>
+					<br />
+					<div class="form-control-wrap">
+						<div class="input-group">
+							<input class="form-control t3js-datetimepicker t3js-clearable" 
+								data-date-type="datetime" 
+								data-date-offset="0" 
+								type="text" 
+								id="tceforms-datetimefield-startdate" 
+								name="send_mail_datetime_hr" value="{data.final.finalForm.send_mail_datetime_hr}">
+							<input name="send_mail_datetime" value="{data.final.finalForm.send_mail_datetime}" type="hidden">
+							<span class="input-group-btn">
+								<label class="btn btn-default" for="tceforms-datetimefield-startdate">
+									<span class="fa fa-calendar"></span>
+								</label>
+							</span>
+						</div>
+					</div>
+					<br />
+					<br/>
+					<label for="tx-directmail-sendtestmail-check">
+						<input type="checkbox" name="testmail" id="tx-directmail-sendtestmail-check" value="1" />&nbsp;<f:translate key="{lll}schedule_testmail"/>
+					</label>
+        			<br/>
+        			<label for="tx-directmail-savedraft-check">
+        				<input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;<f:translate key="{lll}schedule_draft"/>
+					</label>
+					<br /><br />
+					<input class="btn btn-default" type="Submit" name="mailingMode_mailGroup" value="{f:translate(key: '{lll}schedule_send_all')}" />
+					<div style="padding-top: 20px;"></div>
+                </div>
+                <input type="hidden" name="cmd" value="{data.final.cmd}">
+                <input type="hidden" name="sys_dmail_uid" value="{data.final.sys_dmail_uid}">
+                <input type="hidden" name="pages_uid" value="{data.final.pages_uid}">
+                <input type="hidden" name="currentCMD" value="{data.final.currentCMD}">
+			</f:if>
+			<f:if condition="{data.default}">
+				<h3><f:translate key="{lll}dmail_wiz1_new_newsletter"/> - <f:translate key="{lll}dmail_wiz1_select_nl_source"/></h3>
+				<f:if condition="{data.default.internal}">
+	                <f:render
+	                    arguments="{
+	                        data: data.default.internal,
+	                        index: 4,
+	                        section: 'DefaultInternal',
+	                        title: 'dmail_wiz1_internal_page'
+	                    }"
+	                    section="Panel"
+	                />
+				</f:if>
+				<f:if condition="{data.default.external}">
+	                <f:render
+	                    arguments="{
+	                        data: data.default.external,
+	                        index: 5,
+	                        section: 'DefaultExternal',
+	                        title: 'dmail_wiz1_external_page'
+	                    }"
+	                    section="Panel"
+	                />
+				</f:if>
+				<f:if condition="{data.default.quick}">
+	                <f:render
+		                arguments="{
+		                    data: data.default.quick,
+		                    index: 6,
+		                    section: 'DefaultQuick',
+		                    title: 'dmail_wiz1_quickmail'
+		                }"
+		                section="Panel"
+	                />
+				</f:if>
+				<f:if condition="{data.default.dmail}">
+	                <f:render
+	                    arguments="{
+	                        data: data.default.dmail,
+	                        index: 7,
+	                        section: 'DefaultDmail',
+	                        title: 'dmail_wiz1_list_dmail'
+	                    }"
+	                    section="Panel"
+	                />
+	            </f:if>
+	            <input type="hidden" name="cmd" value="info" />
+            </f:if>
+		</form>
+	</div>
+</div>
+</f:section>
+
+<f:section name="Navigation">
+	<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+	<div class="typo3-message message-ok t3-wizard-steps">
+			<f:for each="{navigation.steps}" key="step" as="val">
+				<span class="t3-wizard-item {f:if(condition: '{navigation.currentStep} == {step}', then: 't3-wizard-item-active', else: '')}">&nbsp;{step}&nbsp;</span>
+			</f:for>
+	</div>
+	<f:if condition="{navigation.back}">
+		<input type="submit" class="btn btn-default" value="{f:translate(key: '{lll}dmail_wiz_back')}" name="back">&nbsp;
+       </f:if>
+       <f:if condition="{navigation.next}">
+       	<input type="submit" class="{f:if(condition: '{navigation.next_error}', then: 'next btn btn-default disabled', else: 'btn btn-default')}" {f:if(condition: '{navigation.next_error}', then: 'disabled="disabled"', else: '')} value="{f:translate(key: '{lll}dmail_wiz_next')}">
+       </f:if>
+       <br clear="all" />
+       <br />
+</f:section>
+
+<f:comment><!--
+    Parameters:
+    - data: all configuration options
+    - index: numeric section index
+    - title: panel title
+    - section: section that renders content
+--></f:comment>
+<f:section name="Panel">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <f:variable name="aria-expanded" value="false" />
+    <f:variable name="classCollapsed" value="collapsed" />
+    <f:variable name="classShow" value="" />
+    <f:if condition="{data.open}">
+        <f:variable name="aria-expanded" value="true" />
+        <f:variable name="classCollapsed" value="" />
+        <f:variable name="classShow" value=" show" />
+    </f:if>
+    
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading{index}">
+            <h4 class="panel-title">
+                <a role="button" data-bs-toggle="collapse" data-bs-parent="#accordion" href="#collapse{index}" aria-expanded="{aria-expanded}" aria-controls="collapse{index}" class="{classCollapsed}">
+                    <span class="caret"></span>
+                    <f:translate key="{lll}{title}"/>
+                </a>
+            </h4>
+        </div>
+        <div id="collapse{index}" class="panel-collapse collapse{classShow}" role="tabpanel" aria-labelledby="heading{index}">
+            <div class="panel-body">
+                <f:render section="{section}" arguments="{data: data}"/>
+            </div>
+        </div>
+    </div>
+</f:section>
+
+<f:section name="DefaultInternal">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <h3>
+        <f:translate key="{lll}{data.title}"/> <f:format.html>{data.cshItem}</f:format.html>
+    </h3>
+    <f:if condition="{data.news.empty}">
+    	<h3><f:translate key="{lll}nl_select"/></h3>
+    	<f:translate key="{lll}nl_select_msg1"/>
+    </f:if>
+    <f:if condition="{data.news.rows}">
+    	<f:if condition="{data.news.rows -> f:count()}">
+		    <table class="table table-striped table-hover">
+		    	<tbody>
+		    		<f:for each="{data.news.rows}" as="row">
+		    			<tr class="db_list_normal">
+		    				<td>
+		    					<a href="{row.createDmailLink -> f:format.html()}"><f:format.html>{row.pageIcon}&nbsp;{row.title}</f:format.html></a>
+		    				</td>
+		    				<td>
+								<f:format.html>{row.createLink}</f:format.html>
+                        	</td>
+                        	<td>
+                        		<a onclick="{row.editOnClickLink -> f:format.html()}" href="#" title="{f:translate(key: '{lll}nl_editPage')}">
+                        			<f:format.html>{row.iconActionsOpen}</f:format.html>
+								</a>
+                        	</td>
+                        	<td><f:format.html>{row.previewLink}</f:format.html></td>
+		    			</tr>
+		    		</f:for>
+		    	</tbody>
+			</table>
+		</f:if>
+	</f:if>
+</f:section>
+
+<f:section name="DefaultExternal">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <h3>
+        <f:translate key="{lll}{data.title}"/> <f:format.html>{data.cshItem}</f:format.html>
+    </h3>
+    <f:translate key="{lll}dmail_HTML_url"/>
+    <br />
+    <input type="text" value="http://" name="createMailFrom_HTMLUrl" class="form-control" />
+    <br />
+    <f:translate key="{lll}dmail_plaintext_url"/>
+    <br />
+    <input type="text" value="http://" name="createMailFrom_plainUrl" class="form-control" />
+    <br />
+    <f:translate key="{lll}dmail_subject"/>
+    <br />
+    <input type="text" value="{f:translate(key: '{lll}dmail_write_subject')}" name="createMailFrom_URL" class="form-control" />
+    <br />
+    <f:if condition="{data.no_valid_url}">
+        <br />
+        <b><f:translate key="{lll}dmail_no_valid_url"/></b>
+        <br /><br />
+    </f:if>
+    <input type="hidden" name="fetchAtOnce" value="1">
+    <input type="submit" value="{f:translate(key: '{lll}dmail_createMail')}" />
+</f:section>
+
+<f:section name="DefaultQuick">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <input type="hidden" name="id" value="{data.id}" />
+    <f:translate key="{lll}quickmail_sender_name"/>
+    <br />
+    <input type="text" name="quickmail[senderName]" value="{data.senderName}" class="form-control" />
+    <br />
+    <f:translate key="{lll}quickmail_sender_email"/>
+    <br />
+    <input type="text" name="quickmail[senderEmail]" value="{data.senderMail}" class="form-control" />
+    <br />
+    <f:translate key="{lll}dmail_subject"/>
+    <br />
+    <input type="text" name="quickmail[subject]" value="{data.subject}" class="form-control" />
+    <br />
+    <f:translate key="{lll}quickmail_message"/>
+    <br />
+    <textarea rows="20" name="quickmail[message]" class="form-control"><f:format.html>{data.message}</f:format.html></textarea>
+    <br />
+    <f:translate key="{lll}quickmail_break_lines"/>
+    <input type="checkbox" name="quickmail[breakLines]" value="1" {f:if(condition: '{data.breakLines}', then: 'checked="checked"', else: '')} />
+    <br /><br />
+    <input type="Submit" name="quickmail[send]" value="{f:translate(key: '{lll}dmail_wiz_next')}" />
+</f:section>
+
+<f:section name="DefaultDmail">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+
+    <table class="table table-striped table-hover">
+		<thead>
+		    <th>&nbsp;</th>
+		    <th><f:translate key="{lll}nl_l_subject" /></th>
+		    <th><f:translate key="{lll}nl_l_lastM" /></th>
+		    <th><f:translate key="{lll}nl_l_sent" /></th>
+		    <th><f:translate key="{lll}nl_l_size" /></th>
+		    <th><f:translate key="{lll}nl_l_attach" /></th>
+		    <th><f:translate key="{lll}nl_l_type" /></th>
+		    <th>&nbsp;</th>
+		</thead>
+		<f:for each="{data}" as="row">
+		    <tr class="db_list_normal">
+		        <td><f:format.html>{row.icon}</f:format.html></td>
+		        <td><a class="t3-link" href="{row.link -> f:format.html()}"><f:format.html>{row.linkText}</f:format.html></a></td>
+		        <td><f:format.html>{row.tstamp}</f:format.html></td>
+		        <td><f:format.html>{row.issent}</f:format.html></td>
+		        <td><f:format.html>{row.renderedsize}</f:format.html></td>
+		        <td><f:format.html>{row.attachment}</f:format.html></td>
+		        <td><f:format.html>{row.type}</f:format.html></td>
+		        <td><f:if condition="{row.deleteLink}"><a href="{row.deleteLink -> f:format.html()}"><core:icon identifier="actions-edit-delete" size="small" /></a></f:if></td>
+		    </tr>
+		</f:for>
+    </table>
+</f:section>
