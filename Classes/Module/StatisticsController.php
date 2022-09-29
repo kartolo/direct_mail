@@ -1207,8 +1207,6 @@ class StatisticsController extends MainController
                 }
             }
         }
-        
-        $this->noView = 1;
 
         return ['out' => $output, 'compactView' => $compactView, 'thisurl' => $thisurl, 'tables' => $tables];
     }

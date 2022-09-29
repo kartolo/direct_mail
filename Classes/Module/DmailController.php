@@ -1142,7 +1142,6 @@ class DmailController extends MainController
         $data['cmd'] = 'send_mail_test';
         $data['sys_dmail_uid'] = $this->sys_dmail_uid;
 
-        //$this->noView = 1;
         return $data;
     }
 
@@ -1229,8 +1228,6 @@ class DmailController extends MainController
                     false
                 );
                 $this->messageQueue->addMessage($message);
-                
-                //$this->noView = 1;
             }
         } 
         elseif ($this->cmd == 'send_mail_test') {
@@ -1549,7 +1546,6 @@ class DmailController extends MainController
             $groupInput = '<select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10), $opt).'</select>';
         }
 
-        //$this->noView = 1;
         return [
             'id' => $this->id,
             'sys_dmail_uid' => $this->sys_dmail_uid,
