@@ -318,7 +318,7 @@ class SysDmailMaillogRepository extends MainRepository {
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
         
-        $row = $queryBuilder
+        return $queryBuilder
         ->select('uid','email')
         ->from($this->table)
         ->where(

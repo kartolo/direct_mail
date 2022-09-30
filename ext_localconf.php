@@ -5,29 +5,6 @@ defined('TYPO3') || die();
 
 // https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ExtensionArchitecture/BestPractises/ConfigurationFiles.html
 (function () {
-    // registering icons
-    $iconProviderClassName = \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class;
-    
-    $iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconRegistry::class);
-    $icons = [
-        'directmail-attachment' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/attach.gif'],
-        'directmail-dmail' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/dmail.gif'],
-        'directmail-dmail-list' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/dmail_list.gif'],
-        'directmail-folder' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/ext_icon_dmail_folder.gif'],
-        'directmail-category' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/icon_tx_directmail_category.gif'],
-        'directmail-mail' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/mail.gif'],
-        'directmail-mailgroup' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/mailgroup.gif'],
-        'directmail-page-modules-dmail' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/modules_dmail.gif'],
-        'directmail-page-modules-dmail-inactive' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/modules_dmail__h.gif'],
-        'directmail-dmail-new' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/newmail.gif'],
-        'directmail-dmail-preview-html' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/preview_html.gif'],
-        'directmail-dmail-preview-text' => ['source' => 'EXT:direct_mail/Resources/Public/Icons/preview_txt.gif'],
-    ];
-    
-    foreach ($icons as $identifier => $options) {
-        $iconRegistry->registerIcon($identifier, $iconProviderClassName, $options);
-    }
-
     // Register hook for simulating a user group
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['determineId-PreProcessing']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\TypoScriptFrontendController->simulateUsergroup';
     
