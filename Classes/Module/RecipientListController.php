@@ -38,7 +38,6 @@ class RecipientListController extends MainController
     protected array $set = [];
     protected string $fieldList = 'uid,name,first_name,middle_name,last_name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
     
-    protected $queryGenerator;
     protected $MOD_SETTINGS;
     
     protected int $uid = 0; 
@@ -70,8 +69,6 @@ class RecipientListController extends MainController
         $this->table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
         $this->indata = $parsedBody['indata'] ?? $queryParams['indata'] ?? [];
         $this->submit = (bool)($parsedBody['submit'] ?? $queryParams['submit'] ?? false);
-
-        $this->queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -643,19 +640,20 @@ class RecipientListController extends MainController
     {
         $special = [];
 
-        $this->queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
+        $queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
+        $queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
         
         if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
-            $this->queryGenerator->queryConfig = $this->queryGenerator->cleanUpQueryConfig(unserialize($this->MOD_SETTINGS['queryConfig']));
-            $this->queryGenerator->extFieldLists['queryFields'] = 'uid';
-            $special['selected'] = $this->queryGenerator->getSelectQuery();
+            $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($this->MOD_SETTINGS['queryConfig']));
+            $queryGenerator->extFieldLists['queryFields'] = 'uid';
+            $special['selected'] = $queryGenerator->getSelectQuery();
         }
         
-        $this->queryGenerator->setFormName('dmailform');
-        $this->queryGenerator->noWrap = '';
-        $this->queryGenerator->allowedTables = $this->allowedTables;
+        $queryGenerator->setFormName('dmailform');
+        $queryGenerator->noWrap = '';
+        $queryGenerator->allowedTables = $this->allowedTables;
 
-        $special['selectTables'] = $this->queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
+        $special['selectTables'] = $queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
 
         return $special;
     }
