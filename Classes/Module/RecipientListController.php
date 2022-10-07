@@ -495,7 +495,7 @@ class RecipientListController extends MainController
                 }
             }
         }
-        $theOutput = '';
+
         switch ($this->lCmd) {
             case 'listall':
                 if (is_array($idLists['tt_address'] ?? false)) {
@@ -569,7 +569,7 @@ class RecipientListController extends MainController
 
                 if (($group['type'] ?? false) == 3) {
                     if ($this->getBackendUser()->check('tables_modify', 'sys_dmail_group')) {
-                        $data['special'] = $this->specialQuery($group);
+                        $data['special'] = $this->specialQuery();
                     }
                 }
         }
@@ -637,11 +637,9 @@ class RecipientListController extends MainController
     /**
      * Show HTML form to make special query
      *
-     * @param array $mailGroup Recipient list DB record
-     *
      * @return array HTML form to make a special query
      */
-    protected function specialQuery($mailGroup)
+    protected function specialQuery()
     {
         $special = [];
 
