@@ -316,13 +316,16 @@ class RecipientListController extends MainController
                         $table = '';
                         if ($whichTables&1) {
                             $table = 'tt_address';
-                        } elseif ($whichTables&2) {
+                        } 
+                        elseif ($whichTables&2) {
                             $table = 'fe_users';
-                        } elseif ($this->userTable && ($whichTables&4)) {
+                        } 
+                        elseif ($this->userTable && ($whichTables&4)) {
                             $table = $this->userTable;
                         }
+
                         if ($table) {
-                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($this->queryGenerator, $table, $mailGroup);
+                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($table, $mailGroup);
                         }
                         break;
                     case 4:
@@ -636,7 +639,7 @@ class RecipientListController extends MainController
      *
      * @param array $mailGroup Recipient list DB record
      *
-     * @return string HTML form to make a special query
+     * @return array HTML form to make a special query
      */
     protected function specialQuery($mailGroup)
     {

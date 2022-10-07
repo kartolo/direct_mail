@@ -5,7 +5,6 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\DirectMailUtility;
-use DirectMailTeam\DirectMail\MailSelect;
 use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
@@ -1580,6 +1579,7 @@ class DmailController extends MainController
             }
             
             $recipientList = $this->getSingleMailGroup($group);
+
             if (!is_array($recipientList)) {
                 continue;
             }
@@ -1724,15 +1724,16 @@ class DmailController extends MainController
                         $table = '';
                         if ($whichTables&1) {
                             $table = 'tt_address';
-                        } elseif ($whichTables&2) {
+                        } 
+                        elseif ($whichTables&2) {
                             $table = 'fe_users';
-                        } elseif ($this->userTable && ($whichTables&4)) {
+                        } 
+                        elseif ($this->userTable && ($whichTables&4)) {
                             $table = $this->userTable;
                         }
+
                         if ($table) {
-                            // initialize the query generator
-                            $queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
-                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
+                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($table, $mailGroup);
                         }
                         break;
                     case 4:
