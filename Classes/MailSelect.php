@@ -43,6 +43,7 @@ class MailSelect extends QueryGenerator
      * @param string $cur
      * @return string
      */
+    //protected function mkTableSelect($name, $cur)
     public function mkTableSelect($name, $cur)
     {
         $out = [];

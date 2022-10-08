@@ -446,7 +446,7 @@ class TempRepository extends MainRepository {
     {
         $outArr = [];
         if ($group['query']) {
-            $queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
+            $queryGenerator = GeneralUtility::makeInstance(MailSelect::class, [], [], ''); //@TODO
             $queryGenerator->init('dmail_queryConfig', $table);
             $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
             

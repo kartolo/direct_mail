@@ -639,22 +639,27 @@ class RecipientListController extends MainController
     protected function specialQuery()
     {
         $special = [];
-
-        $queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
-        $queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
-        
-        if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
-            $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($this->MOD_SETTINGS['queryConfig']));
-            $queryGenerator->extFieldLists['queryFields'] = 'uid';
-            $special['selected'] = $queryGenerator->getSelectQuery();
-        }
-        
+        //@TODO
+        $queryGenerator = GeneralUtility::makeInstance(MailSelect::class, $this->MOD_SETTINGS, [], $this->moduleName);
         $queryGenerator->setFormName('dmailform');
-        $queryGenerator->noWrap = '';
-        $queryGenerator->allowedTables = $this->allowedTables;
 
-        $special['selectTables'] = $queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
+        //$queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
 
+        //if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
+        //    $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($this->MOD_SETTINGS['queryConfig']));
+        //    $queryGenerator->extFieldLists['queryFields'] = 'uid';
+        //    $special['selected'] = $queryGenerator->getSelectQuery();
+        //}
+        
+        
+        //$queryGenerator->noWrap = '';
+        //$queryGenerator->allowedTables = $this->allowedTables;
+        //$special['selectTables'] = $queryGenerator->form();
+        $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Lowlevel/QueryGenerator');
+        $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
+        $special['selectTables'] = $queryGenerator->queryMaker();
+        //$special['selectTables'] = $queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
+        
         return $special;
     }
     
