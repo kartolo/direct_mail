@@ -13,6 +13,7 @@ $EM_CONF[$_EXTKEY] = [
     'constraints' => [
         'depends' => [
             'typo3' => '11.5.0-11.99.99',
+            'lowlevel' => '11.5.0-11.99.99',
             'tt_address' => '5.3.0-6.0.99',
             'php' => '7.4.0-8.0.99',
             'jumpurl' => '8.0.3-',

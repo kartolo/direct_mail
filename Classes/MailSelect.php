@@ -16,10 +16,12 @@ namespace DirectMailTeam\DirectMail;
 
 /*
  * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.0/Deprecation-92080-DeprecatedQueryGeneratorAndQueryView.html
+ * https://docs.typo3.org/c/typo3/cms-core/11.5/en-us/Changelog/8.4/Deprecation-77839-MoveTYPO3CMSCoreQueryGeneratorIntoEXTlowlevelAndDeprecateTheOldModule.html
  * https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_database_1_1_query_generator.html
+ * https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_lowlevel_1_1_database_1_1_query_generator.html
  */
 
-use TYPO3\CMS\Core\Database\QueryGenerator;
+use TYPO3\CMS\Lowlevel\Database\QueryGenerator;
 
 /**
  * Used to generate queries for selecting users in the database
@@ -32,16 +34,14 @@ use TYPO3\CMS\Core\Database\QueryGenerator;
  */
 class MailSelect extends QueryGenerator
 {
-    public $allowedTables = ['tt_address','fe_users'];
+    public $allowedTables = ['tt_address', 'fe_users'];
 
     /**
-     * Build a dropdown box. override function from parent class. Limit only to 2 tables.
+     * Make table select
      *
-     * @param	string		$name Name of the select-field
-     * @param	string		$cur Table name, which is currently selected
-     *
-     * @return	string		HTML select-field
-     * @see QueryGenerator::mkTableSelect()
+     * @param string $name
+     * @param string $cur
+     * @return string
      */
     public function mkTableSelect($name, $cur)
     {
@@ -49,8 +49,13 @@ class MailSelect extends QueryGenerator
         $out[] = '<select class="form-select t3js-submit-change" name="' . $name . '">';
         $out[] = '<option value=""></option>';
         foreach ($GLOBALS['TCA'] as $tN => $value) {
+            //if ($this->getBackendUserAuthentication()->check('tables_select', $tN)) {
             if ($this->getBackendUserAuthentication()->check('tables_select', $tN) && in_array($tN, $this->allowedTables)) {
-                $out[] = '<option value="' . htmlspecialchars($tN) . '"' . ($tN == $cur ? ' selected' : '') . '>' . htmlspecialchars($this->getLanguageService()->sl($GLOBALS['TCA'][$tN]['ctrl']['title'])) . '</option>';
+                $label = $this->getLanguageService()->sL($GLOBALS['TCA'][$tN]['ctrl']['title']);
+                if ($this->showFieldAndTableNames) {
+                    $label .= ' [' . $tN . ']';
+                }
+                $out[] = '<option value="' . htmlspecialchars($tN) . '"' . ($tN == $cur ? ' selected' : '') . '>' . htmlspecialchars($label) . '</option>';
             }
         }
         $out[] = '</select>';
