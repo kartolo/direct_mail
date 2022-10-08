@@ -591,9 +591,11 @@ class RecipientListController extends MainController
         $table = '';
         if ($whichTables&1) {
             $table = 'tt_address';
-        } elseif ($whichTables&2) {
+        } 
+        elseif ($whichTables&2) {
             $table = 'fe_users';
-        } elseif ($this->userTable && ($whichTables&4)) {
+        } 
+        elseif ($this->userTable && ($whichTables&4)) {
             $table = $this->userTable;
         }
         
@@ -609,9 +611,11 @@ class RecipientListController extends MainController
             $whichTables = 0;
             if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
                 $whichTables = 1;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
+            } 
+            elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
                 $whichTables = 2;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
+            } 
+            elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
                 $whichTables = 4;
             }
             $updateFields = [
@@ -641,7 +645,9 @@ class RecipientListController extends MainController
         $special = [];
         //@TODO
         $queryGenerator = GeneralUtility::makeInstance(MailSelect::class, $this->MOD_SETTINGS, [], $this->moduleName);
-        $queryGenerator->setFormName('dmailform');
+        #$queryGenerator->setFormName('dmailform');
+        $queryGenerator->setFormName('queryform');
+        
 
         //$queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
 
