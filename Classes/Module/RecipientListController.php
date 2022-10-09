@@ -322,7 +322,8 @@ class RecipientListController extends MainController
                         }
 
                         if ($table) {
-                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($table, $mailGroup);
+                            $queryGenerator = GeneralUtility::makeInstance(MailSelect::class, $this->MOD_SETTINGS, [], $this->moduleName);
+                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
                         }
                         break;
                     case 4:
@@ -584,9 +585,10 @@ class RecipientListController extends MainController
     {
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
-        $queryConfig = GeneralUtility::_GP('dmail_queryConfig');
+        $queryConfig = GeneralUtility::_GP('queryConfig');
         $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
-        
+        $queryGeneratorConfig = GeneralUtility::_GP('SET');
+
         $whichTables = intval($mailGroup['whichtables']);
         $table = '';
         if ($whichTables&1) {
@@ -655,19 +657,19 @@ class RecipientListController extends MainController
 
         //$queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
 
-        //if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
+        if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
         //    $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($this->MOD_SETTINGS['queryConfig']));
         //    $queryGenerator->extFieldLists['queryFields'] = 'uid';
         //    $special['selected'] = $queryGenerator->getSelectQuery();
-        //}
-        
+        }
         
         //$queryGenerator->noWrap = '';
         //$queryGenerator->allowedTables = $this->allowedTables;
         //$special['selectTables'] = $queryGenerator->form();
+        
         $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Lowlevel/QueryGenerator');
         $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
-        $special['selectTables'] = $queryGenerator->queryMaker();
+        $special['selectTables'] = $queryGenerator->queryMakerDM();
         //$special['selectTables'] = $queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
         
         return $special;

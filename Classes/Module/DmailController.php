@@ -1733,7 +1733,8 @@ class DmailController extends MainController
                         }
 
                         if ($table) {
-                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($table, $mailGroup);
+                            $queryGenerator = GeneralUtility::makeInstance(MailSelect::class, $this->MOD_SETTINGS, [], $this->moduleName);
+                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
                         }
                         break;
                     case 4:
@@ -1763,7 +1764,7 @@ class DmailController extends MainController
     {
         $set = GeneralUtility::_GP('SET');
         $queryTable = $set['queryTable'];
-        $queryConfig = GeneralUtility::_GP('dmail_queryConfig');
+        $queryConfig = GeneralUtility::_GP('queryConfig');
         $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
         
         $whichTables = intval($mailGroup['whichtables']);

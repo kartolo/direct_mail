@@ -442,22 +442,26 @@ class TempRepository extends MainRepository {
      *
      * @return array The resulting query.
      */
-    public function getSpecialQueryIdList(string $table, array $group): array
+    public function getSpecialQueryIdList(MailSelect $queryGenerator, string $table, array $group): array
     {
         $outArr = [];
         if ($group['query']) {
-            $queryGenerator = GeneralUtility::makeInstance(MailSelect::class, [], [], ''); //@TODO
-            $queryGenerator->init('dmail_queryConfig', $table);
-            $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
+            //@TODO
+            $select = '';
+            //$queryGenerator->init('dmail_queryConfig', $table);
+            //$queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
             
-            $queryGenerator->extFieldLists['queryFields'] = 'uid';
-            $select = $queryGenerator->getSelectQuery();
-            /** @var Connection $connection */
-            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-            $recipients = $connection->executeQuery($select)->fetchAll();
-            
-            foreach ($recipients as $recipient) {
-                $outArr[] = $recipient['uid'];
+            //$queryGenerator->extFieldLists['queryFields'] = 'uid';
+            //$select = $queryGenerator->getSelectQuery();
+
+            if($select) {
+                /** @var Connection $connection */
+                $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+                $recipients = $connection->executeQuery($select)->fetchAll();
+                
+                foreach ($recipients as $recipient) {
+                    $outArr[] = $recipient['uid'];
+                }
             }
         }
         return $outArr;
