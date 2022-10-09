@@ -35,7 +35,7 @@ use TYPO3\CMS\Lowlevel\Database\QueryGenerator;
  * @package 	TYPO3
  * @subpackage 	tx_directmail
  */
-class MailSelect extends QueryGenerator
+class DmQueryGenerator extends QueryGenerator
 {
     public $allowedTables = ['tt_address', 'fe_users'];
 

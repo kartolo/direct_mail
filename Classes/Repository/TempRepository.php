@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-use DirectMailTeam\DirectMail\MailSelect;
+use DirectMailTeam\DirectMail\DmQueryGenerator;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -442,7 +442,7 @@ class TempRepository extends MainRepository {
      *
      * @return array The resulting query.
      */
-    public function getSpecialQueryIdList(MailSelect $queryGenerator, string $table, array $group): array
+    public function getSpecialQueryIdList(DmQueryGenerator $queryGenerator, string $table, array $group): array
     {
         $outArr = [];
         if ($group['query']) {
