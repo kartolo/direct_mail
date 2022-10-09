@@ -308,7 +308,7 @@ class RecipientListController extends MainController
                         break;
                     case 3:
                         // Special query list
-                        $mailGroup = $this->update_SpecialQuery($mailGroup);
+                        $mailGroup = $this->updateSpecialQuery($mailGroup);
                         $whichTables = intval($mailGroup['whichtables']);
                         $table = '';
                         if ($whichTables&1) {
@@ -580,7 +580,7 @@ class RecipientListController extends MainController
      *
      * @return array Updated DB records
      */
-    protected function update_specialQuery($mailGroup)
+    protected function updateSpecialQuery($mailGroup)
     {
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
@@ -603,6 +603,9 @@ class RecipientListController extends MainController
         $this->MOD_SETTINGS['queryConfig'] = $queryConfig ? serialize($queryConfig) : $mailGroup['query'];
         $this->MOD_SETTINGS['search_query_smallparts'] = 1;
         
+        $this->MOD_SETTINGS['search_query_makeQuery'] = 'all';
+        $this->MOD_SETTINGS['search'] = 'query';
+
         if ($this->MOD_SETTINGS['queryTable'] != $table) {
             $this->MOD_SETTINGS['queryConfig'] = '';
         }
@@ -644,6 +647,7 @@ class RecipientListController extends MainController
     {
         $special = [];
         //@TODO
+         
         $queryGenerator = GeneralUtility::makeInstance(MailSelect::class, $this->MOD_SETTINGS, [], $this->moduleName);
         #$queryGenerator->setFormName('dmailform');
         $queryGenerator->setFormName('queryform');

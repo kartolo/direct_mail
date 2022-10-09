@@ -1719,7 +1719,7 @@ class DmailController extends MainController
                         break;
                     case 3:
                         // Special query list
-                        $mailGroup = $this->update_SpecialQuery($mailGroup);
+                        $mailGroup = $this->updateSpecialQuery($mailGroup);
                         $whichTables = intval($mailGroup['whichtables']);
                         $table = '';
                         if ($whichTables&1) {
@@ -1759,7 +1759,7 @@ class DmailController extends MainController
      *
      * @return array Mailgroup DB record after updated
      */
-    public function update_specialQuery(array $mailGroup)
+    public function updateSpecialQuery(array $mailGroup)
     {
         $set = GeneralUtility::_GP('SET');
         $queryTable = $set['queryTable'];
