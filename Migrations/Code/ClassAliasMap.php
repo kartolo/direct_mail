@@ -7,7 +7,7 @@ return [
     'tx_directmail_static' => 'DirectMailTeam\\DirectMail\\DirectMailUtility',
     'dmailer' => 'DirectMailTeam\\DirectMail\\Dmailer',
     'tx_directmail_importer' => 'DirectMailTeam\\DirectMail\\Importer',
-    'mailSelect' => 'DirectMailTeam\\DirectMail\\MailSelect',
+    'mailSelect' => 'DirectMailTeam\\DirectMail\\DmQueryGenerator',
     'readmail' => 'DirectMailTeam\\DirectMail\\Readmail',
     'tx_directmail_select_categories' => 'DirectMailTeam\\DirectMail\\SelectCategories',
     'tx_directmail_ttnews_plaintext' => 'DirectMailTeam\\DirectMail\\Hooks\\TtnewsPlaintextHook',

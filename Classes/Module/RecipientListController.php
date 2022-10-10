@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Importer;
-use DirectMailTeam\DirectMail\MailSelect;
+use DirectMailTeam\DirectMail\DmQueryGenerator;
 use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -38,7 +38,6 @@ class RecipientListController extends MainController
     protected array $set = [];
     protected string $fieldList = 'uid,name,first_name,middle_name,last_name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
     
-    protected $queryGenerator;
     protected $MOD_SETTINGS;
     
     protected int $uid = 0; 
@@ -70,8 +69,6 @@ class RecipientListController extends MainController
         $this->table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
         $this->indata = $parsedBody['indata'] ?? $queryParams['indata'] ?? [];
         $this->submit = (bool)($parsedBody['submit'] ?? $queryParams['submit'] ?? false);
-
-        $this->queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
     }
     
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
@@ -311,18 +308,22 @@ class RecipientListController extends MainController
                         break;
                     case 3:
                         // Special query list
-                        $mailGroup = $this->update_SpecialQuery($mailGroup);
+                        $mailGroup = $this->updateSpecialQuery($mailGroup);
                         $whichTables = intval($mailGroup['whichtables']);
                         $table = '';
                         if ($whichTables&1) {
                             $table = 'tt_address';
-                        } elseif ($whichTables&2) {
+                        } 
+                        elseif ($whichTables&2) {
                             $table = 'fe_users';
-                        } elseif ($this->userTable && ($whichTables&4)) {
+                        } 
+                        elseif ($this->userTable && ($whichTables&4)) {
                             $table = $this->userTable;
                         }
+
                         if ($table) {
-                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($this->queryGenerator, $table, $mailGroup);
+                            $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->MOD_SETTINGS, [], $this->moduleName);
+                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
                         }
                         break;
                     case 4:
@@ -441,6 +442,7 @@ class RecipientListController extends MainController
     {
         $totalRecipients = 0;
         $idLists = $result['queryInfo']['id_lists'];
+
         if (is_array($idLists['tt_address'] ?? false)) {
             $totalRecipients += count($idLists['tt_address']);
         }
@@ -450,7 +452,7 @@ class RecipientListController extends MainController
         if (is_array($idLists['PLAINLIST'] ?? false)) {
             $totalRecipients += count($idLists['PLAINLIST']);
         }
-        if (is_array($idLists[$this->userTable] ?? false)) {
+        if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
             $totalRecipients += count($idLists[$this->userTable]);
         }
 
@@ -492,7 +494,7 @@ class RecipientListController extends MainController
                 }
             }
         }
-        $theOutput = '';
+
         switch ($this->lCmd) {
             case 'listall':
                 if (is_array($idLists['tt_address'] ?? false)) {
@@ -518,7 +520,7 @@ class RecipientListController extends MainController
                         'table_custom' => ''
                     ];
                 }
-                if (is_array($idLists[$this->userTable] ?? false)) {
+                if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$this->userTable], $this->userTable);
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_custom',
@@ -555,7 +557,7 @@ class RecipientListController extends MainController
                     ];
                 }
                 
-                if (is_array($idLists[$this->userTable] ?? false) && count($idLists[$this->userTable])) {
+                if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false) && count($idLists[$this->userTable])) {
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_custom',
                         'title_recip' => 'mailgroup_recip_number',
@@ -566,7 +568,7 @@ class RecipientListController extends MainController
 
                 if (($group['type'] ?? false) == 3) {
                     if ($this->getBackendUser()->check('tables_modify', 'sys_dmail_group')) {
-                        $data['special'] = $this->specialQuery($group);
+                        $data['special'] = $this->specialQuery();
                     }
                 }
         }
@@ -580,20 +582,22 @@ class RecipientListController extends MainController
      *
      * @return array Updated DB records
      */
-    protected function update_specialQuery($mailGroup)
+    protected function updateSpecialQuery($mailGroup)
     {
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
-        $queryConfig = GeneralUtility::_GP('dmail_queryConfig');
-        $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
-        
+        $queryConfig = GeneralUtility::_GP('queryConfig');
+        $queryGeneratorConfig = GeneralUtility::_GP('SET');
+
         $whichTables = intval($mailGroup['whichtables']);
         $table = '';
         if ($whichTables&1) {
             $table = 'tt_address';
-        } elseif ($whichTables&2) {
+        } 
+        elseif ($whichTables&2) {
             $table = 'fe_users';
-        } elseif ($this->userTable && ($whichTables&4)) {
+        } 
+        elseif ($this->userTable && ($whichTables&4)) {
             $table = $this->userTable;
         }
         
@@ -601,6 +605,9 @@ class RecipientListController extends MainController
         $this->MOD_SETTINGS['queryConfig'] = $queryConfig ? serialize($queryConfig) : $mailGroup['query'];
         $this->MOD_SETTINGS['search_query_smallparts'] = 1;
         
+        $this->MOD_SETTINGS['search_query_makeQuery'] = 'all';
+        $this->MOD_SETTINGS['search'] = 'query';
+
         if ($this->MOD_SETTINGS['queryTable'] != $table) {
             $this->MOD_SETTINGS['queryConfig'] = '';
         }
@@ -609,9 +616,11 @@ class RecipientListController extends MainController
             $whichTables = 0;
             if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
                 $whichTables = 1;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
+            } 
+            elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
                 $whichTables = 2;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
+            } 
+            elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
                 $whichTables = 4;
             }
             $updateFields = [
@@ -620,7 +629,6 @@ class RecipientListController extends MainController
             ];
             
             $connection = $this->getConnection('sys_dmail_group');
-            
             $connection->update(
                 'sys_dmail_group', // table
                 $updateFields,
@@ -634,29 +642,23 @@ class RecipientListController extends MainController
     /**
      * Show HTML form to make special query
      *
-     * @param array $mailGroup Recipient list DB record
-     *
-     * @return string HTML form to make a special query
+     * @return array HTML form to make a special query
      */
-    protected function specialQuery($mailGroup)
+    protected function specialQuery()
     {
-        $special = [];
+        $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->MOD_SETTINGS, [], $this->moduleName);
+        //$queryGenerator->setFormName('dmailform');
+        $queryGenerator->setFormName('queryform');
 
-        $this->queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
+        //if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
+        //    $queryGenerator->extFieldLists['queryFields'] = 'uid';
+        //}
+
+        $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Lowlevel/QueryGenerator');
+        $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
+        [$html, $query] = $queryGenerator->queryMakerDM();
         
-        if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
-            $this->queryGenerator->queryConfig = $this->queryGenerator->cleanUpQueryConfig(unserialize($this->MOD_SETTINGS['queryConfig']));
-            $this->queryGenerator->extFieldLists['queryFields'] = 'uid';
-            $special['selected'] = $this->queryGenerator->getSelectQuery();
-        }
-        
-        $this->queryGenerator->setFormName('dmailform');
-        $this->queryGenerator->noWrap = '';
-        $this->queryGenerator->allowedTables = $this->allowedTables;
-
-        $special['selectTables'] = $this->queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
-
-        return $special;
+        return ['selectTables' => $html, 'query' => $query];
     }
     
     /**

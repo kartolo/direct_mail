@@ -56,20 +56,23 @@
             </f:for>
         </f:if>
         <f:if condition="{data.special}">
-            <div style="padding-top: 20px;"></div>
-            <h3><f:translate key="{lll}dmail_query" /></h3>
-            
+			<f:if condition="{data.special.query}">
+				<h2><f:translate key="{lll}dmail_query" /></h2>
+				<div>
+					<code><f:format.html>{data.special.query}</f:format.html></code>
+				</div>
+				<div style="padding-top: 20px;"></div>
+			</f:if>
+            <f:comment>
             <h3><f:translate key="{lll}dmail_makeQuery" /></h3>
-            
-            <f:form action="" method="post" name="dmailform" enctype="multipart/form-data">
-                <f:if condition="{data.special.selected}">
-                    {data.special.selected}
-                    <div style="padding-top: 20px;"></div>
-                </f:if>
+			</f:comment>
+			<f:comment>'queryform' for QueryGenerator.js from lowlevel</f:comment>
+            <f:form action="" method="post" name="queryform" enctype="multipart/form-data">
+
                 <f:format.html>{data.special.selectTables}</f:format.html>
                 <f:form.hidden name="cmd" value="displayMailGroup" />
                 <f:form.hidden name="group_uid" value="{data.group_id}" />
-	            <f:form.submit value="{f:translate(key: '{lll}dmail_updateQuery')}" />
+				<f:comment><f:form.submit value="{f:translate(key: '{lll}dmail_updateQuery')}" /></f:comment>
             </f:form>
         </f:if>
     </f:if>
