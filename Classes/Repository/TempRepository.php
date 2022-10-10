@@ -446,13 +446,8 @@ class TempRepository extends MainRepository {
     {
         $outArr = [];
         if ($group['query']) {
-            //@TODO
-            $select = '';
-            //$queryGenerator->init('dmail_queryConfig', $table);
-            //$queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
-            
+            $select = $queryGenerator->getQueryDM();
             //$queryGenerator->extFieldLists['queryFields'] = 'uid';
-            //$select = $queryGenerator->getSelectQuery();
 
             if($select) {
                 /** @var Connection $connection */

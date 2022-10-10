@@ -442,6 +442,7 @@ class RecipientListController extends MainController
     {
         $totalRecipients = 0;
         $idLists = $result['queryInfo']['id_lists'];
+
         if (is_array($idLists['tt_address'] ?? false)) {
             $totalRecipients += count($idLists['tt_address']);
         }
@@ -451,7 +452,7 @@ class RecipientListController extends MainController
         if (is_array($idLists['PLAINLIST'] ?? false)) {
             $totalRecipients += count($idLists['PLAINLIST']);
         }
-        if (is_array($idLists[$this->userTable] ?? false)) {
+        if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
             $totalRecipients += count($idLists[$this->userTable]);
         }
 
@@ -519,7 +520,7 @@ class RecipientListController extends MainController
                         'table_custom' => ''
                     ];
                 }
-                if (is_array($idLists[$this->userTable] ?? false)) {
+                if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$this->userTable], $this->userTable);
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_custom',
@@ -556,7 +557,7 @@ class RecipientListController extends MainController
                     ];
                 }
                 
-                if (is_array($idLists[$this->userTable] ?? false) && count($idLists[$this->userTable])) {
+                if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false) && count($idLists[$this->userTable])) {
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_custom',
                         'title_recip' => 'mailgroup_recip_number',
@@ -586,7 +587,6 @@ class RecipientListController extends MainController
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
         $queryConfig = GeneralUtility::_GP('queryConfig');
-        $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
         $queryGeneratorConfig = GeneralUtility::_GP('SET');
 
         $whichTables = intval($mailGroup['whichtables']);
@@ -629,7 +629,6 @@ class RecipientListController extends MainController
             ];
             
             $connection = $this->getConnection('sys_dmail_group');
-            
             $connection->update(
                 'sys_dmail_group', // table
                 $updateFields,
@@ -647,32 +646,19 @@ class RecipientListController extends MainController
      */
     protected function specialQuery()
     {
-        $special = [];
-        //@TODO
-         
         $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->MOD_SETTINGS, [], $this->moduleName);
-        #$queryGenerator->setFormName('dmailform');
+        //$queryGenerator->setFormName('dmailform');
         $queryGenerator->setFormName('queryform');
-        
 
-        //$queryGenerator->init('dmail_queryConfig', $this->MOD_SETTINGS['queryTable']);
-
-        if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
-        //    $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($this->MOD_SETTINGS['queryConfig']));
+        //if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
         //    $queryGenerator->extFieldLists['queryFields'] = 'uid';
-        //    $special['selected'] = $queryGenerator->getSelectQuery();
-        }
-        
-        //$queryGenerator->noWrap = '';
-        //$queryGenerator->allowedTables = $this->allowedTables;
-        //$special['selectTables'] = $queryGenerator->form();
-        
+        //}
+
         $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Lowlevel/QueryGenerator');
         $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
-        $special['selectTables'] = $queryGenerator->queryMakerDM();
-        //$special['selectTables'] = $queryGenerator->makeSelectorTable($this->MOD_SETTINGS, 'table,query');
+        [$html, $query] = $queryGenerator->queryMakerDM();
         
-        return $special;
+        return ['selectTables' => $html, 'query' => $query];
     }
     
     /**

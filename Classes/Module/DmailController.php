@@ -1765,7 +1765,6 @@ class DmailController extends MainController
         $set = GeneralUtility::_GP('SET');
         $queryTable = $set['queryTable'];
         $queryConfig = GeneralUtility::_GP('queryConfig');
-        $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
         
         $whichTables = intval($mailGroup['whichtables']);
         $table = '';
