@@ -1514,7 +1514,7 @@ class DmailController extends MainController
                 if (is_array($idLists['PLAINLIST'] ?? false)) {
                     $count += count($idLists['PLAINLIST']);
                 }
-                if (is_array($idLists[$this->userTable] ?? false)) {
+                if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
                     $count += count($idLists[$this->userTable]);
                 }
                 $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
@@ -1771,15 +1771,20 @@ class DmailController extends MainController
         $table = '';
         if ($whichTables&1) {
             $table = 'tt_address';
-        } elseif ($whichTables&2) {
+        } 
+        elseif ($whichTables&2) {
             $table = 'fe_users';
-        } elseif ($this->userTable && ($whichTables&4)) {
+        } 
+        elseif ($this->userTable && ($whichTables&4)) {
             $table = $this->userTable;
         }
         
         $this->MOD_SETTINGS['queryTable'] = $queryTable ? $queryTable : $table;
         $this->MOD_SETTINGS['queryConfig'] = $queryConfig ? serialize($queryConfig) : $mailGroup['query'];
         $this->MOD_SETTINGS['search_query_smallparts'] = 1;
+        
+        $this->MOD_SETTINGS['search_query_makeQuery'] = 'all';
+        $this->MOD_SETTINGS['search'] = 'query';
         
         if ($this->MOD_SETTINGS['queryTable'] != $table) {
             $this->MOD_SETTINGS['queryConfig'] = '';
@@ -1789,9 +1794,11 @@ class DmailController extends MainController
             $whichTables = 0;
             if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
                 $whichTables = 1;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
+            } 
+            elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
                 $whichTables = 2;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
+            } 
+            elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
                 $whichTables = 4;
             }
             $updateFields = [

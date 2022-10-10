@@ -448,7 +448,6 @@ class TempRepository extends MainRepository {
         if ($group['query']) {
             $select = $queryGenerator->getQueryDM();
             //$queryGenerator->extFieldLists['queryFields'] = 'uid';
-
             if($select) {
                 /** @var Connection $connection */
                 $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
