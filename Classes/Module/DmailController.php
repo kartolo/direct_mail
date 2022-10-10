@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Dmailer;
+use DirectMailTeam\DirectMail\DmQueryGenerator;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
