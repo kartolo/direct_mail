@@ -5,6 +5,7 @@ namespace DirectMailTeam\DirectMail\Utility;
 
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Utility\CsvUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class DmCsvUtility 
@@ -116,5 +117,34 @@ class DmCsvUtility
             }
         }
         return $out;
+    }
+
+    /**
+     * Send csv values as download by sending appropriate HTML header
+     *
+     * @param array $idArr Values to be put into csv
+     *
+     * @return void Sent HML header for a file download
+     */
+    public function downloadCSV(array $idArr)
+    {
+        // https://api.typo3.org/master/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_utility_1_1_csv_utility.html
+        $lines = [];
+        if (is_array($idArr) && count($idArr)) {
+            reset($idArr);
+            $lines[] = CsvUtility::csvValues(array_keys(current($idArr)));
+            
+            reset($idArr);
+            foreach ($idArr as $rec) {
+                $lines[] = CsvUtility::csvValues($rec);
+            }
+        }
+        
+        $filename = 'DirectMail_export_' . date('dmy-Hi') . '.csv';
+        $mimeType = 'application/octet-stream';
+        header('Content-Type: ' . $mimeType);
+        header('Content-Disposition: attachment; filename=' . $filename);
+        echo implode(CR . LF, $lines);
+        exit;
     }
 }
