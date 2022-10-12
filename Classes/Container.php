@@ -88,7 +88,7 @@ class Container
                     }
                 }
                 // wrap boundaries around content
-                $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . $content . $this->boundaryEnd;
+                $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . PHP_EOL . trim($content) . PHP_EOL . $this->boundaryEnd . PHP_EOL;
             }
         }
         return $content;
