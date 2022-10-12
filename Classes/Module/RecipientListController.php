@@ -385,14 +385,14 @@ class RecipientListController extends MainController
      * @param string $table Table name
      * @param int $uid Record uid
      *
-     * @return string the edit link
+     * @return array the edit link config
      */
-    protected function editLink($table, $uid)
+    protected function editLink($table, $uid): array
     {
-        $str = '';
+        $editLinkConfig = ['onClick' => '', 'icon' => $this->getIconActionsOpen()];
         // check if the user has the right to modify the table
         if ($this->getBackendUser()->check('tables_modify', $table)) {
-            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+            $editLinkConfig['onClick'] = DirectMailUtility::getEditOnClickLink([
                 'edit' => [
                     $table => [
                         $uid => 'edit',
@@ -400,12 +400,9 @@ class RecipientListController extends MainController
                 ],
                 'returnUrl' => $this->requestUri,
             ]);
-            $str = '<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                $this->getIconActionsOpen() .
-                '</a>';
         }
         
-        return $str;
+        return $editLinkConfig;
     }
     
     /**

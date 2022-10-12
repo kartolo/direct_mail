@@ -89,7 +89,7 @@
             <f:for each="{data.rows}" as="row">
                 <tr class="db_list_normal">
                     <td nowrap="nowrap"><f:format.html>{row.icon}</f:format.html></td>
-                    <td><f:format.html>{row.editLink}</f:format.html></td>
+                    <td><a href="#" onClick="{row.editLink.onClick}" title="{f:translate(key: '{lll}dmail_edit')}"><f:format.html>{row.editLink.icon}</f:format.html></a></td>
                     <td nowrap="nowrap"><f:format.html>{row.reciplink}</f:format.html></td>
                     <td nowrap="nowrap"><f:format.html>{row.type}</f:format.html></td>
                     <td nowrap="nowrap"><f:format.html>{row.description}</f:format.html></td>
