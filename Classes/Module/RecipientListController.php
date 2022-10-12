@@ -16,7 +16,6 @@ use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-use TYPO3\CMS\Core\Utility\CsvUtility;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
 use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
@@ -385,14 +384,14 @@ class RecipientListController extends MainController
      * @param string $table Table name
      * @param int $uid Record uid
      *
-     * @return string the edit link
+     * @return array the edit link config
      */
-    protected function editLink($table, $uid)
+    protected function editLink($table, $uid): array
     {
-        $str = '';
+        $editLinkConfig = ['onClick' => '', 'icon' => $this->getIconActionsOpen()];
         // check if the user has the right to modify the table
         if ($this->getBackendUser()->check('tables_modify', $table)) {
-            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+            $editLinkConfig['onClick'] = DirectMailUtility::getEditOnClickLink([
                 'edit' => [
                     $table => [
                         $uid => 'edit',
@@ -400,12 +399,9 @@ class RecipientListController extends MainController
                 ],
                 'returnUrl' => $this->requestUri,
             ]);
-            $str = '<a href="#" onClick="' . $editOnClickLink . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                $this->getIconActionsOpen() .
-                '</a>';
         }
         
-        return $str;
+        return $editLinkConfig;
     }
     
     /**
@@ -472,8 +468,9 @@ class RecipientListController extends MainController
         // do the CSV export
         $csvValue = $this->csv; //'tt_address', 'fe_users', 'PLAINLIST', $this->userTable
         if ($csvValue) {
+            $dmCsvUtility = GeneralUtility::makeInstance(DmCsvUtility::class);
             if ($csvValue == 'PLAINLIST') {
-                $this->downloadCSV($idLists['PLAINLIST']);
+                $dmCsvUtility->downloadCSV($idLists['PLAINLIST']);
             } 
             elseif (GeneralUtility::inList('tt_address,fe_users,' . $this->userTable, $csvValue)) {
                 if($this->getBackendUser()->check('tables_select', $csvValue)) {
@@ -481,7 +478,7 @@ class RecipientListController extends MainController
                     $fields .= ',tstamp';
 
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$csvValue], $csvValue, $fields);
-                    $this->downloadCSV($rows);
+                    $dmCsvUtility->downloadCSV($rows);
                 } 
                 else {
                     $message = $this->createFlashMessage(
@@ -659,35 +656,6 @@ class RecipientListController extends MainController
         [$html, $query] = $queryGenerator->queryMakerDM();
         
         return ['selectTables' => $html, 'query' => $query];
-    }
-    
-    /**
-     * Send csv values as download by sending appropriate HTML header
-     *
-     * @param array $idArr Values to be put into csv
-     *
-     * @return void Sent HML header for a file download
-     */
-    protected function downloadCSV(array $idArr)
-    {
-        // https://api.typo3.org/master/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_utility_1_1_csv_utility.html
-        $lines = [];
-        if (is_array($idArr) && count($idArr)) {
-            reset($idArr);
-            $lines[] = CsvUtility::csvValues(array_keys(current($idArr)));
-            
-            reset($idArr);
-            foreach ($idArr as $rec) {
-                $lines[] = CsvUtility::csvValues($rec);
-            }
-        }
-        
-        $filename = 'DirectMail_export_' . date('dmy-Hi') . '.csv';
-        $mimeType = 'application/octet-stream';
-        header('Content-Type: ' . $mimeType);
-        header('Content-Disposition: attachment; filename=' . $filename);
-        echo implode(CR . LF, $lines);
-        exit;
     }
     
     /**

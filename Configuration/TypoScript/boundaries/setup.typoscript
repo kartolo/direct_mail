@@ -8,7 +8,7 @@
 // In html content
 tt_content.stdWrap.postUserFunc = DirectMailTeam\DirectMail\Container->insert_dMailer_boundaries
 
-// In old plaintext content static tenmplate
+// In old plaintext content static template
 lib.alt_plaintext.renderObj.userProc < tt_content.stdWrap.postUserFunc
 lib.alt_plaintext.renderObj.userProc.useParentCObj = 1
 
