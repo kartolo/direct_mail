@@ -39,11 +39,6 @@
     "typo3-ter/direct-mail": "self.version"
   },
   "extra": {
-    "typo3/class-alias-loader": {
-      "class-alias-maps": [
-        "Migrations/Code/ClassAliasMap.php"
-      ]
-    },
     "typo3/cms": {
       "extension-key": "direct_mail"
     }
