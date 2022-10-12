@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
@@ -78,38 +79,13 @@ class Container
                     }
 
                     // get categories of tt_content element
-                    $foreignTable = 'sys_dmail_category';
-                    $select = "$foreignTable.uid";
-                    $localTableUidList = intval($this->cObj->data['uid']);
-                    $mmTable = 'sys_dmail_ttcontent_category_mm';
-                    $whereClause = '';
-                    $orderBy = $foreignTable . '.uid';
-
-                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($foreignTable);
-                    $statement = $queryBuilder
-                        ->select($select)
-                        ->from($foreignTable)
-                        ->from($mmTable)
-                        ->where(
-                            $queryBuilder->expr()->eq(
-                                $foreignTable . '.uid',
-                                $mmTable . '.uid_foreign'
-                            )
-                        )
-                        ->andWhere(
-                            $queryBuilder->expr()->in(
-                                $mmTable . '.uid_local',
-                                $localTableUidList
-                            )
-                        )
-                        ->orderBy($orderBy)
-                        ->execute();
-
-
-                    while ($row = $statement->fetch()) {
-                        $categoryList .= $row['uid'] . ',';
+                    $rowCats = GeneralUtility::makeInstance(SysDmailCategoryRepository::class)->selectSysDmailCategoryForContainer((int)$this->cObj->data['uid']);
+                    if ($rowCats && count($rowCats)) {
+                        foreach ($rowCats as $cat) {
+                            $categoryList .= $cat['uid'] . ',';
+                        }
+                        $categoryList = rtrim($categoryList, ',');
                     }
-                    $categoryList = rtrim($categoryList, ',');
                 }
                 // wrap boundaries around content
                 $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . $content . $this->boundaryEnd;
