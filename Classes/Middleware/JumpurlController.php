@@ -360,32 +360,33 @@ class JumpurlController implements MiddlewareInterface
      *
      * @return string
      */
-    protected function substituteUserMarkersFromTargetUrl($targetUrl): string
+    protected function substituteUserMarkersFromTargetUrl(string $targetUrl): string
     {
-        $rowFieldsArray = explode(
+        $rowFieldsArray = GeneralUtility::trimExplode(
             ',',
             $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']
         );
+
         if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
             $rowFieldsArray = array_merge(
                 $rowFieldsArray,
-                explode(
+                GeneralUtility::trimExplode(
                     ',',
                     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']
                 )
             );
         }
-
         reset($rowFieldsArray);
         $processedTargetUrl = $targetUrl;
         foreach ($rowFieldsArray as $substField) {
-            $processedTargetUrl = str_replace(
-                '###USER_' . $substField . '###',
-                $this->recipientRecord[$substField],
-                $processedTargetUrl
-            );
+            if(isset($this->recipientRecord[$substField] )) {
+                $processedTargetUrl = str_replace(
+                    '###USER_' . $substField . '###',
+                    $this->recipientRecord[$substField],
+                    $processedTargetUrl
+                );
+            }
         }
-
         return $processedTargetUrl;
     }
 
