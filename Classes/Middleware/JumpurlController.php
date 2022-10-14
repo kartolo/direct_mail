@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace DirectMailTeam\DirectMail\Middleware;
 
 /*
@@ -85,7 +87,7 @@ class JumpurlController implements MiddlewareInterface
         $queryParamsToPass = $request->getQueryParams();
 
         if ($this->shouldProcess()) {
-            $mailId = $this->request->getQueryParams()['mid'];
+            $mailId = (int)$this->request->getQueryParams()['mid'];
             $submittedRecipient = $this->request->getQueryParams()['rid'];
             $submittedAuthCode  = $this->request->getQueryParams()['aC'];
             $jumpurl = $this->request->getQueryParams()['jumpurl'];
@@ -95,7 +97,7 @@ class JumpurlController implements MiddlewareInterface
                 $urlId = $jumpurl;
                 $this->initDirectMailRecord($mailId);
                 $this->initRecipientRecord($submittedRecipient);
-                $jumpurl = $this->getTargetUrl($jumpurl);
+                $jumpurl = $this->getTargetUrl((int)$jumpurl);
 
                 // try to build the ready-to-use target url
                 if (!empty($this->recipientRecord)) {
@@ -123,7 +125,7 @@ class JumpurlController implements MiddlewareInterface
 
             if ($this->responseType !== 0) {
                 $mailLogParams = [
-                    'mid'           => (int)$mailId,
+                    'mid'           => $mailId,
                     'tstamp'        => time(),
                     'url'           => $jumpurl,
                     'response_type' => $this->responseType,
@@ -295,7 +297,7 @@ class JumpurlController implements MiddlewareInterface
         // this will split up the "rid=f_13667", where the first part
         // is the DB table name and the second part the UID of the record in the DB table
         $recipientTable = '';
-        $recipientUid = '';
+        $recipientUid = 0;
         if (!empty($combinedRecipient)) {
             list($recipientTable, $recipientUid) = explode('_', $combinedRecipient);
         }
@@ -312,7 +314,7 @@ class JumpurlController implements MiddlewareInterface
         }
 
         if (!empty($this->recipientTable)) {
-            $this->recipientRecord = $this->getRawRecord($this->recipientTable, $recipientUid);
+            $this->recipientRecord = $this->getRawRecord($this->recipientTable, (int)$recipientUid);
         }
     }
 
