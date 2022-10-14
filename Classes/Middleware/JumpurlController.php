@@ -22,8 +22,10 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
@@ -189,15 +191,23 @@ class JumpurlController implements MiddlewareInterface
     public function getRawRecord(string $table, int $uid, string $fields = '*')
     {
         if ($uid > 0) {
+            $v = VersionNumberUtility::convertVersionNumberToInteger(ExtensionManagementUtility::getExtensionVersion('tt_address'));
+
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-            $res = $queryBuilder->select($fields)
-                ->from($table)
-                ->where(
+            $queryBuilder->select($fields)->from($table);
+
+            if ($v <= VersionNumberUtility::convertVersionNumberToInteger('6.0.0')) {
+                $queryBuilder->where(
                     $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT)),
                     $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
-                )
-                ->execute();
-
+                );
+            }
+            else {
+                $queryBuilder->where(
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT))
+                );
+            }
+            $res = $queryBuilder->execute();
             $row = $res->fetchAll();
 
             if ($row) {
