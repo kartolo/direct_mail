@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace DirectMailTeam\DirectMail\Middleware;
 
 /*
@@ -15,14 +17,17 @@ namespace DirectMailTeam\DirectMail\Middleware;
  */
 
 use PDO;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
@@ -82,7 +87,7 @@ class JumpurlController implements MiddlewareInterface
         $queryParamsToPass = $request->getQueryParams();
 
         if ($this->shouldProcess()) {
-            $mailId = $this->request->getQueryParams()['mid'];
+            $mailId = (int)$this->request->getQueryParams()['mid'];
             $submittedRecipient = $this->request->getQueryParams()['rid'];
             $submittedAuthCode  = $this->request->getQueryParams()['aC'];
             $jumpurl = $this->request->getQueryParams()['jumpurl'];
@@ -92,7 +97,7 @@ class JumpurlController implements MiddlewareInterface
                 $urlId = $jumpurl;
                 $this->initDirectMailRecord($mailId);
                 $this->initRecipientRecord($submittedRecipient);
-                $jumpurl = $this->getTargetUrl($jumpurl);
+                $jumpurl = $this->getTargetUrl((int)$jumpurl);
 
                 // try to build the ready-to-use target url
                 if (!empty($this->recipientRecord)) {
@@ -105,8 +110,8 @@ class JumpurlController implements MiddlewareInterface
                 if (empty($jumpurl)) {
                     die('Error: No further link. Please report error to the mail sender.');
                 }
-
-            } else {
+            } 
+            else {
                 // jumpUrl is not an integer -- then this is a URL, that means that the "dmailerping"
                 // functionality was used to count the number of "opened mails" received (url, dmailerping)
 
@@ -120,7 +125,7 @@ class JumpurlController implements MiddlewareInterface
 
             if ($this->responseType !== 0) {
                 $mailLogParams = [
-                    'mid'           => (int)$mailId,
+                    'mid'           => $mailId,
                     'tstamp'        => time(),
                     'url'           => $jumpurl,
                     'response_type' => $this->responseType,
@@ -151,7 +156,7 @@ class JumpurlController implements MiddlewareInterface
      * @param array $mailLogParameters
      * @return bool
      */
-    protected function hasRecentLog($mailLogParameters)
+    protected function hasRecentLog(array $mailLogParameters): bool
     {
         $logTable = 'sys_dmail_maillog';
         /** @var QueryBuilder $queryBuilder */
@@ -185,19 +190,26 @@ class JumpurlController implements MiddlewareInterface
      * @return mixed Returns array (the record) if found, otherwise blank/0 (zero)
      * @see getPage_noCheck()
      */
-    public function getRawRecord($table, $uid, $fields = '*')
+    public function getRawRecord(string $table, int $uid, string $fields = '*')
     {
-        $uid = (int)$uid;
         if ($uid > 0) {
+            $v = VersionNumberUtility::convertVersionNumberToInteger(ExtensionManagementUtility::getExtensionVersion('tt_address'));
+
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-            $res = $queryBuilder->select($fields)
-                ->from($table)
-                ->where(
+            $queryBuilder->select($fields)->from($table);
+
+            if ($v <= VersionNumberUtility::convertVersionNumberToInteger('6.0.0')) {
+                $queryBuilder->where(
                     $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT)),
                     $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
-                )
-                ->execute();
-
+                );
+            }
+            else {
+                $queryBuilder->where(
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT))
+                );
+            }
+            $res = $queryBuilder->execute();
             $row = $res->fetchAll();
 
             if ($row) {
@@ -225,7 +237,7 @@ class JumpurlController implements MiddlewareInterface
      *
      * @param int $mailId
      */
-    protected function initDirectMailRecord($mailId): void
+    protected function initDirectMailRecord(int $mailId): void
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
@@ -251,7 +263,7 @@ class JumpurlController implements MiddlewareInterface
      * @param int $targetIndex
      * @return string|null
      */
-    protected function getTargetUrl($targetIndex): ?string
+    protected function getTargetUrl(int $targetIndex): ?string
     {
         $targetUrl = null;
 
@@ -264,7 +276,8 @@ class JumpurlController implements MiddlewareInterface
                 // Link (number)
                 $this->responseType = self::RESPONSE_TYPE_HREF;
                 $targetUrl = $mailContent['html']['hrefs'][$targetIndex]['absRef'];
-            } else {
+            } 
+            else {
                 // Link (number, plaintext)
                 $this->responseType = self::RESPONSE_TYPE_PLAIN;
                 $targetUrl = $mailContent['plain']['link_ids'][abs($targetIndex)];
@@ -279,12 +292,12 @@ class JumpurlController implements MiddlewareInterface
      *
      * @param string $combinedRecipient eg. "f_13667".
      */
-    protected function initRecipientRecord($combinedRecipient): void
+    protected function initRecipientRecord(string $combinedRecipient): void
     {
         // this will split up the "rid=f_13667", where the first part
         // is the DB table name and the second part the UID of the record in the DB table
         $recipientTable = '';
-        $recipientUid = '';
+        $recipientUid = 0;
         if (!empty($combinedRecipient)) {
             list($recipientTable, $recipientUid) = explode('_', $combinedRecipient);
         }
@@ -301,7 +314,7 @@ class JumpurlController implements MiddlewareInterface
         }
 
         if (!empty($this->recipientTable)) {
-            $this->recipientRecord = $this->getRawRecord($this->recipientTable, $recipientUid);
+            $this->recipientRecord = $this->getRawRecord($this->recipientTable, (int)$recipientUid);
         }
     }
 
@@ -310,7 +323,7 @@ class JumpurlController implements MiddlewareInterface
      *
      * @param string $submittedAuthCode
      */
-    protected function validateAuthCode($submittedAuthCode): void
+    protected function validateAuthCode(string $submittedAuthCode): void
     {
         // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.3/Deprecation-94309-DeprecatedGeneralUtilitystdAuthCode.html
         $authCodeToMatch = GeneralUtility::stdAuthCode( //@TODO
@@ -332,7 +345,7 @@ class JumpurlController implements MiddlewareInterface
      * @param string $targetUrl
      * @return string
      */
-    protected function substituteMarkersFromTargetUrl($targetUrl): string
+    protected function substituteMarkersFromTargetUrl(string $targetUrl): string
     {
         $targetUrl = $this->substituteUserMarkersFromTargetUrl($targetUrl);
         $targetUrl = $this->substituteSystemMarkersFromTargetUrl($targetUrl);
@@ -380,7 +393,7 @@ class JumpurlController implements MiddlewareInterface
      * @param string $targetUrl
      * @return string
      */
-    protected function substituteSystemMarkersFromTargetUrl($targetUrl): string
+    protected function substituteSystemMarkersFromTargetUrl(string $targetUrl): string
     {
         $mailId = $this->request->getQueryParams()['mid'];
         $submittedAuthCode = $this->request->getQueryParams()['aC'];
@@ -425,7 +438,7 @@ class JumpurlController implements MiddlewareInterface
      *
      * @return string
      */
-    protected function calculateJumpUrlHash($targetUrl): string
+    protected function calculateJumpUrlHash(string $targetUrl): string
     {
         return GeneralUtility::hmac($targetUrl, 'jumpurl');
     }
@@ -438,7 +451,7 @@ class JumpurlController implements MiddlewareInterface
      *
      * @throws \Exception
      */
-    protected function isAllowedJumpUrlTarget($target): bool
+    protected function isAllowedJumpUrlTarget(string $target): bool
     {
         $allowed = false;
 
@@ -450,7 +463,8 @@ class JumpurlController implements MiddlewareInterface
         if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && (GeneralUtility::isAllowedAbsPath($checkPath) || GeneralUtility::isValidUrl($target))) {
             // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
             $allowed = true;
-        } elseif (GeneralUtility::isValidUrl($target)) {
+        } 
+        elseif (GeneralUtility::isValidUrl($target)) {
             // if it's a valid URL, throw exception
             throw new \Exception('direct_mail: Invalid target.', 1578347190);
         }
