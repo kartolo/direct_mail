@@ -136,4 +136,18 @@ class SysDmailRepository extends MainRepository {
             [ 'uid' => $uid ]
         );
     }
+
+    public function selectForJumpurl(int $mailId) 
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+            ->select('mailContent', 'page', 'authcode_fieldList')
+            ->from($this->table)
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($mailId, \PDO::PARAM_INT))
+            )
+            ->execute()
+            ->fetch();
+    }
 }

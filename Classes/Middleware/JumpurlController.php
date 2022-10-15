@@ -16,6 +16,7 @@ namespace DirectMailTeam\DirectMail\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
 use PDO;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -247,22 +248,7 @@ class JumpurlController implements MiddlewareInterface
      */
     protected function initDirectMailRecord(int $mailId): void
     {
-        /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                                      ->getQueryBuilderForTable('sys_dmail');
-        $result = $queryBuilder
-            ->select('mailContent','page','authcode_fieldList')
-            ->from('sys_dmail')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'uid',
-                    $queryBuilder->createNamedParameter($mailId, PDO::PARAM_INT)
-                )
-            )
-            ->execute()
-            ->fetch();
-
-        $this->directMailRecord = $result;
+        $this->directMailRecord = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForJumpurl($mailId);
     }
 
     /**
