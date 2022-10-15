@@ -16,6 +16,7 @@ namespace DirectMailTeam\DirectMail\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
 use PDO;
@@ -143,9 +144,7 @@ class JumpurlController implements MiddlewareInterface
                     'rid'           => (int)($recipientUid ?? $this->recipientRecord['uid'])
                 ];
                 if ($this->hasRecentLog($mailLogParams) === false) {
-                    GeneralUtility::makeInstance(ConnectionPool::class)
-                                  ->getConnectionForTable('sys_dmail_maillog')
-                                  ->insert('sys_dmail_maillog', $mailLogParams);
+                    GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->insertForJumpurl($mailLogParams);
                 }
             }
         }
