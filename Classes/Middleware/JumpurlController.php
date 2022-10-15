@@ -143,8 +143,9 @@ class JumpurlController implements MiddlewareInterface
                     'rtbl'          => mb_substr($this->recipientTable, 0, 1),
                     'rid'           => (int)($recipientUid ?? $this->recipientRecord['uid'])
                 ];
-                if ($this->hasRecentLog($mailLogParams) === false) {
-                    GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->insertForJumpurl($mailLogParams);
+                $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
+                if ($sysDmailMaillogRepository->hasRecentLog($mailLogParams) === false) {
+                    $sysDmailMaillogRepository->insertForJumpurl($mailLogParams);
                 }
             }
         }
@@ -156,36 +157,6 @@ class JumpurlController implements MiddlewareInterface
         }
 
         return $handler->handle($request->withQueryParams($queryParamsToPass));
-    }
-
-    /**
-     * Check if an entry exists that is younger than 10 seconds
-     *
-     * @param array $mailLogParameters
-     * @return bool
-     */
-    protected function hasRecentLog(array $mailLogParameters): bool
-    {
-        $logTable = 'sys_dmail_maillog';
-        /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($logTable);
-        $query = $queryBuilder
-            ->count('*')
-            ->from($logTable)
-            ->where(
-                $queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mailLogParameters['mid'], PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('url', $queryBuilder->createNamedParameter($mailLogParameters['url'], PDO::PARAM_STR)),
-                $queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter($mailLogParameters['response_type'], PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('url_id', $queryBuilder->createNamedParameter($mailLogParameters['url_id'], PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($mailLogParameters['rtbl'], PDO::PARAM_STR)),
-                $queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($mailLogParameters['rid'], PDO::PARAM_INT)),
-                $queryBuilder->expr()->lte('tstamp', $queryBuilder->createNamedParameter($mailLogParameters['tstamp'], PDO::PARAM_INT)),
-                $queryBuilder->expr()->gte('tstamp', $queryBuilder->createNamedParameter($mailLogParameters['tstamp']-10, PDO::PARAM_INT))
-            );
-
-        $existingLog = $query->execute()->fetchColumn();
-
-        return (int)$existingLog > 0;
     }
 
     /**

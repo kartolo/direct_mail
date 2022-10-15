@@ -348,4 +348,33 @@ class SysDmailMaillogRepository extends MainRepository {
         $connection = $this->getConnection($this->table);
         $connection->insert($this->table, $mailLogParams);
     }
+
+        /**
+     * Check if an entry exists that is younger than 10 seconds
+     *
+     * @param array $mailLogParameters
+     * @return bool
+     */
+    public function hasRecentLog(array $mailLogParameters): bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        $query = $queryBuilder
+            ->count('*')
+            ->from($this->table)
+            ->where(
+                $queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mailLogParameters['mid'], \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('url', $queryBuilder->createNamedParameter($mailLogParameters['url'], \PDO::PARAM_STR)),
+                $queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter($mailLogParameters['response_type'], \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('url_id', $queryBuilder->createNamedParameter($mailLogParameters['url_id'], \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($mailLogParameters['rtbl'], \PDO::PARAM_STR)),
+                $queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($mailLogParameters['rid'], \PDO::PARAM_INT)),
+                $queryBuilder->expr()->lte('tstamp', $queryBuilder->createNamedParameter($mailLogParameters['tstamp'], \PDO::PARAM_INT)),
+                $queryBuilder->expr()->gte('tstamp', $queryBuilder->createNamedParameter($mailLogParameters['tstamp']-10, \PDO::PARAM_INT))
+            );
+
+        $existingLog = $query->execute()->fetchColumn();
+
+        return (int)$existingLog > 0;
+    }
 }
