@@ -17,17 +17,46 @@ class AuthCodeUtility
      */
     public static function validateAuthCode(string $submittedAuthCode, array $recipientRecord, string $authcodeFieldList = 'uid'): bool
     {
-        $authCodeToMatch = self::getAuthCode($recipientRecord, $authcodeFieldList);
-
-        if (!empty($submittedAuthCode) && $submittedAuthCode !== $authCodeToMatch) {
-            return false;
+        if (!empty($submittedAuthCode)) {
+            $hmac = self::getHmac($recipientRecord, $authcodeFieldList);
+            if($submittedAuthCode === $hmac) {
+                return true;
+            }
+            /**
+             * @TODO remove in v12
+             * for old e-mails
+             */
+            $authCodeToMatch = self::getAuthCode($recipientRecord, $authcodeFieldList);
+            if($submittedAuthCode === $authCodeToMatch) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
-    public static function getAuthCode(array $recipRow, string $authcodeFieldList): string 
+    /**
+     * @TODO remove in v12
+     * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.3/Deprecation-94309-DeprecatedGeneralUtilitystdAuthCode.html
+     */
+    public static function getAuthCode(array $recipientRecord, string $authcodeFieldList): string 
     {
-        // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.3/Deprecation-94309-DeprecatedGeneralUtilitystdAuthCode.html
-        return GeneralUtility::stdAuthCode($recipRow, $authcodeFieldList); //@TODO
+        return GeneralUtility::stdAuthCode($recipientRecord, $authcodeFieldList);
+    }
+
+    public static function getHmac(array $recipientRecord, string $authcodeFieldList): string
+    {
+        $recCopy_temp = [];
+        if ($authcodeFieldList) {
+            $fieldArr = GeneralUtility::trimExplode(',', $authcodeFieldList, true);
+            foreach ($fieldArr as $k => $v) {
+                $recCopy_temp[$k] = $recipientRecord[$v];
+            }
+        } 
+        else {
+            $recCopy_temp = $recipientRecord;
+        }
+        $preKey = implode('|', $recCopy_temp);
+
+        return GeneralUtility::hmac($preKey);
     }
 }

@@ -319,7 +319,7 @@ class Dmailer implements LoggerAwareInterface
         if ($recipRow['email']) {
             $midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
             $uniqMsgId = md5(microtime()) . '_' . $midRidId;
-            $authCode = AuthCodeUtility::getAuthCode($recipRow, $this->authCode_fieldList);
+            $authCode = AuthCodeUtility::getHmac($recipRow, $this->authCode_fieldList);
 
             $additionalMarkers = [
                     // Put in the tablename of the userinformation
