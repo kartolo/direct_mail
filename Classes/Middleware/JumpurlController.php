@@ -16,8 +16,10 @@ namespace DirectMailTeam\DirectMail\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
+use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
 use PDO;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -160,47 +162,6 @@ class JumpurlController implements MiddlewareInterface
     }
 
     /**
-     * Returns record no matter what - except if record is deleted
-     *
-     * @param string $table The table name to search
-     * @param int $uid The uid to look up in $table
-     * @param string $fields The fields to select, default is "*"
-     *
-     * @return mixed Returns array (the record) if found, otherwise blank/0 (zero)
-     * @see getPage_noCheck()
-     */
-    public function getRawRecord(string $table, int $uid, string $fields = '*')
-    {
-        if ($uid > 0) {
-            $v = VersionNumberUtility::convertVersionNumberToInteger(ExtensionManagementUtility::getExtensionVersion('tt_address'));
-
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-            $queryBuilder->select($fields)->from($table);
-
-            if ($v <= VersionNumberUtility::convertVersionNumberToInteger('6.0.0')) {
-                $queryBuilder->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT)),
-                    $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
-                );
-            }
-            else {
-                $queryBuilder->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT))
-                );
-            }
-            $res = $queryBuilder->execute();
-            $row = $res->fetchAll();
-
-            if ($row) {
-                if (is_array($row[0])) {
-                    return $row[0];
-                }
-            }
-        }
-        return 0;
-    }
-
-    /**
      * Returns true of the conditions are met to process this middleware
      *
      * @return bool
@@ -269,16 +230,14 @@ class JumpurlController implements MiddlewareInterface
         switch ($recipientTable) {
             case 't':
                 $this->recipientTable = self::RECIPIENT_TABLE_TTADDRESS;
+                $this->recipientRecord = GeneralUtility::makeInstance(TtAddressRepository::class)->getRawRecord((int)$recipientUid);
                 break;
             case 'f':
                 $this->recipientTable = self::RECIPIENT_TABLE_FEUSER;
+                $this->recipientRecord = GeneralUtility::makeInstance(FeUsersRepository::class)->getRawRecord((int)$recipientUid);
                 break;
             default:
                 $this->recipientTable = '';
-        }
-
-        if (!empty($this->recipientTable)) {
-            $this->recipientRecord = $this->getRawRecord($this->recipientTable, (int)$recipientUid);
         }
     }
 
