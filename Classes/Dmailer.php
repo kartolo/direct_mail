@@ -14,6 +14,7 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Mime\Address;
@@ -318,8 +319,7 @@ class Dmailer implements LoggerAwareInterface
         if ($recipRow['email']) {
             $midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
             $uniqMsgId = md5(microtime()) . '_' . $midRidId;
-            // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.3/Deprecation-94309-DeprecatedGeneralUtilitystdAuthCode.html
-            $authCode = GeneralUtility::stdAuthCode($recipRow, $this->authCode_fieldList); //@TODO
+            $authCode = AuthCodeUtility::getAuthCode($recipRow, $this->authCode_fieldList);
 
             $additionalMarkers = [
                     // Put in the tablename of the userinformation
