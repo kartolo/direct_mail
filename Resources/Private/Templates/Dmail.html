@@ -115,7 +115,7 @@
 						<f:translate key="{lll}testmail_mailgroup_msg"/>
 						<br /><br />					
 						<f:for each="{data.test.testFormData.test_dmail_group_table}" as="table">
-							<a href="{table.moduleUrl}"><f:format.html>{table.iconFactory}</f:format.html> <f:format.html>{table.title}</f:format.html></a>
+							<a href="{table.moduleUrl}"><f:format.html>{table.iconFactory}</f:format.html> <f:format.html>{table.title}</f:format.html> [{table.uid}]</a>
 							<br /><br />
 							<table border="0" class="table table-striped table-hover">
 								<tr>
