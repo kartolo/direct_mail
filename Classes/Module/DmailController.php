@@ -1134,6 +1134,7 @@ class DmailController extends MainController
                     'moduleUrl' => $moduleUrl,
                     'iconFactory' => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL),
                     'title' => htmlspecialchars($row['title']),
+                    'uid' => $row['uid'],
                     'tds' => $this->displayMailGroup_test($result)
                 ];
             }
