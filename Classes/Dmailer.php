@@ -15,6 +15,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
+use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Mime\Address;
@@ -587,29 +588,24 @@ class Dmailer implements LoggerAwareInterface
 
             // write to dmail_maillog table. if it can be written, continue with sending.
             // if not, stop the script and report error
-            $rC = 0;
-            $logUid = $this->dmailer_addToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), self::getMilliseconds() - $pt, $rC, $recipRow['email']);
+            $logUid = $this->dmailer_addToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), self::getMilliseconds() - $pt, 0, $recipRow['email']);
 
             if ($logUid) {
-                $rC = $this->dmailer_sendAdvanced($recipRow, $tableKey);
-                $parsetime = self::getMilliseconds() - $pt;
-
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
-                $ok = $queryBuilder
-                    ->update('sys_dmail_maillog')
-                    ->set('tstamp', time())
-                    ->set('size', strlen($this->message))
-                    ->set('parsetime', $parsetime)
-                    ->set('html_sent', intval($rC))
-                    ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($logUid, \PDO::PARAM_INT)))
-                    ->execute();
+                $values = [
+                    'logUid' => (int)$logUid,
+                    'html_sent' => (int)$this->dmailer_sendAdvanced($recipRow, $tableKey),
+                    'parsetime' => self::getMilliseconds() - $pt,
+                    'size' => strlen($this->message)
+                ];
+                $ok = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->updateSysDmailMaillogForShipOfMail($values);
 
                 if ($ok === false) {
                     $message = 'Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')';
                     $this->logger->critical($message);
                     die($message);
                 }
-            } else {
+            } 
+            else {
                 // stop the script if dummy log can't be made
                 $message = 'Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')';
                 $this->logger->critical($message);

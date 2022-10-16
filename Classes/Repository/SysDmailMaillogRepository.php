@@ -349,7 +349,7 @@ class SysDmailMaillogRepository extends MainRepository {
         $connection->insert($this->table, $mailLogParams);
     }
 
-        /**
+    /**
      * Check if an entry exists that is younger than 10 seconds
      *
      * @param array $mailLogParameters
@@ -376,5 +376,24 @@ class SysDmailMaillogRepository extends MainRepository {
         $existingLog = $query->execute()->fetchColumn();
 
         return (int)$existingLog > 0;
+    }
+
+    public function updateSysDmailMaillogForShipOfMail(array $values) 
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+            ->update($this->table)
+            ->set('tstamp', time())
+            ->set('size', (int)$values['size'])
+            ->set('parsetime', (int)$values['parsetime'])
+            ->set('html_sent', (int)$values['html_sent'])
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'uid', 
+                    $queryBuilder->createNamedParameter($values['logUid'], \PDO::PARAM_INT)
+                )
+            )
+            ->execute();
     }
 }
