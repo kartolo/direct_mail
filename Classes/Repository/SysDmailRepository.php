@@ -150,4 +150,17 @@ class SysDmailRepository extends MainRepository {
             ->execute()
             ->fetch();
     }
+
+    public function dmailerSetBeginEnd(int $mid, string $key)
+    {
+        if(in_array($key, ['begin', 'end'])) {
+            $queryBuilder = $this->getQueryBuilder($this->table);
+
+            $queryBuilder
+                ->update($this->table)
+                ->set('scheduled_' . $key, time())
+                ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
+                ->execute();
+        }
+    }
 }

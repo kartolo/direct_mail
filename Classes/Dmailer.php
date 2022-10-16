@@ -15,6 +15,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -655,12 +656,7 @@ class Dmailer implements LoggerAwareInterface
         $subject = '';
         $message = '';
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
-        $queryBuilder
-            ->update('sys_dmail')
-            ->set('scheduled_' . $key, time())
-            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
-            ->execute();
+        GeneralUtility::makeInstance(SysDmailRepository::class)->dmailerSetBeginEnd($mid, $tKey);
 
         switch ($key) {
             case 'begin':
