@@ -456,4 +456,32 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
     }
+
+    /**
+     * Get IDs of recipient, which has been sent
+     *
+     * @param	int $mid Newsletter ID. UID of the sys_dmail record
+     * @param	string $rtbl Recipient table
+     *
+     * @return	string		list of sent recipients
+     */
+    public function dmailerGetSentMails(int $mid, string $rtbl): string
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $statement = $queryBuilder
+            ->select('rid')
+            ->from($this->table)
+            ->where($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
+            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->execute();
+
+        $list = '';
+
+        while ($row = $statement->fetch()) {
+            $list .= $row['rid'] . ',';
+        }
+
+        return rtrim($list, ',');
+    }
 }

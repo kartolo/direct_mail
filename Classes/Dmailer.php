@@ -518,7 +518,7 @@ class Dmailer implements LoggerAwareInterface
                     }
 
                     // Send mails
-                    $sendIds = $this->dmailer_getSentMails((int)$mid, $tKey);
+                    $sendIds = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->dmailerGetSentMails((int)$mid, $tKey);
                     if ($table == 'PLAINLIST') {
                         $sendIdsArr = explode(',', $sendIds);
                         foreach ($listArr as $kval => $recipRow) {
@@ -534,7 +534,8 @@ class Dmailer implements LoggerAwareInterface
                                 $c++;
                             }
                         }
-                    } else {
+                    } 
+                    else {
                         $idList = implode(',', $listArr);
                         if ($idList) {
                             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
@@ -691,34 +692,6 @@ class Dmailer implements LoggerAwareInterface
             $mail->text($message);
             $mail->send();
         }
-    }
-
-    /**
-     * Get IDs of recipient, which has been sent
-     *
-     * @param	int $mid Newsletter ID. UID of the sys_dmail record
-     * @param	string $rtbl Recipient table
-     *
-     * @return	string		list of sent recipients
-     */
-    public function dmailer_getSentMails(int $mid, string $rtbl): string
-    {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
-        $statement = $queryBuilder
-            ->select('rid')
-            ->from('sys_dmail_maillog')
-            ->where($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
-            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
-            ->execute();
-
-        $list = '';
-
-        while (($row = $statement->fetch())) {
-            $list .= $row['rid'] . ',';
-        }
-
-        return rtrim($list, ',');
     }
 
     /**
