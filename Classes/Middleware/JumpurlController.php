@@ -16,20 +16,19 @@ namespace DirectMailTeam\DirectMail\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
+use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
-use PDO;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\Query\QueryBuilder;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Core\Utility\VersionNumberUtility;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
  * JumpUrl processing hook on TYPO3\CMS\Frontend\Http\RequestHandler
@@ -141,10 +140,9 @@ class JumpurlController implements MiddlewareInterface
                     'rtbl'          => mb_substr($this->recipientTable, 0, 1),
                     'rid'           => (int)($recipientUid ?? $this->recipientRecord['uid'])
                 ];
-                if ($this->hasRecentLog($mailLogParams) === false) {
-                    GeneralUtility::makeInstance(ConnectionPool::class)
-                                  ->getConnectionForTable('sys_dmail_maillog')
-                                  ->insert('sys_dmail_maillog', $mailLogParams);
+                $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
+                if ($sysDmailMaillogRepository->hasRecentLog($mailLogParams) === false) {
+                    $sysDmailMaillogRepository->insertForJumpurl($mailLogParams);
                 }
             }
         }
@@ -156,77 +154,6 @@ class JumpurlController implements MiddlewareInterface
         }
 
         return $handler->handle($request->withQueryParams($queryParamsToPass));
-    }
-
-    /**
-     * Check if an entry exists that is younger than 10 seconds
-     *
-     * @param array $mailLogParameters
-     * @return bool
-     */
-    protected function hasRecentLog(array $mailLogParameters): bool
-    {
-        $logTable = 'sys_dmail_maillog';
-        /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($logTable);
-        $query = $queryBuilder
-            ->count('*')
-            ->from($logTable)
-            ->where(
-                $queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mailLogParameters['mid'], PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('url', $queryBuilder->createNamedParameter($mailLogParameters['url'], PDO::PARAM_STR)),
-                $queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter($mailLogParameters['response_type'], PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('url_id', $queryBuilder->createNamedParameter($mailLogParameters['url_id'], PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($mailLogParameters['rtbl'], PDO::PARAM_STR)),
-                $queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($mailLogParameters['rid'], PDO::PARAM_INT)),
-                $queryBuilder->expr()->lte('tstamp', $queryBuilder->createNamedParameter($mailLogParameters['tstamp'], PDO::PARAM_INT)),
-                $queryBuilder->expr()->gte('tstamp', $queryBuilder->createNamedParameter($mailLogParameters['tstamp']-10, PDO::PARAM_INT))
-            );
-
-        $existingLog = $query->execute()->fetchColumn();
-
-        return (int)$existingLog > 0;
-    }
-
-    /**
-     * Returns record no matter what - except if record is deleted
-     *
-     * @param string $table The table name to search
-     * @param int $uid The uid to look up in $table
-     * @param string $fields The fields to select, default is "*"
-     *
-     * @return mixed Returns array (the record) if found, otherwise blank/0 (zero)
-     * @see getPage_noCheck()
-     */
-    public function getRawRecord(string $table, int $uid, string $fields = '*')
-    {
-        if ($uid > 0) {
-            $v = VersionNumberUtility::convertVersionNumberToInteger(ExtensionManagementUtility::getExtensionVersion('tt_address'));
-
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-            $queryBuilder->select($fields)->from($table);
-
-            if ($v <= VersionNumberUtility::convertVersionNumberToInteger('6.0.0')) {
-                $queryBuilder->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT)),
-                    $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
-                );
-            }
-            else {
-                $queryBuilder->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT))
-                );
-            }
-            $res = $queryBuilder->execute();
-            $row = $res->fetchAll();
-
-            if ($row) {
-                if (is_array($row[0])) {
-                    return $row[0];
-                }
-            }
-        }
-        return 0;
     }
 
     /**
@@ -247,22 +174,7 @@ class JumpurlController implements MiddlewareInterface
      */
     protected function initDirectMailRecord(int $mailId): void
     {
-        /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                                      ->getQueryBuilderForTable('sys_dmail');
-        $result = $queryBuilder
-            ->select('mailContent','page','authcode_fieldList')
-            ->from('sys_dmail')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'uid',
-                    $queryBuilder->createNamedParameter($mailId, PDO::PARAM_INT)
-                )
-            )
-            ->execute()
-            ->fetch();
-
-        $this->directMailRecord = $result;
+        $this->directMailRecord = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForJumpurl($mailId);
     }
 
     /**
@@ -313,16 +225,14 @@ class JumpurlController implements MiddlewareInterface
         switch ($recipientTable) {
             case 't':
                 $this->recipientTable = self::RECIPIENT_TABLE_TTADDRESS;
+                $this->recipientRecord = GeneralUtility::makeInstance(TtAddressRepository::class)->getRawRecord((int)$recipientUid);
                 break;
             case 'f':
                 $this->recipientTable = self::RECIPIENT_TABLE_FEUSER;
+                $this->recipientRecord = GeneralUtility::makeInstance(FeUsersRepository::class)->getRawRecord((int)$recipientUid);
                 break;
             default:
                 $this->recipientTable = '';
-        }
-
-        if (!empty($this->recipientTable)) {
-            $this->recipientRecord = $this->getRawRecord($this->recipientTable, (int)$recipientUid);
         }
     }
 
