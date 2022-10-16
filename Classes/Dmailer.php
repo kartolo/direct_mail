@@ -589,7 +589,7 @@ class Dmailer implements LoggerAwareInterface
 
             // write to dmail_maillog table. if it can be written, continue with sending.
             // if not, stop the script and report error
-            $logUid = $this->dmailer_addToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), self::getMilliseconds() - $pt, 0, $recipRow['email']);
+            $logUid = $sysDmailMaillogRepository->dmailerAddToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), self::getMilliseconds() - $pt, 0, $recipRow['email']);
 
             if ($logUid) {
                 $values = [
@@ -719,41 +719,6 @@ class Dmailer implements LoggerAwareInterface
         }
 
         return rtrim($list, ',');
-    }
-
-    /**
-     * Add action to sys_dmail_maillog table
-     *
-     * @param int $mid Newsletter ID
-     * @param string $rid Recipient ID
-     * @param int $size Size of the sent email
-     * @param int $parsetime Parse time of the email
-     * @param int $html Set if HTML email is sent
-     * @param string $email Recipient's email
-     *
-     * @return bool True on success or False on error
-     */
-    public function dmailer_addToMailLog(int $mid, string $rid, int $size, int $parsetime, int $html, string $email): int
-    {
-        [$rtbl, $rid] = explode('_', $rid);
-
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
-        $queryBuilder
-            ->insert('sys_dmail_maillog')
-            ->values([
-                'mid' => $mid,
-                'rtbl' => $rtbl,
-                'rid' => $rid,
-                'email' => $email,
-                'tstamp' => time(),
-                'url' => '',
-                'size' => $size,
-                'parsetime' => $parsetime,
-                'html_sent' => (int)$html,
-            ])
-            ->execute();
-
-        return (int)$queryBuilder->getConnection()->lastInsertId('sys_dmail_maillog');
     }
 
     /**

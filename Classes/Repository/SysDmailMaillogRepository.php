@@ -421,4 +421,39 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return (bool)$statement->rowCount();
     }
+
+    /**
+     * Add action to sys_dmail_maillog table
+     *
+     * @param int $mid Newsletter ID
+     * @param string $rid Recipient ID
+     * @param int $size Size of the sent email
+     * @param int $parsetime Parse time of the email
+     * @param int $html Set if HTML email is sent
+     * @param string $email Recipient's email
+     *
+     * @return bool True on success or False on error
+     */
+    public function dmailerAddToMailLog(int $mid, string $rid, int $size, int $parsetime, int $html, string $email): int
+    {
+        [$rtbl, $rid] = explode('_', $rid);
+
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+            ->insert($this->table)
+            ->values([
+                'mid' => $mid,
+                'rtbl' => (string)$rtbl,
+                'rid' => (int)$rid,
+                'email' => $email,
+                'tstamp' => time(),
+                'url' => '',
+                'size' => $size,
+                'parsetime' => $parsetime,
+                'html_sent' => $html,
+            ])
+            ->execute();
+
+        return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
+    }
 }
