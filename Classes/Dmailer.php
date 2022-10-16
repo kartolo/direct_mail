@@ -712,26 +712,10 @@ class Dmailer implements LoggerAwareInterface
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
 
         $pt = self::getMilliseconds();
-
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
-        $queryBuilder
-            ->getRestrictions()
-            ->removeAll()
-            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-
-        $statement = $queryBuilder
-            ->select('*')
-            ->from('sys_dmail')
-            ->where($queryBuilder->expr()->neq('scheduled', '0'))
-            ->andWhere($queryBuilder->expr()->lt('scheduled', time()))
-            ->andWhere($queryBuilder->expr()->eq('scheduled_end', '0'))
-            ->andWhere($queryBuilder->expr()->notIn('type', ['2', '3']))
-            ->orderBy('scheduled')
-            ->execute();
-
+        $row = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForRuncron();
         $this->logger->debug($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'));
 
-        if (($row = $statement->fetch())) {
+        if (is_array($row)) {
             $this->logger->debug($this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed'));
             $this->dmailer_prepare($row);
             $query_info = unserialize($row['query_info']);

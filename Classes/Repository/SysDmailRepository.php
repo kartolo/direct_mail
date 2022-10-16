@@ -163,4 +163,24 @@ class SysDmailRepository extends MainRepository {
                 ->execute();
         }
     }
+
+    public function selectForRuncron() 
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
+        return $queryBuilder
+            ->select('*')
+            ->from($this->table)
+            ->where($queryBuilder->expr()->neq('scheduled', '0'))
+            ->andWhere($queryBuilder->expr()->lt('scheduled', time()))
+            ->andWhere($queryBuilder->expr()->eq('scheduled_end', '0'))
+            ->andWhere($queryBuilder->expr()->notIn('type', ['2', '3']))
+            ->orderBy('scheduled')
+            ->execute()
+            ->fetch();
+    }
 }
