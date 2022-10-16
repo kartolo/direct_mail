@@ -396,4 +396,29 @@ class SysDmailMaillogRepository extends MainRepository {
             )
             ->execute();
     }
+
+    /**
+     * Find out, if an email has been sent to a recipient
+     *
+     * @param int $mid Newsletter ID. UID of the sys_dmail record
+     * @param int $rid Recipient UID
+     * @param string $rtbl Recipient table
+     *
+     * @return	bool Number of found records
+     */
+    public function dmailerIsSend(int $mid, int $rid, string $rtbl): bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        $statement = $queryBuilder
+            ->select('uid')
+            ->from($this->table)
+            ->where($queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($rid, \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
+            ->andWhere($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->execute();
+
+        return (bool)$statement->rowCount();
+    }
 }

@@ -582,7 +582,8 @@ class Dmailer implements LoggerAwareInterface
      */
     public function shipOfMail(int $mid, array $recipRow, string $tableKey): void
     {
-        if ($this->dmailer_isSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
+        $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
+        if ($sysDmailMaillogRepository->dmailerIsSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
             $pt = self::getMilliseconds();
             $recipRow = self::convertFields($recipRow);
 
@@ -597,7 +598,7 @@ class Dmailer implements LoggerAwareInterface
                     'parsetime' => self::getMilliseconds() - $pt,
                     'size' => strlen($this->message)
                 ];
-                $ok = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->updateSysDmailMaillogForShipOfMail($values);
+                $ok = $sysDmailMaillogRepository->updateSysDmailMaillogForShipOfMail($values);
 
                 if ($ok === false) {
                     $message = 'Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')';
@@ -690,31 +691,6 @@ class Dmailer implements LoggerAwareInterface
             $mail->text($message);
             $mail->send();
         }
-    }
-
-    /**
-     * Find out, if an email has been sent to a recipient
-     *
-     * @param int $mid Newsletter ID. UID of the sys_dmail record
-     * @param int $rid Recipient UID
-     * @param string $rtbl Recipient table
-     *
-     * @return	bool Number of found records
-     */
-    public function dmailer_isSend(int $mid, int $rid, string $rtbl): bool
-    {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
-
-        $statement = $queryBuilder
-            ->select('uid')
-            ->from('sys_dmail_maillog')
-            ->where($queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($rid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
-            ->andWhere($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
-            ->execute();
-
-        return (bool)$statement->rowCount();
     }
 
     /**
