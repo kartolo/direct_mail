@@ -12,6 +12,22 @@ lib.contentElement {
 }
 [global]
 
+lib.plaintextHeader = COA
+lib.plaintextHeader {
+  10 = USER
+  10 {
+    userFunc = DirectMailTeam\DirectMail\Plugin\DirectMail->main
+  }
+}
+lib.plaintextText < lib.plaintextHeader
+lib.plaintextTextpic < lib.plaintextHeader
+lib.plaintextTextmedia < lib.plaintextHeader
+lib.plaintextImage < lib.plaintextHeader
+lib.plaintextUploads < lib.plaintextHeader
+lib.plaintextBullets < lib.plaintextHeader
+lib.plaintextTable < lib.plaintextHeader
+lib.plaintextHTML < lib.plaintextHeader
+
 plugin.tx_directmail_pi1 = USER
 plugin.tx_directmail_pi1 {
   userFunc = DirectMailTeam\DirectMail\Plugin\DirectMail->main
