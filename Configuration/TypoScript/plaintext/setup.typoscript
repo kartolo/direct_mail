@@ -24,6 +24,7 @@ lib.plaintextTextpic < lib.plaintextHeader
 lib.plaintextTextmedia < lib.plaintextHeader
 lib.plaintextImage < lib.plaintextHeader
 lib.plaintextUploads < lib.plaintextHeader
+lib.plaintextShortcut < lib.plaintextHeader
 lib.plaintextBullets < lib.plaintextHeader
 lib.plaintextTable < lib.plaintextHeader
 lib.plaintextHTML < lib.plaintextHeader
