@@ -626,4 +626,24 @@ class TempRepository extends MainRepository {
             ->execute()
             ->fetchAll();
     }
+
+    public function selectForMasssendList(string $table, string $idList, int $sendPerCycle, $sendIds) 
+    {
+        $sendIds = $sendIds ? $sendIds : 0; //@TODO
+        $queryBuilder = $this->getQueryBuilder($table);
+        
+        return $queryBuilder
+            ->select('uid')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->in('uid', $idList)
+            )
+            ->andWhere(
+                $queryBuilder->expr()->notIn('uid', $sendIds)
+            )
+            ->setMaxResults($sendPerCycle)
+            ->execute()
+            ->fetchAll();
+
+    }
 }

@@ -17,6 +17,7 @@ namespace DirectMailTeam\DirectMail;
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
+use DirectMailTeam\DirectMail\Repository\TempRepository;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Mime\Address;
@@ -539,27 +540,21 @@ class Dmailer implements LoggerAwareInterface
                     else {
                         $idList = implode(',', $listArr);
                         if ($idList) {
-                            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-                            $statement = $queryBuilder
-                                ->select('*')
-                                ->from($table)
-                                ->where($queryBuilder->expr()->in('uid', $idList))
-                                ->andWhere($queryBuilder->expr()->notIn('uid', ($sendIds ? $sendIds : 0)))
-                                ->setMaxResults($this->sendPerCycle + 1)
-                                ->execute();
+                            $rows = GeneralUtility::makeInstance(TempRepository::class)->selectForMasssendList($table, $idList, ($this->sendPerCycle + 1), $sendIds);
+                            if($rows && count($rows)) {
+                                foreach($rows as $recipRow) {
+                                    $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table, $recipRow['uid']);
 
-                            while ($recipRow = $statement->fetch()) {
-                                $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table, $recipRow['uid']);
+                                    if ($c >= $this->sendPerCycle) {
+                                        $returnVal = false;
+                                        break;
+                                    }
 
-                                if ($c >= $this->sendPerCycle) {
-                                    $returnVal = false;
-                                    break;
+                                    // We are NOT finished!
+                                    $this->shipOfMail($mid, $recipRow, $tKey);
+                                    $ct++;
+                                    $c++;
                                 }
-
-                                // We are NOT finished!
-                                $this->shipOfMail($mid, $recipRow, $tKey);
-                                $ct++;
-                                $c++;
                             }
                         }
                     }
