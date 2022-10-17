@@ -349,7 +349,7 @@ class SysDmailMaillogRepository extends MainRepository {
         $connection->insert($this->table, $mailLogParams);
     }
 
-        /**
+    /**
      * Check if an entry exists that is younger than 10 seconds
      *
      * @param array $mailLogParameters
@@ -376,5 +376,112 @@ class SysDmailMaillogRepository extends MainRepository {
         $existingLog = $query->execute()->fetchColumn();
 
         return (int)$existingLog > 0;
+    }
+
+    public function updateSysDmailMaillogForShipOfMail(array $values) 
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+            ->update($this->table)
+            ->set('tstamp', time())
+            ->set('size', (int)$values['size'])
+            ->set('parsetime', (int)$values['parsetime'])
+            ->set('html_sent', (int)$values['html_sent'])
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'uid', 
+                    $queryBuilder->createNamedParameter($values['logUid'], \PDO::PARAM_INT)
+                )
+            )
+            ->execute();
+    }
+
+    /**
+     * Find out, if an email has been sent to a recipient
+     *
+     * @param int $mid Newsletter ID. UID of the sys_dmail record
+     * @param int $rid Recipient UID
+     * @param string $rtbl Recipient table
+     *
+     * @return	bool Number of found records
+     */
+    public function dmailerIsSend(int $mid, int $rid, string $rtbl): bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        $statement = $queryBuilder
+            ->select('uid')
+            ->from($this->table)
+            ->where($queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($rid, \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
+            ->andWhere($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->execute();
+
+        return (bool)$statement->rowCount();
+    }
+
+    /**
+     * Add action to sys_dmail_maillog table
+     *
+     * @param int $mid Newsletter ID
+     * @param string $rid Recipient ID
+     * @param int $size Size of the sent email
+     * @param int $parsetime Parse time of the email
+     * @param int $html Set if HTML email is sent
+     * @param string $email Recipient's email
+     *
+     * @return bool True on success or False on error
+     */
+    public function dmailerAddToMailLog(int $mid, string $rid, int $size, int $parsetime, int $html, string $email): int
+    {
+        [$rtbl, $rid] = explode('_', $rid);
+
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+            ->insert($this->table)
+            ->values([
+                'mid' => $mid,
+                'rtbl' => (string)$rtbl,
+                'rid' => (int)$rid,
+                'email' => $email,
+                'tstamp' => time(),
+                'url' => '',
+                'size' => $size,
+                'parsetime' => $parsetime,
+                'html_sent' => $html,
+            ])
+            ->execute();
+
+        return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
+    }
+
+    /**
+     * Get IDs of recipient, which has been sent
+     *
+     * @param	int $mid Newsletter ID. UID of the sys_dmail record
+     * @param	string $rtbl Recipient table
+     *
+     * @return	string		list of sent recipients
+     */
+    public function dmailerGetSentMails(int $mid, string $rtbl): string
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $statement = $queryBuilder
+            ->select('rid')
+            ->from($this->table)
+            ->where($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
+            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->execute();
+
+        $list = '';
+
+        while ($row = $statement->fetch()) {
+            $list .= $row['rid'] . ',';
+        }
+
+        return rtrim($list, ',');
     }
 }
