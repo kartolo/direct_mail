@@ -23,8 +23,6 @@ use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Resource\FileReference;
@@ -471,18 +469,13 @@ class Dmailer implements LoggerAwareInterface
 
         $relationTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        $statement = $queryBuilder
-            ->select($relationTable . '.uid_foreign')
-            ->from($relationTable, $relationTable)
-            ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
-            ->where($queryBuilder->expr()->eq($relationTable . '.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-            ->execute();
+        $rows = GeneralUtility::makeInstance(TempRepository::class)->getListOfRecipentCategories($table, $relationTable, $uid);
 
         $list = '';
-        while ($row = $statement->fetch()) {
-            $list .= $row['uid_foreign'] . ',';
+        if($rows && count($rows)) {
+            foreach($rows as $row) {
+                $list .= $row['uid_foreign'] . ',';
+            }
         }
 
         return rtrim($list, ',');

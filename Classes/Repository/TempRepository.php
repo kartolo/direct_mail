@@ -644,6 +644,28 @@ class TempRepository extends MainRepository {
             ->setMaxResults($sendPerCycle)
             ->execute()
             ->fetchAll();
+    }
 
+    public function getListOfRecipentCategories(string $table, string $relationTable, int $uid) 
+    {
+        $queryBuilder = $this->getQueryBuilder($table);
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(
+                GeneralUtility::makeInstance(DeletedRestriction::class)
+        );
+        return $queryBuilder
+            ->select($relationTable . '.uid_foreign')
+            ->from($relationTable, $relationTable)
+            ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    $relationTable . '.uid_local', 
+                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                )
+            )
+            ->execute()
+            ->fetchAll();
     }
 }
