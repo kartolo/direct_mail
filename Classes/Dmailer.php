@@ -656,7 +656,7 @@ class Dmailer implements LoggerAwareInterface
         $subject = '';
         $message = '';
 
-        GeneralUtility::makeInstance(SysDmailRepository::class)->dmailerSetBeginEnd($mid, $tKey);
+        GeneralUtility::makeInstance(SysDmailRepository::class)->dmailerSetBeginEnd($mid, $key);
 
         switch ($key) {
             case 'begin':
