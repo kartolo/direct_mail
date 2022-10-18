@@ -20,6 +20,10 @@ return [
         'provider' => \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
         'source' => 'EXT:direct_mail/Resources/Public/Icons/ext_icon_dmail_folder.png'
     ],
+    'apps-pagetree-folder-contains-dmail' => [
+        'provider' => \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
+        'source' => 'EXT:direct_mail/Resources/Public/Icons/ext_icon_dmail_folder.png'
+    ],
     'directmail-category' => [
         'provider' => \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
         'source' => 'EXT:direct_mail/Resources/Public/Icons/icon_tx_directmail_category.png'

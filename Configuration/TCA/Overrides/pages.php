@@ -12,4 +12,4 @@ if (!is_array($GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'])) {
     $GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'] = [];
 }
 
-$GLOBALS['TCA']['pages']['ctrl']['typeicon_classes']['contains-dmail'] = 'directmail-folder';
+$GLOBALS['TCA']['pages']['ctrl']['typeicon_classes']['contains-dmail'] = 'apps-pagetree-folder-contains-dmail';
