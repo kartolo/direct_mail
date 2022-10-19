@@ -439,8 +439,7 @@ class TempRepository extends MainRepository {
             $select = $queryGenerator->getQueryDM();
             //$queryGenerator->extFieldLists['queryFields'] = 'uid';
             if($select) {
-                /** @var Connection $connection */
-                $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+                $connection = $this->getConnection($table);
                 $recipients = $connection->executeQuery($select)->fetchAll();
                 
                 foreach ($recipients as $recipient) {
@@ -465,7 +464,7 @@ class TempRepository extends MainRepository {
         $groupIdList = GeneralUtility::intExplode(',', $list);
         $groups = [];
         
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_group');
         $queryBuilder
             ->getRestrictions()
             ->removeAll()
@@ -517,7 +516,7 @@ class TempRepository extends MainRepository {
         if (is_array($pageTsConfig[$mmField])) {
             $pidList = $pageTsConfig[$mmField]['PAGE_TSCONFIG_IDLIST'] ?? [];
             if ($pidList) {
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
+                $queryBuilder = $this->getQueryBuilder('sys_dmail_category');
                 $res = $queryBuilder->select('*')
                 ->from('sys_dmail_category')
                 ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
@@ -555,7 +554,7 @@ class TempRepository extends MainRepository {
                         // Must be default language or [All], otherwise no overlaying:
                         if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] <= 0) {
                             // Select overlay record:
-                            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+                            $queryBuilder = $this->getQueryBuilder($table);
                             $olrow = $queryBuilder->select('*')
                             ->from($table)
                             ->add('where', 'pid=' . intval($row['pid']) .
@@ -605,8 +604,7 @@ class TempRepository extends MainRepository {
      */
     public function selectRowsByUid(string $table, int $uid) 
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-        
+        $queryBuilder = $this->getQueryBuilder($table);
         return $queryBuilder
             ->select('*')
             ->from($table)
