@@ -6,7 +6,6 @@ namespace DirectMailTeam\DirectMail\Repository;
 use DirectMailTeam\DirectMail\DmQueryGenerator;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -52,9 +51,9 @@ class TempRepository extends MainRepository {
                     $queryBuilder->createNamedParameter(
                         GeneralUtility::intExplode(',', $idlist),
                         Connection::PARAM_INT_ARRAY
-                        )
                     )
                 )
+            )
             ->execute();
                 
             while ($row = $res->fetch()) {
