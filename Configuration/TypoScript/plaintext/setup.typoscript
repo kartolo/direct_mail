@@ -114,7 +114,7 @@ tx_directmail_pi1.typeNum = 99
 
 tx_directmail_pi1.config {
 	disableAllHeaderCode = 1
-	additionalHeaders = Content-type:text/plain
+  additionalHeaders.10.header = Content-type:text/plain
 }
 
 tx_directmail_pi1 {
