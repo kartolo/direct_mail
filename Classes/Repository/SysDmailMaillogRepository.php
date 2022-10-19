@@ -457,6 +457,30 @@ class SysDmailMaillogRepository extends MainRepository {
         return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
     }
 
+    public function analyzeBounceMailAddToMailLog(
+        int $tstamp, 
+        array $midArray, 
+        int $returnCode, 
+        string $returnContent)
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+            ->insert($this->table)
+            ->values([
+                'tstamp' => $tstamp,
+                'response_type' => -127,
+                'mid' => (int)$midArray['mid'],
+                'rid' => (int)$midArray['rid'],
+                'email' => $midArray['email'],
+                'rtbl' => $midArray['rtbl'],
+                'return_content' => $returnContent,
+                'return_code' => $returnCode
+            ])
+            ->execute();
+
+            return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
+    }
+
     /**
      * Get IDs of recipient, which has been sent
      *

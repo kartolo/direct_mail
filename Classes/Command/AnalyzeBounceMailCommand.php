@@ -11,7 +11,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -187,28 +186,20 @@ class AnalyzeBounceMailCommand extends Command
         // Extract text content
         $cp = $readMail->analyseReturnError($message->getMessageBody());
         
-        $row = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectForAnalyzeBounceMail($midArray['rid'], $midArray['rtbl'], $midArray['mid']);
+        $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
+        $row = $sysDmailMaillogRepository->selectForAnalyzeBounceMail($midArray['rid'], $midArray['rtbl'], $midArray['mid']);
         
         // only write to log table, if we found a corresponding recipient record
         if (!empty($row)) {
-            $tableMaillog = 'sys_dmail_maillog';
-            /** @var Connection $connection */
-            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($tableMaillog);
+
+            $midArray['email'] = $row['email'];
             try {
-                $midArray['email'] = $row['email'];
-                $insertFields = [
-                    'tstamp' => $this->getTimestampFromAspect(),
-                    'response_type' => -127,
-                    'mid' => (int)$midArray['mid'],
-                    'rid' => (int)$midArray['rid'],
-                    'email' => $midArray['email'],
-                    'rtbl' => $midArray['rtbl'],
-                    'return_content' => serialize($cp),
-                    'return_code' => (int)$cp['reason']
-                ];
-                $connection->insert($tableMaillog, $insertFields);
-                $sql_insert_id = $connection->lastInsertId($tableMaillog);
-                return (bool)$sql_insert_id;
+                return $sysDmailMaillogRepository->analyzeBounceMailAddToMailLog(
+                    $this->getTimestampFromAspect(),
+                    $midArray,
+                    (int)$cp['reason'],
+                    serialize($cp)
+                );
             } catch (\Doctrine\DBAL\DBALException $e) {
                 // Log $e->getMessage();
                 return false;
