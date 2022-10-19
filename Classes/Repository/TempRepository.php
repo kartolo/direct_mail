@@ -626,4 +626,46 @@ class TempRepository extends MainRepository {
             ->execute()
             ->fetchAll();
     }
+
+    public function selectForMasssendList(string $table, string $idList, int $sendPerCycle, $sendIds) 
+    {
+        $sendIds = $sendIds ? $sendIds : 0; //@TODO
+        $queryBuilder = $this->getQueryBuilder($table);
+        
+        return $queryBuilder
+            ->select('uid')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->in('uid', $idList)
+            )
+            ->andWhere(
+                $queryBuilder->expr()->notIn('uid', $sendIds)
+            )
+            ->setMaxResults($sendPerCycle)
+            ->execute()
+            ->fetchAll();
+    }
+
+    public function getListOfRecipentCategories(string $table, string $relationTable, int $uid) 
+    {
+        $queryBuilder = $this->getQueryBuilder($table);
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(
+                GeneralUtility::makeInstance(DeletedRestriction::class)
+        );
+        return $queryBuilder
+            ->select($relationTable . '.uid_foreign')
+            ->from($relationTable, $relationTable)
+            ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    $relationTable . '.uid_local', 
+                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                )
+            )
+            ->execute()
+            ->fetchAll();
+    }
 }

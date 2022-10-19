@@ -17,13 +17,12 @@ namespace DirectMailTeam\DirectMail;
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
+use DirectMailTeam\DirectMail\Repository\TempRepository;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Resource\FileReference;
@@ -470,18 +469,13 @@ class Dmailer implements LoggerAwareInterface
 
         $relationTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        $statement = $queryBuilder
-            ->select($relationTable . '.uid_foreign')
-            ->from($relationTable, $relationTable)
-            ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
-            ->where($queryBuilder->expr()->eq($relationTable . '.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-            ->execute();
+        $rows = GeneralUtility::makeInstance(TempRepository::class)->getListOfRecipentCategories($table, $relationTable, $uid);
 
         $list = '';
-        while ($row = $statement->fetch()) {
-            $list .= $row['uid_foreign'] . ',';
+        if($rows && count($rows)) {
+            foreach($rows as $row) {
+                $list .= $row['uid_foreign'] . ',';
+            }
         }
 
         return rtrim($list, ',');
@@ -539,27 +533,21 @@ class Dmailer implements LoggerAwareInterface
                     else {
                         $idList = implode(',', $listArr);
                         if ($idList) {
-                            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-                            $statement = $queryBuilder
-                                ->select('*')
-                                ->from($table)
-                                ->where($queryBuilder->expr()->in('uid', $idList))
-                                ->andWhere($queryBuilder->expr()->notIn('uid', ($sendIds ? $sendIds : 0)))
-                                ->setMaxResults($this->sendPerCycle + 1)
-                                ->execute();
+                            $rows = GeneralUtility::makeInstance(TempRepository::class)->selectForMasssendList($table, $idList, ($this->sendPerCycle + 1), $sendIds);
+                            if($rows && count($rows)) {
+                                foreach($rows as $recipRow) {
+                                    $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table, $recipRow['uid']);
 
-                            while ($recipRow = $statement->fetch()) {
-                                $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table, $recipRow['uid']);
+                                    if ($c >= $this->sendPerCycle) {
+                                        $returnVal = false;
+                                        break;
+                                    }
 
-                                if ($c >= $this->sendPerCycle) {
-                                    $returnVal = false;
-                                    break;
+                                    // We are NOT finished!
+                                    $this->shipOfMail($mid, $recipRow, $tKey);
+                                    $ct++;
+                                    $c++;
                                 }
-
-                                // We are NOT finished!
-                                $this->shipOfMail($mid, $recipRow, $tKey);
-                                $ct++;
-                                $c++;
                             }
                         }
                     }
