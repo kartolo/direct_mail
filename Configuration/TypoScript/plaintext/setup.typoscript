@@ -4,13 +4,30 @@
 ## @version $Id:setup.txt 6012 2007-07-23 12:54:25 +0000 (Mo, 23 Jul 2007) ivankartolo $
 ##
 
-[request.getQueryParams()["type"] == 99]
+[traverse(request.getQueryParams(), "type") == 99]
 // add template path for fluid_styled_content
 lib.contentElement {
   templateRootPaths.100 = EXT:direct_mail/Resources/Private/Plaintext/FluidContentElement/Templates/
   layoutRootPaths.100 = EXT:direct_mail/Resources/Private/Plaintext/FluidContentElement/Layouts/
 }
 [global]
+
+lib.plaintextHeader = COA
+lib.plaintextHeader {
+  10 = USER
+  10 {
+    userFunc = DirectMailTeam\DirectMail\Plugin\DirectMail->main
+  }
+}
+lib.plaintextText < lib.plaintextHeader
+lib.plaintextTextpic < lib.plaintextHeader
+lib.plaintextTextmedia < lib.plaintextHeader
+lib.plaintextImage < lib.plaintextHeader
+lib.plaintextUploads < lib.plaintextHeader
+lib.plaintextShortcut < lib.plaintextHeader
+lib.plaintextBullets < lib.plaintextHeader
+lib.plaintextTable < lib.plaintextHeader
+lib.plaintextHTML < lib.plaintextHeader
 
 plugin.tx_directmail_pi1 = USER
 plugin.tx_directmail_pi1 {

@@ -14,13 +14,15 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
+use DirectMailTeam\DirectMail\Repository\TempRepository;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Resource\FileReference;
@@ -318,8 +320,7 @@ class Dmailer implements LoggerAwareInterface
         if ($recipRow['email']) {
             $midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
             $uniqMsgId = md5(microtime()) . '_' . $midRidId;
-            // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.3/Deprecation-94309-DeprecatedGeneralUtilitystdAuthCode.html
-            $authCode = GeneralUtility::stdAuthCode($recipRow, $this->authCode_fieldList); //@TODO
+            $authCode = AuthCodeUtility::getHmac($recipRow, $this->authCode_fieldList);
 
             $additionalMarkers = [
                     // Put in the tablename of the userinformation
@@ -468,18 +469,13 @@ class Dmailer implements LoggerAwareInterface
 
         $relationTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        $statement = $queryBuilder
-            ->select($relationTable . '.uid_foreign')
-            ->from($relationTable, $relationTable)
-            ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
-            ->where($queryBuilder->expr()->eq($relationTable . '.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-            ->execute();
+        $rows = GeneralUtility::makeInstance(TempRepository::class)->getListOfRecipentCategories($table, $relationTable, $uid);
 
         $list = '';
-        while ($row = $statement->fetch()) {
-            $list .= $row['uid_foreign'] . ',';
+        if($rows && count($rows)) {
+            foreach($rows as $row) {
+                $list .= $row['uid_foreign'] . ',';
+            }
         }
 
         return rtrim($list, ',');
@@ -517,7 +513,7 @@ class Dmailer implements LoggerAwareInterface
                     }
 
                     // Send mails
-                    $sendIds = $this->dmailer_getSentMails((int)$mid, $tKey);
+                    $sendIds = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->dmailerGetSentMails((int)$mid, $tKey);
                     if ($table == 'PLAINLIST') {
                         $sendIdsArr = explode(',', $sendIds);
                         foreach ($listArr as $kval => $recipRow) {
@@ -533,30 +529,25 @@ class Dmailer implements LoggerAwareInterface
                                 $c++;
                             }
                         }
-                    } else {
+                    } 
+                    else {
                         $idList = implode(',', $listArr);
                         if ($idList) {
-                            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-                            $statement = $queryBuilder
-                                ->select('*')
-                                ->from($table)
-                                ->where($queryBuilder->expr()->in('uid', $idList))
-                                ->andWhere($queryBuilder->expr()->notIn('uid', ($sendIds ? $sendIds : 0)))
-                                ->setMaxResults($this->sendPerCycle + 1)
-                                ->execute();
+                            $rows = GeneralUtility::makeInstance(TempRepository::class)->selectForMasssendList($table, $idList, ($this->sendPerCycle + 1), $sendIds);
+                            if($rows && count($rows)) {
+                                foreach($rows as $recipRow) {
+                                    $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table, $recipRow['uid']);
 
-                            while ($recipRow = $statement->fetch()) {
-                                $recipRow['sys_dmail_categories_list'] = $this->getListOfRecipentCategories($table, $recipRow['uid']);
+                                    if ($c >= $this->sendPerCycle) {
+                                        $returnVal = false;
+                                        break;
+                                    }
 
-                                if ($c >= $this->sendPerCycle) {
-                                    $returnVal = false;
-                                    break;
+                                    // We are NOT finished!
+                                    $this->shipOfMail($mid, $recipRow, $tKey);
+                                    $ct++;
+                                    $c++;
                                 }
-
-                                // We are NOT finished!
-                                $this->shipOfMail($mid, $recipRow, $tKey);
-                                $ct++;
-                                $c++;
                             }
                         }
                     }
@@ -581,35 +572,31 @@ class Dmailer implements LoggerAwareInterface
      */
     public function shipOfMail(int $mid, array $recipRow, string $tableKey): void
     {
-        if ($this->dmailer_isSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
+        $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
+        if ($sysDmailMaillogRepository->dmailerIsSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
             $pt = self::getMilliseconds();
             $recipRow = self::convertFields($recipRow);
 
             // write to dmail_maillog table. if it can be written, continue with sending.
             // if not, stop the script and report error
-            $rC = 0;
-            $logUid = $this->dmailer_addToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), self::getMilliseconds() - $pt, $rC, $recipRow['email']);
+            $logUid = $sysDmailMaillogRepository->dmailerAddToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), self::getMilliseconds() - $pt, 0, $recipRow['email']);
 
             if ($logUid) {
-                $rC = $this->dmailer_sendAdvanced($recipRow, $tableKey);
-                $parsetime = self::getMilliseconds() - $pt;
-
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
-                $ok = $queryBuilder
-                    ->update('sys_dmail_maillog')
-                    ->set('tstamp', time())
-                    ->set('size', strlen($this->message))
-                    ->set('parsetime', $parsetime)
-                    ->set('html_sent', intval($rC))
-                    ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($logUid, \PDO::PARAM_INT)))
-                    ->execute();
+                $values = [
+                    'logUid' => (int)$logUid,
+                    'html_sent' => (int)$this->dmailer_sendAdvanced($recipRow, $tableKey),
+                    'parsetime' => self::getMilliseconds() - $pt,
+                    'size' => strlen($this->message)
+                ];
+                $ok = $sysDmailMaillogRepository->updateSysDmailMaillogForShipOfMail($values);
 
                 if ($ok === false) {
                     $message = 'Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')';
                     $this->logger->critical($message);
                     die($message);
                 }
-            } else {
+            } 
+            else {
                 // stop the script if dummy log can't be made
                 $message = 'Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')';
                 $this->logger->critical($message);
@@ -657,12 +644,7 @@ class Dmailer implements LoggerAwareInterface
         $subject = '';
         $message = '';
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
-        $queryBuilder
-            ->update('sys_dmail')
-            ->set('scheduled_' . $key, time())
-            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
-            ->execute();
+        GeneralUtility::makeInstance(SysDmailRepository::class)->dmailerSetBeginEnd($mid, $key);
 
         switch ($key) {
             case 'begin':
@@ -697,94 +679,6 @@ class Dmailer implements LoggerAwareInterface
     }
 
     /**
-     * Find out, if an email has been sent to a recipient
-     *
-     * @param int $mid Newsletter ID. UID of the sys_dmail record
-     * @param int $rid Recipient UID
-     * @param string $rtbl Recipient table
-     *
-     * @return	bool Number of found records
-     */
-    public function dmailer_isSend(int $mid, int $rid, string $rtbl): bool
-    {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
-
-        $statement = $queryBuilder
-            ->select('uid')
-            ->from('sys_dmail_maillog')
-            ->where($queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($rid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
-            ->andWhere($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
-            ->execute();
-
-        return (bool)$statement->rowCount();
-    }
-
-    /**
-     * Get IDs of recipient, which has been sent
-     *
-     * @param	int $mid Newsletter ID. UID of the sys_dmail record
-     * @param	string $rtbl Recipient table
-     *
-     * @return	string		list of sent recipients
-     */
-    public function dmailer_getSentMails(int $mid, string $rtbl): string
-    {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
-        $statement = $queryBuilder
-            ->select('rid')
-            ->from('sys_dmail_maillog')
-            ->where($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
-            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
-            ->execute();
-
-        $list = '';
-
-        while (($row = $statement->fetch())) {
-            $list .= $row['rid'] . ',';
-        }
-
-        return rtrim($list, ',');
-    }
-
-    /**
-     * Add action to sys_dmail_maillog table
-     *
-     * @param int $mid Newsletter ID
-     * @param string $rid Recipient ID
-     * @param int $size Size of the sent email
-     * @param int $parsetime Parse time of the email
-     * @param int $html Set if HTML email is sent
-     * @param string $email Recipient's email
-     *
-     * @return bool True on success or False on error
-     */
-    public function dmailer_addToMailLog(int $mid, string $rid, int $size, int $parsetime, int $html, string $email): int
-    {
-        [$rtbl, $rid] = explode('_', $rid);
-
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_maillog');
-        $queryBuilder
-            ->insert('sys_dmail_maillog')
-            ->values([
-                'mid' => $mid,
-                'rtbl' => $rtbl,
-                'rid' => $rid,
-                'email' => $email,
-                'tstamp' => time(),
-                'url' => '',
-                'size' => $size,
-                'parsetime' => $parsetime,
-                'html_sent' => (int)$html,
-            ])
-            ->execute();
-
-        return (int)$queryBuilder->getConnection()->lastInsertId('sys_dmail_maillog');
-    }
-
-    /**
      * Called from the dmailerd script.
      * Look if there is newsletter to be sent
      * and do the sending process. Otherwise quit runtime
@@ -806,26 +700,10 @@ class Dmailer implements LoggerAwareInterface
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
 
         $pt = self::getMilliseconds();
-
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail');
-        $queryBuilder
-            ->getRestrictions()
-            ->removeAll()
-            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-
-        $statement = $queryBuilder
-            ->select('*')
-            ->from('sys_dmail')
-            ->where($queryBuilder->expr()->neq('scheduled', '0'))
-            ->andWhere($queryBuilder->expr()->lt('scheduled', time()))
-            ->andWhere($queryBuilder->expr()->eq('scheduled_end', '0'))
-            ->andWhere($queryBuilder->expr()->notIn('type', ['2', '3']))
-            ->orderBy('scheduled')
-            ->execute();
-
+        $row = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForRuncron();
         $this->logger->debug($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'));
 
-        if (($row = $statement->fetch())) {
+        if (is_array($row)) {
             $this->logger->debug($this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed'));
             $this->dmailer_prepare($row);
             $query_info = unserialize($row['query_info']);

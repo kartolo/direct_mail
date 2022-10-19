@@ -7,7 +7,7 @@ return [
         'prependAtCopy' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.prependAtCopy',
         'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group',
         'delete' => 'deleted',
-        'iconfile' => 'EXT:direct_mail/Resources/Public/Icons/mailgroup.gif',
+        'iconfile' => 'EXT:direct_mail/Resources/Public/Icons/mailgroup.png',
         'type' => 'type',
     ],
     'columns' => [

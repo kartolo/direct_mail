@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-use DirectMailTeam\DirectMail\MailSelect;
+use DirectMailTeam\DirectMail\DmQueryGenerator;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -437,27 +437,25 @@ class TempRepository extends MainRepository {
      * Construct the array of uid's from $table selected
      * by special query of mail group of such type
      *
-     * @param MailSelect $queryGenerator The query generator object
      * @param string $table The table to select from
      * @param array $group The direct_mail group record
      *
      * @return array The resulting query.
      */
-    public function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group): array
+    public function getSpecialQueryIdList(DmQueryGenerator $queryGenerator, string $table, array $group): array
     {
         $outArr = [];
         if ($group['query']) {
-            $queryGenerator->init('dmail_queryConfig', $table);
-            $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
-            
-            $queryGenerator->extFieldLists['queryFields'] = 'uid';
-            $select = $queryGenerator->getSelectQuery();
-            /** @var Connection $connection */
-            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-            $recipients = $connection->executeQuery($select)->fetchAll();
-            
-            foreach ($recipients as $recipient) {
-                $outArr[] = $recipient['uid'];
+            $select = $queryGenerator->getQueryDM();
+            //$queryGenerator->extFieldLists['queryFields'] = 'uid';
+            if($select) {
+                /** @var Connection $connection */
+                $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+                $recipients = $connection->executeQuery($select)->fetchAll();
+                
+                foreach ($recipients as $recipient) {
+                    $outArr[] = $recipient['uid'];
+                }
             }
         }
         return $outArr;
@@ -624,6 +622,48 @@ class TempRepository extends MainRepository {
             ->from($table)
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid))
+            )
+            ->execute()
+            ->fetchAll();
+    }
+
+    public function selectForMasssendList(string $table, string $idList, int $sendPerCycle, $sendIds) 
+    {
+        $sendIds = $sendIds ? $sendIds : 0; //@TODO
+        $queryBuilder = $this->getQueryBuilder($table);
+        
+        return $queryBuilder
+            ->select('uid')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->in('uid', $idList)
+            )
+            ->andWhere(
+                $queryBuilder->expr()->notIn('uid', $sendIds)
+            )
+            ->setMaxResults($sendPerCycle)
+            ->execute()
+            ->fetchAll();
+    }
+
+    public function getListOfRecipentCategories(string $table, string $relationTable, int $uid) 
+    {
+        $queryBuilder = $this->getQueryBuilder($table);
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(
+                GeneralUtility::makeInstance(DeletedRestriction::class)
+        );
+        return $queryBuilder
+            ->select($relationTable . '.uid_foreign')
+            ->from($relationTable, $relationTable)
+            ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    $relationTable . '.uid_local', 
+                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                )
             )
             ->execute()
             ->fetchAll();

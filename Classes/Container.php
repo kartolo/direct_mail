@@ -14,7 +14,8 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailTtContentCategoryMmRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -78,41 +79,16 @@ class Container
                     }
 
                     // get categories of tt_content element
-                    $foreignTable = 'sys_dmail_category';
-                    $select = "$foreignTable.uid";
-                    $localTableUidList = intval($this->cObj->data['uid']);
-                    $mmTable = 'sys_dmail_ttcontent_category_mm';
-                    $whereClause = '';
-                    $orderBy = $foreignTable . '.uid';
-
-                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($foreignTable);
-                    $statement = $queryBuilder
-                        ->select($select)
-                        ->from($foreignTable)
-                        ->from($mmTable)
-                        ->where(
-                            $queryBuilder->expr()->eq(
-                                $foreignTable . '.uid',
-                                $mmTable . '.uid_foreign'
-                            )
-                        )
-                        ->andWhere(
-                            $queryBuilder->expr()->in(
-                                $mmTable . '.uid_local',
-                                $localTableUidList
-                            )
-                        )
-                        ->orderBy($orderBy)
-                        ->execute();
-
-
-                    while ($row = $statement->fetch()) {
-                        $categoryList .= $row['uid'] . ',';
+                    $rowCats = GeneralUtility::makeInstance(SysDmailCategoryRepository::class)->selectSysDmailCategoryForContainer((int)$this->cObj->data['uid']);
+                    if ($rowCats && count($rowCats)) {
+                        foreach ($rowCats as $cat) {
+                            $categoryList .= $cat['uid'] . ',';
+                        }
+                        $categoryList = rtrim($categoryList, ',');
                     }
-                    $categoryList = rtrim($categoryList, ',');
                 }
                 // wrap boundaries around content
-                $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . $content . $this->boundaryEnd;
+                $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . PHP_EOL . trim($content) . PHP_EOL . $this->boundaryEnd . PHP_EOL;
             }
         }
         return $content;
@@ -161,25 +137,12 @@ class Container
      */
     public function insertSitemapBoundaries($content, array $conf)
     {
-        $uid = $this->cObj->data['uid'];
+        $uid = (int)$this->cObj->data['uid'];
         $content = '';
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_ttcontent_category_mm');
-        $categories = $queryBuilder
-            ->select('*')
-            ->from('sys_dmail_ttcontent_category_mm')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'uid_local',
-                    (int) $uid
-                )
-            )
-            ->orderBy('sorting')
-            ->execute()
-            ->fetchAll();
+        $categories = GeneralUtility::makeInstance(SysDmailTtContentCategoryMmRepository::class)->selectByUidLocal($uid);
 
-
-        if (count($categories) > 0) {
+        if ($categories && count($categories) > 0) {
             $categoryList = [];
             foreach ($categories as $category) {
                 $categoryList[] = $category['uid_foreign'];

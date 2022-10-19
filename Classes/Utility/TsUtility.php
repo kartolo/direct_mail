@@ -73,7 +73,7 @@ class TsUtility
             if (count($set)) {
                 // Get page record and TS config lines
                 $pRec = BackendUtility::getRecord('pages', $id);
-                $tsLines = explode(LF, $pRec['TSconfig']);
+                $tsLines = explode(LF, $pRec['TSconfig'] ?: '');
                 $tsLines = array_reverse($tsLines);
                 // Reset the set of changes.
                 foreach ($set as $f => $v) {

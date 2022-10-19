@@ -294,7 +294,8 @@ class DirectMail extends AbstractPlugin
             }
 
             $images = $this->renderImages($imagesArray, $fieldname);
-        } else {
+        } 
+        else {
             $images = '';
         }
 

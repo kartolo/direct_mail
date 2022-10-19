@@ -30,4 +30,33 @@ class FeUsersRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+
+        /**
+     * Returns record no matter what - except if record is deleted
+     *
+     * @param int $uid The uid to look up in $table
+     *
+     * @return mixed Returns array (the record) if found, otherwise blank/0 (zero)
+     * @see getPage_noCheck()
+     */
+    public function getRawRecord(int $uid)
+    {
+        if ($uid > 0) {
+            $queryBuilder = $this->getQueryBuilder($this->table);
+            $queryBuilder->select('*')->from($this->table);
+            $queryBuilder->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
+            );
+
+            $rows = $queryBuilder->execute()->fetchAll();
+
+            if ($rows) {
+                if (is_array($rows[0])) {
+                    return $rows[0];
+                }
+            }
+        }
+        return 0;
+    }
 }
