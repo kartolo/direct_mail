@@ -620,7 +620,7 @@ class TempRepository extends MainRepository {
         $queryBuilder = $this->getQueryBuilder($table);
         
         return $queryBuilder
-            ->select('uid')
+            ->select('*')
             ->from($table)
             ->where(
                 $queryBuilder->expr()->in('uid', $idList)
