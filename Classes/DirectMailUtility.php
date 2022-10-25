@@ -141,7 +141,7 @@ class DirectMailUtility
      * @param array $params Any default parameters (usually the ones from pageTSconfig)
      * @param bool $returnArray Return error or warning message as array instead of string
      *
-     * @return string Error or warning message during fetching the content
+     * @return array|string Error or warning message during fetching the content
      */
     public static function fetchUrlContentsForDirectMailRecord(array $row, array $params, $returnArray = false)
     {
