@@ -157,7 +157,7 @@ class StatisticsController extends MainController
         return new HtmlResponse($this->moduleTemplate->renderContent());
     }
     
-    protected function moduleContent()
+    protected function moduleContent(): array
     {
         $theOutput = [];
         
@@ -169,7 +169,7 @@ class StatisticsController extends MainController
             if (is_array($row)) {
                 // COMMAND:
                 switch ($this->cmd) {
-                    case 'displayUserInfo':
+                    case 'displayUserInfo': //@TODO ???
                         $theOutput['dataUserInfo'] = $this->displayUserInfo();
                         break;
                     case 'stats':
@@ -291,17 +291,13 @@ class StatisticsController extends MainController
             
             if($GLOBALS['TCA'][$this->table] ?? false) {
                 $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
-                //@TODO
-                $queryBuilder = $this->getQueryBuilder($mmTable);
-                $resCat = $queryBuilder
-                ->select('uid_foreign')
-                ->from($mmTable)
-                ->add('where','uid_local=' . $row['uid'])
-                ->execute();
-                while ($rowCat = $resCat->fetch()) {
-                    $categories .= $rowCat['uid_foreign'] . ',';
+                $resCat = GeneralUtility::makeInstance(TempRepository::class)->getDisplayUserInfo((string)$mmTable, (int)$row['uid']);
+                if($resCat && count($resCat)) {
+                    foreach($resCat as $rowCat) {
+                        $categories .= $rowCat['uid_foreign'] . ',';
+                    }
+                    $categories = rtrim($categories, ',');
                 }
-                $categories = rtrim($categories, ',');
             }
             
             $editOnClickLink = DirectMailUtility::getEditOnClickLink([

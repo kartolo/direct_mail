@@ -309,11 +309,12 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row): array
     {
+        $typolinkPageUrl = 't3://page?uid=';
         $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
         // Finding the domain to use
         $result = [
             'baseUrl' => $cObj->typolink_URL([
-                'parameter' => 't3://page?uid=' . (int)$row['page'],
+                'parameter' => $typolinkPageUrl . (int)$row['page'],
                 'forceAbsoluteUrl' => true,
                 'linkAccessRestrictedPages' => true
             ]),
@@ -330,13 +331,13 @@ class DirectMailUtility
             default:
                 $params = substr($row['HTMLParams'], 0, 1) == '&' ? substr($row['HTMLParams'], 1) : $row['HTMLParams'];
                 $result['htmlUrl'] = $cObj->typolink_URL([
-                    'parameter' => 't3://page?uid=' . (int)$row['page'] . '&' . $params,
+                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
                     'forceAbsoluteUrl' => true,
                     'linkAccessRestrictedPages' => true
                 ]);
                 $params = substr($row['plainParams'], 0, 1) == '&' ? substr($row['plainParams'], 1) : $row['plainParams'];
                 $result['plainTextUrl'] = $cObj->typolink_URL([
-                    'parameter' => 't3://page?uid=' . (int)$row['page'] . '&' . $params,
+                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
                     'forceAbsoluteUrl' => true,
                     'linkAccessRestrictedPages' => true
                 ]);
@@ -460,7 +461,7 @@ class DirectMailUtility
      * @param int $dmailUid The uid of the sys_dmail record to fetch the records for
      * @return array An array of FileReferences
      */
-    public static function getAttachments($dmailUid)
+    public static function getAttachments(int $dmailUid)
     {
         /** @var FileRepository $fileRepository */
         $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
@@ -474,7 +475,7 @@ class DirectMailUtility
      * @return string
      * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
-    public static function getEditOnClickLink($params)
+    public static function getEditOnClickLink(array $params): string
     {
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
