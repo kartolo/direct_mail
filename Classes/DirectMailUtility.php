@@ -309,11 +309,12 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row): array
     {
+        $typolinkPageUrl = 't3://page?uid=';
         $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
         // Finding the domain to use
         $result = [
             'baseUrl' => $cObj->typolink_URL([
-                'parameter' => 't3://page?uid=' . (int)$row['page'],
+                'parameter' => $typolinkPageUrl . (int)$row['page'],
                 'forceAbsoluteUrl' => true,
                 'linkAccessRestrictedPages' => true
             ]),
@@ -330,13 +331,13 @@ class DirectMailUtility
             default:
                 $params = substr($row['HTMLParams'], 0, 1) == '&' ? substr($row['HTMLParams'], 1) : $row['HTMLParams'];
                 $result['htmlUrl'] = $cObj->typolink_URL([
-                    'parameter' => 't3://page?uid=' . (int)$row['page'] . '&' . $params,
+                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
                     'forceAbsoluteUrl' => true,
                     'linkAccessRestrictedPages' => true
                 ]);
                 $params = substr($row['plainParams'], 0, 1) == '&' ? substr($row['plainParams'], 1) : $row['plainParams'];
                 $result['plainTextUrl'] = $cObj->typolink_URL([
-                    'parameter' => 't3://page?uid=' . (int)$row['page'] . '&' . $params,
+                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
                     'forceAbsoluteUrl' => true,
                     'linkAccessRestrictedPages' => true
                 ]);
