@@ -1016,12 +1016,15 @@ class DmailController extends MainController
      * @return array 
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function renderRecordDetailsTable(array $row)
+    protected function renderRecordDetailsTable(array $row): array
     {
         $iconActionsOpen = $this->getIconActionsOpen();
+        $label = '';
+        $edit = false;
+        $editParams = '';
         if (isset($row['issent']) && !$row['issent']) {
             if ($this->getBackendUser()->check('tables_modify', 'sys_dmail')) {
-                // $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
+                $edit = true;
                 $requestUri = $this->buildUriFromRoute(
                     $this->moduleName,
                     [
@@ -1040,15 +1043,13 @@ class DmailController extends MainController
                     ],
                     'returnUrl' => $requestUri->__toString(),
                 ]);
-                
-                $content = '<a href="#" onClick="' . $editParams . '">' . $iconActionsOpen . '<b> ' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
             } 
             else {
-                $content = $iconActionsOpen . ' (' . $this->getLanguageService()->getLL('dmail_noEdit_noPerms') . ')';
+                $label = $this->getLanguageService()->getLL('dmail_noEdit_noPerms');
             }
         } 
         else {
-            $content = $iconActionsOpen . '(' . $this->getLanguageService()->getLL('dmail_noEdit_isSent') . ')';
+            $label = $this->getLanguageService()->getLL('dmail_noEdit_isSent');
         }
 
         $trs = [];
@@ -1082,7 +1083,9 @@ class DmailController extends MainController
             'theadTitle1' => DirectMailUtility::fName('subject'),
             'theadTitle2' => GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject'] ?? ''), 60),
             'trs' => $trs,
-            'out'  => $content
+            'label' => $label,
+            'edit' => $edit,
+            'editParams' => $editParams
         ];
     }
     
