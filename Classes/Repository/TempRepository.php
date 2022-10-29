@@ -655,4 +655,15 @@ class TempRepository extends MainRepository {
             ->execute()
             ->fetchAll();
     }
+
+    public function getDisplayUserInfo(string $table, int $uid) 
+    {
+        $queryBuilder = $this->getQueryBuilder($table);
+        return $queryBuilder
+            ->select('uid_foreign')
+            ->from($table)
+            ->add('where', 'uid_local=' . $uid)
+            ->execute()
+            ->fetchAll();
+    }
 }
