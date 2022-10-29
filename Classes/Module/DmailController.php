@@ -1063,7 +1063,7 @@ class DmailController extends MainController
         
         // attachments need to be fetched manually as BackendUtility::getProcessedValue can't do that
         $fileNames = [];
-        $attachments = DirectMailUtility::getAttachments($row['uid'] ?? 0);
+        $attachments = DirectMailUtility::getAttachments((int)($row['uid'] ?? 0));
         /** @var FileReference $attachment */
         if(count($attachments)) {
             foreach ($attachments as $attachment) {

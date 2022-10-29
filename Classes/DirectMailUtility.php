@@ -461,7 +461,7 @@ class DirectMailUtility
      * @param int $dmailUid The uid of the sys_dmail record to fetch the records for
      * @return array An array of FileReferences
      */
-    public static function getAttachments($dmailUid)
+    public static function getAttachments(int $dmailUid)
     {
         /** @var FileRepository $fileRepository */
         $fileRepository = GeneralUtility::makeInstance(FileRepository::class);

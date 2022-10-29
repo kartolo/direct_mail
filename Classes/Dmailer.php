@@ -817,7 +817,7 @@ class Dmailer implements LoggerAwareInterface
 
         // handle FAL attachments
         if ((int)$this->dmailer['sys_dmail_rec']['attachment'] > 0) {
-            $files = DirectMailUtility::getAttachments($this->dmailer['sys_dmail_rec']['uid']);
+            $files = DirectMailUtility::getAttachments((int)$this->dmailer['sys_dmail_rec']['uid']);
             /** @var FileReference $file */
             foreach ($files as $file) {
                 $filePath = Environment::getPublicPath() . '/' . $file->getPublicUrl();
