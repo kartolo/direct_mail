@@ -475,7 +475,7 @@ class DirectMailUtility
      * @return string
      * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
-    public static function getEditOnClickLink($params)
+    public static function getEditOnClickLink(array $params): string
     {
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
