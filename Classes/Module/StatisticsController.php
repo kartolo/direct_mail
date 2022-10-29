@@ -291,10 +291,10 @@ class StatisticsController extends MainController
             
             if($GLOBALS['TCA'][$this->table] ?? false) {
                 $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
-                $rows = GeneralUtility::makeInstance(TempRepository::class)->getDisplayUserInfo((string)$mmTable, (int)$row['uid']);
-                if($rows && count($rows)) {
-                    foreach($rows as $row) {
-                        $categories .= $row['uid_foreign'] . ',';
+                $resCat = GeneralUtility::makeInstance(TempRepository::class)->getDisplayUserInfo((string)$mmTable, (int)$row['uid']);
+                if($resCat && count($resCat)) {
+                    foreach($resCat as $rowCat) {
+                        $categories .= $rowCat['uid_foreign'] . ',';
                     }
                     $categories = rtrim($categories, ',');
                 }

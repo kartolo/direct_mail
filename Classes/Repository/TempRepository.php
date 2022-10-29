@@ -662,7 +662,7 @@ class TempRepository extends MainRepository {
         return $queryBuilder
             ->select('uid_foreign')
             ->from($table)
-            ->add('where', 'uid_local=' . $uid)
+            ->where($queryBuilder->expr()->eq('uid_local', $queryBuilder->createNamedParameter($uid)))
             ->execute()
             ->fetchAll();
     }

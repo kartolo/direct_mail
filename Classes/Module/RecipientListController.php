@@ -723,18 +723,12 @@ class RecipientListController extends MainController
         
         if (is_array($row) && count($row)) {
             $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
-
-            $queryBuilder = $this->getQueryBuilder($mmTable);
-            $resCat = $queryBuilder
-            ->select('uid_foreign')
-            ->from($mmTable)
-            ->where($queryBuilder->expr()->eq('uid_local', $queryBuilder->createNamedParameter($row['uid'])))
-            ->execute()
-            ->fetchAll();
-            
+            $resCat = GeneralUtility::makeInstance(TempRepository::class)->getDisplayUserInfo((string)$mmTable, (int)$row['uid']);
             $categoriesArray = [];
-            foreach ($resCat as $rowCat) {
-                $categoriesArray[] = $rowCat['uid_foreign'];
+            if($resCat && count($resCat)) {
+                foreach ($resCat as $rowCat) {
+                    $categoriesArray[] = $rowCat['uid_foreign'];
+                }
             }
             
             $categories = implode(',', $categoriesArray);
