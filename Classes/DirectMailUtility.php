@@ -141,7 +141,7 @@ class DirectMailUtility
      * @param array $params Any default parameters (usually the ones from pageTSconfig)
      * @param bool $returnArray Return error or warning message as array instead of string
      *
-     * @return string Error or warning message during fetching the content
+     * @return array|string Error or warning message during fetching the content
      */
     public static function fetchUrlContentsForDirectMailRecord(array $row, array $params, $returnArray = false)
     {
@@ -162,7 +162,7 @@ class DirectMailUtility
         // Compile the mail
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
-        if ($params['enable_jump_url']) {
+        if ($params['enable_jump_url'] ?? false) {
             $htmlmail->jumperURL_prefix = $urlBase . $glue .
                 'mid=###SYS_MAIL_ID###' .
                 (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
@@ -170,7 +170,7 @@ class DirectMailUtility
                 '&jumpurl=';
             $htmlmail->jumperURL_useId = 1;
         }
-        if ($params['enable_mailto_jump_url']) {
+        if ($params['enable_mailto_jump_url'] ?? false) {
             $htmlmail->jumperURL_useMailto = 1;
         }
 
@@ -392,10 +392,10 @@ class DirectMailUtility
 
         $characterSet = 'utf-8';
 
-        if ($settings['config.']['metaCharset']) {
+        if (!empty($settings['config.']['metaCharset'])) {
             $characterSet = $settings['config.']['metaCharset'];
         } 
-        elseif ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) {
+        elseif (!empty($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])) {
             $characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
         }
 
