@@ -214,7 +214,6 @@ class RecipientListController extends MainController
                 'cmd' => 'displayImport'
             ]
         );
-
         return $data;
     }
     
@@ -493,7 +492,8 @@ class RecipientListController extends MainController
         switch ($this->lCmd) {
             case 'listall':
                 if (is_array($idLists['tt_address'] ?? false)) {
-                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    //https://github.com/FriendsOfTYPO3/tt_address/blob/master/ext_tables.sql
+                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address', 'uid,name,first_name,middle_name,last_name,email');
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_address',
                         'recipListConfig' => $this->getRecordList($rows, 'tt_address'),
@@ -567,6 +567,7 @@ class RecipientListController extends MainController
                     }
                 }
         }
+
         return $data;
     }
     
