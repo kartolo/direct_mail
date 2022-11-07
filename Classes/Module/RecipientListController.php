@@ -185,13 +185,12 @@ class RecipientListController extends MainController
             if (is_array($idLists[$this->userTable] ?? false)) {
                 $count += count($idLists[$this->userTable]);
             }
-            
             $data['rows'][] = [
                 'icon'        => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render(),
                 'editLink'    => $this->editLink('sys_dmail_group', $row['uid']),
                 'reciplink'   => $this->linkRecip_record('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']),
                 'type'        => htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])),
-                'description' => BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'])),
+                'description' => BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'] ?? '')),
                 'count'       => $count
             ];
         }
@@ -215,7 +214,6 @@ class RecipientListController extends MainController
                 'cmd' => 'displayImport'
             ]
         );
-
         return $data;
     }
     
@@ -494,7 +492,8 @@ class RecipientListController extends MainController
         switch ($this->lCmd) {
             case 'listall':
                 if (is_array($idLists['tt_address'] ?? false)) {
-                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
+                    //https://github.com/FriendsOfTYPO3/tt_address/blob/master/ext_tables.sql
+                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address', 'uid,name,first_name,middle_name,last_name,email');
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_address',
                         'recipListConfig' => $this->getRecordList($rows, 'tt_address'),
@@ -568,6 +567,7 @@ class RecipientListController extends MainController
                     }
                 }
         }
+
         return $data;
     }
     
@@ -745,8 +745,8 @@ class RecipientListController extends MainController
             $dataout = [
                 'icon' => $this->iconFactory->getIconForRecord($this->table, $row)->render(),
                 'iconActionsOpen' => $this->getIconActionsOpen(),
-                'name' => htmlspecialchars($row['name']),
-                'email' => htmlspecialchars($row['email']),
+                'name' => htmlspecialchars($row['name'] ?? ''),
+                'email' => htmlspecialchars($row['email'] ?? ''),
                 'uid' => $row['uid'],
                 'editOnClickLink' => $editOnClickLink,
                 'categories' => [],
