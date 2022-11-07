@@ -185,13 +185,12 @@ class RecipientListController extends MainController
             if (is_array($idLists[$this->userTable] ?? false)) {
                 $count += count($idLists[$this->userTable]);
             }
-            
             $data['rows'][] = [
                 'icon'        => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render(),
                 'editLink'    => $this->editLink('sys_dmail_group', $row['uid']),
                 'reciplink'   => $this->linkRecip_record('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']),
                 'type'        => htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])),
-                'description' => BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'])),
+                'description' => BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'] ?? '')),
                 'count'       => $count
             ];
         }
