@@ -745,8 +745,8 @@ class RecipientListController extends MainController
             $dataout = [
                 'icon' => $this->iconFactory->getIconForRecord($this->table, $row)->render(),
                 'iconActionsOpen' => $this->getIconActionsOpen(),
-                'name' => htmlspecialchars($row['name']),
-                'email' => htmlspecialchars($row['email']),
+                'name' => htmlspecialchars($row['name'] ?? ''),
+                'email' => htmlspecialchars($row['email'] ?? ''),
                 'uid' => $row['uid'],
                 'editOnClickLink' => $editOnClickLink,
                 'categories' => [],
