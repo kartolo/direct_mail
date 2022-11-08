@@ -141,7 +141,7 @@ class DirectMailUtility
      * @param array $params Any default parameters (usually the ones from pageTSconfig)
      * @param bool $returnArray Return error or warning message as array instead of string
      *
-     * @return string Error or warning message during fetching the content
+     * @return array|string Error or warning message during fetching the content
      */
     public static function fetchUrlContentsForDirectMailRecord(array $row, array $params, $returnArray = false)
     {
@@ -162,7 +162,7 @@ class DirectMailUtility
         // Compile the mail
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
-        if ($params['enable_jump_url']) {
+        if ($params['enable_jump_url'] ?? false) {
             $htmlmail->jumperURL_prefix = $urlBase . $glue .
                 'mid=###SYS_MAIL_ID###' .
                 (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
@@ -170,7 +170,7 @@ class DirectMailUtility
                 '&jumpurl=';
             $htmlmail->jumperURL_useId = 1;
         }
-        if ($params['enable_mailto_jump_url']) {
+        if ($params['enable_mailto_jump_url'] ?? false) {
             $htmlmail->jumperURL_useMailto = 1;
         }
 
@@ -309,11 +309,12 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row): array
     {
+        $typolinkPageUrl = 't3://page?uid=';
         $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
         // Finding the domain to use
         $result = [
             'baseUrl' => $cObj->typolink_URL([
-                'parameter' => 't3://page?uid=' . (int)$row['page'],
+                'parameter' => $typolinkPageUrl . (int)$row['page'],
                 'forceAbsoluteUrl' => true,
                 'linkAccessRestrictedPages' => true
             ]),
@@ -330,13 +331,13 @@ class DirectMailUtility
             default:
                 $params = substr($row['HTMLParams'], 0, 1) == '&' ? substr($row['HTMLParams'], 1) : $row['HTMLParams'];
                 $result['htmlUrl'] = $cObj->typolink_URL([
-                    'parameter' => 't3://page?uid=' . (int)$row['page'] . '&' . $params,
+                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
                     'forceAbsoluteUrl' => true,
                     'linkAccessRestrictedPages' => true
                 ]);
                 $params = substr($row['plainParams'], 0, 1) == '&' ? substr($row['plainParams'], 1) : $row['plainParams'];
                 $result['plainTextUrl'] = $cObj->typolink_URL([
-                    'parameter' => 't3://page?uid=' . (int)$row['page'] . '&' . $params,
+                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
                     'forceAbsoluteUrl' => true,
                     'linkAccessRestrictedPages' => true
                 ]);
@@ -392,10 +393,10 @@ class DirectMailUtility
 
         $characterSet = 'utf-8';
 
-        if ($settings['config.']['metaCharset']) {
+        if (!empty($settings['config.']['metaCharset'])) {
             $characterSet = $settings['config.']['metaCharset'];
         } 
-        elseif ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) {
+        elseif (!empty($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])) {
             $characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
         }
 
@@ -460,7 +461,7 @@ class DirectMailUtility
      * @param int $dmailUid The uid of the sys_dmail record to fetch the records for
      * @return array An array of FileReferences
      */
-    public static function getAttachments($dmailUid)
+    public static function getAttachments(int $dmailUid)
     {
         /** @var FileRepository $fileRepository */
         $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
@@ -474,7 +475,7 @@ class DirectMailUtility
      * @return string
      * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
-    public static function getEditOnClickLink($params)
+    public static function getEditOnClickLink(array $params): string
     {
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);

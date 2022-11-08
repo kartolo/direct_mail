@@ -181,14 +181,14 @@ class Dmailer implements LoggerAwareInterface
         $this->from_email = $row['from_email'];
         $this->from_name = ($row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'], $this->backendCharset, $this->charset) : '');
 
-        $this->replyto_email = ($row['replyto_email'] ? $row['replyto_email'] : '');
+        $this->replyto_email = $row['replyto_email'] ?? '';
         $this->replyto_name  = ($row['replyto_name'] ? $this->getCharsetConverter()->conv($row['replyto_name'], $this->backendCharset, $this->charset) : '');
 
         $this->organisation  = ($row['organisation'] ? $this->getCharsetConverter()->conv($row['organisation'], $this->backendCharset, $this->charset) : '');
 
         $this->priority      = DirectMailUtility::intInRangeWrapper((int)$row['priority'], 1, 5);
         $this->mailer        = 'TYPO3 Direct Mail module';
-        $this->authCode_fieldList = ($row['authcode_fieldList'] ? $row['authcode_fieldList'] : 'uid');
+        $this->authCode_fieldList = $row['authcode_fieldList'] ?? 'uid';
 
         $this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
         $this->dmailer['html_content']    = $this->theParts['html']['content'] ?? '';
@@ -817,7 +817,7 @@ class Dmailer implements LoggerAwareInterface
 
         // handle FAL attachments
         if ((int)$this->dmailer['sys_dmail_rec']['attachment'] > 0) {
-            $files = DirectMailUtility::getAttachments($this->dmailer['sys_dmail_rec']['uid']);
+            $files = DirectMailUtility::getAttachments((int)$this->dmailer['sys_dmail_rec']['uid']);
             /** @var FileReference $file */
             foreach ($files as $file) {
                 $filePath = Environment::getPublicPath() . '/' . $file->getPublicUrl();

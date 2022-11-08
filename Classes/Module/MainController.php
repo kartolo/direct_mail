@@ -289,11 +289,22 @@ class MainController {
                     $editLink = $this->buildUriFromRoute('record_edit', $urlParameters);
                 }
                 
+                $name = $row['name'] ?? '';
+                if($name == '') {
+                    if($row['first_name'] ?? '') {
+                        $name = $row['first_name'].' ';
+                    }
+                    if($row['middle_name'] ?? '') {
+                        $name .= $row['middle_name'].' ';
+                    }
+                    $name .= $row['last_name'] ?? '';
+                }
+
                 $output['rows'][] = [
                     'icon' => $tableIcon,
                     'editLink' => $editLink,
                     'email' => $isAllowedDisplayTable ? htmlspecialchars($row['email']) : $notAllowedPlaceholder,
-                    'name' => $isAllowedDisplayTable ? htmlspecialchars($row['name']) : ''
+                    'name' => $isAllowedDisplayTable ? htmlspecialchars($name) : ''
                 ];
             }
         }
