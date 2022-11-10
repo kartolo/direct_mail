@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-use DirectMailTeam\DirectMail\MailSelect;
+use DirectMailTeam\DirectMail\DmQueryGenerator;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -26,8 +25,8 @@ class TempRepository extends MainRepository {
         $outListArr = [];
         if (is_array($listArr) && count($listArr)) {
             $idlist = implode(',', $listArr);
-            
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+
+            $queryBuilder = $this->getQueryBuilder($table);
             $queryBuilder
             ->getRestrictions()
             ->removeAll()
@@ -52,9 +51,9 @@ class TempRepository extends MainRepository {
                     $queryBuilder->createNamedParameter(
                         GeneralUtility::intExplode(',', $idlist),
                         Connection::PARAM_INT_ARRAY
-                        )
                     )
                 )
+            )
             ->execute();
                 
             while ($row = $res->fetch()) {
@@ -81,21 +80,17 @@ class TempRepository extends MainRepository {
     public function getIdList($table, $pidList, $groupUid, $cat)
     {
         $addWhere = '';
-        
         $switchTable = $table == 'fe_groups' ? 'fe_users' : $table;
-        
         $pidArray = GeneralUtility::intExplode(',', $pidList);
         
-        /** @var \TYPO3\CMS\Core\Database\Connection $connection */
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-        $queryBuilder = $connection->createQueryBuilder();
-        
+        $queryBuilder = $this->getQueryBuilder($table);
+
         if ($switchTable == 'fe_users') {
             //$addWhere = ' AND fe_users.module_sys_dmail_newsletter = 1';
             $addWhere =  $queryBuilder->expr()->eq(
                 'fe_users.module_sys_dmail_newsletter',
                 1
-                );
+            );
         }
         
         // fe user group uid should be in list of fe users list of user groups
@@ -220,10 +215,7 @@ class TempRepository extends MainRepository {
     public function getStaticIdList($table, $uid)
     {
         $switchTable = $table == 'fe_groups' ? 'fe_users' : $table;
-        
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-        $queryBuilder = $connection->createQueryBuilder();
-        
+        $queryBuilder = $this->getQueryBuilder($table);
         // fe user group uid should be in list of fe users list of user groups
         // $field = $switchTable.'.usergroup';
         // $command = $table.'.uid';
@@ -236,7 +228,7 @@ class TempRepository extends MainRepository {
             $addWhere =  $queryBuilder->expr()->eq(
                 $switchTable . '.module_sys_dmail_newsletter',
                 1
-                );
+            );
         }
         
         if ($table == 'fe_groups') {
@@ -248,30 +240,30 @@ class TempRepository extends MainRepository {
                 'sys_dmail_group',
                 'sys_dmail_group',
                 $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
-                )
-                ->innerJoin(
-                    'sys_dmail_group_mm',
-                    $table,
-                    $table,
-                    $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($table . '.uid'))
-                    )
-                    ->innerJoin(
-                        $table,
-                        $switchTable,
-                        $switchTable,
-                        $queryBuilder->expr()->inSet($switchTable.'.usergroup', $queryBuilder->quoteIdentifier($table.'.uid'))
-                        )
-                        ->andWhere(
-                            $queryBuilder->expr()->andX()
-                            ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-                            ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
-                            ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
-                            ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
-                            ->add($addWhere)
-                            )
-                            ->orderBy($switchTable . '.uid')
-                            ->addOrderBy($switchTable . '.email')
-                            ->execute();
+            )
+            ->innerJoin(
+                'sys_dmail_group_mm',
+                $table,
+                $table,
+                $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($table . '.uid'))
+            )
+            ->innerJoin(
+                $table,
+                $switchTable,
+                $switchTable,
+                $queryBuilder->expr()->inSet($switchTable.'.usergroup', $queryBuilder->quoteIdentifier($table.'.uid'))
+            )
+            ->andWhere(
+                $queryBuilder->expr()->andX()
+                    ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+                    ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
+                    ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
+                    ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
+                    ->add($addWhere)
+            )
+            ->orderBy($switchTable . '.uid')
+            ->addOrderBy($switchTable . '.email')
+            ->execute();
         }
         else {
             $res = $queryBuilder
@@ -282,13 +274,13 @@ class TempRepository extends MainRepository {
                 'sys_dmail_group',
                 'sys_dmail_group',
                 $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->quoteIdentifier('sys_dmail_group.uid'))
-                )
+            )
             ->innerJoin(
                 'sys_dmail_group_mm',
                 $switchTable,
                 $switchTable,
                 $queryBuilder->expr()->eq('sys_dmail_group_mm.uid_foreign', $queryBuilder->quoteIdentifier($switchTable . '.uid'))
-                )
+            )
             ->andWhere(
                 $queryBuilder->expr()->andX()
                 ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.uid_local', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
@@ -296,7 +288,7 @@ class TempRepository extends MainRepository {
                 ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
                 ->add($queryBuilder->expr()->eq('sys_dmail_group.deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
                 ->add($addWhere)
-                )
+            )
             ->orderBy($switchTable . '.uid')
             ->addOrderBy($switchTable . '.email')
             ->execute();
@@ -310,9 +302,7 @@ class TempRepository extends MainRepository {
         
         if ($table == 'fe_groups') {
             // get the uid of the current fe_group
-            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-            $queryBuilder = $connection->createQueryBuilder();
-            
+            $queryBuilder = $this->getQueryBuilder($table);
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $table . '.uid')
             ->from($table, $table)
@@ -344,14 +334,13 @@ class TempRepository extends MainRepository {
                 $usergroupInList = '(' . $usergroupInList . ')';
                 
                 // fetch all fe_users from these subgroups
-                $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-                $queryBuilder = $connection->createQueryBuilder();
+                $queryBuilder = $this->getQueryBuilder($table);
                 // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
                 if ($switchTable == 'fe_users') {
                     $addWhere =  $queryBuilder->expr()->eq(
                         $switchTable . '.module_sys_dmail_newsletter',
                         1
-                        );
+                    );
                 }
                 
                 $res = $queryBuilder
@@ -361,13 +350,13 @@ class TempRepository extends MainRepository {
                     $table,
                     $switchTable,
                     $switchTable
-                    )
-                    ->orWhere($usergroupInList)
-                    ->andWhere(
-                        $queryBuilder->expr()->andX()
+                )
+                ->orWhere($usergroupInList)
+                ->andWhere(
+                    $queryBuilder->expr()->andX()
                         ->add($queryBuilder->expr()->neq($switchTable . '.email', $queryBuilder->createNamedParameter('')))
                         ->add($addWhere)
-                        )
+                )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
                 ->execute();
@@ -397,8 +386,8 @@ class TempRepository extends MainRepository {
         $mmTable = 'sys_dmail_group_mm';
         $groupTable = 'sys_dmail_group';
         
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-        
+        $queryBuilder = $this->getQueryBuilder($table);
+
         $res = $queryBuilder->selectLiteral('DISTINCT fe_groups.uid')
         ->from($table, $table)
         ->join(
@@ -408,17 +397,17 @@ class TempRepository extends MainRepository {
             $queryBuilder->expr()->eq(
                 $mmTable . '.uid_local',
                 $queryBuilder->quoteIdentifier($table . '.uid')
-                )
             )
-            ->join(
-                $mmTable,
-                $groupTable,
-                $groupTable,
-                $queryBuilder->expr()->eq(
-                    $mmTable . '.uid_local',
-                    $queryBuilder->quoteIdentifier($groupTable . '.uid')
-                    )
-                )
+        )
+        ->join(
+            $mmTable,
+            $groupTable,
+            $groupTable,
+            $queryBuilder->expr()->eq(
+                $mmTable . '.uid_local',
+                $queryBuilder->quoteIdentifier($groupTable . '.uid')
+            )
+        )
         ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . intval($groupId) . ',\' )')
         ->execute();
         $groupArr = [];
@@ -437,27 +426,24 @@ class TempRepository extends MainRepository {
      * Construct the array of uid's from $table selected
      * by special query of mail group of such type
      *
-     * @param MailSelect $queryGenerator The query generator object
      * @param string $table The table to select from
      * @param array $group The direct_mail group record
      *
      * @return array The resulting query.
      */
-    public function getSpecialQueryIdList(MailSelect &$queryGenerator, $table, array $group): array
+    public function getSpecialQueryIdList(DmQueryGenerator $queryGenerator, string $table, array $group): array
     {
         $outArr = [];
         if ($group['query']) {
-            $queryGenerator->init('dmail_queryConfig', $table);
-            $queryGenerator->queryConfig = $queryGenerator->cleanUpQueryConfig(unserialize($group['query']));
-            
-            $queryGenerator->extFieldLists['queryFields'] = 'uid';
-            $select = $queryGenerator->getSelectQuery();
-            /** @var Connection $connection */
-            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-            $recipients = $connection->executeQuery($select)->fetchAll();
-            
-            foreach ($recipients as $recipient) {
-                $outArr[] = $recipient['uid'];
+            $select = $queryGenerator->getQueryDM();
+            //$queryGenerator->extFieldLists['queryFields'] = 'uid';
+            if($select) {
+                $connection = $this->getConnection($table);
+                $recipients = $connection->executeQuery($select)->fetchAll();
+                
+                foreach ($recipients as $recipient) {
+                    $outArr[] = $recipient['uid'];
+                }
             }
         }
         return $outArr;
@@ -477,7 +463,7 @@ class TempRepository extends MainRepository {
         $groupIdList = GeneralUtility::intExplode(',', $list);
         $groups = [];
         
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_group');
+        $queryBuilder = $this->getQueryBuilder('sys_dmail_group');
         $queryBuilder
             ->getRestrictions()
             ->removeAll()
@@ -529,7 +515,7 @@ class TempRepository extends MainRepository {
         if (is_array($pageTsConfig[$mmField])) {
             $pidList = $pageTsConfig[$mmField]['PAGE_TSCONFIG_IDLIST'] ?? [];
             if ($pidList) {
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_category');
+                $queryBuilder = $this->getQueryBuilder('sys_dmail_category');
                 $res = $queryBuilder->select('*')
                 ->from('sys_dmail_category')
                 ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
@@ -567,7 +553,7 @@ class TempRepository extends MainRepository {
                         // Must be default language or [All], otherwise no overlaying:
                         if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] <= 0) {
                             // Select overlay record:
-                            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+                            $queryBuilder = $this->getQueryBuilder($table);
                             $olrow = $queryBuilder->select('*')
                             ->from($table)
                             ->add('where', 'pid=' . intval($row['pid']) .
@@ -617,14 +603,66 @@ class TempRepository extends MainRepository {
      */
     public function selectRowsByUid(string $table, int $uid) 
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-        
+        $queryBuilder = $this->getQueryBuilder($table);
         return $queryBuilder
             ->select('*')
             ->from($table)
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid))
             )
+            ->execute()
+            ->fetchAll();
+    }
+
+    public function selectForMasssendList(string $table, string $idList, int $sendPerCycle, $sendIds) 
+    {
+        $sendIds = $sendIds ? $sendIds : 0; //@TODO
+        $queryBuilder = $this->getQueryBuilder($table);
+        
+        return $queryBuilder
+            ->select('*')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->in('uid', $idList)
+            )
+            ->andWhere(
+                $queryBuilder->expr()->notIn('uid', $sendIds)
+            )
+            ->setMaxResults($sendPerCycle)
+            ->execute()
+            ->fetchAll();
+    }
+
+    public function getListOfRecipentCategories(string $table, string $relationTable, int $uid) 
+    {
+        $queryBuilder = $this->getQueryBuilder($table);
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(
+                GeneralUtility::makeInstance(DeletedRestriction::class)
+        );
+        return $queryBuilder
+            ->select($relationTable . '.uid_foreign')
+            ->from($relationTable, $relationTable)
+            ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    $relationTable . '.uid_local', 
+                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                )
+            )
+            ->execute()
+            ->fetchAll();
+    }
+
+    public function getDisplayUserInfo(string $table, int $uid) 
+    {
+        $queryBuilder = $this->getQueryBuilder($table);
+        return $queryBuilder
+            ->select('uid_foreign')
+            ->from($table)
+            ->where($queryBuilder->expr()->eq('uid_local', $queryBuilder->createNamedParameter($uid)))
             ->execute()
             ->fetchAll();
     }

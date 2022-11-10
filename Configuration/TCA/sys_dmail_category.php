@@ -14,7 +14,7 @@ return [
         'enablecolumns' => [
             'disabled' => 'hidden',
         ],
-        'iconfile' => 'EXT:direct_mail/Resources/Public/Icons/icon_tx_directmail_category.gif',
+        'iconfile' => 'EXT:direct_mail/Resources/Public/Icons/icon_tx_directmail_category.png',
     ],
     'columns' => [
         'sys_language_uid' => [

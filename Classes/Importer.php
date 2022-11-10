@@ -25,6 +25,8 @@ use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -55,6 +57,8 @@ class Importer
      */
     public $parent;
 
+    protected $messageQueue;
+
     /**
      * Init the class
      *
@@ -68,6 +72,7 @@ class Importer
 
         // get some importer default from pageTS
         $this->params = BackendUtility::getPagesTSconfig((int)GeneralUtility::_GP('id'))['mod.']['web_modules.']['dmail.']['importer.'] ?? [];
+        $this->messageQueue = $this->getMessageQueue();
     }
 
     /**
@@ -720,10 +725,18 @@ class Importer
         /* @var $dataHandler DataHandler */
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
         $dataHandler->stripslashes_values = 0;
-        $dataHandler->enableLogging = 0;
+        //$dataHandler->enableLogging = 0;
         $dataHandler->start($data, []);
         $dataHandler->process_datamap();
 
+        if ($dataHandler->errorLog !== []) {
+            $logsStr = '';
+            foreach ($dataHandler->errorLog as $log) {
+                $logsStr .= $log . PHP_EOL;
+            }
+            $message = $this->createFlashMessage($logsStr, 'Import errors', 2, false);
+            $this->messageQueue->addMessage($message);
+        }
         /**
          * Hook for doImport Mail
          * will be called every time a record is inserted
@@ -1044,5 +1057,34 @@ class Importer
     protected function getBeUser()
     {
         return $GLOBALS['BE_USER'];
+    }
+
+    protected function getMessageQueue() 
+    {
+        $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+        return $flashMessageService->getMessageQueueByIdentifier();
+    }
+
+    /**
+     *  
+        https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
+        const 	NOTICE = -2
+        const 	INFO = -1
+        const 	OK = 0
+        const 	WARNING = 1
+        const 	ERROR = 2
+     * @param string $messageText
+     * @param string $messageHeader
+     * @param int $messageType
+     * @param bool $storeInSession
+     */
+    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false) 
+    {
+        return GeneralUtility::makeInstance(FlashMessage::class,
+            $messageText,
+            $messageHeader, // [optional] the header
+            $messageType, // [optional] the severity defaults to \TYPO3\CMS\Core\Messaging\FlashMessage::OK
+            $storeInSession // [optional] whether the message should be stored in the session or only in the \TYPO3\CMS\Core\Messaging\FlashMessageQueue object (default is false)
+        );
     }
 }

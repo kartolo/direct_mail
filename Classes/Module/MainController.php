@@ -9,6 +9,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -178,12 +179,12 @@ class MainController {
     {
         return $GLOBALS['LANG'];
     }
-    
+
     /**
      * Returns the Backend User
      * @return BackendUserAuthentication
      */
-    protected function getBackendUser()
+    protected function getBackendUser(): BackendUserAuthentication
     {
         return $GLOBALS['BE_USER'];
     }
@@ -288,11 +289,22 @@ class MainController {
                     $editLink = $this->buildUriFromRoute('record_edit', $urlParameters);
                 }
                 
+                $name = $row['name'] ?? '';
+                if($name == '') {
+                    if($row['first_name'] ?? '') {
+                        $name = $row['first_name'].' ';
+                    }
+                    if($row['middle_name'] ?? '') {
+                        $name .= $row['middle_name'].' ';
+                    }
+                    $name .= $row['last_name'] ?? '';
+                }
+
                 $output['rows'][] = [
                     'icon' => $tableIcon,
                     'editLink' => $editLink,
                     'email' => $isAllowedDisplayTable ? htmlspecialchars($row['email']) : $notAllowedPlaceholder,
-                    'name' => $isAllowedDisplayTable ? htmlspecialchars($row['name']) : ''
+                    'name' => $isAllowedDisplayTable ? htmlspecialchars($name) : ''
                 ];
             }
         }

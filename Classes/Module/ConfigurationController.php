@@ -37,7 +37,7 @@ class ConfigurationController extends MainController
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $this->setDefaultValues();
                     $this->view->assignMultiple([
-                            'implodedParams' => $this->implodedParams
+                        'implodedParams' => $this->implodedParams
                     ]);
                 }
                 elseif ($this->id != 0) {
@@ -64,7 +64,8 @@ class ConfigurationController extends MainController
         return new HtmlResponse($this->moduleTemplate->renderContent());
     }
     
-    protected function initConfiguration(ServerRequestInterface $request): void {
+    protected function initConfiguration(ServerRequestInterface $request): void
+    {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
 
@@ -74,7 +75,7 @@ class ConfigurationController extends MainController
         $this->pageTS = $parsedBody['pageTS'] ?? $queryParams['pageTS'] ?? [];
     }
     
-    protected function setDefaultValues()
+    protected function setDefaultValues(): void
     {
         if (!isset($this->implodedParams['plainParams'])) {
             $this->implodedParams['plainParams'] = '&type=99';
@@ -93,7 +94,7 @@ class ConfigurationController extends MainController
      *
      * @return void
      */
-    protected function updatePageTS()
+    protected function updatePageTS(): void
     {
         if ($this->getBackendUser()->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
             if (is_array($this->pageTS) && count($this->pageTS)) {

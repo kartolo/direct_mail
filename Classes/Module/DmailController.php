@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Dmailer;
+use DirectMailTeam\DirectMail\DmQueryGenerator;
 use DirectMailTeam\DirectMail\DirectMailUtility;
-use DirectMailTeam\DirectMail\MailSelect;
 use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
@@ -85,6 +85,8 @@ class DmailController extends MainController
 //     }
     
     protected function initDmail(ServerRequestInterface $request): void {
+        $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
+
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
         
@@ -1014,12 +1016,15 @@ class DmailController extends MainController
      * @return array 
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function renderRecordDetailsTable(array $row)
+    protected function renderRecordDetailsTable(array $row): array
     {
         $iconActionsOpen = $this->getIconActionsOpen();
+        $label = '';
+        $edit = false;
+        $editParams = '';
         if (isset($row['issent']) && !$row['issent']) {
             if ($this->getBackendUser()->check('tables_modify', 'sys_dmail')) {
-                // $requestUri = rawurlencode(GeneralUtility::linkThisScript(array('sys_dmail_uid' => $row['uid'], 'createMailFrom_UID' => '', 'createMailFrom_URL' => '')));
+                $edit = true;
                 $requestUri = $this->buildUriFromRoute(
                     $this->moduleName,
                     [
@@ -1038,15 +1043,13 @@ class DmailController extends MainController
                     ],
                     'returnUrl' => $requestUri->__toString(),
                 ]);
-                
-                $content = '<a href="#" onClick="' . $editParams . '">' . $iconActionsOpen . '<b> ' . $this->getLanguageService()->getLL('dmail_edit') . '</b></a>';
             } 
             else {
-                $content = $iconActionsOpen . ' (' . $this->getLanguageService()->getLL('dmail_noEdit_noPerms') . ')';
+                $label = $this->getLanguageService()->getLL('dmail_noEdit_noPerms');
             }
         } 
         else {
-            $content = $iconActionsOpen . '(' . $this->getLanguageService()->getLL('dmail_noEdit_isSent') . ')';
+            $label = $this->getLanguageService()->getLL('dmail_noEdit_isSent');
         }
 
         $trs = [];
@@ -1061,7 +1064,7 @@ class DmailController extends MainController
         
         // attachments need to be fetched manually as BackendUtility::getProcessedValue can't do that
         $fileNames = [];
-        $attachments = DirectMailUtility::getAttachments($row['uid'] ?? 0);
+        $attachments = DirectMailUtility::getAttachments((int)($row['uid'] ?? 0));
         /** @var FileReference $attachment */
         if(count($attachments)) {
             foreach ($attachments as $attachment) {
@@ -1080,7 +1083,9 @@ class DmailController extends MainController
             'theadTitle1' => DirectMailUtility::fName('subject'),
             'theadTitle2' => GeneralUtility::fixed_lgd_cs(htmlspecialchars($row['subject'] ?? ''), 60),
             'trs' => $trs,
-            'out'  => $content
+            'label' => $label,
+            'edit' => $edit,
+            'editParams' => $editParams
         ];
     }
     
@@ -1132,6 +1137,7 @@ class DmailController extends MainController
                     'moduleUrl' => $moduleUrl,
                     'iconFactory' => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL),
                     'title' => htmlspecialchars($row['title']),
+                    'uid' => $row['uid'],
                     'tds' => $this->displayMailGroup_test($result)
                 ];
             }
@@ -1142,7 +1148,6 @@ class DmailController extends MainController
         $data['cmd'] = 'send_mail_test';
         $data['sys_dmail_uid'] = $this->sys_dmail_uid;
 
-        //$this->noView = 1;
         return $data;
     }
 
@@ -1229,8 +1234,6 @@ class DmailController extends MainController
                     false
                 );
                 $this->messageQueue->addMessage($message);
-                
-                //$this->noView = 1;
             }
         } 
         elseif ($this->cmd == 'send_mail_test') {
@@ -1517,7 +1520,7 @@ class DmailController extends MainController
                 if (is_array($idLists['PLAINLIST'] ?? false)) {
                     $count += count($idLists['PLAINLIST']);
                 }
-                if (is_array($idLists[$this->userTable] ?? false)) {
+                if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
                     $count += count($idLists[$this->userTable]);
                 }
                 $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
@@ -1549,7 +1552,6 @@ class DmailController extends MainController
             $groupInput = '<select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10), $opt).'</select>';
         }
 
-        //$this->noView = 1;
         return [
             'id' => $this->id,
             'sys_dmail_uid' => $this->sys_dmail_uid,
@@ -1584,6 +1586,7 @@ class DmailController extends MainController
             }
             
             $recipientList = $this->getSingleMailGroup($group);
+
             if (!is_array($recipientList)) {
                 continue;
             }
@@ -1723,19 +1726,21 @@ class DmailController extends MainController
                         break;
                     case 3:
                         // Special query list
-                        $mailGroup = $this->update_SpecialQuery($mailGroup);
+                        $mailGroup = $this->updateSpecialQuery($mailGroup);
                         $whichTables = intval($mailGroup['whichtables']);
                         $table = '';
                         if ($whichTables&1) {
                             $table = 'tt_address';
-                        } elseif ($whichTables&2) {
+                        } 
+                        elseif ($whichTables&2) {
                             $table = 'fe_users';
-                        } elseif ($this->userTable && ($whichTables&4)) {
+                        } 
+                        elseif ($this->userTable && ($whichTables&4)) {
                             $table = $this->userTable;
                         }
+
                         if ($table) {
-                            // initialize the query generator
-                            $queryGenerator = GeneralUtility::makeInstance(MailSelect::class);
+                            $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->MOD_SETTINGS, [], $this->moduleName);
                             $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
                         }
                         break;
@@ -1762,26 +1767,30 @@ class DmailController extends MainController
      *
      * @return array Mailgroup DB record after updated
      */
-    public function update_specialQuery(array $mailGroup)
+    public function updateSpecialQuery(array $mailGroup)
     {
         $set = GeneralUtility::_GP('SET');
         $queryTable = $set['queryTable'];
-        $queryConfig = GeneralUtility::_GP('dmail_queryConfig');
-        $dmailUpdateQuery = GeneralUtility::_GP('dmailUpdateQuery');
+        $queryConfig = GeneralUtility::_GP('queryConfig');
         
         $whichTables = intval($mailGroup['whichtables']);
         $table = '';
         if ($whichTables&1) {
             $table = 'tt_address';
-        } elseif ($whichTables&2) {
+        } 
+        elseif ($whichTables&2) {
             $table = 'fe_users';
-        } elseif ($this->userTable && ($whichTables&4)) {
+        } 
+        elseif ($this->userTable && ($whichTables&4)) {
             $table = $this->userTable;
         }
         
         $this->MOD_SETTINGS['queryTable'] = $queryTable ? $queryTable : $table;
         $this->MOD_SETTINGS['queryConfig'] = $queryConfig ? serialize($queryConfig) : $mailGroup['query'];
         $this->MOD_SETTINGS['search_query_smallparts'] = 1;
+        
+        $this->MOD_SETTINGS['search_query_makeQuery'] = 'all';
+        $this->MOD_SETTINGS['search'] = 'query';
         
         if ($this->MOD_SETTINGS['queryTable'] != $table) {
             $this->MOD_SETTINGS['queryConfig'] = '';
@@ -1791,9 +1800,11 @@ class DmailController extends MainController
             $whichTables = 0;
             if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
                 $whichTables = 1;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
+            } 
+            elseif ($this->MOD_SETTINGS['queryTable'] == 'fe_users') {
                 $whichTables = 2;
-            } elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
+            } 
+            elseif ($this->MOD_SETTINGS['queryTable'] == $this->userTable) {
                 $whichTables = 4;
             }
             $updateFields = [

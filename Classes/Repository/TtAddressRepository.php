@@ -5,6 +5,8 @@ namespace DirectMailTeam\DirectMail\Repository;
 
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 
 class TtAddressRepository extends MainRepository {
     protected string $table = 'tt_address';
@@ -125,5 +127,43 @@ class TtAddressRepository extends MainRepository {
             )
         )
         ->execute();
+    }
+
+    /**
+     * Returns record no matter what - except if record is deleted
+     *
+     * @param int $uid The uid to look up in $table
+     *
+     * @return mixed Returns array (the record) if found, otherwise blank/0 (zero)
+     * @see getPage_noCheck()
+     */
+    public function getRawRecord(int $uid)
+    {
+        if ($uid > 0) {
+            $v = VersionNumberUtility::convertVersionNumberToInteger(ExtensionManagementUtility::getExtensionVersion('tt_address'));
+
+            $queryBuilder = $this->getQueryBuilder($this->table);
+            $queryBuilder->select('*')->from($this->table);
+
+            if ($v <= VersionNumberUtility::convertVersionNumberToInteger('6.0.0')) {
+                $queryBuilder->where(
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)),
+                    $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
+                );
+            }
+            else {
+                $queryBuilder->where(
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT))
+                );
+            }
+            $rows = $queryBuilder->execute()->fetchAll();
+
+            if ($rows) {
+                if (is_array($rows[0])) {
+                    return $rows[0];
+                }
+            }
+        }
+        return 0;
     }
 }
