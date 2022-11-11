@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Utility\TsUtility;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -229,6 +230,23 @@ class MainController {
         );
     }
     
+    protected function getDMPages(string $moduleName): array
+    {
+        $dmLinks = [];
+        $rows = GeneralUtility::makeInstance(PagesRepository::class)->getDMPages();
+
+        if(count($rows)) {
+            foreach($rows as $row) {
+                $dmLinks[] = [
+                    'id' => $row['uid'],
+                    'url' => $this->buildUriFromRoute($this->moduleName, ['id' => $row['uid']]),
+                    'title' => $row['title']
+                ];
+            }
+        }
+        return $dmLinks;
+    }
+
     protected function getTempPath(): string
     {
         return Environment::getPublicPath() . '/typo3temp/';
