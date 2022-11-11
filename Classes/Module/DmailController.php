@@ -131,9 +131,8 @@ class DmailController extends MainController
         
         // get the config from pageTS
         $this->params['pid'] = intval($this->id);
-        
         $this->cshTable = '_MOD_' . $this->moduleName;
-        
+
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $module = $this->getModulName();
 

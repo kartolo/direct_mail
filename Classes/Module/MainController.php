@@ -47,7 +47,8 @@ class MainController {
     protected string $cmd = '';
     protected int $sys_dmail_uid = 0;
     protected string $pages_uid = '';
-    
+    protected bool $updatePageTree = false;
+
     protected $params = [];
 
     /**
@@ -89,11 +90,12 @@ class MainController {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
         
-        $this->id            = (int)($parsedBody['id']            ?? $queryParams['id'] ?? 0);
-        $this->cmd           = (string)($parsedBody['cmd']        ?? $queryParams['cmd'] ?? '');
-        $this->pages_uid     = (string)($parsedBody['pages_uid']  ?? $queryParams['pages_uid'] ?? '');
-        $this->sys_dmail_uid = (int)($parsedBody['sys_dmail_uid'] ?? $queryParams['sys_dmail_uid'] ?? 0);
-        
+        $this->id             = (int)($parsedBody['id']              ?? $queryParams['id'] ?? 0);
+        $this->cmd            = (string)($parsedBody['cmd']          ?? $queryParams['cmd'] ?? '');
+        $this->pages_uid      = (string)($parsedBody['pages_uid']    ?? $queryParams['pages_uid'] ?? '');
+        $this->sys_dmail_uid  = (int)($parsedBody['sys_dmail_uid']   ?? $queryParams['sys_dmail_uid'] ?? 0);
+        $this->updatePageTree = (bool)($parsedBody['updatePageTree'] ?? $queryParams['updatePageTree'] ?? false);
+
         $this->perms_clause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
         $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
         
@@ -111,6 +113,10 @@ class MainController {
         //$this->sys_language_uid = 0; //@TODO
         
         $this->messageQueue = $this->getMessageQueue();
+
+        if($this->updatePageTree) {
+            \TYPO3\CMS\Backend\Utility\BackendUtility::setUpdateSignal('updatePageTree');
+        }
     }
 
     /**
@@ -239,7 +245,7 @@ class MainController {
             foreach($rows as $row) {
                 $dmLinks[] = [
                     'id' => $row['uid'],
-                    'url' => $this->buildUriFromRoute($this->moduleName, ['id' => $row['uid']]),
+                    'url' => $this->buildUriFromRoute($this->moduleName, ['id' => $row['uid'], 'updatePageTree' => '1']),
                     'title' => $row['title']
                 ];
             }
