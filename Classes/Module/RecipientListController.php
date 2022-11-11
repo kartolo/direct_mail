@@ -102,6 +102,11 @@ class RecipientListController extends MainController
             else {
                 $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_recip'), 1, false);
                 $this->messageQueue->addMessage($message);
+                $this->view->assignMultiple(
+                    [
+                        'dmLinks' => $this->getDMPages($this->moduleName)
+                    ]
+                );
             }
         }
         else {
@@ -333,16 +338,16 @@ class RecipientListController extends MainController
                         }
                         
                         // Make unique entries
-                        if (is_array($idLists['tt_address'])) {
+                        if (is_array($idLists['tt_address'] ?? null)) {
                             $idLists['tt_address'] = array_unique($idLists['tt_address']);
                         }
-                        if (is_array($idLists['fe_users'])) {
+                        if (is_array($idLists['fe_users'] ?? null)) {
                             $idLists['fe_users'] = array_unique($idLists['fe_users']);
                         }
-                        if (is_array($idLists[$this->userTable]) && $this->userTable) {
+                        if (is_array($idLists[$this->userTable] ?? null) && $this->userTable) {
                             $idLists[$this->userTable] = array_unique($idLists[$this->userTable]);
                         }
-                        if (is_array($idLists['PLAINLIST'])) {
+                        if (is_array($idLists['PLAINLIST'] ?? null)) {
                             $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($idLists['PLAINLIST']);
                         }
                         break;

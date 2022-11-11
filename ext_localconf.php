@@ -81,4 +81,4 @@ defined('TYPO3') || die();
         'description' => 'This task will get bounce mail from the configured mailbox',
         'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields'
     ];
-    })();
+})();
