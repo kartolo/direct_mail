@@ -29,7 +29,6 @@ use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Static class.
@@ -383,10 +382,9 @@ class DirectMailUtility
      */
     public static function getCharacterSet(): string
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         /** @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager $configurationManager */
-        $configurationManager = $objectManager->get(ConfigurationManager::class);
-
+        $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
+    
         $settings = $configurationManager->getConfiguration(
             ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
         );
