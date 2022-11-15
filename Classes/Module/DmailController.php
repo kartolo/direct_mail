@@ -131,9 +131,8 @@ class DmailController extends MainController
         
         // get the config from pageTS
         $this->params['pid'] = intval($this->id);
-        
         $this->cshTable = '_MOD_' . $this->moduleName;
-        
+
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $module = $this->getModulName();
 
@@ -157,6 +156,11 @@ class DmailController extends MainController
             else {
                 $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_directmail'), 1, false);
                 $this->messageQueue->addMessage($message);
+                $this->view->assignMultiple(
+                    [
+                        'dmLinks' => $this->getDMPages($this->moduleName)
+                    ]
+                );
             }
         }
         else {
@@ -1847,7 +1851,7 @@ class DmailController extends MainController
         ];
         $theOutput = '';
         
-        if (is_array($indata['categories'])) {
+        if (is_array($indata['categories'] ?? null)) {
             $data = [];
             foreach ($indata['categories'] as $recUid => $recValues) {
                 $enabled = [];

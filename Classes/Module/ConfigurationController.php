@@ -13,6 +13,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ConfigurationController extends MainController
 {
+    /**
+     * The name of the module
+     *
+     * @var string
+     */
+    protected $moduleName = 'DirectMailNavFrame_Configuration';
+
     protected string $TSconfPrefix = 'mod.web_modules.dmail.';
     protected array $pageTS = [];
     
@@ -48,6 +55,11 @@ class ConfigurationController extends MainController
             else {
                 $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_conf'), 1, false);
                 $this->messageQueue->addMessage($message);
+                $this->view->assignMultiple(
+                    [
+                        'dmLinks' => $this->getDMPages($this->moduleName)
+                    ]
+                );
             }
         }
         else {

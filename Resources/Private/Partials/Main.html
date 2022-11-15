@@ -1,0 +1,13 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+    <f:section name="DMLinks">
+        <f:if condition="{dmLinks -> f:count()}">
+            <ul>
+                <f:for each="{dmLinks}" as="dmLink">
+                    <li><a href="{dmLink.url}"><strong><f:format.htmlspecialchars>{dmLink.title}</f:format.htmlspecialchars> [{dmLink.id}]</strong></a></li>
+                </f:for>
+            </ul>
+        </f:if>
+    </f:section>
+
+</html>

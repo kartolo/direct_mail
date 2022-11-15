@@ -82,6 +82,11 @@ class MailerEngineController extends MainController
             else {
                 $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_mailer'), 1, false);
                 $this->messageQueue->addMessage($message);
+                $this->view->assignMultiple(
+                    [
+                        'dmLinks' => $this->getDMPages($this->moduleName)
+                    ]
+                );
             }
         }
         else {

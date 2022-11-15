@@ -188,7 +188,7 @@ class Dmailer implements LoggerAwareInterface
 
         $this->priority      = DirectMailUtility::intInRangeWrapper((int)$row['priority'], 1, 5);
         $this->mailer        = 'TYPO3 Direct Mail module';
-        $this->authCode_fieldList = $row['authcode_fieldList'] ?? 'uid';
+        $this->authCode_fieldList = $row['authcode_fieldList'] ?? '' ?: 'uid';
 
         $this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
         $this->dmailer['html_content']    = $this->theParts['html']['content'] ?? '';
