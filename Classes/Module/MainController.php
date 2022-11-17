@@ -97,8 +97,8 @@ class MainController {
         $this->updatePageTree = (bool)($parsedBody['updatePageTree'] ?? $queryParams['updatePageTree'] ?? false);
 
         $this->perms_clause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
-        $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
-        
+        $pageAccess = BackendUtility::readPageAccess($this->id, $this->perms_clause);
+        $this->pageinfo = is_array($pageAccess) ? $pageAccess : [];
         $this->access = is_array($this->pageinfo) ? true : false;
         
         // get the config from pageTS
@@ -243,11 +243,13 @@ class MainController {
 
         if(count($rows)) {
             foreach($rows as $row) {
-                $dmLinks[] = [
-                    'id' => $row['uid'],
-                    'url' => $this->buildUriFromRoute($this->moduleName, ['id' => $row['uid'], 'updatePageTree' => '1']),
-                    'title' => $row['title']
-                ];
+                if($this->getBackendUser()->doesUserHaveAccess(BackendUtility::getRecord('pages', (int)$row['uid']), 2)) {
+                    $dmLinks[] = [
+                        'id' => $row['uid'],
+                        'url' => $this->buildUriFromRoute($this->moduleName, ['id' => $row['uid'], 'updatePageTree' => '1']),
+                        'title' => $row['title']
+                    ];
+                }
             }
         }
         return $dmLinks;
