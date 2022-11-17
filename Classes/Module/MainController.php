@@ -243,11 +243,13 @@ class MainController {
 
         if(count($rows)) {
             foreach($rows as $row) {
-                $dmLinks[] = [
-                    'id' => $row['uid'],
-                    'url' => $this->buildUriFromRoute($this->moduleName, ['id' => $row['uid'], 'updatePageTree' => '1']),
-                    'title' => $row['title']
-                ];
+                if($this->getBackendUser()->doesUserHaveAccess($row, 2)) {
+                    $dmLinks[] = [
+                        'id' => $row['uid'],
+                        'url' => $this->buildUriFromRoute($this->moduleName, ['id' => $row['uid'], 'updatePageTree' => '1']),
+                        'title' => $row['title']
+                    ];
+                }
             }
         }
         return $dmLinks;
