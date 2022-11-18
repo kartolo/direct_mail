@@ -81,4 +81,12 @@ defined('TYPO3') || die();
         'description' => 'This task will get bounce mail from the configured mailbox',
         'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields'
     ];
+
+    $GLOBALS['TYPO3_CONF_VARS']['LOG']['DirectMailTeam']['DirectMail']['Dmailer']['writerConfiguration'] = [
+        \TYPO3\CMS\Core\Log\LogLevel::INFO => [
+            \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
+                'logFile' => \TYPO3\CMS\Core\Core\Environment::getVarPath() . '/log/dmail.log',
+            ],
+        ],
+    ];
 })();
