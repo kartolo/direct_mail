@@ -493,6 +493,24 @@ class SysDmailMaillogRepository extends MainRepository {
     public function dmailerGetSentMails(int $mid, string $rtbl): string
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
+        $numberOfLogEntriesWithMoreThan5FailedAttempts = $queryBuilder->count('*')
+            ->from($this->table)
+            ->where($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
+            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->andWhere($queryBuilder->expr()->eq('html_sent', '0'))
+            ->andWhere($queryBuilder->expr()->gte('failed_sending_attempts', '5'))
+            ->executeQuery()
+            ->fetchOne();
+        
+        if ($numberOfLogEntriesWithMoreThan5FailedAttempts > 0) {
+            throw new \Exception(
+                'In this mail delivery, there is at least one recipient with 5 failed sending attempts (see Statistics module). This case cannot be handled, therefore exiting the sending process. Try cleaning up manually before sending again.',
+                1650837797
+            );
+        }
+        
+        $queryBuilder = $this->getQueryBuilder($this->table);
         $statement = $queryBuilder
             ->select('rid')
             ->from($this->table)
