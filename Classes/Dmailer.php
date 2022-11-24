@@ -59,6 +59,11 @@ class Dmailer implements LoggerAwareInterface
     public $user_dmailerLang = 'en';
     public $testmail = false;
 
+    /**
+     * @var bool Whether there was a sending error in the current execution
+     */
+    public $hasSendingError = false;
+
     /*
      * @var string
      */
@@ -769,7 +774,9 @@ class Dmailer implements LoggerAwareInterface
 
             $finished = $this->dmailer_masssend_list($query_info, $row['uid']);
 
-            if ($finished) {
+            if ($finished && !$this->hasSendingError) {
+                // We only mark the mailing as finished if there were no errors
+                // If there were errors, failed recipients are retried in the next run
                 $this->dmailer_setBeginEnd((int)$row['uid'], 'end');
             }
         } else {
