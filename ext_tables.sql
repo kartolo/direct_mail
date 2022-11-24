@@ -136,6 +136,7 @@ CREATE TABLE sys_dmail_maillog (
   url_id tinyint(4) DEFAULT '0' NOT NULL,
   return_content mediumblob NULL,
   return_code smallint(6) DEFAULT '0' NOT NULL,
+	failed_sending_attempts smallint(6) DEFAULT '0' NOT NULL,
   PRIMARY KEY (uid),
   KEY rid (rid,rtbl,mid,response_type,uid),
   KEY `mid` (mid,response_type,rtbl,rid)

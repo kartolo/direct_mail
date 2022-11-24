@@ -417,6 +417,7 @@ class SysDmailMaillogRepository extends MainRepository {
             ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
             ->andWhere($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
             ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->andWhere($queryBuilder->expr()->gt('html_sent', '0'))
             ->execute();
 
         return (bool)$statement->rowCount();
@@ -498,6 +499,7 @@ class SysDmailMaillogRepository extends MainRepository {
             ->where($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
             ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
             ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->andWhere($queryBuilder->expr()->gt('html_sent', '0'))
             ->execute();
 
         $list = '';
