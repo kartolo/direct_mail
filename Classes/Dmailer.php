@@ -959,11 +959,16 @@ class Dmailer implements LoggerAwareInterface
 
         if (is_array($recipient)) {
             $email = implode(',', $recipient);
+            $emailList = $email;
         } else {
             $email = $recipient;
+            if ($email instanceof Address) {
+                $emailList = $email->getAddress();
+            } else {
+                $emailList = $email;
+            }
         }
-
-        $this->logger->info('E-mail will be sent to: ' . $email);
+        $this->logger->info('E-mail will be sent to: ' . $emailList);
 
         try {
             $sent = $mailer->send();
@@ -985,7 +990,7 @@ class Dmailer implements LoggerAwareInterface
             return true;
         } catch (\Exception $e) {
             $this->hasSendingError = true;
-            $this->logger->warning(sprintf('E-mail could not be sent to %s: %s (%s)', $email, $e->getMessage(), $e->getCode()));
+            $this->logger->warning(sprintf('E-mail could not be sent to %s: %s (%s)', $emailList, $e->getMessage(), $e->getCode()));
 
             if ($logUid === 0) {
                 return false;
