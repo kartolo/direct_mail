@@ -795,7 +795,9 @@ class Dmailer implements LoggerAwareInterface
                 // TODO: why are there table related tags here?
                 if (($media['tag'] === 'img' || $media['tag'] === 'table' || $media['tag'] === 'tr' || $media['tag'] === 'td') && !$media['use_jumpurl'] && !$media['do_not_embed']) {
                     if (ini_get('allow_url_fopen')) {
-                        $mailer->embed(fopen($media['absRef'], 'r'), basename($media['absRef']));
+                        if (($fp = fopen($media['absRef'], 'r')) !== false ) {
+                            $mailer->embed($fp, basename($media['absRef']));
+                        }
                     } else {
                         $mailer->embed(GeneralUtility::getUrl($media['absRef']), basename($media['absRef']));
                     }
