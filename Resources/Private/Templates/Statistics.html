@@ -82,6 +82,32 @@
     </table>
 </f:section>
 
+<f:section name="table-simple">
+	<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+	<table class="table table-striped table-hover">
+		<thead>
+		<tr class="t3-row-header">
+			<f:for each="{table.head}" as="head">
+				<th>
+					<f:if condition="{head}"><f:translate key="{lll}{head}" /></f:if>
+				</th>
+			</f:for>
+		</tr>
+		</thead>
+		<tbody>
+		<f:for each="{table.body}" as="body">
+			<tr>
+				<f:for each="{body}" as="cell" iteration="fooIterator">
+					<td>
+						<f:format.html>{cell}</f:format.html>
+					</td>
+				</f:for>
+			</tr>
+		</f:for>
+		</tbody>
+	</table>
+</f:section>
+
 <f:section name="table4">
     <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <table class="table table-striped table-hover">
@@ -405,6 +431,20 @@
 			<textarea style="width:460px;" rows="6" name="nothing"><f:format.html>{dataStats.tables.6.reasonUnknownCSV.text}</f:format.html></textarea>
 		</f:if>
     </f:if>
+
+	<f:if condition="{dataStats.tables.7}">
+		<br />
+		<h2><f:translate key="{lll}table.not_counted" /></h2>
+		<p><f:translate key="{lll}table.not_counted_text" />: {dataStats.tables.7.counter}</p>
+		<f:render section="table-simple" arguments="{table:dataStats.tables.7}" />
+	</f:if>
+
+	<f:if condition="{dataStats.tables.8}">
+		<br />
+		<h2><f:translate key="{lll}table.returns" /></h2>
+		<p><f:translate key="{lll}table.email_back" />: {dataStats.tables.8.counter}</p>
+		<f:render section="table-simple" arguments="{table:dataStats.tables.8}" />
+	</f:if>
 
     <f:format.raw>{dataStats.out}</f:format.raw>
     <div style="padding-top: 20px;"></div>

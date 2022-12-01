@@ -1049,9 +1049,48 @@
 			<trans-unit id="mod.no_access" resname="mod.no_access">
 				<source>no access</source>
 			</trans-unit>
-			<trans-unit id="mod.no_recipients" resname="mod.no_recipients">
-				<source>no recipients</source>
-			</trans-unit>
+            <trans-unit id="table.not_counted">
+                <source>Nicht gezählte</source>
+            </trans-unit>
+            <trans-unit id="table.not_counted_text">
+                <source>Mutmasslich nicht gesendete</source>
+            </trans-unit>
+            <trans-unit id="table.returns">
+                <source>Returns</source>
+            </trans-unit>
+            <trans-unit id="table.email_back">
+                <source>Zurückgekommene</source>
+            </trans-unit>
+            <trans-unit id="table.head.email">
+                <source>E-Mail</source>
+            </trans-unit>
+            <trans-unit id="table.head.mid">
+                <source>mid</source>
+            </trans-unit>
+            <trans-unit id="table.head.rid">
+                <source>rid</source>
+            </trans-unit>
+            <trans-unit id="table.head.html_sent">
+                <source>html_sent</source>
+            </trans-unit>
+            <trans-unit id="table.head.timestamp">
+                <source>Timestamp</source>
+            </trans-unit>
+            <trans-unit id="table.head.attempts">
+                <source># Fehlversuche</source>
+            </trans-unit>
+            <trans-unit id="table.head.parsetime">
+                <source>Parsetime</source>
+            </trans-unit>
+            <trans-unit id="table.head.receiptList">
+                <source>Empfängerliste</source>
+            </trans-unit>
+            <trans-unit id="table.head.details">
+                <source>Details</source>
+            </trans-unit>
+            <trans-unit id="table.head.response">
+                <source>Antwort</source>
+            </trans-unit>
 		</body>
 	</file>
 </xliff>
