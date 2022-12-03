@@ -15,8 +15,13 @@ class TtContentCategoryMmRepository extends MainRepository {
 
         return $queryBuilder
         ->select('uid_foreign')
-        ->from('sys_dmail_ttcontent_category_mm')
-        ->add('where', 'uid_local=' . $uid)
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->eq(
+                'uid_local', 
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
         ->execute()
         ->fetchAll();
     }
