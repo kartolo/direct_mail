@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -25,13 +26,24 @@ class TtAddressRepository extends MainRepository {
             $this->table,
             'pages',
             'pages',
-            $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier($this->table.'.pid'))
+            $queryBuilder->expr()->eq(
+                'pages.uid', 
+                $queryBuilder->quoteIdentifier($this->table.'.pid')
+            )
         )
-        ->add('where', $this->table.'.uid = ' . intval($uid) . 
-            ' AND ' . $permsClause . ' AND pages.deleted = 0')
-
-//         debug($queryBuilder->getSQL());
-//         debug($queryBuilder->getParameters());
+        ->where(
+            $queryBuilder->expr()->eq(
+                $this->table.'.uid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'pages.deleted',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $permsClause
+        )
         ->execute()
         ->fetchAll();
     }
@@ -68,7 +80,7 @@ class TtAddressRepository extends MainRepository {
     /**
      * @return array|bool
      */
-    public function selectTtAddressForTestmail(string $intList, string $permsClause) //: array|bool
+    public function selectTtAddressForTestmail(array $intList, string $permsClause) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
@@ -79,10 +91,20 @@ class TtAddressRepository extends MainRepository {
             $this->table,
             'pages',
             'pages',
-            $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier($this->table.'.pid'))
+            $queryBuilder->expr()->eq(
+                'pages.uid', 
+                $queryBuilder->quoteIdentifier($this->table.'.pid')
+            )
         )
-        ->add('where', $this->table.'.uid IN (' . $intList . ')' .
-            ' AND ' . $permsClause)
+        ->where(
+            $queryBuilder->expr()->in(
+                $this->table.'.uid', 
+                $queryBuilder->createNamedParameter($intList, Connection::PARAM_INT_ARRAY)
+            )
+        )
+        ->andWhere(
+            $permsClause
+        )
         ->execute()
         ->fetchAll();
     }
@@ -101,10 +123,16 @@ class TtAddressRepository extends MainRepository {
             'a', 
             'pages', 
             'pages', 
-            $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('a.pid'))
+            $queryBuilder->expr()->eq(
+                'pages.uid', 
+                $queryBuilder->quoteIdentifier('a.pid')
+            )
         )
         ->where(
-            $queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter($ttAddressUid, \PDO::PARAM_INT))
+            $queryBuilder->expr()->eq(
+                'a.uid', 
+                $queryBuilder->createNamedParameter($ttAddressUid, \PDO::PARAM_INT)
+            )
         )
         ->andWhere($permsClause)
         ->execute()
@@ -147,13 +175,22 @@ class TtAddressRepository extends MainRepository {
 
             if ($v <= VersionNumberUtility::convertVersionNumberToInteger('6.0.0')) {
                 $queryBuilder->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)),
-                    $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
+                    $queryBuilder->expr()->eq(
+                        'uid', 
+                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                    ),
+                    $queryBuilder->expr()->eq(
+                        'deleted', 
+                        $queryBuilder->createNamedParameter(0)
+                    )
                 );
             }
             else {
                 $queryBuilder->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT))
+                    $queryBuilder->expr()->eq(
+                        'uid', 
+                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                    )
                 );
             }
             $rows = $queryBuilder->execute()->fetchAll();

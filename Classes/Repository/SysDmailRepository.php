@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -19,14 +20,20 @@ class SysDmailRepository extends MainRepository {
         ->getRestrictions()
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        return $queryBuilder->select('*')
+
+        return $queryBuilder
+        ->select('*')
         ->from($this->table)
         ->where(
-            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)),
-            $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($sys_dmail_uid, \PDO::PARAM_INT))
+            $queryBuilder->expr()->eq(
+                'pid', 
+                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'uid', 
+                $queryBuilder->createNamedParameter($sys_dmail_uid, \PDO::PARAM_INT)
+            )
         )
-        //debug($queryBuilder->getSQL());
-        //debug($queryBuilder->getParameters());
         ->execute()
         ->fetch();
     }
@@ -42,9 +49,19 @@ class SysDmailRepository extends MainRepository {
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
-        return $queryBuilder->select('uid', 'pid', 'subject', 'scheduled', 'scheduled_begin', 'scheduled_end')
+        return $queryBuilder
+        ->select('uid', 'pid', 'subject', 'scheduled', 'scheduled_begin', 'scheduled_end')
         ->from($this->table)
-        ->add('where','pid = ' . intval($pid) .' AND scheduled > 0')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'pid', 
+                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->gt(
+                'scheduled',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            )
+        )
         ->orderBy('scheduled','DESC')
         ->execute()
         ->fetchAllAssociative();
@@ -60,25 +77,46 @@ class SysDmailRepository extends MainRepository {
         ->getRestrictions()
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        
-        return $queryBuilder->selectLiteral('sys_dmail.uid', 'sys_dmail.subject', 'sys_dmail.scheduled', 'sys_dmail.scheduled_begin', 'sys_dmail.scheduled_end', 'COUNT(sys_dmail_maillog.mid) AS count')
+       
+        return $queryBuilder
+        ->selectLiteral('sys_dmail.uid', 'sys_dmail.subject', 'sys_dmail.scheduled', 'sys_dmail.scheduled_begin', 'sys_dmail.scheduled_end', 'COUNT(sys_dmail_maillog.mid) AS count')
         ->from($this->table, $this->table)
         ->leftJoin(
             'sys_dmail',
             'sys_dmail_maillog',
             'sys_dmail_maillog',
-            $queryBuilder->expr()->eq('sys_dmail.uid', $queryBuilder->quoteIdentifier('sys_dmail_maillog.mid'))
+            $queryBuilder->expr()->eq(
+                'sys_dmail.uid', 
+                $queryBuilder->quoteIdentifier('sys_dmail_maillog.mid')
+            )
         )
-        ->add('where','sys_dmail.pid = ' . $id .
-                ' AND sys_dmail.type IN (0,1)' .
-                ' AND sys_dmail.issent = 1'.
-                ' AND sys_dmail_maillog.response_type = 0'.
-                ' AND sys_dmail_maillog.html_sent > 0')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'sys_dmail.pid',
+                $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->in(
+                'sys_dmail.type', 
+                $queryBuilder->createNamedParameter([0, 1], Connection::PARAM_INT_ARRAY)
+            ),
+            $queryBuilder->expr()->eq(
+                'sys_dmail.issent',
+                $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'sys_dmail_maillog.response_type',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->gt(
+                'sys_dmail_maillog.html_sent',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            )
+        )
         ->groupBy('sys_dmail_maillog.mid')
         ->orderBy('sys_dmail.scheduled','DESC')
         ->addOrderBy('sys_dmail.scheduled_begin','DESC')
         ->execute()
-        ->fetchAll();
+        ->fetchAll();        
     }
     
     /**
@@ -93,10 +131,23 @@ class SysDmailRepository extends MainRepository {
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         
-        return $queryBuilder->select('uid','pid','subject','tstamp','issent','renderedsize','attachment','type')
+        return $queryBuilder
+        ->select('uid','pid','subject','tstamp','issent','renderedsize','attachment','type')
         ->from($this->table)
-        ->add('where','pid = ' . intval($id) .
-            ' AND scheduled=0 AND issent=0')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'pid',
+                $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'scheduled',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'issent',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            )
+        )
         ->orderBy($sOrder,$ascDesc)
         ->execute()
         ->fetchAll();
@@ -112,7 +163,10 @@ class SysDmailRepository extends MainRepository {
         return $queryBuilder
         ->update($this->table)
         ->where(
-            $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT))
+            $queryBuilder->expr()->eq(
+                'uid', 
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
         )
         ->set('issent', 0)
         ->set('charset', $charset)
@@ -145,7 +199,10 @@ class SysDmailRepository extends MainRepository {
             ->select('mailContent', 'page', 'authcode_fieldList')
             ->from($this->table)
             ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($mailId, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq(
+                    'uid', 
+                    $queryBuilder->createNamedParameter($mailId, \PDO::PARAM_INT)
+                )
             )
             ->execute()
             ->fetch();
@@ -159,7 +216,12 @@ class SysDmailRepository extends MainRepository {
             $queryBuilder
                 ->update($this->table)
                 ->set('scheduled_' . $key, time())
-                ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'uid', 
+                        $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                    )
+                )
                 ->execute();
         }
     }
