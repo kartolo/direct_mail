@@ -131,10 +131,23 @@ class SysDmailRepository extends MainRepository {
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         
-        return $queryBuilder->select('uid','pid','subject','tstamp','issent','renderedsize','attachment','type')
+        return $queryBuilder
+        ->select('uid','pid','subject','tstamp','issent','renderedsize','attachment','type')
         ->from($this->table)
-        ->add('where','pid = ' . intval($id) .
-            ' AND scheduled=0 AND issent=0')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'pid',
+                $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'scheduled',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'issent',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            )
+        )
         ->orderBy($sOrder,$ascDesc)
         ->execute()
         ->fetchAll();
