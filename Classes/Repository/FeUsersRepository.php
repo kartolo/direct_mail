@@ -45,7 +45,7 @@ class FeUsersRepository extends MainRepository {
             $queryBuilder = $this->getQueryBuilder($this->table);
             $queryBuilder->select('*')->from($this->table);
             $queryBuilder->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)),
                 $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
             );
 
