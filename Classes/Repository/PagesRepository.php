@@ -92,7 +92,7 @@ class PagesRepository extends MainRepository {
         
         return $queryBuilder
         ->select('title')
-        ->from('pages')
+        ->from($this->table)
         ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)))
         ->andWhere($queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)))
         ->execute()
@@ -112,5 +112,26 @@ class PagesRepository extends MainRepository {
             [ 'TSconfig' => $tsConf ],
             [ 'uid' => $pageUid ] // where
         );
+    }
+
+    /**
+     * @return array|bool
+     */
+    public function getDMPages() //: array|bool
+    {
+        $modulName = 'dmail';
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+        ->select('uid','title')
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->eq(
+                'module', 
+                $queryBuilder->createNamedParameter($modulName, \PDO::PARAM_STR)
+            )
+        )
+        ->execute()
+        ->fetchAll();
     }
 }

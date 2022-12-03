@@ -6,21 +6,21 @@ defined('TYPO3') || die();
 // https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ExtensionArchitecture/BestPractises/ConfigurationFiles.html
 (function () {
     // Register hook for simulating a user group
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['determineId-PreProcessing']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\TypoScriptFrontendController->simulateUsergroup';
-    
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['hook_checkEnableFields']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\\TypoScriptFrontendController->simulateUsergroup';
+
     // Get extension configuration so we can use it here:
     $extConf = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class)->get('direct_mail');
-    
+
     /**
      * Language of the cron task:
      */
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] = $extConf['cron_language'] ? $extConf['cron_language'] : 'en';
-    
+
     /**
      * Number of messages sent per cycle of the cron task:
      */
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['sendPerCycle'] = $extConf['sendPerCycle'] ? $extConf['sendPerCycle'] : 50;
-    
+
     /**
      * Default recipient field list:
      */
@@ -81,4 +81,4 @@ defined('TYPO3') || die();
         'description' => 'This task will get bounce mail from the configured mailbox',
         'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields'
     ];
-    })();
+})();

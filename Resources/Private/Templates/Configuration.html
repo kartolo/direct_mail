@@ -3,6 +3,7 @@
 <f:layout name="Default" />
 
 <f:section name="content">
+    <f:render partial="Main" arguments="{dmLinks: dmLinks}" section="DMLinks" />
     <f:flashMessages />
     <f:if condition="{implodedParams -> f:count()}">
         <h1><f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:header_conf" /></h1>
