@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -79,7 +80,7 @@ class TtAddressRepository extends MainRepository {
     /**
      * @return array|bool
      */
-    public function selectTtAddressForTestmail(string $intList, string $permsClause) //: array|bool
+    public function selectTtAddressForTestmail(array $intList, string $permsClause) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
@@ -95,8 +96,15 @@ class TtAddressRepository extends MainRepository {
                 $queryBuilder->quoteIdentifier($this->table.'.pid')
             )
         )
-        ->add('where', $this->table.'.uid IN (' . $intList . ')' .
-            ' AND ' . $permsClause)
+        ->where(
+            $queryBuilder->expr()->in(
+                $this->table.'.uid', 
+                $queryBuilder->createNamedParameter($intList, Connection::PARAM_INT_ARRAY)
+            )
+        )
+        ->andWhere(
+            $permsClause
+        )
         ->execute()
         ->fetchAll();
     }
