@@ -1899,7 +1899,6 @@ class DmailController extends MainController
                 if ($colPosVal != $row['colPos']) {
                     $output['rows'][] = [
                         'separator' => true,
-                        'bgcolor' => $this->doc->bgColor5,
                         'title' => $this->getLanguageService()->getLL('nl_l_column'),
                         'value' => BackendUtility::getProcessedValue('tt_content', 'colPos', $row['colPos']) 
                     ];
