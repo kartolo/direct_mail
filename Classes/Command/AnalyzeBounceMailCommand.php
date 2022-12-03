@@ -2,8 +2,8 @@
 namespace DirectMailTeam\DirectMail\Command;
 
 use DirectMailTeam\DirectMail\Dmailer;
-use DirectMailTeam\DirectMail\Readmail;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
+use DirectMailTeam\DirectMail\Utility\ReadmailUtility;
 use Fetch\Server;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -155,8 +155,8 @@ class AnalyzeBounceMailCommand extends Command
      */
     private function processBounceMail($message)
     {
-        /** @var Readmail $readMail */
-        $readMail = GeneralUtility::makeInstance(Readmail::class);
+        /** @var ReadmailUtility $readMail */
+        $readMail = GeneralUtility::makeInstance(ReadmailUtility::class);
         
         // get attachment
         $attachmentArray = $message->getAttachments();
