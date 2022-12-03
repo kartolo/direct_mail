@@ -1,5 +1,7 @@
 <?php
-namespace DirectMailTeam\DirectMail;
+declare(strict_types=1);
+
+namespace DirectMailTeam\DirectMail\Utility;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -19,7 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Extension of the t3lib_readmail class for the purposes of the Direct mail extension.
  * Analysis of return mail reason is enhanced by checking more possible reason texts.
- * Tested on mailing list of approx. 1500 members with most domains in M�xico and reason text in English or Spanish.
+ * Tested on mailing list of approx. 1500 members with most domains in México and reason text in English or Spanish.
  *
  * @author  Kasper Skårhøj <kasper@typo3.com>
  * @author  Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
@@ -28,7 +30,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @subpackage  tx_directmail
  * @version  $Id: class.readmail.php 6012 2007-07-23 12:54:25Z ivankartolo $
  */
-class Readmail
+class ReadmailUtility
 {
     protected $reason_text = [
         '550' => 'no mailbox|account does not exist|user unknown|Recipient unknown|recipient unknown|account that you tried to reach is disabled|User Unknown|User unknown|unknown in relay recipient table|user is unknown|unknown user|unknown local part|unrouteable address|does not have an account here|no such user|user not listed|account has been disabled or discontinued|user disabled|unknown recipient|invalid recipient|recipient problem|recipient name is not recognized|mailbox unavailable|550 5\.1\.1 recipient|status: 5\.1\.1|delivery failed 550|550 requested action not taken|receiver not found|unknown or illegal alias|is unknown at host|is not a valid mailbox|no mailbox here by that name|we do not relay|5\.7\.1 unable to relay|cuenta no activa|inactive user|user is inactive|mailaddress is administratively disabled|not found in directory|not listed in public name & address book|destination addresses were unknown|recipient address rejected|Recipient address rejected|Address rejected|rejected address|not listed in domino directory|domino directory entry does not|550-5\.1.1 The email account that you tried to reach does not exist|The email address you entered couldn',
@@ -125,13 +127,15 @@ class Readmail
             if ($cType['boundary']) {
                 $parts = $this->getMailBoundaryParts($cType['boundary'], $mailParts['CONTENT']);
                 $c = $this->getTextContent($parts[0]);
-            } else {
+            } 
+            else {
                 $c = $this->getTextContent(
                     'Content-Type: ' . $mailParts['content-type'] . '
      ' . $mailParts['CONTENT']
                 );
             }
-        } else {
+        } 
+        else {
             $c = $mailParts['CONTENT'];
         }
         return $c;
@@ -195,7 +199,8 @@ class Readmail
             $mparts = explode('=', $ppstr, 2);
             if (count($mparts) > 1) {
                 $cTypes[strtolower(trim($mparts[0]))] = preg_replace('/^"/', '', trim(preg_replace('/"$/', '', trim($mparts[1]))));
-            } else {
+            } 
+            else {
                 $cTypes[] = $ppstr;
             }
         }
@@ -342,7 +347,8 @@ class Readmail
         preg_match('/<([^>]*)>/', $str, $reg);
         if (GeneralUtility::validEmail($str)) {
             $outArr['email'] = $str;
-        } elseif ($reg[1] && GeneralUtility::validEmail($reg[1])) {
+        } 
+        elseif ($reg[1] && GeneralUtility::validEmail($reg[1])) {
             $outArr['email'] = $reg[1];
             // Find name:
             list($namePart) = explode($reg[0], $str);

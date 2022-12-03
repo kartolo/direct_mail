@@ -14,8 +14,8 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  * The TYPO3 project - inspiring people to share!
  */
 
-use DirectMailTeam\DirectMail\Readmail;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
+use DirectMailTeam\DirectMail\Utility\ReadmailUtility;
 use Fetch\Message;
 use Fetch\Server;
 use TYPO3\CMS\Core\Database\Connection;
@@ -202,8 +202,8 @@ class AnalyzeBounceMail extends AbstractTask
      */
     private function processBounceMail($message)
     {
-        /** @var Readmail $readMail */
-        $readMail = GeneralUtility::makeInstance(Readmail::class);
+        /** @var ReadmailUtility $readMail */
+        $readMail = GeneralUtility::makeInstance(ReadmailUtility::class);
 
         // get attachment
         $attachmentArray = $message->getAttachments();
