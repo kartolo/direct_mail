@@ -29,6 +29,8 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 class DmailController extends MainController
 {
@@ -1999,7 +2001,7 @@ class DmailController extends MainController
         if ($pageRecord['doktype']) {
             $newRecord['subject'] = $pageRecord['title'];
             $newRecord['page']    = $pageRecord['uid'];
-            $newRecord['charset'] = DirectMailUtility::getCharacterSet();
+            $newRecord['charset'] = $this->getCharacterSet();
         }
 
         // save to database
@@ -2132,5 +2134,35 @@ class DmailController extends MainController
         }
 
         return ''; // No valid pageId
+    }
+
+        /**
+     * Get the configured charset.
+     *
+     * This method used to initialize the TSFE object to get the charset on a per page basis. Now it just evaluates the
+     * configured charset of the instance
+     *
+     * @throws ImmediateResponseException
+     * @throws ServiceUnavailableException
+     */
+    protected function getCharacterSet(): string
+    {
+        /** @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager $configurationManager */
+        $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
+
+        $settings = $configurationManager->getConfiguration(
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+        );
+
+        $characterSet = 'utf-8';
+
+        if (!empty($settings['config.']['metaCharset'])) {
+            $characterSet = $settings['config.']['metaCharset'];
+        }
+        elseif (!empty($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])) {
+            $characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
+        }
+
+        return mb_strtolower($characterSet);
     }
 }
