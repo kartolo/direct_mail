@@ -21,7 +21,6 @@ use TYPO3\CMS\Backend\Routing\PreviewUriBuilder;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -2014,7 +2013,7 @@ class DmailController extends MainController
             ];
 
             /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+            $dataHandler = $this->getDataHandler();
             $dataHandler->stripslashes_values = 0;
             $dataHandler->start($tcemainData, []);
             $dataHandler->process_datamap();
@@ -2098,7 +2097,7 @@ class DmailController extends MainController
             ];
 
             /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
-            $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+            $dataHandler = $this->getDataHandler();
             $dataHandler->stripslashes_values = 0;
             $dataHandler->start($tcemainData, []);
             $dataHandler->process_datamap();
