@@ -197,7 +197,7 @@ class RecipientListController extends MainController
             ];
         }
 
-        $data['editOnClickLink'] = DirectMailUtility::getEditOnClickLink([
+        $data['editOnClickLink'] = $this->getEditOnClickLink([
             'edit' => [
                 'sys_dmail_group' => [
                     $this->id => 'new'
@@ -390,7 +390,7 @@ class RecipientListController extends MainController
         $editLinkConfig = ['onClick' => '', 'icon' => $this->getIconActionsOpen()];
         // check if the user has the right to modify the table
         if ($this->getBackendUser()->check('tables_modify', $table)) {
-            $editLinkConfig['onClick'] = DirectMailUtility::getEditOnClickLink([
+            $editLinkConfig['onClick'] = $this->getEditOnClickLink([
                 'edit' => [
                     $table => [
                         $uid => 'edit',
@@ -735,7 +735,7 @@ class RecipientListController extends MainController
 
             $categories = implode(',', $categoriesArray);
 
-            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+            $editOnClickLink = $this->getEditOnClickLink([
                 'edit' => [
                     $this->table => [
                         $row['uid'] => 'edit'

@@ -302,7 +302,7 @@ class StatisticsController extends MainController
                 }
             }
 
-            $editOnClickLink = DirectMailUtility::getEditOnClickLink([
+            $editOnClickLink = $this->getEditOnClickLink([
                 'edit' => [
                     $this->table => [
                         $row['uid'] => 'edit',
