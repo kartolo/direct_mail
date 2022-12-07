@@ -353,6 +353,27 @@ class MainController {
         return 'window.location.href=' . GeneralUtility::quoteJSvalue((string) $uriBuilder->buildUriFromRoute('record_edit', $params)) . '; return false;';
     }
 
+    /**
+     * Rearrange emails array into a 2-dimensional array
+     *
+     * @param array $plainMails Recipient emails
+     *
+     * @return array a 2-dimensional array consisting email and name
+     */
+    protected function rearrangePlainMails(array $plainMails): array
+    {
+        $out = [];
+        if (is_array($plainMails)) {
+            $c = 0;
+            foreach ($plainMails as $v) {
+                $out[$c]['email'] = trim($v);
+                $out[$c]['name'] = '';
+                $c++;
+            }
+        }
+        return $out;
+    }
+
     protected function getJS($sys_dmail_uid)
     {
         return '

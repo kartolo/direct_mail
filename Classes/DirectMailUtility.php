@@ -91,27 +91,6 @@ class DirectMailUtility
     }
 
     /**
-     * Rearrange emails array into a 2-dimensional array
-     *
-     * @param array $plainMails Recipient emails
-     *
-     * @return array a 2-dimensional array consisting email and name
-     */
-    public static function rearrangePlainMails(array $plainMails): array
-    {
-        $out = [];
-        if (is_array($plainMails)) {
-            $c = 0;
-            foreach ($plainMails as $v) {
-                $out[$c]['email'] = trim($v);
-                $out[$c]['name'] = '';
-                $c++;
-            }
-        }
-        return $out;
-    }
-
-    /**
      * Get locallang label
      *
      * @param string $name Locallang label index
