@@ -519,7 +519,7 @@ class SysDmailMaillogRepository extends MainRepository {
             $queryBuilder->expr()->andX(
                 $queryBuilder->expr()->eq(
                     'rid',
-                    $queryBuilder->createNamedParameter((int)$rid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($rid, \PDO::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
                     'rtbl',
@@ -527,9 +527,12 @@ class SysDmailMaillogRepository extends MainRepository {
                 ),
                 $queryBuilder->expr()->eq(
                     'mid',
-                    $queryBuilder->createNamedParameter((int)$mid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
                 ),
-                $queryBuilder->expr()->eq('response_type', 0)
+                $queryBuilder->expr()->eq(
+                    'response_type',
+                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                )
             )
         )
         ->setMaxResults(1)
@@ -557,14 +560,38 @@ class SysDmailMaillogRepository extends MainRepository {
             ->count('*')
             ->from($this->table)
             ->where(
-                $queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mailLogParameters['mid'], \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('url', $queryBuilder->createNamedParameter($mailLogParameters['url'], \PDO::PARAM_STR)),
-                $queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter($mailLogParameters['response_type'], \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('url_id', $queryBuilder->createNamedParameter($mailLogParameters['url_id'], \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($mailLogParameters['rtbl'], \PDO::PARAM_STR)),
-                $queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($mailLogParameters['rid'], \PDO::PARAM_INT)),
-                $queryBuilder->expr()->lte('tstamp', $queryBuilder->createNamedParameter($mailLogParameters['tstamp'], \PDO::PARAM_INT)),
-                $queryBuilder->expr()->gte('tstamp', $queryBuilder->createNamedParameter($mailLogParameters['tstamp']-10, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq(
+                    'mid',
+                    $queryBuilder->createNamedParameter($mailLogParameters['mid'], \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'url',
+                    $queryBuilder->createNamedParameter($mailLogParameters['url'], \PDO::PARAM_STR)
+                ),
+                $queryBuilder->expr()->eq(
+                    'response_type',
+                    $queryBuilder->createNamedParameter($mailLogParameters['response_type'], \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'url_id',
+                    $queryBuilder->createNamedParameter($mailLogParameters['url_id'], \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'rtbl',
+                    $queryBuilder->createNamedParameter($mailLogParameters['rtbl'], \PDO::PARAM_STR)
+                ),
+                $queryBuilder->expr()->eq(
+                    'rid',
+                    $queryBuilder->createNamedParameter($mailLogParameters['rid'], \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->lte(
+                    'tstamp',
+                    $queryBuilder->createNamedParameter($mailLogParameters['tstamp'], \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->gte(
+                    'tstamp',
+                    $queryBuilder->createNamedParameter($mailLogParameters['tstamp']-10, \PDO::PARAM_INT)
+                )
             );
 
         $existingLog = $query->execute()->fetchColumn();
@@ -607,10 +634,30 @@ class SysDmailMaillogRepository extends MainRepository {
         $statement = $queryBuilder
             ->select('uid')
             ->from($this->table)
-            ->where($queryBuilder->expr()->eq('rid', $queryBuilder->createNamedParameter($rid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
-            ->andWhere($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'rid',
+                    $queryBuilder->createNamedParameter($rid, \PDO::PARAM_INT)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'rtbl',
+                    $queryBuilder->createNamedParameter($rtbl)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'mid',
+                    $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'response_type',
+                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                )
+            )
             ->execute();
 
         return (bool)$statement->rowCount();
@@ -689,9 +736,24 @@ class SysDmailMaillogRepository extends MainRepository {
         $statement = $queryBuilder
             ->select('rid')
             ->from($this->table)
-            ->where($queryBuilder->expr()->eq('mid', $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('rtbl', $queryBuilder->createNamedParameter($rtbl)))
-            ->andWhere($queryBuilder->expr()->eq('response_type', '0'))
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'mid',
+                    $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'rtbl',
+                    $queryBuilder->createNamedParameter($rtbl)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'response_type',
+                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                )
+            )
             ->execute();
 
         $list = '';
