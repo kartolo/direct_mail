@@ -292,7 +292,7 @@ class RecipientListController extends MainController
                         else {
                             $recipients = $this->rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroup['list'])));
                         }
-                        $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($recipients);
+                        $idLists['PLAINLIST'] = $this->cleanPlainList($recipients);
                         break;
                     case 2:
                         // Static MM list
@@ -345,7 +345,7 @@ class RecipientListController extends MainController
                             $idLists[$this->userTable] = array_unique($idLists[$this->userTable]);
                         }
                         if (is_array($idLists['PLAINLIST'] ?? null)) {
-                            $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($idLists['PLAINLIST']);
+                            $idLists['PLAINLIST'] = $this->cleanPlainList($idLists['PLAINLIST']);
                         }
                         break;
                     default:

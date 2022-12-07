@@ -1596,7 +1596,7 @@ class DmailController extends MainController
         }
 
         if (is_array($idLists['PLAINLIST'] ?? false)) {
-            $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($idLists['PLAINLIST']);
+            $idLists['PLAINLIST'] = $this->cleanPlainList($idLists['PLAINLIST']);
         }
 
         /**
@@ -1700,7 +1700,7 @@ class DmailController extends MainController
                         else {
                             $recipients = $this->rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroup['list'])));
                         }
-                        $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($recipients);
+                        $idLists['PLAINLIST'] = $this->cleanPlainList($recipients);
                         break;
                     case 2:
                         // Static MM list

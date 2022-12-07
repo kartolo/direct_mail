@@ -63,34 +63,6 @@ class DirectMailUtility
     }
 
     /**
-     * Remove double record in an array
-     *
-     * @param array $plainlist Email of the recipient
-     *
-     * @return array Cleaned array
-     */
-    public static function cleanPlainList(array $plainlist)
-    {
-        /**
-         * $plainlist is a multidimensional array.
-         * this method only remove if a value has the same array
-         * $plainlist = [
-         * 		0 => [
-         * 			name => '',
-         * 			email => '',
-         * 		],
-         * 		1 => [
-         * 			name => '',
-         * 			email => '',
-         * 		],
-         * ];
-         */
-        $plainlist = array_map('unserialize', array_unique(array_map('serialize', $plainlist)));
-
-        return $plainlist;
-    }
-
-    /**
      * Get locallang label
      *
      * @param string $name Locallang label index
