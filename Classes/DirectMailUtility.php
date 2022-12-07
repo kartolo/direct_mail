@@ -16,7 +16,6 @@ namespace DirectMailTeam\DirectMail;
 
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\DmRegistryUtility;
-use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -39,26 +38,6 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  */
 class DirectMailUtility
 {
-    /**
-     * Get the ID of page in a tree
-     *
-     * @param int $id Page ID
-     * @param string $perms_clause Select query clause
-     * @return array the page ID, recursively
-     */
-    public static function getRecursiveSelect($id, $perms_clause)
-    {
-        // Finding tree and offer setting of values recursively.
-        $tree = GeneralUtility::makeInstance(PageTreeView::class);
-        $tree->init('AND ' . $perms_clause);
-        $tree->makeHTML = 0;
-        $tree->setRecs = 0;
-        $getLevels = 10000;
-        $tree->getTree($id, $getLevels, '');
-
-        return $tree->ids;
-    }
-
     /**
      * Get locallang label
      *
