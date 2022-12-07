@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -66,7 +67,7 @@ class SysDmailGroupRepository extends MainRepository {
     /**
      * @return array|bool
      */
-    public function selectSysDmailGroupForTestmail(string $intList, string $permsClause) //: array|bool
+    public function selectSysDmailGroupForTestmail(array $intList, string $permsClause) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
@@ -81,10 +82,20 @@ class SysDmailGroupRepository extends MainRepository {
             $this->table,
             'pages',
             'pages',
-            $queryBuilder->expr()->eq($this->table.'.pid', $queryBuilder->quoteIdentifier('pages.uid'))
+            $queryBuilder->expr()->eq(
+                $this->table.'.pid',
+                $queryBuilder->quoteIdentifier('pages.uid')
+            )
         )
-        ->add('where', $this->table.'.uid IN (' . $intList . ')' .
-                ' AND ' . $permsClause )
+        ->where(
+            $queryBuilder->expr()->in(
+                $this->table.'.uid',
+                $queryBuilder->createNamedParameter($intList, Connection::PARAM_INT_ARRAY)
+            )
+        )
+        ->andWhere(
+            $permsClause
+        )
         ->execute()
         ->fetchAll();
     }

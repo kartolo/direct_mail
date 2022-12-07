@@ -9,11 +9,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SysDmailRepository extends MainRepository {
     protected string $table = 'sys_dmail';
-    
+
     /**
      * @return array|bool
      */
-    public function selectSysDmailById(int $sys_dmail_uid, int $pid) //: array|bool 
+    public function selectSysDmailById(int $sys_dmail_uid, int $pid) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
@@ -26,22 +26,22 @@ class SysDmailRepository extends MainRepository {
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
-                'pid', 
+                'pid',
                 $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
-                'uid', 
+                'uid',
                 $queryBuilder->createNamedParameter($sys_dmail_uid, \PDO::PARAM_INT)
             )
         )
         ->execute()
         ->fetch();
     }
-    
+
     /**
      * @return array|bool
      */
-    public function selectSysDmailsByPid(int $pid) //: array|bool 
+    public function selectSysDmailsByPid(int $pid) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
@@ -54,7 +54,7 @@ class SysDmailRepository extends MainRepository {
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
-                'pid', 
+                'pid',
                 $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
             ),
             $queryBuilder->expr()->gt(
@@ -66,18 +66,18 @@ class SysDmailRepository extends MainRepository {
         ->execute()
         ->fetchAllAssociative();
     }
-    
+
     /**
      * @return array|bool
      */
-    public function selectForPageInfo(int $id) //: array|bool 
+    public function selectForPageInfo(int $id) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
         ->getRestrictions()
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-       
+
         return $queryBuilder
         ->selectLiteral('sys_dmail.uid', 'sys_dmail.subject', 'sys_dmail.scheduled', 'sys_dmail.scheduled_begin', 'sys_dmail.scheduled_end', 'COUNT(sys_dmail_maillog.mid) AS count')
         ->from($this->table, $this->table)
@@ -86,7 +86,7 @@ class SysDmailRepository extends MainRepository {
             'sys_dmail_maillog',
             'sys_dmail_maillog',
             $queryBuilder->expr()->eq(
-                'sys_dmail.uid', 
+                'sys_dmail.uid',
                 $queryBuilder->quoteIdentifier('sys_dmail_maillog.mid')
             )
         )
@@ -96,7 +96,7 @@ class SysDmailRepository extends MainRepository {
                 $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT)
             ),
             $queryBuilder->expr()->in(
-                'sys_dmail.type', 
+                'sys_dmail.type',
                 $queryBuilder->createNamedParameter([0, 1], Connection::PARAM_INT_ARRAY)
             ),
             $queryBuilder->expr()->eq(
@@ -116,21 +116,21 @@ class SysDmailRepository extends MainRepository {
         ->orderBy('sys_dmail.scheduled','DESC')
         ->addOrderBy('sys_dmail.scheduled_begin','DESC')
         ->execute()
-        ->fetchAll();        
+        ->fetchAll();
     }
-    
+
     /**
      * @return array|bool
      */
-    public function selectForMkeListDMail(int $id, string $sOrder, string $ascDesc) //: array|bool 
+    public function selectForMkeListDMail(int $id, string $sOrder, string $ascDesc) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         $queryBuilder
         ->getRestrictions()
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        
+
         return $queryBuilder
         ->select('uid','pid','subject','tstamp','issent','renderedsize','attachment','type')
         ->from($this->table)
@@ -164,7 +164,7 @@ class SysDmailRepository extends MainRepository {
         ->update($this->table)
         ->where(
             $queryBuilder->expr()->eq(
-                'uid', 
+                'uid',
                 $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
             )
         )
@@ -174,7 +174,7 @@ class SysDmailRepository extends MainRepository {
         ->set('renderedSize', strlen($mailContent))
         ->execute();
     }
-    
+
     /**
      *
      * @param int $uid
@@ -191,7 +191,7 @@ class SysDmailRepository extends MainRepository {
         );
     }
 
-    public function selectForJumpurl(int $mailId) 
+    public function selectForJumpurl(int $mailId)
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
@@ -200,7 +200,7 @@ class SysDmailRepository extends MainRepository {
             ->from($this->table)
             ->where(
                 $queryBuilder->expr()->eq(
-                    'uid', 
+                    'uid',
                     $queryBuilder->createNamedParameter($mailId, \PDO::PARAM_INT)
                 )
             )
@@ -218,7 +218,7 @@ class SysDmailRepository extends MainRepository {
                 ->set('scheduled_' . $key, time())
                 ->where(
                     $queryBuilder->expr()->eq(
-                        'uid', 
+                        'uid',
                         $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
                     )
                 )
@@ -226,7 +226,7 @@ class SysDmailRepository extends MainRepository {
         }
     }
 
-    public function selectForRuncron() 
+    public function selectForRuncron()
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
@@ -237,10 +237,30 @@ class SysDmailRepository extends MainRepository {
         return $queryBuilder
             ->select('*')
             ->from($this->table)
-            ->where($queryBuilder->expr()->neq('scheduled', '0'))
-            ->andWhere($queryBuilder->expr()->lt('scheduled', time()))
-            ->andWhere($queryBuilder->expr()->eq('scheduled_end', '0'))
-            ->andWhere($queryBuilder->expr()->notIn('type', ['2', '3']))
+            ->where(
+                $queryBuilder->expr()->neq(
+                    'scheduled',
+                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->lt(
+                    'scheduled',
+                    $queryBuilder->createNamedParameter(time(), \PDO::PARAM_INT)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'scheduled_end',
+                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->notIn(
+                    'type',
+                    $queryBuilder->createNamedParameter([2, 3], Connection::PARAM_INT_ARRAY)
+                )
+            )
             ->orderBy('scheduled')
             ->execute()
             ->fetch();

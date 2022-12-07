@@ -1102,7 +1102,7 @@ class DmailController extends MainController
         }
 
         if ($this->params['test_dmail_group_uids'] ?? false) {
-            $intList = implode(',', GeneralUtility::intExplode(',', $this->params['test_dmail_group_uids']));
+            $intList = GeneralUtility::intExplode(',', $this->params['test_dmail_group_uids'], true);
             $rows = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupForTestmail($intList, $this->perms_clause);
 
             foreach ($rows as $row) {
