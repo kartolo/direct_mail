@@ -19,7 +19,18 @@ class SysDmailMaillogRepository extends MainRepository {
         ->count('*')
         ->addSelect('html_sent')
         ->from($this->table)
-        ->add('where','mid=' . $mid . ' AND response_type=0')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            )
+        )
         ->groupBy('html_sent')
         ->execute()
         ->fetchAll();
@@ -35,7 +46,18 @@ class SysDmailMaillogRepository extends MainRepository {
         return $queryBuilder
         ->count('*')
         ->from($this->table)
-        ->add('where','mid=' . $mid . ' AND response_type=1')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)
+            )
+        )
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
@@ -53,7 +75,18 @@ class SysDmailMaillogRepository extends MainRepository {
         return $queryBuilder
         ->count('*')
         ->from($this->table)
-        ->add('where','mid=' . $mid . ' AND response_type=2')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(2, \PDO::PARAM_INT)
+            )
+        )
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
@@ -71,7 +104,18 @@ class SysDmailMaillogRepository extends MainRepository {
         return $queryBuilder
         ->count('*')
         ->from($this->table)
-        ->add('where','mid=' . $mid . ' AND response_type=-1')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(-1, \PDO::PARAM_INT)
+            )
+        )
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
@@ -89,7 +133,12 @@ class SysDmailMaillogRepository extends MainRepository {
         return $queryBuilder
         ->select('uid', 'tstamp')
         ->from($this->table)
-        ->where($queryBuilder->expr()->eq('response_type', $queryBuilder->createNamedParameter($responseType, \PDO::PARAM_INT)))
+        ->where(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter($responseType, \PDO::PARAM_INT)
+            )
+        )
         ->orderBy('tstamp','DESC')
         ->execute()
         ->fetchAll();
@@ -104,9 +153,24 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return $queryBuilder->count('*')
         ->from($this->table)
-        ->add('where', 'mid = ' . intval($uid) .
-            ' AND response_type = 0' .
-            ' AND html_sent > 0')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->gt(
+                'html_sent',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            )
+        )
         ->execute()
         ->fetchAll();
     }
@@ -122,7 +186,12 @@ class SysDmailMaillogRepository extends MainRepository {
         $statement = $queryBuilder->count('*')
             ->addSelect('response_type')
             ->from($this->table)
-            ->add('where', 'mid = ' . intval($uid))
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'mid',
+                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                )
+            )
             ->groupBy('response_type')
             ->execute();
 
@@ -142,8 +211,18 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return $queryBuilder->select('uid')
         ->from($this->table)
-        ->add('where', 'mid=' . intval($uid) .
-            ' AND response_type = 0')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            )
+        )
         ->orderBy('rid','ASC')
         ->execute()
         ->fetchAll();
@@ -163,8 +242,18 @@ class SysDmailMaillogRepository extends MainRepository {
         $statement = $queryBuilder->count('*')
             ->addSelect('url_id')
             ->from($this->table)
-            ->add('where', 'mid=' . intval($uid) .
-            ' AND response_type = '. intval($responseType))
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'mid',
+                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'response_type',
+                    $queryBuilder->createNamedParameter($responseType, \PDO::PARAM_INT)
+                )
+            )
             ->groupBy('url_id')
             ->orderBy('COUNT(*)')
             ->execute();
@@ -186,8 +275,18 @@ class SysDmailMaillogRepository extends MainRepository {
         $statement = $queryBuilder->count('*')
         ->addSelect('return_code')
         ->from($this->table)
-        ->add('where', 'mid=' . intval($uid) .
-            ' AND response_type = '. intval($responseType))
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter($responseType, \PDO::PARAM_INT)
+            )
+        )
         ->groupBy('return_code')
         ->orderBy('COUNT(*)')
         ->execute();
@@ -206,9 +305,15 @@ class SysDmailMaillogRepository extends MainRepository {
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        return $queryBuilder->select('rid','rtbl','tstamp','response_type','url_id','html_sent','size')
+        return $queryBuilder
+        ->select('rid','rtbl','tstamp','response_type','url_id','html_sent','size')
         ->from($this->table)
-        ->add('where', 'mid=' . intval($uid))
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
         ->orderBy('rtbl')
         ->addOrderBy('rid')
         ->addOrderBy('tstamp')
@@ -225,8 +330,18 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return $queryBuilder->select('rid','rtbl','email')
         ->from($this->table)
-        ->add('where','mid=' . intval($uid) .
-            ' AND response_type=-127')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+            )
+        )
         ->execute()
         ->fetchAll();
     }
@@ -240,9 +355,28 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return $queryBuilder->select('rid','rtbl','email')
         ->from($this->table)
-        ->add('where','mid=' . intval($uid) .
-            ' AND response_type=-127' .
-            ' AND (return_code=550 OR return_code=553)')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+            ),
+            $queryBuilder->expr()->or(
+                $queryBuilder->expr()->eq(
+                    'return_code',
+                    $queryBuilder->createNamedParameter(550, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'return_code',
+                    $queryBuilder->createNamedParameter(553, \PDO::PARAM_INT)
+                )
+            )
+        )
         ->execute()
         ->fetchAll();
     }
@@ -256,9 +390,24 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return $queryBuilder->select('rid','rtbl','email')
         ->from($this->table)
-        ->add('where','mid=' . intval($uid) .
-            ' AND response_type=-127' .
-            ' AND return_code=551')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'return_code',
+                $queryBuilder->createNamedParameter(551, \PDO::PARAM_INT)
+            )
+        )
         ->execute()
         ->fetchAll();
     }
@@ -272,9 +421,24 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return $queryBuilder->select('rid','rtbl','email')
         ->from($this->table)
-        ->add('where','mid=' . intval($uid) .
-            ' AND response_type=-127' .
-            ' AND return_code=552')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'return_code',
+                $queryBuilder->createNamedParameter(552, \PDO::PARAM_INT)
+            )
+        )
         ->execute()
         ->fetchAll();
     }
@@ -288,9 +452,24 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return $queryBuilder->select('rid','rtbl','email')
         ->from($this->table)
-        ->add('where','mid=' . intval($uid) .
-            ' AND response_type=-127' .
-            ' AND return_code=554')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'return_code',
+                $queryBuilder->createNamedParameter(554, \PDO::PARAM_INT)
+            )
+        )
         ->execute()
         ->fetchAll();
     }
@@ -304,9 +483,24 @@ class SysDmailMaillogRepository extends MainRepository {
 
         return $queryBuilder->select('rid','rtbl','email')
         ->from($this->table)
-        ->add('where','mid=' . intval($uid) .
-            ' AND response_type=-127' .
-            ' AND return_code=-1')
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'response_type',
+                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'return_code',
+                $queryBuilder->createNamedParameter(-1, \PDO::PARAM_INT)
+            )
+        )
         ->execute()
         ->fetchAll();
     }
