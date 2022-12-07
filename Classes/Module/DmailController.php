@@ -680,7 +680,7 @@ class DmailController extends MainController
                     'title' => htmlspecialchars($row['title']),
                     'createDmailLink' => $createDmailLink,
                     'createLink' => $createLink,
-                    'editOnClickLink' => DirectMailUtility::getEditOnClickLink($params),
+                    'editOnClickLink' => $this->getEditOnClickLink($params),
                     'iconActionsOpen' => $iconActionsOpen,
                     'previewLink' => $previewLink
                 ];
@@ -1022,7 +1022,7 @@ class DmailController extends MainController
                     ]
                 );
 
-                $editParams = DirectMailUtility::getEditOnClickLink([
+                $editParams = $this->getEditOnClickLink([
                     'edit' => [
                         'sys_dmail' => [
                             $row['uid'] => 'edit',
@@ -1419,7 +1419,7 @@ class DmailController extends MainController
                             'returnUrl' => $requestUri
                         ];
 
-                        $editOnClick = DirectMailUtility::getEditOnClickLink($params);
+                        $editOnClick = $this->getEditOnClickLink($params);
                         $editLink = '<td><a href="#" onClick="' . $editOnClick . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
                             $iconActionsOpen .
                             '</a></td>';

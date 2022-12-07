@@ -465,19 +465,4 @@ class DirectMailUtility
         $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
         return $fileRepository->findByRelation('sys_dmail', 'attachment', $dmailUid);
     }
-
-    /**
-     * generate edit link for records
-     *
-     * @param $params
-     * @return string
-     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
-     */
-    public static function getEditOnClickLink(array $params): string
-    {
-        /** @var UriBuilder $uriBuilder */
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-
-        return 'window.location.href=' . GeneralUtility::quoteJSvalue((string) $uriBuilder->buildUriFromRoute('record_edit', $params)) . '; return false;';
-    }
 }
