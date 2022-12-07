@@ -7,7 +7,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SysDmailCategoryRepository extends MainRepository {
     protected string $table = 'sys_dmail_category';
-    
+
     /**
      * @return array|bool
      */

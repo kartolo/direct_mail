@@ -117,7 +117,7 @@ class JumpurlController implements MiddlewareInterface
                 if (empty($jumpurl)) {
                     die('Error: No further link. Please report error to the mail sender.');
                 }
-            } 
+            }
             else {
                 // jumpUrl is not an integer -- then this is a URL, that means that the "dmailerping"
                 // functionality was used to count the number of "opened mails" received (url, dmailerping)
@@ -196,7 +196,7 @@ class JumpurlController implements MiddlewareInterface
                 // Link (number)
                 $this->responseType = self::RESPONSE_TYPE_HREF;
                 $targetUrl = $mailContent['html']['hrefs'][$targetIndex]['absRef'];
-            } 
+            }
             else {
                 // Link (number, plaintext)
                 $this->responseType = self::RESPONSE_TYPE_PLAIN;
@@ -361,7 +361,7 @@ class JumpurlController implements MiddlewareInterface
         if (preg_match('#/dmailerping\\.(gif|png)$#', $checkPath) && (GeneralUtility::isAllowedAbsPath($checkPath) || GeneralUtility::isValidUrl($target))) {
             // set juHash as done for external_url in core: http://forge.typo3.org/issues/46071
             $allowed = true;
-        } 
+        }
         elseif (GeneralUtility::isValidUrl($target)) {
             // if it's a valid URL, throw exception
             throw new \Exception('direct_mail: Invalid target.', 1578347190);

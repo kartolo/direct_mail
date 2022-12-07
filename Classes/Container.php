@@ -39,17 +39,17 @@ class Container
      * @var TypoScriptFrontendController
      */
     protected $cObj;
-    
+
     /**
      * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.4/Deprecation-94956-PublicCObj.html
-     * 
+     *
      * @param ContentObjectRenderer $cObj
      */
     public function setContentObjectRenderer(ContentObjectRenderer $cObj): void
     {
         $this->cObj = $cObj;
     }
-    
+
     /**
      * This function wraps HTML comments around the content.
      * The comments contain the uids of assigned direct mail categories.

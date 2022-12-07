@@ -11,7 +11,7 @@ class DmRegistryUtility
 {
     /**
      * Create an access token and save it in the Registry
-     * 
+     *
      * @return string
      */
     public function createAndGetAccessToken(): string
@@ -20,10 +20,10 @@ class DmRegistryUtility
         $registry = GeneralUtility::makeInstance(Registry::class);
         $accessToken = GeneralUtility::makeInstance(Random::class)->generateRandomHexString(32);
         $registry->set('tx_directmail', 'accessToken', $accessToken);
-        
+
         return $accessToken;
     }
-    
+
     /**
      * Create an access token and save it in the Registry
      *

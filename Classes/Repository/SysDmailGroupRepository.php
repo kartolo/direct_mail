@@ -8,18 +8,18 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SysDmailGroupRepository extends MainRepository {
     protected string $table = 'sys_dmail_group';
-    
+
     /**
      * @return array|bool
      */
-    public function selectSysDmailGroupByPid(int $pid, string $defaultSortBy) //: array|bool 
+    public function selectSysDmailGroupByPid(int $pid, string $defaultSortBy) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
         ->getRestrictions()
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        
+
         return $queryBuilder->select('uid','pid','title','description','type')
         ->from($this->table)
         ->where(
@@ -41,7 +41,7 @@ class SysDmailGroupRepository extends MainRepository {
     public function selectSysDmailGroupForFinalMail(int $pid, int $sysLanguageUid, string $defaultSortBy) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder->select('uid','pid','title')
         ->from($this->table)
         ->where(
@@ -62,7 +62,7 @@ class SysDmailGroupRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
-    
+
     /**
      * @return array|bool
      */
@@ -73,7 +73,7 @@ class SysDmailGroupRepository extends MainRepository {
         ->getRestrictions()
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        
+
         return $queryBuilder
         ->select($this->table.'.*')
         ->from($this->table)

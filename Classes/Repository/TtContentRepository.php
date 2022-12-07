@@ -5,14 +5,14 @@ namespace DirectMailTeam\DirectMail\Repository;
 
 class TtContentRepository extends MainRepository {
     protected string $table = 'tt_content';
-    
+
     /**
      * @return array|bool
      */
     public function selectTtContentByPidAndSysLanguageUid(int $pid, int $sysLanguageUid) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder
         ->select('colPos', 'CType', 'list_type', 'uid', 'pid', 'header', 'bodytext', 'module_sys_dmail_category')
         ->from($this->table)

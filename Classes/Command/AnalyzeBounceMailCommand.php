@@ -64,7 +64,7 @@ class AnalyzeBounceMailCommand extends Command
             //->setHelp('')
         ;
     }
-    
+
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -86,7 +86,7 @@ class AnalyzeBounceMailCommand extends Command
             $io->error($this->languageService->getLL('scheduler.bounceMail.phpImapError'));
             return Command::FAILURE;
         }
-        
+
         if ($input->getOption('server')) {
             $server = $input->getOption('server');
             //$io->writeln($server);
@@ -130,7 +130,7 @@ class AnalyzeBounceMailCommand extends Command
                         //$io->writeln($message->getSubject());
                         // set delete
                         $message->delete();
-                    } 
+                    }
                     else {
                         $message->setFlag('SEEN');
                     }
@@ -157,7 +157,7 @@ class AnalyzeBounceMailCommand extends Command
     {
         /** @var ReadmailUtility $readMail */
         $readMail = GeneralUtility::makeInstance(ReadmailUtility::class);
-        
+
         // get attachment
         $attachmentArray = $message->getAttachments();
         $midArray = [];
@@ -172,23 +172,23 @@ class AnalyzeBounceMailCommand extends Command
                     break;
                 }
             }
-        } 
+        }
         else {
             // search in MessageBody (see rfc822-headers as Attachments placed )
             $midArray = $readMail->find_XTypo3MID($message->getMessageBody());
         }
-        
+
         if (empty($midArray)) {
             // no mid, rid and rtbl found - exit
             return false;
         }
-        
+
         // Extract text content
         $cp = $readMail->analyseReturnError($message->getMessageBody());
-        
+
         $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
         $row = $sysDmailMaillogRepository->selectForAnalyzeBounceMail($midArray['rid'], $midArray['rtbl'], $midArray['mid']);
-        
+
         // only write to log table, if we found a corresponding recipient record
         if (!empty($row)) {
 
@@ -209,7 +209,7 @@ class AnalyzeBounceMailCommand extends Command
             return false;
         }
     }
-    
+
     /**
      * Create connection to mail server.
      * Return mailServer object or false on error
@@ -232,10 +232,10 @@ class AnalyzeBounceMailCommand extends Command
             $port,
             $type
         );
-        
+
         // set mail username and password
         $mailServer->setAuthentication($user, $password);
-        
+
         try {
             $imapStream = $mailServer->getImapStream();
             return $mailServer;
@@ -244,16 +244,16 @@ class AnalyzeBounceMailCommand extends Command
             return false;
         }
     }
-    
+
     /**
-     * 
+     *
      * @return int
      */
     private function getTimestampFromAspect(): int {
         $context = GeneralUtility::makeInstance(Context::class);
         return $context->getPropertyFromAspect('date', 'timestamp');
     }
-    
+
     /**
      * @return void
      */

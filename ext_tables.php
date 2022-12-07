@@ -45,7 +45,7 @@ defined('TYPO3') || die();
 
     // https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/BackendModules/BackendModuleApi/Index.html#without-extbase
     // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.5/Deprecation-94094-NavigationFrameModuleInModuleRegistration.html
-    
+
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
         'DirectMailNavFrame',
         'DirectMail',
@@ -99,7 +99,7 @@ defined('TYPO3') || die();
             ],
         ]
     );
-    
+
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
         'DirectMailNavFrame',
         'MailerEngine',
@@ -139,6 +139,6 @@ defined('TYPO3') || die();
     if (TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
         include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail').'Configuration/TCA/Overrides/tt_address.php');
     }
-    
+
     $GLOBALS['TBE_STYLES']['skins']['direct_mail']['stylesheetDirectories'][] = 'EXT:direct_mail/Resources/Public/StyleSheets/';
 })();

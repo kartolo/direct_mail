@@ -49,8 +49,8 @@ class SelectCategories
         if ($lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
             $sysPage = GeneralUtility::makeInstance(PageRepository::class);
             $rows = GeneralUtility::makeInstance(SysLanguageRepository::class)->selectSysLanguageForSelectCategories(
-                $lang, 
-                $sysPage->enableFields('sys_language'), 
+                $lang,
+                $sysPage->enableFields('sys_language'),
                 $sysPage->enableFields('static_languages')
             );
             if (is_array($rows)) {
@@ -63,7 +63,7 @@ class SelectCategories
         if (is_array($params['items']) && !empty($params['items'])) {
             $table = (string)$params['config']['itemsProcFunc_config']['table'];
             $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
-            
+
             foreach ($params['items'] as $k => $item) {
                 $rows = $tempRepository->selectRowsByUid($table, intval($item[1]));
                 if (is_array($rows)) {
@@ -76,7 +76,7 @@ class SelectCategories
             }
         }
     }
-    
+
     /**
      * @return LanguageService
      */

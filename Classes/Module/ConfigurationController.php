@@ -22,14 +22,14 @@ class ConfigurationController extends MainController
 
     protected string $TSconfPrefix = 'mod.web_modules.dmail.';
     protected array $pageTS = [];
-    
+
     protected $requestUri = '';
-    
+
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $currentModule = 'Configuration';
         $this->view = $this->configureTemplatePaths($currentModule);
-        
+
         $this->init($request);
         $this->initConfiguration($request);
         $this->updatePageTS();
@@ -75,7 +75,7 @@ class ConfigurationController extends MainController
         $this->moduleTemplate->setContent($this->view->render());
         return new HtmlResponse($this->moduleTemplate->renderContent());
     }
-    
+
     protected function initConfiguration(ServerRequestInterface $request): void
     {
         $queryParams = $request->getQueryParams();
@@ -83,10 +83,10 @@ class ConfigurationController extends MainController
 
         $normalizedParams = $request->getAttribute('normalizedParams');
         $this->requestUri = $normalizedParams->getRequestUri();
-        
+
         $this->pageTS = $parsedBody['pageTS'] ?? $queryParams['pageTS'] ?? [];
     }
-    
+
     protected function setDefaultValues(): void
     {
         if (!isset($this->implodedParams['plainParams'])) {
@@ -99,7 +99,7 @@ class ConfigurationController extends MainController
             $this->implodedParams['direct_mail_charset'] = 'iso-8859-1';
         }
     }
-    
+
    /**
      * Update the pageTS
      * No return value: sent header to the same page

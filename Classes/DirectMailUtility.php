@@ -132,7 +132,7 @@ class DirectMailUtility
     {
         return $GLOBALS['LANG'];
     }
-    
+
     /**
      * Fetch content of a page (only internal and external page)
      *
@@ -183,7 +183,7 @@ class DirectMailUtility
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
                 $errorMsg[] = $lang->getLL('dmail_no_plain_content');
-            } 
+            }
             elseif (!strstr($htmlmail->theParts['plain']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $lang->getLL('dmail_no_plain_boundaries');
             }
@@ -200,20 +200,20 @@ class DirectMailUtility
                 $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', ($htmlmail->theParts['html_content'] ?? ''), $matches);
                 if ($res == 1) {
                     $htmlmail->charset = $matches[1];
-                } 
+                }
                 elseif (isset($params['direct_mail_charset'])) {
                     $htmlmail->charset = $params['direct_mail_charset'];
-                } 
+                }
                 else {
                     $htmlmail->charset = 'iso-8859-1';
                 }
             }
             if ($htmlmail->extractFramesInfo()) {
                 $errorMsg[] = $lang->getLL('dmail_frames_not allowed');
-            } 
+            }
             elseif (!$success || !$htmlmail->theParts['html']['content']) {
                 $errorMsg[] = $lang->getLL('dmail_no_html_content');
-            } 
+            }
             elseif (!strstr($htmlmail->theParts['html']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $lang->getLL('dmail_no_html_boundaries');
             }
@@ -248,7 +248,7 @@ class DirectMailUtility
                         ]);
                 }
             }
-        } 
+        }
         else {
             foreach ($errorMsg as $error) {
                 $theOutput .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
@@ -268,7 +268,7 @@ class DirectMailUtility
                 'errors' => $errorMsg,
                 'warnings' => $warningMsg
             ];
-        } 
+        }
         else {
             return $theOutput;
         }
@@ -346,7 +346,7 @@ class DirectMailUtility
         if ($result['plainTextUrl']) {
             if (!($row['sendOptions'] & 1)) {
                 $result['plainTextUrl'] = '';
-            } 
+            }
             else {
                 $urlParts = @parse_url($result['plainTextUrl']);
                 if (!$urlParts['scheme']) {
@@ -359,7 +359,7 @@ class DirectMailUtility
         if ($result['htmlUrl']) {
             if (!($row['sendOptions'] & 2)) {
                 $result['htmlUrl'] = '';
-            } 
+            }
             else {
                 $urlParts = @parse_url($result['htmlUrl']);
                 if (!$urlParts['scheme']) {
@@ -384,7 +384,7 @@ class DirectMailUtility
     {
         /** @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager $configurationManager */
         $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
-    
+
         $settings = $configurationManager->getConfiguration(
             ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
         );
@@ -393,7 +393,7 @@ class DirectMailUtility
 
         if (!empty($settings['config.']['metaCharset'])) {
             $characterSet = $settings['config.']['metaCharset'];
-        } 
+        }
         elseif (!empty($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])) {
             $characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
         }
@@ -412,7 +412,7 @@ class DirectMailUtility
     }
 
     /**
-     * Takes a clear-text message body for a plain text email, finds all 'http://' links and if they are longer than 76 chars they are converted to a shorter URL with a hash parameter. 
+     * Takes a clear-text message body for a plain text email, finds all 'http://' links and if they are longer than 76 chars they are converted to a shorter URL with a hash parameter.
      * The real parameter is stored in the database and the hash-parameter/URL will be redirected to the real parameter when the link is clicked.
      * This function is about preserving long links in messages.
      *

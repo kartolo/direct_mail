@@ -28,7 +28,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class MainController {
-    
+
     /**
      * ModuleTemplate Container
      *
@@ -37,7 +37,7 @@ class MainController {
     protected $moduleTemplate;
     protected IconFactory $iconFactory;
     protected PageRenderer $pageRenderer;
-    
+
     /**
      * @var StandaloneView
      */
@@ -58,23 +58,23 @@ class MainController {
      * @var string
      */
     protected string $perms_clause = '';
-    
+
     protected array $implodedParams = [];
     protected $userTable;
     protected $allowedTables = [];
     protected int $sys_language_uid = 0;
     protected array $pageinfo = [];
     protected bool $access = false;
-    
+
     protected $messageQueue;
-    
+
     /**
      * Constructor Method
      *
      * @var ModuleTemplate $moduleTemplate
      */
     public function __construct(
-        ModuleTemplate $moduleTemplate = null, 
+        ModuleTemplate $moduleTemplate = null,
         IconFactory $iconFactory = null,
         PageRenderer $pageRenderer = null)
     {
@@ -84,12 +84,12 @@ class MainController {
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
     }
-    
-    protected function init(ServerRequestInterface $request): void 
+
+    protected function init(ServerRequestInterface $request): void
     {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
-        
+
         $this->id             = (int)($parsedBody['id']              ?? $queryParams['id'] ?? 0);
         $this->cmd            = (string)($parsedBody['cmd']          ?? $queryParams['cmd'] ?? '');
         $this->pages_uid      = (string)($parsedBody['pages_uid']    ?? $queryParams['pages_uid'] ?? '');
@@ -100,7 +100,7 @@ class MainController {
         $pageAccess = BackendUtility::readPageAccess($this->id, $this->perms_clause);
         $this->pageinfo = is_array($pageAccess) ? $pageAccess : [];
         $this->access = is_array($this->pageinfo) ? true : false;
-        
+
         // get the config from pageTS
         $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
         $this->implodedParams = GeneralUtility::makeInstance(TsUtility::class)->implodeTSParams($this->params);
@@ -111,7 +111,7 @@ class MainController {
         }
         // initialize backend user language
         //$this->sys_language_uid = 0; //@TODO
-        
+
         $this->messageQueue = $this->getMessageQueue();
 
         if($this->updatePageTree) {
@@ -132,9 +132,9 @@ class MainController {
         $view->setTemplate($templateName);
         return $view;
     }
-    
+
     /**
-     *  
+     *
         https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
         const 	NOTICE = -2
         const 	INFO = -1
@@ -146,7 +146,7 @@ class MainController {
      * @param int $messageType
      * @param bool $storeInSession
      */
-    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false) 
+    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false)
     {
         return GeneralUtility::makeInstance(FlashMessage::class,
             $messageText,
@@ -155,14 +155,14 @@ class MainController {
             $storeInSession // [optional] whether the message should be stored in the session or only in the \TYPO3\CMS\Core\Messaging\FlashMessageQueue object (default is false)
         );
     }
-    
-    protected function getMessageQueue() 
+
+    protected function getMessageQueue()
     {
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
         return $flashMessageService->getMessageQueueByIdentifier();
     }
-    
-    protected function getModulName() 
+
+    protected function getModulName()
     {
         $module = $this->pageinfo['module'] ?? false;
 
@@ -170,15 +170,15 @@ class MainController {
             $pidrec = BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
             $module = $pidrec['module'] ?? false;
         }
-        
+
         return $module;
     }
-    
-    public function getId(): int 
+
+    public function getId(): int
     {
         return $this->id;
     }
-    
+
     /**
      * @return LanguageService
      */
@@ -201,7 +201,7 @@ class MainController {
         return $GLOBALS['BE_USER']->isAdmin();
     }
 
-    protected function getTSConfig() 
+    protected function getTSConfig()
     {
         return $GLOBALS['BE_USER']->getTSConfig();
     }
@@ -210,23 +210,23 @@ class MainController {
     {
         return $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail'][$name] ?? 0;
     }
-    
+
     protected function getConnection(string $table): Connection
     {
         return GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
     }
-    
+
     protected function getQueryBuilder(string $table): QueryBuilder
     {
         return GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
     }
-    
+
     protected function getDataHandler(): DataHandler
     {
         return GeneralUtility::makeInstance(DataHandler::class);
     }
-    
-    protected function buildUriFromRoute($name, $parameters = []): Uri 
+
+    protected function buildUriFromRoute($name, $parameters = []): Uri
     {
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
@@ -235,7 +235,7 @@ class MainController {
             $parameters
         );
     }
-    
+
     protected function getDMPages(string $moduleName): array
     {
         $dmLinks = [];
@@ -259,22 +259,22 @@ class MainController {
     {
         return Environment::getPublicPath() . '/typo3temp/';
     }
-    
+
     protected function getDmailerLogFilePath(): string
     {
         return $this->getTempPath() . 'tx_directmail_dmailer_log.txt';
     }
-    
+
     protected function getDmailerLockFilePath(): string
     {
         return $this->getTempPath() . 'tx_directmail_cron.lock';
     }
-    
+
     protected function getIconActionsOpen(): Icon
     {
         return $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL);
     }
-    
+
     /**
      * Prepare DB record
      *
@@ -293,10 +293,10 @@ class MainController {
             'counter' => is_array($listArr) ? count($listArr) : 0,
             'rows' => []
         ];
-        
+
         $isAllowedDisplayTable = $this->getBackendUser()->check('tables_select', $table);
         $isAllowedEditTable = $this->getBackendUser()->check('tables_modify', $table);
-        
+
         if (is_array($listArr)) {
             $notAllowedPlaceholder = $lang->getLL('mailgroup_table_disallowed_placeholder');
             $tableIcon = $this->iconFactory->getIconForRecord($table, []);
@@ -311,10 +311,10 @@ class MainController {
                         ],
                         'returnUrl' => $this->requestUri
                     ];
-                    
+
                     $editLink = $this->buildUriFromRoute('record_edit', $urlParameters);
                 }
-                
+
                 $name = $row['name'] ?? '';
                 if($name == '') {
                     if($row['first_name'] ?? '') {
@@ -334,11 +334,11 @@ class MainController {
                 ];
             }
         }
-        
+
         return $output;
     }
-    
-    protected function getJS($sys_dmail_uid) 
+
+    protected function getJS($sys_dmail_uid)
     {
         return '
         script_ended = 0;

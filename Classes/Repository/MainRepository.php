@@ -13,12 +13,12 @@ class MainRepository {
     {
         return GeneralUtility::makeInstance(ConnectionPool::class);
     }
-    
+
     public function getConnection(string $table): Connection
     {
         return $this->getConnectionPool()->getConnectionForTable($table);
     }
-    
+
     public function getQueryBuilder(string $table): QueryBuilder
     {
         return $this->getConnectionPool()->getQueryBuilderForTable($table);

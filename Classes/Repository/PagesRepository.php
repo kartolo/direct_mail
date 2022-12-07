@@ -5,11 +5,11 @@ namespace DirectMailTeam\DirectMail\Repository;
 
 class PagesRepository extends MainRepository {
     protected string $table = 'pages';
-    
+
     /**
      * @return array|bool
      */
-    public function selectPagesForDmail(int $pid, string $permsClause) //: array|bool 
+    public function selectPagesForDmail(int $pid, string $permsClause) //: array|bool
     {
         // Here the list of subpages, news, is rendered
         $queryBuilder = $this->getQueryBuilder($this->table);
@@ -24,7 +24,7 @@ class PagesRepository extends MainRepository {
             $queryBuilder->expr()->eq('l10n_parent', 0), // Exclude translated page records from list
             $permsClause
         );
-        
+
         /**
          * https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/PageTypes/TypesOfPages.html
          * typo3/sysext/core/Classes/Domain/Repository/PageRepository.php
@@ -32,7 +32,7 @@ class PagesRepository extends MainRepository {
          * Regards custom configurations, otherwise ignores spacers (199), recyclers (255) and folders (254)
          *
          **/
-        
+
         return $queryBuilder
         ->andWhere(
             $queryBuilder->expr()->notIn(
@@ -44,14 +44,14 @@ class PagesRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
-    
+
     /**
      * @return array|bool
      */
-    public function selectPageByL10nAndSysLanguageUid(int $pageUid, int $langUid) //: array|bool 
+    public function selectPageByL10nAndSysLanguageUid(int $pageUid, int $langUid) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder
         ->select('sys_language_uid')
         ->from($this->table)
@@ -60,14 +60,14 @@ class PagesRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
-    
+
     /**
      * @return array|bool
      */
-    public function selectSubfolders(string $permsClause) //: array|bool 
+    public function selectSubfolders(string $permsClause) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder
         ->select('uid', 'title')
         ->from($this->table)
@@ -82,14 +82,14 @@ class PagesRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
-    
+
     /**
      * @return array|bool
      */
-    public function selectTitleTranslatedPage(int $pageUid, int $langUid) //: array|bool 
+    public function selectTitleTranslatedPage(int $pageUid, int $langUid) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder
         ->select('title')
         ->from($this->table)
@@ -98,9 +98,9 @@ class PagesRepository extends MainRepository {
         ->execute()
         ->fetch();
     }
-    
+
     /**
-     * 
+     *
      * @param int $pageUid
      * @param string $tsConf
      * @return int
@@ -127,7 +127,7 @@ class PagesRepository extends MainRepository {
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
-                'module', 
+                'module',
                 $queryBuilder->createNamedParameter($modulName, \PDO::PARAM_STR)
             )
         )

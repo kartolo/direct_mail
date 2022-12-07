@@ -5,7 +5,7 @@ namespace DirectMailTeam\DirectMail\Repository;
 
 class TtContentCategoryMmRepository extends MainRepository {
     protected string $table = 'sys_dmail_ttcontent_category_mm';
-    
+
     /**
      * @return array|bool
      */
@@ -18,7 +18,7 @@ class TtContentCategoryMmRepository extends MainRepository {
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
-                'uid_local', 
+                'uid_local',
                 $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
             )
         )

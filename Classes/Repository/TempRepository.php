@@ -10,7 +10,7 @@ use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class TempRepository extends MainRepository {
-    
+
     /**
      * Get recipient DB record given on the ID
      *
@@ -31,19 +31,19 @@ class TempRepository extends MainRepository {
             ->getRestrictions()
             ->removeAll()
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-            
+
             $fieldArray = GeneralUtility::trimExplode(',', $fields);
-            
+
             // handle selecting multiple fields
             foreach ($fieldArray as $i => $field) {
                 if ($i) {
                     $queryBuilder->addSelect($field);
-                } 
+                }
                 else {
                     $queryBuilder->select($field);
                 }
             }
-            
+
             $res = $queryBuilder->from($table)
             ->where(
                 $queryBuilder->expr()->in(
@@ -55,14 +55,14 @@ class TempRepository extends MainRepository {
                 )
             )
             ->execute();
-                
+
             while ($row = $res->fetch()) {
                 $outListArr[$row['uid']] = $row;
             }
         }
         return $outListArr;
     }
-    
+
     /**
      * Return all uid's from $table where the $pid is in $pidList.
      * If $cat is 0 or empty, then all entries (with pid $pid) is returned else only
@@ -82,7 +82,7 @@ class TempRepository extends MainRepository {
         $addWhere = '';
         $switchTable = $table == 'fe_groups' ? 'fe_users' : $table;
         $pidArray = GeneralUtility::intExplode(',', $pidList);
-        
+
         $queryBuilder = $this->getQueryBuilder($table);
 
         if ($switchTable == 'fe_users') {
@@ -92,7 +92,7 @@ class TempRepository extends MainRepository {
                 1
             );
         }
-        
+
         // fe user group uid should be in list of fe users list of user groups
         //		$field = $switchTable.'.usergroup';
         //		$command = $table.'.uid';
@@ -100,7 +100,7 @@ class TempRepository extends MainRepository {
         // even when fe_users.usergroup is defined as varchar(255) instead of tinyblob
         // $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
         // The following will work but INSTR and CONCAT are available only in mySQL
-        
+
         $mmTable = $GLOBALS['TCA'][$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
         $cat = intval($cat);
         if ($cat < 1) {
@@ -203,7 +203,7 @@ class TempRepository extends MainRepository {
         }
         return $outArr;
     }
-    
+
     /**
      * Return all uid's from $table for a static direct mail group.
      *
@@ -219,10 +219,10 @@ class TempRepository extends MainRepository {
         // fe user group uid should be in list of fe users list of user groups
         // $field = $switchTable.'.usergroup';
         // $command = $table.'.uid';
-        
+
         // See comment above
         // $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
-        
+
         // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
         if ($switchTable == 'fe_users') {
             $addWhere =  $queryBuilder->expr()->eq(
@@ -230,7 +230,7 @@ class TempRepository extends MainRepository {
                 1
             );
         }
-        
+
         if ($table == 'fe_groups') {
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
@@ -293,13 +293,13 @@ class TempRepository extends MainRepository {
             ->addOrderBy($switchTable . '.email')
             ->execute();
         }
-        
+
         $outArr = [];
-        
+
         while ($row = $res->fetch()) {
             $outArr[] = $row['uid'];
         }
-        
+
         if ($table == 'fe_groups') {
             // get the uid of the current fe_group
             $queryBuilder = $this->getQueryBuilder($table);
@@ -320,19 +320,19 @@ class TempRepository extends MainRepository {
                 ->add($queryBuilder->expr()->eq('sys_dmail_group_mm.tablenames', $queryBuilder->createNamedParameter($table)))
             )
             ->execute();
-                    
+
             list($groupId) = $res->fetchAll();
-                    
+
             // recursively get all subgroups of this fe_group
             $subgroups = $this->getFEgroupSubgroups($groupId);
-                    
+
             if (!empty($subgroups)) {
                 $usergroupInList = null;
                 foreach ($subgroups as $subgroup) {
                     $usergroupInList .= (($usergroupInList == null) ? null : ' OR') . ' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',' . intval($subgroup) . ',\') )';
                 }
                 $usergroupInList = '(' . $usergroupInList . ')';
-                
+
                 // fetch all fe_users from these subgroups
                 $queryBuilder = $this->getQueryBuilder($table);
                 // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
@@ -342,7 +342,7 @@ class TempRepository extends MainRepository {
                         1
                     );
                 }
-                
+
                 $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                 ->from($table, $table)
@@ -360,16 +360,16 @@ class TempRepository extends MainRepository {
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
                 ->execute();
-                        
+
                 while ($row = $res->fetch()) {
                     $outArr[] = $row['uid'];
                 }
             }
         }
-        
+
         return $outArr;
     }
-    
+
     /**
      * Get all subsgroups recursively.
      *
@@ -381,11 +381,11 @@ class TempRepository extends MainRepository {
     {
         // get all subgroups of this fe_group
         // fe_groups having this id in their subgroup field
-        
+
         $table = 'fe_groups';
         $mmTable = 'sys_dmail_group_mm';
         $groupTable = 'sys_dmail_group';
-        
+
         $queryBuilder = $this->getQueryBuilder($table);
 
         $res = $queryBuilder->selectLiteral('DISTINCT fe_groups.uid')
@@ -411,17 +411,17 @@ class TempRepository extends MainRepository {
         ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . intval($groupId) . ',\' )')
         ->execute();
         $groupArr = [];
-                
+
         while ($row = $res->fetch()) {
             $groupArr[] = $row['uid'];
-            
+
             // add all subgroups recursively too
             $groupArr = array_merge($groupArr, $this->getFEgroupSubgroups($row['uid']));
         }
-                
+
         return $groupArr;
     }
-    
+
     /**
      * Construct the array of uid's from $table selected
      * by special query of mail group of such type
@@ -440,7 +440,7 @@ class TempRepository extends MainRepository {
             if($select) {
                 $connection = $this->getConnection($table);
                 $recipients = $connection->executeQuery($select)->fetchAll();
-                
+
                 foreach ($recipients as $recipient) {
                     $outArr[] = $recipient['uid'];
                 }
@@ -448,7 +448,7 @@ class TempRepository extends MainRepository {
         }
         return $outArr;
     }
-    
+
     /**
      * Get all group IDs
      *
@@ -462,7 +462,7 @@ class TempRepository extends MainRepository {
     {
         $groupIdList = GeneralUtility::intExplode(',', $list);
         $groups = [];
-        
+
         $queryBuilder = $this->getQueryBuilder('sys_dmail_group');
         $queryBuilder
             ->getRestrictions()
@@ -479,7 +479,7 @@ class TempRepository extends MainRepository {
             ->add('where', 'sys_dmail_group.uid IN (' . implode(',', $groupIdList) . ')' .
                 ' AND ' . $permsClause)
         ->execute();
-                
+
         while ($row = $res->fetch()) {
             if ($row['type'] == 4) {
                 // Other mail group...
@@ -495,7 +495,7 @@ class TempRepository extends MainRepository {
         }
         return $groups;
     }
-    
+
     /**
      * Compile the categories enables for this $row of this $table.
      *
@@ -508,9 +508,9 @@ class TempRepository extends MainRepository {
     public function makeCategories(string $table, array $row, int $sysLanguageUid)
     {
         $categories = [];
-        
+
         $mmField = $table == 'sys_dmail_group' ? 'select_categories' : 'module_sys_dmail_category';
-        
+
         $pageTsConfig = BackendUtility::getTCEFORM_TSconfig($table, $row);
         if (is_array($pageTsConfig[$mmField])) {
             $pidList = $pageTsConfig[$mmField]['PAGE_TSCONFIG_IDLIST'] ?? [];
@@ -530,7 +530,7 @@ class TempRepository extends MainRepository {
         }
         return $categories;
     }
-    
+
     /**
      * Import from t3lib_page in order to create backend version
      * Creates language-overlay for records in general
@@ -562,7 +562,7 @@ class TempRepository extends MainRepository {
                             ->setMaxResults(1)/* LIMIT 1*/
                             ->execute()
                             ->fetch();
-                            
+
                             // Merge record content by traversing all fields:
                             if (is_array($olrow)) {
                                 foreach ($row as $fN => $fV) {
@@ -573,7 +573,7 @@ class TempRepository extends MainRepository {
                                     }
                                 }
                             }
-                            
+
                             // Otherwise, check if sys_language_content is different from the value of the record
                             // that means a japanese site might try to display french content.
                         }
@@ -591,17 +591,17 @@ class TempRepository extends MainRepository {
                 }
             }
         }
-        
+
         return $row;
     }
-    
+
     /**
-     * 
+     *
      * @param string $table
      * @param int $uid
      * @return array|bool
      */
-    public function selectRowsByUid(string $table, int $uid) 
+    public function selectRowsByUid(string $table, int $uid)
     {
         $queryBuilder = $this->getQueryBuilder($table);
         return $queryBuilder
@@ -614,11 +614,11 @@ class TempRepository extends MainRepository {
             ->fetchAll();
     }
 
-    public function selectForMasssendList(string $table, string $idList, int $sendPerCycle, $sendIds) 
+    public function selectForMasssendList(string $table, string $idList, int $sendPerCycle, $sendIds)
     {
         $sendIds = $sendIds ? $sendIds : 0; //@TODO
         $queryBuilder = $this->getQueryBuilder($table);
-        
+
         return $queryBuilder
             ->select('*')
             ->from($table)
@@ -633,7 +633,7 @@ class TempRepository extends MainRepository {
             ->fetchAll();
     }
 
-    public function getListOfRecipentCategories(string $table, string $relationTable, int $uid) 
+    public function getListOfRecipentCategories(string $table, string $relationTable, int $uid)
     {
         $queryBuilder = $this->getQueryBuilder($table);
         $queryBuilder
@@ -648,7 +648,7 @@ class TempRepository extends MainRepository {
             ->leftJoin($relationTable, $table, $table, $relationTable . '.uid_local = ' . $table . '.uid')
             ->where(
                 $queryBuilder->expr()->eq(
-                    $relationTable . '.uid_local', 
+                    $relationTable . '.uid_local',
                     $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
                 )
             )
@@ -656,7 +656,7 @@ class TempRepository extends MainRepository {
             ->fetchAll();
     }
 
-    public function getDisplayUserInfo(string $table, int $uid) 
+    public function getDisplayUserInfo(string $table, int $uid)
     {
         $queryBuilder = $this->getQueryBuilder($table);
         return $queryBuilder

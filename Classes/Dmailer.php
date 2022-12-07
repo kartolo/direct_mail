@@ -529,7 +529,7 @@ class Dmailer implements LoggerAwareInterface
                                 $c++;
                             }
                         }
-                    } 
+                    }
                     else {
                         $idList = implode(',', $listArr);
                         if ($idList) {
@@ -595,7 +595,7 @@ class Dmailer implements LoggerAwareInterface
                     $this->logger->critical($message);
                     die($message);
                 }
-            } 
+            }
             else {
                 // stop the script if dummy log can't be made
                 $message = 'Unable to update Log-Entry in table sys_dmail_maillog. Table full? Mass-Sending stopped. Delete each entries except the entries of active mailings (mid=' . $mid . ')';
