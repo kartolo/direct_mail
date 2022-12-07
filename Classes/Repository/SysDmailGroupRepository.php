@@ -46,7 +46,10 @@ class SysDmailGroupRepository extends MainRepository {
         return $queryBuilder->select('uid','pid','title')
         ->from($this->table)
         ->where(
-            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT))
+            $queryBuilder->expr()->eq(
+                'pid',
+                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+            )
         )
         ->andWhere(
                 $queryBuilder->expr()->in(
