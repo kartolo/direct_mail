@@ -8,7 +8,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\CsvUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class DmCsvUtility 
+class DmCsvUtility
 {
     /**
      * Parsing csv-formated text to an array
@@ -30,11 +30,11 @@ class DmCsvUtility
         while ($data = fgetcsv($fh, 1000, $sep)) {
             $lines[] = $data;
         }
-        
+
         fclose($fh);
         return $lines;
     }
-    
+
     /**
      * Parse CSV lines into array form
      *
@@ -63,7 +63,7 @@ class DmCsvUtility
             }
             $fieldName = 1;
             $fieldOrder = [];
-            
+
             foreach ($first as $v) {
                 list($fName, $fConf) = preg_split('|[\[\]]|', $v);
                 $fName = trim($fName);
@@ -87,7 +87,7 @@ class DmCsvUtility
                 // Advance pointer if the first line was field names
                 next($lines);
             }
-            
+
             $c = 0;
             foreach ($lines as $data) {
                 // Must be a line with content.
@@ -133,13 +133,13 @@ class DmCsvUtility
         if (is_array($idArr) && count($idArr)) {
             reset($idArr);
             $lines[] = CsvUtility::csvValues(array_keys(current($idArr)));
-            
+
             reset($idArr);
             foreach ($idArr as $rec) {
                 $lines[] = CsvUtility::csvValues($rec);
             }
         }
-        
+
         $filename = 'DirectMail_export_' . date('dmy-Hi') . '.csv';
         $mimeType = 'application/octet-stream';
         header('Content-Type: ' . $mimeType);

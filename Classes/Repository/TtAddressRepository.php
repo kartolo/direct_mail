@@ -11,11 +11,11 @@ use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 
 class TtAddressRepository extends MainRepository {
     protected string $table = 'tt_address';
-    
+
     /**
      * @return array|bool
      */
-    public function selectTtAddressByUid(int $uid, string $permsClause) //: array|bool 
+    public function selectTtAddressByUid(int $uid, string $permsClause) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
@@ -27,7 +27,7 @@ class TtAddressRepository extends MainRepository {
             'pages',
             'pages',
             $queryBuilder->expr()->eq(
-                'pages.uid', 
+                'pages.uid',
                 $queryBuilder->quoteIdentifier($this->table.'.pid')
             )
         )
@@ -47,7 +47,7 @@ class TtAddressRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
-    
+
     /**
      * @return array|bool
      */
@@ -60,7 +60,7 @@ class TtAddressRepository extends MainRepository {
         ->getRestrictions()
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        
+
         return $queryBuilder
         ->select(
             'uid',
@@ -92,13 +92,13 @@ class TtAddressRepository extends MainRepository {
             'pages',
             'pages',
             $queryBuilder->expr()->eq(
-                'pages.uid', 
+                'pages.uid',
                 $queryBuilder->quoteIdentifier($this->table.'.pid')
             )
         )
         ->where(
             $queryBuilder->expr()->in(
-                $this->table.'.uid', 
+                $this->table.'.uid',
                 $queryBuilder->createNamedParameter($intList, Connection::PARAM_INT_ARRAY)
             )
         )
@@ -108,29 +108,29 @@ class TtAddressRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
-    
+
     /**
      * @return array|bool
      */
     public function selectTtAddressForSendMailTest(int $ttAddressUid, string $permsClause) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder
         ->select('a.*')
         ->from($this->table, 'a')
         ->leftJoin(
-            'a', 
-            'pages', 
-            'pages', 
+            'a',
+            'pages',
+            'pages',
             $queryBuilder->expr()->eq(
-                'pages.uid', 
+                'pages.uid',
                 $queryBuilder->quoteIdentifier('a.pid')
             )
         )
         ->where(
             $queryBuilder->expr()->eq(
-                'a.uid', 
+                'a.uid',
                 $queryBuilder->createNamedParameter($ttAddressUid, \PDO::PARAM_INT)
             )
         )
@@ -138,7 +138,7 @@ class TtAddressRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
-    
+
     /**
      * @return array|bool
      */
@@ -176,11 +176,11 @@ class TtAddressRepository extends MainRepository {
             if ($v <= VersionNumberUtility::convertVersionNumberToInteger('6.0.0')) {
                 $queryBuilder->where(
                     $queryBuilder->expr()->eq(
-                        'uid', 
+                        'uid',
                         $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
                     ),
                     $queryBuilder->expr()->eq(
-                        'deleted', 
+                        'deleted',
                         $queryBuilder->createNamedParameter(0)
                     )
                 );
@@ -188,7 +188,7 @@ class TtAddressRepository extends MainRepository {
             else {
                 $queryBuilder->where(
                     $queryBuilder->expr()->eq(
-                        'uid', 
+                        'uid',
                         $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
                     )
                 );

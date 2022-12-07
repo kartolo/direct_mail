@@ -121,20 +121,20 @@ class ReadmailUtility
         if (preg_match('/^Content-Type: message\/delivery-status/', substr($mailParts['CONTENT'], 0, 5000))) {
             // Don't break it, we're only looking for a reason
             $c = $mailParts['CONTENT'];
-        } 
+        }
         elseif ($mailParts['content-type']) {
             $cType = $this->getCType($mailParts['content-type']);
             if ($cType['boundary']) {
                 $parts = $this->getMailBoundaryParts($cType['boundary'], $mailParts['CONTENT']);
                 $c = $this->getTextContent($parts[0]);
-            } 
+            }
             else {
                 $c = $this->getTextContent(
                     'Content-Type: ' . $mailParts['content-type'] . '
      ' . $mailParts['CONTENT']
                 );
             }
-        } 
+        }
         else {
             $c = $mailParts['CONTENT'];
         }
@@ -199,7 +199,7 @@ class ReadmailUtility
             $mparts = explode('=', $ppstr, 2);
             if (count($mparts) > 1) {
                 $cTypes[strtolower(trim($mparts[0]))] = preg_replace('/^"/', '', trim(preg_replace('/"$/', '', trim($mparts[1]))));
-            } 
+            }
             else {
                 $cTypes[] = $ppstr;
             }
@@ -347,7 +347,7 @@ class ReadmailUtility
         preg_match('/<([^>]*)>/', $str, $reg);
         if (GeneralUtility::validEmail($str)) {
             $outArr['email'] = $str;
-        } 
+        }
         elseif ($reg[1] && GeneralUtility::validEmail($reg[1])) {
             $outArr['email'] = $reg[1];
             // Find name:

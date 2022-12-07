@@ -24,11 +24,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class InvokeMailerEngineCommand
- * 
+ *
  * Starts sending the newsletter by invoking mailer engine via CLI
  *
  * Use TYPO3 CLI module dispatcher with `direct_mail:invokemailerengine`
- * 
+ *
  * This class replaces the earlier version of EXT:direct_mail/cli/cli_direct_mail.php from Ivan Kartolo, (c) 2008
  * Executes the earlier solely option named 'masssend' which has been dropped as optional argument
  *
@@ -64,7 +64,7 @@ like the recommended scheduler task or BE module for invoking maler engine will 
         $io = new SymfonyStyle($input, $output);
         $io->title($this->getDescription());
         $lockfile = Environment::getPublicPath() . '/typo3temp/tx_directmail_cron.lock';
-        
+
         // Check if cronjob is already running:
         if (@file_exists($lockfile)) {
             // If the lock is not older than 1 day, skip:
@@ -75,7 +75,7 @@ like the recommended scheduler task or BE module for invoking maler engine will 
                 $io->writeln('TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...');
             }
         }
-        
+
         touch($lockfile);
         // Fixing filepermissions
         GeneralUtility::fixPermissions($lockfile);

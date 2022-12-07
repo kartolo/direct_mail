@@ -21,47 +21,32 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
-use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
-
 
 class NavFrameController extends MainController
-{   
+{
     /**
      * Set highlight
      * @var	string
      */
     protected $doHighlight;
-    
-    /**
-     * Constructor Method
-     *
-     * @var ModuleTemplate $moduleTemplate
-     */
-//     public function __construct(ModuleTemplate $moduleTemplate = null)
-//     {
-//         $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
-//       #  $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
-//         $this->getLanguageService()->includeLLFile('EXT:core/Resources/Private/Language/locallang_core.xlf');
-//     }
-    
+
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $currentModule = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'DirectMailNavFrame_Configuration');
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $currentSubScript = $uriBuilder->buildUriFromRoute($currentModule);
-        
+
         // Setting highlight mode:
         $disableTitleHighlight = $this->getTSConfig()['options.']['pageTree.']['disableTitleHighlight'] ?? false;
         $this->doHighlight = (bool)($disableTitleHighlight) ? false : true;
-        
+
         $this->view = $this->configureTemplatePaths('NavFrame');
 
         $rows = $this->getPages();
@@ -73,25 +58,25 @@ class NavFrameController extends MainController
             }
         }
         unset($rows);
-        
+
         $this->setDocHeader('index');
-        
+
         //$this->moduleTemplate->addJavaScriptCode($this->getJS($currentModule, $currentSubScript));
         $this->pageRenderer->addJsInlineCode($currentModule, $this->getJSNavFrame($currentModule, $currentSubScript));
-            
+
         $this->view->assignMultiple(
             [
                 'pages' => $pages,
             ]
         );
-        
+
         /**
          * Render template and return html content
          */
         $this->moduleTemplate->setContent($this->view->render());
         return new HtmlResponse($this->moduleTemplate->renderContent());
     }
-    
+
     protected function getJSNavFrame($currentModule, $currentSubScript) {
         // @TODO Uncaught Error: Writing to fsMod is not possible anymore, use ModuleStateStorage instead.
         // https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/11.4/Deprecation-94762-DeprecateJavaScriptTopfsModState.html
@@ -101,7 +86,7 @@ class NavFrameController extends MainController
         return ($currentModule ? 'top.currentSubScript=unescape("' . rawurlencode($currentSubScript) . '");' : '') . '
 			function jumpTo(params,linkObj,highLightID)	{
 				var theUrl = top.currentSubScript+"&"+params;
-            
+
 				if (top.condensedMode)	{
 					top.content.document.location=theUrl;
 				} else {
@@ -111,17 +96,17 @@ class NavFrameController extends MainController
 				' . ((!isset($GLOBALS['CLIENT']['FORMSTYLE']) || !$GLOBALS['CLIENT']['FORMSTYLE']) ? '' : 'if (linkObj) {linkObj.blur();}') . '
 				return false;
 			}
-            
+
             // Call this function, refresh_nav(), from another script in the backend if you want to refresh the navigation frame (eg. after having changed a page title or moved pages etc.)
 			// See t3lib_BEfunc::getSetUpdateSignal()
 			function refresh_nav() {
 				window.setTimeout("_refresh_nav();",0);
 			}
-            
+
 			function _refresh_nav()	{
 				document.location="' . htmlspecialchars(GeneralUtility::getIndpEnv('SCRIPT_NAME') . '?unique=' . time()) . '";
 			}
-            
+
 			// Highlighting rows in the page tree:
 			function hilight_row(frameSetModule,highLightID) {
 				// Remove old:
@@ -129,7 +114,7 @@ class NavFrameController extends MainController
 				if (theObj)	{
 					theObj.style.backgroundColor="";
 				}
-            
+
 				// Set new:
 				top.fsMod.navFrameHighlightedID[frameSetModule] = highLightID;
 				theObj = document.getElementById(highLightID);
@@ -137,14 +122,14 @@ class NavFrameController extends MainController
 		'
         ;
     }
-    
+
     protected function getPages() {
         $queryBuilder = $this->getQueryBuilder('pages');
         $queryBuilder
             ->getRestrictions()
             ->removeAll()
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        
+
         $statement = $queryBuilder
             ->select('uid', 'title', 'module')
             ->from('pages')
@@ -173,10 +158,10 @@ class NavFrameController extends MainController
 //             debug($statement->getSQL());
 //             debug($statement->getParameters());
             ->execute();
-        
+
         return $statement;
     }
-    
+
     private function setDocHeader(string $active) {
         /**
         $docHeaderButtons = [

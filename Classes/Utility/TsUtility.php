@@ -7,7 +7,7 @@ use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class TsUtility 
+class TsUtility
 {
     /**
      * Implodes a multi dimensional TypoScript array, $p,
@@ -33,7 +33,7 @@ class TsUtility
         }
         return $implodeParams;
     }
-    
+
     /**
      * Updates Page TSconfig for a page with $id
      * The function seems to take $pageTS as an array with properties
@@ -92,13 +92,13 @@ class TsUtility
                     }
                 }
                 $tsLines = array_reverse($tsLines);
-                
+
                 // store those changes
                 $tsConf = implode(LF, $tsLines);
                 $done = GeneralUtility::makeInstance(PagesRepository::class)->updatePageTSconfig((int)$id, $tsConf);
             }
         }
-        
+
         return $done;
     }
 }

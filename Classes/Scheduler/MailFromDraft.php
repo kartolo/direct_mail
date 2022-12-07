@@ -168,10 +168,10 @@ class MailFromDraft extends AbstractTask
                 return false; // No site found in root line of pageId
             }
         }
-        
+
         return false; // No valid pageId
     }
-    
+
     /**
      * Calls the passed hook method of all configured hook object instances
      *
