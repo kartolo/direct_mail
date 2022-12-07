@@ -353,6 +353,53 @@ class MainController {
         return 'window.location.href=' . GeneralUtility::quoteJSvalue((string) $uriBuilder->buildUriFromRoute('record_edit', $params)) . '; return false;';
     }
 
+    /**
+     * Rearrange emails array into a 2-dimensional array
+     *
+     * @param array $plainMails Recipient emails
+     *
+     * @return array a 2-dimensional array consisting email and name
+     */
+    protected function rearrangePlainMails(array $plainMails): array
+    {
+        $out = [];
+        if (is_array($plainMails)) {
+            $c = 0;
+            foreach ($plainMails as $v) {
+                $out[$c]['email'] = trim($v);
+                $out[$c]['name'] = '';
+                $c++;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Remove double record in an array
+     *
+     * @param array $plainlist Email of the recipient
+     *
+     * @return array Cleaned array
+     */
+    protected function cleanPlainList(array $plainlist)
+    {
+        /**
+         * $plainlist is a multidimensional array.
+         * this method only remove if a value has the same array
+         * $plainlist = [
+         * 		0 => [
+         * 			name => '',
+         * 			email => '',
+         * 		],
+         * 		1 => [
+         * 			name => '',
+         * 			email => '',
+         * 		],
+         * ];
+         */
+        return array_map('unserialize', array_unique(array_map('serialize', $plainlist)));
+    }
+
     protected function getJS($sys_dmail_uid)
     {
         return '

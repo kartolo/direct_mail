@@ -21,14 +21,18 @@ use TYPO3\CMS\Backend\Routing\PreviewUriBuilder;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Http\ImmediateResponseException;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 class DmailController extends MainController
 {
@@ -1594,7 +1598,7 @@ class DmailController extends MainController
         }
 
         if (is_array($idLists['PLAINLIST'] ?? false)) {
-            $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($idLists['PLAINLIST']);
+            $idLists['PLAINLIST'] = $this->cleanPlainList($idLists['PLAINLIST']);
         }
 
         /**
@@ -1696,9 +1700,9 @@ class DmailController extends MainController
                             $recipients = $dmCsvUtility->rearrangeCsvValues($dmCsvUtility->getCsvValues($mailGroup['list']), $this->fieldList);
                         }
                         else {
-                            $recipients = DirectMailUtility::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroup['list'])));
+                            $recipients = $this->rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroup['list'])));
                         }
-                        $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($recipients);
+                        $idLists['PLAINLIST'] = $this->cleanPlainList($recipients);
                         break;
                     case 2:
                         // Static MM list
@@ -1999,7 +2003,7 @@ class DmailController extends MainController
         if ($pageRecord['doktype']) {
             $newRecord['subject'] = $pageRecord['title'];
             $newRecord['page']    = $pageRecord['uid'];
-            $newRecord['charset'] = DirectMailUtility::getCharacterSet();
+            $newRecord['charset'] = $this->getCharacterSet();
         }
 
         // save to database
@@ -2132,5 +2136,35 @@ class DmailController extends MainController
         }
 
         return ''; // No valid pageId
+    }
+
+        /**
+     * Get the configured charset.
+     *
+     * This method used to initialize the TSFE object to get the charset on a per page basis. Now it just evaluates the
+     * configured charset of the instance
+     *
+     * @throws ImmediateResponseException
+     * @throws ServiceUnavailableException
+     */
+    protected function getCharacterSet(): string
+    {
+        /** @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager $configurationManager */
+        $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
+
+        $settings = $configurationManager->getConfiguration(
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+        );
+
+        $characterSet = 'utf-8';
+
+        if (!empty($settings['config.']['metaCharset'])) {
+            $characterSet = $settings['config.']['metaCharset'];
+        }
+        elseif (!empty($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])) {
+            $characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
+        }
+
+        return mb_strtolower($characterSet);
     }
 }

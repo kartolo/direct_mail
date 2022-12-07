@@ -16,19 +16,14 @@ namespace DirectMailTeam\DirectMail;
 
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\DmRegistryUtility;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
-use TYPO3\CMS\Core\Http\ImmediateResponseException;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /**
  * Static class.
@@ -62,55 +57,6 @@ class DirectMailUtility
         $tree->getTree($id, $getLevels, '');
 
         return $tree->ids;
-    }
-
-    /**
-     * Remove double record in an array
-     *
-     * @param array $plainlist Email of the recipient
-     *
-     * @return array Cleaned array
-     */
-    public static function cleanPlainList(array $plainlist)
-    {
-        /**
-         * $plainlist is a multidimensional array.
-         * this method only remove if a value has the same array
-         * $plainlist = [
-         * 		0 => [
-         * 			name => '',
-         * 			email => '',
-         * 		],
-         * 		1 => [
-         * 			name => '',
-         * 			email => '',
-         * 		],
-         * ];
-         */
-        $plainlist = array_map('unserialize', array_unique(array_map('serialize', $plainlist)));
-
-        return $plainlist;
-    }
-
-    /**
-     * Rearrange emails array into a 2-dimensional array
-     *
-     * @param array $plainMails Recipient emails
-     *
-     * @return array a 2-dimensional array consisting email and name
-     */
-    public static function rearrangePlainMails(array $plainMails): array
-    {
-        $out = [];
-        if (is_array($plainMails)) {
-            $c = 0;
-            foreach ($plainMails as $v) {
-                $out[$c]['email'] = trim($v);
-                $out[$c]['name'] = '';
-                $c++;
-            }
-        }
-        return $out;
     }
 
     /**
@@ -369,36 +315,6 @@ class DirectMailUtility
         }
 
         return $result;
-    }
-
-    /**
-     * Get the configured charset.
-     *
-     * This method used to initialize the TSFE object to get the charset on a per page basis. Now it just evaluates the
-     * configured charset of the instance
-     *
-     * @throws ImmediateResponseException
-     * @throws ServiceUnavailableException
-     */
-    public static function getCharacterSet(): string
-    {
-        /** @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager $configurationManager */
-        $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
-
-        $settings = $configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
-        );
-
-        $characterSet = 'utf-8';
-
-        if (!empty($settings['config.']['metaCharset'])) {
-            $characterSet = $settings['config.']['metaCharset'];
-        }
-        elseif (!empty($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])) {
-            $characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
-        }
-
-        return mb_strtolower($characterSet);
     }
 
     /**
