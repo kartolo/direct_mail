@@ -15,7 +15,6 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class MailerEngineController extends MainController
 {
@@ -24,7 +23,7 @@ class MailerEngineController extends MainController
      * @var integer
      */
     protected int $uid = 0;
-    
+
     protected bool $invokeMailerEngine = false;
 
     /**
@@ -37,15 +36,15 @@ class MailerEngineController extends MainController
     protected function initMailerEngine(ServerRequestInterface $request): void {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
-        
+
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
         $this->invokeMailerEngine = (bool)($queryParams['invokeMailerEngine'] ?? false);
     }
-    
+
     public function indexAction(ServerRequestInterface $request) : ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('MailerEngine');
-        
+
         $this->init($request);
         $this->initMailerEngine($request);
 
@@ -102,7 +101,7 @@ class MailerEngineController extends MainController
         $this->moduleTemplate->setContent($this->view->render());
         return new HtmlResponse($this->moduleTemplate->renderContent());
     }
-    
+
     /**
      * Monitor the cronjob.
      *
@@ -114,7 +113,7 @@ class MailerEngineController extends MainController
         $lastExecutionTime = 0;
         $logContent = '';
         $error = '';
-        
+
         // seconds
         $cronInterval = $this->getValueFromTYPO3_CONF_VARS('cronInt') * 60;
         $lastCronjobShouldBeNewThan = (time() - $cronInterval);
@@ -123,13 +122,13 @@ class MailerEngineController extends MainController
             $logContent = file_get_contents($filename);
             $lastExecutionTime = substr($logContent, 0, 10);
         }
-        
+
         /*
          * status:
          * 	1 = ok
          * 	0 = check
          * 	-1 = cron stopped
-         * 
+         *
          * cron running or error (die function in dmailer_log)
          */
         if (file_exists($this->getDmailerLockFilePath())) {
@@ -172,9 +171,9 @@ class MailerEngineController extends MainController
                 break;
             case 0:
                 $message = $this->createFlashMessage(
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution_msg') . $lastRun, 
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'), 
-                    1, 
+                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution_msg') . $lastRun,
+                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
+                    1,
                     false
                 );
                 $this->messageQueue->addMessage($message);
@@ -191,7 +190,7 @@ class MailerEngineController extends MainController
             default:
         }
     }
-    
+
     /**
      * Shows the status of the mailer engine.
      * TODO: Should really only show some entries, or provide a browsing interface.
@@ -203,7 +202,7 @@ class MailerEngineController extends MainController
     {
         $invoke = false;
         $moduleUrl = '';
-        
+
         // enable manual invocation of mailer engine; enabled by default
         $enableTrigger = ! (isset($this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']) && $this->params['menu.']['dmail_mode.']['mailengine.']['disable_trigger']);
 
@@ -212,7 +211,7 @@ class MailerEngineController extends MainController
             $message = $this->createFlashMessage('', $this->getLanguageService()->getLL('dmail_mailerengine_invoked'), -1, false);
             $this->messageQueue->addMessage($message);
         }
-        
+
         // Invoke engine
         if ($enableTrigger) {
             $moduleUrl = $this->buildUriFromRoute(
@@ -222,7 +221,7 @@ class MailerEngineController extends MainController
                     'invokeMailerEngine' => 1
                 ]
             );
-            
+
             $invoke = true;
         }
 
@@ -257,7 +256,7 @@ class MailerEngineController extends MainController
                 $count = (int)$cRow['COUNT(*)'];
             }
         }
-        
+
         return $count;
     }
 
@@ -287,7 +286,7 @@ class MailerEngineController extends MainController
         $table = 'sys_dmail';
         if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
             $connection = $this->getConnection($table);
-            
+
             $connection->update(
                 $table, // table
                 [ $GLOBALS['TCA'][$table]['ctrl']['delete'] => 1 ],
@@ -295,7 +294,7 @@ class MailerEngineController extends MainController
             );
         }
     }
-    
+
     /**
      * Invoking the mail engine
      * This method no longer returns logs in backend modul directly
@@ -312,7 +311,7 @@ class MailerEngineController extends MainController
         $htmlmail->start();
         $htmlmail->runcron();
     }
-    
+
     /**
      * Wrapping a string with a link
      *
