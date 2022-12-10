@@ -23,6 +23,7 @@
   },
   "require": {
     "typo3/cms-core": "^11.5",
+	"php": "^7.4 || ^8.0",
     "friendsoftypo3/tt-address": "^5.3 || ^6.0 || ^7.0",
     "tedivm/fetch": "0.7.*"
   },
