@@ -9,6 +9,7 @@ use DirectMailTeam\DirectMail\Utility\TsUtility;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\Environment;
@@ -398,6 +399,26 @@ class MainController {
          * ];
          */
         return array_map('unserialize', array_unique(array_map('serialize', $plainlist)));
+    }
+
+    /**
+     * Get the ID of page in a tree
+     *
+     * @param int $id Page ID
+     * @param string $perms_clause Select query clause
+     * @return array the page ID, recursively
+     */
+    protected function getRecursiveSelect($id, $perms_clause)
+    {
+        $getLevels = 10000;
+        // Finding tree and offer setting of values recursively.
+        $tree = GeneralUtility::makeInstance(PageTreeView::class);
+        $tree->init('AND ' . $perms_clause);
+        $tree->makeHTML = 0;
+        $tree->setRecs = 0;
+        $tree->getTree($id, $getLevels, '');
+
+        return $tree->ids;
     }
 
     protected function getJS($sys_dmail_uid)
