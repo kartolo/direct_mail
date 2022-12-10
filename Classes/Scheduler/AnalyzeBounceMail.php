@@ -27,6 +27,7 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * Class AnalyzeBounceMail
  * @package DirectMailTeam\DirectMail\Scheduler
  * @author Ivan Kartolo <ivan.kartolo@gmail.com>
+ * @deprecated will be removed in TYPO3 v12.0. Use AnalyzeBounceMailCommand instead.
  */
 class AnalyzeBounceMail extends AbstractTask
 {
@@ -169,6 +170,10 @@ class AnalyzeBounceMail extends AbstractTask
      */
     public function execute()
     {
+        trigger_error(
+            'will be removed in TYPO3 v12.0. Use AnalyzeBounceMailCommand instead.',
+            E_USER_DEPRECATED
+        );
         // try connect to mail server
         $mailServer = $this->connectMailServer();
         if ($mailServer instanceof Server) {
