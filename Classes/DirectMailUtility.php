@@ -160,31 +160,23 @@ class DirectMailUtility
             $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$row['uid'], $updateData);
 
             if (count($warningMsg)) {
+                $flashMessageRendererResolver = self::getFlashMessageRendererResolver();
                 foreach ($warningMsg as $warning) {
-                    $theOutput .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                    $theOutput .= $flashMessageRendererResolver
                         ->resolve()
                         ->render([
-                            GeneralUtility::makeInstance(
-                                FlashMessage::class,
-                                $warning,
-                                $lang->getLL('dmail_warning'),
-                                FlashMessage::WARNING
-                            )
+                            self::createFlashMessage($warning, $lang->getLL('dmail_warning'), FlashMessage::WARNING, false)
                         ]);
                 }
             }
         }
         else {
+            $flashMessageRendererResolver = self::getFlashMessageRendererResolver();
             foreach ($errorMsg as $error) {
-                $theOutput .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                $theOutput .= $flashMessageRendererResolver
                     ->resolve()
                     ->render([
-                        GeneralUtility::makeInstance(
-                            FlashMessage::class,
-                            $error,
-                            $lang->getLL('dmail_error'),
-                            FlashMessage::ERROR
-                        )
+                        self::createFlashMessage($error, $lang->getLL('dmail_error'), FlashMessage::ERROR, false)
                     ]);
             }
         }
@@ -199,6 +191,20 @@ class DirectMailUtility
         }
     }
 
+    protected static function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false): FlashMessage
+    {
+        return GeneralUtility::makeInstance(FlashMessage::class,
+            $messageText,
+            $messageHeader,
+            $messageType,
+            $storeInSession
+        );
+    }
+
+    protected static function getFlashMessageRendererResolver(): FlashMessageRendererResolver
+    {
+        return GeneralUtility::makeInstance(FlashMessageRendererResolver::class);
+    }
 
     /**
      * Add username and password for a password secured page
