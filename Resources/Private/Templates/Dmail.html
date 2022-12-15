@@ -6,7 +6,7 @@
 <f:flashMessages />
 <div class="typo3-fullDoc">
     <div class="module-body t3js-module-body">
-        <form action="" method="post" name="dmailform" enctype="multipart/form-data">	        
+        <form action="" method="post" name="dmailform" enctype="multipart/form-data">
 	        <f:render arguments="{navigation: data.navigation}" section="Navigation" />
 			<f:format.raw>{flashmessages}</f:format.raw>
 			<f:if condition="{data.info}">
@@ -109,25 +109,23 @@
 			<f:if condition="{data.test}">
 				<h3><f:translate key="{lll}dmail_wiz4_testmail"/></h3>
 				<div id="box-1" class="toggleBox">
-					<f:if condition="{data.test.testFormData.test_tt_address}">
+					<f:if condition="{data.test.testFormData.test_tt_address.outnew}">
 	            		<h3><f:translate key="{lll}testmail_individual"/></h3>
 	            		<f:translate key="{lll}testmail_individual_msg"/>
 	            		<br /><br />
-	            		<f:format.html>{data.test.testFormData.test_tt_address}</f:format.html>
+                        <f:render section="SubTable" arguments="{subtable: data.test.testFormData.test_tt_address.outnew}" />
 						<div style="padding-top: 20px;"></div>
 					</f:if>
 					<f:if condition="{data.test.testFormData.test_dmail_group_table -> f:count()}">
 						<h3><f:translate key="{lll}testmail_mailgroup"/></h3>
 						<f:translate key="{lll}testmail_mailgroup_msg"/>
-						<br /><br />					
+						<br /><br />
 						<f:for each="{data.test.testFormData.test_dmail_group_table}" as="table">
 							<a href="{table.moduleUrl}"><f:format.html>{table.iconFactory}</f:format.html> <f:format.html>{table.title}</f:format.html> [{table.uid}]</a>
 							<br /><br />
-							<table border="0" class="table table-striped table-hover">
-								<tr>
-									<td><f:format.html>{table.tds}</f:format.html></td>
-								</tr>
-							</table>
+                            <f:for each="{table.tds.outnew}" as="subtable">
+                                <f:render section="SubTable" arguments="{subtable: subtable}" />
+                            </f:for>
 						</f:for>
 						<div style="padding-top: 20px;"></div>
 					</f:if>
@@ -161,11 +159,11 @@
 					<br />
 					<div class="form-control-wrap">
 						<div class="input-group">
-							<input class="form-control t3js-datetimepicker t3js-clearable" 
-								data-date-type="datetime" 
-								data-date-offset="0" 
-								type="text" 
-								id="tceforms-datetimefield-startdate" 
+							<input class="form-control t3js-datetimepicker t3js-clearable"
+								data-date-type="datetime"
+								data-date-offset="0"
+								type="text"
+								id="tceforms-datetimefield-startdate"
 								name="send_mail_datetime_hr" value="{data.final.finalForm.send_mail_datetime_hr}">
 							<input name="send_mail_datetime" value="{data.final.finalForm.send_mail_datetime}" type="hidden">
 							<span class="input-group-btn">
@@ -246,6 +244,36 @@
 </div>
 </f:section>
 
+<f:section name="SubTable">
+    <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
+    <table class="table table-striped table-hover">
+        <tr>
+            <th colspan="4"><f:translate key="{lll}dmail_number_records"/> <strong>{subtable.count}</strong></th>
+        </tr>
+        <f:for each="{subtable.trs}" as="tr">
+            <tr>
+                <td><f:format.html>{tr.icon}</f:format.html></td>
+                <td>
+                    <f:if condition="{tr.editOnClick}">
+                        <a href="#" onClick="{tr.editOnClick}" title="{f:translate(key: '{lll}dmail_edit')}"><f:format.html>{subtable.iconActionsOpen}</f:format.html></a>
+                    </f:if>
+                </td>
+                <td>
+                    <f:if condition="{tr.testLink}">
+                        <f:then>
+                            <a href="{tr.testLink}"><f:format.html><f:format.htmlspecialchars>{tr.email}</f:format.htmlspecialchars></f:format.html></a>
+                        </f:then>
+                        <f:else>
+                            <f:format.html><f:format.htmlspecialchars>{tr.email}</f:format.htmlspecialchars></f:format.html>
+                        </f:else>
+                    </f:if>
+                </td>
+                <td><f:format.html><f:format.htmlspecialchars>{tr.name}</f:format.htmlspecialchars></f:format.html></td>
+            </tr>
+        </f:for>
+    </table>
+</f:section>
+
 <f:section name="Navigation">
 	<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
 	<div class="typo3-message message-ok t3-wizard-steps">
@@ -280,7 +308,7 @@
         <f:variable name="classCollapsed" value="" />
         <f:variable name="classShow" value=" show" />
     </f:if>
-    
+
     <div class="panel panel-default">
         <div class="panel-heading" role="tab" id="heading{index}">
             <h4 class="panel-title">

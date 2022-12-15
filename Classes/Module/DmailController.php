@@ -1048,7 +1048,7 @@ class DmailController extends MainController
                 $ids[] = $row['uid'];
             }
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($ids, 'tt_address');
-            $data['test_tt_address'] = $this->getRecordList($rows, 'tt_address', 1, 1);
+            $data['test_tt_address'] = $this->getRecordList($rows, 'tt_address', 1, 1); //@TODO
         }
 
         if ($this->params['test_dmail_group_uids'] ?? false) {
@@ -1074,7 +1074,7 @@ class DmailController extends MainController
                     'iconFactory' => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL),
                     'title' => htmlspecialchars($row['title']),
                     'uid' => $row['uid'],
-                    'tds' => $this->displayMailGroup_test($result)
+                    'tds' => $this->displayMailGroupTest($result)
                 ];
             }
         }
@@ -1094,27 +1094,36 @@ class DmailController extends MainController
      *
      * @return string List of the recipient (in HTML)
      */
-    public function displayMailGroup_test($result)
+    public function displayMailGroupTest($result)
     {
         $idLists = $result['queryInfo']['id_lists'];
         $out = '';
+        $outnew = [];
         if (is_array($idLists['tt_address'] ?? false)) {
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-            $out .= $this->getRecordList($rows, 'tt_address');
+            $temp = $this->getRecordList($rows, 'tt_address');
+            $out .= $temp['out'];
+            $outnew[] = $temp['outnew'];
         }
         if (is_array($idLists['fe_users'] ?? false)) {
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-            $out .= $this->getRecordList($rows, 'fe_users');
+            $temp = $this->getRecordList($rows, 'fe_users');
+            $out .= $temp['out'];
+            $outnew[] = $temp['outnew'];
         }
         if (is_array($idLists['PLAINLIST'] ?? false)) {
-            $out .= $this->getRecordList($idLists['PLAINLIST'], 'default');
+            $temp = $this->getRecordList($idLists['PLAINLIST'], 'default');
+            $out .= $temp['out'];
+            $outnew[] = $temp['outnew'];
         }
         if (is_array($idLists[$this->userTable] ?? false)) {
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$this->userTable], $this->userTable);
-            $out .= $this->getRecordList($rows, $this->userTable);
+            $temp = $this->getRecordList($rows, $this->userTable);
+            $out .= $temp['out'];
+            $outnew[] = $temp['outnew'];
         }
 
-        return $out;
+        return ['out' => $out, 'outnew' => $outnew];
     }
 
     /**
@@ -1344,9 +1353,11 @@ class DmailController extends MainController
     {
         $count = 0;
         $lines = [];
+        $trs = [];
         $out = '';
+        $outnew = [];
+        $iconActionsOpen = $this->getIconActionsOpen();
         if (is_array($listArr)) {
-            $iconActionsOpen = $this->getIconActionsOpen();
             $count = count($listArr);
             /** @var UriBuilder $uriBuilder */
             $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
@@ -1354,9 +1365,10 @@ class DmailController extends MainController
                 $tableIcon = '';
                 $editLink = '';
                 $testLink = '';
-
+                $moduleUrl = '';
+                $editOnClick = '';
                 if ($row['uid']) {
-                    $tableIcon = '<td>' . $this->iconFactory->getIconForRecord($table, $row, Icon::SIZE_SMALL) . '</td>';
+                    $tableIcon = $this->iconFactory->getIconForRecord($table, $row, Icon::SIZE_SMALL);
                     if ($editLinkFlag) {
                         $requestUri = $this->requestUri . '&cmd=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid;
 
@@ -1370,9 +1382,7 @@ class DmailController extends MainController
                         ];
 
                         $editOnClick = $this->getEditOnClickLink($params);
-                        $editLink = '<td><a href="#" onClick="' . $editOnClick . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                            $iconActionsOpen .
-                            '</a></td>';
+                        $editLink = '<a href="#" onClick="' . $editOnClick . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .$iconActionsOpen .'</a>';
                     }
 
                     if ($testMailLink) {
@@ -1392,18 +1402,29 @@ class DmailController extends MainController
                 }
 
                 $lines[] = '<tr class="db_list_normal">
-				' . $tableIcon . '
-				' . $editLink . '
+				<td>' . $tableIcon . '</td>
+				<td>' . $editLink . '</td>
 				<td nowrap> ' . $testLink . ' </td>
 				<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>
 				</tr>';
+
+                $trs[] = [
+                    'icon' => $tableIcon,
+                    'editOnClick' => $editOnClick,
+                    'testLink' => $moduleUrl,
+                    'name' => $row['name'],
+                    'email' => $row['email']
+                ];
             }
         }
         if (count($lines)) {
+            $outnew['count'] = $count;
+            $outnew['iconActionsOpen'] = $iconActionsOpen;
+            $outnew['trs'] = $trs;
             $out = '<p>'.$this->getLanguageService()->getLL('dmail_number_records') . ' <strong>' . $count . '</strong></p><br />';
-            $out .= '<table border="0" cellspacing="1" cellpadding="0" class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
+            $out .= '<table class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
         }
-        return $out;
+        return ['out' => $out, 'outnew' => $outnew];
     }
 
     /**
