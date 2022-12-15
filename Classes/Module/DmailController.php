@@ -504,60 +504,6 @@ class DmailController extends MainController
     }
 
     /**
-     * Showing steps number on top of every page
-     *
-     * @param int $totalSteps Total step
-     *
-     * @return string HTML
-     */
-/**
-    protected function showSteps($totalSteps)
-    {
-        $content = '';
-        for ($i = 1; $i <= $totalSteps; $i++) {
-            $cssClass = ($i == $this->currentStep) ? 't3-wizard-item-active' : '';
-            $content .= '<span class="t3-wizard-item ' . $cssClass . '">&nbsp;' . $i . '&nbsp;</span>';
-        }
-        return $content;
-    }
-*/
-    /**
-     * Makes expandable section using TYPO3-typical markup.
-     *
-     * @param int $sectionId
-     * @param string $title
-     * @param string $content
-     * @return string
-     */
-/**
-    protected function makeSection(string $title, string $content, bool $isOpen): string
-    {
-        static $sectionId = 1;
-
-        return sprintf(
-            '<div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="heading%1$d">
-                    <h4 class="panel-title">
-                        <a role="button" data-bs-toggle="collapse" data-bs-parent="#accordion" href="#collapse%1$d" aria-expanded="' . ($isOpen ? 'true' : 'false') . '" aria-controls="collapse%1$d" class="' . (!$isOpen ? 'collapsed' : '') . '">
-                            <span class="caret"></span>
-                            %2$s
-                        </a>
-                    </h4>
-                </div>
-                <div id="collapse%1$d" class="panel-collapse collapse' . ($isOpen ? ' show' : '') . '" role="tabpanel" aria-labelledby="heading%1$d">
-                    <div class="panel-body">
-                        %3$s
-                    </div>
-                </div>
-            </div>
-            ',
-            $sectionId++,
-            $this->getLanguageService()->getLL($title),
-            $content
-        );
-    }
-*/
-    /**
      * Makes box for internal page. (first step)
      *
      * @return array config for form list of internal pages
