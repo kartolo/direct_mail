@@ -1345,7 +1345,6 @@ class DmailController extends MainController
         $count = 0;
         $trs = [];
         $out = [];
-        $iconActionsOpen = $this->getIconActionsOpen();
         if (is_array($listArr)) {
             $count = count($listArr);
             /** @var UriBuilder $uriBuilder */
@@ -1393,7 +1392,6 @@ class DmailController extends MainController
         }
         if (count($trs)) {
             $out['count'] = $count;
-            $out['iconActionsOpen'] = $iconActionsOpen;
             $out['trs'] = $trs;
         }
 
