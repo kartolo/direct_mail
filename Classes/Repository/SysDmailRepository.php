@@ -187,7 +187,7 @@ class SysDmailRepository extends MainRepository {
         return $connection->update(
             $this->table, // table
             $updateData, // value array
-            [ 'uid' => $uid ]
+            [ 'uid' => $uid ] // where
         );
     }
 

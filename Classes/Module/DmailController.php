@@ -1267,12 +1267,7 @@ class DmailController extends MainController
                     $sectionTitle = $this->getLanguageService()->getLL('send_was_scheduled');
                 }
                 $sentFlag = true;
-                $connection = $this->getConnection('sys_dmail');
-                $connection->update(
-                    'sys_dmail', // table
-                    $updateFields,
-                    [ 'uid' => intval($this->sys_dmail_uid) ] // where
-                );
+                $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$this->sys_dmail_uid, $updateFields);
 
                 $message = $this->createFlashMessage(
                     $sectionTitle . ' ' . $content,
