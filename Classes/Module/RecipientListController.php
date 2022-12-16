@@ -625,12 +625,8 @@ class RecipientListController extends MainController
                 'query' => $this->MOD_SETTINGS['queryConfig']
             ];
 
-            $connection = $this->getConnection('sys_dmail_group');
-            $connection->update(
-                'sys_dmail_group', // table
-                $updateFields,
-                [ 'uid' => intval($mailGroup['uid']) ] // where
-            );
+            $done = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->updateSysDmailGroupRecord((int)$mailGroup['uid'], $updateFields);
+
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
         }
         return $mailGroup;
