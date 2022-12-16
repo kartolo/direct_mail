@@ -58,7 +58,7 @@ class RecipientListController extends MainController
         $this->group_uid = (int)($parsedBody['group_uid'] ?? $queryParams['group_uid'] ?? 0);
         $this->lCmd = $parsedBody['lCmd'] ?? $queryParams['lCmd'] ?? '';
         $this->csv = $parsedBody['csv'] ?? $queryParams['csv'] ?? '';
-        $this->set = is_array($parsedBody['csv'] ?? '') ? $parsedBody['csv'] : (is_array($queryParams['csv'] ?? '') ? $queryParams['csv'] : []);
+        $this->set = is_array($parsedBody['SET'] ?? '') ? $parsedBody['SET'] : [];
 
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
         $this->table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
