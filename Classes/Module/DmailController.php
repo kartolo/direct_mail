@@ -1048,7 +1048,7 @@ class DmailController extends MainController
                 $ids[] = $row['uid'];
             }
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($ids, 'tt_address');
-            $data['test_tt_address'] = $this->getRecordList($rows, 'tt_address', 1, 1); //@TODO
+            $data['test_tt_address'] = $this->getRecordList($rows, 'tt_address', 1, 1);
         }
 
         if ($this->params['test_dmail_group_uids'] ?? false) {
@@ -1092,38 +1092,29 @@ class DmailController extends MainController
      *
      * @param array $result Lists of the recipient IDs based on directmail DB record
      *
-     * @return string List of the recipient (in HTML)
+     * @return array List of the recipient
      */
     public function displayMailGroupTest($result)
     {
         $idLists = $result['queryInfo']['id_lists'];
-        $out = '';
-        $outnew = [];
+        $out = [];
         if (is_array($idLists['tt_address'] ?? false)) {
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-            $temp = $this->getRecordList($rows, 'tt_address');
-            $out .= $temp['out'];
-            $outnew[] = $temp['outnew'];
+            $out[] = $this->getRecordList($rows, 'tt_address');
         }
         if (is_array($idLists['fe_users'] ?? false)) {
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-            $temp = $this->getRecordList($rows, 'fe_users');
-            $out .= $temp['out'];
-            $outnew[] = $temp['outnew'];
+            $out[] = $this->getRecordList($rows, 'fe_users');
         }
         if (is_array($idLists['PLAINLIST'] ?? false)) {
-            $temp = $this->getRecordList($idLists['PLAINLIST'], 'default');
-            $out .= $temp['out'];
-            $outnew[] = $temp['outnew'];
+            $out[] = $this->getRecordList($idLists['PLAINLIST'], 'default');
         }
         if (is_array($idLists[$this->userTable] ?? false)) {
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$this->userTable], $this->userTable);
-            $temp = $this->getRecordList($rows, $this->userTable);
-            $out .= $temp['out'];
-            $outnew[] = $temp['outnew'];
+            $out[] = $this->getRecordList($rows, $this->userTable);
         }
 
-        return ['out' => $out, 'outnew' => $outnew];
+        return $out;
     }
 
     /**
@@ -1346,16 +1337,14 @@ class DmailController extends MainController
      * @param bool|int $editLinkFlag If set, edit link is showed
      * @param bool|int $testMailLink If set, send mail link is showed
      *
-     * @return string HTML, the table showing the recipient's info
+     * @return array the table showing the recipient's info
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    public function getRecordList(array $listArr, $table, $editLinkFlag=1, $testMailLink=0)
+    public function getRecordList(array $listArr, $table, $editLinkFlag = 1, $testMailLink = 0): array
     {
         $count = 0;
-        $lines = [];
         $trs = [];
-        $out = '';
-        $outnew = [];
+        $out = [];
         $iconActionsOpen = $this->getIconActionsOpen();
         if (is_array($listArr)) {
             $count = count($listArr);
@@ -1363,26 +1352,21 @@ class DmailController extends MainController
             $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
             foreach ($listArr as $row) {
                 $tableIcon = '';
-                $editLink = '';
-                $testLink = '';
                 $moduleUrl = '';
                 $editOnClick = '';
                 if ($row['uid']) {
                     $tableIcon = $this->iconFactory->getIconForRecord($table, $row, Icon::SIZE_SMALL);
                     if ($editLinkFlag) {
-                        $requestUri = $this->requestUri . '&cmd=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid;
-
                         $params = [
                             'edit' => [
                                 $table => [
                                     $row['uid'] => 'edit',
                                 ]
                             ],
-                            'returnUrl' => $requestUri
+                            'returnUrl' => $this->requestUri . '&cmd=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid
                         ];
 
                         $editOnClick = $this->getEditOnClickLink($params);
-                        $editLink = '<a href="#" onClick="' . $editOnClick . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .$iconActionsOpen .'</a>';
                     }
 
                     if ($testMailLink) {
@@ -1394,19 +1378,9 @@ class DmailController extends MainController
                                 'cmd' => 'send_mail_test',
                                 'tt_address_uid' => $row['uid']
                             ]
-                            );
-                        $testLink = '<a href="' . $moduleUrl . '">' . htmlspecialchars($row['email']) . '</a>';
-                    } else {
-                        $testLink = htmlspecialchars($row['email']);
+                        );
                     }
                 }
-
-                $lines[] = '<tr class="db_list_normal">
-				<td>' . $tableIcon . '</td>
-				<td>' . $editLink . '</td>
-				<td nowrap> ' . $testLink . ' </td>
-				<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>
-				</tr>';
 
                 $trs[] = [
                     'icon' => $tableIcon,
@@ -1417,14 +1391,13 @@ class DmailController extends MainController
                 ];
             }
         }
-        if (count($lines)) {
-            $outnew['count'] = $count;
-            $outnew['iconActionsOpen'] = $iconActionsOpen;
-            $outnew['trs'] = $trs;
-            $out = '<p>'.$this->getLanguageService()->getLL('dmail_number_records') . ' <strong>' . $count . '</strong></p><br />';
-            $out .= '<table class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
+        if (count($trs)) {
+            $out['count'] = $count;
+            $out['iconActionsOpen'] = $iconActionsOpen;
+            $out['trs'] = $trs;
         }
-        return ['out' => $out, 'outnew' => $outnew];
+
+        return $out;
     }
 
     /**

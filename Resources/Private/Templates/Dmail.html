@@ -109,11 +109,11 @@
 			<f:if condition="{data.test}">
 				<h3><f:translate key="{lll}dmail_wiz4_testmail"/></h3>
 				<div id="box-1" class="toggleBox">
-					<f:if condition="{data.test.testFormData.test_tt_address.outnew}">
+					<f:if condition="{data.test.testFormData.test_tt_address}">
 	            		<h3><f:translate key="{lll}testmail_individual"/></h3>
 	            		<f:translate key="{lll}testmail_individual_msg"/>
 	            		<br /><br />
-                        <f:render section="SubTable" arguments="{subtable: data.test.testFormData.test_tt_address.outnew}" />
+                        <f:render section="SubTable" arguments="{subtable: data.test.testFormData.test_tt_address}" />
 						<div style="padding-top: 20px;"></div>
 					</f:if>
 					<f:if condition="{data.test.testFormData.test_dmail_group_table -> f:count()}">
@@ -123,7 +123,7 @@
 						<f:for each="{data.test.testFormData.test_dmail_group_table}" as="table">
 							<a href="{table.moduleUrl}"><f:format.html>{table.iconFactory}</f:format.html> <f:format.html>{table.title}</f:format.html> [{table.uid}]</a>
 							<br /><br />
-                            <f:for each="{table.tds.outnew}" as="subtable">
+                            <f:for each="{table.tds}" as="subtable">
                                 <f:render section="SubTable" arguments="{subtable: subtable}" />
                             </f:for>
 						</f:for>
