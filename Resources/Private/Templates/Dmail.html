@@ -152,7 +152,25 @@
 					<input type="hidden" name="cmd" value="send_mail_final" />
 					<f:translate key="{lll}schedule_mailgroup"/>
 					<br />
-					<f:format.html>{data.final.finalForm.groupInput}</f:format.html>
+                    <f:debug>{data.final.finalForm.hookSelectDisabled}</f:debug>
+                    <f:if condition="{data.final.finalForm.opt -> f:count()} == 1">
+                        <f:then>
+                            <f:if condition="{data.final.finalForm.hookSelectDisabled} == 0">
+                                <input type="hidden" name="mailgroup_uid[]" value="{data.final.finalForm.lastGroup.uid}" />
+                            </f:if>
+                             * <f:format.htmlspecialchars>{data.final.finalForm.lastGroup.title}</f:format.htmlspecialchars>
+                            <f:if condition="{data.final.finalForm.hookSelectDisabled}">
+                                <em>disabled</em>
+                            </f:if>
+                        </f:then>
+                        <f:else if="{data.final.finalForm.opt -> f:count()} > 1">
+                            <select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" {f:if(condition: '{data.final.finalForm.hookSelectDisabled}', then: 'disabled', else: '')}>
+                                <f:for each="{data.final.finalForm.opt}" as="op">
+                                    <option value="{op.uid}"><f:format.htmlspecialchars>{op.title}</f:format.htmlspecialchars> [{op.uid}; #{op.count}]</option>
+                                </f:for>
+                            </select>
+                        </f:else>
+                    </f:if>
 					<br /><br />
 					<f:format.html>{data.final.finalForm.hookContents}</f:format.html>
 					<f:translate key="{lll}schedule_time"/>

@@ -1410,7 +1410,7 @@ class DmailController extends MainController
          * Hook for cmd_finalmail
          * insert a link to open extended importer
          */
-        $hookSelectDisabled = '';
+        $hookSelectDisabled = false;
         $hookContents = '';
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_finalmail'] ?? false)) {
             $hookObjectsArr = [];
@@ -1451,7 +1451,12 @@ class DmailController extends MainController
                 if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
                     $count += count($idLists[$this->userTable]);
                 }
-                $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
+
+                $opt[] = [
+                    'uid' => $group['uid'],
+                    'title' => $group['title'],
+                    'count' => $count
+                ];
                 $lastGroup = $group;
             }
         }
@@ -1467,24 +1472,14 @@ class DmailController extends MainController
             );
             $this->messageQueue->addMessage($message);
         }
-        elseif (count($opt) === 1) {
-            if (!$hookSelectDisabled) {
-                $groupInput .= '<input type="hidden" name="mailgroup_uid[]" value="' . $lastGroup['uid'] . '" />';
-            }
-            $groupInput .= '* ' . htmlentities($lastGroup['title']);
-            if ($hookSelectDisabled) {
-                $groupInput .= '<em>disabled</em>';
-            }
-        }
-        else {
-            $groupInput = '<select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10), $opt).'</select>';
-        }
 
         return [
             'id' => $this->id,
             'sys_dmail_uid' => $this->sys_dmail_uid,
-            'groupInput' => $groupInput,
             'hookContents' => $hookContents, // put content from hook
+            'hookSelectDisabled' => $hookSelectDisabled, // put content from hook
+            'lastGroup' => $lastGroup,
+            'opt' => $opt,
             'send_mail_datetime_hr' => strftime('%H:%M %d-%m-%Y', time()),
             'send_mail_datetime' => strftime('%H:%M %d-%m-%Y', time())
         ];
