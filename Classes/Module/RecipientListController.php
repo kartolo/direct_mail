@@ -585,7 +585,6 @@ class RecipientListController extends MainController
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
         $queryConfig = GeneralUtility::_GP('queryConfig');
-        $queryGeneratorConfig = GeneralUtility::_GP('SET');
 
         $whichTables = intval($mailGroup['whichtables']);
         $table = '';
