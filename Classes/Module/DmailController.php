@@ -1286,13 +1286,7 @@ class DmailController extends MainController
 
         // Setting flags and update the record:
         if ($sentFlag && $this->cmd == 'send_mail_final') {
-
-            $connection = $this->getConnection('sys_dmail');
-            $connection->update(
-                'sys_dmail', // table
-                ['issent' => 1],
-                [ 'uid' => intval($this->sys_dmail_uid) ] // where
-            );
+            $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$this->sys_dmail_uid, ['issent' => 1]);
         }
     }
 
