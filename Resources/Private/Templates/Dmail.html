@@ -152,7 +152,6 @@
 					<input type="hidden" name="cmd" value="send_mail_final" />
 					<f:translate key="{lll}schedule_mailgroup"/>
 					<br />
-                    <f:debug>{data.final.finalForm.hookSelectDisabled}</f:debug>
                     <f:if condition="{data.final.finalForm.opt -> f:count()} == 1">
                         <f:then>
                             <f:if condition="{data.final.finalForm.hookSelectDisabled} == 0">
