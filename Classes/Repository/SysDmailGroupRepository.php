@@ -102,4 +102,21 @@ class SysDmailGroupRepository extends MainRepository {
         ->execute()
         ->fetchAll();
     }
+
+        /**
+     *
+     * @param int $uid
+     * @param array $updateData
+     * @return int
+     */
+    public function updateSysDmailGroupRecord(int $uid, array $updateData)
+    {
+        $connection = $this->getConnection($this->table);
+        return $connection->update(
+            $this->table, // table
+            $updateData, // value array
+            [ 'uid' => $uid ] // where
+        );
+
+    }
 }

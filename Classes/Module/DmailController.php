@@ -504,60 +504,6 @@ class DmailController extends MainController
     }
 
     /**
-     * Showing steps number on top of every page
-     *
-     * @param int $totalSteps Total step
-     *
-     * @return string HTML
-     */
-/**
-    protected function showSteps($totalSteps)
-    {
-        $content = '';
-        for ($i = 1; $i <= $totalSteps; $i++) {
-            $cssClass = ($i == $this->currentStep) ? 't3-wizard-item-active' : '';
-            $content .= '<span class="t3-wizard-item ' . $cssClass . '">&nbsp;' . $i . '&nbsp;</span>';
-        }
-        return $content;
-    }
-*/
-    /**
-     * Makes expandable section using TYPO3-typical markup.
-     *
-     * @param int $sectionId
-     * @param string $title
-     * @param string $content
-     * @return string
-     */
-/**
-    protected function makeSection(string $title, string $content, bool $isOpen): string
-    {
-        static $sectionId = 1;
-
-        return sprintf(
-            '<div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="heading%1$d">
-                    <h4 class="panel-title">
-                        <a role="button" data-bs-toggle="collapse" data-bs-parent="#accordion" href="#collapse%1$d" aria-expanded="' . ($isOpen ? 'true' : 'false') . '" aria-controls="collapse%1$d" class="' . (!$isOpen ? 'collapsed' : '') . '">
-                            <span class="caret"></span>
-                            %2$s
-                        </a>
-                    </h4>
-                </div>
-                <div id="collapse%1$d" class="panel-collapse collapse' . ($isOpen ? ' show' : '') . '" role="tabpanel" aria-labelledby="heading%1$d">
-                    <div class="panel-body">
-                        %3$s
-                    </div>
-                </div>
-            </div>
-            ',
-            $sectionId++,
-            $this->getLanguageService()->getLL($title),
-            $content
-        );
-    }
-*/
-    /**
      * Makes box for internal page. (first step)
      *
      * @return array config for form list of internal pages
@@ -937,17 +883,11 @@ class DmailController extends MainController
      *
      * @return void
      */
-    protected function deleteDMail($uid)
+    protected function deleteDMail(int $uid)
     {
         $table = 'sys_dmail';
         if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
-
-            $connection = $this->getConnection($table);
-            $connection->update(
-                $table, // table
-                [ $GLOBALS['TCA'][$table]['ctrl']['delete'] => 1 ],
-                [ 'uid' => $uid ] // where
-            );
+            $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord($uid, [$GLOBALS['TCA'][$table]['ctrl']['delete'] => 1]);
         }
 
         return;
@@ -1128,7 +1068,7 @@ class DmailController extends MainController
                     'iconFactory' => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL),
                     'title' => htmlspecialchars($row['title']),
                     'uid' => $row['uid'],
-                    'tds' => $this->displayMailGroup_test($result)
+                    'tds' => $this->displayMailGroupTest($result)
                 ];
             }
         }
@@ -1146,26 +1086,26 @@ class DmailController extends MainController
      *
      * @param array $result Lists of the recipient IDs based on directmail DB record
      *
-     * @return string List of the recipient (in HTML)
+     * @return array List of the recipient
      */
-    public function displayMailGroup_test($result)
+    public function displayMailGroupTest($result)
     {
         $idLists = $result['queryInfo']['id_lists'];
-        $out = '';
+        $out = [];
         if (is_array($idLists['tt_address'] ?? false)) {
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
-            $out .= $this->getRecordList($rows, 'tt_address');
+            $out[] = $this->getRecordList($rows, 'tt_address');
         }
         if (is_array($idLists['fe_users'] ?? false)) {
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
-            $out .= $this->getRecordList($rows, 'fe_users');
+            $out[] = $this->getRecordList($rows, 'fe_users');
         }
         if (is_array($idLists['PLAINLIST'] ?? false)) {
-            $out .= $this->getRecordList($idLists['PLAINLIST'], 'default');
+            $out[] = $this->getRecordList($idLists['PLAINLIST'], 'default');
         }
         if (is_array($idLists[$this->userTable] ?? false)) {
             $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$this->userTable], $this->userTable);
-            $out .= $this->getRecordList($rows, $this->userTable);
+            $out[] = $this->getRecordList($rows, $this->userTable);
         }
 
         return $out;
@@ -1321,12 +1261,7 @@ class DmailController extends MainController
                     $sectionTitle = $this->getLanguageService()->getLL('send_was_scheduled');
                 }
                 $sentFlag = true;
-                $connection = $this->getConnection('sys_dmail');
-                $connection->update(
-                    'sys_dmail', // table
-                    $updateFields,
-                    [ 'uid' => intval($this->sys_dmail_uid) ] // where
-                );
+                $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$this->sys_dmail_uid, $updateFields);
 
                 $message = $this->createFlashMessage(
                     $sectionTitle . ' ' . $content,
@@ -1340,13 +1275,7 @@ class DmailController extends MainController
 
         // Setting flags and update the record:
         if ($sentFlag && $this->cmd == 'send_mail_final') {
-
-            $connection = $this->getConnection('sys_dmail');
-            $connection->update(
-                'sys_dmail', // table
-                ['issent' => 1],
-                [ 'uid' => intval($this->sys_dmail_uid) ] // where
-            );
+            $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$this->sys_dmail_uid, ['issent' => 1]);
         }
     }
 
@@ -1391,42 +1320,35 @@ class DmailController extends MainController
      * @param bool|int $editLinkFlag If set, edit link is showed
      * @param bool|int $testMailLink If set, send mail link is showed
      *
-     * @return string HTML, the table showing the recipient's info
+     * @return array the table showing the recipient's info
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    public function getRecordList(array $listArr, $table, $editLinkFlag=1, $testMailLink=0)
+    public function getRecordList(array $listArr, $table, $editLinkFlag = 1, $testMailLink = 0): array
     {
         $count = 0;
-        $lines = [];
-        $out = '';
+        $trs = [];
+        $out = [];
         if (is_array($listArr)) {
-            $iconActionsOpen = $this->getIconActionsOpen();
             $count = count($listArr);
             /** @var UriBuilder $uriBuilder */
             $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
             foreach ($listArr as $row) {
                 $tableIcon = '';
-                $editLink = '';
-                $testLink = '';
-
+                $moduleUrl = '';
+                $editOnClick = '';
                 if ($row['uid']) {
-                    $tableIcon = '<td>' . $this->iconFactory->getIconForRecord($table, $row, Icon::SIZE_SMALL) . '</td>';
+                    $tableIcon = $this->iconFactory->getIconForRecord($table, $row, Icon::SIZE_SMALL);
                     if ($editLinkFlag) {
-                        $requestUri = $this->requestUri . '&cmd=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid;
-
                         $params = [
                             'edit' => [
                                 $table => [
                                     $row['uid'] => 'edit',
                                 ]
                             ],
-                            'returnUrl' => $requestUri
+                            'returnUrl' => $this->requestUri . '&cmd=send_test&sys_dmail_uid=' . $this->sys_dmail_uid . '&pages_uid=' . $this->pages_uid
                         ];
 
                         $editOnClick = $this->getEditOnClickLink($params);
-                        $editLink = '<td><a href="#" onClick="' . $editOnClick . '" title="' . $this->getLanguageService()->getLL('dmail_edit') . '">' .
-                            $iconActionsOpen .
-                            '</a></td>';
                     }
 
                     if ($testMailLink) {
@@ -1438,25 +1360,24 @@ class DmailController extends MainController
                                 'cmd' => 'send_mail_test',
                                 'tt_address_uid' => $row['uid']
                             ]
-                            );
-                        $testLink = '<a href="' . $moduleUrl . '">' . htmlspecialchars($row['email']) . '</a>';
-                    } else {
-                        $testLink = htmlspecialchars($row['email']);
+                        );
                     }
                 }
 
-                $lines[] = '<tr class="db_list_normal">
-				' . $tableIcon . '
-				' . $editLink . '
-				<td nowrap> ' . $testLink . ' </td>
-				<td nowrap> ' . htmlspecialchars($row['name']) . ' </td>
-				</tr>';
+                $trs[] = [
+                    'icon' => $tableIcon,
+                    'editOnClick' => $editOnClick,
+                    'testLink' => $moduleUrl,
+                    'name' => $row['name'],
+                    'email' => $row['email']
+                ];
             }
         }
-        if (count($lines)) {
-            $out = '<p>'.$this->getLanguageService()->getLL('dmail_number_records') . ' <strong>' . $count . '</strong></p><br />';
-            $out .= '<table border="0" cellspacing="1" cellpadding="0" class="table table-striped table-hover">' . implode(LF, $lines) . '</table>';
+        if (count($trs)) {
+            $out['count'] = $count;
+            $out['trs'] = $trs;
         }
+
         return $out;
     }
 
@@ -1472,7 +1393,7 @@ class DmailController extends MainController
          * Hook for cmd_finalmail
          * insert a link to open extended importer
          */
-        $hookSelectDisabled = '';
+        $hookSelectDisabled = false;
         $hookContents = '';
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_finalmail'] ?? false)) {
             $hookObjectsArr = [];
@@ -1513,7 +1434,12 @@ class DmailController extends MainController
                 if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
                     $count += count($idLists[$this->userTable]);
                 }
-                $opt[] = '<option value="' . $group['uid'] . '">' . htmlspecialchars($group['title'] . ' (#' . $count . ')') . '</option>';
+
+                $opt[] = [
+                    'uid' => $group['uid'],
+                    'title' => $group['title'],
+                    'count' => $count
+                ];
                 $lastGroup = $group;
             }
         }
@@ -1529,24 +1455,14 @@ class DmailController extends MainController
             );
             $this->messageQueue->addMessage($message);
         }
-        elseif (count($opt) === 1) {
-            if (!$hookSelectDisabled) {
-                $groupInput .= '<input type="hidden" name="mailgroup_uid[]" value="' . $lastGroup['uid'] . '" />';
-            }
-            $groupInput .= '* ' . htmlentities($lastGroup['title']);
-            if ($hookSelectDisabled) {
-                $groupInput .= '<em>disabled</em>';
-            }
-        }
-        else {
-            $groupInput = '<select class="form-control" size="20" multiple="multiple" name="mailgroup_uid[]" '.($hookSelectDisabled ? 'disabled' : '').'>'.implode(chr(10), $opt).'</select>';
-        }
 
         return [
             'id' => $this->id,
             'sys_dmail_uid' => $this->sys_dmail_uid,
-            'groupInput' => $groupInput,
             'hookContents' => $hookContents, // put content from hook
+            'hookSelectDisabled' => $hookSelectDisabled, // put content from hook
+            'lastGroup' => $lastGroup,
+            'opt' => $opt,
             'send_mail_datetime_hr' => strftime('%H:%M %d-%m-%Y', time()),
             'send_mail_datetime' => strftime('%H:%M %d-%m-%Y', time())
         ];
@@ -1798,17 +1714,11 @@ class DmailController extends MainController
                 $whichTables = 4;
             }
             $updateFields = [
-                'whichtables' => intval($whichTables),
+                'whichtables' => (int)$whichTables,
                 'query' => $this->MOD_SETTINGS['queryConfig']
             ];
 
-            $connection = $this->getConnection('sys_dmail_group');
-
-            $connection->update(
-                'sys_dmail_group', // table
-                $updateFields,
-                [ 'uid' => intval($mailGroup['uid']) ] // where
-            );
+            $done = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->updateSysDmailGroupRecord((int)$mailGroup['uid'], $updateFields);
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
         }
         return $mailGroup;

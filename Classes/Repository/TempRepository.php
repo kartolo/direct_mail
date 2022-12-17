@@ -666,4 +666,36 @@ class TempRepository extends MainRepository {
             ->execute()
             ->fetchAll();
     }
+
+    public function deleteOldCache(int $uid)
+    {
+        $table = 'cache_sys_dmail_stat';
+        $connection = $this->getConnection($table);
+        return $connection->delete(
+            $table, // from
+            [ 'mid' => $uid ] // where
+        );
+    }
+
+    public function insertNewCache(array $recRec)
+    {
+        $table = 'cache_sys_dmail_stat';
+        $connection = $this->getConnection($table);
+        return $connection->insert(
+            $table,
+            $recRec
+        );
+    }
+
+    public function updateRows(string $table, array $uidList, array $values)
+    {
+        $connection = $this->getConnection($table);
+        foreach ($uidList as $uid) {
+            $connection->update(
+                $table,
+                $values,
+                ['uid' => $uid]
+            );
+        }
+    }
 }

@@ -1373,13 +1373,7 @@ class StatisticsController extends MainController
      */
     protected function makeStatTempTableContent(array $mrow)
     {
-        // Remove old:
-        $connection = $this->getConnection('cache_sys_dmail_stat');
-        $connection->delete(
-            'cache_sys_dmail_stat', // from
-            [ 'mid' => intval($mrow['uid']) ] // where
-        );
-
+        $done = GeneralUtility::makeInstance(TempRepository::class)->deleteOldCache((int)$mrow['uid']);
         $rows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectStatTempTableContent($mrow['uid']);
 
         $currentRec = '';
@@ -1482,11 +1476,7 @@ class StatisticsController extends MainController
             $recRec['time_first_link'] = DirectMailUtility::intInRangeWrapper((int)($recRec['links_first'] - $recRec['tstamp']), 0);
             $recRec['time_last_link']  = DirectMailUtility::intInRangeWrapper((int)($recRec['links_last'] - $recRec['tstamp']), 0);
 
-            $connection = $this->getConnection('cache_sys_dmail_stat');
-            $connection->insert(
-                'cache_sys_dmail_stat',
-                $recRec
-            );
+            $done = GeneralUtility::makeInstance(TempRepository::class)->insertNewCache($recRec);
         }
     }
 
@@ -1641,27 +1631,17 @@ class StatisticsController extends MainController
     {
         $count = 0;
         if ($GLOBALS['TCA'][$table]) {
-            $values = [];
             $enField = $GLOBALS['TCA'][$table]['ctrl']['enablecolumns']['disabled'];
             if ($enField) {
                 $count = count($arr);
                 $uidList = array_keys($arr);
                 if (count($uidList)) {
+                    $values = [];
                     $values[$enField] = 1;
-                    //@TODO
-                    $connection = $this->getConnection($table);
-                    foreach ($uidList as $uid){
-                        $connection->update(
-                            $table,
-                            $values,
-                            [
-                                'uid' => $uid
-                            ]
-                            );
-                    }
+                    GeneralUtility::makeInstance(TempRepository::class)->updateRows($table, $uidList, $values);
                 }
             }
         }
-        return intval($count);
+        return (int)$count;
     }
 }

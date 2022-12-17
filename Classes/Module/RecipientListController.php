@@ -58,7 +58,7 @@ class RecipientListController extends MainController
         $this->group_uid = (int)($parsedBody['group_uid'] ?? $queryParams['group_uid'] ?? 0);
         $this->lCmd = $parsedBody['lCmd'] ?? $queryParams['lCmd'] ?? '';
         $this->csv = $parsedBody['csv'] ?? $queryParams['csv'] ?? '';
-        $this->set = is_array($parsedBody['csv'] ?? '') ? $parsedBody['csv'] : (is_array($queryParams['csv'] ?? '') ? $queryParams['csv'] : []);
+        $this->set = is_array($parsedBody['SET'] ?? '') ? $parsedBody['SET'] : [];
 
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
         $this->table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
@@ -585,7 +585,6 @@ class RecipientListController extends MainController
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
         $queryConfig = GeneralUtility::_GP('queryConfig');
-        $queryGeneratorConfig = GeneralUtility::_GP('SET');
 
         $whichTables = intval($mailGroup['whichtables']);
         $table = '';
@@ -626,12 +625,8 @@ class RecipientListController extends MainController
                 'query' => $this->MOD_SETTINGS['queryConfig']
             ];
 
-            $connection = $this->getConnection('sys_dmail_group');
-            $connection->update(
-                'sys_dmail_group', // table
-                $updateFields,
-                [ 'uid' => intval($mailGroup['uid']) ] // where
-            );
+            $done = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->updateSysDmailGroupRecord((int)$mailGroup['uid'], $updateFields);
+
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
         }
         return $mailGroup;

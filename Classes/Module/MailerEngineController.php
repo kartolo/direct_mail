@@ -279,18 +279,14 @@ class MailerEngineController extends MainController
      *
      * @return void
      */
-    public function deleteDMail($uid)
+    public function deleteDMail(int $uid)
     {
         $table = 'sys_dmail';
         if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
-            $connection = $this->getConnection($table);
-
-            $connection->update(
-                $table, // table
-                [ $GLOBALS['TCA'][$table]['ctrl']['delete'] => 1 ],
-                [ 'uid' => $uid ] // where
-            );
+            $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord($uid, [$GLOBALS['TCA'][$table]['ctrl']['delete'] => 1]);
         }
+
+        return;
     }
 
     /**
