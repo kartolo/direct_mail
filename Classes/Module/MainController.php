@@ -212,11 +212,6 @@ class MainController {
         return $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail'][$name] ?? 0;
     }
 
-    protected function getConnection(string $table): Connection
-    {
-        return GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-    }
-
     protected function getQueryBuilder(string $table): QueryBuilder
     {
         return GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
