@@ -88,7 +88,7 @@ class JumpurlController implements MiddlewareInterface
 
         if ($this->shouldProcess()) {
             $mailId = (int)$this->request->getQueryParams()['mid'];
-            $submittedRecipient = $this->request->getQueryParams()['rid'];
+            $submittedRecipient = (string)$this->request->getQueryParams()['rid'];
             $submittedAuthCode  = $this->request->getQueryParams()['aC'];
             $jumpurl = $this->request->getQueryParams()['jumpurl'];
 
