@@ -157,18 +157,14 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return void
      */
-    public function dmailer_prepare(array $row)
+    public function dmailerPrepare(array $row)
     {
         $sys_dmail_uid = $row['uid'];
         if ($row['flowedFormat']) {
             $this->flowedFormat = 1;
         }
         if ($row['charset']) {
-            if ($row['type'] == 0) {
-                $this->charset = 'utf-8';
-            } else {
-                $this->charset = $row['charset'];
-            }
+            $this->charset = ($row['type'] == 0) ? 'utf-8' : $row['charset'];
         }
 
         $this->encoding = $row['encoding'];
@@ -323,12 +319,12 @@ class Dmailer implements LoggerAwareInterface
             $authCode = AuthCodeUtility::getHmac($recipRow, $this->authCode_fieldList);
 
             $additionalMarkers = [
-                    // Put in the tablename of the userinformation
+                // Put in the tablename of the userinformation
                 '###SYS_TABLE_NAME###'      => $tableNameChar,
-                    // Put in the uid of the mail-record
+                // Put in the uid of the mail-record
                 '###SYS_MAIL_ID###'         => $this->dmailer['sys_dmail_uid'],
                 '###SYS_AUTHCODE###'        => $authCode,
-                    // Put in the unique message id in HTML-code
+                 // Put in the unique message id in HTML-code
                 $this->dmailer['messageID'] => $uniqMsgId,
             ];
 
@@ -705,7 +701,7 @@ class Dmailer implements LoggerAwareInterface
 
         if (is_array($row)) {
             $this->logger->debug($this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed'));
-            $this->dmailer_prepare($row);
+            $this->dmailerPrepare($row);
             $query_info = unserialize($row['query_info']);
 
             if (!$row['scheduled_begin']) {

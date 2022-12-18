@@ -1128,7 +1128,7 @@ class DmailController extends MainController
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         $htmlmail->nonCron = 1;
         $htmlmail->start();
-        $htmlmail->dmailer_prepare($row);
+        $htmlmail->dmailerPrepare($row);
         $sentFlag = false;
 
         // send out non-personalized emails
