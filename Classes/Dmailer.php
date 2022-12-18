@@ -115,7 +115,7 @@ class Dmailer implements LoggerAwareInterface
     public $tempFileList = [];
 
     //in TYPO3 9 LanguageService->charset has been removed because backend charset is always utf-8
-    protected $backendCharset= 'utf-8';
+    protected $backendCharset = 'utf-8';
 
     /*
      * @var integer Usergroup that is simulated when fetching the mail content
@@ -139,8 +139,12 @@ class Dmailer implements LoggerAwareInterface
     public $jumperURL_prefix = '';
     public $jumperURL_useMailto = '';
 
-    /** @var bool|int */
-    public $jumperURL_useId = false;
+    protected $jumperURLUseId = false;
+
+    protected function setJumperURLUseId(bool $jumperURLUseId): void
+    {
+        $this->jumperURLUseId = $jumperURLUseId;
+    }
 
     protected function getCharsetConverter()
     {
@@ -971,13 +975,13 @@ class Dmailer implements LoggerAwareInterface
                 $substVal = $val['absRef'];
             } elseif ($this->jumperURL_prefix && ($val['tag'] != 'form') && (!strstr($val['ref'], 'mailto:'))) {
                 // Form elements cannot use jumpurl!
-                if ($this->jumperURL_useId) {
+                if ($this->jumperURLUseId) {
                     $substVal = $this->jumperURL_prefix . $urlId;
                 } else {
                     $substVal = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($val['absRef']));
                 }
             } elseif (strstr($val['ref'], 'mailto:') && $this->jumperURL_useMailto) {
-                if ($this->jumperURL_useId) {
+                if ($this->jumperURLUseId) {
                     $substVal = $this->jumperURL_prefix . $urlId;
                 } else {
                     $substVal = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($val['absRef']));
@@ -1041,11 +1045,13 @@ class Dmailer implements LoggerAwareInterface
                 if (strpos($url, '&no_jumpurl=1') !== false) {
                     // A link parameter "&no_jumpurl=1" allows to disable jumpurl for plain text links
                     $url = str_replace('&no_jumpurl=1', '', $url);
-                } elseif ($this->jumperURL_useId) {
+                }
+                elseif ($this->jumperURLUseId) {
                     $this->theParts['plain']['link_ids'][$jumpUrlCounter] = $url;
                     $url = $this->jumperURL_prefix . '-' . $jumpUrlCounter;
                     $jumpUrlCounter++;
-                } else {
+                }
+                else {
                     $url = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($url));
                 }
                 return $url;

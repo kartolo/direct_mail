@@ -92,7 +92,8 @@ class DirectMailUtility
                 (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
                 '&aC=###SYS_AUTHCODE###' .
                 '&jumpurl=';
-            $htmlmail->jumperURL_useId = 1;
+
+            $htmlmail->setJumperURLUseId(true);
         }
         if ($params['enable_mailto_jump_url'] ?? false) {
             $htmlmail->jumperURL_useMailto = 1;
