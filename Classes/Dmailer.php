@@ -45,15 +45,15 @@ class Dmailer implements LoggerAwareInterface
     /*
      * @var int amount of mail sent in one batch
      */
-    public $sendPerCycle = 50;
+    protected int $sendPerCycle = 50;
 
-    public $mailHasContent;
-    protected $flagHtml = 0;
-    protected $flagPlain = 0;
-    protected $includeMedia = 0;
-    protected $flowedFormat = 0;
-    protected $userDmailerLang = 'en';
-    protected $testmail = false;
+    protected bool $mailHasContent = false;
+    protected bool $flagHtml = false;
+    protected bool $flagPlain = false;
+    protected int $includeMedia = 0;
+    protected bool $flowedFormat = false;
+    protected string $userDmailerLang = 'en';
+    protected bool $testmail = false;
 
     /*
      * @var string
@@ -76,44 +76,44 @@ class Dmailer implements LoggerAwareInterface
      * @var string the mail message ID
      * todo: do we still need this
      */
-    protected $messageid = '';
+    protected string $messageid = '';
 
     /*
      * @var string the subject of the mail
      */
-    protected $subject = '';
+    protected string $subject = '';
 
     /*
      * @var string the sender mail
      */
-    protected $fromEmail = '';
+    protected string $fromEmail = '';
 
     /*
      * @var string the sender's name
      */
-    protected $fromName = '';
+    protected string $fromName = '';
 
     /*
      * @var string organisation of the mail
      */
-    protected $organisation = '';
+    protected string $organisation = '';
 
     /*
      * special header to identify returned mail
      *
      * @var string
      */
-    protected $TYPO3MID = '';
+    protected string $TYPO3MID = '';
 
-    protected $replyToEmail = '';
-    protected $replyToName = '';
-    protected $priority = 0;
+    protected string $replyToEmail = '';
+    protected string $replyToName = '';
+    protected int $priority = 0;
 
     /*
      * @TODO Where it is used?
      */
     public $mailer;
-    protected $authCodeFieldList = '';
+    protected string $authCodeFieldList = '';
     public $dmailer;
 
     /*
@@ -127,7 +127,7 @@ class Dmailer implements LoggerAwareInterface
     public $tempFileList = [];
 
     //in TYPO3 9 LanguageService->charset has been removed because backend charset is always utf-8
-    protected $backendCharset = 'utf-8';
+    protected string $backendCharset = 'utf-8';
 
     /*
      * @var integer Usergroup that is simulated when fetching the mail content
@@ -145,11 +145,11 @@ class Dmailer implements LoggerAwareInterface
      */
     protected $templateService;
 
-    protected $message = '';
-    protected $notificationJob = false;
-    protected $jumperURLPrefix = '';
-    protected $jumperURLUseMailto = false;
-    protected $jumperURLUseId = false;
+    protected string $message = '';
+    protected bool $notificationJob = false;
+    protected string $jumperURLPrefix = '';
+    protected bool $jumperURLUseMailto = false;
+    protected bool $jumperURLUseId = false;
 
     public function setIncludeMedia(int $includeMedia): void
     {
@@ -205,7 +205,7 @@ class Dmailer implements LoggerAwareInterface
     {
         $sys_dmail_uid = $row['uid'];
         if ($row['flowedFormat']) {
-            $this->flowedFormat = 1;
+            $this->flowedFormat = true;
         }
         if ($row['charset']) {
             $this->charset = ($row['type'] == 0) ? 'utf-8' : $row['charset'];
@@ -256,8 +256,8 @@ class Dmailer implements LoggerAwareInterface
             $this->dmailer['boundaryParts_plain'][$bKey] = explode('-->', $bContent, 2);
         }
 
-        $this->flagHtml     = (($this->theParts['html']['content'] ?? false) ? 1 : 0);
-        $this->flagPlain    = (($this->theParts['plain']['content'] ?? false) ? 1 : 0);
+        $this->flagHtml     = (($this->theParts['html']['content'] ?? false) ? true : false);
+        $this->flagPlain    = (($this->theParts['plain']['content'] ?? false) ? true : false);
         $this->includeMedia = $row['includeMedia'];
     }
 
