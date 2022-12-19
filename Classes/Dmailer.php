@@ -107,6 +107,10 @@ class Dmailer implements LoggerAwareInterface
     public $replyto_email = '';
     public $replyto_name = '';
     public $priority = 0;
+
+    /*
+     * @TODO Where it is used?
+     */
     public $mailer;
     protected $authCodeFieldList = '';
     public $dmailer;
