@@ -927,7 +927,7 @@ class DmailController extends MainController
 
         if (!$erg['errorTitle']) {
             // Update the record:
-            $htmlmail->theParts['messageid'] = $htmlmail->messageid;
+            $htmlmail->theParts['messageid'] = $htmlmail->getMessageid();
             $mailContent = base64_encode(serialize($htmlmail->theParts));
 
             GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmail(

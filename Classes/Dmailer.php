@@ -75,12 +75,12 @@ class Dmailer implements LoggerAwareInterface
      * @var string the mail message ID
      * todo: do we still need this
      */
-    public $messageid = '';
+    protected $messageid = '';
 
     /*
      * @var string the subject of the mail
      */
-    public $subject = '';
+    protected $subject = '';
 
     /*
      * @var string the sender mail
@@ -149,6 +149,11 @@ class Dmailer implements LoggerAwareInterface
     protected $jumperURLPrefix = '';
     protected $jumperURLUseMailto = false;
     protected $jumperURLUseId = false;
+
+    protected function getMessageid(): string
+    {
+        return $this->messageid;
+    }
 
     protected function setJumperURLPrefix(string $jumperURLPrefix): void
     {

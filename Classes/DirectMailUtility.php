@@ -149,7 +149,7 @@ class DirectMailUtility
 
         if (!count($errorMsg)) {
             // Update the record:
-            $htmlmail->theParts['messageid'] = $htmlmail->messageid;
+            $htmlmail->theParts['messageid'] = $htmlmail->getMessageid();
             $mailContent = base64_encode(serialize($htmlmail->theParts));
 
             $updateData = [
