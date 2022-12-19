@@ -70,7 +70,7 @@ class Dmailer implements LoggerAwareInterface
     /*
      * @var array the mail parts (HTML and Plain, incl. href and link to media)
      */
-    public $theParts = [];
+    public array $theParts = [];
 
     /*
      * @var string the mail message ID
@@ -150,6 +150,21 @@ class Dmailer implements LoggerAwareInterface
     protected string $jumperURLPrefix = '';
     protected bool $jumperURLUseMailto = false;
     protected bool $jumperURLUseId = false;
+
+    public function setPartHtmlConfig(string $key, $value): void
+    {
+        $this->theParts['html'][$key] = $value;
+    }
+
+    public function getPartHtmlConfig(string $key)
+    {
+        return $this->theParts['html'][$key];
+    }
+
+    public function getParts(): array
+    {
+        return $this->theParts;
+    }
 
     public function setIncludeMedia(int $includeMedia): void
     {
