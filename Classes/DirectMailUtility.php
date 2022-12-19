@@ -104,7 +104,7 @@ class DirectMailUtility
         $htmlmail->start();
         $htmlmail->charset = $row['charset'];
         $htmlmail->simulateUsergroup = $params['simulate_usergroup'] ?? false;
-        $htmlmail->includeMedia = $row['includeMedia'];
+        $htmlmail->setIncludeMedia($row['includeMedia']);
 
         if ($plainTextUrl) {
             $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));

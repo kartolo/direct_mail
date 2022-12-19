@@ -50,8 +50,8 @@ class Dmailer implements LoggerAwareInterface
     public $mailHasContent;
     public $flag_html = 0;
     public $flag_plain = 0;
-    public $includeMedia = 0;
-    public $flowedFormat = 0;
+    protected $includeMedia = 0;
+    protected $flowedFormat = 0;
     protected $userDmailerLang = 'en';
     protected $testmail = false;
 
@@ -150,6 +150,11 @@ class Dmailer implements LoggerAwareInterface
     protected $jumperURLPrefix = '';
     protected $jumperURLUseMailto = false;
     protected $jumperURLUseId = false;
+
+    public function setIncludeMedia(int $includeMedia): void
+    {
+        $this->includeMedia = $includeMedia;
+    }
 
     public function setTestmail(bool $testmail): void
     {
