@@ -85,24 +85,24 @@ class Dmailer implements LoggerAwareInterface
     /*
      * @var string the sender mail
      */
-    public $from_email = '';
+    protected $fromEmail = '';
 
     /*
      * @var string the sender's name
      */
-    public $from_name = '';
+    protected $fromName = '';
 
     /*
      * @var string organisation of the mail
      */
-    public $organisation = '';
+    protected $organisation = '';
 
     /*
      * special header to identify returned mail
      *
      * @var string
      */
-    public $TYPO3MID;
+    protected $TYPO3MID = '';
 
     protected $replyToEmail = '';
     protected $replyToName = '';
@@ -194,8 +194,8 @@ class Dmailer implements LoggerAwareInterface
         $this->theParts          = unserialize(base64_decode($row['mailContent']));
         $this->messageid         = $this->theParts['messageid'];
         $this->subject           = $this->getCharsetConverter()->conv($row['subject'], $this->backendCharset, $this->charset);
-        $this->from_email        = $row['from_email'];
-        $this->from_name         = ($row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'], $this->backendCharset, $this->charset) : '');
+        $this->fromEmail         = $row['from_email'];
+        $this->fromName          = ($row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'], $this->backendCharset, $this->charset) : '');
         $this->replyToEmail      = $row['replyto_email'] ?? '';
         $this->replyToName       = ($row['replyto_name'] ? $this->getCharsetConverter()->conv($row['replyto_name'], $this->backendCharset, $this->charset) : '');
         $this->organisation      = ($row['organisation'] ? $this->getCharsetConverter()->conv($row['organisation'], $this->backendCharset, $this->charset) : '');
@@ -678,11 +678,11 @@ class Dmailer implements LoggerAwareInterface
         $this->logger->debug($subject . ': ' . $message);
 
         if ($this->notificationJob === true) {
-            $from_name = $this->getCharsetConverter()->conv($this->from_name, $this->charset, $this->backendCharset) ?? '';
+            $fromName = $this->getCharsetConverter()->conv($this->fromName, $this->charset, $this->backendCharset) ?? '';
 
             $mail = GeneralUtility::makeInstance(MailMessage::class);
-            $mail->setTo($this->from_email, $from_name);
-            $mail->setFrom($this->from_email, $from_name);
+            $mail->setTo($this->fromEmail, $fromName);
+            $mail->setFrom($this->fromEmail, $fromName);
             $mail->setSubject($subject);
 
             if ($this->replyToEmail !== '') {
@@ -857,7 +857,7 @@ class Dmailer implements LoggerAwareInterface
         /** @var MailMessage $mailer */
         $mailer = GeneralUtility::makeInstance(MailMessage::class);
         $mailer
-            ->from(new Address($this->from_email, $this->from_name))
+            ->from(new Address($this->fromEmail, $this->fromName))
             ->to($recipient)
             ->subject($this->subject)
             ->priority($this->priority);
@@ -866,7 +866,7 @@ class Dmailer implements LoggerAwareInterface
             $mailer->replyTo(new Address($this->replyToEmail, $this->replyToName));
         }
         else {
-            $mailer->replyTo(new Address($this->from_email, $this->from_name));
+            $mailer->replyTo(new Address($this->fromEmail, $this->fromName));
         }
 
         if (GeneralUtility::validEmail($this->dmailer['sys_dmail_rec']['return_path'])) {
