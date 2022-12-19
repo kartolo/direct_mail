@@ -112,6 +112,9 @@ class Dmailer implements LoggerAwareInterface
     public $dmailer;
     public $mediaList;
 
+    /*
+     * @TODO Where it is used?
+     */
     public $tempFileList = [];
 
     //in TYPO3 9 LanguageService->charset has been removed because backend charset is always utf-8
