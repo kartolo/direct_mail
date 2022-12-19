@@ -108,7 +108,7 @@ class Dmailer implements LoggerAwareInterface
     public $replyto_name = '';
     public $priority = 0;
     public $mailer;
-    public $authCode_fieldList;
+    protected $authCodeFieldList = '';
     public $dmailer;
 
     /*
@@ -203,7 +203,7 @@ class Dmailer implements LoggerAwareInterface
 
         $this->priority      = DirectMailUtility::intInRangeWrapper((int)$row['priority'], 1, 5);
         $this->mailer        = 'TYPO3 Direct Mail module';
-        $this->authCode_fieldList = $row['authcode_fieldList'] ?? '' ?: 'uid';
+        $this->authCodeFieldList = $row['authcode_fieldList'] ?? '' ?: 'uid';
 
         $this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
         $this->dmailer['html_content']    = $this->theParts['html']['content'] ?? '';
@@ -334,7 +334,7 @@ class Dmailer implements LoggerAwareInterface
         if ($recipRow['email']) {
             $midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
             $uniqMsgId = md5(microtime()) . '_' . $midRidId;
-            $authCode = AuthCodeUtility::getHmac($recipRow, $this->authCode_fieldList);
+            $authCode = AuthCodeUtility::getHmac($recipRow, $this->authCodeFieldList);
 
             $additionalMarkers = [
                 // Put in the tablename of the userinformation

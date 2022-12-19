@@ -763,17 +763,17 @@ class DmailController extends MainController
         // Set default values:
         $dmail = [];
         $dmail['sys_dmail']['NEW'] = [
-            'from_email'        => $indata['senderEmail'],
-            'from_name'         => $indata['senderName'],
-            'replyto_email'     => $this->params['replyto_email'] ?? '',
-            'replyto_name'      => $this->params['replyto_name'] ?? '',
-            'return_path'       => $this->params['return_path'] ?? '',
-            'priority'          => (int) $this->params['priority'],
-            'use_rdct'          => (int) $this->params['use_rdct'],
-            'long_link_mode'    => (int) $this->params['long_link_mode'],
-            'organisation'      => $this->params['organisation'] ?? '',
-            'authcode_fieldList'=> $this->params['authcode_fieldList'] ?? '',
-            'plainParams'       => ''
+            'from_email'         => $indata['senderEmail'],
+            'from_name'          => $indata['senderName'],
+            'replyto_email'      => $this->params['replyto_email'] ?? '',
+            'replyto_name'       => $this->params['replyto_name'] ?? '',
+            'return_path'        => $this->params['return_path'] ?? '',
+            'priority'           => (int) $this->params['priority'],
+            'use_rdct'           => (int) $this->params['use_rdct'],
+            'long_link_mode'     => (int) $this->params['long_link_mode'],
+            'organisation'       => $this->params['organisation'] ?? '',
+            'authcode_fieldList' => $this->params['authcode_fieldList'] ?? '',
+            'plainParams'        => ''
         ];
 
         // always plaintext
