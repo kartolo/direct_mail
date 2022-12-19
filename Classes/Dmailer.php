@@ -52,7 +52,7 @@ class Dmailer implements LoggerAwareInterface
     public $flag_plain = 0;
     public $includeMedia = 0;
     public $flowedFormat = 0;
-    public $user_dmailerLang = 'en';
+    protected $userDmailerLang = 'en';
     protected $testmail = false;
 
     /*
@@ -724,7 +724,7 @@ class Dmailer implements LoggerAwareInterface
 
         if (!is_object($this->getLanguageService())) {
             $GLOBALS['LANG'] = GeneralUtility::makeInstance(LanguageService::class);
-            $language = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] ? $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] : $this->user_dmailerLang;
+            $language = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] ? $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] : $this->userDmailerLang;
             $this->getLanguageService()->init(trim($language));
         }
 
@@ -802,7 +802,7 @@ class Dmailer implements LoggerAwareInterface
 
         // Mailer engine parameters
         $this->sendPerCycle = $user_dmailer_sendPerCycle;
-        $this->user_dmailerLang = $user_dmailer_lang;
+        $this->userDmailerLang = $user_dmailer_lang;
         if (isset($this->nonCron) && !$this->nonCron) {
             $this->logger->debug('Starting directmail cronjob');
             // write this temp file for checking the engine in the status module
