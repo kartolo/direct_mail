@@ -1135,7 +1135,7 @@ class DmailController extends MainController
         if ($this->mailingMode_simple) {
             // step 4, sending simple test emails
             // setting Testmail flag
-            $htmlmail->testmail = $this->params['testmail'] ?? false;
+            $htmlmail->setTestmail((bool)($this->params['testmail'] ?? false));
 
             // Fixing addresses:
             $addresses = GeneralUtility::_GP('SET');
@@ -1169,7 +1169,7 @@ class DmailController extends MainController
         elseif ($this->cmd == 'send_mail_test') {
             // step 4, sending test personalized test emails
             // setting Testmail flag
-            $htmlmail->testmail = $this->params['testmail'];
+            $htmlmail->setTestmail((bool)$this->params['testmail']);
 
             if ($this->tt_address_uid) {
                 // personalized to tt_address

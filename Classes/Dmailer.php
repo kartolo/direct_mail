@@ -53,7 +53,7 @@ class Dmailer implements LoggerAwareInterface
     public $includeMedia = 0;
     public $flowedFormat = 0;
     public $user_dmailerLang = 'en';
-    public $testmail = false;
+    protected $testmail = false;
 
     /*
      * @var string
@@ -63,6 +63,7 @@ class Dmailer implements LoggerAwareInterface
     /*
      * @var string
      * Todo: Symfony mailer does not have an encoding you can change. Check if this has side effects
+     * @TODO Where it is used?
      */
     public $encoding = '';
 
@@ -150,22 +151,32 @@ class Dmailer implements LoggerAwareInterface
     protected $jumperURLUseMailto = false;
     protected $jumperURLUseId = false;
 
-    protected function getMessageid(): string
+    public function setTestmail(bool $testmail): void
+    {
+        $this->testmail = $testmail;
+    }
+
+    public function getTestmail(): bool
+    {
+        return $this->testmail;
+    }
+
+    public function getMessageid(): string
     {
         return $this->messageid;
     }
 
-    protected function setJumperURLPrefix(string $jumperURLPrefix): void
+    public function setJumperURLPrefix(string $jumperURLPrefix): void
     {
         $this->jumperURLPrefix = $jumperURLPrefix;
     }
 
-    protected function setJumperURLUseMailto(bool $jumperURLUseMailto): void
+    public function setJumperURLUseMailto(bool $jumperURLUseMailto): void
     {
         $this->jumperURLUseMailto = $jumperURLUseMailto;
     }
 
-    protected function setJumperURLUseId(bool $jumperURLUseId): void
+    public function setJumperURLUseId(bool $jumperURLUseId): void
     {
         $this->jumperURLUseId = $jumperURLUseId;
     }
