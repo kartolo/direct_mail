@@ -914,11 +914,11 @@ class DmailController extends MainController
         $htmlmail->charset = $row['charset'];
         $htmlmail->addPlain($message);
 
-        if (!$message || !$htmlmail->theParts['plain']['content']) {
+        if (!$message || !$htmlmail->getPartPlainConfig('content')) {
             $erg['errorTitle'] = $this->getLanguageService()->getLL('dmail_error');
             $erg['errorText'] = $this->getLanguageService()->getLL('dmail_no_plain_content');
         }
-        elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']), '<!--DMAILER_SECTION_BOUNDARY')) {
+        elseif (!strstr(base64_decode($htmlmail->getPartPlainConfig('content')), '<!--DMAILER_SECTION_BOUNDARY')) {
             $erg['warningTitle'] = $this->getLanguageService()->getLL('dmail_warning');
             $erg['warningText'] = $this->getLanguageService()->getLL('dmail_no_plain_boundaries');
         }
