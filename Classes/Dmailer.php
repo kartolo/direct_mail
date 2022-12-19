@@ -110,6 +110,10 @@ class Dmailer implements LoggerAwareInterface
     public $mailer;
     public $authCode_fieldList;
     public $dmailer;
+
+    /*
+     * @TODO Where it is used?
+     */
     protected $mediaList;
 
     /*
