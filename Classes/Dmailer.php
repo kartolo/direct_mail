@@ -110,7 +110,7 @@ class Dmailer implements LoggerAwareInterface
     public $mailer;
     public $authCode_fieldList;
     public $dmailer;
-    public $mediaList;
+    protected $mediaList;
 
     /*
      * @TODO Where it is used?
@@ -303,7 +303,6 @@ class Dmailer implements LoggerAwareInterface
         return $this->templateService->substituteMarkerArray($content, $markers);
     }
 
-
     /**
      * Replace the marker with recipient data and then send it
      *
@@ -312,7 +311,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return int Which kind of email is sent, 1 = HTML, 2 = plain, 3 = both
      */
-    public function dmailer_sendAdvanced(array $recipRow, $tableNameChar)
+    public function sendAdvanced(array $recipRow, $tableNameChar)
     {
         $returnCode = 0;
         $tempRow = [];
@@ -595,7 +594,7 @@ class Dmailer implements LoggerAwareInterface
             if ($logUid) {
                 $values = [
                     'logUid' => (int)$logUid,
-                    'html_sent' => (int)$this->dmailer_sendAdvanced($recipRow, $tableKey),
+                    'html_sent' => (int)$this->sendAdvanced($recipRow, $tableKey),
                     'parsetime' => self::getMilliseconds() - $pt,
                     'size' => strlen($this->message)
                 ];

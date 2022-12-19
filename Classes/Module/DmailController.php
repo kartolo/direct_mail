@@ -1179,7 +1179,7 @@ class DmailController extends MainController
                     foreach ($res as $recipRow) {
                         $recipRow = Dmailer::convertFields($recipRow);
                         $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address', $recipRow['uid']);
-                        $htmlmail->dmailer_sendAdvanced($recipRow, 't');
+                        $htmlmail->sendAdvanced($recipRow, 't');
                         $sentFlag = true;
 
                         $message = $this->createFlashMessage(
@@ -1303,7 +1303,7 @@ class DmailController extends MainController
                 $recipRow = $htmlmail->convertFields($rec);
                 $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table, $recipRow['uid']);
                 $kc = substr($table, 0, 1);
-                $returnCode = $htmlmail->dmailer_sendAdvanced($recipRow, $kc == 'p' ? 'P' : $kc);
+                $returnCode = $htmlmail->sendAdvanced($recipRow, $kc == 'p' ? 'P' : $kc);
                 if ($returnCode) {
                     $sentFlag++;
                 }
