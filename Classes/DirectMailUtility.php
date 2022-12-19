@@ -96,7 +96,7 @@ class DirectMailUtility
             $htmlmail->setJumperURLUseId(true);
         }
         if ($params['enable_mailto_jump_url'] ?? false) {
-            $htmlmail->jumperURL_useMailto = 1;
+            $htmlmail->setJumperURLUseMailto(true);
         }
 
         $htmlmail->start();
