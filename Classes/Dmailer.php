@@ -136,9 +136,14 @@ class Dmailer implements LoggerAwareInterface
 
     protected $notificationJob = false;
 
-    public $jumperURL_prefix = '';
+    protected $jumperURLPrefix = '';
     protected $jumperURLUseMailto = false;
     protected $jumperURLUseId = false;
+
+    protected function setJumperURLPrefix(string $jumperURLPrefix): void
+    {
+        $this->jumperURLPrefix = $jumperURLPrefix;
+    }
 
     protected function setJumperURLUseMailto(bool $jumperURLUseMailto): void
     {
@@ -978,21 +983,21 @@ class Dmailer implements LoggerAwareInterface
                 // A tag attribute "no_jumpurl=1" allows to disable jumpurl for custom links
                 $substVal = $val['absRef'];
             }
-            elseif ($this->jumperURL_prefix && ($val['tag'] != 'form') && (!strstr($val['ref'], 'mailto:'))) {
+            elseif ($this->jumperURLPrefix && ($val['tag'] != 'form') && (!strstr($val['ref'], 'mailto:'))) {
                 // Form elements cannot use jumpurl!
                 if ($this->jumperURLUseId) {
-                    $substVal = $this->jumperURL_prefix . $urlId;
+                    $substVal = $this->jumperURLPrefix . $urlId;
                 }
                 else {
-                    $substVal = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($val['absRef']));
+                    $substVal = $this->jumperURLPrefix . str_replace('%2F', '/', rawurlencode($val['absRef']));
                 }
             }
             elseif (strstr($val['ref'], 'mailto:') && $this->jumperURLUseMailto) {
                 if ($this->jumperURLUseId) {
-                    $substVal = $this->jumperURL_prefix . $urlId;
+                    $substVal = $this->jumperURLPrefix . $urlId;
                 }
                 else {
-                    $substVal = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($val['absRef']));
+                    $substVal = $this->jumperURLPrefix . str_replace('%2F', '/', rawurlencode($val['absRef']));
                 }
             }
             else {
@@ -1042,7 +1047,7 @@ class Dmailer implements LoggerAwareInterface
      */
     public function substHTTPurlsInPlainText($content)
     {
-        if (!isset($this->jumperURL_prefix) || !$this->jumperURL_prefix) {
+        if (!isset($this->jumperURLPrefix) || !$this->jumperURLPrefix) {
             return $content;
         }
 
@@ -1057,11 +1062,11 @@ class Dmailer implements LoggerAwareInterface
                 }
                 elseif ($this->jumperURLUseId) {
                     $this->theParts['plain']['link_ids'][$jumpUrlCounter] = $url;
-                    $url = $this->jumperURL_prefix . '-' . $jumpUrlCounter;
+                    $url = $this->jumperURLPrefix . '-' . $jumpUrlCounter;
                     $jumpUrlCounter++;
                 }
                 else {
-                    $url = $this->jumperURL_prefix . str_replace('%2F', '/', rawurlencode($url));
+                    $url = $this->jumperURLPrefix . str_replace('%2F', '/', rawurlencode($url));
                 }
                 return $url;
             },
