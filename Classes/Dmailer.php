@@ -161,6 +161,11 @@ class Dmailer implements LoggerAwareInterface
         return $this->theParts['html'][$key];
     }
 
+    public function getPartPlainConfig(string $key)
+    {
+        return $this->theParts['plain'][$key];
+    }
+
     public function setPartMessageIdConfig(string $messageId): void
     {
         $this->theParts['messageid'] = $messageId;

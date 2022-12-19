@@ -109,10 +109,10 @@ class DirectMailUtility
         if ($plainTextUrl) {
             $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));
             $htmlmail->addPlain($mailContent);
-            if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
+            if (!$mailContent || !$htmlmail->getPartPlainConfig('content')) {
                 $errorMsg[] = $lang->getLL('dmail_no_plain_content');
             }
-            elseif (!strstr($htmlmail->theParts['plain']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
+            elseif (!strstr($htmlmail->getPartPlainConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $lang->getLL('dmail_no_plain_boundaries');
             }
         }
@@ -139,10 +139,10 @@ class DirectMailUtility
             if ($htmlmail->extractFramesInfo()) {
                 $errorMsg[] = $lang->getLL('dmail_frames_not allowed');
             }
-            elseif (!$success || !$htmlmail->theParts['html']['content']) {
+            elseif (!$success || !$htmlmail->getPartHtmlConfig('content')) {
                 $errorMsg[] = $lang->getLL('dmail_no_html_content');
             }
-            elseif (!strstr($htmlmail->theParts['html']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
+            elseif (!strstr($htmlmail->getPartHtmlConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $lang->getLL('dmail_no_html_boundaries');
             }
         }
