@@ -70,7 +70,7 @@ class Dmailer implements LoggerAwareInterface
     /*
      * @var array the mail parts (HTML and Plain, incl. href and link to media)
      */
-    public array $theParts = [];
+    protected array $theParts = [];
 
     /*
      * @var string the mail message ID
