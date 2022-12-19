@@ -119,6 +119,7 @@ class Dmailer implements LoggerAwareInterface
 
     /*
      * @var integer Usergroup that is simulated when fetching the mail content
+     * @TODO Where it is used?
      */
     public $simulateUsergroup;
 
@@ -133,9 +134,7 @@ class Dmailer implements LoggerAwareInterface
     protected $templateService;
 
     protected $message = '';
-
     protected $notificationJob = false;
-
     protected $jumperURLPrefix = '';
     protected $jumperURLUseMailto = false;
     protected $jumperURLUseId = false;
@@ -985,20 +984,12 @@ class Dmailer implements LoggerAwareInterface
             }
             elseif ($this->jumperURLPrefix && ($val['tag'] != 'form') && (!strstr($val['ref'], 'mailto:'))) {
                 // Form elements cannot use jumpurl!
-                if ($this->jumperURLUseId) {
-                    $substVal = $this->jumperURLPrefix . $urlId;
-                }
-                else {
-                    $substVal = $this->jumperURLPrefix . str_replace('%2F', '/', rawurlencode($val['absRef']));
-                }
+                $substVal = $this->jumperURLPrefix;
+                $substVal .= $this->jumperURLUseId ? $urlId : str_replace('%2F', '/', rawurlencode($val['absRef']));
             }
             elseif (strstr($val['ref'], 'mailto:') && $this->jumperURLUseMailto) {
-                if ($this->jumperURLUseId) {
-                    $substVal = $this->jumperURLPrefix . $urlId;
-                }
-                else {
-                    $substVal = $this->jumperURLPrefix . str_replace('%2F', '/', rawurlencode($val['absRef']));
-                }
+                $substVal = $this->jumperURLPrefix;
+                $substVal .= $this->jumperURLUseId ? $urlId : str_replace('%2F', '/', rawurlencode($val['absRef']));
             }
             else {
                 $substVal = $val['absRef'];
