@@ -48,8 +48,8 @@ class Dmailer implements LoggerAwareInterface
     public $sendPerCycle = 50;
 
     public $mailHasContent;
-    public $flag_html = 0;
-    public $flag_plain = 0;
+    protected $flagHtml = 0;
+    protected $flagPlain = 0;
     protected $includeMedia = 0;
     protected $flowedFormat = 0;
     protected $userDmailerLang = 'en';
@@ -256,8 +256,8 @@ class Dmailer implements LoggerAwareInterface
             $this->dmailer['boundaryParts_plain'][$bKey] = explode('-->', $bContent, 2);
         }
 
-        $this->flag_html    = (($this->theParts['html']['content'] ?? false) ? 1 : 0);
-        $this->flag_plain   = (($this->theParts['plain']['content'] ?? false) ? 1 : 0);
+        $this->flagHtml     = (($this->theParts['html']['content'] ?? false) ? 1 : 0);
+        $this->flagPlain    = (($this->theParts['plain']['content'] ?? false) ? 1 : 0);
         $this->includeMedia = $row['includeMedia'];
     }
 
@@ -367,7 +367,7 @@ class Dmailer implements LoggerAwareInterface
 
             $this->mediaList = '';
             $this->theParts['html']['content'] = '';
-            if ($this->flag_html && ($recipRow['module_sys_dmail_html'] || $tableNameChar == 'P')) {
+            if ($this->flagHtml && ($recipRow['module_sys_dmail_html'] || $tableNameChar == 'P')) {
                 $tempContent_HTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
                     $tempContent_HTML = $this->replaceMailMarkers($tempContent_HTML, $recipRow, $additionalMarkers);
@@ -378,7 +378,7 @@ class Dmailer implements LoggerAwareInterface
 
             // Plain
             $this->theParts['plain']['content'] = '';
-            if ($this->flag_plain) {
+            if ($this->flagPlain) {
                 $tempContent_Plain = $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
                     $tempContent_Plain = $this->replaceMailMarkers($tempContent_Plain, $recipRow, $additionalMarkers);
