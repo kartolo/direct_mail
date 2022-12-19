@@ -104,9 +104,9 @@ class Dmailer implements LoggerAwareInterface
      */
     public $TYPO3MID;
 
-    public $replyto_email = '';
-    public $replyto_name = '';
-    public $priority = 0;
+    protected $replyToEmail = '';
+    protected $replyToName = '';
+    protected $priority = 0;
 
     /*
      * @TODO Where it is used?
@@ -190,23 +190,17 @@ class Dmailer implements LoggerAwareInterface
             $this->charset = ($row['type'] == 0) ? 'utf-8' : $row['charset'];
         }
 
-        $this->encoding = $row['encoding'];
-
-        $this->theParts  = unserialize(base64_decode($row['mailContent']));
-        $this->messageid = $this->theParts['messageid'];
-
-        $this->subject = $this->getCharsetConverter()->conv($row['subject'], $this->backendCharset, $this->charset);
-
-        $this->from_email = $row['from_email'];
-        $this->from_name = ($row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'], $this->backendCharset, $this->charset) : '');
-
-        $this->replyto_email = $row['replyto_email'] ?? '';
-        $this->replyto_name  = ($row['replyto_name'] ? $this->getCharsetConverter()->conv($row['replyto_name'], $this->backendCharset, $this->charset) : '');
-
-        $this->organisation  = ($row['organisation'] ? $this->getCharsetConverter()->conv($row['organisation'], $this->backendCharset, $this->charset) : '');
-
-        $this->priority      = DirectMailUtility::intInRangeWrapper((int)$row['priority'], 1, 5);
-        $this->mailer        = 'TYPO3 Direct Mail module';
+        $this->encoding          = $row['encoding'];
+        $this->theParts          = unserialize(base64_decode($row['mailContent']));
+        $this->messageid         = $this->theParts['messageid'];
+        $this->subject           = $this->getCharsetConverter()->conv($row['subject'], $this->backendCharset, $this->charset);
+        $this->from_email        = $row['from_email'];
+        $this->from_name         = ($row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'], $this->backendCharset, $this->charset) : '');
+        $this->replyToEmail      = $row['replyto_email'] ?? '';
+        $this->replyToName       = ($row['replyto_name'] ? $this->getCharsetConverter()->conv($row['replyto_name'], $this->backendCharset, $this->charset) : '');
+        $this->organisation      = ($row['organisation'] ? $this->getCharsetConverter()->conv($row['organisation'], $this->backendCharset, $this->charset) : '');
+        $this->priority          = DirectMailUtility::intInRangeWrapper((int)$row['priority'], 1, 5);
+        $this->mailer            = 'TYPO3 Direct Mail module';
         $this->authCodeFieldList = $row['authcode_fieldList'] ?? '' ?: 'uid';
 
         $this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
@@ -691,8 +685,8 @@ class Dmailer implements LoggerAwareInterface
             $mail->setFrom($this->from_email, $from_name);
             $mail->setSubject($subject);
 
-            if ($this->replyto_email !== '') {
-                $mail->setReplyTo($this->replyto_email);
+            if ($this->replyToEmail !== '') {
+                $mail->setReplyTo($this->replyToEmail);
             }
 
             $mail->text($message);
@@ -868,9 +862,10 @@ class Dmailer implements LoggerAwareInterface
             ->subject($this->subject)
             ->priority($this->priority);
 
-        if ($this->replyto_email) {
-            $mailer->replyTo(new Address($this->replyto_email, $this->replyto_name));
-        } else {
+        if ($this->replyToEmail) {
+            $mailer->replyTo(new Address($this->replyToEmail, $this->replyToName));
+        }
+        else {
             $mailer->replyTo(new Address($this->from_email, $this->from_name));
         }
 
