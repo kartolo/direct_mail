@@ -1154,7 +1154,7 @@ class DmailController extends MainController
 
             if ($addressList) {
                 // Sending the same mail to lots of recipients
-                $htmlmail->dmailer_sendSimple($addressList);
+                $htmlmail->sendSimple($addressList);
                 $sentFlag = true;
                 $message = $this->createFlashMessage(
                     $this->getLanguageService()->getLL('send_was_sent') . ' ' .
