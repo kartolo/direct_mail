@@ -395,7 +395,7 @@ class Dmailer implements LoggerAwareInterface
                 $tempContent_HTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
                     $tempContent_HTML = $this->replaceMailMarkers($tempContent_HTML, $recipRow, $additionalMarkers);
-                    $this->theParts['html']['content'] = $this->encodeMsg($tempContent_HTML);
+                    $this->theParts['html']['content'] = $tempContent_HTML;
                     $returnCode|=1;
                 }
             }
@@ -413,7 +413,7 @@ class Dmailer implements LoggerAwareInterface
                             $this->dmailer['sys_dmail_rec']['long_link_rdct_url']
                         );
                     }
-                    $this->theParts['plain']['content'] = $this->encodeMsg($tempContent_Plain);
+                    $this->theParts['plain']['content'] = $tempContent_Plain;
                     $returnCode|=2;
                 }
             }
@@ -445,14 +445,14 @@ class Dmailer implements LoggerAwareInterface
     public function sendSimple($addressList): bool
     {
         if ($this->theParts['html']['content'] ?? false) {
-            $this->theParts['html']['content'] = $this->encodeMsg($this->getBoundaryParts($this->dmailer['boundaryParts_html'], -1));
+            $this->theParts['html']['content'] = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], -1);
         }
         else {
             $this->theParts['html']['content'] = '';
         }
 
         if ($this->theParts['plain']['content'] ?? false) {
-            $this->theParts['plain']['content'] = $this->encodeMsg($this->getBoundaryParts($this->dmailer['boundaryParts_plain'], -1));
+            $this->theParts['plain']['content'] = $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], -1);
         }
         else {
             $this->theParts['plain']['content'] = '';
@@ -985,7 +985,7 @@ class Dmailer implements LoggerAwareInterface
         }
         $this->extractHyperLinks();
         $this->substHREFsInHTML();
-        $this->setHTML($this->encodeMsg($this->theParts['html']['content']));
+        $this->setHTML($this->theParts['html']['content']);
         return true;
     }
 
@@ -1083,7 +1083,7 @@ class Dmailer implements LoggerAwareInterface
     public function addPlain(string $content): void
     {
         $content = $this->substHTTPurlsInPlainText($content);
-        $this->setPlain($this->encodeMsg($content));
+        $this->setPlain($content);
     }
 
     /**
@@ -1122,19 +1122,6 @@ class Dmailer implements LoggerAwareInterface
             },
             $content
         );
-    }
-
-    /**
-     * Wrapper function. always quoted_printable
-     *
-     * @param string $content The content that will be encoded
-     *
-     * @return string The encoded content
-     * @deprecated WTF?
-     */
-    public function encodeMsg(string $content): string
-    {
-        return $content;
     }
 
     /**
