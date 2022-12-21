@@ -46,7 +46,6 @@ class Dmailer implements LoggerAwareInterface
      * @var int amount of mail sent in one batch
      */
     protected int $sendPerCycle = 50;
-
     protected bool $mailHasContent = false;
     protected bool $flagHtml = false;
     protected bool $flagPlain = false;
@@ -54,10 +53,6 @@ class Dmailer implements LoggerAwareInterface
     protected bool $flowedFormat = false;
     protected string $userDmailerLang = 'en';
     protected bool $testmail = false;
-
-    /*
-     * @var string
-     */
     protected string $charset = '';
 
     /*
@@ -65,7 +60,7 @@ class Dmailer implements LoggerAwareInterface
      * Todo: Symfony mailer does not have an encoding you can change. Check if this has side effects
      * @TODO Where it is used?
      */
-    public $encoding = '';
+    protected string $encoding = '';
 
     /*
      * @var array the mail parts (HTML and Plain, incl. href and link to media)
@@ -104,7 +99,6 @@ class Dmailer implements LoggerAwareInterface
      * @var string
      */
     protected string $TYPO3MID = '';
-
     protected string $replyToEmail = '';
     protected string $replyToName = '';
     protected int $priority = 0;
@@ -112,19 +106,19 @@ class Dmailer implements LoggerAwareInterface
     /*
      * @TODO Where it is used?
      */
-    public $mailer;
+    protected string $mailer = '';
     protected string $authCodeFieldList = '';
-    public $dmailer;
+    protected array $dmailer = [];
 
     /*
      * @TODO Where it is used?
      */
-    protected $mediaList;
+    protected string $mediaList = '';
 
     /*
      * @TODO Where it is used?
      */
-    public $tempFileList = [];
+    protected array $tempFileList = [];
 
     //in TYPO3 9 LanguageService->charset has been removed because backend charset is always utf-8
     protected string $backendCharset = 'utf-8';
@@ -133,7 +127,7 @@ class Dmailer implements LoggerAwareInterface
      * @var integer Usergroup that is simulated when fetching the mail content
      * @TODO Where it is used?
      */
-    public $simulateUsergroup;
+    protected int $simulateUsergroup = 0;
 
     /**
      * @var CharsetConverter
@@ -150,6 +144,11 @@ class Dmailer implements LoggerAwareInterface
     protected string $jumperURLPrefix = '';
     protected bool $jumperURLUseMailto = false;
     protected bool $jumperURLUseId = false;
+
+    public function setSimulateUsergroup(int $simulateUsergroup): void
+    {
+        $this->simulateUsergroup = $simulateUsergroup;
+    }
 
     public function setCharset(string $charset): void
     {
