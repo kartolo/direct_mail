@@ -58,7 +58,7 @@ class Dmailer implements LoggerAwareInterface
     /*
      * @var string
      */
-    public $charset = '';
+    protected string $charset = '';
 
     /*
      * @var string
@@ -150,6 +150,16 @@ class Dmailer implements LoggerAwareInterface
     protected string $jumperURLPrefix = '';
     protected bool $jumperURLUseMailto = false;
     protected bool $jumperURLUseId = false;
+
+    public function setCharset(string $charset): void
+    {
+        $this->charset = $charset;
+    }
+
+    public function getCharset(): string
+    {
+        return $this->charset;
+    }
 
     public function setPartHtmlConfig(string $key, $value): void
     {

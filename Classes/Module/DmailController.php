@@ -911,7 +911,7 @@ class DmailController extends MainController
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         $htmlmail->nonCron = 1;
         $htmlmail->start();
-        $htmlmail->charset = $row['charset'];
+        $htmlmail->setCharset($row['charset']);
         $htmlmail->addPlain($message);
 
         if (!$message || !$htmlmail->getPartPlainConfig('content')) {
@@ -932,7 +932,7 @@ class DmailController extends MainController
 
             GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmail(
                 intval($this->sys_dmail_uid),
-                $htmlmail->charset, $mailContent
+                $htmlmail->getCharset(), $mailContent
             );
         }
 

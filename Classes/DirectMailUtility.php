@@ -102,7 +102,7 @@ class DirectMailUtility
         }
 
         $htmlmail->start();
-        $htmlmail->charset = $row['charset'];
+        $htmlmail->setCharset($row['charset']);
         $htmlmail->simulateUsergroup = $params['simulate_usergroup'] ?? false;
         $htmlmail->setIncludeMedia($row['includeMedia']);
 
@@ -127,13 +127,13 @@ class DirectMailUtility
                 $matches = [];
                 $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', ($htmlmail->getParts()['html_content'] ?? ''), $matches);
                 if ($res == 1) {
-                    $htmlmail->charset = $matches[1];
+                    $htmlmail->setCharset($matches[1]);
                 }
                 elseif (isset($params['direct_mail_charset'])) {
-                    $htmlmail->charset = $params['direct_mail_charset'];
+                    $htmlmail->setCharset($params['direct_mail_charset']);
                 }
                 else {
-                    $htmlmail->charset = 'iso-8859-1';
+                    $htmlmail->setCharset('iso-8859-1');
                 }
             }
             if ($htmlmail->extractFramesInfo()) {
@@ -154,7 +154,7 @@ class DirectMailUtility
 
             $updateData = [
                 'issent'             => 0,
-                'charset'            => $htmlmail->charset,
+                'charset'            => $htmlmail->getCharset(),
                 'mailContent'        => $mailContent,
                 'renderedSize'       => strlen($mailContent),
                 'long_link_rdct_url' => $urlBase
