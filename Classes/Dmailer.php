@@ -235,7 +235,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return void
      */
-    public function dmailerPrepare(array $row): void
+    public function prepare(array $row): void
     {
         if ($row['flowedFormat']) {
             $this->flowedFormat = true;
@@ -247,12 +247,12 @@ class Dmailer implements LoggerAwareInterface
         $this->encoding          = $row['encoding'];
         $this->theParts          = unserialize(base64_decode($row['mailContent']));
         $this->messageid         = $this->theParts['messageid'];
-        $this->subject           = $this->getCharsetConverter()->conv($row['subject'], $this->backendCharset, $this->charset);
+        $this->subject           = $this->ensureCorrectEncoding($row['subject']);
         $this->fromEmail         = $row['from_email'];
-        $this->fromName          = $row['from_name'] ? $this->getCharsetConverter()->conv($row['from_name'], $this->backendCharset, $this->charset) : '';
+        $this->fromName          = $this->ensureCorrectEncoding($row['from_name']);
         $this->replyToEmail      = $row['replyto_email'] ?? '';
-        $this->replyToName       = $row['replyto_name'] ? $this->getCharsetConverter()->conv($row['replyto_name'], $this->backendCharset, $this->charset) : '';
-        $this->organisation      = $row['organisation'] ? $this->getCharsetConverter()->conv($row['organisation'], $this->backendCharset, $this->charset) : '';
+        $this->replyToName       = $this->ensureCorrectEncoding($row['replyto_name']);
+        $this->organisation      = $this->ensureCorrectEncoding($row['organisation']);
         $this->priority          = DirectMailUtility::intInRangeWrapper((int)$row['priority'], 1, 5);
         $this->mailer            = 'TYPO3 Direct Mail module';
         $this->authCodeFieldList = $row['authcode_fieldList'] ?? '' ?: 'uid';
@@ -328,14 +328,14 @@ class Dmailer implements LoggerAwareInterface
         }
 
         foreach ($rowFieldsArray as $substField) {
-            $subst = $this->getCharsetConverter()->conv($recipRow[$substField], $this->backendCharset, $this->charset);
+            $subst = $this->ensureCorrectEncoding($recipRow[$substField]);
             $markers['###USER_' . $substField . '###'] = $subst;
         }
 
         // uppercase fields with uppercased values
         $uppercaseFieldsArray = ['name', 'firstname'];
         foreach ($uppercaseFieldsArray as $substField) {
-            $subst = $this->getCharsetConverter()->conv($recipRow[$substField], $this->backendCharset, $this->charset);
+            $subst = $this->ensureCorrectEncoding($recipRow[$substField]);
             $markers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
         }
 
@@ -780,7 +780,7 @@ class Dmailer implements LoggerAwareInterface
 
         if (is_array($row)) {
             $this->logger->debug($this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed'));
-            $this->dmailerPrepare($row);
+            $this->prepare($row);
             $query_info = unserialize($row['query_info']);
 
             if (!$row['scheduled_begin']) {
@@ -1530,18 +1530,22 @@ class Dmailer implements LoggerAwareInterface
     }
 
     /**
-     * @param string $payload
+     * @param string $inputString
      * @return string
      */
-    protected function ensureCorrectEncoding(string $payload): string
+    protected function ensureCorrectEncoding(string $inputString): string
     {
-        return $this
-            ->getCharsetConverter()
-            ->conv(
-                $payload,
-                $this->backendCharset,
-                $this->charset
-            );
+        if($inputString) {
+            return $this
+                ->getCharsetConverter()
+                ->conv(
+                    $inputString,
+                    $this->backendCharset,
+                    $this->charset
+                );
+        }
+
+        return '';
     }
 
     /**
