@@ -316,9 +316,9 @@ class Dmailer implements LoggerAwareInterface
      * @param array $recipRow Recipient's data array
      * @param array $markers Existing markers that are mail-specific, not user-specific
      *
-     * @return int Which kind of email is sent, 1 = HTML, 2 = plain, 3 = both
+     * @return string The processed output stream
      */
-    public function replaceMailMarkers($content, array $recipRow, array $markers)
+    public function replaceMailMarkers(string $content, array $recipRow, array $markers): string
     {
         // replace %23%23%23 with ###, since typolink generated link with urlencode
         $content = str_replace('%23%23%23', '###', $content);
@@ -366,7 +366,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return int Which kind of email is sent, 1 = HTML, 2 = plain, 3 = both
      */
-    public function sendAdvanced(array $recipRow, $tableNameChar): int
+    public function sendAdvanced(array $recipRow, string $tableNameChar): int
     {
         $returnCode = 0;
         $tempRow = [];
@@ -450,7 +450,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return	bool
      */
-    public function sendSimple($addressList): bool
+    public function sendSimple(string $addressList): bool
     {
         if ($this->theParts['html']['content'] ?? false) {
             $this->theParts['html']['content'] = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], -1);
@@ -564,8 +564,8 @@ class Dmailer implements LoggerAwareInterface
      */
     public function masssendList(array $query_info, int $mid): bool
     {
-        $enableFields['tt_address'] = 'tt_address.deleted=0 AND tt_address.hidden=0';
-        $enableFields['fe_users']   = 'fe_users.deleted=0 AND fe_users.disable=0';
+        //$enableFields['tt_address'] = 'tt_address.deleted=0 AND tt_address.hidden=0';
+        //$enableFields['fe_users']   = 'fe_users.deleted=0 AND fe_users.disable=0';
 
         $c = 0;
         $returnVal = true;
@@ -648,18 +648,18 @@ class Dmailer implements LoggerAwareInterface
     {
         $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
         if ($sysDmailMaillogRepository->dmailerIsSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
-            $pt = self::getMilliseconds();
+            $pt = $this->getMilliseconds();
             $recipRow = self::convertFields($recipRow);
 
             // write to dmail_maillog table. if it can be written, continue with sending.
             // if not, stop the script and report error
-            $logUid = $sysDmailMaillogRepository->dmailerAddToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), self::getMilliseconds() - $pt, 0, $recipRow['email']);
+            $logUid = $sysDmailMaillogRepository->dmailerAddToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), $this->getMilliseconds() - $pt, 0, $recipRow['email']);
 
             if ($logUid) {
                 $values = [
                     'logUid' => (int)$logUid,
                     'html_sent' => (int)$this->sendAdvanced($recipRow, $tableKey),
-                    'parsetime' => self::getMilliseconds() - $pt,
+                    'parsetime' => $this->getMilliseconds() - $pt,
                     'size' => strlen($this->message)
                 ];
                 $ok = $sysDmailMaillogRepository->updateSysDmailMaillogForShipOfMail($values);
@@ -680,6 +680,7 @@ class Dmailer implements LoggerAwareInterface
     }
 
     /**
+     * @TODO Is static still needed?
      * Converting array key.
      * fe_user and tt_address are using different fieldname for the same information
      *
@@ -773,7 +774,7 @@ class Dmailer implements LoggerAwareInterface
         // always include locallang file
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
 
-        $pt = self::getMilliseconds();
+        $pt = $this->getMilliseconds();
         $row = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForRuncron();
         $this->logger->debug($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'));
 
@@ -810,7 +811,7 @@ class Dmailer implements LoggerAwareInterface
             $this->logger->debug($this->getLanguageService()->getLL('dmailer_nothing_to_do'));
         }
 
-        $parsetime = self::getMilliseconds() - $pt;
+        $parsetime = $this->getMilliseconds() - $pt;
         $this->logger->debug($this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms');
     }
 
@@ -981,7 +982,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return	mixed		bool: HTML fetch status. string: if HTML is a frameset.
      */
-    public function addHTML($file)
+    public function addHTML(string $file)
     {
         // Adds HTML and media, encodes it from a URL or file
         $status = $this->fetchHTML($file);
@@ -1004,7 +1005,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return bool Whether the data was fetched or not
      */
-    public function fetchHTML($url): bool
+    public function fetchHTML(string $url): bool
     {
         // Fetches the content of the page
         $this->theParts['html']['content'] = GeneralUtility::getURL($url);
@@ -1552,7 +1553,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return int The unixtime as milliseconds
      */
-    public static function getMilliseconds(): int
+    protected function getMilliseconds(): int
     {
         return round(microtime(true) * 1000);
     }
