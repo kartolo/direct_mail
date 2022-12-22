@@ -1468,7 +1468,7 @@ class Dmailer implements LoggerAwareInterface
      * @param bool $requestHost Use request host (when not in CLI mode).
      * @return string The fully-qualified host name.
      */
-    protected static function getHostname($requestHost = true)
+    protected function getHostname(bool $requestHost = true)
     {
         $host = '';
         // If not called from the command-line, resolve on getIndpEnv()
