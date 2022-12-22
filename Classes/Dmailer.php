@@ -134,11 +134,6 @@ class Dmailer implements LoggerAwareInterface
      */
     protected $charsetConverter;
 
-    /**
-     * @var MarkerBasedTemplateService
-     */
-    protected $templateService;
-
     protected string $message = '';
     protected bool $notificationJob = false;
     protected string $jumperURLPrefix = '';
@@ -228,6 +223,11 @@ class Dmailer implements LoggerAwareInterface
         return $this->charsetConverter;
     }
 
+    protected function getMarkerBasedTemplateService(): MarkerBasedTemplateService
+    {
+        return GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
+    }
+
     /**
      * Preparing the Email. Headers are set in global variables
      *
@@ -257,14 +257,14 @@ class Dmailer implements LoggerAwareInterface
         $this->mailer            = 'TYPO3 Direct Mail module';
         $this->authCodeFieldList = $row['authcode_fieldList'] ?? '' ?: 'uid';
 
-        $this->dmailer['sectionBoundary'] = '<!--DMAILER_SECTION_BOUNDARY';
-        $this->dmailer['html_content']    = $this->theParts['html']['content'] ?? '';
-        $this->dmailer['plain_content']   = $this->theParts['plain']['content'] ?? '';
-        $this->dmailer['messageID']       = $this->messageid;
-        $this->dmailer['sys_dmail_uid']   = $row['uid'];
-        $this->dmailer['sys_dmail_rec']   = $row;
-
+        $this->dmailer['sectionBoundary']    = '<!--DMAILER_SECTION_BOUNDARY';
+        $this->dmailer['html_content']       = $this->theParts['html']['content'] ?? '';
+        $this->dmailer['plain_content']      = $this->theParts['plain']['content'] ?? '';
+        $this->dmailer['messageID']          = $this->messageid;
+        $this->dmailer['sys_dmail_uid']      = $row['uid'];
+        $this->dmailer['sys_dmail_rec']      = $row;
         $this->dmailer['boundaryParts_html'] = explode($this->dmailer['sectionBoundary'], '_END-->' . $this->dmailer['html_content']);
+
         foreach ($this->dmailer['boundaryParts_html'] as $bKey => $bContent) {
             $this->dmailer['boundaryParts_html'][$bKey] = explode('-->', $bContent, 2);
 
@@ -284,6 +284,7 @@ class Dmailer implements LoggerAwareInterface
                 $this->dmailer['boundaryParts_html'][$bKey]['mediaList'] .= ',' . strtok($part, '.');
             }
         }
+
         $this->dmailer['boundaryParts_plain'] = explode($this->dmailer['sectionBoundary'], '_END-->' . $this->dmailer['plain_content']);
         foreach ($this->dmailer['boundaryParts_plain'] as $bKey => $bContent) {
             $this->dmailer['boundaryParts_plain'][$bKey] = explode('-->', $bContent, 2);
@@ -354,9 +355,7 @@ class Dmailer implements LoggerAwareInterface
             }
         }
 
-        // initialize Marker Support
-        $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
-        return $this->templateService->substituteMarkerArray($content, $markers);
+        return $this->getMarkerBasedTemplateService()->substituteMarkerArray($content, $markers);
     }
 
     /**
