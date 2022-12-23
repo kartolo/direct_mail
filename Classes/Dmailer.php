@@ -118,7 +118,7 @@ class Dmailer implements LoggerAwareInterface
     /*
      * @TODO Where it is used?
      */
-    protected array $tempFileList = [];
+    //protected array $tempFileList = [];
 
     //in TYPO3 9 LanguageService->charset has been removed because backend charset is always utf-8
     protected string $backendCharset = 'utf-8';
@@ -965,6 +965,7 @@ class Dmailer implements LoggerAwareInterface
 
         // Delete temporary files
         // see setContent, where temp images are downloaded
+        /*
         if (!empty($this->tempFileList)) {
             foreach ($this->tempFileList as $tempFile) {
                 if (file_exists($tempFile)) {
@@ -972,6 +973,7 @@ class Dmailer implements LoggerAwareInterface
                 }
             }
         }
+        */
     }
 
 
