@@ -133,7 +133,6 @@ class Dmailer implements LoggerAwareInterface
      * @var CharsetConverter
      */
     protected $charsetConverter;
-
     protected string $message = '';
     protected bool $notificationJob = false;
     protected string $jumperURLPrefix = '';
@@ -651,9 +650,20 @@ class Dmailer implements LoggerAwareInterface
             $pt = $this->getMilliseconds();
             $recipRow = self::convertFields($recipRow);
 
+            /**
+             * @TODO
+             * $this->message ist empty!
+             */
             // write to dmail_maillog table. if it can be written, continue with sending.
             // if not, stop the script and report error
-            $logUid = $sysDmailMaillogRepository->dmailerAddToMailLog($mid, $tableKey . '_' . $recipRow['uid'], strlen($this->message), $this->getMilliseconds() - $pt, 0, $recipRow['email']);
+            $logUid = $sysDmailMaillogRepository->dmailerAddToMailLog(
+                $mid,
+                $tableKey . '_' . $recipRow['uid'],
+                strlen($this->message),
+                $this->getMilliseconds() - $pt,
+                0,
+                $recipRow['email']
+            );
 
             if ($logUid) {
                 $values = [
