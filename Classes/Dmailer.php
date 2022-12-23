@@ -648,7 +648,7 @@ class Dmailer implements LoggerAwareInterface
         $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
         if ($sysDmailMaillogRepository->dmailerIsSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
             $pt = $this->getMilliseconds();
-            $recipRow = self::convertFields($recipRow);
+            $recipRow = $this->convertFields($recipRow);
 
             /**
              * @TODO
@@ -690,7 +690,6 @@ class Dmailer implements LoggerAwareInterface
     }
 
     /**
-     * @TODO Is static still needed?
      * Converting array key.
      * fe_user and tt_address are using different fieldname for the same information
      *
@@ -698,7 +697,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return array Fixed recipient's data array
      */
-    public static function convertFields(array $recipRow): array
+    public function convertFields(array $recipRow): array
     {
         // Compensation for the fact that fe_users has the field 'telephone' instead of 'phone'
         if ($recipRow['telephone'] ?? false) {

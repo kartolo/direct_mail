@@ -1177,7 +1177,7 @@ class DmailController extends MainController
 
                 if (!empty($res)) {
                     foreach ($res as $recipRow) {
-                        $recipRow = Dmailer::convertFields($recipRow);
+                        $recipRow = $htmlmail->convertFields($recipRow);
                         $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address', $recipRow['uid']);
                         $htmlmail->sendAdvanced($recipRow, 't');
                         $sentFlag = true;
