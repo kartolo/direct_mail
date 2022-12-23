@@ -113,7 +113,7 @@ class Dmailer implements LoggerAwareInterface
     /*
      * @TODO Where it is used?
      */
-    protected string $mediaList = '';
+    //protected string $mediaList = '';
 
     /*
      * @TODO Where it is used?
@@ -397,7 +397,7 @@ class Dmailer implements LoggerAwareInterface
                 $this->dmailer['messageID'] => $uniqMsgId,
             ];
 
-            $this->mediaList = '';
+            //$this->mediaList = '';
             $this->theParts['html']['content'] = '';
             if ($this->flagHtml && ($recipRow['module_sys_dmail_html'] || $tableNameChar == 'P')) {
                 $tempContent_HTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipRow['sys_dmail_categories_list']);
@@ -498,14 +498,14 @@ class Dmailer implements LoggerAwareInterface
             $cP['mediaList'] = $cP['mediaList'] ?? '';
             if (!$key || (intval($userCategories) == -1)) {
                 $returnVal .= $cP[1];
-                $this->mediaList .= $cP['mediaList'];
+                //$this->mediaList .= $cP['mediaList'];
                 if ($cP[1]) {
                     $this->mailHasContent = true;
                 }
             }
             elseif ($key == 'END') {
                 $returnVal .= $cP[1];
-                $this->mediaList .= $cP['mediaList'];
+                //$this->mediaList .= $cP['mediaList'];
                 // There is content and it is not just the header and footer content, or it is the only content because we have no direct mail boundaries.
                 if (($cP[1] && !($bKey == 0 || $bKey == $boundaryMax)) || count($cArray) == 1) {
                     $this->mailHasContent = true;
@@ -519,7 +519,7 @@ class Dmailer implements LoggerAwareInterface
                 }
                 if ($isSubscribed) {
                     $returnVal .= $cP[1];
-                    $this->mediaList .= $cP['mediaList'];
+                    //$this->mediaList .= $cP['mediaList'];
                     $this->mailHasContent = true;
                 }
             }
