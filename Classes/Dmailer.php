@@ -301,7 +301,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return string HTML content without comments
      */
-    public function removeHTMLComments(string $content): string
+    protected function removeHTMLComments(string $content): string
     {
         $content = preg_replace('/\/\*<!\[CDATA\[\*\/[\t\v\n\r\f]*<!--/', '/*<![CDATA[*/', $content);
         $content = preg_replace('/[\t\v\n\r\f]*<!(?:--[^\[\<\>][\s\S]*?--\s*)?>[\t\v\n\r\f]*/', '', $content);
@@ -317,7 +317,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return string The processed output stream
      */
-    public function replaceMailMarkers(string $content, array $recipRow, array $markers): string
+    protected function replaceMailMarkers(string $content, array $recipRow, array $markers): string
     {
         // replace %23%23%23 with ###, since typolink generated link with urlencode
         $content = str_replace('%23%23%23', '###', $content);
@@ -486,7 +486,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return	string		Content of the email, which the recipient subscribed
      */
-    public function getBoundaryParts($cArray, $userCategories): string
+    protected function getBoundaryParts($cArray, $userCategories): string
     {
         $returnVal = '';
         $this->mailHasContent = false;
@@ -561,7 +561,7 @@ class Dmailer implements LoggerAwareInterface
      * @param	int $mid Directmail ID. UID of the sys_dmail table
      * @return	boolean
      */
-    public function masssendList(array $query_info, int $mid): bool
+    protected function masssendList(array $query_info, int $mid): bool
     {
         //$enableFields['tt_address'] = 'tt_address.deleted=0 AND tt_address.hidden=0';
         //$enableFields['fe_users']   = 'fe_users.deleted=0 AND fe_users.disable=0';
@@ -643,7 +643,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return	void
      */
-    public function shipOfMail(int $mid, array $recipRow, string $tableKey): void
+    protected function shipOfMail(int $mid, array $recipRow, string $tableKey): void
     {
         $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
         if ($sysDmailMaillogRepository->dmailerIsSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
@@ -724,7 +724,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return	void
      */
-    public function setBeginEnd(int $mid, string $key): void
+    protected function setBeginEnd(int $mid, string $key): void
     {
         $subject = '';
         $message = '';
@@ -866,7 +866,7 @@ class Dmailer implements LoggerAwareInterface
      * @return void
      * @var MailMessage $mailer Mailer Object
      */
-    public function setContent(&$mailer): void
+    protected function setContent(&$mailer): void
     {
         // todo: css??
         // iterate through the media array and embed them
@@ -920,7 +920,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return	void
      */
-    public function sendTheMail($recipient, $recipRow = null): void
+    protected function sendTheMail($recipient, $recipRow = null): void
     {
         /** @var MailMessage $mailer */
         $mailer = GeneralUtility::makeInstance(MailMessage::class);
@@ -1017,7 +1017,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return bool Whether the data was fetched or not
      */
-    public function fetchHTML(string $url): bool
+    protected function fetchHTML(string $url): bool
     {
         // Fetches the content of the page
         $this->theParts['html']['content'] = GeneralUtility::getURL($url);
@@ -1051,7 +1051,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return	void
      */
-    public function substHREFsInHTML(): void
+    protected function substHREFsInHTML(): void
     {
         if (!is_array($this->theParts['html']['hrefs'])) {
             return;
@@ -1087,7 +1087,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @param string $logMsg Log message
      */
-    public function dmailer_log(string $logMsg): void
+    protected function dmailer_log(string $logMsg): void
     {
         $content = time() . ' => ' . $logMsg . LF;
         $logfilePath = Environment::getPublicPath() . '/typo3temp/tx_directmail_dmailer_log.txt';
@@ -1116,7 +1116,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return string The changed content
      */
-    public function substHTTPurlsInPlainText(string $content): string
+    protected function substHTTPurlsInPlainText(string $content): string
     {
         if (!isset($this->jumperURLPrefix) || !$this->jumperURLPrefix) {
             return $content;
@@ -1152,7 +1152,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return	void
      */
-    public function setPlain(string $content): void
+    protected function setPlain(string $content): void
     {
         $this->theParts['plain']['content'] = $content;
     }
@@ -1164,7 +1164,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return void
      */
-    public function setHtml(string $content): void
+    protected function setHtml(string $content): void
     {
         $this->theParts['html']['content'] = $content;
     }
@@ -1373,7 +1373,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return string the regular expression
      */
-    public function tag_regex(array $tags): string
+    protected function tag_regex(array $tags): string
     {
         $tags = (!is_array($tags) ? [$tags] : $tags);
         $regexp = '/';
@@ -1396,7 +1396,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return array array with attributes as keys in lower-case
      */
-    public function get_tag_attributes(string $tag, bool $removeQuotes = true): array
+    protected function get_tag_attributes(string $tag, bool $removeQuotes = true): array
     {
         $attributes = [];
         $tag = ltrim(preg_replace('/^<[^ ]*/', '', trim($tag)));
@@ -1443,7 +1443,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return string The absolute address
      */
-    public function absRef(string $ref)
+    protected function absRef(string $ref)
     {
         $ref = trim($ref);
         $info = parse_url($ref);
