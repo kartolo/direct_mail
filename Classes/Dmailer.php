@@ -26,8 +26,8 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Resource\FileReference;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
@@ -60,7 +60,7 @@ class Dmailer implements LoggerAwareInterface
      * Todo: Symfony mailer does not have an encoding you can change. Check if this has side effects
      * @TODO Where it is used?
      */
-    protected string $encoding = '';
+    //protected string $encoding = '';
 
     /*
      * @var array the mail parts (HTML and Plain, incl. href and link to media)
@@ -244,7 +244,7 @@ class Dmailer implements LoggerAwareInterface
             $this->charset = ($row['type'] == 0) ? 'utf-8' : $row['charset'];
         }
 
-        $this->encoding          = $row['encoding'];
+        //$this->encoding          = $row['encoding'];
         $this->theParts          = unserialize(base64_decode($row['mailContent']));
         $this->messageid         = $this->theParts['messageid'];
         $this->subject           = $this->ensureCorrectEncoding($row['subject']);
