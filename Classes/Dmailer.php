@@ -106,7 +106,7 @@ class Dmailer implements LoggerAwareInterface
     /*
      * @TODO Where it is used?
      */
-    protected string $mailer = '';
+    //protected string $mailer = '';
     protected string $authCodeFieldList = '';
     protected array $dmailer = [];
 
@@ -254,13 +254,13 @@ class Dmailer implements LoggerAwareInterface
         $this->replyToName       = $this->ensureCorrectEncoding($row['replyto_name']);
         $this->organisation      = $this->ensureCorrectEncoding($row['organisation']);
         $this->priority          = DirectMailUtility::intInRangeWrapper((int)$row['priority'], 1, 5);
-        $this->mailer            = 'TYPO3 Direct Mail module';
+        //$this->mailer            = 'TYPO3 Direct Mail module';
         $this->authCodeFieldList = $row['authcode_fieldList'] ?? '' ?: 'uid';
 
         $this->dmailer['sectionBoundary']    = '<!--DMAILER_SECTION_BOUNDARY';
         $this->dmailer['html_content']       = $this->theParts['html']['content'] ?? '';
         $this->dmailer['plain_content']      = $this->theParts['plain']['content'] ?? '';
-        $this->dmailer['messageID']          = $this->messageid;
+        $this->dmailer['messageID']          = $this->theParts['messageid'];
         $this->dmailer['sys_dmail_uid']      = $row['uid'];
         $this->dmailer['sys_dmail_rec']      = $row;
         $this->dmailer['boundaryParts_html'] = explode($this->dmailer['sectionBoundary'], '_END-->' . $this->dmailer['html_content']);
