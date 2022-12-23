@@ -763,17 +763,17 @@ class DmailController extends MainController
         // Set default values:
         $dmail = [];
         $dmail['sys_dmail']['NEW'] = [
-            'from_email'        => $indata['senderEmail'],
-            'from_name'         => $indata['senderName'],
-            'replyto_email'     => $this->params['replyto_email'] ?? '',
-            'replyto_name'      => $this->params['replyto_name'] ?? '',
-            'return_path'       => $this->params['return_path'] ?? '',
-            'priority'          => (int) $this->params['priority'],
-            'use_rdct'          => (int) $this->params['use_rdct'],
-            'long_link_mode'    => (int) $this->params['long_link_mode'],
-            'organisation'      => $this->params['organisation'] ?? '',
-            'authcode_fieldList'=> $this->params['authcode_fieldList'] ?? '',
-            'plainParams'       => ''
+            'from_email'         => $indata['senderEmail'],
+            'from_name'          => $indata['senderName'],
+            'replyto_email'      => $this->params['replyto_email'] ?? '',
+            'replyto_name'       => $this->params['replyto_name'] ?? '',
+            'return_path'        => $this->params['return_path'] ?? '',
+            'priority'           => (int) $this->params['priority'],
+            'use_rdct'           => (int) $this->params['use_rdct'],
+            'long_link_mode'     => (int) $this->params['long_link_mode'],
+            'organisation'       => $this->params['organisation'] ?? '',
+            'authcode_fieldList' => $this->params['authcode_fieldList'] ?? '',
+            'plainParams'        => ''
         ];
 
         // always plaintext
@@ -911,14 +911,14 @@ class DmailController extends MainController
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         $htmlmail->nonCron = 1;
         $htmlmail->start();
-        $htmlmail->charset = $row['charset'];
+        $htmlmail->setCharset($row['charset']);
         $htmlmail->addPlain($message);
 
-        if (!$message || !$htmlmail->theParts['plain']['content']) {
+        if (!$message || !$htmlmail->getPartPlainConfig('content')) {
             $erg['errorTitle'] = $this->getLanguageService()->getLL('dmail_error');
             $erg['errorText'] = $this->getLanguageService()->getLL('dmail_no_plain_content');
         }
-        elseif (!strstr(base64_decode($htmlmail->theParts['plain']['content']), '<!--DMAILER_SECTION_BOUNDARY')) {
+        elseif (!strstr(base64_decode($htmlmail->getPartPlainConfig('content')), '<!--DMAILER_SECTION_BOUNDARY')) {
             $erg['warningTitle'] = $this->getLanguageService()->getLL('dmail_warning');
             $erg['warningText'] = $this->getLanguageService()->getLL('dmail_no_plain_boundaries');
         }
@@ -927,12 +927,12 @@ class DmailController extends MainController
 
         if (!$erg['errorTitle']) {
             // Update the record:
-            $htmlmail->theParts['messageid'] = $htmlmail->messageid;
-            $mailContent = base64_encode(serialize($htmlmail->theParts));
+            $htmlmail->setPartMessageIdConfig($htmlmail->getMessageid());
+            $mailContent = base64_encode(serialize($htmlmail->getParts()));
 
             GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmail(
                 intval($this->sys_dmail_uid),
-                $htmlmail->charset, $mailContent
+                $htmlmail->getCharset(), $mailContent
             );
         }
 
@@ -1128,14 +1128,14 @@ class DmailController extends MainController
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         $htmlmail->nonCron = 1;
         $htmlmail->start();
-        $htmlmail->dmailer_prepare($row);
+        $htmlmail->prepare($row);
         $sentFlag = false;
 
         // send out non-personalized emails
         if ($this->mailingMode_simple) {
             // step 4, sending simple test emails
             // setting Testmail flag
-            $htmlmail->testmail = $this->params['testmail'] ?? false;
+            $htmlmail->setTestmail((bool)($this->params['testmail'] ?? false));
 
             // Fixing addresses:
             $addresses = GeneralUtility::_GP('SET');
@@ -1154,7 +1154,7 @@ class DmailController extends MainController
 
             if ($addressList) {
                 // Sending the same mail to lots of recipients
-                $htmlmail->dmailer_sendSimple($addressList);
+                $htmlmail->sendSimple($addressList);
                 $sentFlag = true;
                 $message = $this->createFlashMessage(
                     $this->getLanguageService()->getLL('send_was_sent') . ' ' .
@@ -1169,7 +1169,7 @@ class DmailController extends MainController
         elseif ($this->cmd == 'send_mail_test') {
             // step 4, sending test personalized test emails
             // setting Testmail flag
-            $htmlmail->testmail = $this->params['testmail'];
+            $htmlmail->setTestmail((bool)$this->params['testmail']);
 
             if ($this->tt_address_uid) {
                 // personalized to tt_address
@@ -1179,7 +1179,7 @@ class DmailController extends MainController
                     foreach ($res as $recipRow) {
                         $recipRow = Dmailer::convertFields($recipRow);
                         $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories('tt_address', $recipRow['uid']);
-                        $htmlmail->dmailer_sendAdvanced($recipRow, 't');
+                        $htmlmail->sendAdvanced($recipRow, 't');
                         $sentFlag = true;
 
                         $message = $this->createFlashMessage(
@@ -1303,7 +1303,7 @@ class DmailController extends MainController
                 $recipRow = $htmlmail->convertFields($rec);
                 $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table, $recipRow['uid']);
                 $kc = substr($table, 0, 1);
-                $returnCode = $htmlmail->dmailer_sendAdvanced($recipRow, $kc == 'p' ? 'P' : $kc);
+                $returnCode = $htmlmail->sendAdvanced($recipRow, $kc == 'p' ? 'P' : $kc);
                 if ($returnCode) {
                     $sentFlag++;
                 }

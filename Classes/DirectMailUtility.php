@@ -87,29 +87,32 @@ class DirectMailUtility
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         if ($params['enable_jump_url'] ?? false) {
-            $htmlmail->jumperURL_prefix = $urlBase . $glue .
+            $htmlmail->setJumperURLPrefix(
+                $urlBase . $glue .
                 'mid=###SYS_MAIL_ID###' .
                 (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
                 '&aC=###SYS_AUTHCODE###' .
-                '&jumpurl=';
-            $htmlmail->jumperURL_useId = 1;
+                '&jumpurl='
+            );
+
+            $htmlmail->setJumperURLUseId(true);
         }
         if ($params['enable_mailto_jump_url'] ?? false) {
-            $htmlmail->jumperURL_useMailto = 1;
+            $htmlmail->setJumperURLUseMailto(true);
         }
 
         $htmlmail->start();
-        $htmlmail->charset = $row['charset'];
-        $htmlmail->simulateUsergroup = $params['simulate_usergroup'] ?? false;
-        $htmlmail->includeMedia = $row['includeMedia'];
+        $htmlmail->setCharset($row['charset']);
+        $htmlmail->setSimulateUsergroup($params['simulate_usergroup'] ?? 0);
+        $htmlmail->setIncludeMedia($row['includeMedia']);
 
         if ($plainTextUrl) {
             $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));
             $htmlmail->addPlain($mailContent);
-            if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
+            if (!$mailContent || !$htmlmail->getPartPlainConfig('content')) {
                 $errorMsg[] = $lang->getLL('dmail_no_plain_content');
             }
-            elseif (!strstr($htmlmail->theParts['plain']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
+            elseif (!strstr($htmlmail->getPartPlainConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $lang->getLL('dmail_no_plain_boundaries');
             }
         }
@@ -122,36 +125,36 @@ class DirectMailUtility
             if ($row['type'] == 1) {
                 // Try to auto-detect the charset of the message
                 $matches = [];
-                $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', ($htmlmail->theParts['html_content'] ?? ''), $matches);
+                $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', ($htmlmail->getParts()['html_content'] ?? ''), $matches);
                 if ($res == 1) {
-                    $htmlmail->charset = $matches[1];
+                    $htmlmail->setCharset($matches[1]);
                 }
                 elseif (isset($params['direct_mail_charset'])) {
-                    $htmlmail->charset = $params['direct_mail_charset'];
+                    $htmlmail->setCharset($params['direct_mail_charset']);
                 }
                 else {
-                    $htmlmail->charset = 'iso-8859-1';
+                    $htmlmail->setCharset('iso-8859-1');
                 }
             }
             if ($htmlmail->extractFramesInfo()) {
                 $errorMsg[] = $lang->getLL('dmail_frames_not allowed');
             }
-            elseif (!$success || !$htmlmail->theParts['html']['content']) {
+            elseif (!$success || !$htmlmail->getPartHtmlConfig('content')) {
                 $errorMsg[] = $lang->getLL('dmail_no_html_content');
             }
-            elseif (!strstr($htmlmail->theParts['html']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
+            elseif (!strstr($htmlmail->getPartHtmlConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $lang->getLL('dmail_no_html_boundaries');
             }
         }
 
         if (!count($errorMsg)) {
             // Update the record:
-            $htmlmail->theParts['messageid'] = $htmlmail->messageid;
-            $mailContent = base64_encode(serialize($htmlmail->theParts));
+            $htmlmail->setPartMessageIdConfig($htmlmail->getMessageid());
+            $mailContent = base64_encode(serialize($htmlmail->getParts()));
 
             $updateData = [
                 'issent'             => 0,
-                'charset'            => $htmlmail->charset,
+                'charset'            => $htmlmail->getCharset(),
                 'mailContent'        => $mailContent,
                 'renderedSize'       => strlen($mailContent),
                 'long_link_rdct_url' => $urlBase
