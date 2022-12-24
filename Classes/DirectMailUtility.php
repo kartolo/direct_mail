@@ -23,6 +23,7 @@ use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Static class.
@@ -68,6 +69,22 @@ class DirectMailUtility
     public static function getURLGlue(string $url): string
     {
         return (strpos($url, '?') !== false) ? '&' : '?';
+    }
+
+    public static function getTypolinkURL(
+        string $parameter,
+        bool $forceAbsoluteUrl = true,
+        bool $linkAccessRestrictedPages = true
+    ): string
+    {
+        $typolinkPageUrl = 't3://page?uid=';
+        $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+
+        return $cObj->typolink_URL([
+            'parameter' => $typolinkPageUrl . $parameter,
+            'forceAbsoluteUrl' => $forceAbsoluteUrl,
+            'linkAccessRestrictedPages' => $linkAccessRestrictedPages
+        ]);
     }
 
     /**
@@ -261,11 +278,7 @@ class DirectMailUtility
         $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
         // Finding the domain to use
         $result = [
-            'baseUrl' => $cObj->typolink_URL([
-                'parameter' => $typolinkPageUrl . (int)$row['page'],
-                'forceAbsoluteUrl' => true,
-                'linkAccessRestrictedPages' => true
-            ]),
+            'baseUrl' => self::getTypolinkURL((int)$row['page']),
             'htmlUrl' => '',
             'plainTextUrl' => ''
         ];
@@ -278,17 +291,9 @@ class DirectMailUtility
                 break;
             default:
                 $params = substr($row['HTMLParams'], 0, 1) == '&' ? substr($row['HTMLParams'], 1) : $row['HTMLParams'];
-                $result['htmlUrl'] = $cObj->typolink_URL([
-                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
-                    'forceAbsoluteUrl' => true,
-                    'linkAccessRestrictedPages' => true
-                ]);
+                $result['htmlUrl'] = self::getTypolinkURL((int)$row['page'] . '&' . $params);
                 $params = substr($row['plainParams'], 0, 1) == '&' ? substr($row['plainParams'], 1) : $row['plainParams'];
-                $result['plainTextUrl'] = $cObj->typolink_URL([
-                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
-                    'forceAbsoluteUrl' => true,
-                    'linkAccessRestrictedPages' => true
-                ]);
+                $result['plainTextUrl'] = self::getTypolinkURL((int)$row['page'] . '&' . $params);
         }
 
         // plain
