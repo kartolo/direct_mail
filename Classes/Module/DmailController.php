@@ -909,7 +909,7 @@ class DmailController extends MainController
         // Compile the mail
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
-        $htmlmail->nonCron = 1;
+        $htmlmail->setNonCron(true);
         $htmlmail->start();
         $htmlmail->setCharset($row['charset']);
         $htmlmail->addPlain($message);
@@ -1126,7 +1126,7 @@ class DmailController extends MainController
         // Preparing mailer
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
-        $htmlmail->nonCron = 1;
+        $htmlmail->setNonCron(true);
         $htmlmail->start();
         $htmlmail->prepare($row);
         $sentFlag = false;

@@ -138,6 +138,12 @@ class Dmailer implements LoggerAwareInterface
     protected string $jumperURLPrefix = '';
     protected bool $jumperURLUseMailto = false;
     protected bool $jumperURLUseId = false;
+    protected bool $nonCron = false;
+
+    public function setNonCron(bool $nonCron): void
+    {
+        $this->nonCron = $nonCron;
+    }
 
     public function setSimulateUsergroup(int $simulateUsergroup): void
     {
@@ -827,12 +833,15 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Initializing the MailMessage class and setting the first global variables. Write to log file if it's a cronjob
      *
-     * @param int $user_dmailer_sendPerCycle Total of recipient in a cycle
-     * @param string $user_dmailer_lang Language of the user
+     * @param int $userDmailerSendPerCycle Total of recipient in a cycle
+     * @param string $userDmailerLang Language of the user
      *
      * @return	void
      */
-    public function start(int $user_dmailer_sendPerCycle = 50, string $user_dmailer_lang = 'en'): void
+    public function start(
+        int $userDmailerSendPerCycle = 50,
+        string $userDmailerLang = 'en'
+    ): void
     {
         // Sets the message id
         $host = $this->getHostname();
@@ -850,8 +859,8 @@ class Dmailer implements LoggerAwareInterface
         $this->linebreak = Environment::isWindows() ? CRLF : LF;
 
         // Mailer engine parameters
-        $this->sendPerCycle = $user_dmailer_sendPerCycle;
-        $this->userDmailerLang = $user_dmailer_lang;
+        $this->sendPerCycle = $userDmailerSendPerCycle;
+        $this->userDmailerLang = $userDmailerLang;
         if (isset($this->nonCron) && !$this->nonCron) {
             $this->logger->debug('Starting directmail cronjob');
             // write this temp file for checking the engine in the status module

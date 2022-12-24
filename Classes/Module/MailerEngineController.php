@@ -301,7 +301,7 @@ class MailerEngineController extends MainController
         // TODO: remove htmlmail
         /* @var $htmlmail \DirectMailTeam\DirectMail\Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
-        $htmlmail->nonCron = 1;
+        $htmlmail->setNonCron(true);
         $htmlmail->start();
         $htmlmail->runcron();
     }
