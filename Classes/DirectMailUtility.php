@@ -71,6 +71,11 @@ class DirectMailUtility
         return (strpos($url, '?') !== false) ? '&' : '?';
     }
 
+    public static function prepareTypolinkParams(string $params): string
+    {
+        return substr($params, 0, 1) == '&' ? substr($params, 1) : $params;
+    }
+
     public static function getTypolinkURL(
         string $parameter,
         bool $forceAbsoluteUrl = true,
@@ -288,9 +293,9 @@ class DirectMailUtility
                 $result['plainTextUrl'] = $row['plainParams'];
                 break;
             default:
-                $params = substr($row['HTMLParams'], 0, 1) == '&' ? substr($row['HTMLParams'], 1) : $row['HTMLParams'];
+                $params = self::prepareTypolinkParams($row['HTMLParams']);
                 $result['htmlUrl'] = self::getTypolinkURL((int)$row['page'] . '&' . $params);
-                $params = substr($row['plainParams'], 0, 1) == '&' ? substr($row['plainParams'], 1) : $row['plainParams'];
+                $params = self::prepareTypolinkParams($row['plainParams']);
                 $result['plainTextUrl'] = self::getTypolinkURL((int)$row['page'] . '&' . $params);
         }
 
