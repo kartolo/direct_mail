@@ -104,7 +104,7 @@ class DirectMailUtility
     public static function fetchUrlContentsForDirectMailRecord(array $row, array $params, $returnArray = false)
     {
         $lang = self::getLanguageService();
-        $theOutput = '';
+        $output = '';
         $errorMsg = [];
         $warningMsg = [];
         $urls = self::getFullUrlsForDirectMailRecord($row);
@@ -114,12 +114,12 @@ class DirectMailUtility
 
         // Make sure long_link_rdct_url is consistent with baseUrl.
         $row['long_link_rdct_url'] = $urlBase;
-        $glue = self::getURLGlue($urlBase);
 
         // Compile the mail
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         if ($params['enable_jump_url'] ?? false) {
+            $glue = self::getURLGlue($urlBase);
             $htmlmail->setJumperURLPrefix(
                 $urlBase . $glue .
                 'mid=###SYS_MAIL_ID###' .
@@ -202,7 +202,7 @@ class DirectMailUtility
             if (count($warningMsg)) {
                 $flashMessageRendererResolver = self::getFlashMessageRendererResolver();
                 foreach ($warningMsg as $warning) {
-                    $theOutput .= $flashMessageRendererResolver
+                    $output .= $flashMessageRendererResolver
                         ->resolve()
                         ->render([
                             self::createFlashMessage($warning, $lang->getLL('dmail_warning'), FlashMessage::WARNING, false)
@@ -213,25 +213,30 @@ class DirectMailUtility
         else {
             $flashMessageRendererResolver = self::getFlashMessageRendererResolver();
             foreach ($errorMsg as $error) {
-                $theOutput .= $flashMessageRendererResolver
+                $output .= $flashMessageRendererResolver
                     ->resolve()
                     ->render([
                         self::createFlashMessage($error, $lang->getLL('dmail_error'), FlashMessage::ERROR, false)
                     ]);
             }
         }
+
         if ($returnArray) {
             return [
                 'errors' => $errorMsg,
                 'warnings' => $warningMsg
             ];
         }
-        else {
-            return $theOutput;
-        }
+
+        return $output;
     }
 
-    protected static function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false): FlashMessage
+    protected static function createFlashMessage(
+        string $messageText,
+        string $messageHeader = '',
+        int $messageType = 0,
+        bool $storeInSession = false
+    ): FlashMessage
     {
         return GeneralUtility::makeInstance(FlashMessage::class,
             $messageText,
@@ -255,7 +260,7 @@ class DirectMailUtility
      *
      * @return string The new URL with username and password
      */
-    protected static function addUserPass($url, array $params): string
+    protected static function addUserPass(string $url, array $params): string
     {
         $user = $params['http_username'] ?? '';
         $pass = $params['http_password'] ?? '';
@@ -333,7 +338,12 @@ class DirectMailUtility
      * Forces the integer $theInt into the boundaries of $min and $max.
      * If the $theInt is 'FALSE' then the $zeroValue is applied.
      */
-    public static function intInRangeWrapper(int $theInt, int $min, int $max = 2000000000, int $zeroValue = 0): int
+    public static function intInRangeWrapper(
+        int $theInt,
+        int $min,
+        int $max = 2000000000,
+        int $zeroValue = 0
+    ): int
     {
         return MathUtility::forceIntegerInRange($theInt, $min, $max, $zeroValue);
     }
@@ -367,7 +377,8 @@ class DirectMailUtility
         if ($lengthLimit === false) {
             // No processing
             $messageSubstituted = $message;
-        } else {
+        }
+        else {
             $messageSubstituted = preg_replace_callback(
                 '/(http|https):\\/\\/.+(?=[\\]\\.\\?]*([\\! \'"()<>]+|$))/iU',
                 function (array $matches) use ($lengthLimit, $index_script_url) {
