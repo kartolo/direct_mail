@@ -59,6 +59,18 @@ class DirectMailUtility
     }
 
     /**
+     * Get URL glue
+     *
+     * @param string $url
+     *
+     * @return string & or ?
+     */
+    public static function getURLGlue(string $url): string
+    {
+        return (strpos($url, '?') !== false) ? '&' : '?';
+    }
+
+    /**
      * Fetch content of a page (only internal and external page)
      *
      * @param array $row Directmail DB record
@@ -80,8 +92,7 @@ class DirectMailUtility
 
         // Make sure long_link_rdct_url is consistent with baseUrl.
         $row['long_link_rdct_url'] = $urlBase;
-
-        $glue = (strpos($urlBase, '?') !== false ) ? '&' : '?';
+        $glue = self::getURLGlue($urlBase);
 
         // Compile the mail
         /* @var $htmlmail Dmailer */
@@ -125,7 +136,11 @@ class DirectMailUtility
             if ($row['type'] == 1) {
                 // Try to auto-detect the charset of the message
                 $matches = [];
-                $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', ($htmlmail->getParts()['html_content'] ?? ''), $matches);
+                $res = preg_match(
+                    '/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m',
+                    ($htmlmail->getParts()['html_content'] ?? ''),
+                    $matches
+                );
                 if ($res == 1) {
                     $htmlmail->setCharset($matches[1]);
                 }
@@ -227,7 +242,7 @@ class DirectMailUtility
             $url = $matches[0] . $user . ':' . $pass . '@' . substr($url, strlen($matches[0]));
         }
         if (($params['simulate_usergroup'] ?? false) && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
-            $glue = (strpos($url, '?') !== false) ? '&' : '?';
+            $glue = self::getURLGlue($url);
             $url = $url . $glue . 'dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' .  GeneralUtility::makeInstance(DmRegistryUtility::class)->createAndGetAccessToken();
         }
         return $url;
