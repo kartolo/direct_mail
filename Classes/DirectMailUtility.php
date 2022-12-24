@@ -274,8 +274,6 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row): array
     {
-        $typolinkPageUrl = 't3://page?uid=';
-        $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
         // Finding the domain to use
         $result = [
             'baseUrl' => self::getTypolinkURL((int)$row['page']),
