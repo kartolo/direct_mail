@@ -108,20 +108,17 @@ class DirectMailUtility
         $errorMsg = [];
         $warningMsg = [];
         $urls = self::getFullUrlsForDirectMailRecord($row);
-        $plainTextUrl = $urls['plainTextUrl'];
-        $htmlUrl = $urls['htmlUrl'];
-        $urlBase = $urls['baseUrl'];
 
         // Make sure long_link_rdct_url is consistent with baseUrl.
-        $row['long_link_rdct_url'] = $urlBase;
+        $row['long_link_rdct_url'] = $urls['baseUrl'];
 
         // Compile the mail
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         if ($params['enable_jump_url'] ?? false) {
-            $glue = self::getURLGlue($urlBase);
+            $glue = self::getURLGlue($urls['baseUrl']);
             $htmlmail->setJumperURLPrefix(
-                $urlBase . $glue .
+                $urls['baseUrl'] . $glue .
                 'mid=###SYS_MAIL_ID###' .
                 (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
                 '&aC=###SYS_AUTHCODE###' .
@@ -139,8 +136,8 @@ class DirectMailUtility
         $htmlmail->setSimulateUsergroup($params['simulate_usergroup'] ?? 0);
         $htmlmail->setIncludeMedia($row['includeMedia']);
 
-        if ($plainTextUrl) {
-            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));
+        if ($urls['plainTextUrl']) {
+            $mailContent = GeneralUtility::getURL(self::addUserPass($urls['plainTextUrl'], $params));
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->getPartPlainConfig('content')) {
                 $errorMsg[] = $lang->getLL('dmail_no_plain_content');
@@ -151,9 +148,9 @@ class DirectMailUtility
         }
 
         // fetch the HTML url
-        if ($htmlUrl) {
+        if ($urls['htmlUrl']) {
             // Username and password is added in htmlmail object
-            $success = $htmlmail->addHTML(self::addUserPass($htmlUrl, $params));
+            $success = $htmlmail->addHTML(self::addUserPass($urls['htmlUrl'], $params));
             // If type = 1, we have an external page.
             if ($row['type'] == 1) {
                 // Try to auto-detect the charset of the message
@@ -194,7 +191,7 @@ class DirectMailUtility
                 'charset'            => $htmlmail->getCharset(),
                 'mailContent'        => $mailContent,
                 'renderedSize'       => strlen($mailContent),
-                'long_link_rdct_url' => $urlBase
+                'long_link_rdct_url' => $urls['baseUrl']
             ];
 
             $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$row['uid'], $updateData);
