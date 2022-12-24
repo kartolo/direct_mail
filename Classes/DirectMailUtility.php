@@ -110,7 +110,7 @@ class DirectMailUtility
         $urls = self::getFullUrlsForDirectMailRecord($row);
 
         // Make sure long_link_rdct_url is consistent with baseUrl.
-        $row['long_link_rdct_url'] = $urls['baseUrl'];
+        //$row['long_link_rdct_url'] = $urls['baseUrl'];
 
         // Compile the mail
         /* @var $htmlmail Dmailer */
