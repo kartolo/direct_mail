@@ -861,7 +861,7 @@ class Dmailer implements LoggerAwareInterface
         // Mailer engine parameters
         $this->sendPerCycle = $userDmailerSendPerCycle;
         $this->userDmailerLang = $userDmailerLang;
-        if (isset($this->nonCron) && !$this->nonCron) {
+        if (!$this->nonCron) {
             $this->logger->debug('Starting directmail cronjob');
             // write this temp file for checking the engine in the status module
             $this->dmailer_log('starting directmail cronjob');
