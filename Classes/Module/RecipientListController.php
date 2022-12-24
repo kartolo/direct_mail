@@ -291,7 +291,7 @@ class RecipientListController extends MainController
                         }
                         else {
                             $mailGroupList = $mailGroup['list'];
-                            $recipients = $mailGroupList ? DirectMailUtility::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroupList))) : [];
+                            $recipients = $mailGroupList ? $this->rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroupList))) : [];
                         }
                         $idLists['PLAINLIST'] = $this->cleanPlainList($recipients);
                         break;
