@@ -782,7 +782,7 @@ class Dmailer implements LoggerAwareInterface
 
         if (!is_object($this->getLanguageService())) {
             $GLOBALS['LANG'] = GeneralUtility::makeInstance(LanguageService::class);
-            $language = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] ? $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] : $this->userDmailerLang;
+            $language = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronLanguage'] ? $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronLanguage'] : $this->userDmailerLang;
             $this->getLanguageService()->init(trim($language));
         }
 

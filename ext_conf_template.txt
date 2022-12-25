@@ -2,7 +2,7 @@
 sendPerCycle = 50
 
 # cat=basic; type=string; label=Language of the cron task : Language used to localize progress messages sent by the dmailer cron task.
-cron_language = en
+cronLanguage = en
 
 # cat=basic; type=string; label= Additional DB fields of the recipient : Additional fields that may be substituted in the direct mail messages.
 addRecipFields =
