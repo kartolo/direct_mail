@@ -658,7 +658,7 @@ class Dmailer implements LoggerAwareInterface
 
             /**
              * @TODO
-             * $this->message ist empty!
+             * $this->message is empty!
              */
             // write to dmail_maillog table. if it can be written, continue with sending.
             // if not, stop the script and report error
@@ -831,17 +831,12 @@ class Dmailer implements LoggerAwareInterface
     }
 
     /**
-     * Initializing the MailMessage class and setting the first global variables. Write to log file if it's a cronjob
-     *
-     * @param int $userDmailerSendPerCycle Total of recipient in a cycle
-     * @param string $userDmailerLang Language of the user
+     * Initializing the MailMessage class and setting the first global variables.
+     * Write to log file if it's a cronjob
      *
      * @return	void
      */
-    public function start(
-        int $userDmailerSendPerCycle = 50,
-        string $userDmailerLang = 'en'
-    ): void
+    public function start(): void
     {
         // Sets the message id
         $host = $this->getHostname();
@@ -859,8 +854,6 @@ class Dmailer implements LoggerAwareInterface
         $this->linebreak = Environment::isWindows() ? CRLF : LF;
 
         // Mailer engine parameters
-        $this->sendPerCycle = $userDmailerSendPerCycle;
-        $this->userDmailerLang = $userDmailerLang;
         if (!$this->nonCron) {
             $this->logger->debug('Starting directmail cronjob');
             // write this temp file for checking the engine in the status module
