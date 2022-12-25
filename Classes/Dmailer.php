@@ -878,7 +878,20 @@ class Dmailer implements LoggerAwareInterface
                 // TODO: why are there table related tags here?
                 if (($media['tag'] === 'img' || $media['tag'] === 'table' || $media['tag'] === 'tr' || $media['tag'] === 'td') && !$media['use_jumpurl'] && !$media['do_not_embed']) {
                     if (ini_get('allow_url_fopen')) {
-                        if (($fp = fopen($media['absRef'], 'r')) !== false ) {
+                        $context = null;
+                        $applicationContext = Environment::getContext();
+                        if ($applicationContext->isDevelopment()) {
+                            $context = stream_context_create(
+                                [
+                                    "ssl" => [
+                                        "verify_peer" => (bool)$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerifyPeer'],
+                                        "verify_peer_name" => (bool)$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerifyPeerName'],
+                                    ],
+                                ]
+                            );
+                        }
+
+                        if (($fp = fopen($media['absRef'], 'r', false, $context)) !== false ) {
                             $mailer->embed($fp, basename($media['absRef']));
                         }
                     }
