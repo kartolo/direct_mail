@@ -20,7 +20,10 @@ class FeUsersRepository extends MainRepository {
             $this->table,
             'pages',
             'pages',
-            $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier($this->table.'.pid'))
+            $queryBuilder->expr()->eq(
+                'pages.uid',
+                $queryBuilder->quoteIdentifier($this->table.'.pid')
+            )
         )
         ->add('where', $this->table.'.uid = ' . intval($uid) .
             ' AND ' . $permsClause . ' AND pages.deleted = 0')
@@ -45,8 +48,14 @@ class FeUsersRepository extends MainRepository {
             $queryBuilder = $this->getQueryBuilder($this->table);
             $queryBuilder->select('*')->from($this->table);
             $queryBuilder->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
+                $queryBuilder->expr()->eq(
+                    'uid',
+                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'deleted',
+                    $queryBuilder->createNamedParameter(0)
+                )
             );
 
             $rows = $queryBuilder->execute()->fetchAll();

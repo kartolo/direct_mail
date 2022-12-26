@@ -21,7 +21,10 @@ class PagesRepository extends MainRepository {
                 'pid',
                 $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
             ),
-            $queryBuilder->expr()->eq('l10n_parent', 0), // Exclude translated page records from list
+            $queryBuilder->expr()->eq(
+                'l10n_parent',
+                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+            ), // Exclude translated page records from list
             $permsClause
         );
 
@@ -55,8 +58,18 @@ class PagesRepository extends MainRepository {
         return $queryBuilder
         ->select('sys_language_uid')
         ->from($this->table)
-        ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)))
-        ->andWhere($queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)))
+        ->where(
+            $queryBuilder->expr()->eq(
+                'l10n_parent',
+                $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+                'sys_language_uid',
+                $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)
+            )
+        )
         ->execute()
         ->fetchAll();
     }
@@ -93,8 +106,17 @@ class PagesRepository extends MainRepository {
         return $queryBuilder
         ->select('title')
         ->from($this->table)
-        ->where($queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)))
-        ->andWhere($queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)))
+        ->where(
+            $queryBuilder->expr()->eq(
+                'l10n_parent',
+                $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)
+            )
+        )
+        ->andWhere($queryBuilder->expr()->eq(
+                'sys_language_uid',
+                $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)
+            )
+        )
         ->execute()
         ->fetch();
     }
