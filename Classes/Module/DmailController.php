@@ -1247,16 +1247,12 @@ class DmailController extends MainController
 
                 // create a draft version of the record
                 if (GeneralUtility::_GP('savedraft')) {
-                    if ($row['type'] == 0) {
-                        $updateFields['type'] = 2;
-                    } else {
-                        $updateFields['type'] = 3;
-                    }
-
+                    $updateFields['type'] = $row['type'] == 0 ? 2 : 3;
                     $updateFields['scheduled'] = 0;
                     $content = $this->getLanguageService()->getLL('send_draft_scheduler');
                     $sectionTitle = $this->getLanguageService()->getLL('send_draft_saved');
-                } else {
+                }
+                else {
                     $content = $this->getLanguageService()->getLL('send_was_scheduled_for') . ' ' . BackendUtility::datetime($distributionTime);
                     $sectionTitle = $this->getLanguageService()->getLL('send_was_scheduled');
                 }
@@ -1303,7 +1299,8 @@ class DmailController extends MainController
                 $recipRow = $htmlmail->convertFields($rec);
                 $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table, $recipRow['uid']);
                 $kc = substr($table, 0, 1);
-                $returnCode = $htmlmail->sendAdvanced($recipRow, $kc == 'p' ? 'P' : $kc);
+                $kc = $kc == 'p' ? 'P' : $kc;
+                $returnCode = $htmlmail->sendAdvanced($recipRow, $kc);
                 if ($returnCode) {
                     $sentFlag++;
                 }

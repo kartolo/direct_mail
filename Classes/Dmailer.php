@@ -389,17 +389,15 @@ class Dmailer implements LoggerAwareInterface
 
         if ($recipRow['email']) {
             $midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
-            $uniqMsgId = md5(microtime()) . '_' . $midRidId;
-            $authCode = AuthCodeUtility::getHmac($recipRow, $this->authCodeFieldList);
 
             $additionalMarkers = [
                 // Put in the tablename of the userinformation
                 '###SYS_TABLE_NAME###'      => $tableNameChar,
                 // Put in the uid of the mail-record
                 '###SYS_MAIL_ID###'         => $this->dmailer['sys_dmail_uid'],
-                '###SYS_AUTHCODE###'        => $authCode,
+                '###SYS_AUTHCODE###'        => AuthCodeUtility::getHmac($recipRow, $this->authCodeFieldList),
                  // Put in the unique message id in HTML-code
-                $this->dmailer['messageID'] => $uniqMsgId,
+                $this->dmailer['messageID'] => md5(microtime()) . '_' . $midRidId
             ];
 
             //$this->mediaList = '';
@@ -407,9 +405,8 @@ class Dmailer implements LoggerAwareInterface
             if ($this->flagHtml && ($recipRow['module_sys_dmail_html'] || $tableNameChar == 'P')) {
                 $tempContent_HTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
-                    $tempContent_HTML = $this->replaceMailMarkers($tempContent_HTML, $recipRow, $additionalMarkers);
-                    $this->theParts['html']['content'] = $tempContent_HTML;
-                    $returnCode|=1;
+                    $this->theParts['html']['content'] = $this->replaceMailMarkers($tempContent_HTML, $recipRow, $additionalMarkers);
+                    $returnCode |= 1;
                 }
             }
 
@@ -427,7 +424,7 @@ class Dmailer implements LoggerAwareInterface
                         );
                     }
                     $this->theParts['plain']['content'] = $tempContent_Plain;
-                    $returnCode|=2;
+                    $returnCode |= 2;
                 }
             }
 
