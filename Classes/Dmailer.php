@@ -15,6 +15,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
+use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\TempRepository;
@@ -327,11 +328,7 @@ class Dmailer implements LoggerAwareInterface
     {
         // replace %23%23%23 with ###, since typolink generated link with urlencode
         $content = str_replace('%23%23%23', '###', $content);
-
-        $rowFieldsArray = GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']);
-        if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
-            $rowFieldsArray = array_merge($rowFieldsArray, GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
-        }
+        $rowFieldsArray = Typo3ConfVarsUtility::getDMConfigMergedFields();
 
         foreach ($rowFieldsArray as $substField) {
             $subst = $this->ensureCorrectEncoding($recipRow[$substField]);
@@ -774,12 +771,12 @@ class Dmailer implements LoggerAwareInterface
      */
     public function runcron(): void
     {
-        $this->sendPerCycle = trim($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['sendPerCycle']) ? intval($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['sendPerCycle']) : 50;
-        $this->notificationJob = (bool)($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['notificationJob']);
+        $this->sendPerCycle = Typo3ConfVarsUtility::getDMConfigSendPerCycle();
+        $this->notificationJob = Typo3ConfVarsUtility::getDMConfigNotificationJob();
 
         if (!is_object($this->getLanguageService())) {
             $GLOBALS['LANG'] = GeneralUtility::makeInstance(LanguageService::class);
-            $language = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronLanguage'] ? $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronLanguage'] : $this->userDmailerLang;
+            $language = Typo3ConfVarsUtility::getDMConfigCronLanguage() ?: $this->userDmailerLang;
             $this->getLanguageService()->init(trim($language));
         }
 
@@ -881,8 +878,8 @@ class Dmailer implements LoggerAwareInterface
                             $context = stream_context_create(
                                 [
                                     "ssl" => [
-                                        "verify_peer" => (bool)$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerifyPeer'],
-                                        "verify_peer_name" => (bool)$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerifyPeerName'],
+                                        "verify_peer" => Typo3ConfVarsUtility::getDMConfigSSLVerifyPeer(),
+                                        "verify_peer_name" => Typo3ConfVarsUtility::getDMConfigSSLVerifyPeerName(),
                                     ],
                                 ]
                             );
@@ -1034,7 +1031,7 @@ class Dmailer implements LoggerAwareInterface
         $this->theParts['html']['content'] = GeneralUtility::getURL($url);
         if ($this->theParts['html']['content']) {
             $urlPart = parse_url($url);
-            if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
+            if (Typo3ConfVarsUtility::getDMConfigUseHttpToFetch()) {
                 $urlPart['scheme'] = 'http';
             }
 
@@ -1427,7 +1424,8 @@ class Dmailer implements LoggerAwareInterface
                     $reg = explode('"', substr($tag, 1, $tagLen), 2);
                     $tag = ltrim($reg[1]);
                     $value = $reg[0];
-                } else {
+                }
+                else {
                     // No quotes around value
                     preg_match('/^([^[:space:]>]*)(.*)/', $tag, $reg);
                     $value = trim($reg[1]);

@@ -9,6 +9,7 @@ use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
 use DirectMailTeam\DirectMail\Repository\TempRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
+use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -1538,7 +1539,7 @@ class StatisticsController extends MainController
         $baseUrl = $this->siteUrl;
 
         // if fetching the newsletter using http, set the url to http here
-        if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
+        if (Typo3ConfVarsUtility::getDMConfigUseHttpToFetch()) {
             $baseUrl = str_replace('https', 'http', $baseUrl);
         }
 
