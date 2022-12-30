@@ -1210,7 +1210,7 @@ class DmailController extends MainController
                 $sendFlag += $this->sendTestMailToTable($idLists, 'tt_address', $htmlmail);
                 $sendFlag += $this->sendTestMailToTable($idLists, 'fe_users', $htmlmail);
                 $sendFlag += $this->sendTestMailToTable($idLists, 'PLAINLIST', $htmlmail);
-                $sendFlag += $this->sendTestMailToTable($idLists, $this->userTable, $htmlmail);
+                $sendFlag += $this->sendTestMailToTable($idLists, (string)$this->userTable, $htmlmail);
                 $message = $this->createFlashMessage(
                     sprintf($this->getLanguageService()->getLL('send_was_sent_to_number'), $sendFlag),
                     $this->getLanguageService()->getLL('send_sending'),
@@ -1285,7 +1285,7 @@ class DmailController extends MainController
      * @return int Total of sent mail
      * @todo: remove htmlmail. sending mails to table
      */
-    protected function sendTestMailToTable(array $idLists, $table, Dmailer $htmlmail): int
+    protected function sendTestMailToTable(array $idLists, string $table, Dmailer $htmlmail): int
     {
         $sentFlag = 0;
         if (is_array($idLists[$table])) {
