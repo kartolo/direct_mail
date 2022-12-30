@@ -358,20 +358,14 @@ class Dmailer implements LoggerAwareInterface
     public function sendAdvanced(array $recipRow, string $tableNameChar): int
     {
         $returnCode = 0;
-        $tempRow = [];
-
-        // check recipRow for HTML
-        foreach ($recipRow as $k => $v) {
-            $tempRow[$k] = htmlspecialchars($v);
-        }
-        unset($recipRow);
-        $recipRow = $tempRow;
+        $recipRow = array_map('htmlspecialchars', $recipRow);
 
         // Workaround for strict checking of email addresses in TYPO3
         // (trailing newline = invalid address)
         $recipRow['email'] = trim($recipRow['email']);
 
-        if ($recipRow['email']) {
+        // check if the email valids
+        if (GeneralUtility::validEmail($recipRow['email'])) {
             $midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
 
             $additionalMarkers = [
@@ -427,12 +421,7 @@ class Dmailer implements LoggerAwareInterface
             $this->TYPO3MID = $midRidId . '-' . md5($midRidId);
             $this->dmailer['sys_dmail_rec']['return_path'] = str_replace('###XID###', $midRidId, $this->dmailer['sys_dmail_rec']['return_path']);
 
-            // check if the email valids
-            $recipient = [];
-            if (GeneralUtility::validEmail($recipRow['email'])) {
-                $name = $this->ensureCorrectEncoding($recipRow['name']);
-                $recipient = $this->createRecipient($recipRow['email'], $name);
-            }
+            $recipient = $this->createRecipient($recipRow['email'], $this->ensureCorrectEncoding($recipRow['name']));
 
             if ($returnCode && !empty($recipient)) {
                 $this->sendTheMail($recipient, $recipRow);
