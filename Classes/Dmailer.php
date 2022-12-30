@@ -399,9 +399,9 @@ class Dmailer implements LoggerAwareInterface
             //$this->mediaList = '';
             $this->theParts['html']['content'] = '';
             if ($this->flagHtml && ($recipRow['module_sys_dmail_html'] || $tableNameChar == 'P')) {
-                $tempContent_HTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipRow['sys_dmail_categories_list']);
+                $tempContentHTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
-                    $this->theParts['html']['content'] = $this->replaceMailMarkers($tempContent_HTML, $recipRow, $additionalMarkers);
+                    $this->theParts['html']['content'] = $this->replaceMailMarkers($tempContentHTML, $recipRow, $additionalMarkers);
                     $returnCode |= 1;
                 }
             }
@@ -409,17 +409,17 @@ class Dmailer implements LoggerAwareInterface
             // Plain
             $this->theParts['plain']['content'] = '';
             if ($this->flagPlain) {
-                $tempContent_Plain = $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipRow['sys_dmail_categories_list']);
+                $tempContentPlain = $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
-                    $tempContent_Plain = $this->replaceMailMarkers($tempContent_Plain, $recipRow, $additionalMarkers);
+                    $tempContentPlain = $this->replaceMailMarkers($tempContentPlain, $recipRow, $additionalMarkers);
                     if (trim($this->dmailer['sys_dmail_rec']['use_rdct']) || trim($this->dmailer['sys_dmail_rec']['long_link_mode'])) {
-                        $tempContent_Plain = DirectMailUtility::substUrlsInPlainText(
-                            $tempContent_Plain,
+                        $tempContentPlain = DirectMailUtility::substUrlsInPlainText(
+                            $tempContentPlain,
                             $this->dmailer['sys_dmail_rec']['long_link_mode'] ? 'all' : '76',
                             $this->dmailer['sys_dmail_rec']['long_link_rdct_url']
                         );
                     }
-                    $this->theParts['plain']['content'] = $tempContent_Plain;
+                    $this->theParts['plain']['content'] = $tempContentPlain;
                     $returnCode |= 2;
                 }
             }
@@ -450,19 +450,8 @@ class Dmailer implements LoggerAwareInterface
      */
     public function sendSimple(string $addressList): bool
     {
-        if ($this->theParts['html']['content'] ?? false) {
-            $this->theParts['html']['content'] = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], -1);
-        }
-        else {
-            $this->theParts['html']['content'] = '';
-        }
-
-        if ($this->theParts['plain']['content'] ?? false) {
-            $this->theParts['plain']['content'] = $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], -1);
-        }
-        else {
-            $this->theParts['plain']['content'] = '';
-        }
+        $this->theParts['html']['content']  = ($this->theParts['html']['content'] ?? false) ? $this->getBoundaryParts($this->dmailer['boundaryParts_html'], -1) : '';
+        $this->theParts['plain']['content'] = ($this->theParts['plain']['content'] ?? false) ? $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], -1) : '';
 
         $recipients = explode(',', $addressList);
         if(count($recipients)) {
@@ -504,7 +493,8 @@ class Dmailer implements LoggerAwareInterface
             elseif ($key == 'END') {
                 $returnVal .= $cP[1];
                 //$this->mediaList .= $cP['mediaList'];
-                // There is content and it is not just the header and footer content, or it is the only content because we have no direct mail boundaries.
+                // There is content and it is not just the header and footer content,
+                // or it is the only content because we have no direct mail boundaries.
                 if (($cP[1] && !($bKey == 0 || $bKey == $boundaryMax)) || count($cArray) == 1) {
                     $this->mailHasContent = true;
                 }
