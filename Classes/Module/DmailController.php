@@ -1289,14 +1289,10 @@ class DmailController extends MainController
     {
         $sentFlag = 0;
         if (is_array($idLists[$table])) {
-            if ($table != 'PLAINLIST') {
-                $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$table], $table, '*');
-            }
-            else {
-                $rows = $idLists['PLAINLIST'];
-            }
-            foreach ($rows as $rec) {
-                $recipRow = $htmlmail->convertFields($rec);
+            $rows = ($table != 'PLAINLIST') ? GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$table], $table, '*') : $idLists['PLAINLIST'];
+
+            foreach ($rows as $row) {
+                $recipRow = $htmlmail->convertFields($row);
                 $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table, $recipRow['uid']);
                 $kc = substr($table, 0, 1);
                 $kc = $kc == 'p' ? 'P' : $kc;
