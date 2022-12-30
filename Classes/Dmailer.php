@@ -326,22 +326,6 @@ class Dmailer implements LoggerAwareInterface
      */
     protected function replaceMailMarkers(string $content, array $recipRow, array $markers): string
     {
-        // replace %23%23%23 with ###, since typolink generated link with urlencode
-        $content = str_replace('%23%23%23', '###', $content);
-        $rowFieldsArray = Typo3ConfVarsUtility::getDMConfigMergedFields();
-
-        foreach ($rowFieldsArray as $substField) {
-            $subst = $this->ensureCorrectEncoding($recipRow[$substField]);
-            $markers['###USER_' . $substField . '###'] = $subst;
-        }
-
-        // uppercase fields with uppercased values
-        $uppercaseFieldsArray = ['name', 'firstname'];
-        foreach ($uppercaseFieldsArray as $substField) {
-            $subst = $this->ensureCorrectEncoding($recipRow[$substField]);
-            $markers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
-        }
-
         // Hook allows to manipulate the markers to add salutation etc.
         if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'])) {
             $mailMarkersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'];
@@ -356,6 +340,9 @@ class Dmailer implements LoggerAwareInterface
                 }
             }
         }
+
+        // replace %23%23%23 with ###, since typolink generated link with urlencode
+        $content = str_replace('%23%23%23', '###', $content);
 
         return $this->getMarkerBasedTemplateService()->substituteMarkerArray($content, $markers);
     }
@@ -396,6 +383,18 @@ class Dmailer implements LoggerAwareInterface
                  // Put in the unique message id in HTML-code
                 $this->dmailer['messageID'] => md5(microtime()) . '_' . $midRidId
             ];
+            $rowFieldsArray = Typo3ConfVarsUtility::getDMConfigMergedFields();
+            if(count($rowFieldsArray)) {
+                foreach ($rowFieldsArray as $substField) {
+                    $additionalMarkers['###USER_' . $substField . '###'] = $this->ensureCorrectEncoding($recipRow[$substField]);
+                }
+            }
+            // uppercase fields with uppercased values
+            $uppercaseFieldsArray = ['name', 'firstname'];
+            foreach ($uppercaseFieldsArray as $substField) {
+                $subst = $this->ensureCorrectEncoding($recipRow[$substField]);
+                $additionalMarkers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
+            }
 
             //$this->mediaList = '';
             $this->theParts['html']['content'] = '';
