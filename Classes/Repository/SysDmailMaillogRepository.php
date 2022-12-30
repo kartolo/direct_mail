@@ -673,7 +673,7 @@ class SysDmailMaillogRepository extends MainRepository {
      * @param int $html Set if HTML email is sent
      * @param string $email Recipient's email
      *
-     * @return bool True on success or False on error
+     * @return int True on success or False on error
      */
     public function dmailerAddToMailLog(int $mid, string $rid, int $size, int $parsetime, int $html, string $email): int
     {

@@ -646,7 +646,7 @@ class Dmailer implements LoggerAwareInterface
 
             if ($logUid) {
                 $values = [
-                    'logUid' => (int)$logUid,
+                    'logUid' => $logUid,
                     'html_sent' => (int)$this->sendAdvanced($recipRow, $tableKey),
                     'parsetime' => $this->getMilliseconds() - $pt,
                     'size' => strlen($this->message)
@@ -947,7 +947,7 @@ class Dmailer implements LoggerAwareInterface
             $mailHeadersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'];
             if (is_array($mailHeadersHook)) {
                 $hookParameters = [
-                    'row'     => &$recipRow,
+                    'row'    => &$recipRow,
                     'header' => &$header,
                 ];
                 $hookReference = &$this;
