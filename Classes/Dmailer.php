@@ -427,6 +427,7 @@ class Dmailer implements LoggerAwareInterface
                 $this->sendTheMail($recipient, $recipRow);
             }
         }
+
         return $returnCode;
     }
 
@@ -911,16 +912,16 @@ class Dmailer implements LoggerAwareInterface
         /** @var MailMessage $mailer */
         $mailer = GeneralUtility::makeInstance(MailMessage::class);
         $mailer
-            ->from(new Address($this->fromEmail, $this->fromName))
+            ->from($this->createRecipient($this->fromEmail, $this->fromName))
             ->to($recipient)
             ->subject($this->subject)
             ->priority($this->priority);
 
         if ($this->replyToEmail) {
-            $mailer->replyTo(new Address($this->replyToEmail, $this->replyToName));
+            $mailer->replyTo($this->createRecipient($this->replyToEmail, $this->replyToName));
         }
         else {
-            $mailer->replyTo(new Address($this->fromEmail, $this->fromName));
+            $mailer->replyTo($this->createRecipient($this->fromEmail, $this->fromName));
         }
 
         if (GeneralUtility::validEmail($this->dmailer['sys_dmail_rec']['return_path'])) {
