@@ -1150,15 +1150,14 @@ class DmailController extends MainController
             }
             $hash = array_flip($addresses);
             $addresses = array_keys($hash);
-            $addressList = implode(',', $addresses);
 
-            if ($addressList) {
+            if (count($addresses)) {
                 // Sending the same mail to lots of recipients
-                $htmlmail->sendSimple($addressList);
+                $htmlmail->sendSimple($addresses);
                 $sentFlag = true;
                 $message = $this->createFlashMessage(
                     $this->getLanguageService()->getLL('send_was_sent') . ' ' .
-                    $this->getLanguageService()->getLL('send_recipients') . ' ' . htmlspecialchars($addressList),
+                    $this->getLanguageService()->getLL('send_recipients') . ' ' . htmlspecialchars(implode(',', $addresses)),
                     $this->getLanguageService()->getLL('send_sending'),
                     0,
                     false
@@ -1257,7 +1256,10 @@ class DmailController extends MainController
                     $sectionTitle = $this->getLanguageService()->getLL('send_was_scheduled');
                 }
                 $sentFlag = true;
-                $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$this->sys_dmail_uid, $updateFields);
+                $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord(
+                    (int)$this->sys_dmail_uid,
+                    $updateFields
+                );
 
                 $message = $this->createFlashMessage(
                     $sectionTitle . ' ' . $content,
@@ -1271,7 +1273,10 @@ class DmailController extends MainController
 
         // Setting flags and update the record:
         if ($sentFlag && $this->cmd == 'send_mail_final') {
-            $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$this->sys_dmail_uid, ['issent' => 1]);
+            $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord(
+                (int)$this->sys_dmail_uid,
+                ['issent' => 1]
+            );
         }
     }
 

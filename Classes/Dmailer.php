@@ -433,16 +433,15 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Send a simple email (without personalizing)
      *
-     * @param string $addressList list of recipient address, comma list of emails
+     * @param array $recipients list of recipient address
      *
      * @return	bool
      */
-    public function sendSimple(string $addressList): bool
+    public function sendSimple(array $recipients): bool
     {
         $this->theParts['html']['content']  = ($this->theParts['html']['content'] ?? false) ? $this->getBoundaryParts($this->dmailer['boundaryParts_html'], -1) : '';
         $this->theParts['plain']['content'] = ($this->theParts['plain']['content'] ?? false) ? $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], -1) : '';
 
-        $recipients = explode(',', $addressList);
         if(count($recipients)) {
             foreach ($recipients as $recipient) {
                 $this->sendTheMail($recipient);
@@ -830,7 +829,7 @@ class Dmailer implements LoggerAwareInterface
         if (!$this->nonCron) {
             $this->logger->debug('Starting directmail cronjob');
             // write this temp file for checking the engine in the status module
-            $this->dmailer_log('starting directmail cronjob');
+            $this->dmailerLog('starting directmail cronjob');
         }
     }
 
@@ -849,7 +848,7 @@ class Dmailer implements LoggerAwareInterface
             $this->extractMediaLinks();
             foreach ($this->theParts['html']['media'] as $media) {
                 // TODO: why are there table related tags here?
-                if (($media['tag'] === 'img' || $media['tag'] === 'table' || $media['tag'] === 'tr' || $media['tag'] === 'td') && !$media['use_jumpurl'] && !$media['do_not_embed']) {
+                if (in_array($media['tag'], ['img', 'table', 'tr', 'td'], true) && !$media['use_jumpurl'] && !$media['do_not_embed']) {
                     if (ini_get('allow_url_fopen')) {
                         $context = null;
                         $applicationContext = Environment::getContext();
@@ -1076,7 +1075,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @param string $logMsg Log message
      */
-    protected function dmailer_log(string $logMsg): void
+    protected function dmailerLog(string $logMsg): void
     {
         $content = time() . ' => ' . $logMsg . LF;
         $logfilePath = Environment::getPublicPath() . '/typo3temp/tx_directmail_dmailer_log.txt';
