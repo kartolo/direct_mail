@@ -421,9 +421,8 @@ class Dmailer implements LoggerAwareInterface
             $this->TYPO3MID = $midRidId . '-' . md5($midRidId);
             $this->dmailer['sys_dmail_rec']['return_path'] = str_replace('###XID###', $midRidId, $this->dmailer['sys_dmail_rec']['return_path']);
 
-            $recipient = $this->createRecipient($recipRow['email'], $this->ensureCorrectEncoding($recipRow['name']));
-
-            if ($returnCode && !empty($recipient)) {
+            if ($returnCode) {
+                $recipient = $this->createRecipient($recipRow['email'], $this->ensureCorrectEncoding($recipRow['name']));
                 $this->sendTheMail($recipient, $recipRow);
             }
         }
