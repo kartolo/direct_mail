@@ -704,23 +704,24 @@ class Dmailer implements LoggerAwareInterface
      */
     protected function setBeginEnd(int $mid, string $key): void
     {
-        $subject = '';
+        $subject = $this->getLanguageService()->getLL('dmailer_mid') . ' ' . $mid . ' ';
         $message = '';
 
         GeneralUtility::makeInstance(SysDmailRepository::class)->dmailerSetBeginEnd($mid, $key);
 
         switch ($key) {
             case 'begin':
-                $subject = $this->getLanguageService()->getLL('dmailer_mid') . ' ' . $mid . ' ' . $this->getLanguageService()->getLL('dmailer_job_begin');
-                $message = $this->getLanguageService()->getLL('dmailer_job_begin') . ': ' . date('d-m-y h:i:s');
+                $subject .= $this->getLanguageService()->getLL('dmailer_job_begin');
+                $message = $this->getLanguageService()->getLL('dmailer_job_begin');
                 break;
             case 'end':
-                $subject = $this->getLanguageService()->getLL('dmailer_mid') . ' ' . $mid . ' ' . $this->getLanguageService()->getLL('dmailer_job_end');
-                $message = $this->getLanguageService()->getLL('dmailer_job_end') . ': ' . date('d-m-y h:i:s');
+                $subject .= $this->getLanguageService()->getLL('dmailer_job_end');
+                $message = $this->getLanguageService()->getLL('dmailer_job_end');
                 break;
             default:
                 // do nothing
         }
+        $message .= ': ' . date('d-m-y h:i:s');
 
         $this->logger->debug($subject . ': ' . $message);
 
@@ -750,6 +751,7 @@ class Dmailer implements LoggerAwareInterface
      */
     public function runcron(): void
     {
+        $pt = $this->getMilliseconds();
         $this->sendPerCycle = Typo3ConfVarsUtility::getDMConfigSendPerCycle();
         $this->notificationJob = Typo3ConfVarsUtility::getDMConfigNotificationJob();
 
@@ -762,7 +764,6 @@ class Dmailer implements LoggerAwareInterface
         // always include locallang file
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
 
-        $pt = $this->getMilliseconds();
         $row = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForRuncron();
         $this->logger->debug($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'));
 
@@ -890,11 +891,13 @@ class Dmailer implements LoggerAwareInterface
         // handle FAL attachments
         if ((int)$this->dmailer['sys_dmail_rec']['attachment'] > 0) {
             $files = DirectMailUtility::getAttachments((int)$this->dmailer['sys_dmail_rec']['uid']);
-            /** @var FileReference $file */
-            foreach ($files as $file) {
-                // https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/Environment/Index.html#getpublicpath
-                $filePath = Environment::getPublicPath() . '/' . $file->getPublicUrl();
-                $mailer->attachFromPath($filePath);
+            if(count($files)) {
+                $publicPath = Environment::getPublicPath();
+                /** @var FileReference $file */
+                foreach ($files as $file) {
+                    // https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/Environment/Index.html#getpublicpath
+                    $mailer->attachFromPath($publicPath.$file->getPublicUrl());
+                }
             }
         }
     }
