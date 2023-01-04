@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Utility;
 
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
+use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\CsvUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -58,8 +59,8 @@ class DmCsvUtility
             // overrides any existing value in the field
             $first = $lines[0];
             $fieldListArr = explode(',', $fieldList);
-            if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
-                $fieldListArr = array_merge($fieldListArr, explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
+            if ($dmConfigAddRecipFields = Typo3ConfVarsUtility::getDMConfigAddRecipFields()) {
+                $fieldListArr = array_merge($fieldListArr, explode(',', $dmConfigAddRecipFields));
             }
             $fieldName = 1;
             $fieldOrder = [];

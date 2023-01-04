@@ -24,7 +24,10 @@ class SysDmailGroupRepository extends MainRepository {
         return $queryBuilder->select('uid','pid','title','description','type')
         ->from($this->table)
         ->where(
-            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT))
+            $queryBuilder->expr()->eq(
+                'pid',
+                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+            )
         )
         ->orderBy(
             preg_replace(
@@ -52,11 +55,11 @@ class SysDmailGroupRepository extends MainRepository {
             )
         )
         ->andWhere(
-                $queryBuilder->expr()->in(
-                    'sys_language_uid',
-                    '-1, ' . $sysLanguageUid
-                    )
-                )
+            $queryBuilder->expr()->in(
+                'sys_language_uid',
+                '-1, ' . $sysLanguageUid
+            )
+        )
         ->orderBy(
             preg_replace(
                     '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',

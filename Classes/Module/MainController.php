@@ -207,11 +207,6 @@ class MainController {
         return $GLOBALS['BE_USER']->getTSConfig();
     }
 
-    protected function getValueFromTYPO3_CONF_VARS(string $name)
-    {
-        return $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail'][$name] ?? 0;
-    }
-
     protected function getQueryBuilder(string $table): QueryBuilder
     {
         return GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);

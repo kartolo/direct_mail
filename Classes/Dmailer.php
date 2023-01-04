@@ -15,6 +15,7 @@ namespace DirectMailTeam\DirectMail;
  */
 
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
+use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\TempRepository;
@@ -138,6 +139,12 @@ class Dmailer implements LoggerAwareInterface
     protected string $jumperURLPrefix = '';
     protected bool $jumperURLUseMailto = false;
     protected bool $jumperURLUseId = false;
+    protected bool $nonCron = false;
+
+    public function setNonCron(bool $nonCron): void
+    {
+        $this->nonCron = $nonCron;
+    }
 
     public function setSimulateUsergroup(int $simulateUsergroup): void
     {
@@ -319,26 +326,6 @@ class Dmailer implements LoggerAwareInterface
      */
     protected function replaceMailMarkers(string $content, array $recipRow, array $markers): string
     {
-        // replace %23%23%23 with ###, since typolink generated link with urlencode
-        $content = str_replace('%23%23%23', '###', $content);
-
-        $rowFieldsArray = GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']);
-        if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
-            $rowFieldsArray = array_merge($rowFieldsArray, GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
-        }
-
-        foreach ($rowFieldsArray as $substField) {
-            $subst = $this->ensureCorrectEncoding($recipRow[$substField]);
-            $markers['###USER_' . $substField . '###'] = $subst;
-        }
-
-        // uppercase fields with uppercased values
-        $uppercaseFieldsArray = ['name', 'firstname'];
-        foreach ($uppercaseFieldsArray as $substField) {
-            $subst = $this->ensureCorrectEncoding($recipRow[$substField]);
-            $markers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
-        }
-
         // Hook allows to manipulate the markers to add salutation etc.
         if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'])) {
             $mailMarkersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailMarkersHook'];
@@ -354,6 +341,9 @@ class Dmailer implements LoggerAwareInterface
             }
         }
 
+        // replace %23%23%23 with ###, since typolink generated link with urlencode
+        $content = str_replace('%23%23%23', '###', $content);
+
         return $this->getMarkerBasedTemplateService()->substituteMarkerArray($content, $markers);
     }
 
@@ -368,104 +358,90 @@ class Dmailer implements LoggerAwareInterface
     public function sendAdvanced(array $recipRow, string $tableNameChar): int
     {
         $returnCode = 0;
-        $tempRow = [];
-
-        // check recipRow for HTML
-        foreach ($recipRow as $k => $v) {
-            $tempRow[$k] = htmlspecialchars($v);
-        }
-        unset($recipRow);
-        $recipRow = $tempRow;
+        $recipRow = array_map('htmlspecialchars', $recipRow);
 
         // Workaround for strict checking of email addresses in TYPO3
         // (trailing newline = invalid address)
         $recipRow['email'] = trim($recipRow['email']);
 
-        if ($recipRow['email']) {
+        // check if the email valids
+        if (GeneralUtility::validEmail($recipRow['email'])) {
             $midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
-            $uniqMsgId = md5(microtime()) . '_' . $midRidId;
-            $authCode = AuthCodeUtility::getHmac($recipRow, $this->authCodeFieldList);
 
             $additionalMarkers = [
                 // Put in the tablename of the userinformation
                 '###SYS_TABLE_NAME###'      => $tableNameChar,
                 // Put in the uid of the mail-record
                 '###SYS_MAIL_ID###'         => $this->dmailer['sys_dmail_uid'],
-                '###SYS_AUTHCODE###'        => $authCode,
+                '###SYS_AUTHCODE###'        => AuthCodeUtility::getHmac($recipRow, $this->authCodeFieldList),
                  // Put in the unique message id in HTML-code
-                $this->dmailer['messageID'] => $uniqMsgId,
+                $this->dmailer['messageID'] => md5(microtime()) . '_' . $midRidId
             ];
+            $rowFieldsArray = Typo3ConfVarsUtility::getDMConfigMergedFields();
+            if(count($rowFieldsArray)) {
+                foreach ($rowFieldsArray as $substField) {
+                    $additionalMarkers['###USER_' . $substField . '###'] = $this->ensureCorrectEncoding($recipRow[$substField]);
+                }
+            }
+            // uppercase fields with uppercased values
+            $uppercaseFieldsArray = ['name', 'firstname'];
+            foreach ($uppercaseFieldsArray as $substField) {
+                $subst = $this->ensureCorrectEncoding($recipRow[$substField]);
+                $additionalMarkers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
+            }
 
             //$this->mediaList = '';
             $this->theParts['html']['content'] = '';
             if ($this->flagHtml && ($recipRow['module_sys_dmail_html'] || $tableNameChar == 'P')) {
-                $tempContent_HTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipRow['sys_dmail_categories_list']);
+                $tempContentHTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
-                    $tempContent_HTML = $this->replaceMailMarkers($tempContent_HTML, $recipRow, $additionalMarkers);
-                    $this->theParts['html']['content'] = $tempContent_HTML;
-                    $returnCode|=1;
+                    $this->theParts['html']['content'] = $this->replaceMailMarkers($tempContentHTML, $recipRow, $additionalMarkers);
+                    $returnCode |= 1;
                 }
             }
 
             // Plain
             $this->theParts['plain']['content'] = '';
             if ($this->flagPlain) {
-                $tempContent_Plain = $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipRow['sys_dmail_categories_list']);
+                $tempContentPlain = $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
-                    $tempContent_Plain = $this->replaceMailMarkers($tempContent_Plain, $recipRow, $additionalMarkers);
+                    $tempContentPlain = $this->replaceMailMarkers($tempContentPlain, $recipRow, $additionalMarkers);
                     if (trim($this->dmailer['sys_dmail_rec']['use_rdct']) || trim($this->dmailer['sys_dmail_rec']['long_link_mode'])) {
-                        $tempContent_Plain = DirectMailUtility::substUrlsInPlainText(
-                            $tempContent_Plain,
+                        $tempContentPlain = DirectMailUtility::substUrlsInPlainText(
+                            $tempContentPlain,
                             $this->dmailer['sys_dmail_rec']['long_link_mode'] ? 'all' : '76',
                             $this->dmailer['sys_dmail_rec']['long_link_rdct_url']
                         );
                     }
-                    $this->theParts['plain']['content'] = $tempContent_Plain;
-                    $returnCode|=2;
+                    $this->theParts['plain']['content'] = $tempContentPlain;
+                    $returnCode |= 2;
                 }
             }
 
             $this->TYPO3MID = $midRidId . '-' . md5($midRidId);
             $this->dmailer['sys_dmail_rec']['return_path'] = str_replace('###XID###', $midRidId, $this->dmailer['sys_dmail_rec']['return_path']);
 
-            // check if the email valids
-            $recipient = [];
-            if (GeneralUtility::validEmail($recipRow['email'])) {
-                $name = $this->ensureCorrectEncoding($recipRow['name']);
-                $recipient = $this->createRecipient($recipRow['email'], $name);
-            }
-
-            if ($returnCode && !empty($recipient)) {
+            if ($returnCode) {
+                $recipient = $this->createRecipient($recipRow['email'], $this->ensureCorrectEncoding($recipRow['name']));
                 $this->sendTheMail($recipient, $recipRow);
             }
         }
+
         return $returnCode;
     }
 
     /**
      * Send a simple email (without personalizing)
      *
-     * @param string $addressList list of recipient address, comma list of emails
+     * @param array $recipients list of recipient address
      *
      * @return	bool
      */
-    public function sendSimple(string $addressList): bool
+    public function sendSimple(array $recipients): bool
     {
-        if ($this->theParts['html']['content'] ?? false) {
-            $this->theParts['html']['content'] = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], -1);
-        }
-        else {
-            $this->theParts['html']['content'] = '';
-        }
+        $this->theParts['html']['content']  = ($this->theParts['html']['content'] ?? false) ? $this->getBoundaryParts($this->dmailer['boundaryParts_html'], -1) : '';
+        $this->theParts['plain']['content'] = ($this->theParts['plain']['content'] ?? false) ? $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], -1) : '';
 
-        if ($this->theParts['plain']['content'] ?? false) {
-            $this->theParts['plain']['content'] = $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], -1);
-        }
-        else {
-            $this->theParts['plain']['content'] = '';
-        }
-
-        $recipients = explode(',', $addressList);
         if(count($recipients)) {
             foreach ($recipients as $recipient) {
                 $this->sendTheMail($recipient);
@@ -505,7 +481,8 @@ class Dmailer implements LoggerAwareInterface
             elseif ($key == 'END') {
                 $returnVal .= $cP[1];
                 //$this->mediaList .= $cP['mediaList'];
-                // There is content and it is not just the header and footer content, or it is the only content because we have no direct mail boundaries.
+                // There is content and it is not just the header and footer content,
+                // or it is the only content because we have no direct mail boundaries.
                 if (($cP[1] && !($bKey == 0 || $bKey == $boundaryMax)) || count($cArray) == 1) {
                     $this->mailHasContent = true;
                 }
@@ -652,7 +629,7 @@ class Dmailer implements LoggerAwareInterface
 
             /**
              * @TODO
-             * $this->message ist empty!
+             * $this->message is empty!
              */
             // write to dmail_maillog table. if it can be written, continue with sending.
             // if not, stop the script and report error
@@ -667,7 +644,7 @@ class Dmailer implements LoggerAwareInterface
 
             if ($logUid) {
                 $values = [
-                    'logUid' => (int)$logUid,
+                    'logUid' => $logUid,
                     'html_sent' => (int)$this->sendAdvanced($recipRow, $tableKey),
                     'parsetime' => $this->getMilliseconds() - $pt,
                     'size' => strlen($this->message)
@@ -725,23 +702,24 @@ class Dmailer implements LoggerAwareInterface
      */
     protected function setBeginEnd(int $mid, string $key): void
     {
-        $subject = '';
+        $subject = $this->getLanguageService()->getLL('dmailer_mid') . ' ' . $mid . ' ';
         $message = '';
 
         GeneralUtility::makeInstance(SysDmailRepository::class)->dmailerSetBeginEnd($mid, $key);
 
         switch ($key) {
             case 'begin':
-                $subject = $this->getLanguageService()->getLL('dmailer_mid') . ' ' . $mid . ' ' . $this->getLanguageService()->getLL('dmailer_job_begin');
-                $message = $this->getLanguageService()->getLL('dmailer_job_begin') . ': ' . date('d-m-y h:i:s');
+                $subject .= $this->getLanguageService()->getLL('dmailer_job_begin');
+                $message = $this->getLanguageService()->getLL('dmailer_job_begin');
                 break;
             case 'end':
-                $subject = $this->getLanguageService()->getLL('dmailer_mid') . ' ' . $mid . ' ' . $this->getLanguageService()->getLL('dmailer_job_end');
-                $message = $this->getLanguageService()->getLL('dmailer_job_end') . ': ' . date('d-m-y h:i:s');
+                $subject .= $this->getLanguageService()->getLL('dmailer_job_end');
+                $message = $this->getLanguageService()->getLL('dmailer_job_end');
                 break;
             default:
                 // do nothing
         }
+        $message .= ': ' . date('d-m-y h:i:s');
 
         $this->logger->debug($subject . ': ' . $message);
 
@@ -771,19 +749,19 @@ class Dmailer implements LoggerAwareInterface
      */
     public function runcron(): void
     {
-        $this->sendPerCycle = trim($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['sendPerCycle']) ? intval($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['sendPerCycle']) : 50;
-        $this->notificationJob = (bool)($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['notificationJob']);
+        $pt = $this->getMilliseconds();
+        $this->sendPerCycle = Typo3ConfVarsUtility::getDMConfigSendPerCycle();
+        $this->notificationJob = Typo3ConfVarsUtility::getDMConfigNotificationJob();
 
         if (!is_object($this->getLanguageService())) {
             $GLOBALS['LANG'] = GeneralUtility::makeInstance(LanguageService::class);
-            $language = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] ? $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] : $this->userDmailerLang;
+            $language = Typo3ConfVarsUtility::getDMConfigCronLanguage() ?: $this->userDmailerLang;
             $this->getLanguageService()->init(trim($language));
         }
 
         // always include locallang file
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
 
-        $pt = $this->getMilliseconds();
         $row = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForRuncron();
         $this->logger->debug($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'));
 
@@ -825,14 +803,12 @@ class Dmailer implements LoggerAwareInterface
     }
 
     /**
-     * Initializing the MailMessage class and setting the first global variables. Write to log file if it's a cronjob
-     *
-     * @param int $user_dmailer_sendPerCycle Total of recipient in a cycle
-     * @param string $user_dmailer_lang Language of the user
+     * Initializing the MailMessage class and setting the first global variables.
+     * Write to log file if it's a cronjob
      *
      * @return	void
      */
-    public function start(int $user_dmailer_sendPerCycle = 50, string $user_dmailer_lang = 'en'): void
+    public function start(): void
     {
         // Sets the message id
         $host = $this->getHostname();
@@ -850,12 +826,10 @@ class Dmailer implements LoggerAwareInterface
         $this->linebreak = Environment::isWindows() ? CRLF : LF;
 
         // Mailer engine parameters
-        $this->sendPerCycle = $user_dmailer_sendPerCycle;
-        $this->userDmailerLang = $user_dmailer_lang;
-        if (isset($this->nonCron) && !$this->nonCron) {
+        if (!$this->nonCron) {
             $this->logger->debug('Starting directmail cronjob');
             // write this temp file for checking the engine in the status module
-            $this->dmailer_log('starting directmail cronjob');
+            $this->dmailerLog('starting directmail cronjob');
         }
     }
 
@@ -874,9 +848,22 @@ class Dmailer implements LoggerAwareInterface
             $this->extractMediaLinks();
             foreach ($this->theParts['html']['media'] as $media) {
                 // TODO: why are there table related tags here?
-                if (($media['tag'] === 'img' || $media['tag'] === 'table' || $media['tag'] === 'tr' || $media['tag'] === 'td') && !$media['use_jumpurl'] && !$media['do_not_embed']) {
+                if (in_array($media['tag'], ['img', 'table', 'tr', 'td'], true) && !$media['use_jumpurl'] && !$media['do_not_embed']) {
                     if (ini_get('allow_url_fopen')) {
-                        if (($fp = fopen($media['absRef'], 'r')) !== false ) {
+                        $context = null;
+                        $applicationContext = Environment::getContext();
+                        if ($applicationContext->isDevelopment()) {
+                            $context = stream_context_create(
+                                [
+                                    "ssl" => [
+                                        "verify_peer" => Typo3ConfVarsUtility::getDMConfigSSLVerifyPeer(),
+                                        "verify_peer_name" => Typo3ConfVarsUtility::getDMConfigSSLVerifyPeerName(),
+                                    ],
+                                ]
+                            );
+                        }
+
+                        if (($fp = fopen($media['absRef'], 'r', false, $context)) !== false ) {
                             $mailer->embed($fp, basename($media['absRef']));
                         }
                     }
@@ -902,11 +889,13 @@ class Dmailer implements LoggerAwareInterface
         // handle FAL attachments
         if ((int)$this->dmailer['sys_dmail_rec']['attachment'] > 0) {
             $files = DirectMailUtility::getAttachments((int)$this->dmailer['sys_dmail_rec']['uid']);
-            /** @var FileReference $file */
-            foreach ($files as $file) {
-                // https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/Environment/Index.html#getpublicpath
-                $filePath = Environment::getPublicPath() . '/' . $file->getPublicUrl();
-                $mailer->attachFromPath($filePath);
+            if(count($files)) {
+                $publicPath = Environment::getPublicPath();
+                /** @var FileReference $file */
+                foreach ($files as $file) {
+                    // https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/Environment/Index.html#getpublicpath
+                    $mailer->attachFromPath($publicPath.$file->getPublicUrl());
+                }
             }
         }
     }
@@ -924,16 +913,16 @@ class Dmailer implements LoggerAwareInterface
         /** @var MailMessage $mailer */
         $mailer = GeneralUtility::makeInstance(MailMessage::class);
         $mailer
-            ->from(new Address($this->fromEmail, $this->fromName))
+            ->from($this->createRecipient($this->fromEmail, $this->fromName))
             ->to($recipient)
             ->subject($this->subject)
             ->priority($this->priority);
 
         if ($this->replyToEmail) {
-            $mailer->replyTo(new Address($this->replyToEmail, $this->replyToName));
+            $mailer->replyTo($this->createRecipient($this->replyToEmail, $this->replyToName));
         }
         else {
-            $mailer->replyTo(new Address($this->fromEmail, $this->fromName));
+            $mailer->replyTo($this->createRecipient($this->fromEmail, $this->fromName));
         }
 
         if (GeneralUtility::validEmail($this->dmailer['sys_dmail_rec']['return_path'])) {
@@ -959,7 +948,7 @@ class Dmailer implements LoggerAwareInterface
             $mailHeadersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'];
             if (is_array($mailHeadersHook)) {
                 $hookParameters = [
-                    'row'     => &$recipRow,
+                    'row'    => &$recipRow,
                     'header' => &$header,
                 ];
                 $hookReference = &$this;
@@ -1022,7 +1011,7 @@ class Dmailer implements LoggerAwareInterface
         $this->theParts['html']['content'] = GeneralUtility::getURL($url);
         if ($this->theParts['html']['content']) {
             $urlPart = parse_url($url);
-            if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] == 1) {
+            if (Typo3ConfVarsUtility::getDMConfigUseHttpToFetch()) {
                 $urlPart['scheme'] = 'http';
             }
 
@@ -1086,7 +1075,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @param string $logMsg Log message
      */
-    protected function dmailer_log(string $logMsg): void
+    protected function dmailerLog(string $logMsg): void
     {
         $content = time() . ' => ' . $logMsg . LF;
         $logfilePath = Environment::getPublicPath() . '/typo3temp/tx_directmail_dmailer_log.txt';
@@ -1415,7 +1404,8 @@ class Dmailer implements LoggerAwareInterface
                     $reg = explode('"', substr($tag, 1, $tagLen), 2);
                     $tag = ltrim($reg[1]);
                     $value = $reg[0];
-                } else {
+                }
+                else {
                     // No quotes around value
                     preg_match('/^([^[:space:]>]*)(.*)/', $tag, $reg);
                     $value = trim($reg[1]);

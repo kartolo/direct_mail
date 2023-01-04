@@ -6,6 +6,7 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
+use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -113,7 +114,7 @@ class MailerEngineController extends MainController
         $error = '';
 
         // seconds
-        $cronInterval = $this->getValueFromTYPO3_CONF_VARS('cronInt') * 60;
+        $cronInterval = Typo3ConfVarsUtility::getDMConfigCronInt() * 60;
         $lastCronjobShouldBeNewThan = (time() - $cronInterval);
         $filename = $this->getDmailerLogFilePath();
         if (file_exists($filename)) {
@@ -301,7 +302,7 @@ class MailerEngineController extends MainController
         // TODO: remove htmlmail
         /* @var $htmlmail \DirectMailTeam\DirectMail\Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
-        $htmlmail->nonCron = 1;
+        $htmlmail->setNonCron(true);
         $htmlmail->start();
         $htmlmail->runcron();
     }

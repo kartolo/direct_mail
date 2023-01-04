@@ -23,6 +23,7 @@ use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Static class.
@@ -59,6 +60,39 @@ class DirectMailUtility
     }
 
     /**
+     * Get URL glue
+     *
+     * @param string $url
+     *
+     * @return string & or ?
+     */
+    public static function getURLGlue(string $url): string
+    {
+        return (strpos($url, '?') !== false) ? '&' : '?';
+    }
+
+    public static function prepareTypolinkParams(string $params): string
+    {
+        return substr($params, 0, 1) == '&' ? substr($params, 1) : $params;
+    }
+
+    public static function getTypolinkURL(
+        string $parameter,
+        bool $forceAbsoluteUrl = true,
+        bool $linkAccessRestrictedPages = true
+    ): string
+    {
+        $typolinkPageUrl = 't3://page?uid=';
+        $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+
+        return $cObj->typolink_URL([
+            'parameter' => $typolinkPageUrl . $parameter,
+            'forceAbsoluteUrl' => $forceAbsoluteUrl,
+            'linkAccessRestrictedPages' => $linkAccessRestrictedPages
+        ]);
+    }
+
+    /**
      * Fetch content of a page (only internal and external page)
      *
      * @param array $row Directmail DB record
@@ -70,25 +104,21 @@ class DirectMailUtility
     public static function fetchUrlContentsForDirectMailRecord(array $row, array $params, $returnArray = false)
     {
         $lang = self::getLanguageService();
-        $theOutput = '';
+        $output = '';
         $errorMsg = [];
         $warningMsg = [];
         $urls = self::getFullUrlsForDirectMailRecord($row);
-        $plainTextUrl = $urls['plainTextUrl'];
-        $htmlUrl = $urls['htmlUrl'];
-        $urlBase = $urls['baseUrl'];
 
         // Make sure long_link_rdct_url is consistent with baseUrl.
-        $row['long_link_rdct_url'] = $urlBase;
-
-        $glue = (strpos($urlBase, '?') !== false ) ? '&' : '?';
+        //$row['long_link_rdct_url'] = $urls['baseUrl'];
 
         // Compile the mail
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         if ($params['enable_jump_url'] ?? false) {
+            $glue = self::getURLGlue($urls['baseUrl']);
             $htmlmail->setJumperURLPrefix(
-                $urlBase . $glue .
+                $urls['baseUrl'] . $glue .
                 'mid=###SYS_MAIL_ID###' .
                 (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
                 '&aC=###SYS_AUTHCODE###' .
@@ -106,8 +136,8 @@ class DirectMailUtility
         $htmlmail->setSimulateUsergroup($params['simulate_usergroup'] ?? 0);
         $htmlmail->setIncludeMedia($row['includeMedia']);
 
-        if ($plainTextUrl) {
-            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));
+        if ($urls['plainTextUrl']) {
+            $mailContent = GeneralUtility::getURL(self::addUserPass($urls['plainTextUrl'], $params));
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->getPartPlainConfig('content')) {
                 $errorMsg[] = $lang->getLL('dmail_no_plain_content');
@@ -118,14 +148,18 @@ class DirectMailUtility
         }
 
         // fetch the HTML url
-        if ($htmlUrl) {
+        if ($urls['htmlUrl']) {
             // Username and password is added in htmlmail object
-            $success = $htmlmail->addHTML(self::addUserPass($htmlUrl, $params));
+            $success = $htmlmail->addHTML(self::addUserPass($urls['htmlUrl'], $params));
             // If type = 1, we have an external page.
             if ($row['type'] == 1) {
                 // Try to auto-detect the charset of the message
                 $matches = [];
-                $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', ($htmlmail->getParts()['html_content'] ?? ''), $matches);
+                $res = preg_match(
+                    '/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m',
+                    ($htmlmail->getParts()['html_content'] ?? ''),
+                    $matches
+                );
                 if ($res == 1) {
                     $htmlmail->setCharset($matches[1]);
                 }
@@ -157,7 +191,7 @@ class DirectMailUtility
                 'charset'            => $htmlmail->getCharset(),
                 'mailContent'        => $mailContent,
                 'renderedSize'       => strlen($mailContent),
-                'long_link_rdct_url' => $urlBase
+                'long_link_rdct_url' => $urls['baseUrl']
             ];
 
             $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$row['uid'], $updateData);
@@ -165,7 +199,7 @@ class DirectMailUtility
             if (count($warningMsg)) {
                 $flashMessageRendererResolver = self::getFlashMessageRendererResolver();
                 foreach ($warningMsg as $warning) {
-                    $theOutput .= $flashMessageRendererResolver
+                    $output .= $flashMessageRendererResolver
                         ->resolve()
                         ->render([
                             self::createFlashMessage($warning, $lang->getLL('dmail_warning'), FlashMessage::WARNING, false)
@@ -176,25 +210,30 @@ class DirectMailUtility
         else {
             $flashMessageRendererResolver = self::getFlashMessageRendererResolver();
             foreach ($errorMsg as $error) {
-                $theOutput .= $flashMessageRendererResolver
+                $output .= $flashMessageRendererResolver
                     ->resolve()
                     ->render([
                         self::createFlashMessage($error, $lang->getLL('dmail_error'), FlashMessage::ERROR, false)
                     ]);
             }
         }
+
         if ($returnArray) {
             return [
                 'errors' => $errorMsg,
                 'warnings' => $warningMsg
             ];
         }
-        else {
-            return $theOutput;
-        }
+
+        return $output;
     }
 
-    protected static function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false): FlashMessage
+    protected static function createFlashMessage(
+        string $messageText,
+        string $messageHeader = '',
+        int $messageType = 0,
+        bool $storeInSession = false
+    ): FlashMessage
     {
         return GeneralUtility::makeInstance(FlashMessage::class,
             $messageText,
@@ -218,7 +257,7 @@ class DirectMailUtility
      *
      * @return string The new URL with username and password
      */
-    protected static function addUserPass($url, array $params): string
+    protected static function addUserPass(string $url, array $params): string
     {
         $user = $params['http_username'] ?? '';
         $pass = $params['http_password'] ?? '';
@@ -227,7 +266,7 @@ class DirectMailUtility
             $url = $matches[0] . $user . ':' . $pass . '@' . substr($url, strlen($matches[0]));
         }
         if (($params['simulate_usergroup'] ?? false) && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
-            $glue = (strpos($url, '?') !== false) ? '&' : '?';
+            $glue = self::getURLGlue($url);
             $url = $url . $glue . 'dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' .  GeneralUtility::makeInstance(DmRegistryUtility::class)->createAndGetAccessToken();
         }
         return $url;
@@ -242,15 +281,9 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row): array
     {
-        $typolinkPageUrl = 't3://page?uid=';
-        $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
         // Finding the domain to use
         $result = [
-            'baseUrl' => $cObj->typolink_URL([
-                'parameter' => $typolinkPageUrl . (int)$row['page'],
-                'forceAbsoluteUrl' => true,
-                'linkAccessRestrictedPages' => true
-            ]),
+            'baseUrl' => self::getTypolinkURL((int)$row['page']),
             'htmlUrl' => '',
             'plainTextUrl' => ''
         ];
@@ -262,18 +295,10 @@ class DirectMailUtility
                 $result['plainTextUrl'] = $row['plainParams'];
                 break;
             default:
-                $params = substr($row['HTMLParams'], 0, 1) == '&' ? substr($row['HTMLParams'], 1) : $row['HTMLParams'];
-                $result['htmlUrl'] = $cObj->typolink_URL([
-                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
-                    'forceAbsoluteUrl' => true,
-                    'linkAccessRestrictedPages' => true
-                ]);
-                $params = substr($row['plainParams'], 0, 1) == '&' ? substr($row['plainParams'], 1) : $row['plainParams'];
-                $result['plainTextUrl'] = $cObj->typolink_URL([
-                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
-                    'forceAbsoluteUrl' => true,
-                    'linkAccessRestrictedPages' => true
-                ]);
+                $params = self::prepareTypolinkParams($row['HTMLParams']);
+                $result['htmlUrl'] = self::getTypolinkURL((int)$row['page'] . '&' . $params);
+                $params = self::prepareTypolinkParams($row['plainParams']);
+                $result['plainTextUrl'] = self::getTypolinkURL((int)$row['page'] . '&' . $params);
         }
 
         // plain
@@ -310,7 +335,12 @@ class DirectMailUtility
      * Forces the integer $theInt into the boundaries of $min and $max.
      * If the $theInt is 'FALSE' then the $zeroValue is applied.
      */
-    public static function intInRangeWrapper(int $theInt, int $min, int $max = 2000000000, int $zeroValue = 0): int
+    public static function intInRangeWrapper(
+        int $theInt,
+        int $min,
+        int $max = 2000000000,
+        int $zeroValue = 0
+    ): int
     {
         return MathUtility::forceIntegerInRange($theInt, $min, $max, $zeroValue);
     }
@@ -344,7 +374,8 @@ class DirectMailUtility
         if ($lengthLimit === false) {
             // No processing
             $messageSubstituted = $message;
-        } else {
+        }
+        else {
             $messageSubstituted = preg_replace_callback(
                 '/(http|https):\\/\\/.+(?=[\\]\\.\\?]*([\\! \'"()<>]+|$))/iU',
                 function (array $matches) use ($lengthLimit, $index_script_url) {

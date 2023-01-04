@@ -21,6 +21,7 @@ use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
+use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -259,20 +260,7 @@ class JumpurlController implements MiddlewareInterface
      */
     protected function substituteUserMarkersFromTargetUrl(string $targetUrl): string
     {
-        $rowFieldsArray = GeneralUtility::trimExplode(
-            ',',
-            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['defaultRecipFields']
-        );
-
-        if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
-            $rowFieldsArray = array_merge(
-                $rowFieldsArray,
-                GeneralUtility::trimExplode(
-                    ',',
-                    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']
-                )
-            );
-        }
+        $rowFieldsArray = Typo3ConfVarsUtility::getDMConfigMergedFields();
         reset($rowFieldsArray);
         $processedTargetUrl = $targetUrl;
         foreach ($rowFieldsArray as $substField) {

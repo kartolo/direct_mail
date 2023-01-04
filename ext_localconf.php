@@ -14,7 +14,7 @@ defined('TYPO3') || die();
     /**
      * Language of the cron task:
      */
-    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] = $extConf['cron_language'] ? $extConf['cron_language'] : 'en';
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronLanguage'] = $extConf['cronLanguage'] ? $extConf['cronLanguage'] : 'en';
 
     /**
      * Number of messages sent per cycle of the cron task:
@@ -57,6 +57,9 @@ defined('TYPO3') || die();
      * but use implicit port instead (e.g. no explicit port in URL)
      */
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseImplicitPortToFetch'] = $extConf['UseImplicitPortToFetch'];
+
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerifyPeer'] = $extConf['SSLVerifyPeer'];
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerifyPeerName'] = $extConf['SSLVerifyPeerName'];
 
     /**
      * Registering class to scheduler

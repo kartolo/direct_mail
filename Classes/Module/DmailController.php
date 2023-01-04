@@ -909,7 +909,7 @@ class DmailController extends MainController
         // Compile the mail
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
-        $htmlmail->nonCron = 1;
+        $htmlmail->setNonCron(true);
         $htmlmail->start();
         $htmlmail->setCharset($row['charset']);
         $htmlmail->addPlain($message);
@@ -1126,7 +1126,7 @@ class DmailController extends MainController
         // Preparing mailer
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
-        $htmlmail->nonCron = 1;
+        $htmlmail->setNonCron(true);
         $htmlmail->start();
         $htmlmail->prepare($row);
         $sentFlag = false;
@@ -1150,15 +1150,14 @@ class DmailController extends MainController
             }
             $hash = array_flip($addresses);
             $addresses = array_keys($hash);
-            $addressList = implode(',', $addresses);
 
-            if ($addressList) {
+            if (count($addresses)) {
                 // Sending the same mail to lots of recipients
-                $htmlmail->sendSimple($addressList);
+                $htmlmail->sendSimple($addresses);
                 $sentFlag = true;
                 $message = $this->createFlashMessage(
                     $this->getLanguageService()->getLL('send_was_sent') . ' ' .
-                    $this->getLanguageService()->getLL('send_recipients') . ' ' . htmlspecialchars($addressList),
+                    $this->getLanguageService()->getLL('send_recipients') . ' ' . htmlspecialchars(implode(',', $addresses)),
                     $this->getLanguageService()->getLL('send_sending'),
                     0,
                     false
@@ -1210,7 +1209,7 @@ class DmailController extends MainController
                 $sendFlag += $this->sendTestMailToTable($idLists, 'tt_address', $htmlmail);
                 $sendFlag += $this->sendTestMailToTable($idLists, 'fe_users', $htmlmail);
                 $sendFlag += $this->sendTestMailToTable($idLists, 'PLAINLIST', $htmlmail);
-                $sendFlag += $this->sendTestMailToTable($idLists, $this->userTable, $htmlmail);
+                $sendFlag += $this->sendTestMailToTable($idLists, (string)$this->userTable, $htmlmail);
                 $message = $this->createFlashMessage(
                     sprintf($this->getLanguageService()->getLL('send_was_sent_to_number'), $sendFlag),
                     $this->getLanguageService()->getLL('send_sending'),
@@ -1247,21 +1246,20 @@ class DmailController extends MainController
 
                 // create a draft version of the record
                 if (GeneralUtility::_GP('savedraft')) {
-                    if ($row['type'] == 0) {
-                        $updateFields['type'] = 2;
-                    } else {
-                        $updateFields['type'] = 3;
-                    }
-
+                    $updateFields['type'] = $row['type'] == 0 ? 2 : 3;
                     $updateFields['scheduled'] = 0;
                     $content = $this->getLanguageService()->getLL('send_draft_scheduler');
                     $sectionTitle = $this->getLanguageService()->getLL('send_draft_saved');
-                } else {
+                }
+                else {
                     $content = $this->getLanguageService()->getLL('send_was_scheduled_for') . ' ' . BackendUtility::datetime($distributionTime);
                     $sectionTitle = $this->getLanguageService()->getLL('send_was_scheduled');
                 }
                 $sentFlag = true;
-                $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$this->sys_dmail_uid, $updateFields);
+                $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord(
+                    (int)$this->sys_dmail_uid,
+                    $updateFields
+                );
 
                 $message = $this->createFlashMessage(
                     $sectionTitle . ' ' . $content,
@@ -1275,7 +1273,10 @@ class DmailController extends MainController
 
         // Setting flags and update the record:
         if ($sentFlag && $this->cmd == 'send_mail_final') {
-            $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$this->sys_dmail_uid, ['issent' => 1]);
+            $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord(
+                (int)$this->sys_dmail_uid,
+                ['issent' => 1]
+            );
         }
     }
 
@@ -1289,21 +1290,18 @@ class DmailController extends MainController
      * @return int Total of sent mail
      * @todo: remove htmlmail. sending mails to table
      */
-    protected function sendTestMailToTable(array $idLists, $table, Dmailer $htmlmail): int
+    protected function sendTestMailToTable(array $idLists, string $table, Dmailer $htmlmail): int
     {
         $sentFlag = 0;
         if (is_array($idLists[$table])) {
-            if ($table != 'PLAINLIST') {
-                $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$table], $table, '*');
-            }
-            else {
-                $rows = $idLists['PLAINLIST'];
-            }
-            foreach ($rows as $rec) {
-                $recipRow = $htmlmail->convertFields($rec);
+            $rows = ($table != 'PLAINLIST') ? GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$table], $table, '*') : $idLists['PLAINLIST'];
+
+            foreach ($rows as $row) {
+                $recipRow = $htmlmail->convertFields($row);
                 $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table, $recipRow['uid']);
                 $kc = substr($table, 0, 1);
-                $returnCode = $htmlmail->sendAdvanced($recipRow, $kc == 'p' ? 'P' : $kc);
+                $kc = $kc == 'p' ? 'P' : $kc;
+                $returnCode = $htmlmail->sendAdvanced($recipRow, $kc);
                 if ($returnCode) {
                     $sentFlag++;
                 }
