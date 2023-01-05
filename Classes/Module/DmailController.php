@@ -24,6 +24,7 @@ use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\ImmediateResponseException;
+use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -63,11 +64,6 @@ class DmailController extends MainController
 
     protected $requestUri = '';
 
-    /**
-     * The name of the module
-     *
-     * @var string
-     */
     protected string $moduleName = 'DirectMailNavFrame_DirectMail';
 
     protected function initDmail(ServerRequestInterface $request): void
@@ -117,7 +113,7 @@ class DmailController extends MainController
         $this->initDmail($request);
 
         // get the config from pageTS
-        $this->params['pid'] = (int)($this->id);
+        $this->params['pid'] = $this->id;
         $this->cshTable = '_MOD_' . $this->moduleName;
 
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
@@ -513,6 +509,8 @@ class DmailController extends MainController
     /**
      * The icon for the source tab
      *
+     * @todo: unused function
+     *
      * @param bool $expand State of the tab
      *
      * @return string
@@ -526,18 +524,13 @@ class DmailController extends MainController
 
     /**
      * Show the list of existing directmail records, which haven't been sent
-     *
-     * @return	array
-     * @throws RouteNotFoundException If the named route doesn't exist
      */
     protected function getNews(): array
     {
         $rows = GeneralUtility::makeInstance(PagesRepository::class)->selectPagesForDmail($this->id, $this->perms_clause);
         $data = [];
-        $empty = false;
-        if (empty($rows)) {
-            $empty = true;
-        } else {
+        $empty = $rows === [];
+        if (!$empty) {
             $iconActionsOpen = $this->getIconActionsOpen();
             foreach ($rows as $row) {
                 $languages = $this->getAvailablePageLanguages($row['uid']);
@@ -634,11 +627,8 @@ class DmailController extends MainController
 
     /**
      * Get available languages for a page
-     *
-     * @param $pageUid
-     * @return array
      */
-    protected function getAvailablePageLanguages($pageUid)
+    protected function getAvailablePageLanguages($pageUid): array
     {
         static $languages;
         $languageUids = [];
@@ -674,7 +664,7 @@ class DmailController extends MainController
      *
      * @return array config for form for inputing the external page information
      */
-    protected function getConfigFormExternal()
+    protected function getConfigFormExternal(): array
     {
         return [
             'title' => 'dmail_dovsk_crFromUrl',
@@ -688,7 +678,7 @@ class DmailController extends MainController
      *
      * @return array config for form for the quickmail
      */
-    protected function getConfigFormQuickMail()
+    protected function getConfigFormQuickMail(): array
     {
         return [
             'id' => $this->id,
@@ -705,7 +695,7 @@ class DmailController extends MainController
      *
      * @return array config for form lists of all existing dmail records
      */
-    protected function getConfigFormDMail()
+    protected function getConfigFormDMail(): array
     {
         $sOrder = preg_replace(
             '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i',
@@ -749,7 +739,7 @@ class DmailController extends MainController
      *
      * @return array error or warning message produced during the process
      */
-    protected function createDMailQuick(array $indata)
+    protected function createDMailQuick(array $indata): array
     {
         $theOutput = [];
         // Set default values:
@@ -846,7 +836,7 @@ class DmailController extends MainController
      *
      * @param int $uid Uid of the record
      *
-     * @return string link with the trash icon
+     * @return Uri|string link with the trash icon
      * @throws RouteNotFoundException If the named route doesn't exist
      */
     protected function deleteLink($uid)
@@ -872,26 +862,22 @@ class DmailController extends MainController
      *
      * @param int $uid record uid to be deleted
      */
-    protected function deleteDMail(int $uid)
+    protected function deleteDMail(int $uid): void
     {
         $table = 'sys_dmail';
         if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
-            $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord($uid, [$GLOBALS['TCA'][$table]['ctrl']['delete'] => 1]);
+            GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord($uid, [$GLOBALS['TCA'][$table]['ctrl']['delete'] => 1]);
         }
-
-        return;
     }
 
     /**
      * Compiling the quickmail content and save to DB
      *
      * @param array $row The sys_dmail record
-     * @param string $message Body of the mail
-     *
-     * @return string
+     * @param string $messageBody Body of the mail
      * @TODO: remove htmlmail, compiling mail
      */
-    protected function compileQuickMail(array $row, $message)
+    protected function compileQuickMail(array $row, string $messageBody): array
     {
         $erg = ['errorTitle' => '', 'errorText' => '', 'warningTitle' => '', 'warningText' => ''];
 
@@ -901,9 +887,9 @@ class DmailController extends MainController
         $htmlmail->setNonCron(true);
         $htmlmail->start();
         $htmlmail->setCharset($row['charset']);
-        $htmlmail->addPlain($message);
+        $htmlmail->addPlain($messageBody);
 
-        if (!$message || !$htmlmail->getPartPlainConfig('content')) {
+        if (!$messageBody || !$htmlmail->getPartPlainConfig('content')) {
             $erg['errorTitle'] = $this->getLanguageService()->getLL('dmail_error');
             $erg['errorText'] = $this->getLanguageService()->getLL('dmail_no_plain_content');
         } elseif (!strstr(base64_decode($htmlmail->getPartPlainConfig('content')), '<!--DMAILER_SECTION_BOUNDARY')) {
@@ -919,7 +905,7 @@ class DmailController extends MainController
             $mailContent = base64_encode(serialize($htmlmail->getParts()));
 
             GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmail(
-                (int)($this->sys_dmail_uid),
+                $this->sys_dmail_uid,
                 $htmlmail->getCharset(),
                 $mailContent
             );
@@ -932,13 +918,9 @@ class DmailController extends MainController
      * Shows the infos of a directmail record in a table
      *
      * @param array $row DirectMail DB record
-     *
-     * @return array
-     * @throws RouteNotFoundException If the named route doesn't exist
      */
     protected function renderRecordDetailsTable(array $row): array
     {
-        $iconActionsOpen = $this->getIconActionsOpen();
         $label = '';
         $edit = false;
         $editParams = '';
@@ -983,11 +965,9 @@ class DmailController extends MainController
         // attachments need to be fetched manually as BackendUtility::getProcessedValue can't do that
         $fileNames = [];
         $attachments = DirectMailUtility::getAttachments((int)($row['uid'] ?? 0));
-        /** @var FileReference $attachment */
-        if (count($attachments)) {
-            foreach ($attachments as $attachment) {
-                $fileNames[] = $attachment->getName();
-            }
+
+        foreach ($attachments as $attachment) {
+            $fileNames[] = $attachment->getName();
         }
 
         $trs[] = [
@@ -1010,8 +990,7 @@ class DmailController extends MainController
     /**
      * Show the step of sending a test mail
      *
-     * @return config for form
-     * @throws RouteNotFoundException If the named route doesn't exist
+     * @return array config for form
      */
     protected function getTestMailConfig(): array
     {
@@ -1138,7 +1117,7 @@ class DmailController extends MainController
             $hash = array_flip($addresses);
             $addresses = array_keys($hash);
 
-            if (count($addresses)) {
+            if ($addresses !== []) {
                 // Sending the same mail to lots of recipients
                 $htmlmail->sendSimple($addresses);
                 $sentFlag = true;

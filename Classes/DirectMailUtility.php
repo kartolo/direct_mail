@@ -21,6 +21,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
+use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -379,9 +380,9 @@ class DirectMailUtility
      * Fetches the attachment files referenced in the sys_dmail record.
      *
      * @param int $dmailUid The uid of the sys_dmail record to fetch the records for
-     * @return array An array of FileReferences
+     * @return FileReference[]
      */
-    public static function getAttachments(int $dmailUid)
+    public static function getAttachments(int $dmailUid): array
     {
         /** @var FileRepository $fileRepository */
         $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
