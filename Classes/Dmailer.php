@@ -376,13 +376,13 @@ class Dmailer implements LoggerAwareInterface
             $rowFieldsArray = Typo3ConfVarsUtility::getDMConfigMergedFields();
             if (count($rowFieldsArray)) {
                 foreach ($rowFieldsArray as $substField) {
-                    $additionalMarkers['###USER_' . $substField . '###'] = $this->ensureCorrectEncoding($recipRow[$substField]);
+                    $additionalMarkers['###USER_' . $substField . '###'] = $this->ensureCorrectEncoding($recipRow[$substField] ?? '');
                 }
             }
             // uppercase fields with uppercased values
             $uppercaseFieldsArray = ['name', 'firstname'];
             foreach ($uppercaseFieldsArray as $substField) {
-                $subst = $this->ensureCorrectEncoding($recipRow[$substField]);
+                $subst = $this->ensureCorrectEncoding($recipRow[$substField] ?? '');
                 $additionalMarkers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
             }
 
