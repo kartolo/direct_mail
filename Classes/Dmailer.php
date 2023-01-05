@@ -610,7 +610,7 @@ class Dmailer implements LoggerAwareInterface
     {
         $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
         if ($sysDmailMaillogRepository->dmailerIsSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
-            $pt = $this->getMilliseconds();
+            $parseTimeStart = $this->getMilliseconds();
             $recipRow = $this->convertFields($recipRow);
 
             /**
@@ -623,7 +623,7 @@ class Dmailer implements LoggerAwareInterface
                 $mid,
                 $tableKey . '_' . $recipRow['uid'],
                 strlen($this->message),
-                $this->getMilliseconds() - $pt,
+                $this->getMilliseconds() - $parseTimeStart,
                 0,
                 $recipRow['email']
             );
@@ -632,7 +632,7 @@ class Dmailer implements LoggerAwareInterface
                 $values = [
                     'logUid' => $logUid,
                     'html_sent' => (int)$this->sendAdvanced($recipRow, $tableKey),
-                    'parsetime' => $this->getMilliseconds() - $pt,
+                    'parsetime' => $this->getMilliseconds() - $parseTimeStart,
                     'size' => strlen($this->message)
                 ];
                 $ok = $sysDmailMaillogRepository->updateSysDmailMaillogForShipOfMail($values);
@@ -730,7 +730,7 @@ class Dmailer implements LoggerAwareInterface
      */
     public function runcron(): void
     {
-        $pt = $this->getMilliseconds();
+        $parseTimeStart = $this->getMilliseconds();
         $this->sendPerCycle = Typo3ConfVarsUtility::getDMConfigSendPerCycle();
         $this->notificationJob = Typo3ConfVarsUtility::getDMConfigNotificationJob();
 
@@ -778,7 +778,7 @@ class Dmailer implements LoggerAwareInterface
             $this->logger->debug($this->getLanguageService()->getLL('dmailer_nothing_to_do'));
         }
 
-        $parsetime = $this->getMilliseconds() - $pt;
+        $parsetime = $this->getMilliseconds() - $parseTimeStart;
         $this->logger->debug($this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms');
     }
 
