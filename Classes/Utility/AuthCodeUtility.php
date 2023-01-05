@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Utility;
@@ -19,7 +20,7 @@ class AuthCodeUtility
     {
         if (!empty($submittedAuthCode)) {
             $hmac = self::getHmac($recipientRecord, $authcodeFieldList);
-            if($submittedAuthCode === $hmac) {
+            if ($submittedAuthCode === $hmac) {
                 return true;
             }
             /**
@@ -27,7 +28,7 @@ class AuthCodeUtility
              * for old e-mails
              */
             $authCodeToMatch = self::getAuthCode($recipientRecord, $authcodeFieldList);
-            if($submittedAuthCode === $authCodeToMatch) {
+            if ($submittedAuthCode === $authCodeToMatch) {
                 return true;
             }
         }
@@ -51,8 +52,7 @@ class AuthCodeUtility
             foreach ($fieldArr as $k => $v) {
                 $recCopy_temp[$k] = $recipientRecord[$v];
             }
-        }
-        else {
+        } else {
             $recCopy_temp = $recipientRecord;
         }
         $preKey = implode('|', $recCopy_temp);

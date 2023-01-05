@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
@@ -8,7 +9,8 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class MainRepository {
+class MainRepository
+{
     public function getConnectionPool(): ConnectionPool
     {
         return GeneralUtility::makeInstance(ConnectionPool::class);

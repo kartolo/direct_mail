@@ -1,7 +1,7 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Command;
 
-use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Utility\ReadmailUtility;
 use Fetch\Server;
@@ -106,7 +106,7 @@ class AnalyzeBounceMailCommand extends Command
         if ($input->getOption('type')) {
             $type = $input->getOption('type');
             //$io->writeln($type);
-            if(!in_array($type, ['imap', 'pop3'])) {
+            if (!in_array($type, ['imap', 'pop3'])) {
                 $io->warning('Type: only imap or pop3');
                 return Command::FAILURE;
             }
@@ -122,7 +122,7 @@ class AnalyzeBounceMailCommand extends Command
             // we are connected to mail server
             // get unread mails
             $messages = $mailServer->search('UNSEEN', $count);
-            if(count($messages)) {
+            if (count($messages)) {
                 /** @var Message $message The message object */
                 foreach ($messages as $message) {
                     // process the mail
@@ -130,8 +130,7 @@ class AnalyzeBounceMailCommand extends Command
                         //$io->writeln($message->getSubject());
                         // set delete
                         $message->delete();
-                    }
-                    else {
+                    } else {
                         $message->setFlag('SEEN');
                     }
                 }
@@ -139,9 +138,7 @@ class AnalyzeBounceMailCommand extends Command
             // expunge to delete permanently
             $mailServer->expunge();
             imap_close($mailServer->getImapStream());
-            return Command::SUCCESS;
-        }
-        else {
+        } else {
             return Command::FAILURE;
         }
 
@@ -167,13 +164,12 @@ class AnalyzeBounceMailCommand extends Command
                 $bouncedMail = $attachment->getData();
                 // Find mail id
                 $midArray = $readMail->find_XTypo3MID($bouncedMail);
-                if (false === empty($midArray)) {
+                if (empty($midArray) === false) {
                     // if mid, rid and rtbl are found, then stop looping
                     break;
                 }
             }
-        }
-        else {
+        } else {
             // search in MessageBody (see rfc822-headers as Attachments placed )
             $midArray = $readMail->find_XTypo3MID($message->getMessageBody());
         }
@@ -191,7 +187,6 @@ class AnalyzeBounceMailCommand extends Command
 
         // only write to log table, if we found a corresponding recipient record
         if (!empty($row)) {
-
             $midArray['email'] = $row['email'];
             try {
                 return $sysDmailMaillogRepository->analyzeBounceMailAddToMailLog(
@@ -204,8 +199,7 @@ class AnalyzeBounceMailCommand extends Command
                 // Log $e->getMessage();
                 return false;
             }
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -240,24 +234,22 @@ class AnalyzeBounceMailCommand extends Command
             $imapStream = $mailServer->getImapStream();
             return $mailServer;
         } catch (\Exception $e) {
-            $io->error($this->languageService->getLL('scheduler.bounceMail.dataVerification').$e->getMessage());
+            $io->error($this->languageService->getLL('scheduler.bounceMail.dataVerification') . $e->getMessage());
             return false;
         }
     }
 
     /**
-     *
      * @return int
      */
-    private function getTimestampFromAspect(): int {
+    private function getTimestampFromAspect(): int
+    {
         $context = GeneralUtility::makeInstance(Context::class);
         return $context->getPropertyFromAspect('date', 'timestamp');
     }
 
-    /**
-     * @return void
-     */
-    private function setLanguageService(): void {
+    private function setLanguageService(): void
+    {
         $languageServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
         $this->languageService = $languageServiceFactory->create('en'); //@TODO
         $this->languageService->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');

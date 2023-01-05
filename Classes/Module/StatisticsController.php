@@ -1,12 +1,13 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
-use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
-use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\TempRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
@@ -18,7 +19,6 @@ use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 
 class StatisticsController extends MainController
 {
@@ -64,7 +64,8 @@ class StatisticsController extends MainController
 
     private string $siteUrl = '';
 
-    protected function initStatistics(ServerRequestInterface $request): void {
+    protected function initStatistics(ServerRequestInterface $request): void
+    {
         $this->siteUrl = $request->getAttribute('normalizedParams')->getSiteUrl();
 
         $queryParams = $request->getQueryParams();
@@ -76,7 +77,7 @@ class StatisticsController extends MainController
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
 
         $table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
-        if(in_array($table, $this->tables)) {
+        if (in_array($table, $this->tables)) {
             $this->table = (string)($table);
         }
 
@@ -110,7 +111,7 @@ class StatisticsController extends MainController
         $this->reasonUnknownCSV     = (bool)($parsedBody['reasonUnknownCSV'] ?? $queryParams['reasonUnknownCSV'] ?? false);
     }
 
-    public function indexAction(ServerRequestInterface $request) : ResponseInterface
+    public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('Statistics');
 
@@ -127,26 +128,23 @@ class StatisticsController extends MainController
                     $this->view->assignMultiple(
                         [
                             'data' => $data,
-                            'show' => true
+                            'show' => true,
                         ]
                     );
-                }
-                elseif ($this->id != 0) {
+                } elseif ($this->id != 0) {
                     $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
                     $this->messageQueue->addMessage($message);
                 }
-            }
-            else {
+            } else {
                 $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_stat'), 1, false);
                 $this->messageQueue->addMessage($message);
                 $this->view->assignMultiple(
                     [
-                        'dmLinks' => $this->getDMPages($this->moduleName)
+                        'dmLinks' => $this->getDMPages($this->moduleName),
                     ]
                 );
             }
-        }
-        else {
+        } else {
             // If no access or if ID == zero
             $this->view = $this->configureTemplatePaths('NoAccess');
             $message = $this->createFlashMessage('If no access or if ID == zero', 'No Access', 1, false);
@@ -166,8 +164,7 @@ class StatisticsController extends MainController
 
         if (!$this->sys_dmail_uid) {
             $theOutput['dataPageInfo'] = $this->displayPageInfo();
-        }
-        else {
+        } else {
             $row = GeneralUtility::makeInstance(SysDmailRepository::class)->selectSysDmailById($this->sys_dmail_uid, $this->id);
             if (is_array($row)) {
                 // COMMAND:
@@ -203,7 +200,7 @@ class StatisticsController extends MainController
         $rows = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForPageInfo($this->id);
         $data = [];
         if (is_array($rows)) {
-            foreach ($rows as $row)  {
+            foreach ($rows as $row) {
                 $data[] = [
                     'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
                     'subject'         => $this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'], 30) . '  ', $row['uid'], $row['subject']),
@@ -211,7 +208,7 @@ class StatisticsController extends MainController
                     'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
                     'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
                     'sent'            => $row['count'] ? $row['count'] : '',
-                    'status'          => $this->getSentStatus($row)
+                    'status'          => $this->getSentStatus($row),
                 ];
             }
         }
@@ -219,7 +216,8 @@ class StatisticsController extends MainController
         return $data;
     }
 
-    protected function getSentStatus(array $row): string {
+    protected function getSentStatus(array $row): string
+    {
         if (!empty($row['scheduled_begin'])) {
             if (!empty($row['scheduled_end'])) {
                 $sent = $this->getLanguageService()->getLL('stats_overview_sent');
@@ -292,11 +290,11 @@ class StatisticsController extends MainController
         if (is_array($row) && count($row)) {
             $categories = '';
 
-            if($GLOBALS['TCA'][$this->table] ?? false) {
+            if ($GLOBALS['TCA'][$this->table] ?? false) {
                 $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
                 $resCat = GeneralUtility::makeInstance(TempRepository::class)->getDisplayUserInfo((string)$mmTable, (int)$row['uid']);
-                if($resCat && count($resCat)) {
-                    foreach($resCat as $rowCat) {
+                if ($resCat && count($resCat)) {
+                    foreach ($resCat as $rowCat) {
                         $categories .= $rowCat['uid_foreign'] . ',';
                     }
                     $categories = rtrim($categories, ',');
@@ -325,14 +323,14 @@ class StatisticsController extends MainController
                 'table'           => $this->table,
                 'thisID'          => $this->uid,
                 'cmd'             => $this->cmd,
-                'html'            => $row['module_sys_dmail_html'] ? true : false
+                'html'            => $row['module_sys_dmail_html'] ? true : false,
             ];
 
             foreach ($this->categories as $pKey => $pVal) {
                 $data['categories'][] = [
                     'pkey'    => $pKey,
                     'pVal'    => htmlspecialchars($pVal),
-                    'checked' => GeneralUtility::inList($categories, $pKey) ? true : false
+                    'checked' => GeneralUtility::inList($categories, $pKey) ? true : false,
                 ];
             }
         }
@@ -341,22 +339,22 @@ class StatisticsController extends MainController
     }
 
     /**
-     *
      * @param int $mailingId
      * @return array
      */
-    protected function mailResponsesGeneral(int $mailingId): array {
+    protected function mailResponsesGeneral(int $mailingId): array
+    {
         $table = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogsResponseTypeByMid($mailingId);
-        $table = $this->changekeyname($table,'counter','COUNT(*)');
+        $table = $this->changekeyname($table, 'counter', 'COUNT(*)');
 
         // Plaintext/HTML
         $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogAllByMid($mailingId);
 
         /* this function is called to change the key from 'COUNT(*)' to 'counter' */
-        $res = $this->changekeyname($res,'counter','COUNT(*)');
+        $res = $this->changekeyname($res, 'counter', 'COUNT(*)');
 
         $textHtml = [];
-        foreach($res as $row2){
+        foreach ($res as $row2) {
             // 0:No mail; 1:HTML; 2:TEXT; 3:HTML+TEXT
             $textHtml[$row2['html_sent']] = $row2['counter'];
         }
@@ -373,48 +371,48 @@ class StatisticsController extends MainController
         $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogPingByMid($mailingId);
         $uniquePingResponses = count($res); //sql_num_rows($res);
 
-        $totalSent = intval(($textHtml['1'] ?? 0) + ($textHtml['2'] ?? 0) + ($textHtml['3'] ?? 0));
-        $htmlSent  = intval(($textHtml['1'] ?? 0) + ($textHtml['3'] ?? 0));
-        $plainSent = intval(($textHtml['2'] ?? 0));
+        $totalSent = (int)(($textHtml['1'] ?? 0) + ($textHtml['2'] ?? 0) + ($textHtml['3'] ?? 0));
+        $htmlSent  = (int)(($textHtml['1'] ?? 0) + ($textHtml['3'] ?? 0));
+        $plainSent = (int)(($textHtml['2'] ?? 0));
 
         return [
             'table' => [
                 'head' => [
-                    '', 'stats_total', 'stats_HTML', 'stats_plaintext'
+                    '', 'stats_total', 'stats_HTML', 'stats_plaintext',
                 ],
                 'body' => [
                     [
                         'stats_mails_sent',
                         $totalSent,
                         $htmlSent,
-                        $plainSent
+                        $plainSent,
                     ],
                     [
                         'stats_mails_returned',
                         $this->showWithPercent($table['-127']['counter'] ?? 0, $totalSent),
                         '',
-                        ''
+                        '',
                     ],
                     [
                         'stats_HTML_mails_viewed',
                         '',
                         $this->showWithPercent($uniquePingResponses, $htmlSent),
-                        ''
+                        '',
                     ],
                     [
                         'stats_unique_responses',
                         $this->showWithPercent($uniqueHtmlResponses + $uniquePlainResponses, $totalSent),
                         $this->showWithPercent($uniqueHtmlResponses, $htmlSent),
-                        $this->showWithPercent($uniquePlainResponses, $plainSent ? $plainSent : $htmlSent)
-                    ]
-                ]
+                        $this->showWithPercent($uniquePlainResponses, $plainSent ? $plainSent : $htmlSent),
+                    ],
+                ],
             ],
             'uniqueHtmlResponses' => $uniqueHtmlResponses,
             'uniquePlainResponses' => $uniquePlainResponses,
             'totalSent' => $totalSent,
             'htmlSent' => $htmlSent,
             'plainSent' => $plainSent,
-            'db' => $table
+            'db' => $table,
         ];
     }
 
@@ -480,14 +478,14 @@ class StatisticsController extends MainController
         }
         if (is_array($unpackedMail['plain']['link_ids'] ?? false)) {
             foreach ($unpackedMail['plain']['link_ids'] as $k => $v) {
-                $urlArr[intval(-$k)] = $v;
+                $urlArr[(int)(-$k)] = $v;
             }
         }
 
         // Traverse plain urls:
         $mappedPlainUrlsTable = [];
         foreach ($plainUrlsTable as $id => $c) {
-            $url = $urlArr[intval($id)];
+            $url = $urlArr[(int)$id];
             if (isset($urlMd5Map[md5($url)])) {
                 $mappedPlainUrlsTable[$urlMd5Map[md5($url)]] = $c;
             } else {
@@ -526,28 +524,28 @@ class StatisticsController extends MainController
 
         $tables[2] = [
             'head' => [
-                '', 'stats_total', 'stats_HTML', 'stats_plaintext'
+                '', 'stats_total', 'stats_HTML', 'stats_plaintext',
             ],
             'body' => [
                 [
                     'stats_total_responses',
                     ($table['1']['counter'] ?? 0) + ($table['2']['counter'] ?? 0),
                     $table['1']['counter'] ?? '0',
-                    $table['2']['counter'] ?? '0'
+                    $table['2']['counter'] ?? '0',
                 ],
                 [
                     'stats_unique_responses',
                     $this->showWithPercent($uniqueHtmlResponses + $uniquePlainResponses, $totalSent),
                     $this->showWithPercent($uniqueHtmlResponses, $htmlSent),
-                    $this->showWithPercent($uniquePlainResponses, $plainSent ? $plainSent : $htmlSent)
+                    $this->showWithPercent($uniquePlainResponses, $plainSent ? $plainSent : $htmlSent),
                 ],
                 [
                     'stats_links_clicked_per_respondent',
                     ($uniqueHtmlResponses+$uniquePlainResponses ? number_format(($table['1']['counter'] + $table['2']['counter']) / ($uniqueHtmlResponses+$uniquePlainResponses), 2) : '-'),
                     ($uniqueHtmlResponses  ? number_format(($table['1']['counter']) / ($uniqueHtmlResponses), 2)  : '-'),
-                    ($uniquePlainResponses ? number_format(($table['2']['counter']) / ($uniquePlainResponses), 2) : '-')
-                ]
-            ]
+                    ($uniquePlainResponses ? number_format(($table['2']['counter']) / ($uniquePlainResponses), 2) : '-'),
+                ],
+            ],
         ];
         arsort($urlCounter['total']);
         arsort($urlCounter['html']);
@@ -555,7 +553,7 @@ class StatisticsController extends MainController
         reset($urlCounter['total']);
 
         // HTML mails
-        if (intval($row['sendOptions']) & 0x2) {
+        if ((int)($row['sendOptions']) & 0x2) {
             $htmlContent = $unpackedMail['html']['content'];
 
             $htmlLinks = [];
@@ -563,13 +561,13 @@ class StatisticsController extends MainController
                 foreach ($unpackedMail['html']['hrefs'] as $jumpurlId => $data) {
                     $htmlLinks[$jumpurlId] = [
                         'url'   => $data['ref'],
-                        'label' => ''
+                        'label' => '',
                     ];
                 }
             }
 
             // Parse mail body
-            $dom = new \DOMDocument;
+            $dom = new \DOMDocument();
             @$dom->loadHTML($htmlContent);
             $links = [];
             // Get all links
@@ -587,7 +585,7 @@ class StatisticsController extends MainController
                     continue;
                 }
 
-                if(str_starts_with($url, 'mailto:')) {
+                if (str_starts_with($url, 'mailto:')) {
                     // Drop mail links
                     continue;
                 }
@@ -607,8 +605,7 @@ class StatisticsController extends MainController
                 if (!empty($title)) {
                     // no title attribute
                     $label = '<span title="' . $title . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
-                }
-                else {
+                } else {
                     $label = '<span title="' . $targetUrl . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
                 }
 
@@ -622,7 +619,7 @@ class StatisticsController extends MainController
         foreach ($urlCounter['total'] as $id => $_) {
             // $id is the jumpurl ID
             $origId = $id;
-            $id     = abs(intval($id));
+            $id     = abs((int)$id);
             $url    = $htmlLinks[$id]['url'] ? $htmlLinks[$id]['url'] : $urlArr[$origId];
             // a link to this host?
             $uParts = @parse_url($url);
@@ -630,7 +627,7 @@ class StatisticsController extends MainController
 
             $label = $this->getLinkLabel($url, $urlstr, false, $htmlLinks[$id]['label']);
 
-            $img = '<a href="' . $urlstr . '" target="_blank">' .  $iconAppsToolbarMenuSearch . '</a>';
+            $img = '<a href="' . $urlstr . '" target="_blank">' . $iconAppsToolbarMenuSearch . '</a>';
 
             if (isset($urlCounter['html'][$id]['plainId'])) {
                 $tblLines[] = [
@@ -640,10 +637,9 @@ class StatisticsController extends MainController
                     $urlCounter['total'][$origId]['counter'],
                     $urlCounter['html'][$id]['counter'],
                     $urlCounter['html'][$id]['plainCounter'],
-                    $img
+                    $img,
                 ];
-            }
-            else {
+            } else {
                 $html = (empty($urlCounter['html'][$id]['counter']) ? 0 : 1);
                 $tblLines[] = [
                     $label,
@@ -652,7 +648,7 @@ class StatisticsController extends MainController
                     ($html ? $urlCounter['html'][$id]['counter'] : $urlCounter['plain'][$origId]['counter']),
                     $urlCounter['html'][$id]['counter'],
                     $urlCounter['plain'][$origId]['counter'],
-                    $img
+                    $img,
                 ];
             }
         }
@@ -666,7 +662,7 @@ class StatisticsController extends MainController
                 $urlstr = $this->getUrlStr($uParts);
 
                 $label = $htmlLinks[$id]['label'] . ' (' . ($urlstr ? $urlstr : '/') . ')';
-                $img = '<a href="' . htmlspecialchars($link) . '" target="_blank">' .  $iconAppsToolbarMenuSearch . '</a>';
+                $img = '<a href="' . htmlspecialchars($link) . '" target="_blank">' . $iconAppsToolbarMenuSearch . '</a>';
                 $tblLines[] = [
                     $label,
                     ($html ? $id : '-'),
@@ -674,7 +670,7 @@ class StatisticsController extends MainController
                     ($html ? $urlCounter['html'][$id]['counter'] : $urlCounter['plain'][$id]['counter']),
                     $urlCounter['html'][$id]['counter'],
                     $urlCounter['plain'][$id]['counter'],
-                    $img
+                    $img,
                 ];
             }
         }
@@ -687,9 +683,9 @@ class StatisticsController extends MainController
                 'stats_total',
                 'stats_HTML',
                 'stats_plaintext',
-                ''
+                '',
             ],
-            'body' => $tblLines
+            'body' => $tblLines,
         ];
 
         if ($urlCounter['total']) {
@@ -719,7 +715,7 @@ class StatisticsController extends MainController
                 'id' => $this->id,
                 'sys_dmail_uid' => $row['uid'],
                 'cmd' => $this->cmd,
-                'recalcCache' => 1
+                'recalcCache' => 1,
             ]
         );
 
@@ -734,17 +730,17 @@ class StatisticsController extends MainController
 
         $tables[4] = [
             'head' => [
-                '', 'stats_count', ''
+                '', 'stats_count', '',
             ],
             'body' => [
                 [
                     'title' => 'stats_total_mails_returned',
-                    'counter' => number_format(intval($table['-127']['counter'] ?? 0)),
+                    'counter' => number_format((int)($table['-127']['counter'] ?? 0)),
                     'icons' => [// Icons mails returned
                         ['getAttr' => 'returnList', 'lang' => 'stats_list_returned', 'icon' => $listIcons],
                         ['getAttr' => 'returnDisable', 'lang' => 'stats_disable_returned', 'icon' => $hideIcons],
-                        ['getAttr' => 'returnCSV', 'lang' => 'stats_CSV_returned', 'icon' => $csvIcons]
-                    ]
+                        ['getAttr' => 'returnCSV', 'lang' => 'stats_CSV_returned', 'icon' => $csvIcons],
+                    ],
                 ],
                 [
                     'title' => 'stats_recipient_unknown',
@@ -752,8 +748,8 @@ class StatisticsController extends MainController
                     'icons' => [// Icons unknown recip
                         ['getAttr' => 'unknownList', 'lang' => 'stats_list_returned_unknown_recipient', 'icon' => $listIcons],
                         ['getAttr' => 'unknownDisable', 'lang' => 'stats_disable_returned_unknown_recipient', 'icon' => $hideIcons],
-                        ['getAttr' => 'unknownCSV', 'lang' => 'stats_CSV_returned_unknown_recipient', 'icon' => $csvIcons]
-                    ]
+                        ['getAttr' => 'unknownCSV', 'lang' => 'stats_CSV_returned_unknown_recipient', 'icon' => $csvIcons],
+                    ],
                 ],
                 [
                     'title' => 'stats_mailbox_full',
@@ -761,8 +757,8 @@ class StatisticsController extends MainController
                     'icons' => [// Icons mailbox full
                         ['getAttr' => 'fullList', 'lang' => 'stats_list_returned_mailbox_full', 'icon' => $listIcons],
                         ['getAttr' => 'fullDisable', 'lang' => 'stats_disable_returned_mailbox_full', 'icon' => $hideIcons],
-                        ['getAttr' => 'fullCSV', 'lang' => 'stats_CSV_returned_mailbox_full', 'icon' => $csvIcons]
-                    ]
+                        ['getAttr' => 'fullCSV', 'lang' => 'stats_CSV_returned_mailbox_full', 'icon' => $csvIcons],
+                    ],
                 ],
                 [
                     'title' => 'stats_bad_host',
@@ -770,8 +766,8 @@ class StatisticsController extends MainController
                     'icons' => [// Icons bad host
                         ['getAttr' => 'badHostList', 'lang' => 'stats_list_returned_bad_host', 'icon' => $listIcons],
                         ['getAttr' => 'badHostDisable', 'lang' => 'stats_disable_returned_bad_host', 'icon' => $hideIcons],
-                        ['getAttr' => 'badHostCSV', 'lang' => 'stats_CSV_returned_bad_host', 'icon' => $csvIcons]
-                    ]
+                        ['getAttr' => 'badHostCSV', 'lang' => 'stats_CSV_returned_bad_host', 'icon' => $csvIcons],
+                    ],
                 ],
                 [
                     'title' => 'stats_error_in_header',
@@ -779,8 +775,8 @@ class StatisticsController extends MainController
                     'icons' => [//Icons bad header
                         ['getAttr' => 'badHeaderList', 'lang' => 'stats_list_returned_bad_header', 'icon' => $listIcons],
                         ['getAttr' => 'badHeaderDisable', 'lang' => 'stats_disable_returned_bad_header', 'icon' => $hideIcons],
-                        ['getAttr' => 'badHeaderCSV', 'lang' => 'stats_CSV_returned_bad_header', 'icon' => $csvIcons]
-                    ]
+                        ['getAttr' => 'badHeaderCSV', 'lang' => 'stats_CSV_returned_bad_header', 'icon' => $csvIcons],
+                    ],
                 ],
                 [
                     'title' => 'stats_reason_unkown',
@@ -788,11 +784,11 @@ class StatisticsController extends MainController
                     'icons' => [//Icons unknown reasons @TODO: link to show all reason
                         ['getAttr' => 'reasonUnknownList', 'lang' => 'stats_list_returned_reason_unknown', 'icon' => $listIcons],
                         ['getAttr' => 'reasonUnknownDisable', 'lang' => 'stats_disable_returned_reason_unknown', 'icon' => $hideIcons],
-                        ['getAttr' => 'reasonUnknownCSV', 'lang' => 'stats_CSV_returned_reason_unknown', 'icon' => $csvIcons]
-                    ]
-                ]
+                        ['getAttr' => 'reasonUnknownCSV', 'lang' => 'stats_CSV_returned_reason_unknown', 'icon' => $csvIcons],
+                    ],
+                ],
             ],
-            'url' => $thisurl
+            'url' => $thisurl,
         ];
 
         $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
@@ -805,18 +801,18 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['returnList']['tt_address'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['returnList']['fe_users'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users'),
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['returnList']['PLAINLIST'] = [
-                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                        'PLAINLIST' => implode('</li><li>', $idLists['PLAINLIST']),
                     ];
                 }
             }
@@ -825,13 +821,13 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['returnDisable']['tt_address'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['returnDisable']['fe_users'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users'),
                     ];
                 }
             }
@@ -855,7 +851,7 @@ class StatisticsController extends MainController
                 }
 
                 $tables[6]['returnCSV'] = [
-                    'text' => htmlspecialchars(implode(LF, $emails))
+                    'text' => htmlspecialchars(implode(LF, $emails)),
                 ];
             }
         }
@@ -869,18 +865,18 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['unknownList']['tt_address'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['unknownList']['fe_users'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users'),
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['unknownList']['PLAINLIST'] = [
-                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                        'PLAINLIST' => implode('</li><li>', $idLists['PLAINLIST']),
                     ];
                 }
             }
@@ -889,13 +885,13 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['unknownDisable']['tt_address'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['unknownDisable']['fe_users'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users'),
                     ];
                 }
             }
@@ -919,7 +915,7 @@ class StatisticsController extends MainController
                 }
 
                 $tables[6]['unknownCSV'] = [
-                    'text' => htmlspecialchars(implode(LF, $emails))
+                    'text' => htmlspecialchars(implode(LF, $emails)),
                 ];
             }
         }
@@ -933,18 +929,18 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['fullList']['tt_address'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['fullList']['fe_users'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users'),
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['fullList']['PLAINLIST'] = [
-                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                        'PLAINLIST' => implode('</li><li>', $idLists['PLAINLIST']),
                     ];
                 }
             }
@@ -953,13 +949,13 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['fullDisable']['tt_address'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['fullDisable']['fe_users'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users'),
                     ];
                 }
             }
@@ -983,7 +979,7 @@ class StatisticsController extends MainController
                 }
 
                 $tables[6]['fullCSV'] = [
-                    'text' => htmlspecialchars(implode(LF, $emails))
+                    'text' => htmlspecialchars(implode(LF, $emails)),
                 ];
             }
         }
@@ -997,18 +993,18 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['badHostList']['tt_address'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['badHostList']['fe_users'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users'),
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['badHostList']['PLAINLIST'] = [
-                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                        'PLAINLIST' => implode('</li><li>', $idLists['PLAINLIST']),
                     ];
                 }
             }
@@ -1017,13 +1013,13 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['badHostDisable']['tt_address'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['badHostDisable']['fe_users'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users'),
                     ];
                 }
             }
@@ -1049,7 +1045,7 @@ class StatisticsController extends MainController
                 }
 
                 $tables[6]['badHostCSV'] = [
-                    'text' => htmlspecialchars(implode(LF, $emails))
+                    'text' => htmlspecialchars(implode(LF, $emails)),
                 ];
             }
         }
@@ -1063,18 +1059,18 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['badHeaderList']['tt_address'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['badHeaderList']['fe_users'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users'),
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['badHeaderList']['PLAINLIST'] = [
-                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                        'PLAINLIST' => implode('</li><li>', $idLists['PLAINLIST']),
                     ];
                 }
             }
@@ -1083,13 +1079,13 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['badHeaderDisable']['tt_address'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['badHeaderDisable']['fe_users'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users'),
                     ];
                 }
             }
@@ -1113,7 +1109,7 @@ class StatisticsController extends MainController
                 }
 
                 $tables[6]['badHeaderCSV'] = [
-                    'text' => htmlspecialchars(implode(LF, $emails))
+                    'text' => htmlspecialchars(implode(LF, $emails)),
                 ];
             }
         }
@@ -1128,18 +1124,18 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['reasonUnknownList']['tt_address'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address')
+                        'returnConfig' => $this->getRecordList($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['reasonUnknownList']['fe_users'] = [
-                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users')
+                        'returnConfig' => $this->getRecordList($tempRows, 'fe_users'),
                     ];
                 }
                 if (count($idLists['PLAINLIST'])) {
                     $tables[6]['reasonUnknownList']['PLAINLIST'] = [
-                        'PLAINLIST' => join('</li><li>', $idLists['PLAINLIST'])
+                        'PLAINLIST' => implode('</li><li>', $idLists['PLAINLIST']),
                     ];
                 }
             }
@@ -1148,13 +1144,13 @@ class StatisticsController extends MainController
                 if (count($idLists['tt_address'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['tt_address'], 'tt_address');
                     $tables[6]['reasonUnknownDisable']['tt_address'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'tt_address')
+                        'counter' => $this->disableRecipients($tempRows, 'tt_address'),
                     ];
                 }
                 if (count($idLists['fe_users'])) {
                     $tempRows = $tempRepository->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
                     $tables[6]['reasonUnknownDisable']['fe_users'] = [
-                        'counter' => $this->disableRecipients($tempRows, 'fe_users')
+                        'counter' => $this->disableRecipients($tempRows, 'fe_users'),
                     ];
                 }
             }
@@ -1178,7 +1174,7 @@ class StatisticsController extends MainController
                 }
 
                 $tables[6]['reasonUnknownCSV'] = [
-                    'text' => htmlspecialchars(implode(LF, $emails))
+                    'text' => htmlspecialchars(implode(LF, $emails)),
                 ];
             }
         }
@@ -1215,11 +1211,11 @@ class StatisticsController extends MainController
         $idLists = [
             'tt_address' => [],
             'fe_users' => [],
-            'PLAINLIST' => []
+            'PLAINLIST' => [],
         ];
 
-        if(is_array($rrows)) {
-            foreach($rrows as $rrow) {
+        if (is_array($rrows)) {
+            foreach ($rrows as $rrow) {
                 switch ($rrow['rtbl']) {
                     case 't':
                         $idLists['tt_address'][] = $rrow['rid'];
@@ -1257,7 +1253,7 @@ class StatisticsController extends MainController
                 'id' => $this->id,
                 'sys_dmail_uid' => $uid,
                 'cmd' => 'stats',
-                'SET[dmail_mode]' => 'direct'
+                'SET[dmail_mode]' => 'direct',
             ]
         );
         return '<a title="' . htmlspecialchars($aTitle) . '" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
@@ -1270,7 +1266,7 @@ class StatisticsController extends MainController
     {
         $totalRecip = 0;
         $idLists = unserialize($queryInfo);
-        if(is_array($idLists)) {
+        if (is_array($idLists)) {
             foreach ($idLists['id_lists'] as $idArray) {
                 $totalRecip += count($idArray);
             }
@@ -1322,7 +1318,7 @@ class StatisticsController extends MainController
             'totalRecip'    => $this->countTotalRecipientFromQueryInfo($row['query_info']),
             'sentRecip'     => count($res),
             'organisation'  => htmlspecialchars($row['organisation']),
-            'return_path'   => htmlspecialchars($row['return_path'])
+            'return_path'   => htmlspecialchars($row['return_path']),
         ];
         return $data;
     }
@@ -1334,12 +1330,10 @@ class StatisticsController extends MainController
      */
     private function changekeyname($array, $newkey, $oldkey)
     {
-        foreach ($array as $key => $value)
-        {
+        foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $array[$key] = $this->changekeyname($value,$newkey,$oldkey);
-            }
-            else {
+                $array[$key] = $this->changekeyname($value, $newkey, $oldkey);
+            } else {
                 $array[$newkey] =  $array[$oldkey];
             }
         }
@@ -1357,8 +1351,8 @@ class StatisticsController extends MainController
      */
     protected function showWithPercent($pieces, $total)
     {
-        $total = intval($total);
-        $str = $pieces ? number_format(intval($pieces)) : '0';
+        $total = (int)$total;
+        $str = $pieces ? number_format((int)$pieces) : '0';
         if ($total) {
             $str .= ' / ' . number_format(($pieces/$total*100), 2) . '%';
         }
@@ -1369,8 +1363,6 @@ class StatisticsController extends MainController
      * Write the statistic to a temporary table
      *
      * @param array $mrow DB mail records
-     *
-     * @return void
      */
     protected function makeStatTempTableContent(array $mrow)
     {
@@ -1380,20 +1372,20 @@ class StatisticsController extends MainController
         $currentRec = '';
         $recRec = [];
 
-        if(is_array($rows)) {
-            foreach($rows as $row) {
+        if (is_array($rows)) {
+            foreach ($rows as $row) {
                 $thisRecPointer = $row['rtbl'] . $row['rid'];
 
                 if ($thisRecPointer != $currentRec) {
                     $recRec = [
-                        'mid'         => intval($mrow['uid']),
+                        'mid'         => (int)($mrow['uid']),
                         'rid'         => $row['rid'],
                         'rtbl'        => $row['rtbl'],
                         'pings'       => [],
                         'plain_links' => [],
                         'html_links'  => [],
                         'response'    => [],
-                        'links'       => []
+                        'links'       => [],
                     ];
                     $currentRec = $thisRecPointer;
                 }
@@ -1416,15 +1408,15 @@ class StatisticsController extends MainController
                         $recRec['links'][] = $row['tstamp'];
                         if (!$recRec['firstlink']) {
                             $recRec['firstlink'] = $row['url_id'];
-                            $recRec['firstlink_time'] = intval(@max($recRec['pings']));
+                            $recRec['firstlink_time'] = (int)(@max($recRec['pings']));
                             $recRec['firstlink_time'] = $recRec['firstlink_time'] ? $row['tstamp'] - $recRec['firstlink_time'] : 0;
                         } elseif (!$recRec['secondlink']) {
                             $recRec['secondlink'] = $row['url_id'];
-                            $recRec['secondlink_time'] = intval(@max($recRec['pings']));
+                            $recRec['secondlink_time'] = (int)(@max($recRec['pings']));
                             $recRec['secondlink_time'] = $recRec['secondlink_time'] ? $row['tstamp'] - $recRec['secondlink_time'] : 0;
                         } elseif (!$recRec['thirdlink']) {
                             $recRec['thirdlink'] = $row['url_id'];
-                            $recRec['thirdlink_time'] = intval(@max($recRec['pings']));
+                            $recRec['thirdlink_time'] = (int)(@max($recRec['pings']));
                             $recRec['thirdlink_time'] = $recRec['thirdlink_time'] ? $row['tstamp'] - $recRec['thirdlink_time'] : 0;
                         }
                         $recRec['response'][] = $row['tstamp'];
@@ -1445,26 +1437,24 @@ class StatisticsController extends MainController
      * Insert statistic to a temporary table
      *
      * @param array $recRec Statistic array
-     *
-     * @return void
      */
     protected function storeRecRec(array $recRec)
     {
         if (is_array($recRec)) {
-            $recRec['pings_first'] = empty($recRec['pings']) ? 0 : intval(@min($recRec['pings']));
-            $recRec['pings_last']  = empty($recRec['pings']) ? 0 : intval(@max($recRec['pings']));
+            $recRec['pings_first'] = empty($recRec['pings']) ? 0 : (int)(@min($recRec['pings']));
+            $recRec['pings_last']  = empty($recRec['pings']) ? 0 : (int)(@max($recRec['pings']));
             $recRec['pings'] = count($recRec['pings']);
 
-            $recRec['html_links_first'] = empty($recRec['html_links']) ? 0 : intval(@min($recRec['html_links']));
-            $recRec['html_links_last']  = empty($recRec['html_links']) ? 0 : intval(@max($recRec['html_links']));
+            $recRec['html_links_first'] = empty($recRec['html_links']) ? 0 : (int)(@min($recRec['html_links']));
+            $recRec['html_links_last']  = empty($recRec['html_links']) ? 0 : (int)(@max($recRec['html_links']));
             $recRec['html_links'] = count($recRec['html_links']);
 
-            $recRec['plain_links_first'] = empty($recRec['plain_links']) ? 0 : intval(@min($recRec['plain_links']));
-            $recRec['plain_links_last']  = empty($recRec['plain_links']) ? 0 : intval(@max($recRec['plain_links']));
+            $recRec['plain_links_first'] = empty($recRec['plain_links']) ? 0 : (int)(@min($recRec['plain_links']));
+            $recRec['plain_links_last']  = empty($recRec['plain_links']) ? 0 : (int)(@max($recRec['plain_links']));
             $recRec['plain_links'] = count($recRec['plain_links']);
 
-            $recRec['links_first'] = empty($recRec['links']) ? 0 : intval(@min($recRec['links']));
-            $recRec['links_last']  = empty($recRec['links']) ? 0 : intval(@max($recRec['links']));
+            $recRec['links_first'] = empty($recRec['links']) ? 0 : (int)(@min($recRec['links']));
+            $recRec['links_last']  = empty($recRec['links']) ? 0 : (int)(@max($recRec['links']));
             $recRec['links'] = count($recRec['links']);
 
             $recRec['response_first'] = DirectMailUtility::intInRangeWrapper((int)((int)(empty($recRec['response']) ? 0 : @min($recRec['response'])) - $recRec['tstamp']), 0);
@@ -1498,7 +1488,7 @@ class StatisticsController extends MainController
             if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $urlParts['query'], $m)) {
                 $isInt = MathUtility::canBeInterpretedAsInteger($m[1]);
                 if ($isInt) {
-                    $uid = intval($m[1]);
+                    $uid = (int)($m[1]);
                 }
 //                @TODO
 //                 else {
@@ -1568,7 +1558,7 @@ class StatisticsController extends MainController
         if (!$forceFetch && (substr($url, 0, strlen($pathSite)) === $pathSite)) {
             if ($urlParts['fragment'] && (substr($urlParts['fragment'], 0, 1) == 'c')) {
                 // linking directly to a content
-                $elementUid = intval(substr($urlParts['fragment'], 1));
+                $elementUid = (int)(substr($urlParts['fragment'], 1));
                 $row = BackendUtility::getRecord('tt_content', $elementUid);
                 if ($row) {
                     $contentTitle = BackendUtility::getRecordTitle('tt_content', $row, false, true);

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Utility;
@@ -25,8 +26,7 @@ class TsUtility
             foreach ($p as $kb => $val) {
                 if (is_array($val)) {
                     $implodeParams = array_merge($implodeParams, $this->implodeTSParams($val, $k . $kb));
-                }
-                else {
+                } else {
                     $implodeParams[$k . $kb] = $val;
                 }
             }
@@ -49,14 +49,13 @@ class TsUtility
      * @param string $tsConfPrefix Prefix for object paths
      * @param array|string $impParams [Description needed.]
      *
-     * @return	void
      *
      * @see implodeTSParams(), getPagesTSconfig()
      */
     public function updatePagesTSconfig(int $id, array $pageTs, string $tsConfPrefix, $impParams = '')
     {
         $done = false;
-        $id = intval($id);
+        $id = (int)$id;
         if (is_array($pageTs) && $id > 0) {
             if (!is_array($impParams)) {
                 $impParams = $this->implodeTSParams(BackendUtility::getPagesTSconfig($id));

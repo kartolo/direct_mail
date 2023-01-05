@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Command;
 
 /*
@@ -32,14 +33,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * This class replaces the earlier version of EXT:direct_mail/cli/cli_direct_mail.php from Ivan Kartolo, (c) 2008
  * Executes the earlier solely option named 'masssend' which has been dropped as optional argument
  *
- * @package TYPO3
- * @subpackage tx_directmail
  * @author 2019 J.Kummer
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 2
  */
 class InvokeMailerEngineCommand extends Command
 {
-
     /**
      * Configure the command by defining the name, options and arguments
      */
@@ -71,9 +69,8 @@ like the recommended scheduler task or BE module for invoking maler engine will 
             if (filemtime($lockfile) > (time() - (60 * 60 * 24))) {
                 $io->warning('TYPO3 Direct Mail Cron: Aborting, another process is already running!');
                 return Command::FAILURE;
-            } else {
-                $io->writeln('TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...');
             }
+            $io->writeln('TYPO3 Direct Mail Cron: A .lock file was found but it is older than 1 day! Processing mails ...');
         }
 
         touch($lockfile);

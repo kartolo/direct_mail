@@ -1,9 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Module;
 
-use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Utility\TsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,7 +25,7 @@ class ConfigurationController extends MainController
 
     protected $requestUri = '';
 
-    public function indexAction(ServerRequestInterface $request) : ResponseInterface
+    public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $currentModule = 'Configuration';
         $this->view = $this->configureTemplatePaths($currentModule);
@@ -44,25 +44,22 @@ class ConfigurationController extends MainController
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $this->setDefaultValues();
                     $this->view->assignMultiple([
-                        'implodedParams' => $this->implodedParams
+                        'implodedParams' => $this->implodedParams,
                     ]);
-                }
-                elseif ($this->id != 0) {
+                } elseif ($this->id != 0) {
                     $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
                     $this->messageQueue->addMessage($message);
                 }
-            }
-            else {
+            } else {
                 $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_conf'), 1, false);
                 $this->messageQueue->addMessage($message);
                 $this->view->assignMultiple(
                     [
-                        'dmLinks' => $this->getDMPages($this->moduleName)
+                        'dmLinks' => $this->getDMPages($this->moduleName),
                     ]
                 );
             }
-        }
-        else {
+        } else {
             // If no access or if ID == zero
             $this->view = $this->configureTemplatePaths('NoAccess');
             $message = $this->createFlashMessage('If no access or if ID == zero', 'No Access', 1, false);
@@ -103,8 +100,6 @@ class ConfigurationController extends MainController
    /**
      * Update the pageTS
      * No return value: sent header to the same page
-     *
-     * @return void
      */
     protected function updatePageTS(): void
     {

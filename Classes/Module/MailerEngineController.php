@@ -1,16 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Dmailer;
-use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -19,7 +19,7 @@ class MailerEngineController extends MainController
 {
     /**
      * for cmd == 'delete'
-     * @var integer
+     * @var int
      */
     protected int $uid = 0;
 
@@ -32,7 +32,8 @@ class MailerEngineController extends MainController
      */
     protected $moduleName = 'DirectMailNavFrame_MailerEngine';
 
-    protected function initMailerEngine(ServerRequestInterface $request): void {
+    protected function initMailerEngine(ServerRequestInterface $request): void
+    {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
 
@@ -40,7 +41,7 @@ class MailerEngineController extends MainController
         $this->invokeMailerEngine = (bool)($queryParams['invokeMailerEngine'] ?? false);
     }
 
-    public function indexAction(ServerRequestInterface $request) : ResponseInterface
+    public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->view = $this->configureTemplatePaths('MailerEngine');
 
@@ -68,26 +69,23 @@ class MailerEngineController extends MainController
                             'invoke' => $mailerEngine['invoke'],
                             'moduleName' => $this->moduleName,
                             'moduleUrl' => $mailerEngine['moduleUrl'],
-                            'show' => true
+                            'show' => true,
                         ]
                     );
-                }
-                elseif ($this->id != 0) {
+                } elseif ($this->id != 0) {
                     $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
                     $this->messageQueue->addMessage($message);
                 }
-            }
-            else {
+            } else {
                 $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_mailer'), 1, false);
                 $this->messageQueue->addMessage($message);
                 $this->view->assignMultiple(
                     [
-                        'dmLinks' => $this->getDMPages($this->moduleName)
+                        'dmLinks' => $this->getDMPages($this->moduleName),
                     ]
                 );
             }
-        }
-        else {
+        } else {
             // If no access or if ID == zero
             $this->view = $this->configureTemplatePaths('NoAccess');
             $message = $this->createFlashMessage('If no access or if ID == zero', 'No Access', 1, false);
@@ -132,8 +130,8 @@ class MailerEngineController extends MainController
          */
         if (file_exists($this->getDmailerLockFilePath())) {
             $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectByResponseType(0);
-            if(is_array($res)) {
-                foreach($res as $lastSend) {
+            if (is_array($res)) {
+                foreach ($res as $lastSend) {
                     if (($lastSend['tstamp'] < time()) && ($lastSend['tstamp'] > $lastCronjobShouldBeNewThan)) {
                         // cron is sending
                         $mailerStatus = 1;
@@ -143,7 +141,7 @@ class MailerEngineController extends MainController
                     }
                 }
             }
-            // cron is idle or no cron
+        // cron is idle or no cron
         } elseif (strpos($logContent, 'error')) {
             // error in log file
             $mailerStatus = -1;
@@ -217,7 +215,7 @@ class MailerEngineController extends MainController
                 'DirectMailNavFrame_MailerEngine',
                 [
                     'id' => $this->id,
-                    'invokeMailerEngine' => 1
+                    'invokeMailerEngine' => 1,
                 ]
             );
 
@@ -226,8 +224,8 @@ class MailerEngineController extends MainController
 
         $data = [];
         $rows = GeneralUtility::makeInstance(SysDmailRepository::class)->selectSysDmailsByPid($this->id);
-        if(is_array($rows)) {
-            foreach($rows as $row) {
+        if (is_array($rows)) {
+            foreach ($rows as $row) {
                 $data[] = [
                     'uid'             => $row['uid'],
                     'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
@@ -236,7 +234,7 @@ class MailerEngineController extends MainController
                     'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
                     'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
                     'sent'            => $this->getSysDmailMaillogsCountres($row['uid']),
-                    'delete'          => $this->canDelete($row['uid'])
+                    'delete'          => $this->canDelete($row['uid']),
                 ];
             }
         }
@@ -250,8 +248,8 @@ class MailerEngineController extends MainController
         $countres = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogs($uid);
         $count = 0;
         //@TODO
-        if(is_array($countres)) {
-            foreach($countres as $cRow) {
+        if (is_array($countres)) {
+            foreach ($countres as $cRow) {
                 $count = (int)$cRow['COUNT(*)'];
             }
         }
@@ -270,15 +268,13 @@ class MailerEngineController extends MainController
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
 
         // show delete icon if newsletter hasn't been sent, or not yet finished sending
-        return ($dmail['scheduled_begin'] === 0 || $dmail['scheduled_end'] === 0);
+        return $dmail['scheduled_begin'] === 0 || $dmail['scheduled_end'] === 0;
     }
 
     /**
      * Delete existing dmail record
      *
      * @param int $uid Record uid to be deleted
-     *
-     * @return void
      */
     public function deleteDMail(int $uid)
     {
@@ -319,6 +315,6 @@ class MailerEngineController extends MainController
     {
         return $str;
         //TODO: Link to detail page for the new queue
-        #return '<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&SET[dmail_mode]=direct">'.$str.'</a>';
+        //return '<a href="index.php?id='.$this->id.'&sys_dmail_uid='.$uid.'&SET[dmail_mode]=direct">'.$str.'</a>';
     }
 }

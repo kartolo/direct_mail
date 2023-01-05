@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 defined('TYPO3') || die();
@@ -74,7 +75,7 @@ defined('TYPO3') || die();
         'extension'            => 'direct_mail',
         'title'                => 'Direct Mail: Create Mail from Draft',
         'description'        => 'This task allows you to select a DirectMail draft that gets copied and then sent to the. This allows automatic (periodic) sending of the same TYPO3 page.',
-        'additionalFields'    => 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraftAdditionalFields'
+        'additionalFields'    => 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraftAdditionalFields',
     ];
 
     // bounce mail per scheduler
@@ -82,6 +83,6 @@ defined('TYPO3') || die();
         'extension' => 'direct_mail',
         'title' => 'Direct Mail: Analyze bounce mail',
         'description' => 'This task will get bounce mail from the configured mailbox',
-        'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields'
+        'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields',
     ];
 })();

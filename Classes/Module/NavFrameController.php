@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Module;
@@ -18,7 +19,6 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -36,7 +36,7 @@ class NavFrameController extends MainController
      */
     protected $doHighlight;
 
-    public function indexAction(ServerRequestInterface $request) : ResponseInterface
+    public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $currentModule = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'DirectMailNavFrame_Configuration');
         /** @var UriBuilder $uriBuilder */
@@ -77,7 +77,8 @@ class NavFrameController extends MainController
         return new HtmlResponse($this->moduleTemplate->renderContent());
     }
 
-    protected function getJSNavFrame($currentModule, $currentSubScript) {
+    protected function getJSNavFrame($currentModule, $currentSubScript)
+    {
         // @TODO Uncaught Error: Writing to fsMod is not possible anymore, use ModuleStateStorage instead.
         // https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/11.4/Deprecation-94762-DeprecateJavaScriptTopfsModState.html
         // https://github.com/typo3/typo3/commit/ca4afee813
@@ -123,7 +124,8 @@ class NavFrameController extends MainController
         ;
     }
 
-    protected function getPages() {
+    protected function getPages()
+    {
         $queryBuilder = $this->getQueryBuilder('pages');
         $queryBuilder
             ->getRestrictions()
@@ -134,9 +136,9 @@ class NavFrameController extends MainController
             ->select('uid', 'title', 'module')
             ->from('pages')
             ->where(
-            $queryBuilder->expr()->eq(
-                'doktype',
-                '254'
+                $queryBuilder->expr()->eq(
+                    'doktype',
+                    '254'
                 )
             )
             ->andWhere(
@@ -162,14 +164,14 @@ class NavFrameController extends MainController
         return $statement;
     }
 
-    private function setDocHeader(string $active) {
+    private function setDocHeader(string $active)
+    {
         /**
         $docHeaderButtons = [
             'CSH' => BackendUtility::cshItem('_MOD_DirectMailNavFrame', 'folders', $GLOBALS['BACK_PATH'], true),
             'REFRESH' => '<a class="btn btn-default btn-sm " href="' . htmlspecialchars(GeneralUtility::linkThisScript(['unique' => uniqid('directmail_navframe')])) . '"></a>'
         ];
         */
-
         $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
         $list = $buttonBar->makeLinkButton()
         ->setHref(GeneralUtility::linkThisScript(['unique' => uniqid('directmail_navframe')]))

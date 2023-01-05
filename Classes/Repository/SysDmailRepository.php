@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
@@ -7,7 +8,8 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class SysDmailRepository extends MainRepository {
+class SysDmailRepository extends MainRepository
+{
     protected string $table = 'sys_dmail';
 
     /**
@@ -62,7 +64,7 @@ class SysDmailRepository extends MainRepository {
                 $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
             )
         )
-        ->orderBy('scheduled','DESC')
+        ->orderBy('scheduled', 'DESC')
         ->execute()
         ->fetchAllAssociative();
     }
@@ -113,8 +115,8 @@ class SysDmailRepository extends MainRepository {
             )
         )
         ->groupBy('sys_dmail_maillog.mid')
-        ->orderBy('sys_dmail.scheduled','DESC')
-        ->addOrderBy('sys_dmail.scheduled_begin','DESC')
+        ->orderBy('sys_dmail.scheduled', 'DESC')
+        ->addOrderBy('sys_dmail.scheduled_begin', 'DESC')
         ->execute()
         ->fetchAll();
     }
@@ -132,7 +134,7 @@ class SysDmailRepository extends MainRepository {
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
         return $queryBuilder
-        ->select('uid','pid','subject','tstamp','issent','renderedsize','attachment','type')
+        ->select('uid', 'pid', 'subject', 'tstamp', 'issent', 'renderedsize', 'attachment', 'type')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -148,7 +150,7 @@ class SysDmailRepository extends MainRepository {
                 $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
             )
         )
-        ->orderBy($sOrder,$ascDesc)
+        ->orderBy($sOrder, $ascDesc)
         ->execute()
         ->fetchAll();
     }
@@ -176,7 +178,6 @@ class SysDmailRepository extends MainRepository {
     }
 
     /**
-     *
      * @param int $uid
      * @param array $updateData
      * @return int
@@ -210,7 +211,7 @@ class SysDmailRepository extends MainRepository {
 
     public function dmailerSetBeginEnd(int $mid, string $key)
     {
-        if(in_array($key, ['begin', 'end'])) {
+        if (in_array($key, ['begin', 'end'])) {
             $queryBuilder = $this->getQueryBuilder($this->table);
 
             $queryBuilder

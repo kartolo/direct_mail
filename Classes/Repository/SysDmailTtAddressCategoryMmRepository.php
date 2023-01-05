@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-class SysDmailTtAddressCategoryMmRepository extends MainRepository {
+class SysDmailTtAddressCategoryMmRepository extends MainRepository
+{
     protected string $table = 'sys_dmail_ttaddress_category_mm';
 
     /**
