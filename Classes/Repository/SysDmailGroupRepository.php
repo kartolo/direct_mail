@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
@@ -7,7 +8,8 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class SysDmailGroupRepository extends MainRepository {
+class SysDmailGroupRepository extends MainRepository
+{
     protected string $table = 'sys_dmail_group';
 
     /**
@@ -21,7 +23,7 @@ class SysDmailGroupRepository extends MainRepository {
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
-        return $queryBuilder->select('uid','pid','title','description','type')
+        return $queryBuilder->select('uid', 'pid', 'title', 'description', 'type')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -31,7 +33,8 @@ class SysDmailGroupRepository extends MainRepository {
         )
         ->orderBy(
             preg_replace(
-                '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
+                '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i',
+                '',
                 $defaultSortBy
             )
         )
@@ -46,7 +49,7 @@ class SysDmailGroupRepository extends MainRepository {
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        return $queryBuilder->select('uid','pid','title')
+        return $queryBuilder->select('uid', 'pid', 'title')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -62,10 +65,11 @@ class SysDmailGroupRepository extends MainRepository {
         )
         ->orderBy(
             preg_replace(
-                    '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '',
-                    $defaultSortBy
-                )
+                '/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i',
+                '',
+                $defaultSortBy
             )
+        )
         ->execute()
         ->fetchAll();
     }
@@ -82,20 +86,20 @@ class SysDmailGroupRepository extends MainRepository {
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
         return $queryBuilder
-        ->select($this->table.'.*')
+        ->select($this->table . '.*')
         ->from($this->table)
         ->leftJoin(
             $this->table,
             'pages',
             'pages',
             $queryBuilder->expr()->eq(
-                $this->table.'.pid',
+                $this->table . '.pid',
                 $queryBuilder->quoteIdentifier('pages.uid')
             )
         )
         ->where(
             $queryBuilder->expr()->in(
-                $this->table.'.uid',
+                $this->table . '.uid',
                 $queryBuilder->createNamedParameter($intList, Connection::PARAM_INT_ARRAY)
             )
         )
@@ -107,7 +111,6 @@ class SysDmailGroupRepository extends MainRepository {
     }
 
         /**
-     *
      * @param int $uid
      * @param array $updateData
      * @return int
@@ -120,6 +123,5 @@ class SysDmailGroupRepository extends MainRepository {
             $updateData, // value array
             [ 'uid' => $uid ] // where
         );
-
     }
 }

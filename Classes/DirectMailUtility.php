@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -17,9 +18,9 @@ namespace DirectMailTeam\DirectMail;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\DmRegistryUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -33,9 +34,6 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  * @author  	Jan-Erik Revsbech <jer@moccompany.com>
  * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
- *
- * @package 	TYPO3
- * @subpackage	tx_directmail
  */
 class DirectMailUtility
 {
@@ -64,7 +62,7 @@ class DirectMailUtility
      *
      * @param string $url
      *
-     * @return string & or ?
+     * @return string&or ?
      */
     public static function getURLGlue(string $url): string
     {
@@ -80,15 +78,14 @@ class DirectMailUtility
         string $parameter,
         bool $forceAbsoluteUrl = true,
         bool $linkAccessRestrictedPages = true
-    ): string
-    {
+    ): string {
         $typolinkPageUrl = 't3://page?uid=';
         $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
 
         return $cObj->typolink_URL([
             'parameter' => $typolinkPageUrl . $parameter,
             'forceAbsoluteUrl' => $forceAbsoluteUrl,
-            'linkAccessRestrictedPages' => $linkAccessRestrictedPages
+            'linkAccessRestrictedPages' => $linkAccessRestrictedPages,
         ]);
     }
 
@@ -120,7 +117,7 @@ class DirectMailUtility
             $htmlmail->setJumperURLPrefix(
                 $urls['baseUrl'] . $glue .
                 'mid=###SYS_MAIL_ID###' .
-                (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
+                ((int)($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
                 '&aC=###SYS_AUTHCODE###' .
                 '&jumpurl='
             );
@@ -141,8 +138,7 @@ class DirectMailUtility
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->getPartPlainConfig('content')) {
                 $errorMsg[] = $lang->getLL('dmail_no_plain_content');
-            }
-            elseif (!strstr($htmlmail->getPartPlainConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
+            } elseif (!strstr($htmlmail->getPartPlainConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $lang->getLL('dmail_no_plain_boundaries');
             }
         }
@@ -162,21 +158,17 @@ class DirectMailUtility
                 );
                 if ($res == 1) {
                     $htmlmail->setCharset($matches[1]);
-                }
-                elseif (isset($params['direct_mail_charset'])) {
+                } elseif (isset($params['direct_mail_charset'])) {
                     $htmlmail->setCharset($params['direct_mail_charset']);
-                }
-                else {
+                } else {
                     $htmlmail->setCharset('iso-8859-1');
                 }
             }
             if ($htmlmail->extractFramesInfo()) {
                 $errorMsg[] = $lang->getLL('dmail_frames_not allowed');
-            }
-            elseif (!$success || !$htmlmail->getPartHtmlConfig('content')) {
+            } elseif (!$success || !$htmlmail->getPartHtmlConfig('content')) {
                 $errorMsg[] = $lang->getLL('dmail_no_html_content');
-            }
-            elseif (!strstr($htmlmail->getPartHtmlConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
+            } elseif (!strstr($htmlmail->getPartHtmlConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $lang->getLL('dmail_no_html_boundaries');
             }
         }
@@ -191,7 +183,7 @@ class DirectMailUtility
                 'charset'            => $htmlmail->getCharset(),
                 'mailContent'        => $mailContent,
                 'renderedSize'       => strlen($mailContent),
-                'long_link_rdct_url' => $urls['baseUrl']
+                'long_link_rdct_url' => $urls['baseUrl'],
             ];
 
             $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$row['uid'], $updateData);
@@ -202,18 +194,17 @@ class DirectMailUtility
                     $output .= $flashMessageRendererResolver
                         ->resolve()
                         ->render([
-                            self::createFlashMessage($warning, $lang->getLL('dmail_warning'), FlashMessage::WARNING, false)
+                            self::createFlashMessage($warning, $lang->getLL('dmail_warning'), FlashMessage::WARNING, false),
                         ]);
                 }
             }
-        }
-        else {
+        } else {
             $flashMessageRendererResolver = self::getFlashMessageRendererResolver();
             foreach ($errorMsg as $error) {
                 $output .= $flashMessageRendererResolver
                     ->resolve()
                     ->render([
-                        self::createFlashMessage($error, $lang->getLL('dmail_error'), FlashMessage::ERROR, false)
+                        self::createFlashMessage($error, $lang->getLL('dmail_error'), FlashMessage::ERROR, false),
                     ]);
             }
         }
@@ -221,7 +212,7 @@ class DirectMailUtility
         if ($returnArray) {
             return [
                 'errors' => $errorMsg,
-                'warnings' => $warningMsg
+                'warnings' => $warningMsg,
             ];
         }
 
@@ -233,9 +224,9 @@ class DirectMailUtility
         string $messageHeader = '',
         int $messageType = 0,
         bool $storeInSession = false
-    ): FlashMessage
-    {
-        return GeneralUtility::makeInstance(FlashMessage::class,
+    ): FlashMessage {
+        return GeneralUtility::makeInstance(
+            FlashMessage::class,
             $messageText,
             $messageHeader,
             $messageType,
@@ -267,7 +258,7 @@ class DirectMailUtility
         }
         if (($params['simulate_usergroup'] ?? false) && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
             $glue = self::getURLGlue($url);
-            $url = $url . $glue . 'dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' .  GeneralUtility::makeInstance(DmRegistryUtility::class)->createAndGetAccessToken();
+            $url = $url . $glue . 'dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' . GeneralUtility::makeInstance(DmRegistryUtility::class)->createAndGetAccessToken();
         }
         return $url;
     }
@@ -285,7 +276,7 @@ class DirectMailUtility
         $result = [
             'baseUrl' => self::getTypolinkURL((int)$row['page']),
             'htmlUrl' => '',
-            'plainTextUrl' => ''
+            'plainTextUrl' => '',
         ];
 
         // Finding the url to fetch content from
@@ -305,8 +296,7 @@ class DirectMailUtility
         if ($result['plainTextUrl']) {
             if (!($row['sendOptions'] & 1)) {
                 $result['plainTextUrl'] = '';
-            }
-            else {
+            } else {
                 $urlParts = @parse_url($result['plainTextUrl']);
                 if (!$urlParts['scheme']) {
                     $result['plainTextUrl'] = 'http://' . $result['plainTextUrl'];
@@ -318,8 +308,7 @@ class DirectMailUtility
         if ($result['htmlUrl']) {
             if (!($row['sendOptions'] & 2)) {
                 $result['htmlUrl'] = '';
-            }
-            else {
+            } else {
                 $urlParts = @parse_url($result['htmlUrl']);
                 if (!$urlParts['scheme']) {
                     $result['htmlUrl'] = 'http://' . $result['htmlUrl'];
@@ -340,8 +329,7 @@ class DirectMailUtility
         int $min,
         int $max = 2000000000,
         int $zeroValue = 0
-    ): int
-    {
+    ): int {
         return MathUtility::forceIntegerInRange($theInt, $min, $max, $zeroValue);
     }
 
@@ -374,8 +362,7 @@ class DirectMailUtility
         if ($lengthLimit === false) {
             // No processing
             $messageSubstituted = $message;
-        }
-        else {
+        } else {
             $messageSubstituted = preg_replace_callback(
                 '/(http|https):\\/\\/.+(?=[\\]\\.\\?]*([\\! \'"()<>]+|$))/iU',
                 function (array $matches) use ($lengthLimit, $index_script_url) {

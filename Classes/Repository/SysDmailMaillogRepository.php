@@ -1,11 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
-class SysDmailMaillogRepository extends MainRepository {
+class SysDmailMaillogRepository extends MainRepository
+{
     protected string $table = 'sys_dmail_maillog';
 
     /**
@@ -139,7 +139,7 @@ class SysDmailMaillogRepository extends MainRepository {
                 $queryBuilder->createNamedParameter($responseType, \PDO::PARAM_INT)
             )
         )
-        ->orderBy('tstamp','DESC')
+        ->orderBy('tstamp', 'DESC')
         ->execute()
         ->fetchAll();
     }
@@ -223,13 +223,12 @@ class SysDmailMaillogRepository extends MainRepository {
                 $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
             )
         )
-        ->orderBy('rid','ASC')
+        ->orderBy('rid', 'ASC')
         ->execute()
         ->fetchAll();
     }
 
     /**
-     *
      * @param int $uid
      * @param int $responseType: 1 for html, 2 for plain
      * @return array
@@ -306,7 +305,7 @@ class SysDmailMaillogRepository extends MainRepository {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->select('rid','rtbl','tstamp','response_type','url_id','html_sent','size')
+        ->select('rid', 'rtbl', 'tstamp', 'response_type', 'url_id', 'html_sent', 'size')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -328,7 +327,7 @@ class SysDmailMaillogRepository extends MainRepository {
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        return $queryBuilder->select('rid','rtbl','email')
+        return $queryBuilder->select('rid', 'rtbl', 'email')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -353,7 +352,7 @@ class SysDmailMaillogRepository extends MainRepository {
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        return $queryBuilder->select('rid','rtbl','email')
+        return $queryBuilder->select('rid', 'rtbl', 'email')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -388,7 +387,7 @@ class SysDmailMaillogRepository extends MainRepository {
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        return $queryBuilder->select('rid','rtbl','email')
+        return $queryBuilder->select('rid', 'rtbl', 'email')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -419,7 +418,7 @@ class SysDmailMaillogRepository extends MainRepository {
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        return $queryBuilder->select('rid','rtbl','email')
+        return $queryBuilder->select('rid', 'rtbl', 'email')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -450,7 +449,7 @@ class SysDmailMaillogRepository extends MainRepository {
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        return $queryBuilder->select('rid','rtbl','email')
+        return $queryBuilder->select('rid', 'rtbl', 'email')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -481,7 +480,7 @@ class SysDmailMaillogRepository extends MainRepository {
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        return $queryBuilder->select('rid','rtbl','email')
+        return $queryBuilder->select('rid', 'rtbl', 'email')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -513,7 +512,7 @@ class SysDmailMaillogRepository extends MainRepository {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->select('uid','email')
+        ->select('uid', 'email')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->andX(
@@ -702,7 +701,8 @@ class SysDmailMaillogRepository extends MainRepository {
         int $tstamp,
         array $midArray,
         int $returnCode,
-        string $returnContent)
+        string $returnContent
+    )
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
@@ -715,11 +715,11 @@ class SysDmailMaillogRepository extends MainRepository {
                 'email' => $midArray['email'],
                 'rtbl' => $midArray['rtbl'],
                 'return_content' => $returnContent,
-                'return_code' => $returnCode
+                'return_code' => $returnCode,
             ])
             ->execute();
 
-            return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
+        return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
     }
 
     /**

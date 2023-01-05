@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-class TtContentCategoryMmRepository extends MainRepository {
+class TtContentCategoryMmRepository extends MainRepository
+{
     protected string $table = 'sys_dmail_ttcontent_category_mm';
 
     /**

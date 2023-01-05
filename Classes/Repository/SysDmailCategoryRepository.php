@@ -1,11 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
-class SysDmailCategoryRepository extends MainRepository {
+class SysDmailCategoryRepository extends MainRepository
+{
     protected string $table = 'sys_dmail_category';
 
     /**
@@ -31,7 +31,7 @@ class SysDmailCategoryRepository extends MainRepository {
 
     public function selectSysDmailCategoryForContainer(int $uid) //: array|bool
     {
-        $select = $this->table.".uid";
+        $select = $this->table . '.uid';
         $mmTable = 'sys_dmail_ttcontent_category_mm';
         $orderBy = $this->table . '.uid';
 

@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-class SysLanguageRepository extends MainRepository {
+class SysLanguageRepository extends MainRepository
+{
     protected string $table = 'sys_language';
 
     /**

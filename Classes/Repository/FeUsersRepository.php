@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-class FeUsersRepository extends MainRepository {
+class FeUsersRepository extends MainRepository
+{
     protected string $table = 'fe_users';
 
     /**
@@ -14,7 +16,7 @@ class FeUsersRepository extends MainRepository {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->select($this->table.'.*')
+        ->select($this->table . '.*')
         ->from($this->table, $this->table)
         ->leftjoin(
             $this->table,
@@ -22,10 +24,10 @@ class FeUsersRepository extends MainRepository {
             'pages',
             $queryBuilder->expr()->eq(
                 'pages.uid',
-                $queryBuilder->quoteIdentifier($this->table.'.pid')
+                $queryBuilder->quoteIdentifier($this->table . '.pid')
             )
         )
-        ->add('where', $this->table.'.uid = ' . intval($uid) .
+        ->add('where', $this->table . '.uid = ' . (int)$uid .
             ' AND ' . $permsClause . ' AND pages.deleted = 0')
 
 //         debug($queryBuilder->getSQL());

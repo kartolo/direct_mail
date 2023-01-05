@@ -1,13 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Utility;
 
-use DirectMailTeam\DirectMail\Repository\PagesRepository;
-use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\CsvUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class DmCsvUtility
 {
@@ -79,7 +76,7 @@ class DmCsvUtility
             if (!$fieldName) {
                 $fieldOrder = [
                     ['name'],
-                    ['email']
+                    ['email'],
                 ];
             }
             // Re-map values
@@ -102,13 +99,11 @@ class DmCsvUtility
                                 if (trim($data[$kk])) {
                                     if (substr($fN[1], 0, 1) == '=') {
                                         $out[$c][$fN[0]] = trim(substr($fN[1], 1));
-                                    }
-                                    elseif (substr($fN[1], 0, 1) == '+') {
+                                    } elseif (substr($fN[1], 0, 1) == '+') {
                                         $out[$c][$fN[0]] += substr($fN[1], 1);
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 $out[$c][$fN[0]] = trim($data[$kk]);
                             }
                         }
@@ -124,8 +119,6 @@ class DmCsvUtility
      * Send csv values as download by sending appropriate HTML header
      *
      * @param array $idArr Values to be put into csv
-     *
-     * @return void Sent HML header for a file download
      */
     public function downloadCSV(array $idArr)
     {

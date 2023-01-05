@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-class PagesRepository extends MainRepository {
+class PagesRepository extends MainRepository
+{
     protected string $table = 'pages';
 
     /**
@@ -40,7 +42,7 @@ class PagesRepository extends MainRepository {
         ->andWhere(
             $queryBuilder->expr()->notIn(
                 'doktype',
-                [199,254,255]
+                [199, 254, 255]
             )
         )
         ->orderBy('sorting')
@@ -112,22 +114,23 @@ class PagesRepository extends MainRepository {
                 $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)
             )
         )
-        ->andWhere($queryBuilder->expr()->eq(
-                'sys_language_uid',
-                $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)
-            )
+        ->andWhere(
+            $queryBuilder->expr()->eq(
+            'sys_language_uid',
+            $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)
+        )
         )
         ->execute()
         ->fetch();
     }
 
     /**
-     *
      * @param int $pageUid
      * @param string $tsConf
      * @return int
      */
-    public function updatePageTSconfig(int $pageUid, string $tsConf) {
+    public function updatePageTSconfig(int $pageUid, string $tsConf)
+    {
         $connection = $this->getConnection($this->table);
         return $connection->update(
             $this->table,
@@ -145,7 +148,7 @@ class PagesRepository extends MainRepository {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->select('uid','title')
+        ->select('uid', 'title')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(

@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -25,9 +26,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Localize categories for backend forms
  *
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class SelectCategories
 {
@@ -36,8 +34,6 @@ class SelectCategories
      * Referenced by TCA
      *
      * @param	array $params Array of searched translation
-     *
-     * @return	void
      */
     public function get_localized_categories(array $params)
     {
@@ -65,7 +61,7 @@ class SelectCategories
             $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
 
             foreach ($params['items'] as $k => $item) {
-                $rows = $tempRepository->selectRowsByUid($table, intval($item[1]));
+                $rows = $tempRepository->selectRowsByUid($table, (int)($item[1]));
                 if (is_array($rows)) {
                     foreach ($rows as $rowCat) {
                         if ($localizedRowCat = $tempRepository->getRecordOverlay($table, $rowCat, $sys_language_uid)) {

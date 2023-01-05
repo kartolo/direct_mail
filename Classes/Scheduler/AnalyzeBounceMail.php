@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Scheduler;
 
 /*
@@ -25,7 +26,6 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
 /**
  * Class AnalyzeBounceMail
- * @package DirectMailTeam\DirectMail\Scheduler
  * @author Ivan Kartolo <ivan.kartolo@gmail.com>
  * @deprecated will be removed in TYPO3 v12.0. Use AnalyzeBounceMailCommand instead.
  */
@@ -160,7 +160,7 @@ class AnalyzeBounceMail extends AbstractTask
      */
     public function setMaxProcessed($maxProcessed)
     {
-        $this->maxProcessed = (int) $maxProcessed;
+        $this->maxProcessed = (int)$maxProcessed;
     }
 
     /**
@@ -195,9 +195,8 @@ class AnalyzeBounceMail extends AbstractTask
             $mailServer->expunge();
             imap_close($mailServer->getImapStream());
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -219,7 +218,7 @@ class AnalyzeBounceMail extends AbstractTask
                 $bouncedMail = $attachment->getData();
                 // Find mail id
                 $midArray = $readMail->find_XTypo3MID($bouncedMail);
-                if (false === empty($midArray)) {
+                if (empty($midArray) === false) {
                     // if mid, rid and rtbl are found, then stop looping
                     break;
                 }
@@ -253,7 +252,7 @@ class AnalyzeBounceMail extends AbstractTask
                     'email' => $midArray['email'],
                     'rtbl' => $midArray['rtbl'],
                     'return_content' => serialize($cp),
-                    'return_code' => (int)$cp['reason']
+                    'return_code' => (int)$cp['reason'],
                 ];
                 $connection->insert('sys_dmail_maillog', $insertFields);
                 $sql_insert_id = $connection->lastInsertId('sys_dmail_maillog');
@@ -280,7 +279,7 @@ class AnalyzeBounceMail extends AbstractTask
         $mailServer = GeneralUtility::makeInstance(
             Server::class,
             $this->server,
-            (int) $this->port,
+            (int)$this->port,
             $this->service
         );
 
@@ -299,7 +298,8 @@ class AnalyzeBounceMail extends AbstractTask
      * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Context/Index.html#example
      * @TODO
      */
-    private function getEXEC_TIME() {
+    private function getEXEC_TIME()
+    {
         return $GLOBALS['EXEC_TIME'];
     }
 }

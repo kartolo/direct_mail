@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
@@ -9,8 +10,8 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class TempRepository extends MainRepository {
-
+class TempRepository extends MainRepository
+{
     /**
      * Get recipient DB record given on the ID
      *
@@ -38,8 +39,7 @@ class TempRepository extends MainRepository {
             foreach ($fieldArray as $i => $field) {
                 if ($i) {
                     $queryBuilder->addSelect($field);
-                }
-                else {
+                } else {
                     $queryBuilder->select($field);
                 }
             }
@@ -102,7 +102,7 @@ class TempRepository extends MainRepository {
         // The following will work but INSTR and CONCAT are available only in mySQL
 
         $mmTable = $GLOBALS['TCA'][$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
-        $cat = intval($cat);
+        $cat = (int)$cat;
         if ($cat < 1) {
             if ($table == 'fe_groups') {
                 $res = $queryBuilder
@@ -111,10 +111,11 @@ class TempRepository extends MainRepository {
                 ->from($table, $table)
                 ->andWhere(
                     $queryBuilder->expr()->andX()
-                    ->add($queryBuilder->expr()->in(
-                            'fe_groups.pid',
-                            $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
-                        )
+                    ->add(
+                        $queryBuilder->expr()->in(
+                        'fe_groups.pid',
+                        $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
+                    )
                     )
                     ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
                     ->add(
@@ -128,8 +129,7 @@ class TempRepository extends MainRepository {
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
                 ->execute();
-            }
-            else {
+            } else {
                 $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                 ->from($switchTable)
@@ -153,8 +153,7 @@ class TempRepository extends MainRepository {
                 ->addOrderBy($switchTable . '.email')
                 ->execute();
             }
-        }
-        else {
+        } else {
             if ($table == 'fe_groups') {
                 $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
@@ -166,7 +165,7 @@ class TempRepository extends MainRepository {
                     'mm_1',
                     $switchTable,
                     $switchTable,
-                    $queryBuilder->expr()->eq($switchTable .'.uid', $queryBuilder->quoteIdentifier('mm_1.uid_local'))
+                    $queryBuilder->expr()->eq($switchTable . '.uid', $queryBuilder->quoteIdentifier('mm_1.uid_local'))
                 )
                 ->andWhere(
                     $queryBuilder->expr()->andX()
@@ -206,8 +205,7 @@ class TempRepository extends MainRepository {
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
                 ->execute();
-            }
-            else {
+            } else {
                 $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
                 ->from('sys_dmail_group', 'sys_dmail_group')
@@ -218,7 +216,7 @@ class TempRepository extends MainRepository {
                     $table,
                     $table,
                     $queryBuilder->expr()->eq(
-                        $table .'.uid',
+                        $table . '.uid',
                         $queryBuilder->quoteIdentifier('mm_1.uid_local')
                     )
                 )
@@ -322,8 +320,8 @@ class TempRepository extends MainRepository {
                 $switchTable,
                 $switchTable,
                 $queryBuilder->expr()->inSet(
-                    $switchTable.'.usergroup',
-                    $queryBuilder->quoteIdentifier($table.'.uid')
+                    $switchTable . '.usergroup',
+                    $queryBuilder->quoteIdentifier($table . '.uid')
                 )
             )
             ->andWhere(
@@ -357,8 +355,7 @@ class TempRepository extends MainRepository {
             ->orderBy($switchTable . '.uid')
             ->addOrderBy($switchTable . '.email')
             ->execute();
-        }
-        else {
+        } else {
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
             ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
@@ -440,8 +437,9 @@ class TempRepository extends MainRepository {
                 ->add(
                     $queryBuilder->expr()->eq(
                         'sys_dmail_group.uid',
-                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT))
+                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
                     )
+                )
                 ->add(
                     $queryBuilder->expr()->eq(
                         'fe_groups.uid',
@@ -465,7 +463,7 @@ class TempRepository extends MainRepository {
             if (!empty($subgroups)) {
                 $usergroupInList = null;
                 foreach ($subgroups as $subgroup) {
-                    $usergroupInList .= (($usergroupInList == null) ? null : ' OR') . ' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',' . intval($subgroup) . ',\') )';
+                    $usergroupInList .= (($usergroupInList == null) ? null : ' OR') . ' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',' . (int)$subgroup . ',\') )';
                 }
                 $usergroupInList = '(' . $usergroupInList . ')';
 
@@ -549,7 +547,7 @@ class TempRepository extends MainRepository {
                 $queryBuilder->quoteIdentifier($groupTable . '.uid')
             )
         )
-        ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . intval($groupId) . ',\' )')
+        ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . (int)$groupId . ',\' )')
         ->execute();
         $groupArr = [];
 
@@ -578,7 +576,7 @@ class TempRepository extends MainRepository {
         if ($group['query']) {
             $select = $queryGenerator->getQueryDM();
             //$queryGenerator->extFieldLists['queryFields'] = 'uid';
-            if($select) {
+            if ($select) {
                 $connection = $this->getConnection($table);
                 $recipients = $connection->executeQuery($select)->fetchAll();
 
@@ -631,8 +629,7 @@ class TempRepository extends MainRepository {
                     $parsedGroups[] = $row['uid'];
                     $groups = array_merge($groups, $this->getMailGroups($row['mail_groups'], $parsedGroups, $permsClause));
                 }
-            }
-            else {
+            } else {
                 // Normal mail group, just add to list
                 $groups[] = $row['uid'];
             }
@@ -700,9 +697,9 @@ class TempRepository extends MainRepository {
                             $queryBuilder = $this->getQueryBuilder($table);
                             $olrow = $queryBuilder->select('*')
                             ->from($table)
-                            ->add('where', 'pid=' . intval($row['pid']) .
-                                ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . intval($sys_language_content) .
-                                ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . intval($row['uid']))
+                            ->add('where', 'pid=' . (int)($row['pid']) .
+                                ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . (int)$sys_language_content .
+                                ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . (int)($row['uid']))
                             ->setMaxResults(1)/* LIMIT 1*/
                             ->execute()
                             ->fetch();
@@ -718,14 +715,12 @@ class TempRepository extends MainRepository {
                                 }
                             }
 
-                            // Otherwise, check if sys_language_content is different from the value of the record
-                            // that means a japanese site might try to display french content.
-                        }
-                        elseif ($sys_language_content != $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]) {
+                        // Otherwise, check if sys_language_content is different from the value of the record
+                        // that means a japanese site might try to display french content.
+                        } elseif ($sys_language_content != $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]) {
                             unset($row);
                         }
-                    }
-                    else {
+                    } else {
                         // When default language is displayed,
                         // we never want to return a record carrying another language!:
                         if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] > 0) {
@@ -740,7 +735,6 @@ class TempRepository extends MainRepository {
     }
 
     /**
-     *
      * @param string $table
      * @param int $uid
      * @return array|bool
@@ -785,7 +779,7 @@ class TempRepository extends MainRepository {
             ->removeAll()
             ->add(
                 GeneralUtility::makeInstance(DeletedRestriction::class)
-        );
+            );
         return $queryBuilder
             ->select($relationTable . '.uid_foreign')
             ->from($relationTable, $relationTable)
