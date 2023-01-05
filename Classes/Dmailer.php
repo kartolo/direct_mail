@@ -387,7 +387,7 @@ class Dmailer implements LoggerAwareInterface
             }
 
             $this->theParts['html']['content'] = '';
-            if ($this->flagHtml && ($recipientRow['module_sys_dmail_html'] || $tableNameChar == 'P')) {
+            if ($this->flagHtml && (($recipientRow['module_sys_dmail_html'] ?? false) || $tableNameChar == 'P')) {
                 $tempContentHTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipientRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
                     $this->theParts['html']['content'] = $this->replaceMailMarkers($tempContentHTML, $recipientRow, $additionalMarkers);

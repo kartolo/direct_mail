@@ -1694,7 +1694,7 @@ class DmailController extends MainController
             'rowsFound' => false,
             'rows' => [],
             'pages_uid' => $this->pages_uid,
-            'cmd' => $this->CMD,
+            'cmd' => $this->cmd,
             'update_cats' => $this->getLanguageService()->getLL('nl_l_update'),
             'output' => '',
         ];
