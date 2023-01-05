@@ -702,8 +702,7 @@ class SysDmailMaillogRepository extends MainRepository
         array $midArray,
         int $returnCode,
         string $returnContent
-    )
-    {
+    ) {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
             ->insert($this->table)

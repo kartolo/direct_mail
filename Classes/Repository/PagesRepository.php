@@ -116,9 +116,9 @@ class PagesRepository extends MainRepository
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
-            'sys_language_uid',
-            $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)
-        )
+                'sys_language_uid',
+                $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)
+            )
         )
         ->execute()
         ->fetch();

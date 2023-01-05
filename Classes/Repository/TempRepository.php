@@ -113,9 +113,9 @@ class TempRepository extends MainRepository
                     $queryBuilder->expr()->andX()
                     ->add(
                         $queryBuilder->expr()->in(
-                        'fe_groups.pid',
-                        $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
-                    )
+                            'fe_groups.pid',
+                            $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
+                        )
                     )
                     ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
                     ->add(

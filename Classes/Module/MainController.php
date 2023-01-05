@@ -77,8 +77,7 @@ class MainController
         ModuleTemplate $moduleTemplate = null,
         IconFactory $iconFactory = null,
         PageRenderer $pageRenderer = null
-    )
-    {
+    ) {
         $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
         $this->iconFactory = $iconFactory ?? GeneralUtility::makeInstance(IconFactory::class);
         $this->pageRenderer = $pageRenderer ?? GeneralUtility::makeInstance(PageRenderer::class);
