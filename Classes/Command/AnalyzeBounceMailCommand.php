@@ -138,10 +138,9 @@ class AnalyzeBounceMailCommand extends Command
             // expunge to delete permanently
             $mailServer->expunge();
             imap_close($mailServer->getImapStream());
-            return Command::SUCCESS;
+        } else {
+            return Command::FAILURE;
         }
-
-        return Command::FAILURE;
 
         return Command::SUCCESS;
     }
