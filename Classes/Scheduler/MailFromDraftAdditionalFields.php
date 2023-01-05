@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Scheduler;
 
 /*
@@ -26,12 +27,9 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * Aditional fields provider class for usage with the Scheduler's MailFromDraft task
  *
  * @author		Benjamin Mack <benni@typo3.org>
- * @package		TYPO3
- * @subpackage	direct_mail
  */
 class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
 {
-
     /**
      * This method is used to define new fields for adding or editing a task
      * In this case, it adds an email field
@@ -114,7 +112,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
             'label'    => 'Choose Draft to create DirectMail from',
             // TODO! add CSH
             'cshKey'   => '',
-            'cshLabel' => $fieldID
+            'cshLabel' => $fieldID,
         ];
 
         return $additionalFields;
@@ -131,7 +129,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
      */
     public function validateAdditionalFields(array &$submittedData, SchedulerModuleController $schedulerModuleController)
     {
-        $draftUid = $submittedData['selecteddraft'] = (int) $submittedData['selecteddraft'];
+        $draftUid = $submittedData['selecteddraft'] = (int)$submittedData['selecteddraft'];
         if ($draftUid > 0) {
             $draftRecord = BackendUtility::getRecord('sys_dmail', $draftUid);
 
@@ -168,8 +166,6 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
      *
      * @param	array				$submittedData Array containing the data submitted by the user
      * @param	AbstractTask	$task Reference to the current task object
-     *
-     * @return	void
      */
     public function saveAdditionalFields(array $submittedData, AbstractTask $task)
     {

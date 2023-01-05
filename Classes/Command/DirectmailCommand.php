@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Command;
 
 use DirectMailTeam\DirectMail\Dmailer;

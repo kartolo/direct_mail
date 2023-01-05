@@ -1,9 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Module;
 
-use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Utility\TsUtility;
 use Psr\Http\Message\ServerRequestInterface;
@@ -13,7 +13,6 @@ use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
@@ -28,8 +27,8 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
-class MainController {
-
+class MainController
+{
     /**
      * ModuleTemplate Container
      *
@@ -77,8 +76,8 @@ class MainController {
     public function __construct(
         ModuleTemplate $moduleTemplate = null,
         IconFactory $iconFactory = null,
-        PageRenderer $pageRenderer = null)
-    {
+        PageRenderer $pageRenderer = null
+    ) {
         $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
         $this->iconFactory = $iconFactory ?? GeneralUtility::makeInstance(IconFactory::class);
         $this->pageRenderer = $pageRenderer ?? GeneralUtility::makeInstance(PageRenderer::class);
@@ -115,7 +114,7 @@ class MainController {
 
         $this->messageQueue = $this->getMessageQueue();
 
-        if($this->updatePageTree) {
+        if ($this->updatePageTree) {
             \TYPO3\CMS\Backend\Utility\BackendUtility::setUpdateSignal('updatePageTree');
         }
     }
@@ -124,7 +123,7 @@ class MainController {
      * Configure template paths for your backend module
      * @return StandaloneView
      */
-    protected function configureTemplatePaths (string $templateName): StandaloneView
+    protected function configureTemplatePaths(string $templateName): StandaloneView
     {
         $view = GeneralUtility::makeInstance(StandaloneView::class);
         $view->setTemplateRootPaths(['EXT:direct_mail/Resources/Private/Templates/']);
@@ -135,7 +134,6 @@ class MainController {
     }
 
     /**
-     *
         https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
         const 	NOTICE = -2
         const 	INFO = -1
@@ -149,7 +147,8 @@ class MainController {
      */
     protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false)
     {
-        return GeneralUtility::makeInstance(FlashMessage::class,
+        return GeneralUtility::makeInstance(
+            FlashMessage::class,
             $messageText,
             $messageHeader, // [optional] the header
             $messageType, // [optional] the severity defaults to \TYPO3\CMS\Core\Messaging\FlashMessage::OK
@@ -168,7 +167,7 @@ class MainController {
         $module = $this->pageinfo['module'] ?? false;
 
         if (!$module && isset($this->pageinfo['pid'])) {
-            $pidrec = BackendUtility::getRecord('pages', intval($this->pageinfo['pid']));
+            $pidrec = BackendUtility::getRecord('pages', (int)($this->pageinfo['pid']));
             $module = $pidrec['module'] ?? false;
         }
 
@@ -232,13 +231,13 @@ class MainController {
         $dmLinks = [];
         $rows = GeneralUtility::makeInstance(PagesRepository::class)->getDMPages();
 
-        if(count($rows)) {
-            foreach($rows as $row) {
-                if($this->getBackendUser()->doesUserHaveAccess(BackendUtility::getRecord('pages', (int)$row['uid']), 2)) {
+        if (count($rows)) {
+            foreach ($rows as $row) {
+                if ($this->getBackendUser()->doesUserHaveAccess(BackendUtility::getRecord('pages', (int)$row['uid']), 2)) {
                     $dmLinks[] = [
                         'id' => $row['uid'],
                         'url' => $this->buildUriFromRoute($this->moduleName, ['id' => $row['uid'], 'updatePageTree' => '1']),
-                        'title' => $row['title']
+                        'title' => $row['title'],
                     ];
                 }
             }
@@ -282,7 +281,7 @@ class MainController {
             'editLinkTitle' => $lang->getLL('dmail_edit'),
             'actionsOpen' => $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL),
             'counter' => is_array($listArr) ? count($listArr) : 0,
-            'rows' => []
+            'rows' => [],
         ];
 
         $isAllowedDisplayTable = $this->getBackendUser()->check('tables_select', $table);
@@ -297,22 +296,22 @@ class MainController {
                     $urlParameters = [
                         'edit' => [
                             $table => [
-                                $row['uid'] => 'edit'
-                            ]
+                                $row['uid'] => 'edit',
+                            ],
                         ],
-                        'returnUrl' => $this->requestUri
+                        'returnUrl' => $this->requestUri,
                     ];
 
                     $editLink = $this->buildUriFromRoute('record_edit', $urlParameters);
                 }
 
                 $name = $row['name'] ?? '';
-                if($name == '') {
-                    if($row['first_name'] ?? '') {
-                        $name = $row['first_name'].' ';
+                if ($name == '') {
+                    if ($row['first_name'] ?? '') {
+                        $name = $row['first_name'] . ' ';
                     }
-                    if($row['middle_name'] ?? '') {
-                        $name .= $row['middle_name'].' ';
+                    if ($row['middle_name'] ?? '') {
+                        $name .= $row['middle_name'] . ' ';
                     }
                     $name .= $row['last_name'] ?? '';
                 }
@@ -321,7 +320,7 @@ class MainController {
                     'icon' => $tableIcon,
                     'editLink' => $editLink,
                     'email' => $isAllowedDisplayTable ? htmlspecialchars($row['email']) : $notAllowedPlaceholder,
-                    'name' => $isAllowedDisplayTable ? htmlspecialchars($name) : ''
+                    'name' => $isAllowedDisplayTable ? htmlspecialchars($name) : '',
                 ];
             }
         }
@@ -341,7 +340,7 @@ class MainController {
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
-        return 'window.location.href=' . GeneralUtility::quoteJSvalue((string) $uriBuilder->buildUriFromRoute('record_edit', $params)) . '; return false;';
+        return 'window.location.href=' . GeneralUtility::quoteJSvalue((string)$uriBuilder->buildUriFromRoute('record_edit', $params)) . '; return false;';
     }
 
     /**

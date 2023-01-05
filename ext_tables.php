@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 defined('TYPO3') || die();
@@ -137,7 +138,7 @@ defined('TYPO3') || die();
     );
 
     if (TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
-        include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail').'Configuration/TCA/Overrides/tt_address.php');
+        include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail') . 'Configuration/TCA/Overrides/tt_address.php');
     }
 
     $GLOBALS['TBE_STYLES']['skins']['direct_mail']['stylesheetDirectories'][] = 'EXT:direct_mail/Resources/Public/StyleSheets/';

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Utility;
@@ -42,8 +43,8 @@ class Typo3ConfVarsUtility
     public static function getDMConfigSendPerCycle(): int
     {
         $dmConfig = self::getDMConfig();
-        if(trim($dmConfig['sendPerCycle'])) {
-            return intval(trim($dmConfig['sendPerCycle']));
+        if (trim($dmConfig['sendPerCycle'])) {
+            return (int)(trim($dmConfig['sendPerCycle']));
         }
 
         return 50;

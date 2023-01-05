@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -21,7 +22,6 @@ namespace DirectMailTeam\DirectMail;
  * https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_lowlevel_1_1_database_1_1_query_generator.html
  */
 
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Lowlevel\Database\QueryGenerator;
@@ -31,9 +31,6 @@ use TYPO3\CMS\Lowlevel\Database\QueryGenerator;
  *
  * @author		Kasper Skårhøj <kasper@typo3.com>
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class DmQueryGenerator extends QueryGenerator
 {

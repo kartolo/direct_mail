@@ -1,15 +1,17 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 
-class TtAddressRepository extends MainRepository {
+class TtAddressRepository extends MainRepository
+{
     protected string $table = 'tt_address';
 
     /**
@@ -20,7 +22,7 @@ class TtAddressRepository extends MainRepository {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->select($this->table.'.*')
+        ->select($this->table . '.*')
         ->from($this->table, $this->table)
         ->leftjoin(
             $this->table,
@@ -28,12 +30,12 @@ class TtAddressRepository extends MainRepository {
             'pages',
             $queryBuilder->expr()->eq(
                 'pages.uid',
-                $queryBuilder->quoteIdentifier($this->table.'.pid')
+                $queryBuilder->quoteIdentifier($this->table . '.pid')
             )
         )
         ->where(
             $queryBuilder->expr()->eq(
-                $this->table.'.uid',
+                $this->table . '.uid',
                 $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
@@ -85,7 +87,7 @@ class TtAddressRepository extends MainRepository {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->select($this->table.'.*')
+        ->select($this->table . '.*')
         ->from($this->table)
         ->leftJoin(
             $this->table,
@@ -93,12 +95,12 @@ class TtAddressRepository extends MainRepository {
             'pages',
             $queryBuilder->expr()->eq(
                 'pages.uid',
-                $queryBuilder->quoteIdentifier($this->table.'.pid')
+                $queryBuilder->quoteIdentifier($this->table . '.pid')
             )
         )
         ->where(
             $queryBuilder->expr()->in(
-                $this->table.'.uid',
+                $this->table . '.uid',
                 $queryBuilder->createNamedParameter($intList, Connection::PARAM_INT_ARRAY)
             )
         )
@@ -184,8 +186,7 @@ class TtAddressRepository extends MainRepository {
                         $queryBuilder->createNamedParameter(0)
                     )
                 );
-            }
-            else {
+            } else {
                 $queryBuilder->where(
                     $queryBuilder->expr()->eq(
                         'uid',
