@@ -890,11 +890,9 @@ class Dmailer implements LoggerAwareInterface
         if ((int)$this->dmailer['sys_dmail_rec']['attachment'] > 0) {
             $files = DirectMailUtility::getAttachments((int)$this->dmailer['sys_dmail_rec']['uid']);
             if(count($files)) {
-                $publicPath = Environment::getPublicPath();
                 /** @var FileReference $file */
                 foreach ($files as $file) {
-                    // https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/Environment/Index.html#getpublicpath
-                    $mailer->attachFromPath($publicPath.$file->getPublicUrl());
+                    $mailer->attachFromPath($file->getForLocalProcessing());
                 }
             }
         }
