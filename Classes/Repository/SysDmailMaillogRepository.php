@@ -759,7 +759,7 @@ class SysDmailMaillogRepository extends MainRepository
 
         $list = '';
 
-        while ($row = $statement->fetch()) {
+        while ($row = $statement->fetchAssociative()) {
             $list .= $row['rid'] . ',';
         }
 

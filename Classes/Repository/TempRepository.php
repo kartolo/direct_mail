@@ -56,7 +56,7 @@ class TempRepository extends MainRepository
             )
             ->execute();
 
-            while ($row = $res->fetch()) {
+            while ($row = $res->fetchAssociative()) {
                 $outListArr[$row['uid']] = $row;
             }
         }
@@ -260,7 +260,7 @@ class TempRepository extends MainRepository
             }
         }
         $outArr = [];
-        while ($row = $res->fetch()) {
+        while ($row = $res->fetchAssociative()) {
             $outArr[] = $row['uid'];
         }
         return $outArr;
@@ -412,7 +412,7 @@ class TempRepository extends MainRepository
 
         $outArr = [];
 
-        while ($row = $res->fetch()) {
+        while ($row = $res->fetchAssociative()) {
             $outArr[] = $row['uid'];
         }
 
@@ -500,7 +500,7 @@ class TempRepository extends MainRepository
                 ->addOrderBy($switchTable . '.email')
                 ->execute();
 
-                while ($row = $res->fetch()) {
+                while ($row = $res->fetchAssociative()) {
                     $outArr[] = $row['uid'];
                 }
             }
@@ -551,7 +551,7 @@ class TempRepository extends MainRepository
         ->execute();
         $groupArr = [];
 
-        while ($row = $res->fetch()) {
+        while ($row = $res->fetchAssociative()) {
             $groupArr[] = $row['uid'];
 
             // add all subgroups recursively too
@@ -622,7 +622,7 @@ class TempRepository extends MainRepository
                 ' AND ' . $permsClause)
         ->execute();
 
-        while ($row = $res->fetch()) {
+        while ($row = $res->fetchAssociative()) {
             if ($row['type'] == 4) {
                 // Other mail group...
                 if (!in_array($row['uid'], $parsedGroups)) {
@@ -662,7 +662,7 @@ class TempRepository extends MainRepository
                 ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
                     ' AND l18n_parent=0')
                 ->execute();
-                while ($rowCat = $res->fetch()) {
+                while ($rowCat = $res->fetchAssociative()) {
                     if ($localizedRowCat = $this->getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid)) {
                         $categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
                     }
@@ -702,7 +702,7 @@ class TempRepository extends MainRepository
                                 ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . (int)($row['uid']))
                             ->setMaxResults(1)/* LIMIT 1*/
                             ->execute()
-                            ->fetch();
+                            ->fetchAssociative();
 
                             // Merge record content by traversing all fields:
                             if (is_array($olrow)) {

@@ -206,7 +206,7 @@ class SysDmailRepository extends MainRepository
                 )
             )
             ->execute()
-            ->fetch();
+            ->fetchAssociative();
     }
 
     public function dmailerSetBeginEnd(int $mid, string $key)
@@ -264,6 +264,6 @@ class SysDmailRepository extends MainRepository
             )
             ->orderBy('scheduled')
             ->execute()
-            ->fetch();
+            ->fetchAssociative();
     }
 }
