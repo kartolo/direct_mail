@@ -30,22 +30,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class NavFrameController extends MainController
 {
-    /**
-     * Set highlight
-     * @var	string
-     */
-    protected $doHighlight;
-
     public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $currentModule = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'DirectMailNavFrame_Configuration');
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $currentSubScript = $uriBuilder->buildUriFromRoute($currentModule);
-
-        // Setting highlight mode:
-        $disableTitleHighlight = $this->getTSConfig()['options.']['pageTree.']['disableTitleHighlight'] ?? false;
-        $this->doHighlight = (bool)($disableTitleHighlight) ? false : true;
 
         $this->view = $this->configureTemplatePaths('NavFrame');
 
@@ -93,7 +83,6 @@ class NavFrameController extends MainController
 				} else {
 					parent.list_frame.document.location=theUrl;
 				}
-				' . ($this->doHighlight ? 'hilight_row("row"+top.fsMod.recentIds["DirectMailNavFrame"],highLightID);' : '') . '
 				' . ((!isset($GLOBALS['CLIENT']['FORMSTYLE']) || !$GLOBALS['CLIENT']['FORMSTYLE']) ? '' : 'if (linkObj) {linkObj.blur();}') . '
 				return false;
 			}

@@ -346,52 +346,51 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Replace the marker with recipient data and then send it
      *
-     * @param array $recipRow Recipient's data array
+     * @param array $recipientRow Recipient's data array
      * @param string $tableNameChar Tablename, from which the recipient come from
      *
      * @return int Which kind of email is sent, 1 = HTML, 2 = plain, 3 = both
      */
-    public function sendAdvanced(array $recipRow, string $tableNameChar): int
+    public function sendAdvanced(array $recipientRow, string $tableNameChar): int
     {
         $returnCode = 0;
-        $recipRow = array_map('htmlspecialchars', $recipRow);
+        $recipientRow = array_map('htmlspecialchars', $recipientRow);
 
         // Workaround for strict checking of email addresses in TYPO3
         // (trailing newline = invalid address)
-        $recipRow['email'] = trim($recipRow['email']);
+        $recipientRow['email'] = trim($recipientRow['email']);
 
         // check if the email valids
-        if (GeneralUtility::validEmail($recipRow['email'])) {
-            $midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipRow['uid'];
+        if (GeneralUtility::validEmail($recipientRow['email'])) {
+            $midRidId  = 'MID' . $this->dmailer['sys_dmail_uid'] . '_' . $tableNameChar . $recipientRow['uid'];
 
             $additionalMarkers = [
                 // Put in the tablename of the userinformation
                 '###SYS_TABLE_NAME###'      => $tableNameChar,
                 // Put in the uid of the mail-record
                 '###SYS_MAIL_ID###'         => $this->dmailer['sys_dmail_uid'],
-                '###SYS_AUTHCODE###'        => AuthCodeUtility::getHmac($recipRow, $this->authCodeFieldList),
+                '###SYS_AUTHCODE###'        => AuthCodeUtility::getHmac($recipientRow, $this->authCodeFieldList),
                  // Put in the unique message id in HTML-code
                 $this->dmailer['messageID'] => md5(microtime()) . '_' . $midRidId,
             ];
             $rowFieldsArray = Typo3ConfVarsUtility::getDMConfigMergedFields();
             if (count($rowFieldsArray)) {
                 foreach ($rowFieldsArray as $substField) {
-                    $additionalMarkers['###USER_' . $substField . '###'] = $this->ensureCorrectEncoding($recipRow[$substField] ?? '');
+                    $additionalMarkers['###USER_' . $substField . '###'] = $this->ensureCorrectEncoding($recipientRow[$substField] ?? '');
                 }
             }
             // uppercase fields with uppercased values
             $uppercaseFieldsArray = ['name', 'firstname'];
             foreach ($uppercaseFieldsArray as $substField) {
-                $subst = $this->ensureCorrectEncoding($recipRow[$substField] ?? '');
+                $subst = $this->ensureCorrectEncoding($recipientRow[$substField] ?? '');
                 $additionalMarkers['###USER_' . strtoupper($substField) . '###'] = strtoupper($subst);
             }
 
-            //$this->mediaList = '';
             $this->theParts['html']['content'] = '';
-            if ($this->flagHtml && ($recipRow['module_sys_dmail_html'] || $tableNameChar == 'P')) {
-                $tempContentHTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipRow['sys_dmail_categories_list']);
+            if ($this->flagHtml && (($recipientRow['module_sys_dmail_html'] ?? false) || $tableNameChar == 'P')) {
+                $tempContentHTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipientRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
-                    $this->theParts['html']['content'] = $this->replaceMailMarkers($tempContentHTML, $recipRow, $additionalMarkers);
+                    $this->theParts['html']['content'] = $this->replaceMailMarkers($tempContentHTML, $recipientRow, $additionalMarkers);
                     $returnCode |= 1;
                 }
             }
@@ -399,9 +398,9 @@ class Dmailer implements LoggerAwareInterface
             // Plain
             $this->theParts['plain']['content'] = '';
             if ($this->flagPlain) {
-                $tempContentPlain = $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipRow['sys_dmail_categories_list']);
+                $tempContentPlain = $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], $recipientRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
-                    $tempContentPlain = $this->replaceMailMarkers($tempContentPlain, $recipRow, $additionalMarkers);
+                    $tempContentPlain = $this->replaceMailMarkers($tempContentPlain, $recipientRow, $additionalMarkers);
                     if (trim($this->dmailer['sys_dmail_rec']['use_rdct']) || trim($this->dmailer['sys_dmail_rec']['long_link_mode'])) {
                         $tempContentPlain = DirectMailUtility::substUrlsInPlainText(
                             $tempContentPlain,
@@ -418,8 +417,8 @@ class Dmailer implements LoggerAwareInterface
             $this->dmailer['sys_dmail_rec']['return_path'] = str_replace('###XID###', $midRidId, $this->dmailer['sys_dmail_rec']['return_path']);
 
             if ($returnCode) {
-                $recipient = $this->createRecipient($recipRow['email'], $this->ensureCorrectEncoding($recipRow['name']));
-                $this->sendTheMail($recipient, $recipRow);
+                $recipient = $this->createRecipient($recipientRow['email'], $this->ensureCorrectEncoding($recipientRow['name']));
+                $this->sendTheMail($recipient, $recipientRow);
             }
         }
 
@@ -430,18 +429,14 @@ class Dmailer implements LoggerAwareInterface
      * Send a simple email (without personalizing)
      *
      * @param array $recipients list of recipient address
-     *
-     * @return	bool
      */
     public function sendSimple(array $recipients): bool
     {
         $this->theParts['html']['content']  = ($this->theParts['html']['content'] ?? false) ? $this->getBoundaryParts($this->dmailer['boundaryParts_html'], -1) : '';
         $this->theParts['plain']['content'] = ($this->theParts['plain']['content'] ?? false) ? $this->getBoundaryParts($this->dmailer['boundaryParts_plain'], -1) : '';
 
-        if (count($recipients)) {
-            foreach ($recipients as $recipient) {
-                $this->sendTheMail($recipient);
-            }
+        foreach ($recipients as $recipient) {
+            $this->sendTheMail($this->createRecipient($recipient));
         }
 
         return true;
@@ -615,7 +610,7 @@ class Dmailer implements LoggerAwareInterface
     {
         $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
         if ($sysDmailMaillogRepository->dmailerIsSend($mid, (int)$recipRow['uid'], $tableKey) === false) {
-            $pt = $this->getMilliseconds();
+            $parseTimeStart = $this->getMilliseconds();
             $recipRow = $this->convertFields($recipRow);
 
             /**
@@ -628,7 +623,7 @@ class Dmailer implements LoggerAwareInterface
                 $mid,
                 $tableKey . '_' . $recipRow['uid'],
                 strlen($this->message),
-                $this->getMilliseconds() - $pt,
+                $this->getMilliseconds() - $parseTimeStart,
                 0,
                 $recipRow['email']
             );
@@ -637,8 +632,8 @@ class Dmailer implements LoggerAwareInterface
                 $values = [
                     'logUid' => $logUid,
                     'html_sent' => (int)$this->sendAdvanced($recipRow, $tableKey),
-                    'parsetime' => $this->getMilliseconds() - $pt,
-                    'size' => strlen($this->message),
+                    'parsetime' => $this->getMilliseconds() - $parseTimeStart,
+                    'size' => strlen($this->message)
                 ];
                 $ok = $sysDmailMaillogRepository->updateSysDmailMaillogForShipOfMail($values);
 
@@ -735,7 +730,7 @@ class Dmailer implements LoggerAwareInterface
      */
     public function runcron(): void
     {
-        $pt = $this->getMilliseconds();
+        $parseTimeStart = $this->getMilliseconds();
         $this->sendPerCycle = Typo3ConfVarsUtility::getDMConfigSendPerCycle();
         $this->notificationJob = Typo3ConfVarsUtility::getDMConfigNotificationJob();
 
@@ -783,7 +778,7 @@ class Dmailer implements LoggerAwareInterface
             $this->logger->debug($this->getLanguageService()->getLL('dmailer_nothing_to_do'));
         }
 
-        $parsetime = $this->getMilliseconds() - $pt;
+        $parsetime = $this->getMilliseconds() - $parseTimeStart;
         $this->logger->debug($this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms');
     }
 
@@ -818,10 +813,8 @@ class Dmailer implements LoggerAwareInterface
 
     /**
      * Set the content from $this->theParts['html'] or $this->theParts['plain'] to the mailbody
-     *
-     * @var MailMessage $mailer Mailer Object
      */
-    protected function setContent(&$mailer): void
+    protected function setContent(MailMessage $mailer): void
     {
         // todo: css??
         // iterate through the media array and embed them
@@ -870,22 +863,13 @@ class Dmailer implements LoggerAwareInterface
         // handle FAL attachments
         if ((int)$this->dmailer['sys_dmail_rec']['attachment'] > 0) {
             $files = DirectMailUtility::getAttachments((int)$this->dmailer['sys_dmail_rec']['uid']);
-            if(count($files)) {
-                /** @var FileReference $file */
-                foreach ($files as $file) {
-                    $mailer->attachFromPath($file->getForLocalProcessing());
-                }
+            foreach ($files as $file) {
+                $mailer->attachFromPath($file->getForLocalProcessing());
             }
         }
     }
 
-    /**
-     * Send of the email using php mail function.
-     *
-     * @param Address|string   $recipient The recipient to send the mail to
-     * @param array     $recipRow  Recipient's data array
-     */
-    protected function sendTheMail($recipient, $recipRow = null): void
+    protected function sendTheMail(Address $recipient, array $recipientRow = null): void
     {
         /** @var MailMessage $mailer */
         $mailer = GeneralUtility::makeInstance(MailMessage::class);
@@ -924,7 +908,7 @@ class Dmailer implements LoggerAwareInterface
             $mailHeadersHook =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/direct_mail']['res/scripts/class.dmailer.php']['mailHeadersHook'];
             if (is_array($mailHeadersHook)) {
                 $hookParameters = [
-                    'row'    => &$recipRow,
+                    'row'    => &$recipientRow,
                     'header' => &$header,
                 ];
                 $hookReference = &$this;
@@ -935,19 +919,6 @@ class Dmailer implements LoggerAwareInterface
         }
 
         $mailer->send();
-        unset($mailer);
-
-        // Delete temporary files
-        // see setContent, where temp images are downloaded
-        /*
-        if (!empty($this->tempFileList)) {
-            foreach ($this->tempFileList as $tempFile) {
-                if (file_exists($tempFile)) {
-                    unlink($tempFile);
-                }
-            }
-        }
-        */
     }
 
     /**
@@ -1138,7 +1109,7 @@ class Dmailer implements LoggerAwareInterface
         for ($i = 1; $i < $pieces; $i++) {
             $tag = strtolower(strtok(substr($htmlContent, $len + 1, 10), ' '));
             $len += strlen($tag) + strlen($codepieces[$i]) + 2;
-            $dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
+            preg_match('/[^>]*/', $codepieces[$i], $reg);
 
             // Fetches the attributes for the tag
             $attributes = $this->get_tag_attributes($reg[0]);
@@ -1168,7 +1139,7 @@ class Dmailer implements LoggerAwareInterface
         $codepieces = preg_split($attribRegex, $htmlContent);
         $pieces = count($codepieces);
         for ($i = 1; $i < $pieces; $i++) {
-            $dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
+            preg_match('/[^>]*/', $codepieces[$i], $reg);
             // fetches the attributes for the tag
             $attributes = $this->get_tag_attributes($reg[0]);
             $imageData = [];
@@ -1229,7 +1200,7 @@ class Dmailer implements LoggerAwareInterface
             $tag = strtolower(strtok(substr($htmlContent, $len + 1, 10), ' '));
             $len += strlen($tag) + strlen($codepieces[$i]) + 2;
 
-            $dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
+            preg_match('/[^>]*/', $codepieces[$i], $reg);
             // Fetches the attributes for the tag
             $attributes = $this->get_tag_attributes($reg[0], false);
             $hrefData = [];
@@ -1293,7 +1264,7 @@ class Dmailer implements LoggerAwareInterface
             $codepieces = preg_split($attribRegex, $htmlCode, 1000000);
             $pieces = count($codepieces);
             for ($i = 1; $i < $pieces; $i++) {
-                $dummy = preg_match('/[^>]*/', $codepieces[$i], $reg);
+                preg_match('/[^>]*/', $codepieces[$i], $reg);
                 // Fetches the attributes for the tag
                 $attributes = $this->get_tag_attributes($reg[0]);
                 $info[] = [
@@ -1314,14 +1285,13 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Creates a regular expression out of a list of tags
      *
-     * @param string|array $tags Array the list of tags
+     * @param array $tags Array the list of tags
      * 		(either as array or string if it is one tag)
      *
      * @return string the regular expression
      */
     protected function tag_regex(array $tags): string
     {
-        $tags = (!is_array($tags) ? [$tags] : $tags);
         $regexp = '/';
         $c = count($tags);
         foreach ($tags as $tag) {
@@ -1439,7 +1409,7 @@ class Dmailer implements LoggerAwareInterface
             }
         }
         // We have not found a FQDN yet
-        if ($host && strpos($host, '.') === false) {
+        if ($host && !str_contains($host, '.')) {
             $ip = gethostbyname($host);
             // We got an IP address
             if ($ip != $host) {
@@ -1466,27 +1436,13 @@ class Dmailer implements LoggerAwareInterface
     }
 
     /**
-     * Creates an address object ready to be used with the symonfy mailer
-     *
-     * @param string $email
-     * @param string|null $name
-     * @return Address
+     * Creates an address object ready to be used with the symfony mailer
      */
-    protected function createRecipient(string $email, $name = null): Address
+    protected function createRecipient(string $email, $name = ''): Address
     {
-        if (!empty($name)) {
-            $recipient = new Address($email, $name);
-        } else {
-            $recipient = new Address($email);
-        }
-
-        return $recipient;
+        return new Address($email, $name);
     }
 
-    /**
-     * @param string $inputString
-     * @return string
-     */
     protected function ensureCorrectEncoding(string $inputString): string
     {
         if ($inputString) {
@@ -1502,11 +1458,6 @@ class Dmailer implements LoggerAwareInterface
         return '';
     }
 
-    /**
-     * Gets the unixtime as milliseconds.
-     *
-     * @return int The unixtime as milliseconds
-     */
     protected function getMilliseconds(): int
     {
         return round(microtime(true) * 1000);
