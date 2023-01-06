@@ -6,7 +6,7 @@
 <f:if condition="{show}">
     <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <f:variable name="lll4" value="LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:" />
-    
+
     <h1><f:translate key="{lll}mailgroup_header" /></h1>
     <f:if condition="{type} == 1">
         <h3><f:translate key="{lll}subscriber_info" /></h3>
@@ -69,7 +69,6 @@
 			</f:comment>
 			<f:comment>'queryform' for QueryGenerator.js from lowlevel</f:comment>
             <f:form action="" method="post" name="queryform" enctype="multipart/form-data">
-
                 <f:format.html>{data.special.selectTables}</f:format.html>
                 <f:form.hidden name="cmd" value="displayMailGroup" />
                 <f:form.hidden name="group_uid" value="{data.group_id}" />
@@ -82,6 +81,7 @@
         <table class="table table-striped table-hover">
             <thead>
                 <th colspan="2">&nbsp;</th>
+                <th><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.uid" /></th>
                 <th><f:translate key="{lll4}LGL.title" /></th>
                 <th><f:translate key="{lll4}LGL.type" /></th>
                 <th><f:translate key="{lll4}LGL.description" /></th>
@@ -95,6 +95,7 @@
 							<a href="#" onClick="{row.editLink.onClick}" title="{f:translate(key: '{lll}dmail_edit')}"><f:format.html>{row.editLink.icon}</f:format.html></a>
 						</f:if>
 					</td>
+                    <td nowrap="nowrap">{row.id}</td>
                     <td nowrap="nowrap"><f:format.html>{row.reciplink}</f:format.html></td>
                     <td nowrap="nowrap"><f:format.html>{row.type}</f:format.html></td>
                     <td nowrap="nowrap"><f:format.html>{row.description}</f:format.html></td>
@@ -365,7 +366,7 @@
 											</td>
 										</tr>
 									</f:if>
-									
+
 									<f:for each="{formcontent.output.mapping.mapping_cats}" as="mapping_cat">
 										<tr class="db_list_normal">
 											<td nowrap="">&nbsp;{mapping_cat.cat}</td>

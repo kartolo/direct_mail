@@ -42,7 +42,7 @@ class RecipientListController extends MainController
     protected $requestHostOnly = '';
     protected $requestUri = '';
     protected $httpReferer = '';
-    protected $allowedTables = ['tt_address', 'fe_users'];
+    protected array $allowedTables = ['tt_address', 'fe_users'];
 
     private bool $submit = false;
 
@@ -73,6 +73,7 @@ class RecipientListController extends MainController
 
         $this->init($request);
         $this->initRecipientList($request);
+
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
 
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
@@ -186,6 +187,7 @@ class RecipientListController extends MainController
                 $count += count($idLists[$this->userTable]);
             }
             $data['rows'][] = [
+                'id'          => $row['uid'],
                 'icon'        => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render(),
                 'editLink'    => $this->editLink('sys_dmail_group', $row['uid']),
                 'reciplink'   => $this->linkRecip_record('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']),
