@@ -128,7 +128,7 @@ class TempRepository extends MainRepository
                 )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
-                ->execute();
+                ->executeQuery();
             } else {
                 $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
@@ -151,7 +151,7 @@ class TempRepository extends MainRepository
                 )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
-                ->execute();
+                ->executeQuery();
             }
         } else {
             if ($table == 'fe_groups') {
@@ -204,7 +204,7 @@ class TempRepository extends MainRepository
                 )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
-                ->execute();
+                ->executeQuery();
             } else {
                 $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
@@ -256,7 +256,7 @@ class TempRepository extends MainRepository
                 )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
-                ->execute();
+                ->executeQuery();
             }
         }
         $outArr = [];
@@ -354,7 +354,7 @@ class TempRepository extends MainRepository
             )
             ->orderBy($switchTable . '.uid')
             ->addOrderBy($switchTable . '.email')
-            ->execute();
+            ->executeQuery();
         } else {
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
@@ -407,7 +407,7 @@ class TempRepository extends MainRepository
             )
             ->orderBy($switchTable . '.uid')
             ->addOrderBy($switchTable . '.email')
-            ->execute();
+            ->executeQuery();
         }
 
         $outArr = [];
@@ -453,7 +453,7 @@ class TempRepository extends MainRepository
                     )
                 )
             )
-            ->execute();
+            ->executeQuery();
 
             list($groupId) = $res->fetchAll();
 
@@ -498,7 +498,7 @@ class TempRepository extends MainRepository
                 )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
-                ->execute();
+                ->executeQuery();
 
                 while ($row = $res->fetchAssociative()) {
                     $outArr[] = $row['uid'];
@@ -548,7 +548,7 @@ class TempRepository extends MainRepository
             )
         )
         ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . (int)$groupId . ',\' )')
-        ->execute();
+        ->executeQuery();
         $groupArr = [];
 
         while ($row = $res->fetchAssociative()) {

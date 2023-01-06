@@ -117,7 +117,7 @@ class SysDmailRepository extends MainRepository
         ->groupBy('sys_dmail_maillog.mid')
         ->orderBy('sys_dmail.scheduled', 'DESC')
         ->addOrderBy('sys_dmail.scheduled_begin', 'DESC')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
