@@ -37,7 +37,7 @@ class SysDmailRepository extends MainRepository
             )
         )
         ->executeQuery()
-        ->fetchAllAssociative();
+        ->fetchAssociative();
     }
 
     /**
