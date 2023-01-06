@@ -185,8 +185,9 @@ class SysDmailMaillogRepository extends MainRepository
         $responseTypes = [];
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $statement = $queryBuilder->count('*')
-            ->addSelect('response_type')
+        $statement = $queryBuilder
+            ->select('response_type')
+            ->addSelectLiteral('COUNT(*) AS counter')
             ->from($this->table)
             ->where(
                 $queryBuilder->expr()->eq(
@@ -240,8 +241,9 @@ class SysDmailMaillogRepository extends MainRepository
         $popularLinks = [];
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $statement = $queryBuilder->count('*')
-            ->addSelect('url_id')
+        $statement = $queryBuilder
+            ->select('url_id')
+            ->addSelectLiteral('COUNT(*) AS counter')
             ->from($this->table)
             ->where(
                 $queryBuilder->expr()->eq(
@@ -256,7 +258,7 @@ class SysDmailMaillogRepository extends MainRepository
                 )
             )
             ->groupBy('url_id')
-            ->orderBy('COUNT(*)')
+            ->orderBy('counter')
             ->executeQuery();
 
         while ($row = $statement->fetchAssociative()) {
@@ -273,8 +275,9 @@ class SysDmailMaillogRepository extends MainRepository
         $returnCodes = [];
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $statement = $queryBuilder->count('*')
-        ->addSelect('return_code')
+        $statement = $queryBuilder
+        ->select('return_code')
+        ->addSelectLiteral('COUNT(*) AS counter')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
@@ -289,7 +292,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->groupBy('return_code')
-        ->orderBy('COUNT(*)')
+        ->orderBy('counter')
         ->executeQuery();
 
         while ($row = $statement->fetchAssociative()) {
