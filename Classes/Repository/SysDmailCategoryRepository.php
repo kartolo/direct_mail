@@ -25,7 +25,7 @@ class SysDmailCategoryRepository extends MainRepository
                 $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 

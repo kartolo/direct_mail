@@ -30,7 +30,7 @@ class SysDmailTtAddressCategoryMmRepository extends MainRepository
             )
         )
         ->orderBy('sorting')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 }

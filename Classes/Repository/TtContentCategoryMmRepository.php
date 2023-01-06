@@ -26,7 +26,7 @@ class TtContentCategoryMmRepository extends MainRepository
                 $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 }

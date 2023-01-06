@@ -32,7 +32,7 @@ class TtContentRepository extends MainRepository
         )
         ->orderBy('colPos')
         ->addOrderBy('sorting')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 }

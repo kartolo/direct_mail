@@ -36,7 +36,7 @@ class SysDmailRepository extends MainRepository
                 $queryBuilder->createNamedParameter($sys_dmail_uid, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -65,7 +65,7 @@ class SysDmailRepository extends MainRepository
             )
         )
         ->orderBy('scheduled', 'DESC')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -151,7 +151,7 @@ class SysDmailRepository extends MainRepository
             )
         )
         ->orderBy($sOrder, $ascDesc)
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -174,7 +174,7 @@ class SysDmailRepository extends MainRepository
         ->set('charset', $charset)
         ->set('mailContent', $mailContent)
         ->set('renderedSize', strlen($mailContent))
-        ->execute();
+        ->executeStatement();
     }
 
     /**
@@ -205,7 +205,7 @@ class SysDmailRepository extends MainRepository
                     $queryBuilder->createNamedParameter($mailId, Connection::PARAM_INT)
                 )
             )
-            ->execute()
+            ->executeQuery()
             ->fetchAssociative();
     }
 
@@ -223,7 +223,7 @@ class SysDmailRepository extends MainRepository
                         $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
                     )
                 )
-                ->execute();
+                ->executeStatement();
         }
     }
 
@@ -263,7 +263,7 @@ class SysDmailRepository extends MainRepository
                 )
             )
             ->orderBy('scheduled')
-            ->execute()
+            ->executeQuery()
             ->fetchAssociative();
     }
 }

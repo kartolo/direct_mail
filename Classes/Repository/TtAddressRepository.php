@@ -46,7 +46,7 @@ class TtAddressRepository extends MainRepository
         ->andWhere(
             $permsClause
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -75,7 +75,7 @@ class TtAddressRepository extends MainRepository
                 $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -107,7 +107,7 @@ class TtAddressRepository extends MainRepository
         ->andWhere(
             $permsClause
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -137,7 +137,7 @@ class TtAddressRepository extends MainRepository
             )
         )
         ->andWhere($permsClause)
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -156,7 +156,7 @@ class TtAddressRepository extends MainRepository
                 $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             )
         )
-        ->execute();
+        ->executeStatement();
     }
 
     /**
@@ -194,7 +194,7 @@ class TtAddressRepository extends MainRepository
                     )
                 );
             }
-            $rows = $queryBuilder->execute()->fetchAllAssociative();
+            $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
 
             if ($rows) {
                 if (is_array($rows[0])) {

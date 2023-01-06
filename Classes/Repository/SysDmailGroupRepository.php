@@ -38,7 +38,7 @@ class SysDmailGroupRepository extends MainRepository
                 $defaultSortBy
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -70,7 +70,7 @@ class SysDmailGroupRepository extends MainRepository
                 $defaultSortBy
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -106,7 +106,7 @@ class SysDmailGroupRepository extends MainRepository
         ->andWhere(
             $permsClause
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 

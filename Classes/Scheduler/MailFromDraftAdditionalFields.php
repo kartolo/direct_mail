@@ -70,7 +70,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
             ->where(
                 $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(2))
             )
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         $draftsExternal = $queryBuilder
@@ -79,7 +79,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
             ->where(
                 $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(3))
             )
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         if (is_array($draftsInternal)) {
@@ -142,7 +142,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
                 ->where(
                     $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($draftUid))
                 )
-                ->execute()
+                ->executeQuery()
                 ->fetchAllAssociative();
 
             if ($draftRecord['type'] == 2 || $draftRecord['type'] == 3) {

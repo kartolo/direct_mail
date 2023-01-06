@@ -34,7 +34,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->groupBy('html_sent')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -63,7 +63,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -92,7 +92,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -121,7 +121,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -142,7 +142,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->orderBy('tstamp', 'DESC')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -173,7 +173,7 @@ class SysDmailMaillogRepository extends MainRepository
                 $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -195,7 +195,7 @@ class SysDmailMaillogRepository extends MainRepository
                 )
             )
             ->groupBy('response_type')
-            ->execute();
+            ->executeQuery();
 
         while ($row = $statement->fetchAssociative()) {
             $responseTypes[$row['response_type']] = $row;
@@ -226,7 +226,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->orderBy('rid', 'ASC')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -257,7 +257,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
             ->groupBy('url_id')
             ->orderBy('COUNT(*)')
-            ->execute();
+            ->executeQuery();
 
         while ($row = $statement->fetchAssociative()) {
             $popularLinks[$row['url_id']] = $row;
@@ -290,7 +290,7 @@ class SysDmailMaillogRepository extends MainRepository
         )
         ->groupBy('return_code')
         ->orderBy('COUNT(*)')
-        ->execute();
+        ->executeQuery();
 
         while ($row = $statement->fetchAssociative()) {
             $returnCodes[$row['return_code']] = $row;
@@ -318,7 +318,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->orderBy('rtbl')
         ->addOrderBy('rid')
         ->addOrderBy('tstamp')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -343,7 +343,7 @@ class SysDmailMaillogRepository extends MainRepository
                 $queryBuilder->createNamedParameter(-127, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -378,7 +378,7 @@ class SysDmailMaillogRepository extends MainRepository
                 )
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -409,7 +409,7 @@ class SysDmailMaillogRepository extends MainRepository
                 $queryBuilder->createNamedParameter(551, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -440,7 +440,7 @@ class SysDmailMaillogRepository extends MainRepository
                 $queryBuilder->createNamedParameter(552, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -471,7 +471,7 @@ class SysDmailMaillogRepository extends MainRepository
                 $queryBuilder->createNamedParameter(554, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -502,7 +502,7 @@ class SysDmailMaillogRepository extends MainRepository
                 $queryBuilder->createNamedParameter(-1, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -537,7 +537,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->setMaxResults(1)
-        ->execute()
+        ->executeQuery()
         ->fetchAssociative();
     }
 
@@ -595,7 +595,7 @@ class SysDmailMaillogRepository extends MainRepository
                 )
             );
 
-        $existingLog = $query->execute()->fetchOne();
+        $existingLog = $query->executeQuery()->fetchOne();
 
         return (int)$existingLog > 0;
     }
@@ -616,7 +616,7 @@ class SysDmailMaillogRepository extends MainRepository
                     $queryBuilder->createNamedParameter($values['logUid'], Connection::PARAM_INT)
                 )
             )
-            ->execute();
+            ->executeStatement();
     }
 
     /**
@@ -659,7 +659,7 @@ class SysDmailMaillogRepository extends MainRepository
                     $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
             )
-            ->execute();
+            ->executeQuery();
 
         return (bool)$statement->rowCount();
     }
@@ -694,7 +694,7 @@ class SysDmailMaillogRepository extends MainRepository
                 'parsetime' => $parsetime,
                 'html_sent' => $html,
             ])
-            ->execute();
+            ->executeStatement();
 
         return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
     }
@@ -718,7 +718,7 @@ class SysDmailMaillogRepository extends MainRepository
                 'return_content' => $returnContent,
                 'return_code' => $returnCode,
             ])
-            ->execute();
+            ->executeStatement();
 
         return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
     }
@@ -755,7 +755,7 @@ class SysDmailMaillogRepository extends MainRepository
                     $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
             )
-            ->execute();
+            ->executeQuery();
 
         $list = '';
 

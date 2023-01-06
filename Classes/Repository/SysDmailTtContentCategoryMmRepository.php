@@ -27,7 +27,7 @@ class SysDmailTtContentCategoryMmRepository extends MainRepository
             )
         )
         ->orderBy('sorting')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 }

@@ -54,7 +54,7 @@ class TempRepository extends MainRepository
                     )
                 )
             )
-            ->execute();
+            ->executeQuery();
 
             while ($row = $res->fetchAssociative()) {
                 $outListArr[$row['uid']] = $row;
@@ -620,7 +620,7 @@ class TempRepository extends MainRepository
             )
             ->add('where', 'sys_dmail_group.uid IN (' . implode(',', $groupIdList) . ')' .
                 ' AND ' . $permsClause)
-        ->execute();
+        ->executeQuery();
 
         while ($row = $res->fetchAssociative()) {
             if ($row['type'] == 4) {
@@ -661,7 +661,7 @@ class TempRepository extends MainRepository
                 ->from('sys_dmail_category')
                 ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
                     ' AND l18n_parent=0')
-                ->execute();
+                ->executeQuery();
                 while ($rowCat = $res->fetchAssociative()) {
                     if ($localizedRowCat = $this->getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid)) {
                         $categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
@@ -701,7 +701,7 @@ class TempRepository extends MainRepository
                                 ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . (int)$sys_language_content .
                                 ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . (int)($row['uid']))
                             ->setMaxResults(1)/* LIMIT 1*/
-                            ->execute()
+                            ->executeQuery()
                             ->fetchAssociative();
 
                             // Merge record content by traversing all fields:
@@ -748,7 +748,7 @@ class TempRepository extends MainRepository
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid))
             )
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
     }
 
@@ -767,7 +767,7 @@ class TempRepository extends MainRepository
                 $queryBuilder->expr()->notIn('uid', $sendIds)
             )
             ->setMaxResults($sendPerCycle)
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
     }
 
@@ -790,7 +790,7 @@ class TempRepository extends MainRepository
                     $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 )
             )
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
     }
 
@@ -806,7 +806,7 @@ class TempRepository extends MainRepository
                     $queryBuilder->createNamedParameter($uid)
                 )
             )
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
     }
 

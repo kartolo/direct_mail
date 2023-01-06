@@ -33,7 +33,7 @@ class SysLanguageRepository extends MainRepository
                     $queryBuilder->createNamedParameter($lang . $sys_language . $static_languages)
                 )
             )
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
     }
 }

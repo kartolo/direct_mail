@@ -42,7 +42,7 @@ class FeUsersRepository extends MainRepository
         ->andWhere(
             $permsClause
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -70,7 +70,7 @@ class FeUsersRepository extends MainRepository
                 )
             );
 
-            $rows = $queryBuilder->execute()->fetchAllAssociative();
+            $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
 
             if ($rows) {
                 if (is_array($rows[0])) {
