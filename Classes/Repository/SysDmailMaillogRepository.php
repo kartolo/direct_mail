@@ -595,7 +595,7 @@ class SysDmailMaillogRepository extends MainRepository
                 )
             );
 
-        $existingLog = $query->execute()->fetchColumn();
+        $existingLog = $query->execute()->fetchOne();
 
         return (int)$existingLog > 0;
     }
