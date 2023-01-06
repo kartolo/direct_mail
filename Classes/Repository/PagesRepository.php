@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
+
 class PagesRepository extends MainRepository
 {
     protected string $table = 'pages';
@@ -21,11 +23,11 @@ class PagesRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'pid',
-                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
                 'l10n_parent',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             ), // Exclude translated page records from list
             $permsClause
         );
@@ -47,7 +49,7 @@ class PagesRepository extends MainRepository
         )
         ->orderBy('sorting')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -63,17 +65,17 @@ class PagesRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'l10n_parent',
-                $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pageUid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'sys_language_uid',
-                $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($langUid, Connection::PARAM_INT)
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -95,7 +97,7 @@ class PagesRepository extends MainRepository
         )
         ->orderBy('uid')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -111,17 +113,17 @@ class PagesRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'l10n_parent',
-                $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pageUid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'sys_language_uid',
-                $queryBuilder->createNamedParameter($langUid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($langUid, Connection::PARAM_INT)
             )
         )
         ->execute()
-        ->fetch();
+        ->fetchOne();
     }
 
     /**
@@ -153,10 +155,10 @@ class PagesRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'module',
-                $queryBuilder->createNamedParameter($modulName, \PDO::PARAM_STR)
+                $queryBuilder->createNamedParameter($modulName)
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 }
