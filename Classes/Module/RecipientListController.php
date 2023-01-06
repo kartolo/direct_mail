@@ -580,9 +580,9 @@ class RecipientListController extends MainController
     {
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
+        $queryLimit = (int)($set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100);
         $queryConfig = GeneralUtility::_GP('queryConfig');
-
-        $whichTables = (int)($mailGroup['whichtables']);
+        $whichTables = (int)$mailGroup['whichtables'];
         $table = '';
         if ($whichTables&1) {
             $table = 'tt_address';
@@ -603,7 +603,9 @@ class RecipientListController extends MainController
             $this->MOD_SETTINGS['queryConfig'] = '';
         }
 
-        if ($this->MOD_SETTINGS['queryTable'] != $table || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query']) {
+        $this->MOD_SETTINGS['queryLimit'] = $queryLimit;
+
+        if ($this->MOD_SETTINGS['queryTable'] != $table || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query'] || $this->MOD_SETTINGS['queryLimit'] != $mailGroup['queryLimit']) {
             $whichTables = 0;
             if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
                 $whichTables = 1;
@@ -615,10 +617,10 @@ class RecipientListController extends MainController
             $updateFields = [
                 'whichtables' => (int)$whichTables,
                 'query' => $this->MOD_SETTINGS['queryConfig'],
+                'queryLimit' => $this->MOD_SETTINGS['queryLimit'],
             ];
 
             $done = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->updateSysDmailGroupRecord((int)$mailGroup['uid'], $updateFields);
-
             $mailGroup = BackendUtility::getRecord('sys_dmail_group', $mailGroup['uid']);
         }
         return $mailGroup;
@@ -642,7 +644,6 @@ class RecipientListController extends MainController
         $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Lowlevel/QueryGenerator');
         $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
         [$html, $query] = $queryGenerator->queryMakerDM();
-
         return ['selectTables' => $html, 'query' => $query];
     }
 

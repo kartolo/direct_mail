@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
+
 class FeUsersRepository extends MainRepository
 {
     protected string $table = 'fe_users';
@@ -52,7 +54,7 @@ class FeUsersRepository extends MainRepository
             $queryBuilder->where(
                 $queryBuilder->expr()->eq(
                     'uid',
-                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
                     'deleted',

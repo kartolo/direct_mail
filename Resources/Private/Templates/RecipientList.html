@@ -36,7 +36,7 @@
         </f:form>
     </f:if>
     <f:if condition="{type} == 2">
-        <h3><f:translate key="{lll}mailgroup_recip_from" /> <f:format.html>{data.group_icon} {data.group_title}</f:format.html></h3>
+        <h3><f:translate key="{lll}mailgroup_recip_from" /> <f:format.html>{data.group_icon} {data.group_title}</f:format.html> [{data.group_id}]</h3>
         <f:translate key="{lll}mailgroup_recip_number" /> <strong>{data.group_totalRecipients}</strong>
         <f:if condition="{data.group_link_listall}">
             <br /><br /><strong><a class="t3-link" href="{data.group_link_listall}"><f:translate key="{lll}mailgroup_list_all" /></a></strong>

@@ -93,6 +93,7 @@ CREATE TABLE sys_dmail_group (
   title tinytext NOT NULL,
   description text NOT NULL,
   query blob,
+  queryLimit int(11) unsigned DEFAULT '0' NOT NULL,
   static_list int(11) DEFAULT '0' NOT NULL,
   list mediumblob,
   csv tinyint(4) DEFAULT '0' NOT NULL,

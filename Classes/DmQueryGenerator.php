@@ -77,7 +77,7 @@ class DmQueryGenerator extends QueryGenerator
         if ($this->formName) {
             $this->setFormName($this->formName);
         }
-        $tmpCode = $this->makeSelectorTable($this->settings, 'table,query');
+        $tmpCode = $this->makeSelectorTable($this->settings, 'table,query,limit');
         $output .= '<div id="query"></div><h2>Make query</h2><div>' . $tmpCode . '</div>';
         $mQ = $this->settings['search_query_makeQuery'];
 
@@ -117,7 +117,7 @@ class DmQueryGenerator extends QueryGenerator
         if ($this->formName) {
             $this->setFormName($this->formName);
         }
-        $tmpCode = $this->makeSelectorTable($this->settings, 'query');
+        $tmpCode = $this->makeSelectorTable($this->settings, 'query,limit');
         if ($this->table && is_array($GLOBALS['TCA'][$this->table])) {
             if ($this->settings['search_query_makeQuery']) {
                 // Show query

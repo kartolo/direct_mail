@@ -191,7 +191,7 @@ class TempRepository extends MainRepository
                         ->add(
                             $queryBuilder->expr()->eq(
                                 'sys_dmail_group.uid',
-                                $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)
+                                $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
                             )
                         )
                         ->add(
@@ -243,7 +243,7 @@ class TempRepository extends MainRepository
                         ->add(
                             $queryBuilder->expr()->eq(
                                 'sys_dmail_group.uid',
-                                $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)
+                                $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
                             )
                         )
                         ->add(
@@ -329,7 +329,7 @@ class TempRepository extends MainRepository
                     ->add(
                         $queryBuilder->expr()->eq(
                             'sys_dmail_group_mm.uid_local',
-                            $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                            $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                         )
                     )
                     ->add(
@@ -347,7 +347,7 @@ class TempRepository extends MainRepository
                     ->add(
                         $queryBuilder->expr()->eq(
                             'sys_dmail_group.deleted',
-                            $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                            $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                         )
                     )
                     ->add($addWhere ?? '')
@@ -382,7 +382,7 @@ class TempRepository extends MainRepository
                 ->add(
                     $queryBuilder->expr()->eq(
                         'sys_dmail_group_mm.uid_local',
-                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                     )
                 )
                 ->add(
@@ -400,7 +400,7 @@ class TempRepository extends MainRepository
                 ->add(
                     $queryBuilder->expr()->eq(
                         'sys_dmail_group.deleted',
-                        $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                     )
                 )
                 ->add($addWhere ?? '')
@@ -437,7 +437,7 @@ class TempRepository extends MainRepository
                 ->add(
                     $queryBuilder->expr()->eq(
                         'sys_dmail_group.uid',
-                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                     )
                 )
                 ->add(
@@ -787,7 +787,7 @@ class TempRepository extends MainRepository
             ->where(
                 $queryBuilder->expr()->eq(
                     $relationTable . '.uid_local',
-                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 )
             )
             ->execute()

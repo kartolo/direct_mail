@@ -1592,7 +1592,7 @@ class DmailController extends MainController
                     case 3:
                         // Special query list
                         $mailGroup = $this->updateSpecialQuery($mailGroup);
-                        $whichTables = (int)($mailGroup['whichtables']);
+                        $whichTables = (int)$mailGroup['whichtables'];
                         $table = '';
                         if ($whichTables&1) {
                             $table = 'tt_address';
@@ -1634,6 +1634,7 @@ class DmailController extends MainController
     {
         $set = GeneralUtility::_GP('SET');
         $queryTable = $set['queryTable'];
+        $queryLimit = (int)($set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100);
         $queryConfig = GeneralUtility::_GP('queryConfig');
 
         $whichTables = (int)($mailGroup['whichtables']);
@@ -1657,7 +1658,9 @@ class DmailController extends MainController
             $this->MOD_SETTINGS['queryConfig'] = '';
         }
 
-        if ($this->MOD_SETTINGS['queryTable'] != $table || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query']) {
+        $this->MOD_SETTINGS['queryLimit'] = $queryLimit;
+
+        if ($this->MOD_SETTINGS['queryTable'] != $table || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query'] || $this->MOD_SETTINGS['queryLimit'] != $mailGroup['queryLimit']) {
             $whichTables = 0;
             if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
                 $whichTables = 1;
@@ -1669,6 +1672,7 @@ class DmailController extends MainController
             $updateFields = [
                 'whichtables' => (int)$whichTables,
                 'query' => $this->MOD_SETTINGS['queryConfig'],
+                'queryLimit' => $this->MOD_SETTINGS['queryLimit'],
             ];
 
             $done = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->updateSysDmailGroupRecord((int)$mailGroup['uid'], $updateFields);
