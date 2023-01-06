@@ -18,8 +18,8 @@ class SysDmailMaillogRepository extends MainRepository
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->count('*')
-        ->addSelect('html_sent')
+        ->select('html_sent')
+        ->addSelectLiteral('COUNT(*) AS counter')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(

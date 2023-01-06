@@ -347,16 +347,13 @@ class StatisticsController extends MainController
         $table = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogsResponseTypeByMid($mailingId);
         $table = $this->changekeyname($table, 'counter', 'COUNT(*)');
 
-        // Plaintext/HTML
-        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogAllByMid($mailingId);
-
-        /* this function is called to change the key from 'COUNT(*)' to 'counter' */
-        $res = $this->changekeyname($res, 'counter', 'COUNT(*)');
-
         $textHtml = [];
-        foreach ($res as $row2) {
+
+        // Plaintext/HTML
+        $rows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogAllByMid($mailingId);
+        foreach ($rows as $row) {
             // 0:No mail; 1:HTML; 2:TEXT; 3:HTML+TEXT
-            $textHtml[$row2['html_sent']] = $row2['counter'];
+            $textHtml[$row['html_sent']] = $row['counter'];
         }
 
         // Unique responses, html
