@@ -71,7 +71,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
                 $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(2))
             )
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
 
         $draftsExternal = $queryBuilder
             ->select('*')
@@ -80,7 +80,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
                 $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(3))
             )
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
 
         if (is_array($draftsInternal)) {
             $drafts = array_merge($drafts, $draftsInternal);
@@ -135,6 +135,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
 
             $queryBuilder =  GeneralUtility::makeInstance(ConnectionPool::class)
                 ->getQueryBuilderForTable('sys_dmail');
+            //@TODO
             $draftsInternal = $queryBuilder
                 ->select('*')
                 ->from('sys_dmail')
@@ -142,7 +143,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
                     $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($draftUid))
                 )
                 ->execute()
-                ->fetchAll();
+                ->fetchAllAssociative();
 
             if ($draftRecord['type'] == 2 || $draftRecord['type'] == 3) {
                 $result = true;

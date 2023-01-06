@@ -47,7 +47,7 @@ class TtAddressRepository extends MainRepository
             $permsClause
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -76,7 +76,7 @@ class TtAddressRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -108,7 +108,7 @@ class TtAddressRepository extends MainRepository
             $permsClause
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -138,7 +138,7 @@ class TtAddressRepository extends MainRepository
         )
         ->andWhere($permsClause)
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -194,7 +194,7 @@ class TtAddressRepository extends MainRepository
                     )
                 );
             }
-            $rows = $queryBuilder->execute()->fetchAll();
+            $rows = $queryBuilder->execute()->fetchAllAssociative();
 
             if ($rows) {
                 if (is_array($rows[0])) {

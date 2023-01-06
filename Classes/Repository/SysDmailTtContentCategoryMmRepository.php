@@ -28,6 +28,6 @@ class SysDmailTtContentCategoryMmRepository extends MainRepository
         )
         ->orderBy('sorting')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 }

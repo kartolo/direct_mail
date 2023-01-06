@@ -37,7 +37,7 @@ class SysDmailRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetch();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -118,7 +118,7 @@ class SysDmailRepository extends MainRepository
         ->orderBy('sys_dmail.scheduled', 'DESC')
         ->addOrderBy('sys_dmail.scheduled_begin', 'DESC')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -152,7 +152,7 @@ class SysDmailRepository extends MainRepository
         )
         ->orderBy($sOrder, $ascDesc)
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**

@@ -31,6 +31,6 @@ class SysDmailTtAddressCategoryMmRepository extends MainRepository
         )
         ->orderBy('sorting')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 }

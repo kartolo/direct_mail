@@ -29,13 +29,21 @@ class FeUsersRepository extends MainRepository
                 $queryBuilder->quoteIdentifier($this->table . '.pid')
             )
         )
-        ->add('where', $this->table . '.uid = ' . (int)$uid .
-            ' AND ' . $permsClause . ' AND pages.deleted = 0')
-
-//         debug($queryBuilder->getSQL());
-//         debug($queryBuilder->getParameters());
+        ->where(
+            $queryBuilder->expr()->eq(
+                $this->table . '.uid',
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'pages.deleted',
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $permsClause
+        )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
         /**
@@ -62,7 +70,7 @@ class FeUsersRepository extends MainRepository
                 )
             );
 
-            $rows = $queryBuilder->execute()->fetchAll();
+            $rows = $queryBuilder->execute()->fetchAllAssociative();
 
             if ($rows) {
                 if (is_array($rows[0])) {

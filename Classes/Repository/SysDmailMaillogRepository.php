@@ -35,7 +35,7 @@ class SysDmailMaillogRepository extends MainRepository
         )
         ->groupBy('html_sent')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -64,7 +64,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -93,7 +93,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -122,7 +122,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -143,7 +143,7 @@ class SysDmailMaillogRepository extends MainRepository
         )
         ->orderBy('tstamp', 'DESC')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -174,7 +174,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -227,7 +227,7 @@ class SysDmailMaillogRepository extends MainRepository
         )
         ->orderBy('rid', 'ASC')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -319,7 +319,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->addOrderBy('rid')
         ->addOrderBy('tstamp')
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -344,7 +344,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -379,7 +379,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -410,7 +410,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -441,7 +441,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -472,7 +472,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -503,7 +503,7 @@ class SysDmailMaillogRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**

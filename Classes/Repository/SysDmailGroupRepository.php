@@ -39,7 +39,7 @@ class SysDmailGroupRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -71,7 +71,7 @@ class SysDmailGroupRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     /**
@@ -107,7 +107,7 @@ class SysDmailGroupRepository extends MainRepository
             $permsClause
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
         /**

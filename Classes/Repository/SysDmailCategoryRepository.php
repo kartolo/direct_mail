@@ -26,9 +26,7 @@ class SysDmailCategoryRepository extends MainRepository
             )
         )
         ->execute()
-//         debug($queryBuilder->getSQL());
-//         debug($queryBuilder->getParameters());
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 
     public function selectSysDmailCategoryForContainer(int $uid) //: array|bool
@@ -55,6 +53,6 @@ class SysDmailCategoryRepository extends MainRepository
                 )
             )
             ->orderBy($orderBy)
-            ->fetchAll();
+            ->fetchAllAssociative();
     }
 }

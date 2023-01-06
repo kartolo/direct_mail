@@ -578,7 +578,7 @@ class TempRepository extends MainRepository
             //$queryGenerator->extFieldLists['queryFields'] = 'uid';
             if ($select) {
                 $connection = $this->getConnection($table);
-                $recipients = $connection->executeQuery($select)->fetchAll();
+                $recipients = $connection->executeQuery($select)->fetchAllAssociative();
 
                 foreach ($recipients as $recipient) {
                     $outArr[] = $recipient['uid'];
@@ -749,7 +749,7 @@ class TempRepository extends MainRepository
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid))
             )
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
     }
 
     public function selectForMasssendList(string $table, string $idList, int $sendPerCycle, $sendIds)
@@ -768,7 +768,7 @@ class TempRepository extends MainRepository
             )
             ->setMaxResults($sendPerCycle)
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
     }
 
     public function getListOfRecipentCategories(string $table, string $relationTable, int $uid)
@@ -791,7 +791,7 @@ class TempRepository extends MainRepository
                 )
             )
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
     }
 
     public function getDisplayUserInfo(string $table, int $uid)
@@ -807,7 +807,7 @@ class TempRepository extends MainRepository
                 )
             )
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
     }
 
     public function deleteOldCache(int $uid)

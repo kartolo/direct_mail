@@ -34,6 +34,6 @@ class SysLanguageRepository extends MainRepository
                 )
             )
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
     }
 }

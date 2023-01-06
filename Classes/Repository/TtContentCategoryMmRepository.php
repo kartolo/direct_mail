@@ -27,6 +27,6 @@ class TtContentCategoryMmRepository extends MainRepository
             )
         )
         ->execute()
-        ->fetchAll();
+        ->fetchAllAssociative();
     }
 }
