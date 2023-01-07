@@ -34,7 +34,7 @@ use TYPO3\CMS\Lowlevel\Database\QueryGenerator;
  */
 class DmQueryGenerator extends QueryGenerator
 {
-    public $allowedTables = ['tt_address', 'fe_users'];
+    public array $allowedTables = ['tt_address', 'fe_users'];
 
     /**
      * Make table select
@@ -66,10 +66,16 @@ class DmQueryGenerator extends QueryGenerator
     /**
      * Query marker
      *
+     * @param array $allowedTables
+     *
      * @return string
      */
-    public function queryMakerDM()
+    public function queryMakerDM(array $allowedTables = [])
     {
+        if (count($allowedTables)) {
+            $this->allowedTables = $allowedTables;
+        }
+
         $output = '';
         $selectQueryString = '';
         // Query Maker:

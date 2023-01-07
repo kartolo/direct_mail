@@ -1634,7 +1634,7 @@ class DmailController extends MainController
     {
         $set = GeneralUtility::_GP('SET');
         $queryTable = $set['queryTable'];
-        $queryLimit = (int)($set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100);
+        $queryLimit = $set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100;
         $queryConfig = GeneralUtility::_GP('queryConfig');
 
         $whichTables = (int)($mailGroup['whichtables']);

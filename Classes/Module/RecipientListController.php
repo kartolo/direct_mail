@@ -580,7 +580,7 @@ class RecipientListController extends MainController
     {
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
-        $queryLimit = (int)($set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100);
+        $queryLimit = $set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100;
         $queryConfig = GeneralUtility::_GP('queryConfig');
         $whichTables = (int)$mailGroup['whichtables'];
         $table = '';
@@ -643,7 +643,7 @@ class RecipientListController extends MainController
 
         $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Lowlevel/QueryGenerator');
         $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
-        [$html, $query] = $queryGenerator->queryMakerDM();
+        [$html, $query] = $queryGenerator->queryMakerDM($this->allowedTables);
         return ['selectTables' => $html, 'query' => $query];
     }
 
