@@ -716,6 +716,7 @@ class DmailController extends MainController
         $data = [];
         foreach ($rows as $row) {
             $data[] = [
+                'id' => $row['uid'],
                 'icon' => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
                 'link' => $this->linkDMailRecord($row['uid']),
                 'linkText' => htmlspecialchars($row['subject'] ?: '_'),
