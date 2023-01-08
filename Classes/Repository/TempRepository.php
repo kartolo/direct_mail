@@ -696,9 +696,9 @@ class TempRepository extends MainRepository
                             $queryBuilder = $this->getQueryBuilder($table);
                             $olrow = $queryBuilder->select('*')
                             ->from($table)
-                            ->add('where', 'pid=' . (int)($row['pid']) .
+                            ->add('where', 'pid=' . (int)$row['pid'] .
                                 ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . (int)$sys_language_content .
-                                ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . (int)($row['uid']))
+                                ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . (int)$row['uid'])
                             ->setMaxResults(1)/* LIMIT 1*/
                             ->executeQuery()
                             ->fetchAssociative();

@@ -370,7 +370,7 @@ class StatisticsController extends MainController
 
         $totalSent = (int)(($textHtml['1'] ?? 0) + ($textHtml['2'] ?? 0) + ($textHtml['3'] ?? 0));
         $htmlSent  = (int)(($textHtml['1'] ?? 0) + ($textHtml['3'] ?? 0));
-        $plainSent = (int)(($textHtml['2'] ?? 0));
+        $plainSent = (int)($textHtml['2'] ?? 0);
 
         return [
             'table' => [
@@ -1354,7 +1354,7 @@ class StatisticsController extends MainController
 
                 if ($thisRecPointer != $currentRec) {
                     $recRec = [
-                        'mid'         => (int)($mrow['uid']),
+                        'mid'         => (int)$mrow['uid'],
                         'rid'         => $row['rid'],
                         'rtbl'        => $row['rtbl'],
                         'pings'       => [],
@@ -1464,7 +1464,7 @@ class StatisticsController extends MainController
             if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $urlParts['query'], $m)) {
                 $isInt = MathUtility::canBeInterpretedAsInteger($m[1]);
                 if ($isInt) {
-                    $uid = (int)($m[1]);
+                    $uid = (int)$m[1];
                 }
 //                @TODO
 //                 else {

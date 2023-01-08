@@ -134,7 +134,7 @@ class MailFromDraft extends AbstractTask
                 $connection->update(
                     'sys_dmail', // table
                     $updateData, // value array
-                    [ 'uid' => (int)($this->dmailUid) ] // where
+                    [ 'uid' => (int)$this->dmailUid ] // where
                 );
             }
         }

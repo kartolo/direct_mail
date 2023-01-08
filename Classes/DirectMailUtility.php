@@ -118,7 +118,7 @@ class DirectMailUtility
             $htmlmail->setJumperURLPrefix(
                 $urls['baseUrl'] . $glue .
                 'mid=###SYS_MAIL_ID###' .
-                ((int)($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
+                ((int)$params['jumpurl_tracking_privacy'] ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
                 '&aC=###SYS_AUTHCODE###' .
                 '&jumpurl='
             );
