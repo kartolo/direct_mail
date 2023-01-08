@@ -544,7 +544,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->fetchAssociative();
     }
 
-    public function insertForJumpurl(array $mailLogParams)
+    public function insertForJumpurl(array $mailLogParams): void
     {
         $connection = $this->getConnection($this->table);
         $connection->insert($this->table, $mailLogParams);
@@ -707,7 +707,7 @@ class SysDmailMaillogRepository extends MainRepository
         array $midArray,
         int $returnCode,
         string $returnContent
-    ) {
+    ): int {
         $queryBuilder = $this->getQueryBuilder($this->table);
         $queryBuilder
             ->insert($this->table)

@@ -829,7 +829,7 @@ class TempRepository extends MainRepository
         );
     }
 
-    public function updateRows(string $table, array $uidList, array $values)
+    public function updateRows(string $table, array $uidList, array $values): void
     {
         $connection = $this->getConnection($table);
         foreach ($uidList as $uid) {
