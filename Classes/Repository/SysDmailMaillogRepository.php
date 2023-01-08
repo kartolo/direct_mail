@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
+
 class SysDmailMaillogRepository extends MainRepository
 {
     protected string $table = 'sys_dmail_maillog';
@@ -16,24 +18,24 @@ class SysDmailMaillogRepository extends MainRepository
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->count('*')
-        ->addSelect('html_sent')
+        ->select('html_sent')
+        ->addSelectLiteral('COUNT(*) AS counter')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
         ->groupBy('html_sent')
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -49,20 +51,20 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)
             )
         )
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -78,20 +80,20 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(2, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(2, Connection::PARAM_INT)
             )
         )
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -107,20 +109,20 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(-1, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(-1, Connection::PARAM_INT)
             )
         )
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -136,12 +138,12 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter($responseType, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($responseType, Connection::PARAM_INT)
             )
         )
         ->orderBy('tstamp', 'DESC')
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -156,23 +158,23 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->gt(
                 'html_sent',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -183,17 +185,18 @@ class SysDmailMaillogRepository extends MainRepository
         $responseTypes = [];
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $statement = $queryBuilder->count('*')
-            ->addSelect('response_type')
+        $statement = $queryBuilder
+            ->select('response_type')
+            ->addSelectLiteral('COUNT(*) AS counter')
             ->from($this->table)
             ->where(
                 $queryBuilder->expr()->eq(
                     'mid',
-                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 )
             )
             ->groupBy('response_type')
-            ->execute();
+            ->executeQuery();
 
         while ($row = $statement->fetchAssociative()) {
             $responseTypes[$row['response_type']] = $row;
@@ -214,18 +217,18 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
         ->orderBy('rid', 'ASC')
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -238,24 +241,25 @@ class SysDmailMaillogRepository extends MainRepository
         $popularLinks = [];
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $statement = $queryBuilder->count('*')
-            ->addSelect('url_id')
+        $statement = $queryBuilder
+            ->select('url_id')
+            ->addSelectLiteral('COUNT(*) AS counter')
             ->from($this->table)
             ->where(
                 $queryBuilder->expr()->eq(
                     'mid',
-                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 )
             )
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'response_type',
-                    $queryBuilder->createNamedParameter($responseType, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($responseType, Connection::PARAM_INT)
                 )
             )
             ->groupBy('url_id')
-            ->orderBy('COUNT(*)')
-            ->execute();
+            ->orderBy('counter')
+            ->executeQuery();
 
         while ($row = $statement->fetchAssociative()) {
             $popularLinks[$row['url_id']] = $row;
@@ -271,24 +275,25 @@ class SysDmailMaillogRepository extends MainRepository
         $returnCodes = [];
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $statement = $queryBuilder->count('*')
-        ->addSelect('return_code')
+        $statement = $queryBuilder
+        ->select('return_code')
+        ->addSelectLiteral('COUNT(*) AS counter')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter($responseType, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($responseType, Connection::PARAM_INT)
             )
         )
         ->groupBy('return_code')
-        ->orderBy('COUNT(*)')
-        ->execute();
+        ->orderBy('counter')
+        ->executeQuery();
 
         while ($row = $statement->fetchAssociative()) {
             $returnCodes[$row['return_code']] = $row;
@@ -310,14 +315,14 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->orderBy('rtbl')
         ->addOrderBy('rid')
         ->addOrderBy('tstamp')
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -332,17 +337,17 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(-127, Connection::PARAM_INT)
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -357,27 +362,27 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(-127, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->or(
                 $queryBuilder->expr()->eq(
                     'return_code',
-                    $queryBuilder->createNamedParameter(550, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter(550, Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
                     'return_code',
-                    $queryBuilder->createNamedParameter(553, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter(553, Connection::PARAM_INT)
                 )
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -392,23 +397,23 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(-127, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'return_code',
-                $queryBuilder->createNamedParameter(551, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(551, Connection::PARAM_INT)
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -423,23 +428,23 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(-127, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'return_code',
-                $queryBuilder->createNamedParameter(552, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(552, Connection::PARAM_INT)
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -454,23 +459,23 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(-127, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'return_code',
-                $queryBuilder->createNamedParameter(554, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(554, Connection::PARAM_INT)
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -485,23 +490,23 @@ class SysDmailMaillogRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'mid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'response_type',
-                $queryBuilder->createNamedParameter(-127, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(-127, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $queryBuilder->expr()->eq(
                 'return_code',
-                $queryBuilder->createNamedParameter(-1, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(-1, Connection::PARAM_INT)
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -518,24 +523,24 @@ class SysDmailMaillogRepository extends MainRepository
             $queryBuilder->expr()->andX(
                 $queryBuilder->expr()->eq(
                     'rid',
-                    $queryBuilder->createNamedParameter($rid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($rid, Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
                     'rtbl',
-                    $queryBuilder->createNamedParameter($rtbl, \PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($rtbl, Connection::PARAM_STR)
                 ),
                 $queryBuilder->expr()->eq(
                     'mid',
-                    $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
                     'response_type',
-                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
             )
         )
         ->setMaxResults(1)
-        ->execute()
+        ->executeQuery()
         ->fetchAssociative();
     }
 
@@ -561,39 +566,39 @@ class SysDmailMaillogRepository extends MainRepository
             ->where(
                 $queryBuilder->expr()->eq(
                     'mid',
-                    $queryBuilder->createNamedParameter($mailLogParameters['mid'], \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mailLogParameters['mid'], Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
                     'url',
-                    $queryBuilder->createNamedParameter($mailLogParameters['url'], \PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($mailLogParameters['url'], Connection::PARAM_STR)
                 ),
                 $queryBuilder->expr()->eq(
                     'response_type',
-                    $queryBuilder->createNamedParameter($mailLogParameters['response_type'], \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mailLogParameters['response_type'], Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
                     'url_id',
-                    $queryBuilder->createNamedParameter($mailLogParameters['url_id'], \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mailLogParameters['url_id'], Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
                     'rtbl',
-                    $queryBuilder->createNamedParameter($mailLogParameters['rtbl'], \PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($mailLogParameters['rtbl'], Connection::PARAM_STR)
                 ),
                 $queryBuilder->expr()->eq(
                     'rid',
-                    $queryBuilder->createNamedParameter($mailLogParameters['rid'], \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mailLogParameters['rid'], Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->lte(
                     'tstamp',
-                    $queryBuilder->createNamedParameter($mailLogParameters['tstamp'], \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mailLogParameters['tstamp'], Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->gte(
                     'tstamp',
-                    $queryBuilder->createNamedParameter($mailLogParameters['tstamp']-10, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mailLogParameters['tstamp']-10, Connection::PARAM_INT)
                 )
             );
 
-        $existingLog = $query->execute()->fetchColumn();
+        $existingLog = $query->executeQuery()->fetchOne();
 
         return (int)$existingLog > 0;
     }
@@ -611,10 +616,10 @@ class SysDmailMaillogRepository extends MainRepository
             ->where(
                 $queryBuilder->expr()->eq(
                     'uid',
-                    $queryBuilder->createNamedParameter($values['logUid'], \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($values['logUid'], Connection::PARAM_INT)
                 )
             )
-            ->execute();
+            ->executeStatement();
     }
 
     /**
@@ -636,7 +641,7 @@ class SysDmailMaillogRepository extends MainRepository
             ->where(
                 $queryBuilder->expr()->eq(
                     'rid',
-                    $queryBuilder->createNamedParameter($rid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($rid, Connection::PARAM_INT)
                 )
             )
             ->andWhere(
@@ -648,16 +653,16 @@ class SysDmailMaillogRepository extends MainRepository
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'mid',
-                    $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
                 )
             )
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'response_type',
-                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
             )
-            ->execute();
+            ->executeQuery();
 
         return (bool)$statement->rowCount();
     }
@@ -692,7 +697,7 @@ class SysDmailMaillogRepository extends MainRepository
                 'parsetime' => $parsetime,
                 'html_sent' => $html,
             ])
-            ->execute();
+            ->executeStatement();
 
         return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
     }
@@ -716,7 +721,7 @@ class SysDmailMaillogRepository extends MainRepository
                 'return_content' => $returnContent,
                 'return_code' => $returnCode,
             ])
-            ->execute();
+            ->executeStatement();
 
         return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
     }
@@ -738,7 +743,7 @@ class SysDmailMaillogRepository extends MainRepository
             ->where(
                 $queryBuilder->expr()->eq(
                     'mid',
-                    $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
                 )
             )
             ->andWhere(
@@ -750,14 +755,14 @@ class SysDmailMaillogRepository extends MainRepository
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'response_type',
-                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
             )
-            ->execute();
+            ->executeQuery();
 
         $list = '';
 
-        while ($row = $statement->fetch()) {
+        while ($row = $statement->fetchAssociative()) {
             $list .= $row['rid'] . ',';
         }
 

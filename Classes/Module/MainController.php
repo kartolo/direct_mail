@@ -61,7 +61,7 @@ class MainController
 
     protected array $implodedParams = [];
     protected $userTable;
-    protected $allowedTables = [];
+    protected array $allowedTables = [];
     protected int $sys_language_uid = 0;
     protected array $pageinfo = [];
     protected bool $access = false;

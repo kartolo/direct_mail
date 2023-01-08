@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
+
 class SysDmailCategoryRepository extends MainRepository
 {
     protected string $table = 'sys_dmail_category';
@@ -20,13 +22,11 @@ class SysDmailCategoryRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->in(
                 'pid',
-                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             )
         )
-        ->execute()
-//         debug($queryBuilder->getSQL());
-//         debug($queryBuilder->getParameters());
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     public function selectSysDmailCategoryForContainer(int $uid) //: array|bool
@@ -53,6 +53,6 @@ class SysDmailCategoryRepository extends MainRepository
                 )
             )
             ->orderBy($orderBy)
-            ->fetchAll();
+            ->fetchAllAssociative();
     }
 }

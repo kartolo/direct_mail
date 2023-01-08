@@ -29,15 +29,15 @@ class SysDmailRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'pid',
-                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
                 'uid',
-                $queryBuilder->createNamedParameter($sys_dmail_uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($sys_dmail_uid, Connection::PARAM_INT)
             )
         )
-        ->execute()
-        ->fetch();
+        ->executeQuery()
+        ->fetchAssociative();
     }
 
     /**
@@ -57,15 +57,15 @@ class SysDmailRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'pid',
-                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->gt(
                 'scheduled',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
         ->orderBy('scheduled', 'DESC')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -95,7 +95,7 @@ class SysDmailRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'sys_dmail.pid',
-                $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->in(
                 'sys_dmail.type',
@@ -103,22 +103,22 @@ class SysDmailRepository extends MainRepository
             ),
             $queryBuilder->expr()->eq(
                 'sys_dmail.issent',
-                $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
                 'sys_dmail_maillog.response_type',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->gt(
                 'sys_dmail_maillog.html_sent',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
         ->groupBy('sys_dmail_maillog.mid')
         ->orderBy('sys_dmail.scheduled', 'DESC')
         ->addOrderBy('sys_dmail.scheduled_begin', 'DESC')
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -139,20 +139,20 @@ class SysDmailRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'pid',
-                $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
                 'scheduled',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
                 'issent',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
         ->orderBy($sOrder, $ascDesc)
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -167,14 +167,14 @@ class SysDmailRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'uid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             )
         )
         ->set('issent', 0)
         ->set('charset', $charset)
         ->set('mailContent', $mailContent)
         ->set('renderedSize', strlen($mailContent))
-        ->execute();
+        ->executeStatement();
     }
 
     /**
@@ -202,11 +202,11 @@ class SysDmailRepository extends MainRepository
             ->where(
                 $queryBuilder->expr()->eq(
                     'uid',
-                    $queryBuilder->createNamedParameter($mailId, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mailId, Connection::PARAM_INT)
                 )
             )
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
     }
 
     public function dmailerSetBeginEnd(int $mid, string $key)
@@ -220,10 +220,10 @@ class SysDmailRepository extends MainRepository
                 ->where(
                     $queryBuilder->expr()->eq(
                         'uid',
-                        $queryBuilder->createNamedParameter($mid, \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
                     )
                 )
-                ->execute();
+                ->executeStatement();
         }
     }
 
@@ -241,19 +241,19 @@ class SysDmailRepository extends MainRepository
             ->where(
                 $queryBuilder->expr()->neq(
                     'scheduled',
-                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
             )
             ->andWhere(
                 $queryBuilder->expr()->lt(
                     'scheduled',
-                    $queryBuilder->createNamedParameter(time(), \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter(time(), Connection::PARAM_INT)
                 )
             )
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'scheduled_end',
-                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
             )
             ->andWhere(
@@ -263,7 +263,7 @@ class SysDmailRepository extends MainRepository
                 )
             )
             ->orderBy('scheduled')
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
     }
 }

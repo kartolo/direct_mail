@@ -148,7 +148,7 @@ class NavFrameController extends MainController
             ->orderBy('title')
 //             debug($statement->getSQL());
 //             debug($statement->getParameters());
-            ->execute();
+            ->executeQuery();
 
         return $statement;
     }

@@ -48,7 +48,7 @@ class PagesRepository extends MainRepository
             )
         )
         ->orderBy('sorting')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -74,7 +74,7 @@ class PagesRepository extends MainRepository
                 $queryBuilder->createNamedParameter($langUid, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -96,7 +96,7 @@ class PagesRepository extends MainRepository
             )
         )
         ->orderBy('uid')
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 
@@ -122,7 +122,7 @@ class PagesRepository extends MainRepository
                 $queryBuilder->createNamedParameter($langUid, Connection::PARAM_INT)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchOne();
     }
 
@@ -158,7 +158,7 @@ class PagesRepository extends MainRepository
                 $queryBuilder->createNamedParameter($modulName)
             )
         )
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
     }
 }

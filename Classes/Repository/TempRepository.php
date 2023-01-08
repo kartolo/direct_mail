@@ -54,9 +54,9 @@ class TempRepository extends MainRepository
                     )
                 )
             )
-            ->execute();
+            ->executeQuery();
 
-            while ($row = $res->fetch()) {
+            while ($row = $res->fetchAssociative()) {
                 $outListArr[$row['uid']] = $row;
             }
         }
@@ -128,7 +128,7 @@ class TempRepository extends MainRepository
                 )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
-                ->execute();
+                ->executeQuery();
             } else {
                 $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
@@ -151,7 +151,7 @@ class TempRepository extends MainRepository
                 )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
-                ->execute();
+                ->executeQuery();
             }
         } else {
             if ($table == 'fe_groups') {
@@ -191,7 +191,7 @@ class TempRepository extends MainRepository
                         ->add(
                             $queryBuilder->expr()->eq(
                                 'sys_dmail_group.uid',
-                                $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)
+                                $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
                             )
                         )
                         ->add(
@@ -204,7 +204,7 @@ class TempRepository extends MainRepository
                 )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
-                ->execute();
+                ->executeQuery();
             } else {
                 $res = $queryBuilder
                 ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
@@ -243,7 +243,7 @@ class TempRepository extends MainRepository
                         ->add(
                             $queryBuilder->expr()->eq(
                                 'sys_dmail_group.uid',
-                                $queryBuilder->createNamedParameter($groupUid, \PDO::PARAM_INT)
+                                $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
                             )
                         )
                         ->add(
@@ -256,11 +256,11 @@ class TempRepository extends MainRepository
                 )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
-                ->execute();
+                ->executeQuery();
             }
         }
         $outArr = [];
-        while ($row = $res->fetch()) {
+        while ($row = $res->fetchAssociative()) {
             $outArr[] = $row['uid'];
         }
         return $outArr;
@@ -329,7 +329,7 @@ class TempRepository extends MainRepository
                     ->add(
                         $queryBuilder->expr()->eq(
                             'sys_dmail_group_mm.uid_local',
-                            $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                            $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                         )
                     )
                     ->add(
@@ -347,14 +347,14 @@ class TempRepository extends MainRepository
                     ->add(
                         $queryBuilder->expr()->eq(
                             'sys_dmail_group.deleted',
-                            $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                            $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                         )
                     )
                     ->add($addWhere ?? '')
             )
             ->orderBy($switchTable . '.uid')
             ->addOrderBy($switchTable . '.email')
-            ->execute();
+            ->executeQuery();
         } else {
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
@@ -382,7 +382,7 @@ class TempRepository extends MainRepository
                 ->add(
                     $queryBuilder->expr()->eq(
                         'sys_dmail_group_mm.uid_local',
-                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                     )
                 )
                 ->add(
@@ -400,19 +400,19 @@ class TempRepository extends MainRepository
                 ->add(
                     $queryBuilder->expr()->eq(
                         'sys_dmail_group.deleted',
-                        $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                     )
                 )
                 ->add($addWhere ?? '')
             )
             ->orderBy($switchTable . '.uid')
             ->addOrderBy($switchTable . '.email')
-            ->execute();
+            ->executeQuery();
         }
 
         $outArr = [];
 
-        while ($row = $res->fetch()) {
+        while ($row = $res->fetchAssociative()) {
             $outArr[] = $row['uid'];
         }
 
@@ -437,7 +437,7 @@ class TempRepository extends MainRepository
                 ->add(
                     $queryBuilder->expr()->eq(
                         'sys_dmail_group.uid',
-                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                     )
                 )
                 ->add(
@@ -453,7 +453,7 @@ class TempRepository extends MainRepository
                     )
                 )
             )
-            ->execute();
+            ->executeQuery();
 
             list($groupId) = $res->fetchAll();
 
@@ -498,9 +498,9 @@ class TempRepository extends MainRepository
                 )
                 ->orderBy($switchTable . '.uid')
                 ->addOrderBy($switchTable . '.email')
-                ->execute();
+                ->executeQuery();
 
-                while ($row = $res->fetch()) {
+                while ($row = $res->fetchAssociative()) {
                     $outArr[] = $row['uid'];
                 }
             }
@@ -548,10 +548,10 @@ class TempRepository extends MainRepository
             )
         )
         ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . (int)$groupId . ',\' )')
-        ->execute();
+        ->executeQuery();
         $groupArr = [];
 
-        while ($row = $res->fetch()) {
+        while ($row = $res->fetchAssociative()) {
             $groupArr[] = $row['uid'];
 
             // add all subgroups recursively too
@@ -574,12 +574,11 @@ class TempRepository extends MainRepository
     {
         $outArr = [];
         if ($group['query']) {
-            $select = $queryGenerator->getQueryDM();
+            $select = $queryGenerator->getQueryDM((bool)$group['queryLimitDisabled']);
             //$queryGenerator->extFieldLists['queryFields'] = 'uid';
             if ($select) {
                 $connection = $this->getConnection($table);
-                $recipients = $connection->executeQuery($select)->fetchAll();
-
+                $recipients = $connection->executeQuery($select)->fetchAllAssociative();
                 foreach ($recipients as $recipient) {
                     $outArr[] = $recipient['uid'];
                 }
@@ -620,9 +619,9 @@ class TempRepository extends MainRepository
             )
             ->add('where', 'sys_dmail_group.uid IN (' . implode(',', $groupIdList) . ')' .
                 ' AND ' . $permsClause)
-        ->execute();
+        ->executeQuery();
 
-        while ($row = $res->fetch()) {
+        while ($row = $res->fetchAssociative()) {
             if ($row['type'] == 4) {
                 // Other mail group...
                 if (!in_array($row['uid'], $parsedGroups)) {
@@ -661,8 +660,8 @@ class TempRepository extends MainRepository
                 ->from('sys_dmail_category')
                 ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
                     ' AND l18n_parent=0')
-                ->execute();
-                while ($rowCat = $res->fetch()) {
+                ->executeQuery();
+                while ($rowCat = $res->fetchAssociative()) {
                     if ($localizedRowCat = $this->getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid)) {
                         $categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
                     }
@@ -701,8 +700,8 @@ class TempRepository extends MainRepository
                                 ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . (int)$sys_language_content .
                                 ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . (int)($row['uid']))
                             ->setMaxResults(1)/* LIMIT 1*/
-                            ->execute()
-                            ->fetch();
+                            ->executeQuery()
+                            ->fetchAssociative();
 
                             // Merge record content by traversing all fields:
                             if (is_array($olrow)) {
@@ -748,8 +747,8 @@ class TempRepository extends MainRepository
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid))
             )
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 
     public function selectForMasssendList(string $table, string $idList, int $sendPerCycle, $sendIds)
@@ -767,8 +766,8 @@ class TempRepository extends MainRepository
                 $queryBuilder->expr()->notIn('uid', $sendIds)
             )
             ->setMaxResults($sendPerCycle)
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 
     public function getListOfRecipentCategories(string $table, string $relationTable, int $uid)
@@ -787,11 +786,11 @@ class TempRepository extends MainRepository
             ->where(
                 $queryBuilder->expr()->eq(
                     $relationTable . '.uid_local',
-                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 )
             )
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 
     public function getDisplayUserInfo(string $table, int $uid)
@@ -806,8 +805,8 @@ class TempRepository extends MainRepository
                     $queryBuilder->createNamedParameter($uid)
                 )
             )
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 
     public function deleteOldCache(int $uid)

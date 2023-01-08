@@ -28,7 +28,7 @@ class SysDmailGroupRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'pid',
-                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             )
         )
         ->orderBy(
@@ -38,8 +38,8 @@ class SysDmailGroupRepository extends MainRepository
                 $defaultSortBy
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -54,7 +54,7 @@ class SysDmailGroupRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'pid',
-                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             )
         )
         ->andWhere(
@@ -70,8 +70,8 @@ class SysDmailGroupRepository extends MainRepository
                 $defaultSortBy
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -106,8 +106,8 @@ class SysDmailGroupRepository extends MainRepository
         ->andWhere(
             $permsClause
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
         /**
@@ -115,7 +115,7 @@ class SysDmailGroupRepository extends MainRepository
      * @param array $updateData
      * @return int
      */
-    public function updateSysDmailGroupRecord(int $uid, array $updateData)
+    public function updateSysDmailGroupRecord(int $uid, array $updateData): int
     {
         $connection = $this->getConnection($this->table);
         return $connection->update(

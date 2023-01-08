@@ -34,7 +34,7 @@ use TYPO3\CMS\Lowlevel\Database\QueryGenerator;
  */
 class DmQueryGenerator extends QueryGenerator
 {
-    public $allowedTables = ['tt_address', 'fe_users'];
+    public array $allowedTables = ['tt_address', 'fe_users'];
 
     /**
      * Make table select
@@ -66,10 +66,16 @@ class DmQueryGenerator extends QueryGenerator
     /**
      * Query marker
      *
+     * @param array $allowedTables
+     *
      * @return string
      */
-    public function queryMakerDM()
+    public function queryMakerDM(array $allowedTables = [])
     {
+        if (count($allowedTables)) {
+            $this->allowedTables = $allowedTables;
+        }
+
         $output = '';
         $selectQueryString = '';
         // Query Maker:
@@ -77,7 +83,7 @@ class DmQueryGenerator extends QueryGenerator
         if ($this->formName) {
             $this->setFormName($this->formName);
         }
-        $tmpCode = $this->makeSelectorTable($this->settings, 'table,query');
+        $tmpCode = $this->makeSelectorTable($this->settings, 'table,query,limit');
         $output .= '<div id="query"></div><h2>Make query</h2><div>' . $tmpCode . '</div>';
         $mQ = $this->settings['search_query_makeQuery'];
 
@@ -110,19 +116,22 @@ class DmQueryGenerator extends QueryGenerator
         return ['<div class="database-query-builder">' . $output . '</div>', $selectQueryString];
     }
 
-    public function getQueryDM(): string
+    public function getQueryDM(bool $queryLimitDisabled): string
     {
         $selectQueryString = '';
         $this->init('queryConfig', $this->settings['queryTable'] ?? '', '', $this->settings);
         if ($this->formName) {
             $this->setFormName($this->formName);
         }
-        $tmpCode = $this->makeSelectorTable($this->settings, 'query');
+        $tmpCode = $this->makeSelectorTable($this->settings, 'query,limit');
         if ($this->table && is_array($GLOBALS['TCA'][$this->table])) {
             if ($this->settings['search_query_makeQuery']) {
                 // Show query
                 $this->enablePrefix = true;
                 $queryString = $this->getQuery($this->queryConfig);
+                if($queryLimitDisabled) {
+                    $this->extFieldLists['queryLimit'] = '';
+                }
                 $selectQueryString = $this->getSelectQuery($queryString);
             }
         }

@@ -36,18 +36,18 @@ class TtAddressRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 $this->table . '.uid',
-                $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
                 'pages.deleted',
-                $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
         ->andWhere(
             $permsClause
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -72,11 +72,11 @@ class TtAddressRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'pid',
-                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -107,8 +107,8 @@ class TtAddressRepository extends MainRepository
         ->andWhere(
             $permsClause
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -133,12 +133,12 @@ class TtAddressRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'a.uid',
-                $queryBuilder->createNamedParameter($ttAddressUid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($ttAddressUid, Connection::PARAM_INT)
             )
         )
         ->andWhere($permsClause)
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
@@ -153,10 +153,10 @@ class TtAddressRepository extends MainRepository
         ->where(
             $queryBuilder->expr()->eq(
                 'pid',
-                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             )
         )
-        ->execute();
+        ->executeStatement();
     }
 
     /**
@@ -179,7 +179,7 @@ class TtAddressRepository extends MainRepository
                 $queryBuilder->where(
                     $queryBuilder->expr()->eq(
                         'uid',
-                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                     ),
                     $queryBuilder->expr()->eq(
                         'deleted',
@@ -190,11 +190,11 @@ class TtAddressRepository extends MainRepository
                 $queryBuilder->where(
                     $queryBuilder->expr()->eq(
                         'uid',
-                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                     )
                 );
             }
-            $rows = $queryBuilder->execute()->fetchAll();
+            $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
 
             if ($rows) {
                 if (is_array($rows[0])) {

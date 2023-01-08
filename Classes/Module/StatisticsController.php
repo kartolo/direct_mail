@@ -202,8 +202,9 @@ class StatisticsController extends MainController
         if (is_array($rows)) {
             foreach ($rows as $row) {
                 $data[] = [
+                    'id'              => $row['uid'],
                     'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-                    'subject'         => $this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'], 30) . '  ', $row['uid'], $row['subject']),
+                    'subject'         => $this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'], 50) . '  ', $row['uid'], $row['subject']),
                     'scheduled'       => BackendUtility::datetime($row['scheduled']),
                     'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
                     'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
@@ -345,18 +346,14 @@ class StatisticsController extends MainController
     protected function mailResponsesGeneral(int $mailingId): array
     {
         $table = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogsResponseTypeByMid($mailingId);
-        $table = $this->changekeyname($table, 'counter', 'COUNT(*)');
-
-        // Plaintext/HTML
-        $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogAllByMid($mailingId);
-
-        /* this function is called to change the key from 'COUNT(*)' to 'counter' */
-        $res = $this->changekeyname($res, 'counter', 'COUNT(*)');
 
         $textHtml = [];
-        foreach ($res as $row2) {
+
+        // Plaintext/HTML
+        $rows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogAllByMid($mailingId);
+        foreach ($rows as $row) {
             // 0:No mail; 1:HTML; 2:TEXT; 3:HTML+TEXT
-            $textHtml[$row2['html_sent']] = $row2['counter'];
+            $textHtml[$row['html_sent']] = $row['counter'];
         }
 
         // Unique responses, html
@@ -457,11 +454,9 @@ class StatisticsController extends MainController
 
         // Most popular links, html:
         $htmlUrlsTable = $sysDmailMaillogRepository->selectMostPopularLinks($row['uid'], 1);
-        $htmlUrlsTable = $this->changekeyname($htmlUrlsTable, 'counter', 'COUNT(*)');
 
         // Most popular links, plain:
         $plainUrlsTable = $sysDmailMaillogRepository->selectMostPopularLinks($row['uid'], 2);
-        $plainUrlsTable = $this->changekeyname($plainUrlsTable, 'counter', 'COUNT(*)');
 
         // Find urls:
         $unpackedMail = unserialize(base64_decode($row['mailContent']));
@@ -726,7 +721,6 @@ class StatisticsController extends MainController
 
         // Table with Icon
         $responseResult = $sysDmailMaillogRepository->countReturnCode($row['uid']);
-        $responseResult = $this->changekeyname($responseResult, 'counter', 'COUNT(*)');
 
         $tables[4] = [
             'head' => [
@@ -1321,24 +1315,6 @@ class StatisticsController extends MainController
             'return_path'   => htmlspecialchars($row['return_path']),
         ];
         return $data;
-    }
-
-    /**
-     * Switch the key of an array
-     *
-     * @return $array
-     */
-    private function changekeyname($array, $newkey, $oldkey)
-    {
-        foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                $array[$key] = $this->changekeyname($value, $newkey, $oldkey);
-            } else {
-                $array[$newkey] =  $array[$oldkey];
-            }
-        }
-        unset($array[$oldkey]);
-        return $array;
     }
 
     /**
