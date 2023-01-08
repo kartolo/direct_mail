@@ -69,6 +69,8 @@
 			</f:comment>
 			<f:comment>'queryform' for QueryGenerator.js from lowlevel</f:comment>
             <f:form action="" method="post" name="queryform" enctype="multipart/form-data">
+                <f:form.checkbox name="SET[queryLimitDisabled]" value="1" checked="{data.queryLimitDisabled}" /> <f:translate key="{lll}queryLimitDisabled" />
+                <button class="btn btn-default" title="Update" name="just_update"><i class="fa fa-refresh fa-fw"></i></button>
                 <f:format.html>{data.special.selectTables}</f:format.html>
                 <f:form.hidden name="cmd" value="displayMailGroup" />
                 <f:form.hidden name="group_uid" value="{data.group_id}" />

@@ -116,7 +116,7 @@ class DmQueryGenerator extends QueryGenerator
         return ['<div class="database-query-builder">' . $output . '</div>', $selectQueryString];
     }
 
-    public function getQueryDM(): string
+    public function getQueryDM(bool $queryLimitDisabled): string
     {
         $selectQueryString = '';
         $this->init('queryConfig', $this->settings['queryTable'] ?? '', '', $this->settings);
@@ -129,6 +129,9 @@ class DmQueryGenerator extends QueryGenerator
                 // Show query
                 $this->enablePrefix = true;
                 $queryString = $this->getQuery($this->queryConfig);
+                if($queryLimitDisabled) {
+                    $this->extFieldLists['queryLimit'] = '';
+                }
                 $selectQueryString = $this->getSelectQuery($queryString);
             }
         }

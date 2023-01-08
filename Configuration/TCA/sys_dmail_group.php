@@ -159,6 +159,18 @@ return [
                 'rows' => '10',
             ],
         ],
+        'queryLimit' => [
+            'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.queryLimit',
+            'config' => [
+                'type' => 'input',
+            ]
+        ],
+        'queryLimitDisabled' => [
+            'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.queryLimitDisabled',
+            'config' => [
+                'type' => 'check',
+            ],
+        ],
     ],
     'types' => [
         '0' => ['showitem' => 'type, sys_language_uid, title, description, --div--;LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.advanced,pages,recursive,whichtables,select_categories'],

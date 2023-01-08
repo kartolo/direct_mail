@@ -451,8 +451,8 @@ class RecipientListController extends MainController
 
         $group = BackendUtility::getRecord('sys_dmail_group', $this->group_uid);
         $group = is_array($group) ? $group : [];
-
         $data = [
+            'queryLimitDisabled' => $group['queryLimitDisabled'] ?? true,
             'group_id' => $this->group_uid,
             'group_icon' => $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL),
             'group_title' => htmlspecialchars($group['title'] ?? ''),
@@ -581,6 +581,7 @@ class RecipientListController extends MainController
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
         $queryLimit = $set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100;
+        $queryLimitDisabled = ($set['queryLimitDisabled'] ?? $mailGroup['queryLimitDisabled']) == '' ? 0 : 1;
         $queryConfig = GeneralUtility::_GP('queryConfig');
         $whichTables = (int)$mailGroup['whichtables'];
         $table = '';
@@ -605,7 +606,11 @@ class RecipientListController extends MainController
 
         $this->MOD_SETTINGS['queryLimit'] = $queryLimit;
 
-        if ($this->MOD_SETTINGS['queryTable'] != $table || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query'] || $this->MOD_SETTINGS['queryLimit'] != $mailGroup['queryLimit']) {
+        if ($this->MOD_SETTINGS['queryTable'] != $table
+            || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query']
+            || $this->MOD_SETTINGS['queryLimit'] != $mailGroup['queryLimit']
+            || $queryLimitDisabled != $mailGroup['queryLimitDisabled']
+        ) {
             $whichTables = 0;
             if ($this->MOD_SETTINGS['queryTable'] == 'tt_address') {
                 $whichTables = 1;
@@ -618,6 +623,7 @@ class RecipientListController extends MainController
                 'whichtables' => (int)$whichTables,
                 'query' => $this->MOD_SETTINGS['queryConfig'],
                 'queryLimit' => $this->MOD_SETTINGS['queryLimit'],
+                'queryLimitDisabled' => $queryLimitDisabled,
             ];
 
             $done = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->updateSysDmailGroupRecord((int)$mailGroup['uid'], $updateFields);

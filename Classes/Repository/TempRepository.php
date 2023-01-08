@@ -574,12 +574,11 @@ class TempRepository extends MainRepository
     {
         $outArr = [];
         if ($group['query']) {
-            $select = $queryGenerator->getQueryDM();
+            $select = $queryGenerator->getQueryDM((bool)$group['queryLimitDisabled']);
             //$queryGenerator->extFieldLists['queryFields'] = 'uid';
             if ($select) {
                 $connection = $this->getConnection($table);
                 $recipients = $connection->executeQuery($select)->fetchAllAssociative();
-
                 foreach ($recipients as $recipient) {
                     $outArr[] = $recipient['uid'];
                 }
