@@ -167,7 +167,7 @@ class MainController
         $module = $this->pageinfo['module'] ?? false;
 
         if (!$module && isset($this->pageinfo['pid'])) {
-            $pidrec = BackendUtility::getRecord('pages', (int)($this->pageinfo['pid']));
+            $pidrec = BackendUtility::getRecord('pages', (int)$this->pageinfo['pid']);
             $module = $pidrec['module'] ?? false;
         }
 

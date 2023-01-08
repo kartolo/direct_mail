@@ -171,7 +171,7 @@ class DmailController extends MainController
         }
 
         $row = [];
-        if ((int)($this->sys_dmail_uid)) {
+        if ((int)$this->sys_dmail_uid) {
             $row = BackendUtility::getRecord('sys_dmail', $this->sys_dmail_uid);
             $isExternalDirectMailRecord = (is_array($row) && $row['type'] == 1);
         }
@@ -787,7 +787,7 @@ class DmailController extends MainController
             $dataHandler->process_datamap();
             $this->sys_dmail_uid = $dataHandler->substNEWwithIDs['NEW'];
 
-            $row = BackendUtility::getRecord('sys_dmail', (int)($this->sys_dmail_uid));
+            $row = BackendUtility::getRecord('sys_dmail', (int)$this->sys_dmail_uid);
             // link in the mail
             $message = '<!--DMAILER_SECTION_BOUNDARY_-->' . $indata['message'] . '<!--DMAILER_SECTION_BOUNDARY_END-->';
             if (trim($this->params['use_rdct'])) {
@@ -1547,7 +1547,7 @@ class DmailController extends MainController
 
                         // Make queries
                         if ($pidList) {
-                            $whichTables = (int)($mailGroup['whichtables']);
+                            $whichTables = (int)$mailGroup['whichtables'];
                             if ($whichTables&1) {
                                 // tt_address
                                 $idLists['tt_address'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('tt_address', $pidList, $groupUid, $mailGroup['select_categories']);
@@ -1639,7 +1639,7 @@ class DmailController extends MainController
         $queryLimit = $set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100;
         $queryLimitDisabled = ($set['queryLimitDisabled'] ?? $mailGroup['queryLimitDisabled']) == '' ? 0 : 1;
         $queryConfig = GeneralUtility::_GP('queryConfig');
-        $whichTables = (int)($mailGroup['whichtables']);
+        $whichTables = (int)$mailGroup['whichtables'];
         $table = '';
         if ($whichTables&1) {
             $table = 'tt_address';

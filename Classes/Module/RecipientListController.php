@@ -170,7 +170,7 @@ class RecipientListController extends MainController
         $rows = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupByPid($this->id, trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby']));
 
         foreach ($rows as $row) {
-            $result = $this->cmd_compileMailGroup((int)($row['uid']));
+            $result = $this->cmd_compileMailGroup((int)$row['uid']);
             $count = 0;
             $idLists = $result['queryInfo']['id_lists'];
 
@@ -260,7 +260,7 @@ class RecipientListController extends MainController
 
                         // Make queries
                         if ($pidList) {
-                            $whichTables = (int)($mailGroup['whichtables']);
+                            $whichTables = (int)$mailGroup['whichtables'];
                             // tt_address
                             if ($whichTables&1) {
                                 $idLists['tt_address'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('tt_address', $pidList, $groupUid, $mailGroup['select_categories']);
@@ -307,7 +307,7 @@ class RecipientListController extends MainController
                     case 3:
                         // Special query list
                         $mailGroup = $this->updateSpecialQuery($mailGroup);
-                        $whichTables = (int)($mailGroup['whichtables']);
+                        $whichTables = (int)$mailGroup['whichtables'];
                         $table = '';
                         if ($whichTables&1) {
                             $table = 'tt_address';

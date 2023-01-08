@@ -61,7 +61,7 @@ class SelectCategories
             $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
 
             foreach ($params['items'] as $k => $item) {
-                $rows = $tempRepository->selectRowsByUid($table, (int)($item[1]));
+                $rows = $tempRepository->selectRowsByUid($table, (int)$item[1]);
                 if (is_array($rows)) {
                     foreach ($rows as $rowCat) {
                         if ($localizedRowCat = $tempRepository->getRecordOverlay($table, $rowCat, $sys_language_uid)) {
