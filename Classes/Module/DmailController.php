@@ -1542,30 +1542,29 @@ class DmailController extends MainController
                         }
                         // Remove any duplicates
                         $pageIdArray = array_unique($pageIdArray);
-                        $pidList = implode(',', $pageIdArray);
                         $info['recursive'] = $mailGroup['recursive'];
 
                         // Make queries
-                        if ($pidList) {
+                        if (count($pageIdArray)) {
                             $whichTables = (int)$mailGroup['whichtables'];
                             if ($whichTables&1) {
                                 // tt_address
-                                $idLists['tt_address'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('tt_address', $pidList, $groupUid, $mailGroup['select_categories']);
+                                $idLists['tt_address'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('tt_address', $pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
                             if ($whichTables&2) {
                                 // fe_users
-                                $idLists['fe_users'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('fe_users', $pidList, $groupUid, $mailGroup['select_categories']);
+                                $idLists['fe_users'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('fe_users', $pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
                             if ($this->userTable && ($whichTables&4)) {
                                 // user table
-                                $idLists[$this->userTable] = GeneralUtility::makeInstance(TempRepository::class)->getIdList($this->userTable, $pidList, $groupUid, $mailGroup['select_categories']);
+                                $idLists[$this->userTable] = GeneralUtility::makeInstance(TempRepository::class)->getIdList($this->userTable, $pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
                             if ($whichTables&8) {
                                 // fe_groups
                                 if (!is_array($idLists['fe_users'])) {
                                     $idLists['fe_users'] = [];
                                 }
-                                $idLists['fe_users'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('fe_groups', $pidList, $groupUid, $mailGroup['select_categories']);
+                                $idLists['fe_users'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('fe_groups', $pageIdArray, $groupUid, $mailGroup['select_categories']);
                                 $idLists['fe_users'] = array_unique(array_merge($idLists['fe_users']));
                             }
                         }

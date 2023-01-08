@@ -21,7 +21,7 @@ class TempRepository extends MainRepository
      *
      * @return array recipients' data
      */
-    public function fetchRecordsListValues(array $listArr, $table, $fields = 'uid,name,email')
+    public function fetchRecordsListValues(array $listArr, string $table, string $fields = 'uid,name,email'): array
     {
         $outListArr = [];
         if (is_array($listArr) && count($listArr)) {
@@ -71,18 +71,16 @@ class TempRepository extends MainRepository
      * (Must be correctly defined in TCA).
      *
      * @param string $table The table to select from
-     * @param string $pidList The pidList
+     * @param array $pidArray The pidArray
      * @param int $groupUid The groupUid.
      * @param int $cat The number of relations from sys_dmail_group to sysmail_categories
      *
      * @return	array The resulting array of uid's
      */
-    public function getIdList($table, $pidList, $groupUid, $cat)
+    public function getIdList(string $table, array $pidArray, int $groupUid, int $cat): array
     {
         $addWhere = '';
         $switchTable = $table == 'fe_groups' ? 'fe_users' : $table;
-        $pidArray = GeneralUtility::intExplode(',', $pidList);
-
         $queryBuilder = $this->getQueryBuilder($table);
 
         if ($switchTable == 'fe_users') {
@@ -102,7 +100,6 @@ class TempRepository extends MainRepository
         // The following will work but INSTR and CONCAT are available only in mySQL
 
         $mmTable = $GLOBALS['TCA'][$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
-        $cat = (int)$cat;
         if ($cat < 1) {
             if ($table == 'fe_groups') {
                 $res = $queryBuilder
@@ -165,7 +162,10 @@ class TempRepository extends MainRepository
                     'mm_1',
                     $switchTable,
                     $switchTable,
-                    $queryBuilder->expr()->eq($switchTable . '.uid', $queryBuilder->quoteIdentifier('mm_1.uid_local'))
+                    $queryBuilder->expr()->eq(
+                        $switchTable . '.uid',
+                        $queryBuilder->quoteIdentifier('mm_1.uid_local')
+                    )
                 )
                 ->andWhere(
                     $queryBuilder->expr()->andX()
@@ -274,7 +274,7 @@ class TempRepository extends MainRepository
      *
      * @return array The resulting array of uid's
      */
-    public function getStaticIdList($table, $uid)
+    public function getStaticIdList(string $table, int $uid): array
     {
         $switchTable = $table == 'fe_groups' ? 'fe_users' : $table;
         $queryBuilder = $this->getQueryBuilder($table);
@@ -516,7 +516,7 @@ class TempRepository extends MainRepository
      *
      * @return array The all id of fe_groups
      */
-    public function getFEgroupSubgroups($groupId)
+    public function getFEgroupSubgroups(int $groupId): array
     {
         // get all subgroups of this fe_group
         // fe_groups having this id in their subgroup field
@@ -549,8 +549,8 @@ class TempRepository extends MainRepository
         )
         ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . (int)$groupId . ',\' )')
         ->executeQuery();
-        $groupArr = [];
 
+        $groupArr = [];
         while ($row = $res->fetchAssociative()) {
             $groupArr[] = $row['uid'];
 
@@ -596,7 +596,7 @@ class TempRepository extends MainRepository
      *
      * @return array the new Group IDs
      */
-    public function getMailGroups($list, array $parsedGroups, $permsClause)
+    public function getMailGroups(string $list, array $parsedGroups, string $permsClause): array
     {
         $groupIdList = GeneralUtility::intExplode(',', $list);
         $groups = [];
@@ -645,7 +645,7 @@ class TempRepository extends MainRepository
      *
      * @return array the categories in an array with the cat id as keys
      */
-    public function makeCategories(string $table, array $row, int $sysLanguageUid)
+    public function makeCategories(string $table, array $row, int $sysLanguageUid): array
     {
         $categories = [];
 
