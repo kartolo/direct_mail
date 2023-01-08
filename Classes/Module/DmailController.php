@@ -611,6 +611,7 @@ class DmailController extends MainController
                 ];
 
                 $data[] = [
+                    'id' => $row['uid'],
                     'pageIcon' => $this->iconFactory->getIconForRecord('pages', $row, Icon::SIZE_SMALL),
                     'title' => htmlspecialchars($row['title']),
                     'createDmailLink' => $createDmailLink,

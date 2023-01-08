@@ -66,7 +66,7 @@
 					<p><f:format.html>{data.cats.output.subtitle}</f:format.html></p>
 					<f:if condition="{data.cats.output.rowsFound}">
 						<f:if condition="{data.cats.output.rows -> f:count()}">
-							<table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-hover">
+							<table class="table table-striped table-hover">
 								<f:for each="{data.cats.output.rows}" as="row">
 									<tr>
 										<f:if condition="{row.separator}">
@@ -357,9 +357,17 @@
     <f:if condition="{data.news.rows}">
     	<f:if condition="{data.news.rows -> f:count()}">
 		    <table class="table table-striped table-hover">
+                <thead>
+                    <th><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.uid" /></th>
+                    <th><f:translate key="{lll}nl_l_subject" /></th>
+                    <th colspan="3">&nbsp;</th>
+                </thead>
 		    	<tbody>
 		    		<f:for each="{data.news.rows}" as="row">
 		    			<tr class="db_list_normal">
+                            <td>
+                                {row.id}
+                            </td>
 		    				<td>
 		    					<a href="{row.createDmailLink -> f:format.html()}"><f:format.html>{row.pageIcon}&nbsp;{row.title}</f:format.html></a>
 		    				</td>
