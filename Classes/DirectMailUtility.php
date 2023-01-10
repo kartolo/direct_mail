@@ -45,7 +45,7 @@ class DirectMailUtility
      *
      * @return string The label
      */
-    public static function fName($name)
+    public static function fName($name): string
     {
         return stripslashes(self::getLanguageService()->sL(BackendUtility::getItemLabel('sys_dmail', $name)));
     }
@@ -63,7 +63,7 @@ class DirectMailUtility
      *
      * @param string $url
      *
-     * @return string&or ?
+     * @return string '& or ?'
      */
     public static function getURLGlue(string $url): string
     {
@@ -346,9 +346,9 @@ class DirectMailUtility
      * @see makeRedirectUrl()
      * @deprecated since TYPO3 CMS 7, will be removed in TYPO3 CMS 8. Use mailer API instead
      */
-    public static function substUrlsInPlainText($message, $urlmode = '76', $index_script_url = '')
+    public static function substUrlsInPlainText(string $message, string $urlmode = '76', string $index_script_url = '')
     {
-        switch ((string)$urlmode) {
+        switch ($urlmode) {
             case '':
                 $lengthLimit = false;
                 break;
