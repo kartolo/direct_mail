@@ -21,6 +21,7 @@ use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailTtAddressCategoryMmRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
@@ -28,6 +29,7 @@ use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -62,7 +64,7 @@ class Importer
      *
      * @param $pObj $pObj The parent object
      */
-    public function init(&$pObj)
+    public function init(&$pObj): void
     {
         $this->parent = &$pObj;
 
@@ -76,7 +78,7 @@ class Importer
      *
      * @return	array		HTML form
      */
-    public function displayImport()
+    public function displayImport(): array
     {
         $output = [
             'title' => '',
@@ -588,7 +590,7 @@ class Importer
      *
      * @return array Array containing doublette, updated and invalid-email records
      */
-    public function doImport(array $csvData)
+    public function doImport(array $csvData): array
     {
         $resultImport = [];
         $filteredCSV = [];
@@ -747,7 +749,7 @@ class Importer
      * @param string $id Record ID
      * @param array $dataArray The data to be imported
      */
-    public function addDataArray(array &$data, $id, array $dataArray)
+    public function addDataArray(array &$data, $id, array $dataArray): void
     {
         $data['tt_address'][$id] = $dataArray;
         $data['tt_address'][$id]['pid'] = $this->indata['storage'];
@@ -767,7 +769,7 @@ class Importer
      *
      * @return	array		file content in array
      */
-    public function readCSV()
+    public function readCSV(): array
     {
         $mydata = [];
 
@@ -813,7 +815,7 @@ class Importer
      *
      * @return	array File content in array
      */
-    public function readExampleCSV($records = 3)
+    public function readExampleCSV($records = 3): array
     {
         $mydata = [];
 
@@ -864,7 +866,7 @@ class Importer
      * @return	array	array of charset-converted values
      * @see \TYPO3\CMS\Core\Charset\CharsetConverter::conv[]
      */
-    public function convCharset(array $data)
+    public function convCharset(array $data): array
     {
         $dbCharset = 'utf-8';
         if ($dbCharset != $this->indata['charset']) {
@@ -881,7 +883,7 @@ class Importer
      *
      * @return	array		path and uid of the temp file
      */
-    public function writeTempFile(string $csv, string $newFile, int $newFileUid)
+    public function writeTempFile(string $csv, string $newFile, int $newFileUid): array
     {
         $newfile = ['newFile' => '', 'newFileUid' => 0];
 
@@ -932,7 +934,7 @@ class Importer
      * @return	array	\TYPO3\CMS\Core\Resource\File	the complete physical file name, including path info.
      * @throws \Exception
      */
-    public function checkUpload()
+    public function checkUpload(): array
     {
         $newfile = ['newFile' => '', 'newFileUid' => 0];
 
@@ -998,7 +1000,7 @@ class Importer
      *
      * @return	string Absolute path to first "_temp_" folder of the current user, otherwise blank.
      */
-    public function userTempFolder()
+    public function userTempFolder(): string
     {
         /** @var \TYPO3\CMS\Core\Resource\Folder $folder */
         $folder = $this->getBeUser()->getDefaultUploadTemporaryFolder();
@@ -1019,7 +1021,7 @@ class Importer
      *
      * @return LanguageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }
@@ -1027,12 +1029,12 @@ class Importer
     /**
      * @return BackendUserAuthentication
      */
-    protected function getBeUser()
+    protected function getBeUser(): BackendUserAuthentication
     {
         return $GLOBALS['BE_USER'];
     }
 
-    protected function getMessageQueue()
+    protected function getMessageQueue(): FlashMessageQueue
     {
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
         return $flashMessageService->getMessageQueueByIdentifier();
@@ -1050,7 +1052,7 @@ class Importer
      * @param int $messageType
      * @param bool $storeInSession
      */
-    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false)
+    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false): FlashMessage
     {
         return GeneralUtility::makeInstance(
             FlashMessage::class,

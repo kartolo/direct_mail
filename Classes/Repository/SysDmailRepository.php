@@ -209,7 +209,7 @@ class SysDmailRepository extends MainRepository
             ->fetchAssociative();
     }
 
-    public function dmailerSetBeginEnd(int $mid, string $key)
+    public function dmailerSetBeginEnd(int $mid, string $key): void
     {
         if (in_array($key, ['begin', 'end'])) {
             $queryBuilder = $this->getQueryBuilder($this->table);
