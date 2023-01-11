@@ -85,4 +85,12 @@ defined('TYPO3') || die();
         'description' => 'This task will get bounce mail from the configured mailbox',
         'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields',
     ];
+
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig(
+        "@import 'EXT:direct_mail/Configuration/TSconfig/User/options.tsconfig'"
+    );
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptSetup(
+        "@import 'EXT:direct_mail/Configuration/TSconfig/page.tsconfig'"
+    );
+
 })();

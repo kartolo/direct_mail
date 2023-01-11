@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="EXT:direct_mail/Resources/Private/Language/Modules/locallang.xlf" date="2023-01-11T17:00:00Z" product-name="direct_mail">
+        <header/>
+        <body>
+            <trans-unit id="widgets.dm.title" resname="widgets.dm.title">
+                <source>DM Title</source>
+            </trans-unit>
+            <trans-unit id="widgets.dm.description" resname="widgets.dm.description">
+                <source>DM Description</source>
+            </trans-unit>
+            <trans-unit id="widget_group.dm" resname="widget_group.dm">
+                <source>DM Group</source>
+            </trans-unit>
+            <trans-unit id="dashboard.dm" resname="dashboard.dm">
+                <source>DM Dashboard</source>
+            </trans-unit>
+            <trans-unit id="dashboard.dm.description" resname="dashboard.dm.description">
+                <source>DM Dashboard Description</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

@@ -6,7 +6,7 @@ services:
 
   DirectMailTeam\DirectMail\:
     resource: '../Classes/*'
-    
+
   DirectMailTeam\DirectMail\Command\InvokeMailerEngineCommand:
     tags:
       - name: 'console.command'
@@ -22,3 +22,22 @@ services:
       - name: 'console.command'
         command: 'directmail:analyzebouncemail'
         description: 'This command will get bounce mail from the configured mailbox.'
+
+  dashboard.widget.dm:
+    class: 'DirectMailTeam\DirectMail\Widgets\DmWidget'
+    arguments:
+      $view: '@dashboard.views.widget'
+      #$buttonProvider: '@dashboard.buttons.dm'
+      #$cache: '@cache.dashboard.dm'
+      #$options:
+      #  icon: ''
+      #  text: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dm.content.text'
+    tags:
+      - name: dashboard.widget
+        identifier: 'dm'
+        groupNames: 'dm'
+        title: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dm.title'
+        description: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dm.description'
+        #iconIdentifier: ''
+        #height: 'large'
+        #width: 'medium'
