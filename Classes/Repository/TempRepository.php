@@ -455,7 +455,8 @@ class TempRepository extends MainRepository
             )
             ->executeQuery();
 
-            list($groupId) = $res->fetchAll();
+            $groups = $res->fetchAll();
+            $groupId = $groups ? $groups[0] : 0;
 
             // recursively get all subgroups of this fe_group
             $subgroups = $this->getFEgroupSubgroups($groupId);
