@@ -204,4 +204,76 @@ class TtAddressRepository extends MainRepository
         }
         return 0;
     }
+
+        /**
+     * Return all uid's from 'tt_address' for a static direct mail group.
+     *
+     * @param int $uid The uid of the direct_mail group
+     *
+     * @return array The resulting array of uid's
+     */
+    public function getStaticIdList(int $uid): array
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        $res = $queryBuilder
+        ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
+        ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
+        ->innerJoin(
+            'sys_dmail_group_mm',
+            'sys_dmail_group',
+            'sys_dmail_group',
+            $queryBuilder->expr()->eq(
+                'sys_dmail_group_mm.uid_local',
+                $queryBuilder->quoteIdentifier('sys_dmail_group.uid')
+            )
+        )
+        ->innerJoin(
+            'sys_dmail_group_mm',
+            $this->table,
+            $this->table,
+            $queryBuilder->expr()->eq(
+                'sys_dmail_group_mm.uid_foreign',
+                $queryBuilder->quoteIdentifier($this->table . '.uid')
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->andX()
+            ->add(
+                $queryBuilder->expr()->eq(
+                    'sys_dmail_group_mm.uid_local',
+                    $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
+                )
+            )
+            ->add(
+                $queryBuilder->expr()->eq(
+                    'sys_dmail_group_mm.tablenames',
+                    $queryBuilder->createNamedParameter($this->table)
+                )
+            )
+            ->add(
+                $queryBuilder->expr()->neq(
+                    $this->table . '.email',
+                    $queryBuilder->createNamedParameter('')
+                )
+            )
+            ->add(
+                $queryBuilder->expr()->eq(
+                    'sys_dmail_group.deleted',
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                )
+            )
+        )
+        ->orderBy($this->table . '.uid')
+        ->addOrderBy($this->table . '.email')
+        ->executeQuery();
+
+        $outArr = [];
+
+        while ($row = $res->fetchAssociative()) {
+            $outArr[] = $row['uid'];
+        }
+
+        return $outArr;
+    }
 }

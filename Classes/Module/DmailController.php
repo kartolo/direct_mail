@@ -1582,7 +1582,7 @@ class DmailController extends MainController
                         break;
                     case 2:
                         // Static MM list
-                        $idLists['tt_address'] = GeneralUtility::makeInstance(TempRepository::class)->getStaticIdList('tt_address', $groupUid);
+                        $idLists['tt_address'] = GeneralUtility::makeInstance(TtAddressRepository::class)->getStaticIdList($groupUid);
                         $idLists['fe_users'] = GeneralUtility::makeInstance(TempRepository::class)->getStaticIdList('fe_users', $groupUid);
                         $tempGroups = GeneralUtility::makeInstance(TempRepository::class)->getStaticIdList('fe_groups', $groupUid);
                         $idLists['fe_users'] = array_unique(array_merge($idLists['fe_users'], $tempGroups));
