@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Repository;
 
 use DirectMailTeam\DirectMail\DmQueryGenerator;
+use DirectMailTeam\DirectMail\Repository\FeGroupsRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
@@ -419,7 +420,7 @@ class TempRepository extends MainRepository
         if ($table == 'fe_groups') {
             // get the uid of the current fe_group
             $queryBuilder = $this->getQueryBuilder($table);
-            $res = $queryBuilder
+            $queryBuilder
             ->selectLiteral('DISTINCT ' . $table . '.uid')
             ->from($table, $table)
             ->from('sys_dmail_group', 'sys_dmail_group')
@@ -455,10 +456,14 @@ class TempRepository extends MainRepository
             )
             ->executeQuery();
 
-            list($groupId) = $res->fetchAll();
+            $res = $queryBuilder->executeQuery();
+            $groupId = $res->fetchOne();
+            $subgroups = [];
 
-            // recursively get all subgroups of this fe_group
-            $subgroups = $this->getFEgroupSubgroups($groupId);
+            if ($groupId) {
+                // recursively get all subgroups of this fe_group
+                $subgroups = GeneralUtility::makeInstance(FeGroupsRepository::class)->getFEgroupSubgroups($groupId);
+            }
 
             if (!empty($subgroups)) {
                 $usergroupInList = null;
@@ -507,58 +512,6 @@ class TempRepository extends MainRepository
         }
 
         return $outArr;
-    }
-
-    /**
-     * Get all subsgroups recursively.
-     *
-     * @param int $groupId Parent fe usergroup
-     *
-     * @return array The all id of fe_groups
-     */
-    public function getFEgroupSubgroups(int $groupId): array
-    {
-        // get all subgroups of this fe_group
-        // fe_groups having this id in their subgroup field
-
-        $table = 'fe_groups';
-        $mmTable = 'sys_dmail_group_mm';
-        $groupTable = 'sys_dmail_group';
-
-        $queryBuilder = $this->getQueryBuilder($table);
-
-        $res = $queryBuilder->selectLiteral('DISTINCT fe_groups.uid')
-        ->from($table, $table)
-        ->join(
-            $table,
-            $mmTable,
-            $mmTable,
-            $queryBuilder->expr()->eq(
-                $mmTable . '.uid_local',
-                $queryBuilder->quoteIdentifier($table . '.uid')
-            )
-        )
-        ->join(
-            $mmTable,
-            $groupTable,
-            $groupTable,
-            $queryBuilder->expr()->eq(
-                $mmTable . '.uid_local',
-                $queryBuilder->quoteIdentifier($groupTable . '.uid')
-            )
-        )
-        ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . (int)$groupId . ',\' )')
-        ->executeQuery();
-
-        $groupArr = [];
-        while ($row = $res->fetchAssociative()) {
-            $groupArr[] = $row['uid'];
-
-            // add all subgroups recursively too
-            $groupArr = array_merge($groupArr, $this->getFEgroupSubgroups($row['uid']));
-        }
-
-        return $groupArr;
     }
 
     /**

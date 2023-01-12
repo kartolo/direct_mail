@@ -152,14 +152,12 @@ class FeGroupsRepository extends MainRepository
             // fetch all fe_users from these subgroups
             $queryBuilder = $this->getQueryBuilder($this->table);
             // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
-            if ($switchTable == 'fe_users') {
-                $addWhere =  $queryBuilder->expr()->eq(
-                    $switchTable . '.module_sys_dmail_newsletter',
-                    1
-                );
-            }
+            $addWhere =  $queryBuilder->expr()->eq(
+                $switchTable . '.module_sys_dmail_newsletter',
+                1
+            );
 
-            $res = $queryBuilder
+            $queryBuilder
             ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
             ->from($this->table, $this->table)
             ->innerJoin(
@@ -176,11 +174,17 @@ class FeGroupsRepository extends MainRepository
                             $queryBuilder->createNamedParameter('')
                         )
                     )
-                    ->add($addWhere ?? '')
+                    ->add(
+                        $queryBuilder->expr()->eq(
+                            $switchTable . '.module_sys_dmail_newsletter',
+                            1
+                        )
+                    )
             )
             ->orderBy($switchTable . '.uid')
-            ->addOrderBy($switchTable . '.email')
-            ->executeQuery();
+            ->addOrderBy($switchTable . '.email');
+
+            $res = $queryBuilder->executeQuery();
 
             while ($row = $res->fetchAssociative()) {
                 $outArr[] = $row['uid'];
@@ -207,7 +211,7 @@ class FeGroupsRepository extends MainRepository
 
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $res = $queryBuilder->selectLiteral('DISTINCT fe_groups.uid')
+        $queryBuilder->selectLiteral('DISTINCT fe_groups.uid')
         ->from($this->table, $this->table)
         ->join(
             $this->table,
@@ -227,8 +231,9 @@ class FeGroupsRepository extends MainRepository
                 $queryBuilder->quoteIdentifier($groupTable . '.uid')
             )
         )
-        ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . $groupId . ',\' )')
-        ->executeQuery();
+        ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . $groupId . ',\' )');
+
+        $res = $queryBuilder->executeQuery();
 
         $groupArr = [];
         while ($row = $res->fetchAssociative()) {
