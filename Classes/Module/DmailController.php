@@ -8,6 +8,7 @@ use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\DmQueryGenerator;
 use DirectMailTeam\DirectMail\Repository\FeGroupsRepository;
+use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
