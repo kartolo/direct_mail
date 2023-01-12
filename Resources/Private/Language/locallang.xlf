@@ -9,6 +9,12 @@
             <trans-unit id="widgets.dm.description" resname="widgets.dm.description">
                 <source>DM Description</source>
             </trans-unit>
+			<trans-unit id="widgets.dmMailEngineStatus.title" resname="widgets.dmMailEngineStatus.title">
+                <source>DM Mail Engine Status Title</source>
+            </trans-unit>
+            <trans-unit id="widgets.dmMailEngineStatus.description" resname="widgets.dmMailEngineStatus.description">
+                <source>DM Mail Engine Status Description</source>
+            </trans-unit>
             <trans-unit id="widget_group.dm" resname="widget_group.dm">
                 <source>DM Group</source>
             </trans-unit>

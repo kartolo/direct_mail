@@ -41,3 +41,22 @@ services:
         #iconIdentifier: ''
         #height: 'large'
         #width: 'medium'
+
+  dashboard.provider.dmMailEngineStatus:
+    class: 'DirectMailTeam\DirectMail\Widgets\Provider\DmMailEngineStatusDataProvider'
+    arguments:
+      $table: 'pages'
+
+  dashboard.widget.dmMailEngineStatus:
+    class: 'TYPO3\CMS\Dashboard\Widgets\DoughnutChartWidget'
+    arguments:
+      $view: '@dashboard.views.widget'
+      $dataProvider: '@dashboard.provider.dmMailEngineStatus'
+      $options:
+         refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: 'dmMailEngineStatus'
+        groupNames: 'dm'
+        title: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dmMailEngineStatus.title'
+        description: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dmMailEngineStatus.description'
