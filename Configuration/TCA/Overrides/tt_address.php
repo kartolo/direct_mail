@@ -13,7 +13,7 @@ $ttAddressCols = [
             'renderMode' => 'checkbox',
             'foreign_table' => 'sys_dmail_category',
             'foreign_table_where' => 'AND sys_dmail_category.l18n_parent=0 AND sys_dmail_category.pid IN (###PAGE_TSCONFIG_IDLIST###) ORDER BY sys_dmail_category.sorting',
-            'itemsProcFunc' => DirectMailTeam\DirectMail\SelectCategories::class . '->get_localized_categories',
+            'itemsProcFunc' => DirectMailTeam\DirectMail\SelectCategories::class . '->getLocalizedCategories',
             'itemsProcFunc_config' => [
                 'table' => 'sys_dmail_category',
                 'indexField' => 'uid',

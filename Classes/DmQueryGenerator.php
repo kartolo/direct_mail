@@ -34,7 +34,7 @@ use TYPO3\CMS\Lowlevel\Database\QueryGenerator;
  */
 class DmQueryGenerator extends QueryGenerator
 {
-    public array $allowedTables = ['tt_address', 'fe_users'];
+    protected array $allowedTables = ['tt_address', 'fe_users'];
 
     /**
      * Make table select
@@ -44,7 +44,7 @@ class DmQueryGenerator extends QueryGenerator
      * @return string
      */
     //protected function mkTableSelect($name, $cur)
-    public function mkTableSelect($name, $cur)
+    public function mkTableSelect($name, $cur): string
     {
         $out = [];
         $out[] = '<select class="form-select t3js-submit-change" name="' . $name . '">';
@@ -68,9 +68,9 @@ class DmQueryGenerator extends QueryGenerator
      *
      * @param array $allowedTables
      *
-     * @return string
+     * @return array
      */
-    public function queryMakerDM(array $allowedTables = [])
+    public function queryMakerDM(array $allowedTables = []): array
     {
         if (count($allowedTables)) {
             $this->allowedTables = $allowedTables;
