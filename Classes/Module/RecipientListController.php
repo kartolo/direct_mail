@@ -263,7 +263,7 @@ class RecipientListController extends MainController
                             $whichTables = (int)$mailGroup['whichtables'];
                             // tt_address
                             if ($whichTables&1) {
-                                $idLists['tt_address'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('tt_address', $pageIdArray, $groupUid, $mailGroup['select_categories']);
+                                $idLists['tt_address'] = GeneralUtility::makeInstance(TtAddressRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
                             // fe_users
                             if ($whichTables&2) {

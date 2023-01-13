@@ -1551,7 +1551,7 @@ class DmailController extends MainController
                             $whichTables = (int)$mailGroup['whichtables'];
                             if ($whichTables&1) {
                                 // tt_address
-                                $idLists['tt_address'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('tt_address', $pageIdArray, $groupUid, $mailGroup['select_categories']);
+                                $idLists['tt_address'] = GeneralUtility::makeInstance(TtAddressRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
                             if ($whichTables&2) {
                                 // fe_users
