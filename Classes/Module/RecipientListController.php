@@ -267,7 +267,7 @@ class RecipientListController extends MainController
                             }
                             // fe_users
                             if ($whichTables&2) {
-                                $idLists['fe_users'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('fe_users', $pageIdArray, $groupUid, $mailGroup['select_categories']);
+                                $idLists['fe_users'] = GeneralUtility::makeInstance(FeUsersRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
                             // user table
                             if ($this->userTable && ($whichTables&4)) {

@@ -1555,7 +1555,7 @@ class DmailController extends MainController
                             }
                             if ($whichTables&2) {
                                 // fe_users
-                                $idLists['fe_users'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('fe_users', $pageIdArray, $groupUid, $mailGroup['select_categories']);
+                                $idLists['fe_users'] = GeneralUtility::makeInstance(FeUsersRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
                             if ($this->userTable && ($whichTables&4)) {
                                 // user table

@@ -158,4 +158,125 @@ class FeUsersRepository extends MainRepository
 
         return $outArr;
     }
+
+    /**
+     * Return all uid's from fe_users where the $pid is in $pidList.
+     * If $cat is 0 or empty, then all entries (with pid $pid) is returned else only
+     * entires which are subscribing to the categories of the group with uid $group_uid is returned.
+     * The relation between the recipients in fe_users and sys_dmail_categories is a true MM relation
+     * (Must be correctly defined in TCA).
+     *
+     * @param array $pidArray The pidArray
+     * @param int $groupUid The groupUid.
+     * @param int $cat The number of relations from sys_dmail_group to sysmail_categories
+     *
+     * @return	array The resulting array of uid's
+     */
+    public function getIdList(array $pidArray, int $groupUid, int $cat): array
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        // fe user group uid should be in list of fe users list of user groups
+        //		$field = $this->table.'.usergroup';
+        //		$command = $this->table.'.uid';
+        // This approach, using standard SQL, does not work,
+        // even when fe_users.usergroup is defined as varchar(255) instead of tinyblob
+        // $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
+        // The following will work but INSTR and CONCAT are available only in mySQL
+
+        $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
+        if ($cat < 1) {
+            $res = $queryBuilder
+            ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
+            ->from($this->table)
+            ->andWhere(
+                $queryBuilder->expr()->andX()
+                ->add(
+                    $queryBuilder->expr()->in(
+                        $this->table . '.pid',
+                        $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
+                    )
+                )
+                ->add(
+                    $queryBuilder->expr()->neq(
+                        $this->table . '.email',
+                        $queryBuilder->createNamedParameter('')
+                    )
+                )
+                ->add(
+                    $queryBuilder->expr()->eq(
+                        'fe_users.module_sys_dmail_newsletter',
+                        1
+                ))
+            )
+            ->orderBy($this->table . '.uid')
+            ->addOrderBy($this->table . '.email')
+            ->executeQuery();
+        } else {
+            $res = $queryBuilder
+            ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
+            ->from('sys_dmail_group', 'sys_dmail_group')
+            ->from('sys_dmail_group_category_mm', 'g_mm')
+            ->from($mmTable, 'mm_1')
+            ->leftJoin(
+                'mm_1',
+                $table,
+                $table,
+                $queryBuilder->expr()->eq(
+                    $table . '.uid',
+                    $queryBuilder->quoteIdentifier('mm_1.uid_local')
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->andX()
+                    ->add(
+                        $queryBuilder->expr()->in(
+                            $this->table . '.pid',
+                            $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
+                        )
+                    )
+                    ->add(
+                        $queryBuilder->expr()->eq(
+                            'mm_1.uid_foreign',
+                            $queryBuilder->quoteIdentifier('g_mm.uid_foreign')
+                        )
+                    )
+                    ->add(
+                        $queryBuilder->expr()->eq(
+                            'sys_dmail_group.uid',
+                            $queryBuilder->quoteIdentifier('g_mm.uid_local')
+                        )
+                    )
+                    ->add(
+                        $queryBuilder->expr()->eq(
+                            'sys_dmail_group.uid',
+                            $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
+                        )
+                    )
+                    ->add(
+                        $queryBuilder->expr()->neq(
+                            $this->table . '.email',
+                            $queryBuilder->createNamedParameter('')
+                        )
+                    )
+                    ->add(
+                        $queryBuilder->expr()->eq(
+                            'fe_users.module_sys_dmail_newsletter',
+                            1
+                        )
+                    )
+            )
+            ->orderBy($this->table . '.uid')
+            ->addOrderBy($this->table . '.email')
+            ->executeQuery();
+        }
+
+        $outArr = [];
+
+        while ($row = $res->fetchAssociative()) {
+            $outArr[] = $row['uid'];
+        }
+
+        return $outArr;
+    }
 }
