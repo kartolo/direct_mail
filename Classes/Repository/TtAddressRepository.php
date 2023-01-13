@@ -294,7 +294,6 @@ class TtAddressRepository extends MainRepository
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
         if ($cat < 1) {
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
@@ -318,6 +317,7 @@ class TtAddressRepository extends MainRepository
             ->addOrderBy($this->table . '.email')
             ->executeQuery();
         } else {
+            $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
             ->from('sys_dmail_group', 'sys_dmail_group')

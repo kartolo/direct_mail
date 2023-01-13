@@ -1566,7 +1566,7 @@ class DmailController extends MainController
                                 if (!is_array($idLists['fe_users'])) {
                                     $idLists['fe_users'] = [];
                                 }
-                                $idLists['fe_users'] = GeneralUtility::makeInstance(TempRepository::class)->getIdList('fe_groups', $pageIdArray, $groupUid, $mailGroup['select_categories']);
+                                $idLists['fe_users'] = GeneralUtility::makeInstance(FeGroupsRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
                                 $idLists['fe_users'] = array_unique(array_merge($idLists['fe_users']));
                             }
                         }

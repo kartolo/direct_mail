@@ -184,7 +184,6 @@ class FeUsersRepository extends MainRepository
         // $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
         // The following will work but INSTR and CONCAT are available only in mySQL
 
-        $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
         if ($cat < 1) {
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
@@ -213,6 +212,7 @@ class FeUsersRepository extends MainRepository
             ->addOrderBy($this->table . '.email')
             ->executeQuery();
         } else {
+            $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
             ->from('sys_dmail_group', 'sys_dmail_group')
