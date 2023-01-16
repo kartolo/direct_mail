@@ -4,10 +4,10 @@
         <header/>
         <body>
             <trans-unit id="widgets.dm.title" resname="widgets.dm.title">
-                <source>DM Title</source>
+                <source>Direct Mail Pages</source>
             </trans-unit>
             <trans-unit id="widgets.dm.description" resname="widgets.dm.description">
-                <source>DM Description</source>
+                <source>Direct Mail Pages with dm module</source>
             </trans-unit>
 			<trans-unit id="widgets.dmMailEngineStatus.title" resname="widgets.dmMailEngineStatus.title">
                 <source>DM Mail Engine Status Title</source>

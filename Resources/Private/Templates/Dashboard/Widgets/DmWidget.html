@@ -2,7 +2,11 @@
 
 <f:layout name="Widget/Widget" />
 <f:section name="main">
-Test
+    <ul>
+        <f:for each="{items}" as="item">
+            <li>{item.title} [{item.id}]</li>
+        </f:for>
+    </ul>
 </f:section>
 
 </html>

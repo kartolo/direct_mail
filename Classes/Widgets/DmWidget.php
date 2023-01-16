@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Widgets;
 
-use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface as Cache;
+
+use DirectMailTeam\DirectMail\Widgets\Provider\DmProvider;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetInterface;
 use TYPO3\CMS\Fluid\View\StandaloneView;
+
 
 class DmWidget implements WidgetInterface
 {
@@ -23,54 +25,35 @@ class DmWidget implements WidgetInterface
     private $view;
 
     /**
-     * @var Cache
-     */
-    #private $cache;
+     * @var DmProvider
+    */
+    private $dataProvider;
 
     /**
      * @var array
      */
     private $options;
 
-    /**
-     * @var ButtonProviderInterface|null
-     */
-    #private $buttonProvider;
-
     public function __construct(
         WidgetConfigurationInterface $configuration,
-        #Cache $cache,
+        DmProvider $dataProvider,
         StandaloneView $view,
-        #ButtonProviderInterface $buttonProvider = null,
         array $options = []
     ) {
         $this->configuration = $configuration;
+        $this->dataProvider = $dataProvider;
         $this->view = $view;
-        #$this->cache = $cache;
-        $this->options = [
-            'limit' => 5,
-        ] + $options;
-        #$this->buttonProvider = $buttonProvider;
+        $this->options = $options;
     }
 
     public function renderWidgetContent(): string
     {
         $this->view->setTemplate('DmWidget');
         $this->view->assignMultiple([
-            'items' => [], //$this->getRssItems(),
+            'items' => $this->dataProvider->getDmPages(),
             'options' => $this->options,
-            'button' => '', //$this->getButton(),
             'configuration' => $this->configuration,
         ]);
         return $this->view->render();
-    }
-
-    protected function getRssItems(): array
-    {
-        $items = [];
-
-        // Logic to populate $items array
-
-        return $items;
     }
 }
