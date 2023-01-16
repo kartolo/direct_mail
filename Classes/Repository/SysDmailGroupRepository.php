@@ -110,7 +110,63 @@ class SysDmailGroupRepository extends MainRepository
         ->fetchAllAssociative();
     }
 
-        /**
+    /**
+     * Get all group IDs
+     *
+     * @param string $list Comma-separated ID
+     * @param array $parsedGroups Groups ID, which is already parsed
+     * @param string $perms_clause Permission clause (Where)
+     *
+     * @return array the new Group IDs
+     */
+    public function getMailGroups(string $list, array $parsedGroups, string $permsClause): array
+    {
+        $groupIdList = GeneralUtility::intExplode(',', $list);
+        $groups = [];
+
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $res = $queryBuilder->select($this->table . '.*')
+            ->from($this->table, $this->table)
+            ->leftJoin(
+                $this->table,
+                'pages',
+                'pages',
+                $queryBuilder->expr()->eq(
+                    'pages.uid',
+                    $queryBuilder->quoteIdentifier($this->table . '.pid')
+                )
+            )
+            ->where(
+                $queryBuilder->expr()->in(
+                    $this->table . '.uid',
+                    $queryBuilder->createNamedParameter($groupIdList, Connection::PARAM_INT_ARRAY)
+                )
+            )
+            ->andWhere(
+                $permsClause
+            )
+            ->executeQuery();
+
+        while ($row = $res->fetchAssociative()) {
+            if ($row['type'] == 4) {
+                // Other mail group...
+                if (!in_array($row['uid'], $parsedGroups)) {
+                    $parsedGroups[] = $row['uid'];
+                    $groups = array_merge($groups, $this->getMailGroups($row['mail_groups'], $parsedGroups, $permsClause));
+                }
+            } else {
+                // Normal mail group, just add to list
+                $groups[] = $row['uid'];
+            }
+        }
+        return $groups;
+    }
+
+    /**
      * @param int $uid
      * @param array $updateData
      * @return int
