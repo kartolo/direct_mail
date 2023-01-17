@@ -1,11 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
-class TtContentCategoryMmRepository extends MainRepository {
+use TYPO3\CMS\Core\Database\Connection;
+
+class TtContentCategoryMmRepository extends MainRepository
+{
     protected string $table = 'sys_dmail_ttcontent_category_mm';
-    
+
     /**
      * @return array|bool
      */
@@ -15,9 +19,14 @@ class TtContentCategoryMmRepository extends MainRepository {
 
         return $queryBuilder
         ->select('uid_foreign')
-        ->from('sys_dmail_ttcontent_category_mm')
-        ->add('where', 'uid_local=' . $uid)
-        ->execute()
-        ->fetchAll();
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->eq(
+                'uid_local',
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
+            )
+        )
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 }

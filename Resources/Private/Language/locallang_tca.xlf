@@ -209,6 +209,15 @@
 		<trans-unit id="sys_dmail_group.whichtables.I.3">
 			<source>Website User Group</source>
 		</trans-unit>
+		<trans-unit id="sys_dmail_group.query">
+			<source>Query</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.queryLimit">
+			<source>Query Limit</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.queryLimitDisabled">
+			<source>Query Limit Disabled</source>
+		</trans-unit>
 		</body>
 	</file>
 </xliff>

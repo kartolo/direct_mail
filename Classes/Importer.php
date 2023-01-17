@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -20,6 +21,7 @@ use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailTtAddressCategoryMmRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
@@ -27,6 +29,7 @@ use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -37,9 +40,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Recipient list module for tx_directmail extension
  *
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
- *
- * @package 	TYPO3
- * @subpackage	tx_directmail
  */
 class Importer
 {
@@ -63,10 +63,8 @@ class Importer
      * Init the class
      *
      * @param $pObj $pObj The parent object
-     *
-     * @return void
      */
-    public function init(&$pObj)
+    public function init(&$pObj): void
     {
         $this->parent = &$pObj;
 
@@ -80,7 +78,7 @@ class Importer
      *
      * @return	array		HTML form
      */
-    public function displayImport()
+    public function displayImport(): array
     {
         $output = [
             'title' => '',
@@ -93,7 +91,7 @@ class Importer
                 'target' => '',
                 'target_disabled' => '',
                 'newFile' => '',
-                'newFileUid' => 0
+                'newFileUid' => 0,
             ],
             'conf' => [
                 'show' => false,
@@ -108,7 +106,7 @@ class Importer
                 'record_unique' => '',
                 'newFile' => '',
                 'newFileUid' => 0,
-                'disableInput' => false
+                'disableInput' => false,
             ],
             'mapping' => [
                 'show' => false,
@@ -131,7 +129,7 @@ class Importer
                 'add_cat' => false,
                 'error' => [],
                 'table' => [],
-                'fields' => []
+                'fields' => [],
             ],
             'startImport' => [
                 'show' => false,
@@ -152,10 +150,10 @@ class Importer
                 'hiddenMap' => [],
                 'hiddenCat' => [],
                 'add_cat' => false,
-                'tables' => []
-            ]
+                'tables' => [],
+            ],
         ];
-        
+
         $beUser = $this->getBeUser();
         $step = GeneralUtility::_GP('importStep');
         $defaultConf = [
@@ -163,7 +161,7 @@ class Importer
             'first_fieldname' => 0,
             'valid_email' => 0,
             'remove_dublette' => 0,
-            'update_unique' => 0
+            'update_unique' => 0,
         ];
 
         if (GeneralUtility::_GP('CSV_IMPORT')) {
@@ -188,19 +186,16 @@ class Importer
             $tempFile = $this->checkUpload();
             $this->indata['newFile'] = $tempFile['newFile'];
             $this->indata['newFileUid'] = $tempFile['newFileUid'];
-        }
-        elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
+        } elseif (!empty($this->indata['csv']) && empty($_FILES['upload_1']['name'])) {
             unset($this->indata['newFile']);
             unset($this->indata['newFileUid']);
         }
         $stepCurrent = '';
         if ($this->indata['back'] ?? false) {
             $stepCurrent = $step['back'];
-        } 
-        elseif ($this->indata['next'] ?? false) {
+        } elseif ($this->indata['next'] ?? false) {
             $stepCurrent = $step['next'];
-        } 
-        elseif ($this->indata['update'] ?? false) {
+        } elseif ($this->indata['update'] ?? false) {
             $stepCurrent = 'mapping';
         }
 
@@ -209,11 +204,9 @@ class Importer
             $tempFile = $this->writeTempFile($this->indata['csv'] ?? '', $this->indata['newFile'] ?? '', $this->indata['newFileUid'] ?? 0);
             $this->indata['newFile'] = $tempFile['newFile'];
             $this->indata['newFileUid'] = $tempFile['newFileUid'];
-        } 
-        elseif (!empty($this->indata['newFile'])) {
+        } elseif (!empty($this->indata['newFile'])) {
             $this->indata['mode'] = 'file';
-        } 
-        else {
+        } else {
             unset($stepCurrent);
         }
 
@@ -225,8 +218,7 @@ class Importer
             $newMap = ArrayUtility::removeArrayEntryByValue(array_unique($map), 'noMap');
             if (empty($newMap)) {
                 $error[] = 'noMap';
-            } 
-            elseif (!in_array('email', $map)) {
+            } elseif (!in_array('email', $map)) {
                 $error[] = 'email';
             }
             if (count($error)) {
@@ -240,7 +232,7 @@ class Importer
                 $output['conf']['show'] = true;
                 $output['conf']['newFile'] = $this->indata['newFile'];
                 $output['conf']['newFileUid'] = $this->indata['newFileUid'];
-                
+
                 $pagePermsClause3 = $beUser->getPagePermsClause(3);
                 $pagePermsClause1 = $beUser->getPagePermsClause(1);
                 // get list of sysfolder
@@ -248,12 +240,12 @@ class Importer
 
                 $optStorage = [];
                 $subfolders = GeneralUtility::makeInstance(PagesRepository::class)->selectSubfolders($pagePermsClause3);
-                if($subfolders && count($subfolders)) {
-                    foreach($subfolders as $subfolder) {
+                if ($subfolders && count($subfolders)) {
+                    foreach ($subfolders as $subfolder) {
                         if (BackendUtility::readPageAccess($subfolder['uid'], $pagePermsClause1)) {
                             $optStorage[] = [
-                                'val' => $subfolder['uid'], 
-                                'text' => $subfolder['title'] . ' [uid:' . $subfolder['uid'] . ']'
+                                'val' => $subfolder['uid'],
+                                'text' => $subfolder['title'] . ' [uid:' . $subfolder['uid'] . ']',
                             ];
                         }
                     }
@@ -263,7 +255,7 @@ class Importer
                     ['val' => 'comma', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_comma')],
                     ['val' => 'semicolon', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_semicolon')],
                     ['val' => 'colon', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_colon')],
-                    ['val' => 'tab', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_tab')]
+                    ['val' => 'tab', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_tab')],
                 ];
 
                 $optEncap = [
@@ -274,7 +266,7 @@ class Importer
                 // TODO: make it variable?
                 $optUnique = [
                     ['val' => 'email', 'text' => 'email'],
-                    ['val' =>'name', 'text' => 'name']
+                    ['val' =>'name', 'text' => 'name'],
                 ];
 
                 $output['conf']['disableInput'] = $this->params['inputDisable'] == 1 ? true : false;
@@ -295,7 +287,7 @@ class Importer
                 // csv separator
                 $output['conf']['delimiter'] = $optDelimiter;
                 $output['conf']['delimiterSelected'] = $this->indata['delimiter'] ?? '';
-                
+
                 // csv encapsulation
                 $output['conf']['encapsulation'] = $optEncap;
                 $output['conf']['encapsulationSelected'] = $this->indata['encapsulation'] ?? '';
@@ -330,7 +322,7 @@ class Importer
                 $output['mapping']['record_unique'] = $this->indata['record_unique'];
                 $output['mapping']['all_html'] = !$this->indata['all_html'] ? false : true;
                 $output['mapping']['error'] = $error;
-                
+
                 // show charset selector
                 $cs = array_unique(array_values(mb_list_encodings()));
                 $charSets = [];
@@ -353,8 +345,7 @@ class Importer
                     $csvData = $this->readExampleCSV(4);
                     $csv_firstRow = $csvData[0];
                     $csvData = array_slice($csvData, 1);
-                } 
-                else {
+                } else {
                     // read csv
                     $csvData = $this->readExampleCSV(3);
                     $fieldsAmount = count($csvData[0] ?? []);
@@ -372,15 +363,15 @@ class Importer
                 $mapFields = [];
                 foreach ($ttAddressFields as $map) {
                     $mapFields[] = [
-                        $map, 
-                        str_replace(':', '', $this->getLanguageService()->sL($GLOBALS['TCA']['tt_address']['columns'][$map]['label']))
+                        $map,
+                        str_replace(':', '', $this->getLanguageService()->sL($GLOBALS['TCA']['tt_address']['columns'][$map]['label'])),
                     ];
                 }
                 // add 'no value'
                 array_unshift($mapFields, ['noMap', $this->getLanguageService()->getLL('mailgroup_import_mapping_mapTo')]);
                 $mapFields[] = [
-                    'cats', 
-                    $this->getLanguageService()->getLL('mailgroup_import_mapping_categories')
+                    'cats',
+                    $this->getLanguageService()->getLL('mailgroup_import_mapping_categories'),
                 ];
                 reset($csv_firstRow);
                 reset($csvData);
@@ -396,10 +387,10 @@ class Importer
                         'mapping_description' => $csv_firstRow[$i],
                         'mapping_i' => $i,
                         'mapping_mappingSelected' => $this->indata['map'][$i],
-                        'mapping_value' => $exampleLines
+                        'mapping_value' => $exampleLines,
                     ];
                 }
-                
+
                 // get categories
                 $temp['value'] = BackendUtility::getPagesTSconfig($this->parent->getId())['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
                 if (is_numeric($temp['value'])) {
@@ -415,7 +406,7 @@ class Importer
                                 'cat' => htmlspecialchars($v['category']),
                                 'k' => $k,
                                 'vUid' => $v['uid'],
-                                'checked' => $this->indata['cat'][$k] != $v['uid'] ? false : true
+                                'checked' => $this->indata['cat'][$k] != $v['uid'] ? false : true,
                             ];
                         }
                     }
@@ -438,7 +429,7 @@ class Importer
                 $output['startImport']['record_unique'] = $this->indata['record_unique'];
                 $output['startImport']['all_html'] = !$this->indata['all_html'] ? false : true;
                 $output['startImport']['add_cat'] = $this->indata['add_cat'] ? true : false;
-                
+
                 $output['startImport']['error'] = $error;
 
                 // starting import & show errors
@@ -468,14 +459,14 @@ class Importer
                             $mapKeys = array_keys($v);
                             $rowsTable[] = [
                                 'val' => $v[$mapKeys[0]],
-                                'email' => $v['email']
+                                'email' => $v['email'],
                             ];
                         }
                     }
-                    
+
                     $output['startImport']['tables'][] = [
                         'header' => $this->getLanguageService()->getLL('mailgroup_import_report_' . $order),
-                        'rows' => $rowsTable
+                        'rows' => $rowsTable,
                     ];
                 }
 
@@ -500,11 +491,11 @@ class Importer
                 if (($this->indata['mode'] === 'file') && !(((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt'))) {
                     $output['upload']['current'] = true;
                     $file = $this->getFileById((int)$this->indata['newFileUid']);
-                    if(is_object($file)) {
+                    if (is_object($file)) {
                         $output['upload']['fileInfo'] = [
                             'name' => $file->getName(),
                             'extension' => $file->getProperty('extension'),
-                            'size' => GeneralUtility::formatSize($file->getProperty('size'))
+                            'size' => GeneralUtility::formatSize($file->getProperty('size')),
                         ];
                     }
                 }
@@ -514,7 +505,7 @@ class Importer
                     $this->indata['csv'] = fread($handleCsv, filesize($this->indata['newFile']));
                     fclose($handleCsv);
                 }
-                
+
                 $output['upload']['show'] = true;
                 $output['upload']['csv'] = htmlspecialchars($this->indata['csv'] ?? '');
                 $output['upload']['target'] = htmlspecialchars($this->userTempFolder());
@@ -531,7 +522,7 @@ class Importer
          *  use it to manipulate the steps in the import process
          */
         $hookObjectsArr = [];
-        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport']) && 
+        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport']) &&
             is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'] as $classRef) {
                 $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
@@ -599,7 +590,7 @@ class Importer
      *
      * @return array Array containing doublette, updated and invalid-email records
      */
-    public function doImport(array $csvData)
+    public function doImport(array $csvData): array
     {
         $resultImport = [];
         $filteredCSV = [];
@@ -619,12 +610,10 @@ class Importer
                     if (($this->indata['valid_email']) && ($this->indata['map'][$kk] === 'email')) {
                         $invalidEmail = GeneralUtility::validEmail(trim($fieldData)) ? 0 : 1;
                         $tempData[$this->indata['map'][$kk]] = trim($fieldData);
-                    } 
-                    else {
+                    } else {
                         if ($this->indata['map'][$kk] !== 'cats') {
                             $tempData[$this->indata['map'][$kk]] = $fieldData;
-                        } 
-                        else {
+                        } else {
                             $tempCats = explode(',', $fieldData);
                             foreach ($tempCats as $catC => $tempCat) {
                                 $tempData['module_sys_dmail_category'][$catC] = $tempCat;
@@ -635,8 +624,7 @@ class Importer
             }
             if ($invalidEmail) {
                 $invalidEmailCSV[] = $tempData;
-            } 
-            else {
+            } else {
                 $mappedCSV[] = $tempData;
             }
         }
@@ -655,8 +643,8 @@ class Importer
             $userID = [];
 
             $rows = GeneralUtility::makeInstance(TtAddressRepository::class)->selectTtAddressByPid((int)$this->indata['storage'], $this->indata['record_unique']);
-            
-            if(is_array($rows)) {
+
+            if (is_array($rows)) {
                 foreach ($rows as $row) {
                     $user[] = $row['email'];
                     $userID[] = $row['uid'];
@@ -677,8 +665,8 @@ class Importer
                         if (is_array($this->indata['cat']) && !in_array('cats', $this->indata['map'])) {
                             if ($this->indata['add_cat']) {
                                 $rows = GeneralUtility::makeInstance(SysDmailTtAddressCategoryMmRepository::class)->selectUidsByUidLocal((int)$userID[$foundUser[0]]);
-                                if(is_array($rows)) {
-                                    foreach($rows as $row) {
+                                if (is_array($rows)) {
+                                    foreach ($rows as $row) {
                                         $data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_category'][] = $row['uid_foreign'];
                                     }
                                 }
@@ -689,8 +677,7 @@ class Importer
                             }
                         }
                         $resultImport['update'][] = $dataArray;
-                    } 
-                    else {
+                    } else {
                         // which one to update? all?
                         foreach ($foundUser as $kk => $_) {
                             $data['tt_address'][$userID[$foundUser[$kk]]] = $dataArray;
@@ -698,8 +685,7 @@ class Importer
                         }
                         $resultImport['update'][] = $dataArray;
                     }
-                } 
-                else {
+                } else {
                     // write new user
                     $this->addDataArray($data, 'NEW' . $c, $dataArray);
                     $resultImport['new'][] = $dataArray;
@@ -707,8 +693,7 @@ class Importer
                     $c++;
                 }
             }
-        } 
-        else {
+        } else {
             // no update, import all
             $c = 1;
             foreach ($mappedCSV as $dataArray) {
@@ -763,10 +748,8 @@ class Importer
      * @param array $data Array for the TCE
      * @param string $id Record ID
      * @param array $dataArray The data to be imported
-     *
-     * @return void
      */
-    public function addDataArray(array &$data, $id, array $dataArray)
+    public function addDataArray(array &$data, $id, array $dataArray): void
     {
         $data['tt_address'][$id] = $dataArray;
         $data['tt_address'][$id]['pid'] = $this->indata['storage'];
@@ -779,18 +762,18 @@ class Importer
             }
         }
     }
-    
+
     /**
      * Read in the given CSV file. The function is used during the final file import.
      * Removes first the first data row if the CSV has fieldnames.
      *
      * @return	array		file content in array
      */
-    public function readCSV()
+    public function readCSV(): array
     {
         $mydata = [];
-        
-        if((int)$this->indata['newFileUid'] < 1) {
+
+        if ((int)$this->indata['newFileUid'] < 1) {
             return $mydata;
         }
 
@@ -804,10 +787,10 @@ class Importer
         $delimiter = ($delimiter === 'tab') ? "\t" : $delimiter;
         $encaps = ($encaps === 'singleQuote') ? "'" : $encaps;
         $encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
-        
+
         ini_set('auto_detect_line_endings', true);
         $handle = fopen($fileAbsolutePath, 'r');
-        if($handle === false) {
+        if ($handle === false) {
             return $mydata;
         }
 
@@ -832,14 +815,14 @@ class Importer
      *
      * @return	array File content in array
      */
-    public function readExampleCSV($records = 3)
+    public function readExampleCSV($records = 3): array
     {
         $mydata = [];
-        
-        if((int)$this->indata['newFileUid'] < 1) {
+
+        if ((int)$this->indata['newFileUid'] < 1) {
             return $mydata;
         }
-        
+
         $fileAbsolutePath = $this->getFileAbsolutePath((int)$this->indata['newFileUid']);
 
         $i = 0;
@@ -851,10 +834,10 @@ class Importer
         $delimiter = ($delimiter === 'tab') ? "\t" : $delimiter;
         $encaps = ($encaps === 'singleQuote') ? "'" : $encaps;
         $encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
-        
+
         ini_set('auto_detect_line_endings', true);
         $handle = fopen($fileAbsolutePath, 'r');
-        if($handle === false) {
+        if ($handle === false) {
             return $mydata;
         }
 
@@ -883,7 +866,7 @@ class Importer
      * @return	array	array of charset-converted values
      * @see \TYPO3\CMS\Core\Charset\CharsetConverter::conv[]
      */
-    public function convCharset(array $data)
+    public function convCharset(array $data): array
     {
         $dbCharset = 'utf-8';
         if ($dbCharset != $this->indata['charset']) {
@@ -900,7 +883,7 @@ class Importer
      *
      * @return	array		path and uid of the temp file
      */
-    public function writeTempFile(string $csv, string $newFile, int $newFileUid)
+    public function writeTempFile(string $csv, string $newFile, int $newFileUid): array
     {
         $newfile = ['newFile' => '', 'newFileUid' => 0];
 
@@ -916,11 +899,10 @@ class Importer
             // Checking referer / executing:
             $refInfo = parse_url($this->parent->getHttpReferer());
             $httpHost = $this->parent->getRequestHostOnly();
-            
+
             if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
                 $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
-            } 
-            else {
+            } else {
                 // new file
                 $file['newfile']['target'] = $this->userTempFolder();
                 $file['newfile']['data'] = 'import_' . $this->getTimestampFromAspect() . '.txt';
@@ -932,15 +914,14 @@ class Importer
                     $newfile['newFileUid'] = $newfileObj->getUid();
                 }
             }
-        } 
-        else {
+        } else {
             $newfile = ['newFile' => $newFile, 'newFileUid' => $newFileUid];
         }
 
         if ($newfile['newFile']) {
             $csvFile = [
                 'data' => $csv,
-                'target' => $newfile['newFile']
+                'target' => $newfile['newFile'],
             ];
             $write = $extendedFileUtility->func_edit($csvFile);
         }
@@ -953,24 +934,23 @@ class Importer
      * @return	array	\TYPO3\CMS\Core\Resource\File	the complete physical file name, including path info.
      * @throws \Exception
      */
-    public function checkUpload()
+    public function checkUpload(): array
     {
         $newfile = ['newFile' => '', 'newFileUid' => 0];
-        
+
         // Initializing:
         /* @var $extendedFileUtility ExtendedFileUtility */
         $extendedFileUtility = GeneralUtility::makeInstance(ExtendedFileUtility::class);
         $extendedFileUtility->setActionPermissions();
         $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::REPLACE);
-        
+
         // Checking referer / executing:
         $refInfo = parse_url($this->parent->getHttpReferer());
         $httpHost = $this->parent->getRequestHostOnly();
 
         if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
             $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
-        } 
-        else {
+        } else {
             $file = GeneralUtility::_GP('file');
             $extendedFileUtility->start($file);
             $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::cast(DuplicationBehavior::REPLACE));
@@ -980,7 +960,7 @@ class Importer
                 $storageConfig = $tempFile[0]->getStorage()->getConfiguration();
                 $newfile = [
                     'newFile' => rtrim($storageConfig['basePath'], '/') . '/' . ltrim($tempFile[0]->getIdentifier(), '/'),
-                    'newFileUid' => $tempFile[0]->getUid()
+                    'newFileUid' => $tempFile[0]->getUid(),
                 ];
             }
         }
@@ -989,7 +969,6 @@ class Importer
     }
 
     /**
-     *
      * @param int $fileUid
      * @return \TYPO3\CMS\Core\Resource\File|bool
      */
@@ -998,75 +977,70 @@ class Importer
         $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
         try {
             return $resourceFactory->getFileObject($fileUid);
-        }
-        catch(\TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException $e) {
-            
+        } catch(\TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException $e) {
         }
         return false;
     }
-    
+
     /**
-     *
      * @param int $fileUid
      * @return string
      */
     private function getFileAbsolutePath(int $fileUid): string
     {
         $file = $this->getFileById($fileUid);
-        if(!is_object($file)) {
+        if (!is_object($file)) {
             return '';
         }
         return Environment::getPublicPath() . '/' . str_replace('//', '/', $file->getStorage()->getConfiguration()['basePath'] . $file->getProperty('identifier'));
     }
-    
+
     /**
      * Returns first temporary folder of the user account
      *
      * @return	string Absolute path to first "_temp_" folder of the current user, otherwise blank.
      */
-    public function userTempFolder()
+    public function userTempFolder(): string
     {
         /** @var \TYPO3\CMS\Core\Resource\Folder $folder */
         $folder = $this->getBeUser()->getDefaultUploadTemporaryFolder();
         return $folder->getPublicUrl();
     }
-    
+
     /**
-     *
      * @return int
      */
-    private function getTimestampFromAspect(): int {
+    private function getTimestampFromAspect(): int
+    {
         $context = GeneralUtility::makeInstance(Context::class);
         return $context->getPropertyFromAspect('date', 'timestamp');
     }
-    
+
     /**
      * Returns LanguageService
      *
      * @return LanguageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }
-    
+
     /**
-     * 
      * @return BackendUserAuthentication
      */
-    protected function getBeUser()
+    protected function getBeUser(): BackendUserAuthentication
     {
         return $GLOBALS['BE_USER'];
     }
 
-    protected function getMessageQueue() 
+    protected function getMessageQueue(): FlashMessageQueue
     {
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
         return $flashMessageService->getMessageQueueByIdentifier();
     }
 
     /**
-     *  
         https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
         const 	NOTICE = -2
         const 	INFO = -1
@@ -1078,9 +1052,10 @@ class Importer
      * @param int $messageType
      * @param bool $storeInSession
      */
-    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false) 
+    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false): FlashMessage
     {
-        return GeneralUtility::makeInstance(FlashMessage::class,
+        return GeneralUtility::makeInstance(
+            FlashMessage::class,
             $messageText,
             $messageHeader, // [optional] the header
             $messageType, // [optional] the severity defaults to \TYPO3\CMS\Core\Messaging\FlashMessage::OK

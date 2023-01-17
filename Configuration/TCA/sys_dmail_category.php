@@ -1,4 +1,5 @@
 <?php
+
 return [
     'ctrl' => [
         'title' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category',
@@ -20,8 +21,8 @@ return [
         'sys_language_uid' => [
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
             'config' => [
-                'type' => 'language'
-            ]
+                'type' => 'language',
+            ],
         ],
         'l18n_parent' => [
             'displayCond' => 'FIELD:sys_language_uid:>:0',
@@ -34,7 +35,7 @@ return [
                 ],
                 'foreign_table' => 'sys_dmail_category',
                 'foreign_table_where' => 'AND sys_dmail_category.pid=###CURRENT_PID### AND sys_dmail_category.sys_language_uid IN (-1,0)',
-                'default' => 0
+                'default' => 0,
             ],
         ],
         'l18n_diffsource' => [
@@ -46,15 +47,15 @@ return [
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.hidden',
             'config' => [
                 'type' => 'check',
-                'default' => '0'
-            ]
+                'default' => '0',
+            ],
         ],
         'category' => [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category.category',
             'config' => [
                 'type' => 'input',
                 'size' => '30',
-            ]
+            ],
         ],
         'old_cat_number' => [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category.old_cat_number',
@@ -64,13 +65,13 @@ return [
                 'size' => '2',
                 'eval' => 'trim',
                 'max' => '2',
-            ]
+            ],
         ],
     ],
     'types' => [
-        '0' => ['showitem' => 'sys_language_uid, l18n_parent, l18n_diffsource, hidden, category']
+        '0' => ['showitem' => 'sys_language_uid, l18n_parent, l18n_diffsource, hidden, category'],
     ],
     'palettes' => [
-        '1' => ['showitem' => '']
-    ]
+        '1' => ['showitem' => ''],
+    ],
 ];

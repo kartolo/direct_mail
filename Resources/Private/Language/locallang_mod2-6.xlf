@@ -301,6 +301,9 @@
 			<trans-unit id="dmail_query" resname="dmail_query">
 				<source>Query</source>
 			</trans-unit>
+			<trans-unit id="queryLimitDisabled" resname="queryLimitDisabled">
+				<source>Do not use a limit when sending</source>
+			</trans-unit>
 			<trans-unit id="dmail_send" resname="dmail_send">
 				<source>Send</source>
 			</trans-unit>

@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Scheduler;
 
 /*
@@ -30,12 +31,10 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * directmail record that is ready for sending right away
  *
  * @author	Benjamin Mack <benni@typo3.org>
- * @package TYPO3
- * @subpackage	tx_directmail
  */
 class MailFromDraft extends AbstractTask
 {
-    public $draftUid = null;
+    public $draftUid;
 
     protected $hookObjects = [];
 
@@ -43,8 +42,6 @@ class MailFromDraft extends AbstractTask
      * Setter function to set the draft ID that the task should use
      *
      * @param int $draftUid The UID of the sys_dmail record (needs to be of type=3 or type=4)
-     *
-     * @return void
      */
     public function setDraft($draftUid)
     {
@@ -66,8 +63,8 @@ class MailFromDraft extends AbstractTask
             $draftRecord = BackendUtility::getRecord('sys_dmail', $this->draftUid);
 
             // update recipients
-            $recipientGroups = explode(",", $draftRecord['recipientGroups']);
-            $SOBE = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance( \DirectMailTeam\DirectMail\Module\Dmail::class );
+            $recipientGroups = explode(',', $draftRecord['recipientGroups']);
+            $SOBE = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\DirectMailTeam\DirectMail\Module\Dmail::class);
             $SOBE->init();
 
             $newRecipients = $SOBE->cmd_compileMailGroup($recipientGroups);
@@ -123,7 +120,7 @@ class MailFromDraft extends AbstractTask
             if ($mailRecord['mailContent'] && $mailRecord['renderedsize'] > 0) {
                 $updateData = [
                     'scheduled' => time(),
-                    'issent'    => 1
+                    'issent'    => 1,
                 ];
                 // Call a hook before enqueuing the cloned dmail record into
                 // the direct mail delivery queue
@@ -137,7 +134,7 @@ class MailFromDraft extends AbstractTask
                 $connection->update(
                     'sys_dmail', // table
                     $updateData, // value array
-                    [ 'uid' => intval($this->dmailUid) ] // where
+                    [ 'uid' => (int)$this->dmailUid ] // where
                 );
             }
         }
@@ -160,25 +157,22 @@ class MailFromDraft extends AbstractTask
             if (!empty($siteFinder->getAllSites())) {
                 $site = $siteFinder->getSiteByPageId($pageId);
                 $base = $site->getBase();
-                if($base->getHost()) {
+                if ($base->getHost()) {
                     return true;
                 }
-            }
-            else {
+            } else {
                 return false; // No site found in root line of pageId
             }
         }
-        
+
         return false; // No valid pageId
     }
-    
+
     /**
      * Calls the passed hook method of all configured hook object instances
      *
      * @param string $hookMethod The hook method name
      * @param array $hookParams The hook params
-     *
-     * @return    void
      */
     public function callHooks($hookMethod, array $hookParams)
     {
@@ -190,7 +184,6 @@ class MailFromDraft extends AbstractTask
     /**
      * Initializes hook objects for this class
      *
-     * @return void
      * @throws \Exception
      */
     public function initializeHookObjects()

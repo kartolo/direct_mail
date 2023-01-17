@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -16,19 +17,15 @@ namespace DirectMailTeam\DirectMail;
 
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\DmRegistryUtility;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
-use TYPO3\CMS\Core\Http\ImmediateResponseException;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
+use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Static class.
@@ -38,81 +35,9 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  * @author  	Jan-Erik Revsbech <jer@moccompany.com>
  * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
- *
- * @package 	TYPO3
- * @subpackage	tx_directmail
  */
 class DirectMailUtility
 {
-    /**
-     * Get the ID of page in a tree
-     *
-     * @param int $id Page ID
-     * @param string $perms_clause Select query clause
-     * @return array the page ID, recursively
-     */
-    public static function getRecursiveSelect($id, $perms_clause)
-    {
-        // Finding tree and offer setting of values recursively.
-        $tree = GeneralUtility::makeInstance(PageTreeView::class);
-        $tree->init('AND ' . $perms_clause);
-        $tree->makeHTML = 0;
-        $tree->setRecs = 0;
-        $getLevels = 10000;
-        $tree->getTree($id, $getLevels, '');
-
-        return $tree->ids;
-    }
-
-    /**
-     * Remove double record in an array
-     *
-     * @param array $plainlist Email of the recipient
-     *
-     * @return array Cleaned array
-     */
-    public static function cleanPlainList(array $plainlist)
-    {
-        /**
-         * $plainlist is a multidimensional array.
-         * this method only remove if a value has the same array
-         * $plainlist = [
-         * 		0 => [
-         * 			name => '',
-         * 			email => '',
-         * 		],
-         * 		1 => [
-         * 			name => '',
-         * 			email => '',
-         * 		],
-         * ];
-         */
-        $plainlist = array_map('unserialize', array_unique(array_map('serialize', $plainlist)));
-
-        return $plainlist;
-    }
-
-    /**
-     * Rearrange emails array into a 2-dimensional array
-     *
-     * @param array $plainMails Recipient emails
-     *
-     * @return array a 2-dimensional array consisting email and name
-     */
-    public static function rearrangePlainMails(array $plainMails): array
-    {
-        $out = [];
-        if (is_array($plainMails)) {
-            $c = 0;
-            foreach ($plainMails as $v) {
-                $out[$c]['email'] = trim($v);
-                $out[$c]['name'] = '';
-                $c++;
-            }
-        }
-        return $out;
-    }
-
     /**
      * Get locallang label
      *
@@ -120,7 +45,7 @@ class DirectMailUtility
      *
      * @return string The label
      */
-    public static function fName($name)
+    public static function fName($name): string
     {
         return stripslashes(self::getLanguageService()->sL(BackendUtility::getItemLabel('sys_dmail', $name)));
     }
@@ -132,7 +57,39 @@ class DirectMailUtility
     {
         return $GLOBALS['LANG'];
     }
-    
+
+    /**
+     * Get URL glue
+     *
+     * @param string $url
+     *
+     * @return string '& or ?'
+     */
+    public static function getURLGlue(string $url): string
+    {
+        return (strpos($url, '?') !== false) ? '&' : '?';
+    }
+
+    public static function prepareTypolinkParams(string $params): string
+    {
+        return substr($params, 0, 1) == '&' ? substr($params, 1) : $params;
+    }
+
+    public static function getTypolinkURL(
+        string $parameter,
+        bool $forceAbsoluteUrl = true,
+        bool $linkAccessRestrictedPages = true
+    ): string {
+        $typolinkPageUrl = 't3://page?uid=';
+        $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+
+        return $cObj->typolink_URL([
+            'parameter' => $typolinkPageUrl . $parameter,
+            'forceAbsoluteUrl' => $forceAbsoluteUrl,
+            'linkAccessRestrictedPages' => $linkAccessRestrictedPages,
+        ]);
+    }
+
     /**
      * Fetch content of a page (only internal and external page)
      *
@@ -145,135 +102,143 @@ class DirectMailUtility
     public static function fetchUrlContentsForDirectMailRecord(array $row, array $params, $returnArray = false)
     {
         $lang = self::getLanguageService();
-        $theOutput = '';
+        $output = '';
         $errorMsg = [];
         $warningMsg = [];
         $urls = self::getFullUrlsForDirectMailRecord($row);
-        $plainTextUrl = $urls['plainTextUrl'];
-        $htmlUrl = $urls['htmlUrl'];
-        $urlBase = $urls['baseUrl'];
 
         // Make sure long_link_rdct_url is consistent with baseUrl.
-        $row['long_link_rdct_url'] = $urlBase;
-
-        $glue = (strpos($urlBase, '?') !== false ) ? '&' : '?';
+        //$row['long_link_rdct_url'] = $urls['baseUrl'];
 
         // Compile the mail
         /* @var $htmlmail Dmailer */
         $htmlmail = GeneralUtility::makeInstance(Dmailer::class);
         if ($params['enable_jump_url'] ?? false) {
-            $htmlmail->jumperURL_prefix = $urlBase . $glue .
+            $glue = self::getURLGlue($urls['baseUrl']);
+            $htmlmail->setJumperURLPrefix(
+                $urls['baseUrl'] . $glue .
                 'mid=###SYS_MAIL_ID###' .
-                (intval($params['jumpurl_tracking_privacy']) ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
+                ((int)$params['jumpurl_tracking_privacy'] ? '' : '&rid=###SYS_TABLE_NAME###_###USER_uid###') .
                 '&aC=###SYS_AUTHCODE###' .
-                '&jumpurl=';
-            $htmlmail->jumperURL_useId = 1;
+                '&jumpurl='
+            );
+
+            $htmlmail->setJumperURLUseId(true);
         }
         if ($params['enable_mailto_jump_url'] ?? false) {
-            $htmlmail->jumperURL_useMailto = 1;
+            $htmlmail->setJumperURLUseMailto(true);
         }
 
         $htmlmail->start();
-        $htmlmail->charset = $row['charset'];
-        $htmlmail->simulateUsergroup = $params['simulate_usergroup'] ?? false;
-        $htmlmail->includeMedia = $row['includeMedia'];
+        $htmlmail->setCharset($row['charset']);
+        $htmlmail->setSimulateUsergroup($params['simulate_usergroup'] ?? 0);
+        $htmlmail->setIncludeMedia($row['includeMedia']);
 
-        if ($plainTextUrl) {
-            $mailContent = GeneralUtility::getURL(self::addUserPass($plainTextUrl, $params));
+        if ($urls['plainTextUrl']) {
+            $mailContent = GeneralUtility::getURL(self::addUserPass($urls['plainTextUrl'], $params));
             $htmlmail->addPlain($mailContent);
-            if (!$mailContent || !$htmlmail->theParts['plain']['content']) {
+            if (!$mailContent || !$htmlmail->getPartPlainConfig('content')) {
                 $errorMsg[] = $lang->getLL('dmail_no_plain_content');
-            } 
-            elseif (!strstr($htmlmail->theParts['plain']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
+            } elseif (!strstr($htmlmail->getPartPlainConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $lang->getLL('dmail_no_plain_boundaries');
             }
         }
 
         // fetch the HTML url
-        if ($htmlUrl) {
+        if ($urls['htmlUrl']) {
             // Username and password is added in htmlmail object
-            $success = $htmlmail->addHTML(self::addUserPass($htmlUrl, $params));
+            $success = $htmlmail->addHTML(self::addUserPass($urls['htmlUrl'], $params));
             // If type = 1, we have an external page.
             if ($row['type'] == 1) {
                 // Try to auto-detect the charset of the message
                 $matches = [];
-                $res = preg_match('/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m', ($htmlmail->theParts['html_content'] ?? ''), $matches);
+                $res = preg_match(
+                    '/<meta[\s]+http-equiv="Content-Type"[\s]+content="text\/html;[\s]+charset=([^"]+)"/m',
+                    ($htmlmail->getParts()['html_content'] ?? ''),
+                    $matches
+                );
                 if ($res == 1) {
-                    $htmlmail->charset = $matches[1];
-                } 
-                elseif (isset($params['direct_mail_charset'])) {
-                    $htmlmail->charset = $params['direct_mail_charset'];
-                } 
-                else {
-                    $htmlmail->charset = 'iso-8859-1';
+                    $htmlmail->setCharset($matches[1]);
+                } elseif (isset($params['direct_mail_charset'])) {
+                    $htmlmail->setCharset($params['direct_mail_charset']);
+                } else {
+                    $htmlmail->setCharset('iso-8859-1');
                 }
             }
             if ($htmlmail->extractFramesInfo()) {
                 $errorMsg[] = $lang->getLL('dmail_frames_not allowed');
-            } 
-            elseif (!$success || !$htmlmail->theParts['html']['content']) {
+            } elseif (!$success || !$htmlmail->getPartHtmlConfig('content')) {
                 $errorMsg[] = $lang->getLL('dmail_no_html_content');
-            } 
-            elseif (!strstr($htmlmail->theParts['html']['content'], '<!--DMAILER_SECTION_BOUNDARY')) {
+            } elseif (!strstr($htmlmail->getPartHtmlConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
                 $warningMsg[] = $lang->getLL('dmail_no_html_boundaries');
             }
         }
 
         if (!count($errorMsg)) {
             // Update the record:
-            $htmlmail->theParts['messageid'] = $htmlmail->messageid;
-            $mailContent = base64_encode(serialize($htmlmail->theParts));
+            $htmlmail->setPartMessageIdConfig($htmlmail->getMessageid());
+            $mailContent = base64_encode(serialize($htmlmail->getParts()));
 
             $updateData = [
                 'issent'             => 0,
-                'charset'            => $htmlmail->charset,
+                'charset'            => $htmlmail->getCharset(),
                 'mailContent'        => $mailContent,
                 'renderedSize'       => strlen($mailContent),
-                'long_link_rdct_url' => $urlBase
+                'long_link_rdct_url' => $urls['baseUrl'],
             ];
 
             $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord((int)$row['uid'], $updateData);
 
             if (count($warningMsg)) {
+                $flashMessageRendererResolver = self::getFlashMessageRendererResolver();
                 foreach ($warningMsg as $warning) {
-                    $theOutput .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                    $output .= $flashMessageRendererResolver
                         ->resolve()
                         ->render([
-                            GeneralUtility::makeInstance(
-                                FlashMessage::class,
-                                $warning,
-                                $lang->getLL('dmail_warning'),
-                                FlashMessage::WARNING
-                            )
+                            self::createFlashMessage($warning, $lang->getLL('dmail_warning'), FlashMessage::WARNING, false),
                         ]);
                 }
             }
-        } 
-        else {
+        } else {
+            $flashMessageRendererResolver = self::getFlashMessageRendererResolver();
             foreach ($errorMsg as $error) {
-                $theOutput .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
+                $output .= $flashMessageRendererResolver
                     ->resolve()
                     ->render([
-                        GeneralUtility::makeInstance(
-                            FlashMessage::class,
-                            $error,
-                            $lang->getLL('dmail_error'),
-                            FlashMessage::ERROR
-                        )
+                        self::createFlashMessage($error, $lang->getLL('dmail_error'), FlashMessage::ERROR, false),
                     ]);
             }
         }
+
         if ($returnArray) {
             return [
                 'errors' => $errorMsg,
-                'warnings' => $warningMsg
+                'warnings' => $warningMsg,
             ];
-        } 
-        else {
-            return $theOutput;
         }
+
+        return $output;
     }
 
+    protected static function createFlashMessage(
+        string $messageText,
+        string $messageHeader = '',
+        int $messageType = 0,
+        bool $storeInSession = false
+    ): FlashMessage {
+        return GeneralUtility::makeInstance(
+            FlashMessage::class,
+            $messageText,
+            $messageHeader,
+            $messageType,
+            $storeInSession
+        );
+    }
+
+    protected static function getFlashMessageRendererResolver(): FlashMessageRendererResolver
+    {
+        return GeneralUtility::makeInstance(FlashMessageRendererResolver::class);
+    }
 
     /**
      * Add username and password for a password secured page
@@ -284,7 +249,7 @@ class DirectMailUtility
      *
      * @return string The new URL with username and password
      */
-    protected static function addUserPass($url, array $params): string
+    protected static function addUserPass(string $url, array $params): string
     {
         $user = $params['http_username'] ?? '';
         $pass = $params['http_password'] ?? '';
@@ -293,8 +258,8 @@ class DirectMailUtility
             $url = $matches[0] . $user . ':' . $pass . '@' . substr($url, strlen($matches[0]));
         }
         if (($params['simulate_usergroup'] ?? false) && MathUtility::canBeInterpretedAsInteger($params['simulate_usergroup'])) {
-            $glue = (strpos($url, '?') !== false) ? '&' : '?';
-            $url = $url . $glue . 'dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' .  GeneralUtility::makeInstance(DmRegistryUtility::class)->createAndGetAccessToken();
+            $glue = self::getURLGlue($url);
+            $url = $url . $glue . 'dmail_fe_group=' . (int)$params['simulate_usergroup'] . '&access_token=' . GeneralUtility::makeInstance(DmRegistryUtility::class)->createAndGetAccessToken();
         }
         return $url;
     }
@@ -308,17 +273,11 @@ class DirectMailUtility
      */
     public static function getFullUrlsForDirectMailRecord(array $row): array
     {
-        $typolinkPageUrl = 't3://page?uid=';
-        $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
         // Finding the domain to use
         $result = [
-            'baseUrl' => $cObj->typolink_URL([
-                'parameter' => $typolinkPageUrl . (int)$row['page'],
-                'forceAbsoluteUrl' => true,
-                'linkAccessRestrictedPages' => true
-            ]),
+            'baseUrl' => self::getTypolinkURL((int)$row['page']),
             'htmlUrl' => '',
-            'plainTextUrl' => ''
+            'plainTextUrl' => '',
         ];
 
         // Finding the url to fetch content from
@@ -328,26 +287,17 @@ class DirectMailUtility
                 $result['plainTextUrl'] = $row['plainParams'];
                 break;
             default:
-                $params = substr($row['HTMLParams'], 0, 1) == '&' ? substr($row['HTMLParams'], 1) : $row['HTMLParams'];
-                $result['htmlUrl'] = $cObj->typolink_URL([
-                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
-                    'forceAbsoluteUrl' => true,
-                    'linkAccessRestrictedPages' => true
-                ]);
-                $params = substr($row['plainParams'], 0, 1) == '&' ? substr($row['plainParams'], 1) : $row['plainParams'];
-                $result['plainTextUrl'] = $cObj->typolink_URL([
-                    'parameter' => $typolinkPageUrl . (int)$row['page'] . '&' . $params,
-                    'forceAbsoluteUrl' => true,
-                    'linkAccessRestrictedPages' => true
-                ]);
+                $params = self::prepareTypolinkParams($row['HTMLParams']);
+                $result['htmlUrl'] = self::getTypolinkURL((int)$row['page'] . '&' . $params);
+                $params = self::prepareTypolinkParams($row['plainParams']);
+                $result['plainTextUrl'] = self::getTypolinkURL((int)$row['page'] . '&' . $params);
         }
 
         // plain
         if ($result['plainTextUrl']) {
             if (!($row['sendOptions'] & 1)) {
                 $result['plainTextUrl'] = '';
-            } 
-            else {
+            } else {
                 $urlParts = @parse_url($result['plainTextUrl']);
                 if (!$urlParts['scheme']) {
                     $result['plainTextUrl'] = 'http://' . $result['plainTextUrl'];
@@ -359,8 +309,7 @@ class DirectMailUtility
         if ($result['htmlUrl']) {
             if (!($row['sendOptions'] & 2)) {
                 $result['htmlUrl'] = '';
-            } 
-            else {
+            } else {
                 $urlParts = @parse_url($result['htmlUrl']);
                 if (!$urlParts['scheme']) {
                     $result['htmlUrl'] = 'http://' . $result['htmlUrl'];
@@ -372,47 +321,21 @@ class DirectMailUtility
     }
 
     /**
-     * Get the configured charset.
-     *
-     * This method used to initialize the TSFE object to get the charset on a per page basis. Now it just evaluates the
-     * configured charset of the instance
-     *
-     * @throws ImmediateResponseException
-     * @throws ServiceUnavailableException
-     */
-    public static function getCharacterSet(): string
-    {
-        /** @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager $configurationManager */
-        $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
-    
-        $settings = $configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
-        );
-
-        $characterSet = 'utf-8';
-
-        if (!empty($settings['config.']['metaCharset'])) {
-            $characterSet = $settings['config.']['metaCharset'];
-        } 
-        elseif (!empty($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])) {
-            $characterSet = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
-        }
-
-        return mb_strtolower($characterSet);
-    }
-
-    /**
      * Wrapper for the old t3lib_div::intInRange.
      * Forces the integer $theInt into the boundaries of $min and $max.
      * If the $theInt is 'FALSE' then the $zeroValue is applied.
      */
-    public static function intInRangeWrapper(int $theInt, int $min, int $max = 2000000000, int $zeroValue = 0): int
-    {
+    public static function intInRangeWrapper(
+        int $theInt,
+        int $min,
+        int $max = 2000000000,
+        int $zeroValue = 0
+    ): int {
         return MathUtility::forceIntegerInRange($theInt, $min, $max, $zeroValue);
     }
 
     /**
-     * Takes a clear-text message body for a plain text email, finds all 'http://' links and if they are longer than 76 chars they are converted to a shorter URL with a hash parameter. 
+     * Takes a clear-text message body for a plain text email, finds all 'http://' links and if they are longer than 76 chars they are converted to a shorter URL with a hash parameter.
      * The real parameter is stored in the database and the hash-parameter/URL will be redirected to the real parameter when the link is clicked.
      * This function is about preserving long links in messages.
      *
@@ -423,9 +346,9 @@ class DirectMailUtility
      * @see makeRedirectUrl()
      * @deprecated since TYPO3 CMS 7, will be removed in TYPO3 CMS 8. Use mailer API instead
      */
-    public static function substUrlsInPlainText($message, $urlmode = '76', $index_script_url = '')
+    public static function substUrlsInPlainText(string $message, string $urlmode = '76', string $index_script_url = '')
     {
-        switch ((string)$urlmode) {
+        switch ($urlmode) {
             case '':
                 $lengthLimit = false;
                 break;
@@ -457,27 +380,12 @@ class DirectMailUtility
      * Fetches the attachment files referenced in the sys_dmail record.
      *
      * @param int $dmailUid The uid of the sys_dmail record to fetch the records for
-     * @return array An array of FileReferences
+     * @return FileReference[]
      */
-    public static function getAttachments(int $dmailUid)
+    public static function getAttachments(int $dmailUid): array
     {
         /** @var FileRepository $fileRepository */
         $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
         return $fileRepository->findByRelation('sys_dmail', 'attachment', $dmailUid);
-    }
-
-    /**
-     * generate edit link for records
-     *
-     * @param $params
-     * @return string
-     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
-     */
-    public static function getEditOnClickLink(array $params): string
-    {
-        /** @var UriBuilder $uriBuilder */
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-
-        return 'window.location.href=' . GeneralUtility::quoteJSvalue((string) $uriBuilder->buildUriFromRoute('record_edit', $params)) . '; return false;';
     }
 }

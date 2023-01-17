@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Scheduler;
 
 /*
@@ -26,12 +27,9 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * Aditional fields provider class for usage with the Scheduler's MailFromDraft task
  *
  * @author		Benjamin Mack <benni@typo3.org>
- * @package		TYPO3
- * @subpackage	direct_mail
  */
 class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
 {
-
     /**
      * This method is used to define new fields for adding or editing a task
      * In this case, it adds an email field
@@ -72,8 +70,8 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
             ->where(
                 $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(2))
             )
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         $draftsExternal = $queryBuilder
             ->select('*')
@@ -81,8 +79,8 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
             ->where(
                 $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(3))
             )
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         if (is_array($draftsInternal)) {
             $drafts = array_merge($drafts, $draftsInternal);
@@ -114,7 +112,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
             'label'    => 'Choose Draft to create DirectMail from',
             // TODO! add CSH
             'cshKey'   => '',
-            'cshLabel' => $fieldID
+            'cshLabel' => $fieldID,
         ];
 
         return $additionalFields;
@@ -131,20 +129,21 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
      */
     public function validateAdditionalFields(array &$submittedData, SchedulerModuleController $schedulerModuleController)
     {
-        $draftUid = $submittedData['selecteddraft'] = (int) $submittedData['selecteddraft'];
+        $draftUid = $submittedData['selecteddraft'] = (int)$submittedData['selecteddraft'];
         if ($draftUid > 0) {
             $draftRecord = BackendUtility::getRecord('sys_dmail', $draftUid);
 
             $queryBuilder =  GeneralUtility::makeInstance(ConnectionPool::class)
                 ->getQueryBuilderForTable('sys_dmail');
+            //@TODO
             $draftsInternal = $queryBuilder
                 ->select('*')
                 ->from('sys_dmail')
                 ->where(
                     $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($draftUid))
                 )
-                ->execute()
-                ->fetchAll();
+                ->executeQuery()
+                ->fetchAllAssociative();
 
             if ($draftRecord['type'] == 2 || $draftRecord['type'] == 3) {
                 $result = true;
@@ -168,8 +167,6 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
      *
      * @param	array				$submittedData Array containing the data submitted by the user
      * @param	AbstractTask	$task Reference to the current task object
-     *
-     * @return	void
      */
     public function saveAdditionalFields(array $submittedData, AbstractTask $task)
     {
