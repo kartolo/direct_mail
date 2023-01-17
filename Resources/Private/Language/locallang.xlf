@@ -4,25 +4,31 @@
         <header/>
         <body>
             <trans-unit id="widgets.dm.title" resname="widgets.dm.title">
-                <source>Direct Mail Pages</source>
+                <source>Direct Mail - Pages</source>
             </trans-unit>
             <trans-unit id="widgets.dm.description" resname="widgets.dm.description">
-                <source>Direct Mail Pages with dm module</source>
+                <source>Direct Mail - Pages with the 'Direct Mail' module</source>
             </trans-unit>
 			<trans-unit id="widgets.dmMailEngineStatus.title" resname="widgets.dmMailEngineStatus.title">
-                <source>DM Mail Engine Status Title</source>
+                <source>Direct Mail - Mail Engine Status</source>
             </trans-unit>
             <trans-unit id="widgets.dmMailEngineStatus.description" resname="widgets.dmMailEngineStatus.description">
-                <source>DM Mail Engine Status Description</source>
+                <source>Direct Mail - Shows the number of sent/unsent newsletters</source>
             </trans-unit>
             <trans-unit id="widget_group.dm" resname="widget_group.dm">
-                <source>DM Group</source>
+                <source>Direct Mail - Widgets</source>
             </trans-unit>
             <trans-unit id="dashboard.dm" resname="dashboard.dm">
-                <source>DM Dashboard</source>
+                <source>Direct Mail - Dashboard</source>
             </trans-unit>
             <trans-unit id="dashboard.dm.description" resname="dashboard.dm.description">
-                <source>DM Dashboard Description</source>
+                <source>Direct Mail - Dashboard Description</source>
+            </trans-unit>
+			<trans-unit id="widgets.dm.label.sent" resname="widgets.dm.label.sent">
+                <source>sent</source>
+            </trans-unit>
+			<trans-unit id="widgets.dm.label.unsent" resname="widgets.dm.label.unsent">
+                <source>unsent</source>
             </trans-unit>
         </body>
     </file>

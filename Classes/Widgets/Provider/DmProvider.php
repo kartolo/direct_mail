@@ -24,8 +24,7 @@ class DmProvider implements DmDataProviderInterface
             foreach ($rows as $row) {
                 if ($this->getBackendUser()->doesUserHaveAccess(BackendUtility::getRecord('pages', (int)$row['uid']), 2)) {
                     $dmLinks[] = [
-                        'id' => $row['uid'],
-                        #'url' => $this->buildUriFromRoute($this->moduleName, ['id' => $row['uid'], 'updatePageTree' => '1']),
+                        'uid' => $row['uid'],
                         'title' => $row['title'],
                     ];
                 }

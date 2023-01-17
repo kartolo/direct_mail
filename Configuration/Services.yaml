@@ -42,8 +42,6 @@ services:
 
   dashboard.provider.dmMailEngineStatus:
     class: 'DirectMailTeam\DirectMail\Widgets\Provider\DmMailEngineStatusDataProvider'
-    arguments:
-      $table: 'pages'
 
   dashboard.widget.dmMailEngineStatus:
     class: 'TYPO3\CMS\Dashboard\Widgets\DoughnutChartWidget'
