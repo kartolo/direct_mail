@@ -93,6 +93,36 @@ class SysDmailRepository extends MainRepository
     /**
      * @return array|bool
      */
+    public function selectSysDmailsByPids(array $pids, int $limit = 10) //: array|bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+        ->getRestrictions()
+        ->removeAll()
+        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
+        return $queryBuilder
+        ->select('uid', 'pid', 'subject', 'scheduled')
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->in(
+                'pid',
+                $queryBuilder->createNamedParameter($pids, Connection::PARAM_INT_ARRAY)
+            ),
+            $queryBuilder->expr()->gt(
+                'scheduled',
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+            )
+        )
+        ->orderBy('scheduled', 'DESC')
+        ->setMaxResults($limit)
+        ->executeQuery()
+        ->fetchAllAssociative();
+    }
+
+    /**
+     * @return array|bool
+     */
     public function selectSysDmailsByPid(int $pid) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);

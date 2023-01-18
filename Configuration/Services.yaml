@@ -56,5 +56,25 @@ services:
         groupNames: 'dm'
         title: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dmMailEngineStatus.title'
         description: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dmMailEngineStatus.description'
-        iconIdentifier: 'content-widget-text'
+        iconIdentifier: 'content-widget-chart-pie'
         height: 'small'
+
+  dashboard.provider.dmStatistics:
+    class: 'DirectMailTeam\DirectMail\Widgets\Provider\DmStatisticsDataProvider'
+
+  dashboard.widget.dmStatistics:
+    class: 'TYPO3\CMS\Dashboard\Widgets\BarChartWidget'
+    arguments:
+      $view: '@dashboard.views.widget'
+      $dataProvider: '@dashboard.provider.dmStatistics'
+      $options:
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: 'dmStatistics'
+        groupNames: 'dm'
+        title: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dmStatistics.title'
+        description: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dmStatistics.description'
+        iconIdentifier: 'content-widget-chart-bar'
+        height: 'medium'
+        width: 'medium'

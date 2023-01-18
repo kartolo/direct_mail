@@ -15,6 +15,12 @@
             <trans-unit id="widgets.dmMailEngineStatus.description" resname="widgets.dmMailEngineStatus.description">
                 <source>Direct Mail - Shows the number of sent/unsent newsletters</source>
             </trans-unit>
+			<trans-unit id="widgets.dmStatistics.title" resname="widgets.dmStatistics.title">
+                <source>Direct Mail - Statistics</source>
+            </trans-unit>
+            <trans-unit id="widgets.dmStatistics.description" resname="widgets.dmStatistics.description">
+                <source>Direct Mail - Shows recipients from the last 10 newsletters</source>
+            </trans-unit>
             <trans-unit id="widget_group.dm" resname="widget_group.dm">
                 <source>Direct Mail - Widgets</source>
             </trans-unit>
@@ -29,6 +35,9 @@
             </trans-unit>
 			<trans-unit id="widgets.dm.label.unsent" resname="widgets.dm.label.unsent">
                 <source>unsent</source>
+            </trans-unit>
+			<trans-unit id="widgets.dm.label.numberSentNewsletters" resname="widgets.dm.label.numberSentNewsletters">
+                <source>Number of the sent newsletters</source>
             </trans-unit>
         </body>
     </file>
