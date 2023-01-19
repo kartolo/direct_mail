@@ -101,10 +101,8 @@ class MailerEngineController extends MainController
 
     /**
      * Monitor the cronjob.
-     *
-     * @return	string		status of the cronjob in HTML Tableformat
      */
-    public function cronMonitor()
+    protected function cronMonitor(): void
     {
         $mailerStatus = 0;
         $lastExecutionTime = 0;
@@ -195,7 +193,7 @@ class MailerEngineController extends MainController
      * @return	string		List of the mailing status
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    public function mailerengine()
+    protected function mailerengine(): array
     {
         $invoke = false;
         $moduleUrl = '';
@@ -229,7 +227,7 @@ class MailerEngineController extends MainController
                 $data[] = [
                     'uid'             => $row['uid'],
                     'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-                    'subject'         => $this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)), $row['uid']),
+                    'subject'         => $this->linkDMailRecord(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)), $row['uid']),
                     'scheduled'       => BackendUtility::datetime($row['scheduled']),
                     'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
                     'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
@@ -243,7 +241,7 @@ class MailerEngineController extends MainController
         return ['invoke' => $invoke, 'moduleUrl' => $moduleUrl, 'data' => $data];
     }
 
-    private function getSysDmailMaillogsCountres(int $uid): int
+    protected function getSysDmailMaillogsCountres(int $uid): int
     {
         $countres = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogs($uid);
         $count = 0;
@@ -263,7 +261,7 @@ class MailerEngineController extends MainController
      * @param int $uid Uid of the record
      * @return bool
      */
-    public function canDelete($uid)
+    protected function canDelete(int $uid): bool
     {
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
 
@@ -276,14 +274,12 @@ class MailerEngineController extends MainController
      *
      * @param int $uid Record uid to be deleted
      */
-    public function deleteDMail(int $uid)
+    protected function deleteDMail(int $uid): void
     {
         $table = 'sys_dmail';
         if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
             $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord($uid, [$GLOBALS['TCA'][$table]['ctrl']['delete'] => 1]);
         }
-
-        return;
     }
 
     /**
@@ -293,7 +289,7 @@ class MailerEngineController extends MainController
      * @see		Dmailer::start
      * @see		Dmailer::runcron
      */
-    public function invokeMEngine()
+    protected function invokeMEngine(): void
     {
         // TODO: remove htmlmail
         /* @var $htmlmail \DirectMailTeam\DirectMail\Dmailer */
@@ -311,7 +307,7 @@ class MailerEngineController extends MainController
      *
      * @return string wrapped string as a link
      */
-    public function linkDMail_record($str, $uid)
+    protected function linkDMailRecord(string $str, int $uid): string
     {
         return $str;
         //TODO: Link to detail page for the new queue

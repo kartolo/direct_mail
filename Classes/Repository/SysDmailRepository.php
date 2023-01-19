@@ -40,6 +40,86 @@ class SysDmailRepository extends MainRepository
         ->fetchAssociative();
     }
 
+    public function countSysDmailsByPid(int $pid, bool $scheduled) //: array|bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+        ->getRestrictions()
+        ->removeAll()
+        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
+        $queryBuilder
+        ->selectLiteral('COUNT(uid) AS count')
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->eq(
+                'pid',
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
+            )
+        );
+
+        if ($scheduled) {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->gt(
+                    'scheduled',
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'issent',
+                    $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)
+                )
+            );
+        }
+        else {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->eq(
+                    'scheduled',
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'scheduled_begin',
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'issent',
+                    $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)
+                )
+            );
+        }
+
+        return $queryBuilder->executeQuery()->fetchAssociative();
+    }
+
+    /**
+     * @return array|bool
+     */
+    public function selectSysDmailsByPids(array $pids, int $limit = 10) //: array|bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+        $queryBuilder
+        ->getRestrictions()
+        ->removeAll()
+        ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
+        return $queryBuilder
+        ->select('uid', 'pid', 'subject', 'scheduled')
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->in(
+                'pid',
+                $queryBuilder->createNamedParameter($pids, Connection::PARAM_INT_ARRAY)
+            ),
+            $queryBuilder->expr()->gt(
+                'scheduled',
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+            )
+        )
+        ->orderBy('scheduled', 'DESC')
+        ->setMaxResults($limit)
+        ->executeQuery()
+        ->fetchAllAssociative();
+    }
+
     /**
      * @return array|bool
      */

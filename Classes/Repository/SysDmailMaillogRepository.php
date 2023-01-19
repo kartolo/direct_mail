@@ -99,6 +99,35 @@ class SysDmailMaillogRepository extends MainRepository
     /**
      * @return array|bool
      */
+    public function countSysDmailMaillogByMid(int $mid) //: array|bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+        ->selectLiteral('COUNT(*) AS counter')
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'sys_dmail_maillog.response_type',
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+            ),
+            $queryBuilder->expr()->gt(
+                'sys_dmail_maillog.html_sent',
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+            )
+        )
+        ->groupBy('mid')
+        ->executeQuery()
+        ->fetchAssociative();
+    }
+
+    /**
+     * @return array|bool
+     */
     public function countSysDmailMaillogPingByMid(int $mid) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
