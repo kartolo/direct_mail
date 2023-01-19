@@ -82,7 +82,7 @@ class SysDmailRepository extends MainRepository
                 ),
                 $queryBuilder->expr()->eq(
                     'issent',
-                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                    $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)
                 )
             );
         }
