@@ -513,6 +513,9 @@ class StatisticsController extends MainController
             }
             if (!$htmlLinkFound) {
                 $urlCounter['plain'][$id]['counter'] = $c['counter'];
+                if (!isset($urlCounter['total'][$id]['counter'])) {
+                    $urlCounter['total'][$id]['counter'] = 0;
+                }
                 $urlCounter['total'][$id]['counter'] = $urlCounter['total'][$id]['counter'] + $c['counter'];
             }
         }
@@ -536,7 +539,7 @@ class StatisticsController extends MainController
                 ],
                 [
                     'stats_links_clicked_per_respondent',
-                    ($uniqueHtmlResponses+$uniquePlainResponses ? number_format(($table['1']['counter'] + $table['2']['counter']) / ($uniqueHtmlResponses+$uniquePlainResponses), 2) : '-'),
+                    ($uniqueHtmlResponses + $uniquePlainResponses ? number_format(($table['1']['counter'] + $table['2']['counter']) / ($uniqueHtmlResponses+$uniquePlainResponses), 2) : '-'),
                     ($uniqueHtmlResponses  ? number_format(($table['1']['counter']) / ($uniqueHtmlResponses), 2)  : '-'),
                     ($uniquePlainResponses ? number_format(($table['2']['counter']) / ($uniquePlainResponses), 2) : '-'),
                 ],
