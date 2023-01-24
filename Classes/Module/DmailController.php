@@ -1636,7 +1636,7 @@ class DmailController extends MainController
     public function updateSpecialQuery(array $mailGroup)
     {
         $set = GeneralUtility::_GP('SET');
-        $queryTable = $set['queryTable'];
+        $queryTable = $set['queryTable'] ?? '';
         $queryLimit = $set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100;
         $queryLimitDisabled = ($set['queryLimitDisabled'] ?? $mailGroup['queryLimitDisabled']) == '' ? 0 : 1;
         $queryConfig = GeneralUtility::_GP('queryConfig');
