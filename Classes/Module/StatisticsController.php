@@ -177,7 +177,7 @@ class StatisticsController extends MainController
                         break;
                     default:
                         // Hook for handling of custom direct mail commands:
-                        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd])) {
+                        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd] ?? false)) {
                             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd] as $funcRef) {
                                 $params = ['pObj' => &$this];
                                 $theOutput['dataHook'] = GeneralUtility::callUserFunction($funcRef, $params, $this);
@@ -644,7 +644,7 @@ class StatisticsController extends MainController
                     ($html ? '-' : $id),
                     ($html ? $urlCounter['html'][$id]['counter'] : $urlCounter['plain'][$origId]['counter']),
                     $urlCounter['html'][$id]['counter'],
-                    $urlCounter['plain'][$origId]['counter'],
+                    $urlCounter['plain'][$origId]['counter'] ?? 0,
                     $img,
                 ];
             }
@@ -689,7 +689,7 @@ class StatisticsController extends MainController
             /**
              * Hook for cmd_stats_linkResponses
              */
-            if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'])) {
+            if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'] ?? false)) {
                 $hookObjectsArr = [];
                 foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'] as $classRef) {
                     $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
@@ -1483,12 +1483,12 @@ class StatisticsController extends MainController
                 $urlstr = GeneralUtility::fixed_lgd_cs($pages['title'], 50) . GeneralUtility::fixed_lgd_cs(($query ? ' / ' . $query : ''), 20);
             } else {
                 $urlstr = $baseUrl . substr($urlParts['path'], 1);
-                $urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
+                $urlstr .= ($urlParts['query'] ?? '')    ? '?' . $urlParts['query']    : '';
                 $urlstr .= ($urlParts['fragment'] ?? '') ? '#' . $urlParts['fragment'] : '';
             }
         } else {
             $urlstr =  ((isset($urlParts['host']) && $urlParts['host']) ? $urlParts['scheme'] . '://' . $urlParts['host'] : $baseUrl) . $urlParts['path'];
-            $urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
+            $urlstr .= ($urlParts['query'] ?? '')    ? '?' . $urlParts['query']    : '';
             $urlstr .= ($urlParts['fragment'] ?? '') ? '#' . $urlParts['fragment'] : '';
         }
 
