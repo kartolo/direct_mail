@@ -1258,7 +1258,7 @@ class DmailController extends MainController
     protected function sendTestMailToTable(array $idLists, string $table, Dmailer $htmlmail): int
     {
         $sentFlag = 0;
-        if (is_array($idLists[$table])) {
+        if (isset($idLists[$table]) && is_array($idLists[$table])) {
             $rows = ($table != 'PLAINLIST') ? GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$table], $table, '*') : $idLists['PLAINLIST'];
 
             foreach ($rows as $row) {
