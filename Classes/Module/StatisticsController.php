@@ -1484,12 +1484,12 @@ class StatisticsController extends MainController
             } else {
                 $urlstr = $baseUrl . substr($urlParts['path'], 1);
                 $urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
-                $urlstr .= $urlParts['fragment'] ? '#' . $urlParts['fragment'] : '';
+                $urlstr .= ($urlParts['fragment'] ?? '') ? '#' . $urlParts['fragment'] : '';
             }
         } else {
             $urlstr =  ((isset($urlParts['host']) && $urlParts['host']) ? $urlParts['scheme'] . '://' . $urlParts['host'] : $baseUrl) . $urlParts['path'];
             $urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
-            $urlstr .= $urlParts['fragment'] ? '#' . $urlParts['fragment'] : '';
+            $urlstr .= ($urlParts['fragment'] ?? '') ? '#' . $urlParts['fragment'] : '';
         }
 
         return $urlstr;
