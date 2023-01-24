@@ -1382,19 +1382,19 @@ class StatisticsController extends MainController
                         // treat html links like plain text
                     case '2':
                         // plain text link response
-                        $recRec[($row['response_type']==1?'html_links':'plain_links')][] = $row['tstamp'];
+                        $recRec[($row['response_type'] == 1 ? 'html_links' : 'plain_links')][] = $row['tstamp'];
                         $recRec['links'][] = $row['tstamp'];
-                        if (!$recRec['firstlink']) {
+                        if (!($recRec['firstlink'] ?? '')) {
                             $recRec['firstlink'] = $row['url_id'];
-                            $recRec['firstlink_time'] = (int)(@max($recRec['pings']));
+                            $recRec['firstlink_time'] = (isset($recRec['pings']) && count($recRec['pings']) > 0) ? (int)(max($recRec['pings'])) : 0;
                             $recRec['firstlink_time'] = $recRec['firstlink_time'] ? $row['tstamp'] - $recRec['firstlink_time'] : 0;
-                        } elseif (!$recRec['secondlink']) {
+                        } elseif (!($recRec['secondlink'] ?? '')) {
                             $recRec['secondlink'] = $row['url_id'];
-                            $recRec['secondlink_time'] = (int)(@max($recRec['pings']));
+                            $recRec['secondlink_time'] = (isset($recRec['pings']) && count($recRec['pings']) > 0) ? (int)(max($recRec['pings'])) : 0;
                             $recRec['secondlink_time'] = $recRec['secondlink_time'] ? $row['tstamp'] - $recRec['secondlink_time'] : 0;
-                        } elseif (!$recRec['thirdlink']) {
+                        } elseif (!($recRec['thirdlink'] ?? '')) {
                             $recRec['thirdlink'] = $row['url_id'];
-                            $recRec['thirdlink_time'] = (int)(@max($recRec['pings']));
+                            $recRec['thirdlink_time'] = (isset($recRec['pings']) && count($recRec['pings']) > 0) ? (int)(max($recRec['pings'])) : 0;
                             $recRec['thirdlink_time'] = $recRec['thirdlink_time'] ? $row['tstamp'] - $recRec['thirdlink_time'] : 0;
                         }
                         $recRec['response'][] = $row['tstamp'];
