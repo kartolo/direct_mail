@@ -600,12 +600,10 @@ class StatisticsController extends MainController
 
                 $title = $link->getAttribute('title');
 
-                if (!empty($title)) {
-                    // no title attribute
-                    $label = '<span title="' . $title . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
-                } else {
-                    $label = '<span title="' . $targetUrl . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
-                }
+                $label = '<span title="';
+                // no title attribute
+                $label .= !empty($title) ? $title : $targetUrl;
+                $label .= '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
 
                 $htmlLinks[$jumpurlId]['label'] = $label;
             }
@@ -619,6 +617,7 @@ class StatisticsController extends MainController
             $origId = $id;
             $id     = abs((int)$id);
             $url    = $htmlLinks[$id]['url'] ? $htmlLinks[$id]['url'] : $urlArr[$origId];
+
             // a link to this host?
             $uParts = @parse_url($url);
             $urlstr = $this->getUrlStr($uParts);
@@ -1460,8 +1459,7 @@ class StatisticsController extends MainController
     public function getUrlStr(array $urlParts): string
     {
         $baseUrl = $this->getBaseURL();
-
-        if (is_array($urlParts) && $this->siteUrl == $urlParts['host']) {
+        if (is_array($urlParts) && isset($urlParts['host']) && $this->siteUrl == $urlParts['host']) {
             $m = [];
             // do we have an id?
             if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $urlParts['query'], $m)) {
@@ -1489,7 +1487,7 @@ class StatisticsController extends MainController
                 $urlstr .= $urlParts['fragment'] ? '#' . $urlParts['fragment'] : '';
             }
         } else {
-            $urlstr =  ($urlParts['host'] ? $urlParts['scheme'] . '://' . $urlParts['host'] : $baseUrl) . $urlParts['path'];
+            $urlstr =  ((isset($urlParts['host']) && $urlParts['host']) ? $urlParts['scheme'] . '://' . $urlParts['host'] : $baseUrl) . $urlParts['path'];
             $urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
             $urlstr .= $urlParts['fragment'] ? '#' . $urlParts['fragment'] : '';
         }
