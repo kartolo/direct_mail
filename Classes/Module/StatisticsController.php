@@ -1559,14 +1559,15 @@ class StatisticsController extends MainController
                 $contentTitle = $file['file'];
             }
         }
-
+/** 
         if ($this->params['showContentTitle'] == 1) {
             $label = $contentTitle;
         }
-
+        
         if ($this->params['prependContentTitle'] == 1) {
             $label =  $contentTitle . ' (' . $linkedWord . ')';
         }
+*/
 
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] as $funcRef) {
