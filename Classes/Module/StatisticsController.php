@@ -1569,7 +1569,7 @@ class StatisticsController extends MainController
         }
 */
 
-        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel']) && is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'])) {
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] ?? false)) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] as $funcRef) {
                 $params = ['pObj' => &$this, 'url' => $url, 'urlStr' => $urlStr, 'label' => $label];
                 $label = GeneralUtility::callUserFunction($funcRef, $params, $this);
