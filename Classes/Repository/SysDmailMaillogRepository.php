@@ -270,7 +270,7 @@ class SysDmailMaillogRepository extends MainRepository
         $popularLinks = [];
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $statement = $queryBuilder
+        $queryBuilder
             ->select('url_id')
             ->addSelectLiteral('COUNT(*) AS counter')
             ->from($this->table)
@@ -287,12 +287,14 @@ class SysDmailMaillogRepository extends MainRepository
                 )
             )
             ->groupBy('url_id')
-            ->orderBy('counter')
-            ->executeQuery();
+            ->orderBy('counter');
+
+        $statement = $queryBuilder->executeQuery();
 
         while ($row = $statement->fetchAssociative()) {
             $popularLinks[$row['url_id']] = $row;
         }
+
         return $popularLinks;
     }
 

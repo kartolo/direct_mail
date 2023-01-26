@@ -177,7 +177,7 @@ class StatisticsController extends MainController
                         break;
                     default:
                         // Hook for handling of custom direct mail commands:
-                        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd])) {
+                        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd] ?? false)) {
                             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd] as $funcRef) {
                                 $params = ['pObj' => &$this];
                                 $theOutput['dataHook'] = GeneralUtility::callUserFunction($funcRef, $params, $this);
@@ -513,6 +513,9 @@ class StatisticsController extends MainController
             }
             if (!$htmlLinkFound) {
                 $urlCounter['plain'][$id]['counter'] = $c['counter'];
+                if (!isset($urlCounter['total'][$id]['counter'])) {
+                    $urlCounter['total'][$id]['counter'] = 0;
+                }
                 $urlCounter['total'][$id]['counter'] = $urlCounter['total'][$id]['counter'] + $c['counter'];
             }
         }
@@ -536,7 +539,7 @@ class StatisticsController extends MainController
                 ],
                 [
                     'stats_links_clicked_per_respondent',
-                    ($uniqueHtmlResponses+$uniquePlainResponses ? number_format(($table['1']['counter'] + $table['2']['counter']) / ($uniqueHtmlResponses+$uniquePlainResponses), 2) : '-'),
+                    ($uniqueHtmlResponses + $uniquePlainResponses ? number_format((($table['1']['counter'] ?? 0) + ($table['2']['counter'] ?? 0)) / ($uniqueHtmlResponses+$uniquePlainResponses), 2) : '-'),
                     ($uniqueHtmlResponses  ? number_format(($table['1']['counter']) / ($uniqueHtmlResponses), 2)  : '-'),
                     ($uniquePlainResponses ? number_format(($table['2']['counter']) / ($uniquePlainResponses), 2) : '-'),
                 ],
@@ -597,12 +600,10 @@ class StatisticsController extends MainController
 
                 $title = $link->getAttribute('title');
 
-                if (!empty($title)) {
-                    // no title attribute
-                    $label = '<span title="' . $title . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
-                } else {
-                    $label = '<span title="' . $targetUrl . '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
-                }
+                $label = '<span title="';
+                // no title attribute
+                $label .= !empty($title) ? $title : $targetUrl;
+                $label .= '">' . GeneralUtility::fixed_lgd_cs(substr($targetUrl, -40), 40) . '</span>';
 
                 $htmlLinks[$jumpurlId]['label'] = $label;
             }
@@ -616,6 +617,7 @@ class StatisticsController extends MainController
             $origId = $id;
             $id     = abs((int)$id);
             $url    = $htmlLinks[$id]['url'] ? $htmlLinks[$id]['url'] : $urlArr[$origId];
+
             // a link to this host?
             $uParts = @parse_url($url);
             $urlstr = $this->getUrlStr($uParts);
@@ -642,7 +644,7 @@ class StatisticsController extends MainController
                     ($html ? '-' : $id),
                     ($html ? $urlCounter['html'][$id]['counter'] : $urlCounter['plain'][$origId]['counter']),
                     $urlCounter['html'][$id]['counter'],
-                    $urlCounter['plain'][$origId]['counter'],
+                    $urlCounter['plain'][$origId]['counter'] ?? 0,
                     $img,
                 ];
             }
@@ -687,7 +689,7 @@ class StatisticsController extends MainController
             /**
              * Hook for cmd_stats_linkResponses
              */
-            if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'])) {
+            if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'] ?? false)) {
                 $hookObjectsArr = [];
                 foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod4']['cmd_stats_linkResponses'] as $classRef) {
                     $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
@@ -1380,19 +1382,19 @@ class StatisticsController extends MainController
                         // treat html links like plain text
                     case '2':
                         // plain text link response
-                        $recRec[($row['response_type']==1?'html_links':'plain_links')][] = $row['tstamp'];
+                        $recRec[($row['response_type'] == 1 ? 'html_links' : 'plain_links')][] = $row['tstamp'];
                         $recRec['links'][] = $row['tstamp'];
-                        if (!$recRec['firstlink']) {
+                        if (!($recRec['firstlink'] ?? '')) {
                             $recRec['firstlink'] = $row['url_id'];
-                            $recRec['firstlink_time'] = (int)(@max($recRec['pings']));
+                            $recRec['firstlink_time'] = (isset($recRec['pings']) && count($recRec['pings']) > 0) ? (int)(max($recRec['pings'])) : 0;
                             $recRec['firstlink_time'] = $recRec['firstlink_time'] ? $row['tstamp'] - $recRec['firstlink_time'] : 0;
-                        } elseif (!$recRec['secondlink']) {
+                        } elseif (!($recRec['secondlink'] ?? '')) {
                             $recRec['secondlink'] = $row['url_id'];
-                            $recRec['secondlink_time'] = (int)(@max($recRec['pings']));
+                            $recRec['secondlink_time'] = (isset($recRec['pings']) && count($recRec['pings']) > 0) ? (int)(max($recRec['pings'])) : 0;
                             $recRec['secondlink_time'] = $recRec['secondlink_time'] ? $row['tstamp'] - $recRec['secondlink_time'] : 0;
-                        } elseif (!$recRec['thirdlink']) {
+                        } elseif (!($recRec['thirdlink'] ?? '')) {
                             $recRec['thirdlink'] = $row['url_id'];
-                            $recRec['thirdlink_time'] = (int)(@max($recRec['pings']));
+                            $recRec['thirdlink_time'] = (isset($recRec['pings']) && count($recRec['pings']) > 0) ? (int)(max($recRec['pings'])) : 0;
                             $recRec['thirdlink_time'] = $recRec['thirdlink_time'] ? $row['tstamp'] - $recRec['thirdlink_time'] : 0;
                         }
                         $recRec['response'][] = $row['tstamp'];
@@ -1457,8 +1459,7 @@ class StatisticsController extends MainController
     public function getUrlStr(array $urlParts): string
     {
         $baseUrl = $this->getBaseURL();
-
-        if (is_array($urlParts) && $this->siteUrl == $urlParts['host']) {
+        if (is_array($urlParts) && isset($urlParts['host']) && $this->siteUrl == $urlParts['host']) {
             $m = [];
             // do we have an id?
             if (preg_match('/(?:^|&)id=([0-9a-z_]+)/', $urlParts['query'], $m)) {
@@ -1482,13 +1483,13 @@ class StatisticsController extends MainController
                 $urlstr = GeneralUtility::fixed_lgd_cs($pages['title'], 50) . GeneralUtility::fixed_lgd_cs(($query ? ' / ' . $query : ''), 20);
             } else {
                 $urlstr = $baseUrl . substr($urlParts['path'], 1);
-                $urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
-                $urlstr .= $urlParts['fragment'] ? '#' . $urlParts['fragment'] : '';
+                $urlstr .= ($urlParts['query'] ?? '')    ? '?' . $urlParts['query']    : '';
+                $urlstr .= ($urlParts['fragment'] ?? '') ? '#' . $urlParts['fragment'] : '';
             }
         } else {
-            $urlstr =  ($urlParts['host'] ? $urlParts['scheme'] . '://' . $urlParts['host'] : $baseUrl) . $urlParts['path'];
-            $urlstr .= $urlParts['query'] ? '?' . $urlParts['query'] : '';
-            $urlstr .= $urlParts['fragment'] ? '#' . $urlParts['fragment'] : '';
+            $urlstr =  ((isset($urlParts['host']) && $urlParts['host']) ? $urlParts['scheme'] . '://' . $urlParts['host'] : $baseUrl) . $urlParts['path'];
+            $urlstr .= ($urlParts['query'] ?? '')    ? '?' . $urlParts['query']    : '';
+            $urlstr .= ($urlParts['fragment'] ?? '') ? '#' . $urlParts['fragment'] : '';
         }
 
         return $urlstr;
@@ -1558,16 +1559,17 @@ class StatisticsController extends MainController
                 $contentTitle = $file['file'];
             }
         }
-
+/** 
         if ($this->params['showContentTitle'] == 1) {
             $label = $contentTitle;
         }
-
+        
         if ($this->params['prependContentTitle'] == 1) {
             $label =  $contentTitle . ' (' . $linkedWord . ')';
         }
+*/
 
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'])) {
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] ?? false)) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] as $funcRef) {
                 $params = ['pObj' => &$this, 'url' => $url, 'urlStr' => $urlStr, 'label' => $label];
                 $label = GeneralUtility::callUserFunction($funcRef, $params, $this);
