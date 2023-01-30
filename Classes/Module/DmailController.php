@@ -1714,7 +1714,8 @@ class DmailController extends MainController
                             $recipients = $dmCsvUtility->rearrangeCsvValues($dmCsvUtility->getCsvValues($mailGroup['list']), $this->fieldList);
                         } 
                         else {
-                            $recipients = DirectMailUtility::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroup['list'])));
+                            $mailGroupList = $mailGroup['list'];
+                            $recipients = $mailGroupList ? DirectMailUtility::rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroupList))) : [];
                         }
                         $idLists['PLAINLIST'] = DirectMailUtility::cleanPlainList($recipients);
                         break;
