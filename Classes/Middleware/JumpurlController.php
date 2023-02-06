@@ -134,7 +134,7 @@ class JumpurlController implements MiddlewareInterface
                     'response_type' => $this->responseType,
                     'url_id'        => (int)$urlId,
                     'rtbl'          => mb_substr($this->recipientTable, 0, 1),
-                    'rid'           => (int)($recipientUid ?? $this->recipientRecord['uid']),
+                    'rid'           => $recipientUid ?? (int) $this->recipientRecord['uid'],
                 ];
                 $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
                 if ($sysDmailMaillogRepository->hasRecentLog($mailLogParams) === false) {
