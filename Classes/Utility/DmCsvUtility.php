@@ -37,11 +37,11 @@ class DmCsvUtility
      * Parse CSV lines into array form
      *
      * @param array $lines CSV lines
-     * @param string $fieldList List of the fields
+     * @param array $fieldList List of the fields
      *
      * @return array parsed CSV values
      */
-    public function rearrangeCsvValues(array $lines, $fieldList): array
+    public function rearrangeCsvValues(array $lines, array $fieldListArr): array
     {
         $out = [];
         if (is_array($lines) && count($lines) > 0) {
@@ -55,7 +55,6 @@ class DmCsvUtility
             // adds that number to the field value (accummulation) and '=[value]'
             // overrides any existing value in the field
             $first = $lines[0];
-            $fieldListArr = explode(',', $fieldList);
             if ($dmConfigAddRecipFields = Typo3ConfVarsUtility::getDMConfigAddRecipFields()) {
                 $fieldListArr = array_merge($fieldListArr, explode(',', $dmConfigAddRecipFields));
             }

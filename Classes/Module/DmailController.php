@@ -1259,8 +1259,7 @@ class DmailController extends MainController
     {
         $sentFlag = 0;
         if (isset($idLists[$table]) && is_array($idLists[$table])) {
-            $rows = ($table != 'PLAINLIST') ? GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$table], $table, '*') : $idLists['PLAINLIST'];
-
+            $rows = ($table != 'PLAINLIST') ? GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$table], $table, ['*']) : $idLists['PLAINLIST'];
             foreach ($rows as $row) {
                 $recipRow = $htmlmail->convertFields($row);
                 $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table, $recipRow['uid']);
@@ -1576,7 +1575,7 @@ class DmailController extends MainController
                         $mailGroupList = (string)$mailGroup['list'];
                         if ($mailGroup['csv'] == 1) {
                             $dmCsvUtility = GeneralUtility::makeInstance(DmCsvUtility::class);
-                            $recipients = $dmCsvUtility->rearrangeCsvValues($dmCsvUtility->getCsvValues($mailGroupList), $this->fieldList);
+                            $recipients = $dmCsvUtility->rearrangeCsvValues($dmCsvUtility->getCsvValues($mailGroupList), $this->getFieldList());
                         } else {
                             $recipients = $mailGroupList ? $this->rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroupList))) : [];
                         }
