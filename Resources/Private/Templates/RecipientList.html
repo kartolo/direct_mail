@@ -471,7 +471,11 @@
 			<f:for each="{recipListConfig.rows}" as="row">
 				<tr class="db_list_normal">
 					<td class="nowrap"><f:format.html>{row.icon}</f:format.html></td>
-					<td><a class="t3-link" href="{row.editLink}" title="{recipListConfig.editLinkTitle}"><f:format.html>{recipListConfig.actionsOpen}</f:format.html></a></td>
+					<td>
+						<f:if condition="{row.editLink}">
+							<a class="t3-link" href="{row.editLink}" title="{recipListConfig.editLinkTitle}"><f:format.html>{recipListConfig.actionsOpen}</f:format.html></a>
+						</f:if>
+					</td>
 					<td class="nowrap"><f:format.html>{row.email}</f:format.html></td>
 					<td class="nowrap"><f:format.html>{row.name}</f:format.html></td>
 				</tr>
