@@ -18,11 +18,11 @@ class TempRepository extends MainRepository
      *
      * @param array $listArr List of recipient IDs
      * @param string $table Table name
-     * @param string $fields Field to be selected
+     * @param array $fields Field to be selected
      *
      * @return array recipients' data
      */
-    public function fetchRecordsListValues(array $listArr, string $table, string $fields = 'uid,name,email'): array
+    public function fetchRecordsListValues(array $listArr, string $table, array $fields = ['uid', 'name', 'email']): array
     {
         $outListArr = [];
         if (is_array($listArr) && count($listArr)) {
@@ -34,10 +34,8 @@ class TempRepository extends MainRepository
             ->removeAll()
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
-            $fieldArray = GeneralUtility::trimExplode(',', $fields);
-
             // handle selecting multiple fields
-            foreach ($fieldArray as $i => $field) {
+            foreach ($fields as $i => $field) {
                 if ($i) {
                     $queryBuilder->addSelect($field);
                 } else {
