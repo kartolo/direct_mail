@@ -123,7 +123,7 @@ class JumpurlController implements MiddlewareInterface
                 }
 
                 // to count the dmailerping correctly, we need something unique
-                $recipientUid = $submittedAuthCode;
+                $authCode = preg_replace("/[^a-zA-Z0-9]/", "", $submittedAuthCode);
             }
 
             if ($this->responseType !== 0) {
@@ -134,7 +134,7 @@ class JumpurlController implements MiddlewareInterface
                     'response_type' => $this->responseType,
                     'url_id'        => (int)$urlId,
                     'rtbl'          => mb_substr($this->recipientTable, 0, 1),
-                    'rid'           => (int)($recipientUid ?? $this->recipientRecord['uid']),
+                    'rid'           => $authCode ?? (int) $this->recipientRecord['uid'],
                 ];
                 $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
                 if ($sysDmailMaillogRepository->hasRecentLog($mailLogParams) === false) {
