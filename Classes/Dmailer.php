@@ -864,7 +864,7 @@ class Dmailer implements LoggerAwareInterface
         if ((int)$this->dmailer['sys_dmail_rec']['attachment'] > 0) {
             $files = DirectMailUtility::getAttachments((int)$this->dmailer['sys_dmail_rec']['uid']);
             foreach ($files as $file) {
-                $mailer->attachFromPath($file->getForLocalProcessing());
+                $mailer->attachFromPath($file->getForLocalProcessing(), $file->getName());
             }
         }
     }
