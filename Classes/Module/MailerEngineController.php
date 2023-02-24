@@ -7,6 +7,7 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
+use DirectMailTeam\DirectMail\Utility\SchedulerUtility;
 use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -14,6 +15,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 class MailerEngineController extends MainController
 {
@@ -63,7 +65,7 @@ class MailerEngineController extends MainController
 
                     $this->view->assignMultiple(
                         [
-                            'cronMonitor' => $cronMonitor,
+                            'schedulerTable' => $cronMonitor,
                             'data' => $mailerEngine['data'],
                             'id' => $this->id,
                             'invoke' => $mailerEngine['invoke'],
@@ -102,8 +104,61 @@ class MailerEngineController extends MainController
     /**
      * Monitor the cronjob.
      */
-    protected function cronMonitor(): void
+    protected function cronMonitor(): array
     {
+        $schedulerTable = [];
+        if (ExtensionManagementUtility::isLoaded('scheduler')) {
+            $this->getLanguageService()->includeLLFile('EXT:scheduler/Resources/Private/Language/locallang.xlf');
+
+            $schedulerTable = SchedulerUtility::getDMTable($this->getLanguageService());
+
+/**
+
+                    if ((int) $task['disable'] === 1) {
+                        $message = $this->createFlashMessage(
+                            'disabled', //@TODO
+                            'Scheduled task', //@TODO
+                            1,
+                            false
+                        );
+                        $this->messageQueue->addMessage($message);
+                    }
+                    else {
+                        $message = $this->createFlashMessage(
+                            'enabled', //@TODO
+                            'Scheduled task', //@TODO
+                            0,
+                            false
+                        );
+                        $this->messageQueue->addMessage($message);
+
+
+                    }
+            }
+            else {
+                $message = $this->createFlashMessage(
+                    'Scheduled task', //@TODO
+                    'Not found', //@TODO
+                    1,
+                    false
+                );
+                $this->messageQueue->addMessage($message);
+            }
+        }
+        else {
+            $message = $this->createFlashMessage(
+                'Scheduler extension', //@TODO
+                'Not installed', //@TODO
+                1,
+                false
+            );
+            $this->messageQueue->addMessage($message);
+        }
+        */
+        }
+
+
+
         $mailerStatus = 0;
         $lastExecutionTime = 0;
         $logContent = '';
@@ -184,6 +239,8 @@ class MailerEngineController extends MainController
                 break;
             default:
         }
+
+        return $schedulerTable;
     }
 
     /**

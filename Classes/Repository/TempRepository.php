@@ -469,4 +469,38 @@ class TempRepository extends MainRepository
             );
         }
     }
+
+    public function seachDMTask()
+    {
+        $table = 'tx_scheduler_task';
+        $queryBuilder = $this->getQueryBuilder($table);
+
+        $searchStrNew = 'directmail:mailingqueue';
+        //@TODO remove in v12
+        $searchStrOld = '\DirectmailScheduler';
+
+        $queryBuilder
+            ->select('uid', 'disable', 'description', 'nextexecution', 'lastexecution_time', 'lastexecution_failure', 'lastexecution_context', 'serialized_task_object', 'serialized_executions')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->like(
+                    'serialized_task_object',
+                    $queryBuilder->createNamedParameter('%' . $queryBuilder->escapeLikeWildcards($searchStrNew) . '%')
+                )
+            )
+            ->orWhere(
+                $queryBuilder->expr()->like(
+                    'serialized_task_object',
+                    $queryBuilder->createNamedParameter('%' . $queryBuilder->escapeLikeWildcards($searchStrOld) . '%')
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'deleted',
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                )
+            );
+
+        return $queryBuilder->executeQuery()->fetchAllAssociative();
+    }
 }

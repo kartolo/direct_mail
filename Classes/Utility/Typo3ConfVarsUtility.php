@@ -79,4 +79,9 @@ class Typo3ConfVarsUtility
         $dmConfig = self::getDMConfig();
         return (int)$dmConfig['cronInt'];
     }
+
+    public static function getDateFormat()
+    {
+        return $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'] . ' ' . $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm'];
+    }
 }
