@@ -16,6 +16,7 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  */
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Module\DmailController;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -34,16 +35,16 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  */
 class MailFromDraft extends AbstractTask
 {
-    public $draftUid;
+    public int $draftUid = 0;
 
-    protected $hookObjects = [];
+    protected array $hookObjects = [];
 
     /**
      * Setter function to set the draft ID that the task should use
      *
      * @param int $draftUid The UID of the sys_dmail record (needs to be of type=3 or type=4)
      */
-    public function setDraft($draftUid)
+    public function setDraft(int $draftUid): void
     {
         $this->draftUid = $draftUid;
     }
@@ -54,7 +55,7 @@ class MailFromDraft extends AbstractTask
      *
      * @return	bool
      */
-    public function execute()
+    public function execute(): bool
     {
         if ($this->draftUid > 0) {
             $this->initializeHookObjects();
@@ -64,10 +65,9 @@ class MailFromDraft extends AbstractTask
 
             // update recipients
             $recipientGroups = explode(',', $draftRecord['recipientGroups']);
-            $SOBE = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\DirectMailTeam\DirectMail\Module\Dmail::class);
-            $SOBE->init();
+            $dmailController = GeneralUtility::makeInstance(DmailController::class);
 
-            $newRecipients = $SOBE->cmd_compileMailGroup($recipientGroups);
+            $newRecipients = $dmailController->cmd_compileMailGroup($recipientGroups);
 
             // get some parameters from tsConfig
             $defaultParams = BackendUtility::getPagesTSconfig($draftRecord['pid'])['mod.']['web_modules.']['dmail.'] ?? [];
@@ -88,9 +88,6 @@ class MailFromDraft extends AbstractTask
             }
 
             // Insert the new dmail record into the DB
-            //$GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail', $draftRecord);
-            //$this->dmailUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
-
             $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
             $databaseConnectionSysDmailMail = $connectionPool->getConnectionForTable('sys_dmail');
             $databaseConnectionSysDmailMail->insert(
@@ -174,7 +171,7 @@ class MailFromDraft extends AbstractTask
      * @param string $hookMethod The hook method name
      * @param array $hookParams The hook params
      */
-    public function callHooks($hookMethod, array $hookParams)
+    public function callHooks(string $hookMethod, array $hookParams)
     {
         foreach ($this->hookObjects as $hookObjectInstance) {
             $hookObjectInstance->$hookMethod($hookParams, $this);
@@ -188,7 +185,7 @@ class MailFromDraft extends AbstractTask
      */
     public function initializeHookObjects()
     {
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'])) {
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] ?? false)) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] as $hookObj) {
                 $hookObjectInstance = GeneralUtility::makeInstance($hookObj);
                 if (!(is_object($hookObjectInstance) && ($hookObjectInstance instanceof MailFromDraftHookInterface))) {
