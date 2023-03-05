@@ -87,7 +87,7 @@ defined('TYPO3') || die();
     ];
 
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig(
-        "@import 'EXT:direct_mail/Configuration/TSconfig/User/options.tsconfig'"
+        "@import 'EXT:direct_mail/Configuration/TSconfig/options.tsconfig'"
     );
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptSetup(
         "@import 'EXT:direct_mail/Configuration/TSconfig/page.tsconfig'"
