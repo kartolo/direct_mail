@@ -530,7 +530,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->select('uid', 'email')
         ->from($this->table)
         ->where(
-            $queryBuilder->expr()->andX(
+            $queryBuilder->expr()->and(
                 $queryBuilder->expr()->eq(
                     'rid',
                     $queryBuilder->createNamedParameter($rid, Connection::PARAM_INT)
