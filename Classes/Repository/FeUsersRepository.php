@@ -114,7 +114,7 @@ class FeUsersRepository extends MainRepository
             )
         )
         ->andWhere(
-            $queryBuilder->expr()->andX()
+            $queryBuilder->expr()->and()
             ->add(
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group_mm.uid_local',
@@ -189,7 +189,7 @@ class FeUsersRepository extends MainRepository
             ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
             ->from($this->table)
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                 ->add(
                     $queryBuilder->expr()->in(
                         $this->table . '.pid',
@@ -228,7 +228,7 @@ class FeUsersRepository extends MainRepository
                 )
             )
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                     ->add(
                         $queryBuilder->expr()->in(
                             $this->table . '.pid',
