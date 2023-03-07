@@ -53,7 +53,7 @@ class FeGroupsRepository extends MainRepository
             )
         )
         ->andWhere(
-            $queryBuilder->expr()->andX()
+            $queryBuilder->expr()->and()
             ->add(
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group_mm.uid_local',
@@ -112,7 +112,7 @@ class FeGroupsRepository extends MainRepository
             )
         )
         ->andWhere(
-            $queryBuilder->expr()->andX()
+            $queryBuilder->expr()->and()
             ->add(
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group.uid',
@@ -162,7 +162,7 @@ class FeGroupsRepository extends MainRepository
             )
             ->orWhere($usergroupInList)
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                     ->add(
                         $queryBuilder->expr()->neq(
                             $switchTable . '.email',
@@ -274,7 +274,7 @@ class FeGroupsRepository extends MainRepository
             ->from($switchTable, $switchTable)
             ->from($this->table, $this->table)
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                 ->add(
                     $queryBuilder->expr()->in(
                         'fe_groups.pid',
@@ -316,7 +316,7 @@ class FeGroupsRepository extends MainRepository
                 )
             )
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                     ->add(
                         $queryBuilder->expr()->in(
                             'fe_groups.pid',
