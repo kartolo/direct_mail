@@ -346,4 +346,32 @@ class SysDmailRepository extends MainRepository
             ->executeQuery()
             ->fetchAssociative();
     }
+
+    public function getDraftsByType(int $type)
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+            ->select('*')
+            ->from($this->table)
+            ->where(
+                $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter($type, Connection::PARAM_INT))
+            )
+            ->executeQuery()
+            ->fetchAllAssociative();
+    }
+
+    public function getDraftByUid(int $draftUid)
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+            ->select('*')
+            ->from($this->table)
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($draftUid, Connection::PARAM_INT))
+            )
+            ->executeQuery()
+            ->fetchAllAssociative();
+    }
 }

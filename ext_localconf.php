@@ -43,11 +43,6 @@ defined('TYPO3') || die();
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['notificationJob'] = $extConf['notificationJob'];
 
     /**
-     * Interval of the cronjob
-     */
-    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronInt'] = $extConf['cronInt'];
-
-    /**
      * Use HTTP to fetch contents
      */
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] = $extConf['UseHttpToFetch'];
