@@ -245,7 +245,7 @@ class MainController
         return $dmLinks;
     }
 
-    protected function getFieldList(): array 
+    protected function getFieldList(): array
     {
         return [
             'uid',
@@ -282,11 +282,6 @@ class MainController
     protected function getTempPath(): string
     {
         return Environment::getPublicPath() . '/typo3temp/';
-    }
-
-    protected function getDmailerLogFilePath(): string
-    {
-        return $this->getTempPath() . 'tx_directmail_dmailer_log.txt';
     }
 
     protected function getDmailerLockFilePath(): string

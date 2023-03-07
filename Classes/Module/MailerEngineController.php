@@ -60,12 +60,11 @@ class MailerEngineController extends MainController
 
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
-                    $cronMonitor = $this->cronMonitor();
                     $mailerEngine = $this->mailerengine();
 
                     $this->view->assignMultiple(
                         [
-                            'schedulerTable' => $cronMonitor,
+                            'schedulerTable' => $this->getSchedulerTable(),
                             'data' => $mailerEngine['data'],
                             'id' => $this->id,
                             'invoke' => $mailerEngine['invoke'],
@@ -101,145 +100,13 @@ class MailerEngineController extends MainController
         return new HtmlResponse($this->moduleTemplate->renderContent());
     }
 
-    /**
-     * Monitor the cronjob.
-     */
-    protected function cronMonitor(): array
+    protected function getSchedulerTable(): array
     {
         $schedulerTable = [];
         if (ExtensionManagementUtility::isLoaded('scheduler')) {
             $this->getLanguageService()->includeLLFile('EXT:scheduler/Resources/Private/Language/locallang.xlf');
-
             $schedulerTable = SchedulerUtility::getDMTable($this->getLanguageService());
-
-/**
-
-                    if ((int) $task['disable'] === 1) {
-                        $message = $this->createFlashMessage(
-                            'disabled', //@TODO
-                            'Scheduled task', //@TODO
-                            1,
-                            false
-                        );
-                        $this->messageQueue->addMessage($message);
-                    }
-                    else {
-                        $message = $this->createFlashMessage(
-                            'enabled', //@TODO
-                            'Scheduled task', //@TODO
-                            0,
-                            false
-                        );
-                        $this->messageQueue->addMessage($message);
-
-
-                    }
-            }
-            else {
-                $message = $this->createFlashMessage(
-                    'Scheduled task', //@TODO
-                    'Not found', //@TODO
-                    1,
-                    false
-                );
-                $this->messageQueue->addMessage($message);
-            }
         }
-        else {
-            $message = $this->createFlashMessage(
-                'Scheduler extension', //@TODO
-                'Not installed', //@TODO
-                1,
-                false
-            );
-            $this->messageQueue->addMessage($message);
-        }
-        */
-        }
-
-
-
-        $mailerStatus = 0;
-        $lastExecutionTime = 0;
-        $logContent = '';
-        $error = '';
-
-        // seconds
-        $cronInterval = Typo3ConfVarsUtility::getDMConfigCronInt() * 60;
-        $lastCronjobShouldBeNewThan = (time() - $cronInterval);
-        $filename = $this->getDmailerLogFilePath();
-        if (file_exists($filename)) {
-            $logContent = file_get_contents($filename);
-            $lastExecutionTime = substr($logContent, 0, 10);
-        }
-
-        /*
-         * status:
-         * 	1 = ok
-         * 	0 = check
-         * 	-1 = cron stopped
-         *
-         * cron running or error (die function in dmailer_log)
-         */
-        if (file_exists($this->getDmailerLockFilePath())) {
-            $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectByResponseType(0);
-            if (is_array($res)) {
-                foreach ($res as $lastSend) {
-                    if (($lastSend['tstamp'] < time()) && ($lastSend['tstamp'] > $lastCronjobShouldBeNewThan)) {
-                        // cron is sending
-                        $mailerStatus = 1;
-                    } else {
-                        // there's lock file but cron is not sending
-                        $mailerStatus = -1;
-                    }
-                }
-            }
-        // cron is idle or no cron
-        } elseif (strpos($logContent, 'error')) {
-            // error in log file
-            $mailerStatus = -1;
-            $error = substr($logContent, strpos($logContent, 'error') + 7);
-        } elseif (!strlen($logContent) || ($lastExecutionTime < $lastCronjobShouldBeNewThan)) {
-            // cron is not set or not running
-            $mailerStatus = 0;
-        } else {
-            // last run of cron is in the interval
-            $mailerStatus = 1;
-        }
-
-        $currentDate = ' / ' . $this->getLanguageService()->getLL('dmail_mailerengine_current_time') . ' ' . BackendUtility::datetime(time()) . '. ';
-        $lastRun = ' ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_lastrun') . ($lastExecutionTime ? BackendUtility::datetime($lastExecutionTime) : '-') . $currentDate;
-        switch ($mailerStatus) {
-            case -1:
-                $message = $this->createFlashMessage(
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_warning') . ': ' . ($error ? $error : $this->getLanguageService()->getLL('dmail_mailerengine_cron_warning_msg')) . $lastRun,
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
-                    2,
-                    false
-                );
-                $this->messageQueue->addMessage($message);
-                break;
-            case 0:
-                $message = $this->createFlashMessage(
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution_msg') . $lastRun,
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
-                    1,
-                    false
-                );
-                $this->messageQueue->addMessage($message);
-                break;
-            case 1:
-                $message = $this->createFlashMessage(
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_ok') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_ok_msg') . $lastRun,
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
-                    0,
-                    false
-                );
-                $this->messageQueue->addMessage($message);
-                break;
-            default:
-        }
-
         return $schedulerTable;
     }
 

@@ -10,9 +10,6 @@ addRecipFields =
 # cat=basic; type=string; label=Administrator Email: Administrator email is used to send email if there's cronjob error.
 adminEmail = admin@website.com
 
-# cat=basic; type=int+; label=Interval of the cronjob: Interval of the cronjob (in minute).
-cronInt = 5
-
 # cat=basic/enable; type=boolean; label=Enable notification email : Allow direct mail to send notification about start and end of a mailing job.
 notificationJob = 1
 

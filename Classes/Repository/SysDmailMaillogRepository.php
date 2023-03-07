@@ -157,27 +157,6 @@ class SysDmailMaillogRepository extends MainRepository
     /**
      * @return array|bool
      */
-    public function selectByResponseType(int $responseType) //: array|bool
-    {
-        $queryBuilder = $this->getQueryBuilder($this->table);
-
-        return $queryBuilder
-        ->select('uid', 'tstamp')
-        ->from($this->table)
-        ->where(
-            $queryBuilder->expr()->eq(
-                'response_type',
-                $queryBuilder->createNamedParameter($responseType, Connection::PARAM_INT)
-            )
-        )
-        ->orderBy('tstamp', 'DESC')
-        ->executeQuery()
-        ->fetchAllAssociative();
-    }
-
-    /**
-     * @return array|bool
-     */
     public function countSysDmailMaillogs(int $uid) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);

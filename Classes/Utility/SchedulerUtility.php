@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Utility;
 
 /**
- * from TYPO3\CMS\Scheduler\Controller\SchedulerModuleController listTasksAction
+ * Code from TYPO3\CMS\Scheduler\Controller\SchedulerModuleController listTasksAction
  */
 
 use DirectMailTeam\DirectMail\Repository\TempRepository;
@@ -40,7 +40,6 @@ class SchedulerUtility
             $registeredClasses = self::getRegisteredClasses($languageService);
             $dateFormat = Typo3ConfVarsUtility::getDateFormat();
             foreach ($tasks as $task) {
-                // s. SchedulerModuleController listTasksAction
                 $isRunning = false;
                 $showAsDisabled = false;
 
