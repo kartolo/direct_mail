@@ -85,7 +85,7 @@ class TempRepository extends MainRepository
             ->selectLiteral('DISTINCT ' . $table . '.uid', $table . '.email')
             ->from($table)
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                 ->add(
                     $queryBuilder->expr()->in(
                         $table . '.pid',
@@ -119,7 +119,7 @@ class TempRepository extends MainRepository
                 )
             )
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                     ->add(
                         $queryBuilder->expr()->in(
                             $table . '.pid',
@@ -199,7 +199,7 @@ class TempRepository extends MainRepository
             )
         )
         ->andWhere(
-            $queryBuilder->expr()->andX()
+            $queryBuilder->expr()->and()
             ->add(
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group_mm.uid_local',
