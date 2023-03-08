@@ -78,7 +78,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
         } else {
             foreach ($drafts as $draft) {
                 // see #44577
-                $selected = (($schedulerModuleController->getCurrentAction() === 'edit' && $task->draftUid === $draft['uid']) ? ' selected="selected"' : '');
+                $selected = (((string)$schedulerModuleController->getCurrentAction() === 'edit' && $task->draftUid === $draft['uid']) ? ' selected="selected"' : '');
                 $fieldHtml .= '<option value="' . $draft['uid'] . '"' . $selected . '>' . $draft['subject'] . ' [' . $draft['uid'] . ']</option>';
             }
         }

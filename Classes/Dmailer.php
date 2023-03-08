@@ -989,7 +989,7 @@ class Dmailer implements LoggerAwareInterface
             return;
         }
         foreach ($this->theParts['html']['hrefs'] as $urlId => $val) {
-            if ($val['no_jumpurl']) {
+            if ($val['no_jumpurl'] ?? false) {
                 // A tag attribute "no_jumpurl=1" allows to disable jumpurl for custom links
                 $substVal = $val['absRef'];
             } elseif ($this->jumperURLPrefix && ($val['tag'] != 'form') && (!strstr($val['ref'], 'mailto:'))) {

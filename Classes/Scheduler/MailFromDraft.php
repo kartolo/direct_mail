@@ -17,9 +17,9 @@ namespace DirectMailTeam\DirectMail\Scheduler;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Module\DmailController;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -87,14 +87,7 @@ class MailFromDraft extends AbstractTask
                 throw new \Exception('No site found in root line of page ' . $draftRecord['page'] . '!');
             }
 
-            // Insert the new dmail record into the DB
-            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $databaseConnectionSysDmailMail = $connectionPool->getConnectionForTable('sys_dmail');
-            $databaseConnectionSysDmailMail->insert(
-                'sys_dmail',
-                $draftRecord
-            );
-            $this->dmailUid = (int)$databaseConnectionSysDmailMail->lastInsertId('sys_dmail');
+            $this->dmailUid = GeneralUtility::makeInstance(SysDmailRepository::class)->insertDMailRecord($draftRecord);
 
             // Call a hook after insertion of the cloned dmail record
             // This hook can get used to modify fields of the direct mail.
@@ -126,13 +119,7 @@ class MailFromDraft extends AbstractTask
                 $this->callHooks('enqueueClonedDmail', $hookParams);
                 // Update the cloned dmail so it will get sent upon next
                 // invocation of the mailer engine
-                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-                $connection = $connectionPool->getConnectionForTable('sys_dmail');
-                $connection->update(
-                    'sys_dmail', // table
-                    $updateData, // value array
-                    [ 'uid' => (int)$this->dmailUid ] // where
-                );
+                GeneralUtility::makeInstance(SysDmailRepository::class)->updateDMailRecord($this->dmailUid, $updateData);
             }
         }
         return true;
