@@ -374,4 +374,21 @@ class SysDmailRepository extends MainRepository
             ->executeQuery()
             ->fetchAllAssociative();
     }
+
+    public function insertDMailRecord(array $dmRecord): int
+    {
+        $connection = $this->getConnection($this->table);
+        $connection->insert($this->table, $dmRecord);
+        return (int)$connection->lastInsertId($this->table);
+    }
+
+    public function updateDMailRecord(int $dmailUid, array $dmRecord): int
+    {
+        $connection = $this->getConnection($this->table);
+        return $connection->update(
+            $this->table, // table
+            $dmRecord, // value array
+            [ 'uid' => $dmailUid ] // where
+        );
+    }
 }
