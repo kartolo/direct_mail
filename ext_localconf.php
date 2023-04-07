@@ -88,4 +88,6 @@ defined('TYPO3') || die();
         "@import 'EXT:direct_mail/Configuration/TSconfig/page.tsconfig'"
     );
 
+    // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.3/Feature-100232-LoadAdditionalStylesheetsInTYPO3Backend.html
+    $GLOBALS['TYPO3_CONF_VARS']['BE']['stylesheets']['direct_mail'] = 'EXT:direct_mail/Resources/Public/StyleSheets/';
 })();
