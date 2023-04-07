@@ -27,7 +27,8 @@ return [
                 'type' => 'input',
                 'size' => '30',
                 'max' => '120',
-                'eval' => 'trim,required',
+                'required' => true,
+                'eval' => 'trim',
             ],
         ],
         'page' => [
@@ -46,7 +47,8 @@ return [
                 'type' => 'input',
                 'size' => '30',
                 'max' => '80',
-                'eval' => 'trim,required',
+                'required' => true,
+                'eval' => 'trim',
             ],
         ],
         'from_name' => [
@@ -189,7 +191,7 @@ return [
             'exclude' => '1',
             'config' => [
                 'type' => 'none',
-                'cols' => '30',
+                'size' => '30',
                 'format' => 'datetime',
                 'default' => 0,
             ],
@@ -198,7 +200,7 @@ return [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.scheduled_begin',
             'config' => [
                 'type' => 'none',
-                'cols' => '15',
+                'size' => '15',
                 'format' => 'datetime',
                 'default' => 0,
             ],
@@ -207,7 +209,7 @@ return [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.scheduled_end',
             'config' => [
                 'type' => 'none',
-                'cols' => '15',
+                'size' => '15',
                 'format' => 'datetime',
                 'default' => 0,
             ],

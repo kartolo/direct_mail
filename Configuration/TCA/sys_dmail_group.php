@@ -32,7 +32,8 @@ return [
                 'type' => 'input',
                 'size' => '30',
                 'max' => '120',
-                'eval' => 'trim,required',
+                'required' => true,
+                'eval' => 'trim',
             ],
         ],
         'description' => [
