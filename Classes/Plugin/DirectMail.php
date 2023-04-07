@@ -39,6 +39,7 @@ use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\DataProcessing\FilesProcessor;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
@@ -52,12 +53,8 @@ use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
  */
 class DirectMail extends AbstractPlugin
 {
-    /**
-     * ObjectRenderer
-     *
-     * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
-     */
-    public $cObj;
+    protected ?ContentObjectRenderer $cObj = null;
+
     /**
      * @var MarkerBasedTemplateService
      */
