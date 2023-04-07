@@ -62,7 +62,6 @@ return [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.static_list',
             'config' => [
                 'type' => 'group',
-                'internal_type' => 'db',
                 'allowed' => 'tt_address,fe_users,fe_groups',
                 'MM' => 'sys_dmail_group_mm',
                 'size' => '20',
@@ -74,7 +73,6 @@ return [
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.startingpoint',
             'config' => [
                 'type' => 'group',
-                'internal_type' => 'db',
                 'allowed' => 'pages',
                 'size' => '3',
                 'maxitems' => '22',
@@ -85,7 +83,6 @@ return [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.mail_groups',
             'config' => [
                 'type' => 'group',
-                'internal_type' => 'db',
                 'allowed' => 'sys_dmail_group',
                 'size' => '3',
                 'maxitems' => '22',
