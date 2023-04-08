@@ -28,6 +28,7 @@ defined('TYPO3') || die();
     //old
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_web_DirectMailNavFrame', 'EXT:direct_mail/Resources/Private/Language/locallang_csh_web_txdirectmail.xlf');
 
+    //@TODO
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
         'DirectMailNavFrame',
         '',
@@ -40,99 +41,6 @@ defined('TYPO3') || die();
             'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail.svg',
             'labels' => [
                 'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangNavFrame.xlf',
-            ],
-        ]
-    );
-
-    // https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/BackendModules/BackendModuleApi/Index.html#without-extbase
-    // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.5/Deprecation-94094-NavigationFrameModuleInModuleRegistration.html
-
-    TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
-        'DirectMailNavFrame',
-        'DirectMail',
-        'bottom',
-        '',
-        [
-            'navigationComponentId' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
-            'routeTarget' => DirectMailTeam\DirectMail\Module\DmailController::class . '::indexAction',
-            'access' => 'group,user',
-            'name' => 'DirectMailNavFrame_DirectMail',
-            'workspaces' => 'online',
-            'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-directmail.svg',
-            'labels' => [
-                'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangDirectMail.xlf',
-            ],
-        ]
-    );
-
-    TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
-        'DirectMailNavFrame',
-        'RecipientList',
-        'bottom',
-        '',
-        [
-            'navigationComponentId' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
-            'routeTarget' => DirectMailTeam\DirectMail\Module\RecipientListController::class . '::indexAction',
-            'access' => 'group,user',
-            'name' => 'DirectMailNavFrame_RecipientList',
-            'workspaces' => 'online',
-            'icon' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-recipient-list.svg',
-            'labels' => [
-                'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangRecipientList.xlf',
-            ],
-        ]
-    );
-
-    TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
-        'DirectMailNavFrame',
-        'Statistics',
-        'bottom',
-        '',
-        [
-            'navigationComponentId' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
-            'routeTarget' => DirectMailTeam\DirectMail\Module\StatisticsController::class . '::indexAction',
-            'access' => 'group,user',
-            'name' => 'DirectMailNavFrame_Statistics',
-            'workspaces' => 'online',
-            'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-statistics.svg',
-            'labels' => [
-                'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangStatistics.xlf',
-            ],
-        ]
-    );
-
-    TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
-        'DirectMailNavFrame',
-        'MailerEngine',
-        'bottom',
-        '',
-        [
-            'navigationComponentId' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
-            'routeTarget' => DirectMailTeam\DirectMail\Module\MailerEngineController::class . '::indexAction',
-            'access' => 'group,user',
-            'name' => 'DirectMailNavFrame_MailerEngine',
-            'workspaces' => 'online',
-            'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-mailer-engine.svg',
-            'labels' => [
-                'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangMailerEngine.xlf',
-            ],
-        ]
-    );
-
-    TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
-        'DirectMailNavFrame',
-        'Configuration',
-        'bottom',
-        '',
-        [
-            'navigationComponentId' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
-            'routeTarget' => DirectMailTeam\DirectMail\Module\ConfigurationController::class . '::indexAction',
-            'access' => 'group,user',
-            'name' => 'DirectMailNavFrame_Configuration',
-            'workspaces' => 'online',
-            'icon'   => 'EXT:direct_mail/Resources/Public/Images/module-directmail-configuration.svg',
-            'labels' => [
-                'll_ref' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangConfiguration.xlf',
             ],
         ]
     );
