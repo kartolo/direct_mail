@@ -2,7 +2,7 @@
 
 <f:section name="content">
 	<f:render partial="Main" arguments="{dmLinks: dmLinks}" section="DMLinks" />
-<f:flashMessages />
+<f:flashMessages queueIdentifier="RecipientListQueue" />
 <f:if condition="{show}">
     <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <f:variable name="lll4" value="LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:" />

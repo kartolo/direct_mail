@@ -3,7 +3,7 @@
 <f:section name="content">
 	<f:render partial="Main" arguments="{dmLinks: dmLinks}" section="DMLinks" />
 <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
-<f:flashMessages />
+<f:flashMessages queueIdentifier="DmailQueue" />
 <div class="typo3-fullDoc">
     <div class="module-body t3js-module-body">
         <form action="" method="post" name="dmailform" enctype="multipart/form-data">

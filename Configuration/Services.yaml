@@ -7,6 +7,17 @@ services:
   DirectMailTeam\DirectMail\:
     resource: '../Classes/*'
 
+  DirectMailTeam\DirectMail\Module\ConfigurationController:
+    tags: ['backend.controller']
+  DirectMailTeam\DirectMail\Module\DmailController:
+    tags: ['backend.controller']
+  DirectMailTeam\DirectMail\Module\MailerEngineController:
+    tags: ['backend.controller']
+  DirectMailTeam\DirectMail\Module\RecipientListController:
+    tags: ['backend.controller']
+  DirectMailTeam\DirectMail\Module\StatisticsController:
+    tags: ['backend.controller']
+
   DirectMailTeam\DirectMail\Command\InvokeMailerEngineCommand:
     tags:
       - name: 'console.command'

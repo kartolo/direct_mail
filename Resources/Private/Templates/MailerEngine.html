@@ -2,7 +2,7 @@
 
 <f:section name="content">
 	<f:render partial="Main" arguments="{dmLinks: dmLinks}" section="DMLinks" />
-<f:flashMessages />
+<f:flashMessages queueIdentifier="MailerEngineQueue" />
 <f:if condition="{show}">
 	<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
 	<h1><f:translate key="{lll}header_mailer" /></h1>
