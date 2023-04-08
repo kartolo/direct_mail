@@ -1,10 +1,17 @@
 <?php
 //https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ExtensionArchitecture/HowTo/BackendModule/ModuleConfiguration.html
+use DirectMailTeam\DirectMail\Module\DmailController;
+use DirectMailTeam\DirectMail\Module\RecipientListController;
+use DirectMailTeam\DirectMail\Module\StatisticsController;
+use DirectMailTeam\DirectMail\Module\MailerEngineController;
+use DirectMailTeam\DirectMail\Module\ConfigurationController;
+
 return [
     'directmail' => [
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangNavFrame.xlf',
         'iconIdentifier' => 'directmail-module',
-        'navigationComponent' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
+        'navigationComponent' => '@typo3/backend/page-tree/page-tree-element',
+        //'navigationComponent' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
     ],
     'directmail_module_directmail' => [
         'parent' => 'directmail',
@@ -13,11 +20,10 @@ return [
         'workspaces' => 'live',
         'path' => '/module/directmail/directmail',
         'iconIdentifier' => 'directmail-module-directmail',
-        'navigationComponent' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangDirectMail.xlf',
         'routes' => [
             '_default' => [
-                'target' => DirectMailTeam\DirectMail\Module\DmailController::class . '::indexAction',
+                'target' => DmailController::class . '::indexAction',
             ],
         ],
     ],
@@ -28,11 +34,10 @@ return [
         'workspaces' => 'live',
         'path' => '/module/directmail/recipientlist',
         'iconIdentifier' => 'directmail-module-recipient-list',
-        'navigationComponent' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangRecipientList.xlf',
         'routes' => [
             '_default' => [
-                'target' => DirectMailTeam\DirectMail\Module\RecipientListController::class . '::indexAction',
+                'target' => RecipientListController::class . '::indexAction',
             ],
         ],
     ],
@@ -43,11 +48,10 @@ return [
         'workspaces' => 'live',
         'path' => '/module/directmail/statistics',
         'iconIdentifier' => 'directmail-module-statistics',
-        'navigationComponent' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangStatistics.xlf',
         'routes' => [
             '_default' => [
-                'target' => DirectMailTeam\DirectMail\Module\StatisticsController::class . '::indexAction',
+                'target' => StatisticsController::class . '::indexAction',
             ],
         ],
     ],
@@ -58,11 +62,10 @@ return [
         'workspaces' => 'live',
         'path' => '/module/directmail/mailerengine',
         'iconIdentifier' => 'directmail-module-mailer-engine',
-        'navigationComponent' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangMailerEngine.xlf',
         'routes' => [
             '_default' => [
-                'target' => DirectMailTeam\DirectMail\Module\MailerEngineController::class . '::indexAction',
+                'target' => MailerEngineController::class . '::indexAction',
             ],
         ],
     ],
@@ -73,11 +76,10 @@ return [
         'workspaces' => 'live',
         'path' => '/module/directmail/configuration',
         'iconIdentifier' => 'directmail-module-configuration',
-        'navigationComponent' => 'TYPO3/CMS/Backend/PageTree/PageTreeElement',
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangConfiguration.xlf',
         'routes' => [
             '_default' => [
-                'target' => DirectMailTeam\DirectMail\Module\ConfigurationController::class . '::indexAction',
+                'target' => ConfigurationController::class . '::indexAction',
             ],
         ],
     ],
