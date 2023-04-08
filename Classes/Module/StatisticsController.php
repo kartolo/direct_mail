@@ -20,14 +20,14 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
-class StatisticsController extends MainController
+final class StatisticsController extends MainController
 {
     /**
      * The name of the module
      *
      * @var string
      */
-    protected $moduleName = 'DirectMailNavFrame_Statistics';
+    protected $moduleName = 'directmail_module_statistics';
 
     protected $requestUri = '';
 
@@ -1559,11 +1559,11 @@ class StatisticsController extends MainController
                 $contentTitle = $file['file'];
             }
         }
-/** 
+/**
         if ($this->params['showContentTitle'] == 1) {
             $label = $contentTitle;
         }
-        
+
         if ($this->params['prependContentTitle'] == 1) {
             $label =  $contentTitle . ' (' . $linkedWord . ')';
         }

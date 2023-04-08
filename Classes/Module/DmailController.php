@@ -36,7 +36,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
-class DmailController extends MainController
+final class DmailController extends MainController
 {
     protected $cshTable;
     protected string $error = '';
@@ -66,7 +66,7 @@ class DmailController extends MainController
 
     protected $requestUri = '';
 
-    protected string $moduleName = 'DirectMailNavFrame_DirectMail';
+    protected string $moduleName = 'directmail_module_directmail';
 
     protected function initDmail(ServerRequestInterface $request): void
     {

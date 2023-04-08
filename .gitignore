@@ -8,3 +8,4 @@
 # Ignore by common IDEs used directories/files
 *.idea
 .idea
+.vscode

@@ -11,14 +11,14 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class ConfigurationController extends MainController
+final class ConfigurationController extends MainController
 {
     /**
      * The name of the module
      *
      * @var string
      */
-    protected $moduleName = 'DirectMailNavFrame_Configuration';
+    protected $moduleName = 'directmail_module_configuration';
 
     protected string $TSconfPrefix = 'mod.web_modules.dmail.';
     protected array $pageTS = [];
@@ -35,7 +35,8 @@ class ConfigurationController extends MainController
         $this->updatePageTS();
 
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
-            $this->moduleTemplate->addJavaScriptCode($this->getJS($this->sys_dmail_uid));
+            //@TODO
+            //$this->moduleTemplate->addJavaScriptCode($this->getJS($this->sys_dmail_uid));
 
             $module = $this->getModulName();
 

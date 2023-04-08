@@ -7,8 +7,10 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Utility\TsUtility;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Attribute\Controller;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
@@ -35,8 +37,8 @@ class MainController
      * @var ModuleTemplate
      */
     protected $moduleTemplate;
-    protected IconFactory $iconFactory;
-    protected PageRenderer $pageRenderer;
+    #protected IconFactory $iconFactory;
+    #protected PageRenderer $pageRenderer;
 
     /**
      * @var StandaloneView
@@ -74,13 +76,14 @@ class MainController
      * @var ModuleTemplate $moduleTemplate
      */
     public function __construct(
-        ModuleTemplate $moduleTemplate = null,
-        IconFactory $iconFactory = null,
-        PageRenderer $pageRenderer = null
+        protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        # $moduleTemplate = null,
+        protected readonly IconFactory $iconFactory,
+        protected readonly PageRenderer $pageRenderer
     ) {
-        $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
-        $this->iconFactory = $iconFactory ?? GeneralUtility::makeInstance(IconFactory::class);
-        $this->pageRenderer = $pageRenderer ?? GeneralUtility::makeInstance(PageRenderer::class);
+        #$this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
+        #$this->iconFactory = $iconFactory ?? GeneralUtility::makeInstance(IconFactory::class);
+        #$this->pageRenderer = $pageRenderer ?? GeneralUtility::makeInstance(PageRenderer::class);
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
     }
@@ -89,6 +92,8 @@ class MainController
     {
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
+
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
 
         $this->id             = (int)($parsedBody['id']              ?? $queryParams['id'] ?? 0);
         $this->cmd            = (string)($parsedBody['cmd']          ?? $queryParams['cmd'] ?? '');

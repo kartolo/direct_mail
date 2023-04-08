@@ -17,7 +17,7 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
-class MailerEngineController extends MainController
+final class MailerEngineController extends MainController
 {
     /**
      * for cmd == 'delete'
@@ -32,7 +32,7 @@ class MailerEngineController extends MainController
      *
      * @var string
      */
-    protected $moduleName = 'DirectMailNavFrame_MailerEngine';
+    protected $moduleName = 'directmail_module_mailerengine';
 
     protected function initMailerEngine(ServerRequestInterface $request): void
     {
@@ -134,7 +134,7 @@ class MailerEngineController extends MainController
         // Invoke engine
         if ($enableTrigger) {
             $moduleUrl = $this->buildUriFromRoute(
-                'DirectMailNavFrame_MailerEngine',
+                $this->moduleName,
                 [
                     'id' => $this->id,
                     'invokeMailerEngine' => 1,

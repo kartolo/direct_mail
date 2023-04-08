@@ -29,6 +29,7 @@ defined('TYPO3') || die();
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_web_DirectMailNavFrame', 'EXT:direct_mail/Resources/Private/Language/locallang_csh_web_txdirectmail.xlf');
 
     //@TODO
+/**
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
         'DirectMailNavFrame',
         '',
@@ -44,7 +45,7 @@ defined('TYPO3') || die();
             ],
         ]
     );
-
+*/
     if (TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
         include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail') . 'Configuration/TCA/Overrides/tt_address.php');
     }

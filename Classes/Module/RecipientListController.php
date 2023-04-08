@@ -19,7 +19,7 @@ use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class RecipientListController extends MainController
+final class RecipientListController extends MainController
 {
     /**
      * The name of the module
@@ -78,7 +78,7 @@ class RecipientListController extends MainController
 
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
             $module = $this->getModulName();
-            $this->moduleName = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'DirectMailNavFrame_RecipientList');
+            $this->moduleName = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'directmail_module_recipientlist');
 
             if ($module == 'dmail') {
                 // Direct mail module
@@ -490,8 +490,8 @@ class RecipientListController extends MainController
                 if (is_array($idLists['tt_address'] ?? false)) {
                     //https://github.com/FriendsOfTYPO3/tt_address/blob/master/ext_tables.sql
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues(
-                        $idLists['tt_address'], 
-                        'tt_address', 
+                        $idLists['tt_address'],
+                        'tt_address',
                         ['uid', 'name', 'first_name', 'middle_name', 'last_name', 'email']
                     );
                     $data['tables'][] = [
