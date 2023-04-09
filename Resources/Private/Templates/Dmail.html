@@ -50,9 +50,14 @@
 										<td>{tr.title}</td>
 										<td>
                                             <f:if condition="{tr.files -> f:count()}">
-                                                <f:for each="{tr.files}" as="file">
-                                                    <a href="{file.url}" target="_blank">{file.name}</a><br>
-                                                </f:for>
+                                                <f:then>
+                                                    <f:for each="{tr.files}" as="file">
+                                                        <a href="{file.url}" target="_blank">{file.name}</a><br>
+                                                    </f:for>
+                                                </f:then>
+                                                <f:else>
+                                                    {tr.value}
+                                                </f:else>
                                             </f:if>
                                         </td>
 									</tr>
