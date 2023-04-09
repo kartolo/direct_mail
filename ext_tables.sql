@@ -49,7 +49,7 @@ CREATE TABLE sys_dmail (
   deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
   type tinyint(4) unsigned DEFAULT '0' NOT NULL,
   page int(11) unsigned DEFAULT '0' NOT NULL,
-  attachment tinyblob,
+  attachment int(11) unsigned DEFAULT '0' NOT NULL,
   subject varchar(120) DEFAULT '' NOT NULL,
   from_email varchar(80) DEFAULT '' NOT NULL,
   from_name varchar(80) DEFAULT '' NOT NULL,

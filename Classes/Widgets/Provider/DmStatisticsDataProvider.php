@@ -10,23 +10,15 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\WidgetApi;
 use TYPO3\CMS\Dashboard\Widgets\ChartDataProviderInterface;
-
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SysLog\Type as SystemLogType;
 
-
 class DmStatisticsDataProvider implements ChartDataProviderInterface
 {
-    /** @var LanguageService */
-    private $languageService;
-
     public function __construct(
-        LanguageService $languageService,
         $newsletters = 10
     ) {
-        $this->languageService = $languageService;
-        #print_r($newsletters);
         $this->newsletters = $newsletters;
     }
 
