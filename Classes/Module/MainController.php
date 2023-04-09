@@ -364,17 +364,16 @@ class MainController
 
     /**
      * generate edit link for records
+     * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Backend/EditLinks.html
      *
      * @param $params
-     * @return string
+     * @return Uri
      * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
-    protected function getEditOnClickLink(array $params): string
+    protected function getEditOnClickLink(array $params): Uri
     {
-        /** @var UriBuilder $uriBuilder */
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-
-        return 'window.location.href=' . GeneralUtility::quoteJSvalue((string)$uriBuilder->buildUriFromRoute('record_edit', $params)) . '; return false;';
+        $backendUriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        return $backendUriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
     /**

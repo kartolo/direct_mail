@@ -37,7 +37,9 @@
 							<th>{data.info.table.theadTitle1} <b>{data.info.table.theadTitle2}</b></th>
 							<th style="text-align: right;">
 								<f:if condition="{data.info.table.edit}">
-									<f:then><a href="#" onClick="{data.info.table.editParams}"><core:icon identifier="actions-open" size="small" /><b> {data.info.table.label}<f:translate key="{lll}dmail_edit"/></b></a></f:then>
+                                    <f:then>
+                                        <a href="{data.info.table.editParams}"><core:icon identifier="actions-open" size="small" /><b> {data.info.table.label}<f:translate key="{lll}dmail_edit"/></b></a>
+                                    </f:then>
 									<f:else><core:icon identifier="actions-open" size="small" /> ({data.info.table.label})</f:else>
 								</f:if>
 							</th>
