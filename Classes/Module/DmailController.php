@@ -70,7 +70,7 @@ final class DmailController extends MainController
 
     protected function initDmail(ServerRequestInterface $request): void
     {
-        $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
+        $this->pageRenderer->loadJavaScriptModule('@typo3/backend/date-time-picker.js');
 
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
