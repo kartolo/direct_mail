@@ -12,15 +12,6 @@ use TYPO3\CMS\Dashboard\Widgets\ChartDataProviderInterface;
 
 class DmMailEngineStatusDataProvider implements ChartDataProviderInterface
 {
-    /** @var LanguageService */
-    private $languageService;
-
-    public function __construct(
-        LanguageService $languageService
-    ) {
-        $this->languageService = $languageService;
-    }
-
     public function getChartData(): array
     {
         $pages = GeneralUtility::makeInstance(DmProvider::class)->getDmPages();
@@ -43,19 +34,24 @@ class DmMailEngineStatusDataProvider implements ChartDataProviderInterface
 
         return [
             'labels' => [
-                $this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dm.label.sent'). ': ' . $countScheduled,
-                $this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dm.label.unsent'). ': ' . $countNotScheduled,
+                $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dm.label.sent'). ': ' . $countScheduled,
+                $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dm.label.unsent'). ': ' . $countNotScheduled,
             ],
             'datasets' => [
                 [
                     'backgroundColor' => WidgetApi::getDefaultChartColors(),
                     'data' => [
-                        round($countScheduled * 100 / $all),
-                        round($countNotScheduled * 100 / $all)
+                        $countScheduled !== 0 ? round($countScheduled * 100 / $all) : 0,
+                        $countNotScheduled !== 0 ? round($countNotScheduled * 100 / $all) : 0
                     ]
                 ]
             ]
         ];
+    }
+
+    protected function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }
 
