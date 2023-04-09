@@ -971,12 +971,15 @@ final class DmailController extends MainController
         $attachments = DirectMailUtility::getAttachments((int)($row['uid'] ?? 0));
 
         foreach ($attachments as $attachment) {
-            $fileNames[] = $attachment->getName();
+            $files[] = [
+                'name' => $attachment->getName(),
+                'url' => $attachment->getPublicUrl()
+            ];
         }
 
         $trs[] = [
             'title' => DirectMailUtility::fName('attachment'),
-            'value' => implode(', ', $fileNames),
+            'files' => $files,
         ];
 
         return [

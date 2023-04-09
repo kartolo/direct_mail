@@ -48,7 +48,13 @@
 								<f:for each="{data.info.table.trs}" as="tr">
 									<tr class="db_list_normal">
 										<td>{tr.title}</td>
-										<td>{tr.value}</td>
+										<td>
+                                            <f:if condition="{tr.files -> f:count()}">
+                                                <f:for each="{tr.files}" as="file">
+                                                    <a href="{file.url}" target="_blank">{file.name}</a><br>
+                                                </f:for>
+                                            </f:if>
+                                        </td>
 									</tr>
 								</f:for>
 							</f:if>
