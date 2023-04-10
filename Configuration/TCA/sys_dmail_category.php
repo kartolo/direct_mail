@@ -52,6 +52,7 @@ return [
         ],
         'category' => [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_category.category',
+            'description' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmailcat.xlf:category.details',
             'config' => [
                 'type' => 'input',
                 'size' => '30',
