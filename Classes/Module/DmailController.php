@@ -509,7 +509,6 @@ final class DmailController extends MainController
         return [
             'title' => 'dmail_dovsk_crFromNL',
             'news' => $this->getNews(),
-            'cshItem' => BackendUtility::cshItem($this->cshTable, 'select_newsletter'),
         ];
     }
 
