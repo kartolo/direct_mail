@@ -207,7 +207,7 @@ class Importer
         } elseif (!empty($this->indata['newFile'])) {
             $this->indata['mode'] = 'file';
         } else {
-            unset($stepCurrent);
+            $stepCurrent = '';
         }
 
         // check if "email" is mapped
@@ -488,7 +488,7 @@ class Importer
                 // show upload file form
                 $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_header_upload');
 
-                if (($this->indata['mode'] === 'file') && !(((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt'))) {
+                if ((($this->indata['mode'] ?? '') === 'file') && !(((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt'))) {
                     $output['upload']['current'] = true;
                     $file = $this->getFileById((int)$this->indata['newFileUid']);
                     if (is_object($file)) {
@@ -510,8 +510,8 @@ class Importer
                 $output['upload']['csv'] = htmlspecialchars($this->indata['csv'] ?? '');
                 $output['upload']['target'] = htmlspecialchars($this->userTempFolder());
                 $output['upload']['target_disabled'] = GeneralUtility::_POST('importNow') ? 'disabled' : '';
-                $output['upload']['newFile'] = $this->indata['newFile'];
-                $output['upload']['newFileUid'] = $this->indata['newFileUid'];
+                $output['upload']['newFile'] = $this->indata['newFile'] ?? '';
+                $output['upload']['newFileUid'] = $this->indata['newFileUid'] ?? 0;
         }
 
         $output['title'] = $this->getLanguageService()->getLL('mailgroup_import') . BackendUtility::cshItem($this->cshTable ?? '', 'mailgroup_import');
