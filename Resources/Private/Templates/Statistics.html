@@ -439,17 +439,17 @@
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_from" /></td>
             <td>{row.from_name} &lt;{row.from_email}&gt;</td>
-            <td><span title="{fromInfo -> f:format.html()}"><f:format.raw>{row.iconInfo}</f:format.raw></span></td>
+            <td><span title="{fromInfo -> f:format.raw()}"><f:format.raw>{row.iconInfo}</f:format.raw></span></td>
         </tr>
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_dmail" /></td>
             <td>{row.type} : {row.dmailData}</td>
-            <td><span title="{dmailInfo -> f:format.html()}"><f:format.raw>{row.iconInfo}</f:format.raw></span></td>
+            <td><span title="{dmailInfo -> f:format.raw()}"><f:format.raw>{row.iconInfo}</f:format.raw></span></td>
         </tr>
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_mail" /></td>
             <td>{row.sendOptions}{row.attachment}</td>
-            <td><span title="{mailInfo -> f:format.html()}"><f:format.raw>{row.iconInfo}</f:format.raw></span></td>
+            <td><span title="{mailInfo -> f:format.raw()}"><f:format.raw>{row.iconInfo}</f:format.raw></span></td>
         </tr>
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_delivery_begin_end" /></td>
