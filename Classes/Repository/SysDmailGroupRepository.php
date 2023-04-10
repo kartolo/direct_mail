@@ -156,7 +156,7 @@ class SysDmailGroupRepository extends MainRepository
                 // Other mail group...
                 if (!in_array($row['uid'], $parsedGroups)) {
                     $parsedGroups[] = $row['uid'];
-                    $groups = array_merge($groups, $this->getMailGroups($row['mail_groups'], $parsedGroups, $permsClause));
+                    $groups = array_merge($groups, $this->getMailGroups($row['mail_groups'] ?? '', $parsedGroups, $permsClause));
                 }
             } else {
                 // Normal mail group, just add to list
