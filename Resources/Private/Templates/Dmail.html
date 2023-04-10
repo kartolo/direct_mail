@@ -412,7 +412,15 @@
 <f:section name="DefaultExternal">
     <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <h3>
-        <f:translate key="{lll}{data.title}"/> <f:format.raw>{data.cshItem}</f:format.raw>
+        <f:translate key="{lll}{data.title}"/>
+        <button type="button"
+            class="btn btn-lg btn-light"
+            data-bs-toggle="popover"
+            data-bs-trigger="focus"
+            data-bs-title="{f:translate(key: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_DirectMail.xlf:create_directmail_from_url.alttitle')}"
+            data-bs-content="{f:translate(key: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_DirectMail.xlf:create_directmail_from_url.description')}">
+            <core:icon identifier="actions-question" size="small" />
+        </button>
     </h3>
     <f:translate key="{lll}dmail_HTML_url"/>
     <br />

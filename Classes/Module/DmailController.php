@@ -675,7 +675,6 @@ final class DmailController extends MainController
     {
         return [
             'title' => 'dmail_dovsk_crFromUrl',
-            'cshItem' => BackendUtility::cshItem($this->cshTable, 'create_directmail_from_url'),
             'no_valid_url' => (bool)($this->error == 'no_valid_url'),
         ];
     }
