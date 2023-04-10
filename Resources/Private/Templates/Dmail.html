@@ -285,7 +285,7 @@
                 <td><f:format.raw>{tr.icon}</f:format.raw></td>
                 <td>
                     <f:if condition="{tr.editOnClick}">
-                        <a href="#" onClick="{tr.editOnClick}" title="{f:translate(key: '{lll}dmail_edit')}"><core:icon identifier="actions-open" /></a>
+                        <a href="{tr.editOnClick}" title="{f:translate(key: '{lll}dmail_edit')}"><core:icon identifier="actions-open" /></a>
                     </f:if>
                 </td>
                 <td>
@@ -388,7 +388,7 @@
 								<f:format.raw>{row.createLink}</f:format.raw>
                         	</td>
                         	<td>
-                                <a onclick="{row.editOnClickLink -> f:format.raw()}" href="#" title="{f:translate(key: '{lll}nl_editPage')}">
+                                <a href="{row.editOnClickLink -> f:format.raw()}" title="{f:translate(key: '{lll}nl_editPage')}">
                                     <f:format.raw>{row.iconActionsOpen}</f:format.raw>
                                 </a>
                         	</td>

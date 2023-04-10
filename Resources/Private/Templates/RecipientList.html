@@ -12,7 +12,7 @@
         <h3><f:translate key="{lll}subscriber_info" /></h3>
         <f:format.raw>{data.icon}</f:format.raw> <f:format.raw>{data.name}</f:format.raw> &lt;<f:format.raw>{data.email}</f:format.raw>&gt;
         &nbsp;&nbsp;
-        <a href="#" onClick="{data.editOnClickLink}" title="{f:translate(key: '{lll}dmail_edit')}">
+        <a href="{data.editOnClickLink}" title="{f:translate(key: '{lll}dmail_edit')}">
             <f:format.raw>{data.iconActionsOpen}</f:format.raw>
             <b><f:translate key="{lll}dmail_edit" /></b>
         </a>
@@ -94,7 +94,7 @@
                     <td nowrap="nowrap"><f:format.raw>{row.icon}</f:format.raw></td>
                     <td>
 						<f:if condition="{row.editLink.onClick}">
-							<a href="#" onClick="{row.editLink.onClick}" title="{f:translate(key: '{lll}dmail_edit')}"><f:format.raw>{row.editLink.icon}</f:format.raw></a>
+							<a href="{row.editLink.onClick}" title="{f:translate(key: '{lll}dmail_edit')}"><f:format.raw>{row.editLink.icon}</f:format.raw></a>
 						</f:if>
 					</td>
                     <td nowrap="nowrap">{row.id}</td>
@@ -107,7 +107,7 @@
         </table>
         <div style="padding-top: 20px;"></div>
         <h3><f:translate key="{lll}recip_select_mailgroup" /></h3>
-        <a href="#" class="t3-link" onClick="{data.editOnClickLink}">
+        <a href="{data.editOnClickLink}" class="t3-link">
             <f:format.raw>{data.sysDmailGroupIcon}</f:format.raw> <f:translate key="{lll}recip_create_mailgroup_msg" />
         </a>
         <div style="padding-top: 20px;"></div>
