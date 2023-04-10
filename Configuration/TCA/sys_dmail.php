@@ -15,7 +15,7 @@ return [
     ],
     'columns' => [
         'sys_language_uid' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
             'config' => [
                 'type' => 'language',
@@ -180,7 +180,7 @@ return [
         ],
         'issent' => [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.issent',
-            'exclude' => '1',
+            'exclude' => true,
             'config' => [
                 'type' => 'none',
                 'size' => 2,
@@ -188,7 +188,7 @@ return [
         ],
         'scheduled' => [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.scheduled',
-            'exclude' => '1',
+            'exclude' => true,
             'config' => [
                 'type' => 'none',
                 'size' => '30',
@@ -249,7 +249,7 @@ return [
         ],
         'renderedsize' => [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.renderedsize',
-            'exclude' => '1',
+            'exclude' => true,
             'config' => [
                 'type' => 'none',
             ],
