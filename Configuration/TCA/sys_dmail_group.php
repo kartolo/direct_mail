@@ -16,14 +16,7 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
             'config' => [
-                'type' => 'select',
-                'renderType' => 'selectSingle',
-                'foreign_table' => 'sys_language',
-                'foreign_table_where' => 'ORDER BY sys_language.title',
-                'items' => [
-                    ['label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.allLanguages', 'value' => -1],
-                    ['label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.default_value', 'value' => 0],
-                ],
+                'type' => 'language'
             ],
         ],
         'title' => [
