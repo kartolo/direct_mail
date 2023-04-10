@@ -238,7 +238,7 @@ final class RecipientListController extends MainController
                         // use current page if no else
                         $thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;
                         // Explode the pages
-                        $pages = GeneralUtility::intExplode(',', $thePages);
+                        $pages = GeneralUtility::intExplode(',', (string)$thePages);
                         $pageIdArray = [];
                         foreach ($pages as $pageUid) {
                             if ($pageUid > 0) {
