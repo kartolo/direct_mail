@@ -126,6 +126,7 @@ final class DmailController extends MainController
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $markers = $this->moduleContent();
 
+                    //$this->moduleTemplate->assignMultiple(
                     $this->view->assignMultiple(
                         [
                             'flashmessages' => $markers['FLASHMESSAGES'],
@@ -139,6 +140,7 @@ final class DmailController extends MainController
             } else {
                 $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_directmail'), 1, false);
                 $this->messageQueue->addMessage($message);
+                //$this->moduleTemplate->assignMultiple(
                 $this->view->assignMultiple(
                     [
                         'dmLinks' => $this->getDMPages($this->moduleName),
@@ -154,9 +156,12 @@ final class DmailController extends MainController
 
         /**
          * Render template and return html content
+         * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Feature-96730-SimplifiedExtbackendModuleTemplateAPI.html
          */
         $this->moduleTemplate->setContent($this->view->render());
         return new HtmlResponse($this->moduleTemplate->renderContent());
+
+        #return $this->moduleTemplate->renderResponse($currentModule);
     }
 
     protected function moduleContent()
@@ -755,8 +760,8 @@ final class DmailController extends MainController
             'replyto_name'       => $this->params['replyto_name'] ?? '',
             'return_path'        => $this->params['return_path'] ?? '',
             'priority'           => (int)$this->params['priority'],
-            'use_rdct'           => (int)$this->params['use_rdct'],
-            'long_link_mode'     => (int)$this->params['long_link_mode'],
+            'use_rdct'           => (!empty($this->params['use_rdct']) ? (int)$this->params['use_rdct'] : 0),
+            'long_link_mode'     => (!empty($this->params['long_link_mode']) ? (int)$this->params['long_link_mode'] : 0),
             'organisation'       => $this->params['organisation'] ?? '',
             'authcode_fieldList' => $this->params['authcode_fieldList'] ?? '',
             'plainParams'        => '',
@@ -792,7 +797,7 @@ final class DmailController extends MainController
             $row = BackendUtility::getRecord('sys_dmail', (int)$this->sys_dmail_uid);
             // link in the mail
             $message = '<!--DMAILER_SECTION_BOUNDARY_-->' . $indata['message'] . '<!--DMAILER_SECTION_BOUNDARY_END-->';
-            if (trim($this->params['use_rdct'])) {
+            if (isset($this->params['use_rdct'])) {
                 $message = DirectMailUtility::substUrlsInPlainText(
                     $message,
                     $this->params['long_link_mode'] ? 'all' : '76',
@@ -967,7 +972,7 @@ final class DmailController extends MainController
         }
 
         // attachments need to be fetched manually as BackendUtility::getProcessedValue can't do that
-        $fileNames = [];
+        $files = [];
         $attachments = DirectMailUtility::getAttachments((int)($row['uid'] ?? 0));
 
         foreach ($attachments as $attachment) {
@@ -1837,8 +1842,8 @@ final class DmailController extends MainController
             'replyto_name'          => $parameters['replyto_name'] ?? '',
             'return_path'           => $parameters['return_path'] ?? '',
             'priority'              => $parameters['priority'] ?? 0,
-            'use_rdct'              => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0), /*$parameters['use_rdct'],*/
-            'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode']:0), //$parameters['long_link_mode'],
+            'use_rdct'              => (!empty($parameters['use_rdct']) ? $parameters['use_rdct'] : 0), /*$parameters['use_rdct'],*/
+            'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode'] : 0), //$parameters['long_link_mode'],
             'organisation'          => $parameters['organisation'] ?? '',
             'authcode_fieldList'    => $parameters['authcode_fieldList'] ?? '',
             'sendOptions'           => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
