@@ -261,7 +261,7 @@ class JumpurlController implements MiddlewareInterface
             if (isset($this->recipientRecord[$substField])) {
                 $processedTargetUrl = str_replace(
                     '###USER_' . $substField . '###',
-                    $this->recipientRecord[$substField],
+                    (string) $this->recipientRecord[$substField],
                     $processedTargetUrl
                 );
             }
