@@ -81,12 +81,14 @@ defined('TYPO3') || die();
         'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields',
     ];
 
-    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig(
-        "@import 'EXT:direct_mail/Configuration/TSconfig/options.tsconfig'"
-    );
-    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptSetup(
-        "@import 'EXT:direct_mail/Configuration/TSconfig/page.tsconfig'"
-    );
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('
+        @import "EXT:direct_mail/Configuration/TSconfig/options.tsconfig"
+    ');
+
+    //https://docs.typo3.org/m/typo3/reference-tsconfig/main/en-us/UsingSetting/PageTSconfig.html#global-page-tsconfig-compatible-with-typo3-11-and-12
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
+        @import "EXT:direct_mail/Configuration/TSconfig/page.tsconfig"
+    ');
 
     // https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.3/Feature-100232-LoadAdditionalStylesheetsInTYPO3Backend.html
     $GLOBALS['TYPO3_CONF_VARS']['BE']['stylesheets']['direct_mail'] = 'EXT:direct_mail/Resources/Public/StyleSheets/';

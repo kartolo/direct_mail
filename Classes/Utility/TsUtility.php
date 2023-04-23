@@ -52,7 +52,7 @@ class TsUtility
      *
      * @see implodeTSParams(), getPagesTSconfig()
      */
-    public function updatePagesTSconfig(int $id, array $pageTs, string $tsConfPrefix, $impParams = '')
+    public function updatePagesTSconfig(int $id, array $pageTs, string $tsConfPrefix, $impParams = ''): bool
     {
         $done = false;
         $id = (int)$id;
@@ -94,7 +94,7 @@ class TsUtility
 
                 // store those changes
                 $tsConf = implode(LF, $tsLines);
-                $done = GeneralUtility::makeInstance(PagesRepository::class)->updatePageTSconfig((int)$id, $tsConf);
+                $done = (bool)GeneralUtility::makeInstance(PagesRepository::class)->updatePageTSconfig((int)$id, $tsConf);
             }
         }
 

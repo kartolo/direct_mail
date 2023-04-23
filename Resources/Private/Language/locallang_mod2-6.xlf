@@ -1025,6 +1025,24 @@
 			<trans-unit id="mod.no_recipients" resname="mod.no_recipients">
 				<source>no recipients</source>
 			</trans-unit>
+			<trans-unit id="mod.configuration.saved" resname="mod.configuration.saved">
+				<source>The configuration were saved.</source>
+			</trans-unit>
+			<trans-unit id="mod.configuration.saved.title" resname="mod.configuration.saved.title">
+				<source>Saved</source>
+			</trans-unit>
+			<trans-unit id="mod.configuration.not_saved" resname="mod.configuration.not_saved">
+				<source>The configuration could not be saved.</source>
+			</trans-unit>
+			<trans-unit id="mod.configuration.not_saved.title" resname="mod.configuration.not_saved.title">
+				<source>Not Saved</source>
+			</trans-unit>
+			<trans-unit id="mod.main.no_access" resname="mod.configuration.no_access">
+				<source>If no access or if ID == zero</source>
+			</trans-unit>
+			<trans-unit id="mod.main.no_access.title" resname="mod.configuration.no_access.title">
+				<source>No Access</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

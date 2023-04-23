@@ -139,7 +139,7 @@ class MainController
     }
 
     /**
-        https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
+        https://api.typo3.org/main/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
         const 	NOTICE = -2
         const 	INFO = -1
         const 	OK = 0
@@ -443,66 +443,4 @@ class MainController
         return $tree->ids;
     }
 
-    protected function getJS($sys_dmail_uid)
-    {
-        return '
-        script_ended = 0;
-        function jumpToUrl(URL)	{
-            window.location.href = URL;
-        }
-        function jumpToUrlD(URL) {
-            window.location.href = URL+"&sys_dmail_uid=' . $sys_dmail_uid . '";
-        }
-        function toggleDisplay(toggleId, e, countBox) {
-            if (!e) {
-                e = window.event;
-            }
-            if (!document.getElementById) {
-                return false;
-            }
-
-            prefix = toggleId.split("-");
-            for (i=1; i<=countBox; i++){
-                newToggleId = prefix[0]+"-"+i;
-                body = document.getElementById(newToggleId);
-                image = document.getElementById(toggleId + "_toggle"); //ConfigurationController
-                //image = document.getElementById(newToggleId + "_toggle"); //DmailController
-                if (newToggleId != toggleId){
-                    if (body.style.display == "block"){
-                        body.style.display = "none";
-                        if (image) {
-                            image.className = image.className.replace( /expand/ , "collapse");
-                        }
-                    }
-                }
-            }
-
-            var body = document.getElementById(toggleId);
-            if (!body) {
-                return false;
-            }
-            var image = document.getElementById(toggleId + "_toggle");
-            if (body.style.display == "none") {
-                body.style.display = "block";
-                if (image) {
-                    image.className = image.className.replace( /collapse/ , "expand");
-                }
-            } else {
-                body.style.display = "none";
-                if (image) {
-                    image.className = image.className.replace( /expand/ , "collapse");
-                }
-            }
-            if (e) {
-                // Stop the event from propagating, which
-                // would cause the regular HREF link to
-                // be followed, ruining our hard work.
-                e.cancelBubble = true;
-                if (e.stopPropagation) {
-                    e.stopPropagation();
-                }
-            }
-        }
-        ';
-    }
 }

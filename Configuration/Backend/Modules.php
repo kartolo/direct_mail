@@ -79,7 +79,7 @@ return [
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangConfiguration.xlf',
         'routes' => [
             '_default' => [
-                'target' => ConfigurationController::class . '::indexAction',
+                'target' => ConfigurationController::class . '::handleRequest',
             ],
         ],
     ],

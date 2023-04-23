@@ -51,7 +51,6 @@ class NavFrameController extends MainController
 
         $this->setDocHeader('index');
 
-        //$this->moduleTemplate->addJavaScriptCode($this->getJS($currentModule, $currentSubScript));
         $this->pageRenderer->addJsInlineCode($currentModule, $this->getJSNavFrame($currentModule, $currentSubScript));
 
         $this->view->assignMultiple(
