@@ -202,7 +202,7 @@ final class ConfigurationController #extends MainController
         );
     }
 
-        /**
+    /**
      * @return LanguageService
      */
     protected function getLanguageService(): LanguageService

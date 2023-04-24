@@ -65,7 +65,7 @@ return [
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangMailerEngine.xlf',
         'routes' => [
             '_default' => [
-                'target' => MailerEngineController::class . '::indexAction',
+                'target' => MailerEngineController::class . '::handleRequest',
             ],
         ],
     ],
