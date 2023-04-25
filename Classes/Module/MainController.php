@@ -22,10 +22,12 @@ use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
@@ -147,10 +149,14 @@ class MainController
         const 	ERROR = 2
      * @param string $messageText
      * @param string $messageHeader
-     * @param int $messageType
+     * @param ContextualFeedbackSeverity $messageType
      * @param bool $storeInSession
      */
-    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false)
+    protected function createFlashMessage(
+        string $messageText,
+        string $messageHeader = '',
+        ContextualFeedbackSeverity $messageType,
+        bool $storeInSession = false): FlashMessage
     {
         return GeneralUtility::makeInstance(
             FlashMessage::class,
@@ -189,7 +195,7 @@ class MainController
      */
     protected function getLanguageService(): LanguageService
     {
-        return $GLOBALS['LANG'];
+        return GeneralUtility::makeInstance(LanguageServiceFactory::class)->createFromUserPreferences($this->getBackendUser());
     }
 
     /**
@@ -221,7 +227,7 @@ class MainController
         return GeneralUtility::makeInstance(DataHandler::class);
     }
 
-    protected function buildUriFromRoute($name, $parameters = []): Uri
+    protected function buildUriFromRoute(string $name, array $parameters = []): Uri
     {
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);

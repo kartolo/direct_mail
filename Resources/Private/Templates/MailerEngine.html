@@ -3,8 +3,8 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
-	<f:render partial="Main" arguments="{dmLinks: dmLinks}" section="DMLinks" />
 <f:flashMessages queueIdentifier="MailerEngineQueue" />
+<f:render partial="Main" arguments="{dmLinks: dmLinks}" section="DMLinks" />
 <f:if condition="{show}">
 	<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
 	<h1><f:translate key="{lll}header_mailer" /></h1>

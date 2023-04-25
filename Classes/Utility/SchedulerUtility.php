@@ -35,7 +35,7 @@ class SchedulerUtility
         $taskTable = [];
 
         if (is_array($tasks) && count($tasks) > 0) {
-            $languageService->includeLLFile('EXT:scheduler/Resources/Private/Language/locallang.xlf');
+            $lllFile = 'LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf';
 
             $registeredClasses = self::getRegisteredClasses($languageService);
             $dateFormat = Typo3ConfVarsUtility::getDateFormat();
@@ -79,7 +79,7 @@ class SchedulerUtility
                     if (!empty($task['lastexecution_time'])) {
                         $taskTableRow['lastExecution'] = date($dateFormat, (int)$task['lastexecution_time']);
                         $context = ($task['lastexecution_context'] === 'CLI') ? 'label.cron' : 'label.manual';
-                        $taskTableRow['lastExecution'] .= ' (' . $languageService->getLL($context) . ')';
+                        $taskTableRow['lastExecution'] .= ' (' . $languageService->sL($lllFile . ':' . $context) . ')';
                     }
                 } catch (\BadMethodCallException $e) {
                     $exceptionWithClass = true;
@@ -102,31 +102,31 @@ class SchedulerUtility
                     if (!empty($task['serialized_executions'])) {
                         $labels[] = [
                             'class' => 'success',
-                            'text' => $languageService->getLL('status.running'),
+                            'text' => $languageService->sL($lllFile . ':status.running'),
                         ];
                         $isRunning = true;
-                        $taskTableRow['status'] = $languageService->getLL('status.running');
+                        $taskTableRow['status'] = $languageService->sL($lllFile . ':status.running');
                     }
 
                     if (!$isRunning && $task['disable'] !== 1) {
                         $nextDate = date($dateFormat, (int)$task['nextexecution']);
                         if (empty($task['nextexecution'])) {
-                            $nextDate = $languageService->getLL('none');
+                            $nextDate = $languageService->sL($lllFile . ':none');
                         } elseif ($task['nextexecution'] < $GLOBALS['EXEC_TIME']) {
                             $labels[] = [
                                 'class' => 'warning',
-                                'text' => $languageService->getLL('status.late'),
-                                'description' => $languageService->getLL('status.legend.scheduled'),
+                                'text' => $languageService->sL($lllFile . ':status.late'),
+                                'description' => $languageService->sL($lllFile . ':status.legend.scheduled'),
                             ];
                         }
                         $taskTableRow['nextExecution'] = $nextDate;
                     }
 
                     if ($taskObj->getType() === 1) {//AbstractTask::TYPE_SINGLE
-                        $execType = $languageService->getLL('label.type.single');
+                        $execType = $languageService->sL($lllFile . ':label.type.single');
                         $frequency = '-';
                     } else {
-                        $execType = $languageService->getLL('label.type.recurring');
+                        $execType = $languageService->sL($lllFile . ':label.type.recurring');
                         if ($taskObj->getExecution()->getCronCmd() == '') {
                             $frequency = $taskObj->getExecution()->getInterval();
                         } else {
@@ -137,7 +137,7 @@ class SchedulerUtility
                     if ($task['disable'] && !$isRunning) {
                         $labels[] = [
                             'class' => 'default',
-                            'text' => $languageService->getLL('status.disabled'),
+                            'text' => $languageService->sL($lllFile . ':status.disabled'),
                         ];
                         $showAsDisabled = true;
                     }
@@ -146,14 +146,14 @@ class SchedulerUtility
                     $taskTableRow['frequency'] = $frequency;
 
                     $multiple = $taskObj->getExecution()->getMultiple() ? 'yes' : 'no';
-                    $taskTableRow['multiple'] = $languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:'.$multiple);
+                    $taskTableRow['multiple'] = $languageService->sL($lllFile . ':' . $multiple);
 
                     if (!empty($task['lastexecution_failure'])) {
                         $exceptionArray = @unserialize($task['lastexecution_failure']);
                         if (!is_array($exceptionArray) || empty($exceptionArray)) {
-                            $labelDescription = $languageService->getLL('msg.executionFailureDefault');
+                            $labelDescription = $languageService->sL($lllFile . ':' . 'msg.executionFailureDefault');
                         } else {
-                            $labelDescription = ''; sprintf($languageService->getLL('msg.executionFailureReport'), $exceptionArray['code'], $exceptionArray['message']);
+                            $labelDescription = ''; sprintf($languageService->sL($lllFile . ':' . 'msg.executionFailureReport'), $exceptionArray['code'], $exceptionArray['message']);
                         }
                         $labels[] = [
                             'class' => 'danger',

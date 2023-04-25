@@ -35,47 +35,87 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+use TYPO3\CMS\Backend\Attribute\Controller;
+// the module template will be initialized in handleRequest()
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 final class DmailController extends MainController
 {
-    protected $cshTable;
-    protected string $error = '';
 
-    protected int $currentStep = 1;
+    public function __construct(
+        protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly IconFactory $iconFactory,
+        protected readonly PageRenderer $pageRenderer,
 
-    /**
-     * for cmd == 'delete'
-     * @var int
-     */
-    protected int $uid = 0;
+        protected readonly string $moduleName = 'directmail_module_directmail',
+        protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
 
-    protected bool $backButtonPressed = false;
+        protected ?FlashMessageService $flashMessageService = null,
+        protected ?LanguageService $languageService = null,
 
-    protected string $currentCMD = '';
-    protected bool $fetchAtOnce = false;
+        protected array $pageinfo = [],
+        protected int $id = 0,
+        protected bool $access = false,
+        protected string $cmd = '',
 
-    protected array $quickmail = [];
-    protected int $createMailFrom_UID = 0;
-    protected string $createMailFrom_URL = '';
-    protected int $createMailFrom_LANG = 0;
-    protected string $createMailFrom_HTMLUrl = '';
-    protected string $createMailFrom_plainUrl = '';
-    protected array $mailgroup_uid = [];
-    protected bool $mailingMode_simple = false;
-    protected int $tt_address_uid = 0;
+        protected string $cshTable = '',
+        protected string $error = '',
 
-    protected $requestUri = '';
+        protected int $currentStep = 1,
 
-    protected string $moduleName = 'directmail_module_directmail';
+        protected int $uid = 0,
 
-    protected function initDmail(ServerRequestInterface $request): void
+        protected bool $backButtonPressed = false,
+
+        protected string $currentCMD = '',
+        protected bool $fetchAtOnce = false,
+
+        protected array $quickmail = [],
+        protected int $createMailFrom_UID = 0,
+        protected string $createMailFrom_URL = '',
+        protected int $createMailFrom_LANG = 0,
+        protected string $createMailFrom_HTMLUrl = '',
+        protected string $createMailFrom_plainUrl = '',
+        protected array $mailgroup_uid = [],
+        protected bool $mailingMode_simple = false,
+        protected int $tt_address_uid = 0,
+
+        protected string $requestUri = ''
+    ) {
+    }
+
+    public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
-        $this->pageRenderer->loadJavaScriptModule('@typo3/backend/date-time-picker.js');
+        $this->languageService = $this->getLanguageService();
+        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
 
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
 
+        $this->id             = (int)($parsedBody['id']              ?? $queryParams['id'] ?? 0);
+        $this->cmd            = (string)($parsedBody['cmd']          ?? $queryParams['cmd'] ?? '');
+        $this->pages_uid      = (string)($parsedBody['pages_uid']    ?? $queryParams['pages_uid'] ?? '');
+        $this->sys_dmail_uid  = (int)($parsedBody['sys_dmail_uid']   ?? $queryParams['sys_dmail_uid'] ?? 0);
+        $this->updatePageTree = (bool)($parsedBody['updatePageTree'] ?? $queryParams['updatePageTree'] ?? false);
+
+        $permsClause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
+        $pageAccess = BackendUtility::readPageAccess($this->id, $permsClause);
+        $this->pageinfo = is_array($pageAccess) ? $pageAccess : [];
+        $this->access = is_array($this->pageinfo) ? true : false;
+
         $normalizedParams = $request->getAttribute('normalizedParams');
+
+        $this->pageRenderer->loadJavaScriptModule('@typo3/backend/date-time-picker.js');
+
         $this->requestUri = $normalizedParams->getRequestUri();
 
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
@@ -104,64 +144,68 @@ final class DmailController extends MainController
         $this->createMailFrom_plainUrl = (string)($parsedBody['createMailFrom_plainUrl'] ?? $queryParams['createMailFrom_plainUrl'] ?? '');
         $this->mailgroup_uid = $parsedBody['mailgroup_uid'] ?? $queryParams['mailgroup_uid'] ?? [];
         $this->tt_address_uid = (int)($parsedBody['tt_address_uid'] ?? $queryParams['tt_address_uid'] ?? 0);
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($request);
+        return $this->indexAction($moduleTemplate);
     }
 
-    public function indexAction(ServerRequestInterface $request): ResponseInterface
+    public function indexAction(ModuleTemplate $view): ResponseInterface
     {
-        $currentModule = 'Dmail';
-        $this->view = $this->configureTemplatePaths($currentModule);
-
-        $this->init($request);
-        $this->initDmail($request);
+        $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier('DmailQueue');
 
         // get the config from pageTS
         $this->params['pid'] = $this->id;
         $this->cshTable = '_MOD_' . $this->moduleName;
 
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
+
             $module = $this->getModulName();
 
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $markers = $this->moduleContent();
-
-                    //$this->moduleTemplate->assignMultiple(
-                    $this->view->assignMultiple(
+                    $view->assignMultiple(
                         [
                             'flashmessages' => $markers['FLASHMESSAGES'],
                             'data' => $markers['data'],
                         ]
                     );
                 } elseif ($this->id != 0) {
-                    $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
-                    $this->messageQueue->addMessage($message);
+                    $message = $this->createFlashMessage(
+                        $this->languageService->sL($this->lllFile . ':dmail_noRegular'),
+                        $this->languageService->sL($this->lllFile . ':dmail_newsletters'),
+                        ContextualFeedbackSeverity::WARNING,
+                        false
+                    );
+                    $messageQueue->addMessage($message);
                 }
             } else {
-                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_directmail'), 1, false);
-                $this->messageQueue->addMessage($message);
-                //$this->moduleTemplate->assignMultiple(
-                $this->view->assignMultiple(
+                $message = $this->createFlashMessage(
+                    $this->languageService->sL($this->lllFile . ':select_folder'),
+                    $this->languageService->sL($this->lllFile . ':header_directmail'),
+                    ContextualFeedbackSeverity::WARNING,
+                    false
+                );
+                $messageQueue->addMessage($message);
+                $view->assignMultiple(
                     [
                         'dmLinks' => $this->getDMPages($this->moduleName),
                     ]
                 );
             }
         } else {
-            // If no access or if ID == zero
-            $this->view = $this->configureTemplatePaths('NoAccess');
-            $message = $this->createFlashMessage('If no access or if ID == zero', 'No Access', 1, false);
-            $this->messageQueue->addMessage($message);
+            $message = $this->createFlashMessage(
+                $this->languageService->sL($this->lllFile . ':mod.main.no_access'),
+                $this->languageService->sL($this->lllFile . ':mod.main.no_access.title'),
+                ContextualFeedbackSeverity::WARNING,
+                false
+            );
+            $messageQueue->addMessage($message);
+            return $view->renderResponse('NoAccess');
         }
 
-        /**
-         * Render template and return html content
-         * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Feature-96730-SimplifiedExtbackendModuleTemplateAPI.html
-         */
-        $this->moduleTemplate->setContent($this->view->render());
-        return new HtmlResponse($this->moduleTemplate->renderContent());
-
-        #return $this->moduleTemplate->renderResponse($currentModule);
+        return $view->renderResponse('Dmail');
     }
 
     protected function moduleContent()
@@ -270,7 +314,7 @@ final class DmailController extends MainController
                         // fetch the data
                         if ($this->fetchAtOnce) {
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
-                            $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
+                            $fetchError = ((strstr($fetchMessage, $this->languageService->sL($this->lllFile . ':dmail_error')) === false) ? false : true);
                         }
 
                         $data['info']['internal']['cmd'] = $nextCmd ? $nextCmd : 'cats';
@@ -293,7 +337,7 @@ final class DmailController extends MainController
                         // fetch the data
                         if ($this->fetchAtOnce) {
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
-                            $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
+                            $fetchError = ((strstr($fetchMessage, $this->languageService->sL($this->lllFile . ':dmail_error')) === false) ? false : true);
                         }
 
                         $data['info']['external']['cmd'] = 'send_test';
@@ -344,7 +388,7 @@ final class DmailController extends MainController
                     } else {
                         if ($this->fetchAtOnce) {
                             $fetchMessage = DirectMailUtility::fetchUrlContentsForDirectMailRecord($row, $this->params);
-                            $fetchError = ((strstr($fetchMessage, $this->getLanguageService()->getLL('dmail_error')) === false) ? false : true);
+                            $fetchError = ((strstr($fetchMessage, $this->languageService->sL($this->lllFile . ':dmail_error')) === false) ? false : true);
                         }
 
                         $data['info']['dmail']['cmd'] = ($row['type'] == 0) ? $nextCmd : 'send_test';
@@ -360,8 +404,8 @@ final class DmailController extends MainController
                 } elseif (!$fetchError && $this->fetchAtOnce) {
                     $message = $this->createFlashMessage(
                         '',
-                        $this->getLanguageService()->getLL('dmail_wiz2_fetch_success'),
-                        0,
+                        $this->languageService->sL($this->lllFile . ':dmail_wiz2_fetch_success'),
+                        ContextualFeedbackSeverity::OK,
                         false
                     );
                     $this->messageQueue->addMessage($message);
@@ -437,9 +481,9 @@ final class DmailController extends MainController
                     }
 
                     $message = $this->createFlashMessage(
-                        $this->getLanguageService()->getLL('mod.no_recipients'),
+                        $this->languageService->sL($this->lllFile . ':mod.no_recipients'),
                         '',
-                        1,
+                        ContextualFeedbackSeverity::WARNING,
                         false
                     );
                     $this->messageQueue->addMessage($message);
@@ -572,7 +616,7 @@ final class DmailController extends MainController
                         'href' => '#',
                         'data-dispatch-action' => $attributes['dispatch-action'],
                         'data-dispatch-args' => $attributes['dispatch-args'],
-                        'title' => htmlentities($this->getLanguageService()->getLL('nl_viewPage_HTML') . $langTitle),
+                        'title' => htmlentities($this->languageService->sL($this->lllFile . ':nl_viewPage_HTML') . $langTitle),
                     ], true);
 
                     $previewHTMLLink .= '<a ' . $serializedAttributes . '>' . $htmlIcon . '</a>';
@@ -587,11 +631,11 @@ final class DmailController extends MainController
                             'href' => '#',
                             'data-dispatch-action' => $attributes['dispatch-action'],
                             'data-dispatch-args' => $attributes['dispatch-args'],
-                            'title' => htmlentities($this->getLanguageService()->getLL('nl_viewPage_TXT') . $langTitle),
+                            'title' => htmlentities($this->languageService->sL($this->lllFile . ':nl_viewPage_TXT') . $langTitle),
                         ], true);
 
                     $previewTextLink .= '<a href="#" ' . $serializedAttributes . '>' . $plainIcon . '</a>';
-                    $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($this->getLanguageService()->getLL('nl_create') . $langTitle) . '">' . $createIcon . '</a>';
+                    $createLink .= '<a href="' . $createDmailLink . $createLangParam . '" title="' . htmlentities($this->languageService->sL($this->lllFile . ':nl_create') . $langTitle) . '">' . $createIcon . '</a>';
                 }
 
                 switch ($this->params['sendOptions'] ?? 0) {
@@ -727,10 +771,10 @@ final class DmailController extends MainController
                 'link' => $this->linkDMailRecord($row['uid']),
                 'linkText' => htmlspecialchars($row['subject'] ?: '_'),
                 'tstamp' => BackendUtility::date($row['tstamp']),
-                'issent' => ($row['issent'] ? $this->getLanguageService()->getLL('dmail_yes') : $this->getLanguageService()->getLL('dmail_no')),
+                'issent' => ($row['issent'] ? $this->languageService->sL($this->lllFile . ':dmail_yes') : $this->languageService->sL($this->lllFile . ':dmail_no')),
                 'renderedsize' => ($row['renderedsize'] ? GeneralUtility::formatSize($row['renderedsize']) : ''),
                 'attachment' => ($row['attachment'] ? $this->iconFactory->getIcon('directmail-attachment', Icon::SIZE_SMALL) : ''),
-                'type' => ($row['type'] & 0x1 ? $this->getLanguageService()->getLL('nl_l_tUrl') : $this->getLanguageService()->getLL('nl_l_tPage')) . ($row['type']  & 0x2 ? ' (' . $this->getLanguageService()->getLL('nl_l_tDraft') . ')' : ''),
+                'type' => ($row['type'] & 0x1 ? $this->languageService->sL($this->lllFile . ':nl_l_tUrl') : $this->languageService->sL($this->lllFile . ':nl_l_tPage')) . ($row['type']  & 0x2 ? ' (' . $this->languageService->sL($this->lllFile . ':nl_l_tDraft') . ')' : ''),
                 'deleteLink' => $this->deleteLink($row['uid']),
             ];
         }
@@ -897,11 +941,11 @@ final class DmailController extends MainController
         $htmlmail->addPlain($messageBody);
 
         if (!$messageBody || !$htmlmail->getPartPlainConfig('content')) {
-            $erg['errorTitle'] = $this->getLanguageService()->getLL('dmail_error');
-            $erg['errorText'] = $this->getLanguageService()->getLL('dmail_no_plain_content');
+            $erg['errorTitle'] = $this->languageService->sL($this->lllFile . ':dmail_error');
+            $erg['errorText'] = $this->languageService->sL($this->lllFile . ':dmail_no_plain_content');
         } elseif (!strstr(base64_decode($htmlmail->getPartPlainConfig('content')), '<!--DMAILER_SECTION_BOUNDARY')) {
-            $erg['warningTitle'] = $this->getLanguageService()->getLL('dmail_warning');
-            $erg['warningText'] = $this->getLanguageService()->getLL('dmail_no_plain_boundaries');
+            $erg['warningTitle'] = $this->languageService->sL($this->lllFile . ':dmail_warning');
+            $erg['warningText'] = $this->languageService->sL($this->lllFile . ':dmail_no_plain_boundaries');
         }
 
         // add attachment is removed. since it will be add during sending
@@ -953,10 +997,10 @@ final class DmailController extends MainController
                     'returnUrl' => $requestUri->__toString(),
                 ]);
             } else {
-                $label = $this->getLanguageService()->getLL('dmail_noEdit_noPerms');
+                $label = $this->languageService->sL($this->lllFile . ':dmail_noEdit_noPerms');
             }
         } else {
-            $label = $this->getLanguageService()->getLL('dmail_noEdit_isSent');
+            $label = $this->languageService->sL($this->lllFile . ':dmail_noEdit_isSent');
         }
 
         $trs = [];
@@ -1132,10 +1176,10 @@ final class DmailController extends MainController
                 $htmlmail->sendSimple($addresses);
                 $sentFlag = true;
                 $message = $this->createFlashMessage(
-                    $this->getLanguageService()->getLL('send_was_sent') . ' ' .
-                    $this->getLanguageService()->getLL('send_recipients') . ' ' . htmlspecialchars(implode(',', $addresses)),
-                    $this->getLanguageService()->getLL('send_sending'),
-                    0,
+                    $this->languageService->sL($this->lllFile . ':send_was_sent') . ' ' .
+                    $this->languageService->sL($this->lllFile . ':send_recipients') . ' ' . htmlspecialchars(implode(',', $addresses)),
+                    $this->languageService->sL($this->lllFile . ':send_sending'),
+                    ContextualFeedbackSeverity::OK,
                     false
                 );
                 $this->messageQueue->addMessage($message);
@@ -1157,9 +1201,9 @@ final class DmailController extends MainController
                         $sentFlag = true;
 
                         $message = $this->createFlashMessage(
-                            sprintf($this->getLanguageService()->getLL('send_was_sent_to_name'), $recipRow['name'] . ' <' . $recipRow['email'] . '>'),
-                            $this->getLanguageService()->getLL('send_sending'),
-                            0,
+                            sprintf($this->languageService->sL($this->lllFile . ':send_was_sent_to_name'), $recipRow['name'] . ' <' . $recipRow['email'] . '>'),
+                            $this->languageService->sL($this->lllFile . ':send_sending'),
+                            ContextualFeedbackSeverity::OK,
                             false
                         );
                         $this->messageQueue->addMessage($message);
@@ -1167,8 +1211,8 @@ final class DmailController extends MainController
                 } else {
                     $message = $this->createFlashMessage(
                         'Error: No valid recipient found to send test mail to. #1579209279',
-                        $this->getLanguageService()->getLL('send_sending'),
-                        2,
+                        $this->languageService->sL($this->lllFile . ':send_sending'),
+                        ContextualFeedbackSeverity::ERROR,
                         false
                     );
                     $this->messageQueue->addMessage($message);
@@ -1184,9 +1228,9 @@ final class DmailController extends MainController
                 $sendFlag += $this->sendTestMailToTable($idLists, 'PLAINLIST', $htmlmail);
                 $sendFlag += $this->sendTestMailToTable($idLists, (string)$this->userTable, $htmlmail);
                 $message = $this->createFlashMessage(
-                    sprintf($this->getLanguageService()->getLL('send_was_sent_to_number'), $sendFlag),
-                    $this->getLanguageService()->getLL('send_sending'),
-                    0,
+                    sprintf($this->languageService->sL($this->lllFile . ':send_was_sent_to_number'), $sendFlag),
+                    $this->languageService->sL($this->lllFile . ':send_sending'),
+                    ContextualFeedbackSeverity::OK,
                     false
                 );
                 $this->messageQueue->addMessage($message);
@@ -1220,11 +1264,11 @@ final class DmailController extends MainController
                 if (GeneralUtility::_GP('savedraft')) {
                     $updateFields['type'] = $row['type'] == 0 ? 2 : 3;
                     $updateFields['scheduled'] = 0;
-                    $content = $this->getLanguageService()->getLL('send_draft_scheduler');
-                    $sectionTitle = $this->getLanguageService()->getLL('send_draft_saved');
+                    $content = $this->languageService->sL($this->lllFile . ':send_draft_scheduler');
+                    $sectionTitle = $this->languageService->sL($this->lllFile . ':send_draft_saved');
                 } else {
-                    $content = $this->getLanguageService()->getLL('send_was_scheduled_for') . ' ' . BackendUtility::datetime($distributionTime);
-                    $sectionTitle = $this->getLanguageService()->getLL('send_was_scheduled');
+                    $content = $this->languageService->sL($this->lllFile . ':send_was_scheduled_for') . ' ' . BackendUtility::datetime($distributionTime);
+                    $sectionTitle = $this->languageService->sL($this->lllFile . ':send_was_scheduled');
                 }
                 $sentFlag = true;
                 $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord(
@@ -1234,8 +1278,8 @@ final class DmailController extends MainController
 
                 $message = $this->createFlashMessage(
                     $sectionTitle . ' ' . $content,
-                    $this->getLanguageService()->getLL('dmail_wiz5_sendmass'),
-                    0,
+                    $this->languageService->sL($this->lllFile . ':dmail_wiz5_sendmass'),
+                    ContextualFeedbackSeverity::OK,
                     false
                 );
                 $this->messageQueue->addMessage($message);
@@ -1416,9 +1460,9 @@ final class DmailController extends MainController
         // added disabled. see hook
         if (count($opt) === 0) {
             $message = $this->createFlashMessage(
-                $this->getLanguageService()->getLL('error.no_recipient_groups_found'),
+                $this->languageService->sL($this->lllFile . ':error.no_recipient_groups_found'),
                 '',
-                2,
+                ContextualFeedbackSeverity::ERROR,
                 false
             );
             $this->messageQueue->addMessage($message);
@@ -1705,13 +1749,13 @@ final class DmailController extends MainController
     public function makeCategoriesForm(array $row, $indata)
     {
         $output = [
-            'title' => $this->getLanguageService()->getLL('nl_cat'),
+            'title' => $this->languageService->sL($this->lllFile . ':nl_cat'),
             'subtitle' => '',
             'rowsFound' => false,
             'rows' => [],
             'pages_uid' => $this->pages_uid,
             'cmd' => $this->cmd,
-            'update_cats' => $this->getLanguageService()->getLL('nl_l_update'),
+            'update_cats' => $this->languageService->sL($this->lllFile . ':nl_l_update'),
             'output' => '',
         ];
         $theOutput = '';
@@ -1745,7 +1789,7 @@ final class DmailController extends MainController
             (int)$row['sys_language_uid']
         );
         if (empty($rows)) {
-            $output['subtitle'] = $this->getLanguageService()->getLL('nl_cat_msg1');
+            $output['subtitle'] = $this->languageService->sL($this->lllFile . ':nl_cat_msg1');
         } else {
             //https://api.typo3.org/master/class_t_y_p_o3_1_1_c_m_s_1_1_backend_1_1_utility_1_1_backend_utility.html#a5522e461e5ce3b1b5c87ee7546af449d
             $output['subtitle'] = BackendUtility::cshItem($this->cshTable, 'assign_categories');
@@ -1764,7 +1808,7 @@ final class DmailController extends MainController
                 if ($colPosVal != $row['colPos']) {
                     $output['rows'][] = [
                         'separator' => true,
-                        'title' => $this->getLanguageService()->getLL('nl_l_column'),
+                        'title' => $this->languageService->sL($this->lllFile . ':nl_l_column'),
                         'value' => BackendUtility::getProcessedValue('tt_content', 'colPos', $row['colPos']),
                     ];
                     $colPosVal = $row['colPos'];
@@ -1789,7 +1833,7 @@ final class DmailController extends MainController
                     'list_type' => $row['list_type'],
                     'bodytext' => empty($row['bodytext']) ? '' : GeneralUtility::fixed_lgd_cs(strip_tags($row['bodytext']), 200),
                     'color' => $row['module_sys_dmail_category'] ? 'red' : 'green',
-                    'labelOnlyAll' => $row['module_sys_dmail_category'] ? $this->getLanguageService()->getLL('nl_l_ONLY') : $this->getLanguageService()->getLL('nl_l_ALL'),
+                    'labelOnlyAll' => $row['module_sys_dmail_category'] ? $this->languageService->sL($this->lllFile . ':nl_l_ONLY') : $this->languageService->sL($this->lllFile . ':nl_l_ALL'),
                     'checkboxes' => $cboxes,
                 ];
             }

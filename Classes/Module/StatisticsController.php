@@ -13,65 +13,96 @@ use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Attribute\Controller;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+// the module template will be initialized in handleRequest()
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 final class StatisticsController extends MainController
 {
-    /**
-     * The name of the module
-     *
-     * @var string
-     */
-    protected $moduleName = 'directmail_module_statistics';
+    public function __construct(
+        protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly IconFactory $iconFactory,
 
-    protected $requestUri = '';
+        protected readonly string $moduleName = 'directmail_module_statistics',
+        protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
 
-    private int $uid = 0;
-    private string $table = '';
-    private array $tables = ['tt_address', 'fe_users'];
-    private bool $recalcCache = false;
-    private bool $submit = false;
-    private array $indata = [];
+        protected ?FlashMessageService $flashMessageService = null,
+        protected ?LanguageService $languageService = null,
 
-    private bool $returnList    = false;
-    private bool $returnDisable = false;
-    private bool $returnCSV     = false;
+        protected array $pageinfo = [],
+        protected int $id = 0,
+        protected bool $access = false,
 
-    private bool $unknownList    = false;
-    private bool $unknownDisable = false;
-    private bool $unknownCSV     = false;
+        protected string $requestUri = '',
 
-    private bool $fullList    = false;
-    private bool $fullDisable = false;
-    private bool $fullCSV     = false;
+        private int $uid = 0,
+        private string $table = '',
+        private array $tables = ['tt_address', 'fe_users'],
+        private bool $recalcCache = false,
+        private bool $submit = false,
+        private array $indata = [],
 
-    private bool $badHostList    = false;
-    private bool $badHostDisable = false;
-    private bool $badHostCSV     = false;
+        private bool $returnList    = false,
+        private bool $returnDisable = false,
+        private bool $returnCSV     = false,
 
-    private bool $badHeaderList    = false;
-    private bool $badHeaderDisable = false;
-    private bool $badHeaderCSV     = false;
+        private bool $unknownList    = false,
+        private bool $unknownDisable = false,
+        private bool $unknownCSV     = false,
 
-    private bool $reasonUnknownList    = false;
-    private bool $reasonUnknownDisable = false;
-    private bool $reasonUnknownCSV     = false;
+        private bool $fullList    = false,
+        private bool $fullDisable = false,
+        private bool $fullCSV     = false,
 
-    private string $siteUrl = '';
+        private bool $badHostList    = false,
+        private bool $badHostDisable = false,
+        private bool $badHostCSV     = false,
 
-    protected function initStatistics(ServerRequestInterface $request): void
+        private bool $badHeaderList    = false,
+        private bool $badHeaderDisable = false,
+        private bool $badHeaderCSV     = false,
+
+        private bool $reasonUnknownList    = false,
+        private bool $reasonUnknownDisable = false,
+        private bool $reasonUnknownCSV     = false,
+
+        private string $siteUrl = ''
+    ) {
+    }
+
+    public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
-        $this->siteUrl = $request->getAttribute('normalizedParams')->getSiteUrl();
+        $this->languageService = $this->getLanguageService();
+        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
 
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
-
         $normalizedParams = $request->getAttribute('normalizedParams');
+
+        $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
+        $this->cmd            = (string)($parsedBody['cmd']          ?? $queryParams['cmd'] ?? '');
+        $this->sys_dmail_uid  = (int)($parsedBody['sys_dmail_uid']   ?? $queryParams['sys_dmail_uid'] ?? 0);
+
+        $permsClause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
+        $pageAccess = BackendUtility::readPageAccess($this->id, $permsClause);
+        $this->pageinfo = is_array($pageAccess) ? $pageAccess : [];
+        $this->access = is_array($this->pageinfo) ? true : false;
+
+        $this->siteUrl = $normalizedParams->getSiteUrl();
         $this->requestUri = $normalizedParams->getRequestUri();
 
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
@@ -109,53 +140,64 @@ final class StatisticsController extends MainController
         $this->reasonUnknownList    = (bool)($parsedBody['reasonUnknownList'] ?? $queryParams['reasonUnknownList'] ?? false);
         $this->reasonUnknownDisable = (bool)($parsedBody['reasonUnknownDisable'] ?? $queryParams['reasonUnknownDisable'] ?? false);
         $this->reasonUnknownCSV     = (bool)($parsedBody['reasonUnknownCSV'] ?? $queryParams['reasonUnknownCSV'] ?? false);
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($request);
+        return $this->indexAction($moduleTemplate);
     }
 
-    public function indexAction(ServerRequestInterface $request): ResponseInterface
+    public function indexAction(ModuleTemplate $view): ResponseInterface
     {
-        $this->view = $this->configureTemplatePaths('Statistics');
-
-        $this->init($request);
-        $this->initStatistics($request);
+        $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier('StatisticsQueue');
 
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
+
             $module = $this->getModulName();
 
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $data = $this->moduleContent();
-                    $this->view->assignMultiple(
+                    $view->assignMultiple(
                         [
                             'data' => $data,
                             'show' => true,
                         ]
                     );
                 } elseif ($this->id != 0) {
-                    $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
-                    $this->messageQueue->addMessage($message);
+                    $message = $this->createFlashMessage(
+                        $this->languageService->sL($this->lllFile . ':dmail_noRegular'),
+                        $this->languageService->sL($this->lllFile . ':dmail_newsletters'),
+                        ContextualFeedbackSeverity::WARNING,
+                        false
+                    );
+                    $messageQueue->addMessage($message);
                 }
             } else {
-                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_stat'), 1, false);
-                $this->messageQueue->addMessage($message);
-                $this->view->assignMultiple(
+                $message = $this->createFlashMessage(
+                    $this->languageService->sL($this->lllFile . ':select_folder'),
+                    $this->languageService->sL($this->lllFile . ':header_stat'),
+                    ContextualFeedbackSeverity::WARNING,
+                    false
+                );
+                $messageQueue->addMessage($message);
+                $view->assignMultiple(
                     [
                         'dmLinks' => $this->getDMPages($this->moduleName),
                     ]
                 );
             }
         } else {
-            // If no access or if ID == zero
-            $this->view = $this->configureTemplatePaths('NoAccess');
-            $message = $this->createFlashMessage('If no access or if ID == zero', 'No Access', 1, false);
-            $this->messageQueue->addMessage($message);
+            $message = $this->createFlashMessage(
+                $this->languageService->sL($this->lllFile . ':mod.main.no_access'),
+                $this->languageService->sL($this->lllFile . ':mod.main.no_access.title'),
+                ContextualFeedbackSeverity::WARNING,
+                false
+            );
+            $messageQueue->addMessage($message);
+            return $view->renderResponse('NoAccess');
         }
 
-        /**
-         * Render template and return html content
-         */
-        $this->moduleTemplate->setContent($this->view->render());
-        return new HtmlResponse($this->moduleTemplate->renderContent());
+        return $view->renderResponse('Statistics');
     }
 
     protected function moduleContent(): array
@@ -221,12 +263,12 @@ final class StatisticsController extends MainController
     {
         if (!empty($row['scheduled_begin'])) {
             if (!empty($row['scheduled_end'])) {
-                $sent = $this->getLanguageService()->getLL('stats_overview_sent');
+                $sent = $this->languageService->sL($this->lllFile . ':stats_overview_sent');
             } else {
-                $sent = $this->getLanguageService()->getLL('stats_overview_sending');
+                $sent = $this->languageService->sL($this->lllFile . ':stats_overview_sending');
             }
         } else {
-            $sent = $this->getLanguageService()->getLL('stats_overview_queuing');
+            $sent = $this->languageService->sL($this->lllFile . ':stats_overview_queuing');
         }
         return $sent;
     }

@@ -14,42 +14,74 @@ use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Attribute\Controller;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+// the module template will be initialized in handleRequest()
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 final class RecipientListController extends MainController
 {
-    /**
-     * The name of the module
-     *
-     * @var string
-     */
-    protected $moduleName = '';
 
-    protected int $group_uid = 0;
-    protected string $lCmd = '';
-    protected string $csv = '';
-    protected array $set = [];
+    public function __construct(
+        protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly IconFactory $iconFactory,
 
-    protected $MOD_SETTINGS;
+        protected readonly string $moduleName = 'directmail_module_recipientlist',
+        protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
 
-    protected int $uid = 0;
-    protected string $table = '';
-    protected array $indata = [];
+        protected ?FlashMessageService $flashMessageService = null,
+        protected ?LanguageService $languageService = null,
 
-    protected $requestHostOnly = '';
-    protected $requestUri = '';
-    protected $httpReferer = '';
-    protected array $allowedTables = ['tt_address', 'fe_users'];
+        protected array $pageinfo = [],
+        protected int $id = 0,
+        protected bool $access = false,
+        protected string $cmd = '',
 
-    private bool $submit = false;
+        protected int $group_uid = 0,
+        protected string $lCmd = '',
+        protected string $csv = '',
+        protected array $set = [],
 
-    protected function initRecipientList(ServerRequestInterface $request): void
+        protected array $MOD_SETTINGS = [],
+
+        protected int $uid = 0,
+        protected string $table = '',
+        protected array $indata = [],
+
+        protected $requestHostOnly = '',
+        protected $requestUri = '',
+        protected $httpReferer = '',
+        protected array $allowedTables = ['tt_address', 'fe_users'],
+
+        private bool $submit = false
+
+    ) {
+    }
+
+    public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
+        $this->languageService = $this->getLanguageService();
+        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
+
+        $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
+        $permsClause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
+        $pageAccess = BackendUtility::readPageAccess($this->id, $permsClause);
+        $this->pageinfo = is_array($pageAccess) ? $pageAccess : [];
+        $this->access = is_array($this->pageinfo) ? true : false;
 
         $normalizedParams = $request->getAttribute('normalizedParams');
         $this->requestHostOnly = $normalizedParams->getRequestHostOnly();
@@ -65,26 +97,25 @@ final class RecipientListController extends MainController
         $this->table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
         $this->indata = $parsedBody['indata'] ?? $queryParams['indata'] ?? [];
         $this->submit = (bool)($parsedBody['submit'] ?? $queryParams['submit'] ?? false);
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($request);
+        return $this->indexAction($moduleTemplate);
     }
 
-    public function indexAction(ServerRequestInterface $request): ResponseInterface
+    public function indexAction(ModuleTemplate $view): ResponseInterface
     {
-        $this->view = $this->configureTemplatePaths('RecipientList');
-
-        $this->init($request);
-        $this->initRecipientList($request);
-
-        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
+        $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier('RecipientListQueue');
+        #$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
 
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
+
             $module = $this->getModulName();
-            $this->moduleName = (string)($request->getQueryParams()['currentModule'] ?? $request->getParsedBody()['currentModule'] ?? 'directmail_module_recipientlist');
 
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $data = $this->moduleContent();
-                    $this->view->assignMultiple(
+                    $view->assignMultiple(
                         [
                             'data' => $data['data'],
                             'type' => $data['type'],
@@ -93,30 +124,40 @@ final class RecipientListController extends MainController
                         ]
                     );
                 } elseif ($this->id != 0) {
-                    $message = $this->createFlashMessage($this->getLanguageService()->getLL('dmail_noRegular'), $this->getLanguageService()->getLL('dmail_newsletters'), 1, false);
-                    $this->messageQueue->addMessage($message);
+                    $message = $this->createFlashMessage(
+                        $this->languageService->sL($this->lllFile . ':dmail_noRegular'),
+                        $this->languageService->sL($this->lllFile . ':dmail_newsletters'),
+                        ContextualFeedbackSeverity::WARNING,
+                        false
+                    );
+                    $messageQueue->addMessage($message);
                 }
             } else {
-                $message = $this->createFlashMessage($this->getLanguageService()->getLL('select_folder'), $this->getLanguageService()->getLL('header_recip'), 1, false);
-                $this->messageQueue->addMessage($message);
-                $this->view->assignMultiple(
+                $message = $this->createFlashMessage(
+                    $this->languageService->sL($this->lllFile . ':select_folder'),
+                    $this->languageService->sL($this->lllFile . ':header_recip'),
+                    ContextualFeedbackSeverity::WARNING,
+                    false
+                );
+                $messageQueue->addMessage($message);
+                $view->assignMultiple(
                     [
                         'dmLinks' => $this->getDMPages($this->moduleName),
                     ]
                 );
             }
         } else {
-            // If no access or if ID == zero
-            $this->view = $this->configureTemplatePaths('NoAccess');
-            $message = $this->createFlashMessage('If no access or if ID == zero', 'No Access', 1, false);
-            $this->messageQueue->addMessage($message);
+            $message = $this->createFlashMessage(
+                $this->languageService->sL($this->lllFile . ':mod.main.no_access'),
+                $this->languageService->sL($this->lllFile . ':mod.main.no_access.title'),
+                ContextualFeedbackSeverity::WARNING,
+                false
+            );
+            $messageQueue->addMessage($message);
+            return $view->renderResponse('NoAccess');
         }
 
-        /**
-         * Render template and return html content
-         */
-        $this->moduleTemplate->setContent($this->view->render());
-        return new HtmlResponse($this->moduleTemplate->renderContent());
+        return $view->renderResponse('RecipientList');
     }
 
     /**
@@ -476,7 +517,7 @@ final class RecipientListController extends MainController
                 } else {
                     $message = $this->createFlashMessage(
                         '',
-                        $this->getLanguageService()->getLL('mailgroup_table_disallowed_csv'),
+                        $this->languageService->sl($this->lllFile . ':mailgroup_table_disallowed_csv'),
                         2,
                         false
                     );

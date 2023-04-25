@@ -23,7 +23,7 @@ return [
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangDirectMail.xlf',
         'routes' => [
             '_default' => [
-                'target' => DmailController::class . '::indexAction',
+                'target' => DmailController::class . '::handleRequest',
             ],
         ],
     ],
@@ -37,7 +37,7 @@ return [
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangRecipientList.xlf',
         'routes' => [
             '_default' => [
-                'target' => RecipientListController::class . '::indexAction',
+                'target' => RecipientListController::class . '::handleRequest',
             ],
         ],
     ],
@@ -51,7 +51,7 @@ return [
         'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangStatistics.xlf',
         'routes' => [
             '_default' => [
-                'target' => StatisticsController::class . '::indexAction',
+                'target' => StatisticsController::class . '::handleRequest',
             ],
         ],
     ],
