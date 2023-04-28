@@ -355,7 +355,7 @@ class Importer
                 }
 
                 // read tt_address TCA
-                $no_map = ['image', 'sys_language_uid', 'l10n_parent', 'l10n_diffsource', 't3_origuid', 'cruser_id', 'crdate', 'tstamp'];
+                $no_map = ['image', 'sys_language_uid', 'l10n_parent', 'l10n_diffsource', 't3_origuid', 'crdate', 'tstamp'];
                 $ttAddressFields = array_keys($GLOBALS['TCA']['tt_address']['columns']);
                 foreach ($no_map as $v) {
                     $ttAddressFields = ArrayUtility::removeArrayEntryByValue($ttAddressFields, $v);
