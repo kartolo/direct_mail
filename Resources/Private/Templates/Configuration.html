@@ -260,7 +260,7 @@
     </div>
 
     <div class="form-check form-switch">
-        <input type="checkbox" name="pageTS[jumpurl_tracking_privacy]" value="1" class="form-check-input" id="pageTS[jumpurl_tracking_privacy]" {f:if(condition: "1 == {implodedParams.q}" , then: 'checked="checked"')}>
+        <input type="checkbox" name="pageTS[jumpurl_tracking_privacy]" value="1" class="form-check-input" id="pageTS[jumpurl_tracking_privacy]" {f:if(condition: "1 == {implodedParams.jumpurl_tracking_privacy}" , then: 'checked="checked"')}>
         <label class="form-check-label" for="pageTS[jumpurl_tracking_privacy]">
             <f:translate key="{lll}configure_jumpurl_tracking_privacy" />
             <f:render section="help" arguments="{title: '{lll}mod.configuration.empty.title', content: '{lll}configure_jumpurl_tracking_privacy_description'}" />
