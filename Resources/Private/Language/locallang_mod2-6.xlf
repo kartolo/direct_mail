@@ -1043,6 +1043,9 @@
 			<trans-unit id="mod.main.no_access.title" resname="mod.configuration.no_access.title">
 				<source>No Access</source>
 			</trans-unit>
+			<trans-unit id="mod.configuration.empty.title" resname="mod.configuration.empty.title">
+				<source>...</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
