@@ -55,7 +55,6 @@ class TsUtility
     public function updatePagesTSconfig(int $id, array $pageTs, string $tsConfPrefix, $impParams = ''): bool
     {
         $done = false;
-        $id = (int)$id;
         if (is_array($pageTs) && $id > 0) {
             if (!is_array($impParams)) {
                 $impParams = $this->implodeTSParams(BackendUtility::getPagesTSconfig($id));

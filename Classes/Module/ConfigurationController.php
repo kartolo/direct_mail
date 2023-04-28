@@ -63,6 +63,13 @@ final class ConfigurationController extends MainController
         $normalizedParams = $request->getAttribute('normalizedParams');
         $this->pageTS = $parsedBody['pageTS'] ?? $queryParams['pageTS'] ?? [];
 
+
+        foreach(['includeMedia', 'flowedFormat', 'use_rdct', 'long_link_mode', 'enable_jump_url', 'jumpurl_tracking_privacy', 'enable_mailto_jump_url'] as $checkboxName) {
+            if(!isset($this->pageTS[$checkboxName])) {
+                $this->pageTS[$checkboxName] = '0';
+            }
+        }
+
         $this->updatePageTS();
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
