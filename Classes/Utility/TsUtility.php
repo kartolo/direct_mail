@@ -47,18 +47,15 @@ class TsUtility
      * @param int $id Page id
      * @param array $pageTs Page TS array to write
      * @param string $tsConfPrefix Prefix for object paths
-     * @param array|string $impParams [Description needed.]
      *
      *
      * @see implodeTSParams(), getPagesTSconfig()
      */
-    public function updatePagesTSconfig(int $id, array $pageTs, string $tsConfPrefix, $impParams = ''): bool
+    public function updatePagesTSconfig(int $id, array $pageTs, string $tsConfPrefix): bool
     {
         $done = false;
         if (is_array($pageTs) && $id > 0) {
-            if (!is_array($impParams)) {
-                $impParams = $this->implodeTSParams(BackendUtility::getPagesTSconfig($id));
-            }
+            $impParams = $this->implodeTSParams(BackendUtility::getPagesTSconfig($id));
             $set = [];
             foreach ($pageTs as $f => $v) {
                 $v = trim($v);
