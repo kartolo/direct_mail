@@ -2,6 +2,14 @@
 
 <f:layout name="Module" />
 
+<f:section name="Before">
+    <f:be.pageRenderer
+        includeJavaScriptModules="{
+            0: '@typo3/lowlevel/query-generator.js'
+        }"
+    />
+</f:section>
+
 <f:section name="Content">
 <f:flashMessages queueIdentifier="RecipientListQueue" />
 <f:render partial="Main" arguments="{dmLinks: dmLinks}" section="DMLinks" />
@@ -21,27 +29,27 @@
         <div style="padding-top: 20px;"></div>
         <h3><f:translate key="{lll}subscriber_profile" /></h3>
         <f:translate key="{lll}subscriber_profile_instructions" />
-        <br /><br />
-        <f:form method="post" name="dmailform" enctype="multipart/form-data">
+        <br><br>
+        <form action="" method="post" name="dmailform" enctype="multipart/form-data">
 	        <f:for each="{data.categories}" as="cat">
-	            <f:form.checkbox name="indata[categories][{data.uid}][{cat.pkey}]" value="1" checked="{cat.checked} == 1" /> <f:format.raw>{cat.pVal}</f:format.raw>
-	            <br />
+                <input type="checkbox" name="indata[categories][{data.uid}][{cat.pkey}]" value="1" class="form-check-input" {f:if(condition: "1 == {cat.checked}" , then: 'checked="checked"')}> <f:format.raw>{cat.pVal}</f:format.raw>
+	            <br>
 	        </f:for>
-            <br /><br />
-            <f:form.checkbox name="indata[html]" value="1" checked="{data.html} == 1" /> <f:translate key="{lll}subscriber_profile_htmlemail" />
-            <br />
-            <f:form.hidden name="table" value="{data.table}" />
-            <f:form.hidden name="uid" value="{data.thisID}" />
-            <f:form.hidden name="cmd" value="{data.cmd}" />
-            <br />
-            <f:form.submit value="{f:translate(key: '{lll}subscriber_profile_update')}" />
-        </f:form>
+            <br><br>
+            <input type="checkbox" name="indata[html]" value="1" class="form-check-input" {f:if(condition: "1 == {data.html}" , then: 'checked="checked"')}> <f:translate key="{lll}subscriber_profile_htmlemail" />
+            <br>
+            <input type="hidden" name="table" value="{data.table}">
+            <input type="hidden" name="uid" value="{data.thisID}">
+            <input type="hidden" name="cmd" value="{data.cmd}">
+            <br>
+            <input type="submit" value="{f:translate(key: '{lll}subscriber_profile_update')}" />
+        </form>
     </f:if>
     <f:if condition="{type} == 2">
         <h3><f:translate key="{lll}mailgroup_recip_from" /> <f:format.raw>{data.group_icon} {data.group_title}</f:format.raw> [{data.group_id}]</h3>
         <f:translate key="{lll}mailgroup_recip_number" /> <strong>{data.group_totalRecipients}</strong>
         <f:if condition="{data.group_link_listall}">
-            <br /><br /><strong><a class="t3-link" href="{data.group_link_listall}"><f:translate key="{lll}mailgroup_list_all" /></a></strong>
+            <br><br><strong><a class="t3-link" href="{data.group_link_listall}"><f:translate key="{lll}mailgroup_list_all" /></a></strong>
         </f:if>
         <div style="padding-top: 20px;"></div>
         <f:if condition="{data.tables -> f:count()}">
@@ -52,7 +60,7 @@
 		        </f:if>
 		        <f:if condition="{table.title_recip}">
 		            <f:translate key="{lll}{table.title_recip}" />{table.recip_counter}
-		            <br />
+		            <br>
 		            <a href="{table.mailgroup_download_link}" class="t3-link"><f:translate key="{lll}mailgroup_download" /></a>
 		        </f:if>
 		        <f:render arguments="{recipListConfig: table.recipListConfig}" section="recipListConfig" />
@@ -70,14 +78,21 @@
             <h3><f:translate key="{lll}dmail_makeQuery" /></h3>
 			</f:comment>
 			<f:comment>'queryform' for QueryGenerator.js from lowlevel</f:comment>
-            <f:form action="" method="post" name="queryform" enctype="multipart/form-data">
-                <f:form.checkbox name="SET[queryLimitDisabled]" value="1" checked="{data.queryLimitDisabled}" /> <f:translate key="{lll}queryLimitDisabled" />
-                <button class="btn btn-default" title="Update" name="just_update"><i class="fa fa-refresh fa-fw"></i></button>
+            <form action="" method="post" name="dmailform" enctype="multipart/form-data">
+
+                <div class="form-check form-switch">
+                    <input type="checkbox" name="SET[queryLimitDisabled]" value="1" class="form-check-input" {f:if(condition: "1 == {data.queryLimitDisabled}", then: 'checked="checked"')}>
+                    <label class="form-check-label" for="pageTS[includeMedia]">
+                        <f:translate key="{lll}queryLimitDisabled" />
+                    </label>
+                    <button class="btn btn-default" title="Update" name="just_update"><core:icon identifier="actions-refresh" /></button>
+                </div>
+
                 <f:format.raw>{data.special.selectTables}</f:format.raw>
-                <f:form.hidden name="cmd" value="displayMailGroup" />
-                <f:form.hidden name="group_uid" value="{data.group_id}" />
+				<input type="hidden" name="cmd" value="displayMailGroup">
+				<input type="hidden" name="group_uid" value="{data.group_id}">
 				<f:comment><f:form.submit value="{f:translate(key: '{lll}dmail_updateQuery')}" /></f:comment>
-            </f:form>
+            </form>
         </f:if>
     </f:if>
     <f:if condition="{type} == 4">
@@ -121,34 +136,34 @@
 			<h2>{formcontent.output.title}</h2>
 			<hr style="border:solid;"/>
 			<h3>{formcontent.output.subtitle}</h3>
-			<f:form action="" method="post" name="dmailform" enctype="multipart/form-data">
+			<form action="" method="post" name="dmailform" enctype="multipart/form-data">
 				<f:if condition="{formcontent.output.upload.show}">
 					<f:translate key="{lll}mailgroup_import_upload_file" />
 					<fieldset class="form-section">
 						<f:form.upload name="upload_1" />
-						<br /><br />
+						<br><br>
 					</fieldset>
 					<f:if condition="{formcontent.output.upload.current}">
 						<f:translate key="{lll}mailgroup_import_current_file" />
 						<f:if condition="{formcontent.output.upload.fileInfo -> f:count()}">
 							{formcontent.output.upload.fileInfo.name} ({formcontent.output.upload.fileInfo.extension}; {formcontent.output.upload.fileInfo.size})
 						</f:if>
-						<br />
+						<br>
 					</f:if>
-					<br />
-					<p><b><f:translate key="{lll}mailgroup_import_or" /></b></p><br />
-					<f:translate key="{lll}mailgroup_import_paste_csv" /><br />
+					<br>
+					<p><b><f:translate key="{lll}mailgroup_import_or" /></b></p><br>
+					<f:translate key="{lll}mailgroup_import_paste_csv" /><br>
 					<fieldset class="form-section">
-						<f:form.textarea name="CSV_IMPORT[csv]" class="form-control formengine-textarea">{formcontent.output.upload.csv}</f:form.textarea><br /><br />
+						<f:form.textarea name="CSV_IMPORT[csv]" class="form-control formengine-textarea">{formcontent.output.upload.csv}</f:form.textarea><br><br>
 					</fieldset>
-					<br />
-					<f:form.hidden name="cmd" value="displayImport" />
-					<f:form.hidden name="importStep[next]" value="conf" />
-					<f:form.hidden name="file[upload][1][data]" value="1" />
-					<f:form.hidden name="file[upload][1][target]" value="{formcontent.output.upload.target}" />
+					<br>
+					<input type="hidden" name="cmd" value="displayImport">
+					<input type="hidden" name="importStep[next]" value="conf">
+					<input type="hidden" name="file[upload][1][data]" value="1">
+					<input type="hidden" name="file[upload][1][target]" value="{formcontent.output.upload.target}">
 					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" class="btn btn-default btn-sm" />
-					<f:form.hidden name="CSV_IMPORT[newFile]" value="{formcontent.output.upload.newFile}" />
-					<f:form.hidden name="CSV_IMPORT[newFileUid]" value="{formcontent.output.upload.newFileUid}" />
+					<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.upload.newFile}">
+					<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.upload.newFileUid}">
 				</f:if>
 				<f:if condition="{formcontent.output.conf.show}">
 					<fieldset class="form-section">
@@ -253,15 +268,15 @@
 							</tbody>
 						</table>
 					</fieldset>
-					<br />
-					<f:form.hidden name="cmd" value="displayImport" />
-					<f:form.hidden name="importStep[next]" value="mapping" />
-					<f:form.hidden name="importStep[back]" value="upload" />
+					<br>
+					<input type="hidden" name="cmd" value="displayImport">
+					<input type="hidden" name="importStep[next]" value="mapping">
+					<input type="hidden" name="importStep[back]" value="upload">
 
 					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" class="btn btn-default btn-sm" />
 					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" class="btn btn-default btn-sm" />
-					<f:form.hidden name="CSV_IMPORT[newFile]" value="{formcontent.output.conf.newFile}" />
-					<f:form.hidden name="CSV_IMPORT[newFileUid]" value="{formcontent.output.conf.newFileUid}" />
+					<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.conf.newFile}">
+					<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.conf.newFileUid}">
 				</f:if>
 				<f:if condition="{formcontent.output.mapping.show}">
 					<fieldset class="form-section">
@@ -283,11 +298,11 @@
 								</tr>
 							</tbody>
 						</table>
-						<f:form.submit name="CSV_IMPORT[update]" value="{f:translate(key: '{lll}mailgroup_import_update')}" class="btn btn-default btn-sm" /><br /><br />
+						<f:form.submit name="CSV_IMPORT[update]" value="{f:translate(key: '{lll}mailgroup_import_update')}" class="btn btn-default btn-sm" /><br><br>
 					</fieldset>
 					<f:if condition="{formcontent.output.mapping.error -> f:count()}">
 						<h3><f:translate key="{lll}mailgroup_import_mapping_error" /></h3>
-						<f:translate key="{lll}mailgroup_import_mapping_error_detail" /><br />
+						<f:translate key="{lll}mailgroup_import_mapping_error_detail" /><br>
 						<ul>
 							<f:for each="{formcontent.output.mapping.error}" as="error">
 								<li><f:translate key="{lll}mailgroup_import_mapping_error_{error}" /></li>
@@ -339,7 +354,7 @@
 							</tbody>
 						</table>
 					</fieldset>
-					<br />
+					<br>
 					<h3><f:translate key="{lll}mailgroup_import_mapping_conf_add" /></h3>
 					<fieldset class="form-section">
 						<table class="table table-striped table-hover">
@@ -383,25 +398,25 @@
 							</tbody>
 						</table>
 					</fieldset>
-					<br />
-					<f:form.hidden name="cmd" value="displayImport" />
-					<f:form.hidden name="importStep[next]" value="startImport" />
-					<f:form.hidden name="importStep[back]" value="conf" />
+					<br>
+					<input type="hidden" name="cmd" value="displayImport">
+					<input type="hidden" name="importStep[next]" value="startImport">
+					<input type="hidden" name="importStep[back]" value="conf">
 
 					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" class="btn btn-default btn-sm" />
 					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" class="btn btn-default btn-sm" />
-					<f:form.hidden name="CSV_IMPORT[newFile]" value="{formcontent.output.mapping.newFile}" />
-					<f:form.hidden name="CSV_IMPORT[newFileUid]" value="{formcontent.output.mapping.newFileUid}" />
-					<f:form.hidden name="CSV_IMPORT[storage]" value="{formcontent.output.mapping.storage}" />
-					<f:form.hidden name="CSV_IMPORT[remove_existing]" value="{formcontent.output.mapping.remove_existing}" />
-					<f:form.hidden name="CSV_IMPORT[first_fieldname]" value="{formcontent.output.mapping.first_fieldname}" />
-					<f:form.hidden name="CSV_IMPORT[delimiter]" value="{formcontent.output.mapping.delimiter}" />
-					<f:form.hidden name="CSV_IMPORT[encapsulation]" value="{formcontent.output.mapping.encapsulation}" />
-					<f:form.hidden name="CSV_IMPORT[valid_email]" value="{formcontent.output.mapping.valid_email}" />
-					<f:form.hidden name="CSV_IMPORT[remove_dublette]" value="{formcontent.output.mapping.remove_dublette}" />
-					<f:form.hidden name="CSV_IMPORT[update_unique]" value="{formcontent.output.mapping.update_unique}" />
-					<f:form.hidden name="CSV_IMPORT[record_unique]" value="{formcontent.output.mapping.record_unique}" />
-					<f:form.hidden name="CSV_IMPORT[charsetSelected]" value="{formcontent.output.mapping.charsetSelected}" />
+					<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.mapping.newFile}">
+					<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.mapping.newFileUid}">
+					<input type="hidden" name="CSV_IMPORT[storage]" value="{formcontent.output.mapping.storage}">
+					<input type="hidden" name="CSV_IMPORT[remove_existing]" value="{formcontent.output.mapping.remove_existing}">
+					<input type="hidden" name="CSV_IMPORT[first_fieldname]" value="{formcontent.output.mapping.first_fieldname}">
+					<input type="hidden" name="CSV_IMPORT[delimiter]" value="{formcontent.output.mapping.delimiter}">
+					<input type="hidden" name="CSV_IMPORT[encapsulation]" value="{formcontent.output.mapping.encapsulation}">
+					<input type="hidden" name="CSV_IMPORT[valid_email]" value="{formcontent.output.mapping.valid_email}">
+					<input type="hidden" name="CSV_IMPORT[remove_dublette]" value="{formcontent.output.mapping.remove_dublette}">
+					<input type="hidden" name="CSV_IMPORT[update_unique]" value="{formcontent.output.mapping.update_unique}">
+					<input type="hidden" name="CSV_IMPORT[record_unique]" value="{formcontent.output.mapping.record_unique}">
+					<input type="hidden" name="CSV_IMPORT[charsetSelected]" value="{formcontent.output.mapping.charsetSelected}">
 				</f:if>
 				<f:if condition="{formcontent.output.startImport.show}">
 					<f:if condition="{formcontent.output.startImport.tables -> f:count()}">
@@ -429,38 +444,38 @@
 					</f:if>
 					<f:if condition="{formcontent.output.startImport.hiddenMap -> f:count()}">
 						<f:for each="{formcontent.output.startImport.hiddenMap}" as="map">
-							<f:form.hidden name="{map.name}" value="{map.value}" />
+							<input type="hidden" name="{map.name}" value="{map.value}">
 						</f:for>
 					</f:if>
 					<f:if condition="{formcontent.output.startImport.hiddenCat -> f:count()}">
 						<f:for each="{formcontent.output.startImport.hiddenCat}" as="cat">
-							<f:form.hidden name="{cat.name}" value="{cat.value}" />
+							<input type="hidden" name="{cat.name}" value="{cat.value}">
 						</f:for>
 					</f:if>
-					<br />
-					<f:form.hidden name="cmd" value="displayImport" />
-					<f:form.hidden name="importStep[back]" value="mapping" />
+					<br>
+					<input type="hidden" name="cmd" value="displayImport">
+					<input type="hidden" name="importStep[back]" value="mapping">
 
 					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" class="btn btn-default btn-sm" />
-					<f:form.hidden name="CSV_IMPORT[newFile]" value="{formcontent.output.startImport.newFile}" />
-					<f:form.hidden name="CSV_IMPORT[newFileUid]" value="{formcontent.output.startImport.newFileUid}" />
-					<f:form.hidden name="CSV_IMPORT[storage]" value="{formcontent.output.startImport.storage}" />
-					<f:form.hidden name="CSV_IMPORT[remove_existing]" value="{formcontent.output.startImport.remove_existing}" />
-					<f:form.hidden name="CSV_IMPORT[first_fieldname]" value="{formcontent.output.startImport.first_fieldname}" />
-					<f:form.hidden name="CSV_IMPORT[delimiter]" value="{formcontent.output.startImport.delimiter}" />
-					<f:form.hidden name="CSV_IMPORT[encapsulation]" value="{formcontent.output.startImport.encapsulation}" />
-					<f:form.hidden name="CSV_IMPORT[valid_email]" value="{formcontent.output.startImport.valid_email}" />
-					<f:form.hidden name="CSV_IMPORT[remove_dublette]" value="{formcontent.output.startImport.remove_dublette}" />
-					<f:form.hidden name="CSV_IMPORT[update_unique]" value="{formcontent.output.startImport.update_unique}" />
-					<f:form.hidden name="CSV_IMPORT[record_unique]" value="{formcontent.output.startImport.record_unique}" />
-					<f:form.hidden name="CSV_IMPORT[all_html]" value="{formcontent.output.startImport.all_html}" />
-					<f:form.hidden name="CSV_IMPORT[charset]" value="{formcontent.output.startImport.charsetSelected}" />
-					<f:form.hidden name="CSV_IMPORT[add_cat]" value="{formcontent.output.startImport.add_cat}" />
+					<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.startImport.newFile}">
+					<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.startImport.newFileUid}">
+					<input type="hidden" name="CSV_IMPORT[storage]" value="{formcontent.output.startImport.storage}">
+					<input type="hidden" name="CSV_IMPORT[remove_existing]" value="{formcontent.output.startImport.remove_existing}">
+					<input type="hidden" name="CSV_IMPORT[first_fieldname]" value="{formcontent.output.startImport.first_fieldname}">
+					<input type="hidden" name="CSV_IMPORT[delimiter]" value="{formcontent.output.startImport.delimiter}">
+					<input type="hidden" name="CSV_IMPORT[encapsulation]" value="{formcontent.output.startImport.encapsulation}">
+					<input type="hidden" name="CSV_IMPORT[valid_email]" value="{formcontent.output.startImport.valid_email}">
+					<input type="hidden" name="CSV_IMPORT[remove_dublette]" value="{formcontent.output.startImport.remove_dublette}">
+					<input type="hidden" name="CSV_IMPORT[update_unique]" value="{formcontent.output.startImport.update_unique}">
+					<input type="hidden" name="CSV_IMPORT[record_unique]" value="{formcontent.output.startImport.record_unique}">
+					<input type="hidden" name="CSV_IMPORT[all_html]" value="{formcontent.output.startImport.all_html}">
+					<input type="hidden" name="CSV_IMPORT[charset]" value="{formcontent.output.startImport.charsetSelected}">
+					<input type="hidden" name="CSV_IMPORT[add_cat]" value="{formcontent.output.startImport.add_cat}">
 				</f:if>
 				<f:if condition="{formcontent.theOutput}">
 					<f:format.raw>{formcontent.theOutput}</f:format.raw>
 				</f:if>
-	        </f:form>
+	        </form>
         </div>
     </f:if>
 </f:if>
@@ -468,7 +483,7 @@
 
 <f:section name="recipListConfig">
 	<f:if condition="{recipListConfig.counter}">
-		{recipListConfig.title}<strong> {recipListConfig.counter}</strong><br />
+		{recipListConfig.title}<strong> {recipListConfig.counter}</strong><br>
 		<table class="table table-striped table-hover">
 			<f:for each="{recipListConfig.rows}" as="row">
 				<tr class="db_list_normal">

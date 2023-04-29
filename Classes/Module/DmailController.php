@@ -210,6 +210,7 @@ final class DmailController extends MainController
 
     protected function moduleContent()
     {
+        $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier('DmailQueue');
         $isExternalDirectMailRecord = false;
 
         $markers = [
@@ -353,10 +354,10 @@ final class DmailController extends MainController
                         $fetchError = false;
                     }
                     if ($temp['errorTitle']) {
-                        $this->messageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], 2, false));
+                        $messageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], ContextualFeedbackSeverity::ERROR, false));
                     }
                     if ($temp['warningTitle']) {
-                        $this->messageQueue->addMessage($this->createFlashMessage($temp['warningText'], $temp['warningTitle'], 1, false));
+                        $messageQueue->addMessage($this->createFlashMessage($temp['warningText'], $temp['warningTitle'], ContextualFeedbackSeverity::WARNING, false));
                     }
 
                     $row = BackendUtility::getRecord('sys_dmail', $this->sys_dmail_uid);
@@ -377,13 +378,13 @@ final class DmailController extends MainController
                         $data['info']['dmail']['cmd'] = 'send_test';
 
                         // add attachment here, since attachment added in 2nd step
-                        $unserializedMailContent = unserialize(base64_decode($row['mailContent']));
+                        $unserializedMailContent = unserialize(base64_decode($row['mailContent'] ?: ''));
                         $temp = $this->compileQuickMail($row, $unserializedMailContent['plain']['content'] ?? '', false);
                         if ($temp['errorTitle']) {
-                            $this->messageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], 2, false));
+                            $messageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], ContextualFeedbackSeverity::ERROR, false));
                         }
                         if ($temp['warningTitle']) {
-                            $this->messageQueue->addMessage($this->createFlashMessage($temp['warningText'], $temp['warningTitle'], 1, false));
+                            $messageQueue->addMessage($this->createFlashMessage($temp['warningText'], $temp['warningTitle'], ContextualFeedbackSeverity::WARNING, false));
                         }
                     } else {
                         if ($this->fetchAtOnce) {
@@ -408,7 +409,7 @@ final class DmailController extends MainController
                         ContextualFeedbackSeverity::OK,
                         false
                     );
-                    $this->messageQueue->addMessage($message);
+                    $messageQueue->addMessage($message);
                 }
                 $data['info']['table'] = is_array($row) ? $this->renderRecordDetailsTable($row) : '';
                 $data['info']['sys_dmail_uid'] = $this->sys_dmail_uid;
@@ -486,7 +487,7 @@ final class DmailController extends MainController
                         ContextualFeedbackSeverity::WARNING,
                         false
                     );
-                    $this->messageQueue->addMessage($message);
+                    $messageQueue->addMessage($message);
                 }
                 // send mass, show calendar
                 $data['final']['finalForm'] = $this->cmd_finalmail($row);
@@ -1655,7 +1656,7 @@ final class DmailController extends MainController
                         }
 
                         if ($table) {
-                            $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->MOD_SETTINGS, [], $this->moduleName);
+                            $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->iconFactory, GeneralUtility::makeInstance(UriBuilder::class), $this->moduleTemplateFactory);
                             $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
                         }
                         break;

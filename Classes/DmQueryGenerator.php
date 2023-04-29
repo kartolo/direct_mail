@@ -15,16 +15,11 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
-/*
- * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.0/Deprecation-92080-DeprecatedQueryGeneratorAndQueryView.html
- * https://docs.typo3.org/c/typo3/cms-core/11.5/en-us/Changelog/8.4/Deprecation-77839-MoveTYPO3CMSCoreQueryGeneratorIntoEXTlowlevelAndDeprecateTheOldModule.html
- * https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_database_1_1_query_generator.html
- * https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_lowlevel_1_1_database_1_1_query_generator.html
- */
-
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Lowlevel\Database\QueryGenerator;
+use TYPO3\CMS\Lowlevel\Controller\DatabaseIntegrityController;
 
 /**
  * Used to generate queries for selecting users in the database
@@ -32,19 +27,11 @@ use TYPO3\CMS\Lowlevel\Database\QueryGenerator;
  * @author		Kasper Skårhøj <kasper@typo3.com>
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  */
-class DmQueryGenerator extends QueryGenerator
+class DmQueryGenerator extends DatabaseIntegrityController
 {
     protected array $allowedTables = ['tt_address', 'fe_users'];
 
-    /**
-     * Make table select
-     *
-     * @param string $name
-     * @param string $cur
-     * @return string
-     */
-    //protected function mkTableSelect($name, $cur)
-    public function mkTableSelect($name, $cur): string
+    public function mkTableSelect(string $name, string $cur): string
     {
         $out = [];
         $out[] = '<select class="form-select t3js-submit-change" name="' . $name . '">';
@@ -70,7 +57,7 @@ class DmQueryGenerator extends QueryGenerator
      *
      * @return array
      */
-    public function queryMakerDM(array $allowedTables = []): array
+    public function queryMakerDM(ServerRequestInterface $request, array $allowedTables = []): array
     {
         if (count($allowedTables)) {
             $this->allowedTables = $allowedTables;
@@ -79,13 +66,13 @@ class DmQueryGenerator extends QueryGenerator
         $output = '';
         $selectQueryString = '';
         // Query Maker:
-        $this->init('queryConfig', $this->settings['queryTable'] ?? '', '', $this->settings);
+        $this->init('queryConfig', $this->MOD_SETTINGS['queryTable'] ?? '', '', $this->MOD_SETTINGS);
         if ($this->formName) {
             $this->setFormName($this->formName);
         }
-        $tmpCode = $this->makeSelectorTable($this->settings, 'table,query,limit');
+        $tmpCode = $this->makeSelectorTable($this->MOD_SETTINGS, $request);
         $output .= '<div id="query"></div><h2>Make query</h2><div>' . $tmpCode . '</div>';
-        $mQ = $this->settings['search_query_makeQuery'];
+        $mQ = $this->MOD_SETTINGS['search_query_makeQuery'] ?? '';
 
         // Make form elements:
         if ($this->table && is_array($GLOBALS['TCA'][$this->table])) {
@@ -136,5 +123,10 @@ class DmQueryGenerator extends QueryGenerator
             }
         }
         return $selectQueryString;
+    }
+
+    public function setFormName(string $formName): void
+    {
+        $this->formName = trim($formName);
     }
 }

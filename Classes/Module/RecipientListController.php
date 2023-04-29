@@ -15,6 +15,7 @@ use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Attribute\Controller;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -42,6 +43,7 @@ final class RecipientListController extends MainController
 
         protected ?FlashMessageService $flashMessageService = null,
         protected ?LanguageService $languageService = null,
+        protected ?ServerRequestInterface $request = null,
 
         protected array $pageinfo = [],
         protected int $id = 0,
@@ -74,6 +76,7 @@ final class RecipientListController extends MainController
         $this->languageService = $this->getLanguageService();
         $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
 
+        $this->request = $request;
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
 
@@ -359,7 +362,7 @@ final class RecipientListController extends MainController
                         }
 
                         if ($table) {
-                            $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->MOD_SETTINGS, [], $this->moduleName);
+                            $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->iconFactory, GeneralUtility::makeInstance(UriBuilder::class), $this->moduleTemplateFactory);
                             $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
                         }
                         break;
@@ -683,7 +686,7 @@ final class RecipientListController extends MainController
      */
     protected function specialQuery()
     {
-        $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->MOD_SETTINGS, [], $this->moduleName);
+        $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->iconFactory, GeneralUtility::makeInstance(UriBuilder::class), $this->moduleTemplateFactory);
         //$queryGenerator->setFormName('dmailform');
         $queryGenerator->setFormName('queryform');
 
@@ -691,9 +694,9 @@ final class RecipientListController extends MainController
         //    $queryGenerator->extFieldLists['queryFields'] = 'uid';
         //}
 
-        $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Lowlevel/QueryGenerator');
-        $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
-        [$html, $query] = $queryGenerator->queryMakerDM($this->allowedTables);
+        //$this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Lowlevel/QueryGenerator');
+        //$this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
+        [$html, $query] = $queryGenerator->queryMakerDM($this->request, $this->allowedTables);
         return ['selectTables' => $html, 'query' => $query];
     }
 
