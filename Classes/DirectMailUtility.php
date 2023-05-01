@@ -18,7 +18,9 @@ namespace DirectMailTeam\DirectMail;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\DmRegistryUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Resource\FileReference;
@@ -55,7 +57,16 @@ class DirectMailUtility
      */
     public static function getLanguageService(): LanguageService
     {
-        return $GLOBALS['LANG'];
+        return GeneralUtility::makeInstance(LanguageServiceFactory::class)->createFromUserPreferences(self::getBackendUser());
+    }
+
+    /**
+     * Returns the Backend User
+     * @return BackendUserAuthentication
+     */
+    public static function getBackendUser(): BackendUserAuthentication
+    {
+        return $GLOBALS['BE_USER'];
     }
 
     /**
@@ -101,6 +112,7 @@ class DirectMailUtility
      */
     public static function fetchUrlContentsForDirectMailRecord(array $row, array $params, $returnArray = false)
     {
+        $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf';
         $lang = self::getLanguageService();
         $output = '';
         $errorMsg = [];
@@ -138,9 +150,9 @@ class DirectMailUtility
             $mailContent = GeneralUtility::getURL(self::addUserPass($urls['plainTextUrl'], $params));
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->getPartPlainConfig('content')) {
-                $errorMsg[] = $lang->getLL('dmail_no_plain_content');
+                $errorMsg[] = $lang->sL($lllFile . ':dmail_no_plain_content');
             } elseif (!strstr($htmlmail->getPartPlainConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
-                $warningMsg[] = $lang->getLL('dmail_no_plain_boundaries');
+                $warningMsg[] = $lang->sL($lllFile . ':dmail_no_plain_boundaries');
             }
         }
 
@@ -166,11 +178,11 @@ class DirectMailUtility
                 }
             }
             if ($htmlmail->extractFramesInfo()) {
-                $errorMsg[] = $lang->getLL('dmail_frames_not allowed');
+                $errorMsg[] = $lang->sL($lllFile . ':dmail_frames_not allowed');
             } elseif (!$success || !$htmlmail->getPartHtmlConfig('content')) {
-                $errorMsg[] = $lang->getLL('dmail_no_html_content');
+                $errorMsg[] = $lang->sL($lllFile . ':dmail_no_html_content');
             } elseif (!strstr($htmlmail->getPartHtmlConfig('content'), '<!--DMAILER_SECTION_BOUNDARY')) {
-                $warningMsg[] = $lang->getLL('dmail_no_html_boundaries');
+                $warningMsg[] = $lang->sL($lllFile . ':dmail_no_html_boundaries');
             }
         }
 
@@ -195,7 +207,7 @@ class DirectMailUtility
                     $output .= $flashMessageRendererResolver
                         ->resolve()
                         ->render([
-                            self::createFlashMessage($warning, $lang->getLL('dmail_warning'), FlashMessage::WARNING, false),
+                            self::createFlashMessage($warning, $lang->sL($lllFile . ':dmail_warning'), FlashMessage::WARNING, false),
                         ]);
                 }
             }
@@ -205,7 +217,7 @@ class DirectMailUtility
                 $output .= $flashMessageRendererResolver
                     ->resolve()
                     ->render([
-                        self::createFlashMessage($error, $lang->getLL('dmail_error'), FlashMessage::ERROR, false),
+                        self::createFlashMessage($error, $lang->sL($lllFile . ':dmail_error'), FlashMessage::ERROR, false),
                     ]);
             }
         }

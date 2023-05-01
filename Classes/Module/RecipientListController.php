@@ -186,7 +186,7 @@ final class RecipientListController extends MainController
                 break;
             case 'displayImport':
                 /* @var $importer \DirectMailTeam\DirectMail\Importer */
-                $importer = GeneralUtility::makeInstance(Importer::class);
+                $importer = GeneralUtility::makeInstance(Importer::class, $this->languageService, $this->getBackendUser(), $this->lllFile);
                 $importer->init($this);
                 $theOutput = $importer->displayImport();
                 $type = 3;

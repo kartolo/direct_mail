@@ -59,6 +59,12 @@ class Importer
 
     protected $messageQueue;
 
+    public function __construct(
+        protected LanguageService $languageService,
+        protected BackendUserAuthentication $beUser,
+        protected readonly string $lllFile,
+    ) {
+    }
     /**
      * Init the class
      *
@@ -154,7 +160,6 @@ class Importer
             ],
         ];
 
-        $beUser = $this->getBeUser();
         $step = GeneralUtility::_GP('importStep');
         $defaultConf = [
             'remove_existing' => 0,
@@ -233,8 +238,8 @@ class Importer
                 $output['conf']['newFile'] = $this->indata['newFile'];
                 $output['conf']['newFileUid'] = $this->indata['newFileUid'];
 
-                $pagePermsClause3 = $beUser->getPagePermsClause(3);
-                $pagePermsClause1 = $beUser->getPagePermsClause(1);
+                $pagePermsClause3 = $this->beUser->getPagePermsClause(3);
+                $pagePermsClause1 = $this->beUser->getPagePermsClause(1);
                 // get list of sysfolder
                 // TODO: maybe only subtree von this->id??
 
@@ -252,10 +257,10 @@ class Importer
                 }
 
                 $optDelimiter = [
-                    ['val' => 'comma', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_comma')],
-                    ['val' => 'semicolon', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_semicolon')],
-                    ['val' => 'colon', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_colon')],
-                    ['val' => 'tab', 'text' => $this->getLanguageService()->getLL('mailgroup_import_separator_tab')],
+                    ['val' => 'comma', 'text' => $this->languageService->sL($this->lllFile . ':mailgroup_import_separator_comma')],
+                    ['val' => 'semicolon', 'text' => $this->languageService->sL($this->lllFile . ':mailgroup_import_separator_semicolon')],
+                    ['val' => 'colon', 'text' => $this->languageService->sL($this->lllFile . ':mailgroup_import_separator_colon')],
+                    ['val' => 'tab', 'text' => $this->languageService->sL($this->lllFile . ':mailgroup_import_separator_tab')],
                 ];
 
                 $optEncap = [
@@ -272,7 +277,7 @@ class Importer
                 $output['conf']['disableInput'] = $this->params['inputDisable'] == 1 ? true : false;
 
                 // show configuration
-                $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_header_conf');
+                $output['subtitle'] = $this->languageService->sL($this->lllFile . ':mailgroup_import_header_conf');
 
                 // get the all sysfolder
                 $output['conf']['storage'] = $optStorage;
@@ -333,7 +338,7 @@ class Importer
                 if (!isset($this->indata['charset'])) {
                     $this->indata['charset'] = 'ISO-8859-1';
                 }
-                $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_mapping_charset');
+                $output['subtitle'] = $this->languageService->sL($this->lllFile . ':mailgroup_import_mapping_charset');
 
                 $output['mapping']['charset'] = $charSets;
                 $output['mapping']['charsetSelected'] = $this->indata['charset'];
@@ -364,14 +369,14 @@ class Importer
                 foreach ($ttAddressFields as $map) {
                     $mapFields[] = [
                         $map,
-                        str_replace(':', '', $this->getLanguageService()->sL($GLOBALS['TCA']['tt_address']['columns'][$map]['label'])),
+                        str_replace(':', '', $this->languageService->sL($GLOBALS['TCA']['tt_address']['columns'][$map]['label'])),
                     ];
                 }
                 // add 'no value'
-                array_unshift($mapFields, ['noMap', $this->getLanguageService()->getLL('mailgroup_import_mapping_mapTo')]);
+                array_unshift($mapFields, ['noMap', $this->languageService->sL($this->lllFile . ':mailgroup_import_mapping_mapTo')]);
                 $mapFields[] = [
                     'cats',
-                    $this->getLanguageService()->getLL('mailgroup_import_mapping_categories'),
+                    $this->languageService->sL($this->lllFile . ':mailgroup_import_mapping_categories')
                 ];
                 reset($csv_firstRow);
                 reset($csvData);
@@ -441,7 +446,7 @@ class Importer
 
                 // show not imported record and reasons,
                 $result = $this->doImport($csvData);
-                $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_done');
+                $output['subtitle'] = $this->languageService->sL($this->lllFile . ':mailgroup_import_done');
 
                 $resultOrder = [];
                 if (!empty($this->params['resultOrder'])) {
@@ -465,7 +470,7 @@ class Importer
                     }
 
                     $output['startImport']['tables'][] = [
-                        'header' => $this->getLanguageService()->getLL('mailgroup_import_report_' . $order),
+                        'header' => $this->languageService->sL($this->lllFile . ':mailgroup_import_report_' . $order),
                         'rows' => $rowsTable,
                     ];
                 }
@@ -486,7 +491,7 @@ class Importer
             case 'upload':
             default:
                 // show upload file form
-                $output['subtitle'] = $this->getLanguageService()->getLL('mailgroup_import_header_upload');
+                $output['subtitle'] = $this->languageService->sL($this->lllFile . ':mailgroup_import_header_upload');
 
                 if ((($this->indata['mode'] ?? '') === 'file') && !(((strpos($currentFileInfo['file'], 'import') === false) ? 0 : 1) && ($currentFileInfo['realFileext'] === 'txt'))) {
                     $output['upload']['current'] = true;
@@ -514,7 +519,7 @@ class Importer
                 $output['upload']['newFileUid'] = $this->indata['newFileUid'] ?? 0;
         }
 
-        $output['title'] = $this->getLanguageService()->getLL('mailgroup_import') . BackendUtility::cshItem($this->cshTable ?? '', 'mailgroup_import');
+        $output['title'] = $this->languageService->sL($this->lllFile . ':mailgroup_import') . BackendUtility::cshItem($this->cshTable ?? '', 'mailgroup_import');
         $theOutput = sprintf('%s', $out);
 
         /**
@@ -887,7 +892,7 @@ class Importer
     {
         $newfile = ['newFile' => '', 'newFileUid' => 0];
 
-        $userPermissions = $this->getBeUser()->getFilePermissions();
+        $userPermissions = $this->beUser->getFilePermissions();
         // Initializing:
         /* @var $extendedFileUtility ExtendedFileUtility */
         $extendedFileUtility = GeneralUtility::makeInstance(ExtendedFileUtility::class);
@@ -1003,7 +1008,7 @@ class Importer
     public function userTempFolder(): string
     {
         /** @var \TYPO3\CMS\Core\Resource\Folder $folder */
-        $folder = $this->getBeUser()->getDefaultUploadTemporaryFolder();
+        $folder = $this->beUser->getDefaultUploadTemporaryFolder();
         return $folder->getPublicUrl();
     }
 
@@ -1014,24 +1019,6 @@ class Importer
     {
         $context = GeneralUtility::makeInstance(Context::class);
         return $context->getPropertyFromAspect('date', 'timestamp');
-    }
-
-    /**
-     * Returns LanguageService
-     *
-     * @return LanguageService
-     */
-    protected function getLanguageService(): LanguageService
-    {
-        return $GLOBALS['LANG'];
-    }
-
-    /**
-     * @return BackendUserAuthentication
-     */
-    protected function getBeUser(): BackendUserAuthentication
-    {
-        return $GLOBALS['BE_USER'];
     }
 
     protected function getMessageQueue(): FlashMessageQueue

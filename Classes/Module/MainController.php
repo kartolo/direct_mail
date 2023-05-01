@@ -316,9 +316,10 @@ class MainController
     protected function getRecordList(array $listArr, string $table)
     {
         $lang = $this->getLanguageService();
+        $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf';
         $output = [
-            'title' => $lang->getLL('dmail_number_records'),
-            'editLinkTitle' => $lang->getLL('dmail_edit'),
+            'title' => $lang->sL($lllFile . ':dmail_number_records'),
+            'editLinkTitle' => $lang->sL($lllFile . ':dmail_edit'),
             'actionsOpen' => $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL),
             'counter' => is_array($listArr) ? count($listArr) : 0,
             'rows' => [],
@@ -328,7 +329,7 @@ class MainController
         $isAllowedEditTable = $this->getBackendUser()->check('tables_modify', $table);
 
         if (is_array($listArr)) {
-            $notAllowedPlaceholder = $lang->getLL('mailgroup_table_disallowed_placeholder');
+            $notAllowedPlaceholder = $lang->sL($lllFile . ':mailgroup_table_disallowed_placeholder');
             $tableIcon = $this->iconFactory->getIconForRecord($table, []);
             foreach ($listArr as $row) {
                 $editLink = '';

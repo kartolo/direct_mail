@@ -91,7 +91,6 @@
                 <f:format.raw>{data.special.selectTables}</f:format.raw>
 				<input type="hidden" name="cmd" value="displayMailGroup">
 				<input type="hidden" name="group_uid" value="{data.group_id}">
-				<f:comment><f:form.submit value="{f:translate(key: '{lll}dmail_updateQuery')}" /></f:comment>
             </form>
         </f:if>
     </f:if>
@@ -140,7 +139,7 @@
 				<f:if condition="{formcontent.output.upload.show}">
 					<f:translate key="{lll}mailgroup_import_upload_file" />
 					<fieldset class="form-section">
-						<f:form.upload name="upload_1" />
+                        <input type="file" name="upload_1" />
 						<br><br>
 					</fieldset>
 					<f:if condition="{formcontent.output.upload.current}">
@@ -154,14 +153,15 @@
 					<p><b><f:translate key="{lll}mailgroup_import_or" /></b></p><br>
 					<f:translate key="{lll}mailgroup_import_paste_csv" /><br>
 					<fieldset class="form-section">
-						<f:form.textarea name="CSV_IMPORT[csv]" class="form-control formengine-textarea">{formcontent.output.upload.csv}</f:form.textarea><br><br>
+                        <textarea name="CSV_IMPORT[csv]" class="form-control formengine-textarea">{formcontent.output.upload.csv}</textarea>
+                        <br><br>
 					</fieldset>
 					<br>
 					<input type="hidden" name="cmd" value="displayImport">
 					<input type="hidden" name="importStep[next]" value="conf">
 					<input type="hidden" name="file[upload][1][data]" value="1">
 					<input type="hidden" name="file[upload][1][target]" value="{formcontent.output.upload.target}">
-					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" class="btn btn-default btn-sm" />
+                    <button class="btn btn-default btn-sm" type="submit" name="CSV_IMPORT[next]"><f:translate key="{lll}mailgroup_import_next" /></button>
 					<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.upload.newFile}">
 					<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.upload.newFileUid}">
 				</f:if>
@@ -272,9 +272,8 @@
 					<input type="hidden" name="cmd" value="displayImport">
 					<input type="hidden" name="importStep[next]" value="mapping">
 					<input type="hidden" name="importStep[back]" value="upload">
-
-					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" class="btn btn-default btn-sm" />
-					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" class="btn btn-default btn-sm" />
+                    <button class="btn btn-default btn-sm" type="submit" name="CSV_IMPORT[back]"><f:translate key="{lll}mailgroup_import_back" /></button>
+                    <button class="btn btn-default btn-sm" type="submit" name="CSV_IMPORT[next]"><f:translate key="{lll}mailgroup_import_next" /></button>
 					<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.conf.newFile}">
 					<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.conf.newFileUid}">
 				</f:if>
@@ -298,7 +297,8 @@
 								</tr>
 							</tbody>
 						</table>
-						<f:form.submit name="CSV_IMPORT[update]" value="{f:translate(key: '{lll}mailgroup_import_update')}" class="btn btn-default btn-sm" /><br><br>
+                        <button class="btn btn-default btn-sm" type="submit" name="CSV_IMPORT[update]"><f:translate key="{lll}mailgroup_import_update" /></button>
+                        <br><br>
 					</fieldset>
 					<f:if condition="{formcontent.output.mapping.error -> f:count()}">
 						<h3><f:translate key="{lll}mailgroup_import_mapping_error" /></h3>
@@ -403,8 +403,8 @@
 					<input type="hidden" name="importStep[next]" value="startImport">
 					<input type="hidden" name="importStep[back]" value="conf">
 
-					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" class="btn btn-default btn-sm" />
-					<f:form.submit name="CSV_IMPORT[next]" value="{f:translate(key: '{lll}mailgroup_import_next')}" class="btn btn-default btn-sm" />
+                    <button class="btn btn-default btn-sm" type="submit" name="CSV_IMPORT[back]"><f:translate key="{lll}mailgroup_import_back" /></button>
+                    <button class="btn btn-default btn-sm" type="submit" name="CSV_IMPORT[next]"><f:translate key="{lll}mailgroup_import_next" /></button>
 					<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.mapping.newFile}">
 					<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.mapping.newFileUid}">
 					<input type="hidden" name="CSV_IMPORT[storage]" value="{formcontent.output.mapping.storage}">
@@ -456,7 +456,7 @@
 					<input type="hidden" name="cmd" value="displayImport">
 					<input type="hidden" name="importStep[back]" value="mapping">
 
-					<f:form.submit name="CSV_IMPORT[back]" value="{f:translate(key: '{lll}mailgroup_import_back')}" class="btn btn-default btn-sm" />
+                    <button class="btn btn-default btn-sm" type="submit" name="CSV_IMPORT[back]"><f:translate key="{lll}mailgroup_import_back" /></button>
 					<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.startImport.newFile}">
 					<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.startImport.newFileUid}">
 					<input type="hidden" name="CSV_IMPORT[storage]" value="{formcontent.output.startImport.storage}">

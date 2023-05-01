@@ -490,9 +490,9 @@
         <br /><br />
         <f:form.checkbox name="indata[html]" value="1" checked="{dataUserInfo.html} == 1" /> <f:translate key="{lll}subscriber_profile_htmlemail" />
         <br />
-        <f:form.hidden name="table" value="{dataUserInfo.table}" />
-        <f:form.hidden name="uid" value="{dataUserInfo.thisID}" />
-        <f:form.hidden name="cmd" value="{dataUserInfo.cmd}" />
+        <input type="hidden" name="table" value="{dataUserInfo.table}">
+        <input type="hidden" name="uid" value="{dataUserInfo.thisID}">
+        <input type="hidden" name="cmd" value="{dataUserInfo.cmd}">
         <br />
         <f:form.submit value="{f:translate(key: '{lll}subscriber_profile_update')}" />
     </f:form>
