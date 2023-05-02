@@ -32,6 +32,7 @@ use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -724,7 +725,7 @@ class Importer
             foreach ($dataHandler->errorLog as $log) {
                 $logsStr .= $log . PHP_EOL;
             }
-            $message = $this->createFlashMessage($logsStr, 'Import errors', 2, false);
+            $message = $this->createFlashMessage($logsStr, 'Import errors', ContextualFeedbackSeverity::ERROR, false);
             $this->messageQueue->addMessage($message);
         }
         /**
@@ -1028,7 +1029,7 @@ class Importer
     }
 
     /**
-        https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
+        https://api.typo3.org/main/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
         const 	NOTICE = -2
         const 	INFO = -1
         const 	OK = 0
@@ -1036,10 +1037,14 @@ class Importer
         const 	ERROR = 2
      * @param string $messageText
      * @param string $messageHeader
-     * @param int $messageType
+     * @param ContextualFeedbackSeverity $messageType
      * @param bool $storeInSession
      */
-    protected function createFlashMessage(string $messageText, string $messageHeader = '', int $messageType = 0, bool $storeInSession = false): FlashMessage
+    protected function createFlashMessage(
+        string $messageText,
+        string $messageHeader = '',
+        ContextualFeedbackSeverity $messageType,
+        bool $storeInSession = false): FlashMessage
     {
         return GeneralUtility::makeInstance(
             FlashMessage::class,

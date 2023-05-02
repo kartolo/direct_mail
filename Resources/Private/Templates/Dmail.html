@@ -92,15 +92,15 @@
 												<td valign="top" width="75%">
 													<f:format.raw>{row.icon}{row.header}</f:format.raw>
 													[{row.CType}<f:if condition="{row.list_type}">; {row.list_type}</f:if>]
-													<br><f:format.raw>{row.bodytext}</f:format.raw><br />
+													<br><f:format.raw>{row.bodytext}</f:format.raw><br>
 												</td>
 												<td nowrap valign="top">
-													<strong style="color:{row.color};">{row.labelOnlyAll}</strong><br />
+													<strong style="color:{row.color};">{row.labelOnlyAll}</strong><br>
 													<f:if condition="{row.checkboxes -> f:count()}">
 														<f:for each="{row.checkboxes}" as="checkbox">
 															<input type="hidden" name="indata[categories][{row.uid}][{checkbox.pKey}]" value="0">
 															<input type="checkbox" name="indata[categories][{row.uid}][{checkbox.pKey}]" value="1" {f:if(condition: '{checkbox.checked} == 1', then: 'checked')}>
-															{checkbox.pVal}<br />
+															{checkbox.pVal}<br>
 														</f:for>
 													</f:if>
 												</td>
@@ -112,7 +112,7 @@
 							</table>
 						</f:if>
 						<input type="hidden" name="pages_uid" value="{data.cats.output.pages_uid}">
-						<input type="hidden" name="cmd" value="{data.cats.output.cmd}"><br />
+						<input type="hidden" name="cmd" value="{data.cats.output.cmd}"><br>
 						<input type="submit" name="update_cats" value="{data.cats.output.update_cats -> f:format.raw()}">
 					</f:if>
 				</div>
@@ -127,17 +127,17 @@
 					<f:if condition="{data.test.testFormData.test_tt_address}">
 	            		<h3><f:translate key="{lll}testmail_individual"/></h3>
 	            		<f:translate key="{lll}testmail_individual_msg"/>
-	            		<br /><br />
+	            		<br><br>
                         <f:render section="SubTable" arguments="{subtable: data.test.testFormData.test_tt_address}" />
 						<div style="padding-top: 20px;"></div>
 					</f:if>
 					<f:if condition="{data.test.testFormData.test_dmail_group_table -> f:count()}">
 						<h3><f:translate key="{lll}testmail_mailgroup"/></h3>
 						<f:translate key="{lll}testmail_mailgroup_msg"/>
-						<br /><br />
+						<br><br>
 						<f:for each="{data.test.testFormData.test_dmail_group_table}" as="table">
 							<a href="{table.moduleUrl}"><f:format.raw>{table.iconFactory}</f:format.raw> <f:format.raw>{table.title}</f:format.raw> [{table.uid}]</a>
-							<br /><br />
+							<br><br>
                             <f:for each="{table.tds}" as="subtable">
                                 <f:render section="SubTable" arguments="{subtable: subtable}" />
                             </f:for>
@@ -146,8 +146,8 @@
 					</f:if>
 					<h3><f:translate key="{lll}testmail_simple"/></h3>
 					<f:translate key="{lll}testmail_simple_msg"/>
-					<br /><br />
-					<input style="width: 460px;" type="text" name="SET[dmail_test_email]" value="{data.test.testFormData.dmail_test_email}" /><br /><br />
+					<br><br>
+					<input style="width: 460px;" type="text" name="SET[dmail_test_email]" value="{data.test.testFormData.dmail_test_email}" /><br><br>
 					<input type="hidden" name="id" value="{data.test.testFormData.id}" />
 					<input type="hidden" name="sys_dmail_uid" value="{data.test.testFormData.sys_dmail_uid}" />
 					<input type="hidden" name="cmd" value="{data.test.testFormData.cmd}" />
@@ -166,7 +166,7 @@
 					<input type="hidden" name="sys_dmail_uid" value="{data.final.finalForm.sys_dmail_uid}" />
 					<input type="hidden" name="cmd" value="send_mail_final" />
 					<f:translate key="{lll}schedule_mailgroup"/>
-					<br />
+					<br>
                     <f:if condition="{data.final.finalForm.opt -> f:count()} == 1">
                         <f:then>
                             <f:if condition="{data.final.finalForm.hookSelectDisabled} == 0">
@@ -185,10 +185,10 @@
                             </select>
                         </f:else>
                     </f:if>
-					<br /><br />
+					<br><br>
 					<f:format.raw>{data.final.finalForm.hookContents}</f:format.raw>
 					<f:translate key="{lll}schedule_time"/>
-					<br />
+					<br>
 					<div class="form-control-wrap">
 						<div class="input-group">
 							<input class="form-control t3js-datetimepicker t3js-clearable"
@@ -205,16 +205,16 @@
 							</span>
 						</div>
 					</div>
-					<br />
-					<br/>
+					<br>
+					<br>
 					<label for="tx-directmail-sendtestmail-check">
 						<input type="checkbox" name="testmail" id="tx-directmail-sendtestmail-check" value="1" />&nbsp;<f:translate key="{lll}schedule_testmail"/>
 					</label>
-        			<br/>
+        			<br>
         			<label for="tx-directmail-savedraft-check">
         				<input type="checkbox" name="savedraft" id="tx-directmail-savedraft-check" value="1" />&nbsp;<f:translate key="{lll}schedule_draft"/>
 					</label>
-					<br /><br />
+					<br><br>
 					<input class="btn btn-default" type="Submit" name="mailingMode_mailGroup" value="{f:translate(key: '{lll}schedule_send_all')}" />
 					<div style="padding-top: 20px;"></div>
                 </div>
@@ -322,7 +322,7 @@
        	<input type="submit" class="{f:if(condition: '{navigation.next_error}', then: 'next btn btn-default disabled', else: 'btn btn-default')}" {f:if(condition: '{navigation.next_error}', then: 'disabled="disabled"', else: '')} value="{f:translate(key: '{lll}dmail_wiz_next')}">
     </f:if>
     <br clear="all" />
-    <br />
+    <br>
 </f:section>
 
 <f:comment><!--
@@ -425,21 +425,21 @@
         </button>
     </h3>
     <f:translate key="{lll}dmail_HTML_url"/>
-    <br />
+    <br>
     <input type="text" value="http://" name="createMailFrom_HTMLUrl" class="form-control" />
-    <br />
+    <br>
     <f:translate key="{lll}dmail_plaintext_url"/>
-    <br />
+    <br>
     <input type="text" value="http://" name="createMailFrom_plainUrl" class="form-control" />
-    <br />
+    <br>
     <f:translate key="{lll}dmail_subject"/>
-    <br />
+    <br>
     <input type="text" value="{f:translate(key: '{lll}dmail_write_subject')}" name="createMailFrom_URL" class="form-control" />
-    <br />
+    <br>
     <f:if condition="{data.no_valid_url}">
-        <br />
+        <br>
         <b><f:translate key="{lll}dmail_no_valid_url"/></b>
-        <br /><br />
+        <br><br>
     </f:if>
     <input type="hidden" name="fetchAtOnce" value="1">
     <input type="submit" value="{f:translate(key: '{lll}dmail_createMail')}" />
@@ -449,24 +449,24 @@
     <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <input type="hidden" name="id" value="{data.id}" />
     <f:translate key="{lll}quickmail_sender_name"/>
-    <br />
+    <br>
     <input type="text" name="quickmail[senderName]" value="{data.senderName}" class="form-control" />
-    <br />
+    <br>
     <f:translate key="{lll}quickmail_sender_email"/>
-    <br />
+    <br>
     <input type="text" name="quickmail[senderEmail]" value="{data.senderMail}" class="form-control" />
-    <br />
+    <br>
     <f:translate key="{lll}dmail_subject"/>
-    <br />
+    <br>
     <input type="text" name="quickmail[subject]" value="{data.subject}" class="form-control" />
-    <br />
+    <br>
     <f:translate key="{lll}quickmail_message"/>
-    <br />
+    <br>
     <textarea rows="20" name="quickmail[message]" class="form-control"><f:format.raw>{data.message}</f:format.raw></textarea>
-    <br />
+    <br>
     <f:translate key="{lll}quickmail_break_lines"/>
     <input type="checkbox" name="quickmail[breakLines]" value="1" {f:if(condition: '{data.breakLines}', then: 'checked="checked"', else: '')} />
-    <br /><br />
+    <br><br>
     <input type="Submit" name="quickmail[send]" value="{f:translate(key: '{lll}dmail_wiz_next')}" />
 </f:section>
 
