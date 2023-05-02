@@ -60,6 +60,7 @@ final class DmailController extends MainController
         protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
 
         protected ?FlashMessageService $flashMessageService = null,
+        protected ?FlashMessageQueue $flashMessageQueue = null,
         protected ?LanguageService $languageService = null,
 
         protected array $pageinfo = [],
@@ -97,6 +98,7 @@ final class DmailController extends MainController
     {
         $this->languageService = $this->getLanguageService();
         $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+        $this->flashMessageQueue = $this->flashMessageService->getMessageQueueByIdentifier('DmailQueue');
 
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
@@ -151,8 +153,6 @@ final class DmailController extends MainController
 
     public function indexAction(ModuleTemplate $view): ResponseInterface
     {
-        $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier('DmailQueue');
-
         // get the config from pageTS
         $this->params['pid'] = $this->id;
         $this->cshTable = '_MOD_' . $this->moduleName;
@@ -178,7 +178,7 @@ final class DmailController extends MainController
                         ContextualFeedbackSeverity::WARNING,
                         false
                     );
-                    $messageQueue->addMessage($message);
+                    $this->flashMessageQueue->addMessage($message);
                 }
             } else {
                 $message = $this->createFlashMessage(
@@ -187,7 +187,7 @@ final class DmailController extends MainController
                     ContextualFeedbackSeverity::WARNING,
                     false
                 );
-                $messageQueue->addMessage($message);
+                $this->flashMessageQueue->addMessage($message);
                 $view->assignMultiple(
                     [
                         'dmLinks' => $this->getDMPages($this->moduleName),
@@ -201,7 +201,7 @@ final class DmailController extends MainController
                 ContextualFeedbackSeverity::WARNING,
                 false
             );
-            $messageQueue->addMessage($message);
+            $this->flashMessageQueue->addMessage($message);
             return $view->renderResponse('NoAccess');
         }
 
@@ -210,7 +210,6 @@ final class DmailController extends MainController
 
     protected function moduleContent()
     {
-        $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier('DmailQueue');
         $isExternalDirectMailRecord = false;
 
         $markers = [
@@ -354,10 +353,10 @@ final class DmailController extends MainController
                         $fetchError = false;
                     }
                     if ($temp['errorTitle']) {
-                        $messageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], ContextualFeedbackSeverity::ERROR, false));
+                        $this->flashMessageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], ContextualFeedbackSeverity::ERROR, false));
                     }
                     if ($temp['warningTitle']) {
-                        $messageQueue->addMessage($this->createFlashMessage($temp['warningText'], $temp['warningTitle'], ContextualFeedbackSeverity::WARNING, false));
+                        $this->flashMessageQueue->addMessage($this->createFlashMessage($temp['warningText'], $temp['warningTitle'], ContextualFeedbackSeverity::WARNING, false));
                     }
 
                     $row = BackendUtility::getRecord('sys_dmail', $this->sys_dmail_uid);
@@ -381,10 +380,10 @@ final class DmailController extends MainController
                         $unserializedMailContent = unserialize(base64_decode($row['mailContent'] ?: ''));
                         $temp = $this->compileQuickMail($row, $unserializedMailContent['plain']['content'] ?? '', false);
                         if ($temp['errorTitle']) {
-                            $messageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], ContextualFeedbackSeverity::ERROR, false));
+                            $this->flashMessageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], ContextualFeedbackSeverity::ERROR, false));
                         }
                         if ($temp['warningTitle']) {
-                            $messageQueue->addMessage($this->createFlashMessage($temp['warningText'], $temp['warningTitle'], ContextualFeedbackSeverity::WARNING, false));
+                            $this->flashMessageQueue->addMessage($this->createFlashMessage($temp['warningText'], $temp['warningTitle'], ContextualFeedbackSeverity::WARNING, false));
                         }
                     } else {
                         if ($this->fetchAtOnce) {
@@ -409,7 +408,7 @@ final class DmailController extends MainController
                         ContextualFeedbackSeverity::OK,
                         false
                     );
-                    $messageQueue->addMessage($message);
+                    $this->flashMessageQueue->addMessage($message);
                 }
                 $data['info']['table'] = is_array($row) ? $this->renderRecordDetailsTable($row) : '';
                 $data['info']['sys_dmail_uid'] = $this->sys_dmail_uid;
@@ -487,7 +486,7 @@ final class DmailController extends MainController
                         ContextualFeedbackSeverity::WARNING,
                         false
                     );
-                    $messageQueue->addMessage($message);
+                    $this->flashMessageQueue->addMessage($message);
                 }
                 // send mass, show calendar
                 $data['final']['finalForm'] = $this->cmd_finalmail($row);
@@ -1183,7 +1182,7 @@ final class DmailController extends MainController
                     ContextualFeedbackSeverity::OK,
                     false
                 );
-                $this->messageQueue->addMessage($message);
+                $this->flashMessageQueue->addMessage($message);
             }
         } elseif ($this->cmd == 'send_mail_test') {
             // step 4, sending test personalized test emails
@@ -1207,7 +1206,7 @@ final class DmailController extends MainController
                             ContextualFeedbackSeverity::OK,
                             false
                         );
-                        $this->messageQueue->addMessage($message);
+                        $this->flashMessageQueue->addMessage($message);
                     }
                 } else {
                     $message = $this->createFlashMessage(
@@ -1216,7 +1215,7 @@ final class DmailController extends MainController
                         ContextualFeedbackSeverity::ERROR,
                         false
                     );
-                    $this->messageQueue->addMessage($message);
+                    $this->flashMessageQueue->addMessage($message);
                 }
             } elseif (is_array(GeneralUtility::_GP('sys_dmail_group_uid'))) {
                 // personalized to group
@@ -1234,7 +1233,7 @@ final class DmailController extends MainController
                     ContextualFeedbackSeverity::OK,
                     false
                 );
-                $this->messageQueue->addMessage($message);
+                $this->flashMessageQueue->addMessage($message);
             }
         } else {
             // step 5, sending personalized emails to the mailqueue
@@ -1283,7 +1282,7 @@ final class DmailController extends MainController
                     ContextualFeedbackSeverity::OK,
                     false
                 );
-                $this->messageQueue->addMessage($message);
+                $this->flashMessageQueue->addMessage($message);
             }
         }
 
@@ -1466,7 +1465,7 @@ final class DmailController extends MainController
                 ContextualFeedbackSeverity::ERROR,
                 false
             );
-            $this->messageQueue->addMessage($message);
+            $this->flashMessageQueue->addMessage($message);
         }
 
         return [
