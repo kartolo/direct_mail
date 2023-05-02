@@ -89,7 +89,11 @@ final class DmailController extends MainController
         protected array $mailgroup_uid = [],
         protected bool $mailingMode_simple = false,
         protected int $tt_address_uid = 0,
-
+        protected array $indata = [],
+        protected array $addresses = [],
+        protected array $sysDmailGroupUid = [],
+        protected array $mailgroupUid = [],
+        protected bool $mailingModeMailGroup = false,
         protected string $requestUri = ''
     ) {
     }
@@ -146,6 +150,12 @@ final class DmailController extends MainController
         $this->createMailFrom_plainUrl = (string)($parsedBody['createMailFrom_plainUrl'] ?? $queryParams['createMailFrom_plainUrl'] ?? '');
         $this->mailgroup_uid = $parsedBody['mailgroup_uid'] ?? $queryParams['mailgroup_uid'] ?? [];
         $this->tt_address_uid = (int)($parsedBody['tt_address_uid'] ?? $queryParams['tt_address_uid'] ?? 0);
+
+        $this->indata = $parsedBody['indata'] ?? $queryParams['indata'] ?? [];
+        $this->addresses = $parsedBody['SET'] ?? $queryParams['SET'] ?? [];
+        $this->sysDmailGroupUid = $parsedBody['sys_dmail_group_uid'] ?? $queryParams['sys_dmail_group_uid'] ?? [];
+        $this->mailgroupUid = $parsedBody['mailgroup_uid'] ?? $queryParams['mailgroup_uid'] ?? [];
+        $this->mailingModeMailGroup = (bool)($parsedBody['mailingMode_mailGroup'] ?? $queryParams['mailingMode_mailGroup'] ?? false);
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         return $this->indexAction($moduleTemplate);
@@ -427,8 +437,7 @@ final class DmailController extends MainController
                 $data['navigation']['back'] = true;
                 $data['navigation']['next'] = true;
 
-                $indata = GeneralUtility::_GP('indata');
-                $temp = $this->makeCategoriesForm($row, $indata);
+                $temp = $this->makeCategoriesForm($row, $this->indata);
                 $data['cats']['output'] = $temp['output'];
                 $data['cats']['catsForm'] = $temp['theOutput'];
 
@@ -1158,7 +1167,7 @@ final class DmailController extends MainController
             $htmlmail->setTestmail((bool)($this->params['testmail'] ?? false));
 
             // Fixing addresses:
-            $addresses = GeneralUtility::_GP('SET');
+            $addresses = $this->addresses;
             $addressList = $addresses['dmail_test_email'] ? $addresses['dmail_test_email'] : $this->MOD_SETTINGS['dmail_test_email'];
             $addresses = preg_split('|[' . LF . ',;]|', $addressList ?? '');
 
@@ -1217,9 +1226,9 @@ final class DmailController extends MainController
                     );
                     $this->flashMessageQueue->addMessage($message);
                 }
-            } elseif (is_array(GeneralUtility::_GP('sys_dmail_group_uid'))) {
+            } elseif (is_array($this->sysDmailGroupUid)) {
                 // personalized to group
-                $result = $this->cmd_compileMailGroup(GeneralUtility::_GP('sys_dmail_group_uid'));
+                $result = $this->cmd_compileMailGroup($this->sysDmailGroupUid);
 
                 $idLists = $result['queryInfo']['id_lists'];
                 $sendFlag = 0;
@@ -1237,10 +1246,9 @@ final class DmailController extends MainController
             }
         } else {
             // step 5, sending personalized emails to the mailqueue
-
             // prepare the email for sending with the mailqueue
-            $recipientGroups = GeneralUtility::_GP('mailgroup_uid');
-            if (GeneralUtility::_GP('mailingMode_mailGroup') && $this->sys_dmail_uid && is_array($recipientGroups)) {
+            $recipientGroups = $this->mailgroupUid;
+            if ($this->mailingModeMailGroup && $this->sys_dmail_uid && is_array($recipientGroups)) {
                 // Update the record:
                 $result = $this->cmd_compileMailGroup($recipientGroups);
                 $queryInfo = $result['queryInfo'];
@@ -1563,7 +1571,7 @@ final class DmailController extends MainController
      *
      * @return array List of recipient IDs
      */
-    protected function getSingleMailGroup($groupUid)
+    protected function getSingleMailGroup(int $groupUid): array
     {
         $idLists = [];
         if ($groupUid) {
@@ -1574,7 +1582,7 @@ final class DmailController extends MainController
                     case 0:
                         // From pages
                         // use current page if no else
-                        $thePages = $mailGroup['pages'] ? $mailGroup['pages'] : $this->id;
+                        $thePages = (string)($mailGroup['pages'] ?? $this->id);
                         // Explode the pages
                         $pages = GeneralUtility::intExplode(',', $thePages);
                         $pageIdArray = [];
@@ -1661,8 +1669,12 @@ final class DmailController extends MainController
                         break;
                     case 4:
                         $groups = array_unique(GeneralUtility::makeInstance(SysDmailGroupRepository::class)->getMailGroups($mailGroup['mail_groups'] ?? '', [$mailGroup['uid']], $this->perms_clause));
-                        foreach ($groups as $v) {
-                            $collect = $this->getSingleMailGroup($v);
+                        foreach ($groups as $group) {
+                            $group = MathUtility::convertToPositiveInteger($group);
+                            if (!$group) {
+                                continue;
+                            }
+                            $collect = $this->getSingleMailGroup($group);
                             if (is_array($collect)) {
                                 $idLists = array_merge_recursive($idLists, $collect);
                             }
