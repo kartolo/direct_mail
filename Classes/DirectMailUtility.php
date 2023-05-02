@@ -208,7 +208,7 @@ class DirectMailUtility
                     $output .= $flashMessageRendererResolver
                         ->resolve()
                         ->render([
-                            self::createFlashMessage($warning, $lang->sL($lllFile . ':dmail_warning'), FlashMessage::WARNING, false),
+                            self::createFlashMessage($warning, $lang->sL($lllFile . ':dmail_warning'), ContextualFeedbackSeverity::WARNING, false),
                         ]);
                 }
             }
@@ -218,7 +218,7 @@ class DirectMailUtility
                 $output .= $flashMessageRendererResolver
                     ->resolve()
                     ->render([
-                        self::createFlashMessage($error, $lang->sL($lllFile . ':dmail_error'), FlashMessage::ERROR, false),
+                        self::createFlashMessage($error, $lang->sL($lllFile . ':dmail_error'), ContextualFeedbackSeverity::ERROR, false),
                     ]);
             }
         }
