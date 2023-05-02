@@ -175,11 +175,11 @@
 									</td>
 									<td nowrap="">
 										<f:if condition="{formcontent.output.conf.storage -> f:count()}">
-											<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[storage]" value="{formcontent.output.conf.storageSelected}">
-												<f:for each="{formcontent.output.conf.storage}" as="st">
-													<f:form.select.option value="{st.val}">{st.text}</f:form.select.option>
-												</f:for>
-											</f:form.select>
+                                            <select name="CSV_IMPORT[storage]" class="form-select form-control-adapt">
+                                                <f:for each="{formcontent.output.conf.storage}" as="st">
+                                                    <option value="{st.val}" {f:if(condition: "{st.val} == {formcontent.output.conf.storageSelected}" , then: 'selected="selected"')}>{st.text}</option>
+                                                </f:for>
+                                            </select>
 										</f:if>
 									</td>
 								</tr>
@@ -188,7 +188,7 @@
 										<f:translate key="{lll}mailgroup_import_remove_existing" />
 									</td>
 									<td nowrap="">
-										<f:form.checkbox name="CSV_IMPORT[remove_existing]" value="1" checked="{formcontent.output.conf.remove_existing} == 1" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}" />
+                                        <input type="checkbox" name="CSV_IMPORT[remove_existing]" value="1" class="form-check-input" {f:if(condition: "1 == {formcontent.output.conf.remove_existing}" , then: 'checked="checked"')} disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
 									</td>
 								</tr>
 								<tr class="db_list_normal">
@@ -196,7 +196,7 @@
 										<f:translate key="{lll}mailgroup_import_first_fieldnames" />
 									</td>
 									<td nowrap="">
-										<f:form.checkbox name="CSV_IMPORT[first_fieldname]" value="1" checked="{formcontent.output.conf.first_fieldname} == 1" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}" />
+                                        <input type="checkbox" name="CSV_IMPORT[first_fieldname]" value="1" class="form-check-input" {f:if(condition: "1 == {formcontent.output.conf.first_fieldname}" , then: 'checked="checked"')} disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
 									</td>
 								</tr>
 								<tr class="db_list_normal">
@@ -205,11 +205,11 @@
 									</td>
 									<td nowrap="">
 										<f:if condition="{formcontent.output.conf.delimiter -> f:count()}">
-											<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[delimiter]" value="{formcontent.output.conf.delimiterSelected}" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
-												<f:for each="{formcontent.output.conf.delimiter}" as="del">
-													<f:form.select.option value="{del.val}">{del.text}</f:form.select.option>
-												</f:for>
-											</f:form.select>
+                                            <select name="CSV_IMPORT[delimiter]" class="form-select form-control-adapt" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
+                                                <f:for each="{formcontent.output.conf.delimiter}" as="del">
+                                                    <option value="{del.val}" {f:if(condition: "{del.val} == {formcontent.output.conf.delimiterSelected}" , then: 'selected="selected"')}>{del.text}</option>
+                                                </f:for>
+                                            </select>
 										</f:if>
 									</td>
 								</tr>
@@ -219,11 +219,11 @@
 									</td>
 									<td nowrap="">
 										<f:if condition="{formcontent.output.conf.encapsulation -> f:count()}">
-											<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[encapsulation]" value="{formcontent.output.conf.encapsulationSelected}" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
-												<f:for each="{formcontent.output.conf.encapsulation}" as="en">
-													<f:form.select.option value="{en.val}">{en.text}</f:form.select.option>
-												</f:for>
-											</f:form.select>
+                                            <select name="CSV_IMPORT[encapsulation]" class="form-select form-control-adapt" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
+                                                <f:for each="{formcontent.output.conf.encapsulation}" as="en">
+                                                    <option value="{en.val}" {f:if(condition: "{en.val} == {formcontent.output.conf.encapsulationSelected}" , then: 'selected="selected"')}>{en.text}</option>
+                                                </f:for>
+                                            </select>
 										</f:if>
 									</td>
 								</tr>
@@ -232,7 +232,7 @@
 										<f:translate key="{lll}mailgroup_import_csv_validemail-description" />
 									</td>
 									<td nowrap="">
-										<f:form.checkbox name="CSV_IMPORT[valid_email]" value="1" checked="{formcontent.output.conf.valid_email} == 1" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}" />
+                                        <input type="checkbox" name="CSV_IMPORT[remove_dublette]" value="1" class="form-check-input" {f:if(condition: "1 == {formcontent.output.conf.valid_email}" , then: 'checked="checked"')} disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
 									</td>
 								</tr>
 								<tr class="db_list_normal">
@@ -240,7 +240,7 @@
 										<f:translate key="{lll}mailgroup_import_csv_dublette-description" />
 									</td>
 									<td nowrap="">
-										<f:form.checkbox name="CSV_IMPORT[remove_dublette]" value="1" checked="{formcontent.output.conf.remove_dublette} == 1" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}" />
+                                        <input type="checkbox" name="CSV_IMPORT[remove_dublette]" value="1" class="form-check-input" {f:if(condition: "1 == {formcontent.output.conf.remove_dublette}" , then: 'checked="checked"')} disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
 									</td>
 								</tr>
 								<tr class="db_list_normal">
@@ -248,7 +248,7 @@
 										<f:translate key="{lll}mailgroup_import_update_unique" />
 									</td>
 									<td nowrap="">
-										<f:form.checkbox name="CSV_IMPORT[update_unique]" value="1" checked="{formcontent.output.conf.update_unique} == 1" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}" />
+                                        <input type="checkbox" name="CSV_IMPORT[update_unique]" value="1" class="form-check-input" {f:if(condition: "1 == {formcontent.output.conf.update_unique}" , then: 'checked="checked"')} disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
 									</td>
 								</tr>
 								<tr class="db_list_normal">
@@ -257,11 +257,11 @@
 									</td>
 									<td nowrap="">
 										<f:if condition="{formcontent.output.conf.record_unique -> f:count()}">
-											<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[record_unique]" value="{formcontent.output.conf.record_uniqueSelected}" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
-												<f:for each="{formcontent.output.conf.record_unique}" as="ru">
-													<f:form.select.option value="{ru.val}">{ru.text}</f:form.select.option>
-												</f:for>
-											</f:form.select>
+                                            <select name="CSV_IMPORT[record_unique]" class="form-select form-control-adapt" disabled="{f:if(condition: '{formcontent.output.conf.disableInput}', then: 'disabled')}">
+                                                <f:for each="{formcontent.output.conf.record_unique}" as="ru">
+                                                    <option value="{ru.val}" {f:if(condition: "{ru.val} == {formcontent.output.conf.record_uniqueSelected}" , then: 'selected="selected"')}>{ru.text}</option>
+                                                </f:for>
+                                            </select>
 										</f:if>
 									</td>
 								</tr>
@@ -287,11 +287,11 @@
 									</td>
 									<td nowrap="">
 										<f:if condition="{formcontent.output.mapping.charset -> f:count()}">
-											<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[charset]" value="{formcontent.output.mapping.charsetSelected}">
-												<f:for each="{formcontent.output.mapping.charset}" as="cs">
-													<f:form.select.option value="{cs.val}">{cs.text}</f:form.select.option>
-												</f:for>
-											</f:form.select>
+                                            <select name="CSV_IMPORT[charset]" class="form-select form-control-adapt">
+                                                <f:for each="{formcontent.output.mapping.charset}" as="cs">
+                                                    <option value="{cs.val}" {f:if(condition: "{cs.val} == {formcontent.output.mapping.charsetSelected}" , then: 'selected="selected"')}>{cs.text}</option>
+                                                </f:for>
+                                            </select>
 										</f:if>
 									</td>
 								</tr>
@@ -328,11 +328,11 @@
 											<td nowrap=""><f:format.raw>{row.mapping_description}</f:format.raw></td>
 											<td nowrap="">
 												<f:if condition="{formcontent.output.mapping.fields -> f:count()}">
-													<f:form.select class="form-select form-control-adapt" name="CSV_IMPORT[map][{row.mapping_i}]" value="{row.mapping_mappingSelected}">
-														<f:for each="{formcontent.output.mapping.fields}" as="field">
-															<f:form.select.option value="{field.0}">{field.1}</f:form.select.option>
-														</f:for>
-													</f:form.select>
+                                                    <select name="CSV_IMPORT[map][{row.mapping_i}]" class="form-select form-control-adapt">
+                                                        <f:for each="{formcontent.output.mapping.fields}" as="field">
+                                                            <option value="{field.0}" {f:if(condition: "{field.0} == {row.mapping_mappingSelected}" , then: 'selected="selected"')}>{field.1}</option>
+                                                        </f:for>
+                                                    </select>
 												</f:if>
 											</td>
 											<td nowrap="">
@@ -364,7 +364,7 @@
 										<f:translate key="{lll}mailgroup_import_mapping_all_html" />
 									</td>
 									<td nowrap="">
-										<f:form.checkbox name="CSV_IMPORT[all_html]" value="1" checked="{formcontent.output.mapping.all_html} == 1" />
+                                        <input type="checkbox" name="CSV_IMPORT[all_html]" value="1" class="form-check-input" {f:if(condition: "1 == {formcontent.output.mapping.all_html}" , then: 'checked="checked"')}>
 									</td>
 								</tr>
 								<f:if condition="{formcontent.output.mapping.mapping_cats -> f:count()}">
@@ -381,7 +381,7 @@
 												<f:translate key="{lll}mailgroup_import_mapping_cats_add" />
 											</td>
 											<td nowrap="">
-												<f:form.checkbox name="CSV_IMPORT[add_cat]" value="1" checked="{formcontent.output.mapping.add_cat} == 1" />
+                                                <input type="checkbox" name="CSV_IMPORT[add_cat]" value="1" class="form-check-input" {f:if(condition: "1 == {formcontent.output.mapping.add_cat}" , then: 'checked="checked"')}>
 											</td>
 										</tr>
 									</f:if>
@@ -390,7 +390,7 @@
 										<tr class="db_list_normal">
 											<td nowrap="">&nbsp;{mapping_cat.cat}</td>
 											<td nowrap="">
-												<f:form.checkbox name="CSV_IMPORT[cat][{mapping_cat.k}]" value="{mapping_cat.vUid}" checked="{mapping_cat.checked} == 1" />
+                                                <input type="checkbox" name="CSV_IMPORT[cat][{mapping_cat.k}]" value="{mapping_cat.vUid}" class="form-check-input" {f:if(condition: "1 == {mapping_cat.checked}" , then: 'checked="checked"')}>
 											</td>
 										</tr>
 									</f:for>

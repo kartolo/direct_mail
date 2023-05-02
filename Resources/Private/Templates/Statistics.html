@@ -123,7 +123,7 @@
 <f:section name="dataStats">
     <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <f:render section="compactView" arguments="{row:dataStats.compactView}" />
-    <br />
+    <br>
 
     <f:if condition="{dataStats.tables.1}">
         <h2><f:translate key="{lll}stats_general_information" /></h2>
@@ -131,18 +131,18 @@
     </f:if>
 
     <f:if condition="{dataStats.tables.2}">
-        <br />
+        <br>
         <h2><f:translate key="{lll}stats_response" /></h2>
         <f:render section="table" arguments="{table:dataStats.tables.2}" />
     </f:if>
 
     <f:if condition="{dataStats.tables.4}">
-        <br />
+        <br>
         <h2><f:translate key="{lll}stats_mails_returned" /></h2>
         <f:render section="table4" arguments="{table:dataStats.tables.4}" />
     </f:if>
     <f:if condition="{dataStats.tables.5}">
-		<br />
+		<br>
         <h2><f:translate key="{lll}stats_response_link" /></h2>
 	    <table class="table table-striped table-hover">
 	        <thead>
@@ -193,35 +193,35 @@
     	<f:comment>returnDisable</f:comment>
 
     	<f:if condition="{dataStats.tables.6.returnDisable.tt_address}">
-			<br />
+			<br>
 			{dataStats.tables.6.returnDisable.tt_address.counter}  {stats_emails_disabled}
     	</f:if>
     	<f:if condition="{dataStats.tables.6.returnDisable.fe_users}">
-			<br />
+			<br>
 			{dataStats.tables.6.returnDisable.fe_users.counter} {stats_website_users_disabled}
     	</f:if>
 
     	<f:comment>returnCSV</f:comment>
 
 		<f:if condition="{dataStats.tables.6.returnCSV}">
-			<br />
+			<br>
 			<f:translate key="{lll}stats_emails_returned_list" />
-			<br />
+			<br>
 			<textarea style="width:460px;" rows="6" name="nothing"><f:format.raw>{dataStats.tables.6.returnCSV.text}</f:format.raw></textarea>
 		</f:if>
 
 		<f:comment>unknownList</f:comment>
 
 		<f:if condition="{dataStats.tables.6.unknownList.tt_address}">
-			<br />
+			<br>
 			{stats_emails}
-			<br />
+			<br>
 			<f:render arguments="{returnConfig: dataStats.tables.6.unknownList.tt_address.returnConfig}" section="returnConfig" />
 		</f:if>
 		<f:if condition="{dataStats.tables.6.unknownList.fe_users}">
-			<br />
+			<br>
 			{stats_website_users}
-			<br />
+			<br>
 			<f:render arguments="{returnConfig: dataStats.tables.6.unknownList.fe_users.returnConfig}" section="returnConfig" />
 		</f:if>
 		<f:if condition="{dataStats.tables.6.unknownList.PLAINLIST}">
@@ -232,39 +232,39 @@
 		<f:comment>unknownDisable</f:comment>
 
 		<f:if condition="{dataStats.tables.6.unknownDisable.tt_address}">
-			<br />
+			<br>
 			{dataStats.tables.6.unknownDisable.tt_address.counter} {stats_emails_disabled}
 		</f:if>
 		<f:if condition="{dataStats.tables.6.unknownDisable.fe_users}">
-			<br />
+			<br>
 			{dataStats.tables.6.unknownDisable.fe_users.counter} {stats_website_users_disabled}
 		</f:if>
 
 		<f:comment>unknownCSV</f:comment>
 
 		<f:if condition="{dataStats.tables.6.unknownCSV}">
-			<br />
+			<br>
 			<f:translate key="{lll}stats_emails_returned_unknown_recipient_list" />
-			<br />
+			<br>
 			<textarea style="width:460px;" rows="6" name="nothing"><f:format.raw>{dataStats.tables.6.unknownCSV.text}</f:format.raw></textarea>
 		</f:if>
 
 		<f:comment>fullList</f:comment>
 
 		<f:if condition="{dataStats.tables.6.fullList.tt_address}">
-			<br />
+			<br>
 			{stats_emails}
-			<br />
+			<br>
 			<f:render arguments="{returnConfig: dataStats.tables.6.fullList.tt_address.returnConfig}" section="returnConfig" />
 		</f:if>
 		<f:if condition="{dataStats.tables.6.fullList.fe_users}">
-			<br />
+			<br>
 			{stats_website_users}
-			<br />
+			<br>
 			<f:render arguments="{returnConfig: dataStats.tables.6.fullList.fe_users.returnConfig}" section="returnConfig" />
 		</f:if>
 		<f:if condition="{dataStats.tables.6.fullList.PLAINLIST}">
-			<br />
+			<br>
 			{stats_plainlist}
 			<ul><li><f:format.raw>{dataStats.tables.6.fullList.PLAINLIST.PLAINLIST}</f:format.raw></li></ul>
 		</f:if>
@@ -272,39 +272,39 @@
 		<f:comment>fullDisable</f:comment>
 
     	<f:if condition="{dataStats.tables.6.fullDisable.tt_address}">
-			<br />
+			<br>
 			{dataStats.tables.6.fullDisable.tt_address.counter} {stats_emails_disabled}
     	</f:if>
     	<f:if condition="{dataStats.tables.6.fullDisable.fe_users}">
-			<br />
+			<br>
 			{dataStats.tables.6.fullDisable.fe_users.counter} {stats_website_users_disabled}
     	</f:if>
 
 		<f:comment>fullCSV</f:comment>
 
  		<f:if condition="{dataStats.tables.6.fullCSV}">
-			<br />
+			<br>
 			<f:translate key="{lll}stats_emails_returned_mailbox_full_list" />
-			<br />
+			<br>
 			<textarea style="width:460px;" rows="6" name="nothing"><f:format.raw>{dataStats.tables.6.fullCSV.text}</f:format.raw></textarea>
 		</f:if>
 
 		<f:comment>badHostList</f:comment>
 
 		<f:if condition="{dataStats.tables.6.badHostList.tt_address}">
-			<br />
+			<br>
 			{stats_emails}
-			<br />
+			<br>
 			<f:render arguments="{returnConfig: dataStats.tables.6.badHostList.tt_address.returnConfig}" section="returnConfig" />
 		</f:if>
 		<f:if condition="{dataStats.tables.6.badHostList.fe_users}">
-			<br />
+			<br>
 			{stats_website_users}
-			<br />
+			<br>
 			<f:render arguments="{returnConfig: dataStats.tables.6.badHostList.fe_users.returnConfig}" section="returnConfig" />
 		</f:if>
 		<f:if condition="{dataStats.tables.6.badHostList.PLAINLIST}">
-			<br />
+			<br>
 			{stats_plainlist}
 			<ul><li><f:format.raw>{dataStats.tables.6.badHostList.PLAINLIST.PLAINLIST}</f:format.raw></li></ul>
 		</f:if>
@@ -312,39 +312,39 @@
 		<f:comment>badHostDisable</f:comment>
 
     	<f:if condition="{dataStats.tables.6.badHostDisable.tt_address}">
-			<br />
+			<br>
 			{dataStats.tables.6.badHostDisable.tt_address.counter} {stats_emails_disabled}
     	</f:if>
     	<f:if condition="{dataStats.tables.6.badHostDisable.fe_users}">
-			<br />
+			<br>
 			{dataStats.tables.6.badHostDisable.fe_users.counter} {stats_website_users_disabled}
     	</f:if>
 
 		<f:comment>badHostCSV</f:comment>
 
 		<f:if condition="{dataStats.tables.6.badHostCSV}">
-			<br />
+			<br>
 			<f:translate key="{lll}stats_emails_returned_bad_host_list" />
-			<br />
+			<br>
 			<textarea style="width:460px;" rows="6" name="nothing"><f:format.raw>{dataStats.tables.6.badHostCSV.text}</f:format.raw></textarea>
 		</f:if>
 
 		<f:comment>badHeaderList</f:comment>
 
 		<f:if condition="{dataStats.tables.6.badHeaderList.tt_address}">
-			<br />
+			<br>
 			{stats_emails}
-			<br />
+			<br>
 			<f:render arguments="{returnConfig: dataStats.tables.6.badHeaderList.tt_address.returnConfig}" section="returnConfig" />
 		</f:if>
 		<f:if condition="{dataStats.tables.6.badHeaderList.fe_users}">
-			<br />
+			<br>
 			{stats_website_users}
-			<br />
+			<br>
 			<f:render arguments="{returnConfig: dataStats.tables.6.badHeaderList.fe_users.returnConfig}" section="returnConfig" />
 		</f:if>
 		<f:if condition="{dataStats.tables.6.badHeaderList.PLAINLIST}">
-			<br />
+			<br>
 			{stats_plainlist}
 			<ul><li><f:format.raw>{dataStats.tables.6.badHeaderList.PLAINLIST.PLAINLIST}</f:format.raw></li></ul>
 		</f:if>
@@ -352,39 +352,39 @@
 		<f:comment>badHeaderDisable</f:comment>
 
     	<f:if condition="{dataStats.tables.6.badHeaderDisable.tt_address}">
-			<br />
+			<br>
 			{dataStats.tables.6.badHeaderDisable.tt_address.counter} {stats_emails_disabled}
     	</f:if>
     	<f:if condition="{dataStats.tables.6.badHeaderDisable.fe_users}">
-			<br />
+			<br>
 			{dataStats.tables.6.badHeaderDisable.fe_users.counter} {stats_website_users_disabled}
     	</f:if>
 
 		<f:comment>badHeaderCSV</f:comment>
 
 		<f:if condition="{dataStats.tables.6.badHeaderCSV}">
-			<br />
+			<br>
 			<f:translate key="{lll}stats_emails_returned_bad_header_list" />
-			<br />
+			<br>
 			<textarea style="width:460px;" rows="6" name="nothing"><f:format.raw>{dataStats.tables.6.badHeaderCSV.text}</f:format.raw></textarea>
 		</f:if>
 
 		<f:comment>reasonUnknownList</f:comment>
 
 		<f:if condition="{dataStats.tables.6.reasonUnknownList.tt_address}">
-			<br />
+			<br>
 			{stats_emails}
-			<br />
+			<br>
 			<f:render arguments="{returnConfig: dataStats.tables.6.reasonUnknownList.tt_address.returnConfig}" section="returnConfig" />
 		</f:if>
 		<f:if condition="{dataStats.tables.6.reasonUnknownList.fe_users}">
-			<br />
+			<br>
 			{stats_website_users}
-			<br />
+			<br>
 			<f:render arguments="{returnConfig: dataStats.tables.6.reasonUnknownList.fe_users.returnConfig}" section="returnConfig" />
 		</f:if>
 		<f:if condition="{dataStats.tables.6.reasonUnknownList.PLAINLIST}">
-			<br />
+			<br>
 			{stats_plainlist}
 			<ul><li><f:format.raw>{dataStats.tables.6.reasonUnknownList.PLAINLIST.PLAINLIST}</f:format.raw></li></ul>
 		</f:if>
@@ -392,20 +392,20 @@
 		<f:comment>reasonUnknownDisable</f:comment>
 
 		<f:if condition="{dataStats.tables.6.reasonUnknownDisable.tt_address}">
-			<br />
+			<br>
 			{dataStats.tables.6.reasonUnknownDisable.tt_address.counter} {stats_emails_disabled}
     	</f:if>
     	<f:if condition="{dataStats.tables.6.reasonUnknownDisable.fe_users}">
-			<br />
+			<br>
 			{dataStats.tables.6.reasonUnknownDisable.fe_users.counter} {stats_website_users_disabled}
     	</f:if>
 
 		<f:comment>reasonUnknownCSV</f:comment>
 
 		<f:if condition="{dataStats.tables.6.reasonUnknownCSV}">
-			<br />
+			<br>
 			<f:translate key="{lll}stats_emails_returned_reason_unknown_list" />
-			<br />
+			<br>
 			<textarea style="width:460px;" rows="6" name="nothing"><f:format.raw>{dataStats.tables.6.reasonUnknownCSV.text}</f:format.raw></textarea>
 		</f:if>
     </f:if>
@@ -481,26 +481,26 @@
         <div style="padding-top: 20px;"></div>
         <h3><f:translate key="{lll}subscriber_profile" /></h3>
         <f:translate key="{lll}subscriber_profile_instructions" />
-        <br /><br />
+        <br><br>
 
         <f:for each="{dataUserInfo.categories}" as="cat">
-            <f:form.checkbox name="indata[categories][{dataUserInfo.uid}][{cat.pkey}]" value="1" checked="{cat.checked} == 1" /> <f:format.raw>{cat.pVal}</f:format.raw>
-            <br />
+            <input type="checkbox" name="indata[categories][{dataUserInfo.uid}][{cat.pkey}]" value="1" class="form-check-input" {f:if(condition: "1 == {cat.checked}" , then: 'checked="checked"')}> <f:format.raw>{cat.pVal}</f:format.raw>
+            <br>
         </f:for>
-        <br /><br />
-        <f:form.checkbox name="indata[html]" value="1" checked="{dataUserInfo.html} == 1" /> <f:translate key="{lll}subscriber_profile_htmlemail" />
-        <br />
+        <br><br>
+        <input type="checkbox" name="indata[html]" value="1" class="form-check-input" {f:if(condition: "1 == {dataUserInfo.html}" , then: 'checked="checked"')}> <f:translate key="{lll}subscriber_profile_htmlemail" />
+        <br>
         <input type="hidden" name="table" value="{dataUserInfo.table}">
         <input type="hidden" name="uid" value="{dataUserInfo.thisID}">
         <input type="hidden" name="cmd" value="{dataUserInfo.cmd}">
-        <br />
-        <f:form.submit value="{f:translate(key: '{lll}subscriber_profile_update')}" />
+        <br>
+        <input type="submit" value="{f:translate(key: '{lll}subscriber_profile_update')}">
     </f:form>
 </f:section>
 
 <f:section name="returnConfig">
 	<f:if condition="{returnConfig.counter}">
-		{returnConfig.title}<strong> {returnConfig.counter}</strong><br />
+		{returnConfig.title}<strong> {returnConfig.counter}</strong><br>
 		<table class="table table-striped table-hover">
 			<f:for each="{returnConfig.rows}" as="row">
 				<tr class="db_list_normal">
