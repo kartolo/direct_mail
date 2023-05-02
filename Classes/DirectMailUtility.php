@@ -25,6 +25,7 @@ use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\FileRepository;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -232,18 +233,30 @@ class DirectMailUtility
         return $output;
     }
 
+    /**
+        https://api.typo3.org/main/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
+        const 	NOTICE = -2
+        const 	INFO = -1
+        const 	OK = 0
+        const 	WARNING = 1
+        const 	ERROR = 2
+     * @param string $messageText
+     * @param string $messageHeader
+     * @param ContextualFeedbackSeverity $messageType
+     * @param bool $storeInSession
+     */
     protected static function createFlashMessage(
         string $messageText,
         string $messageHeader = '',
-        int $messageType = 0,
-        bool $storeInSession = false
-    ): FlashMessage {
+        ContextualFeedbackSeverity $messageType,
+        bool $storeInSession = false): FlashMessage
+    {
         return GeneralUtility::makeInstance(
             FlashMessage::class,
             $messageText,
-            $messageHeader,
-            $messageType,
-            $storeInSession
+            $messageHeader, // [optional] the header
+            $messageType, // [optional] the severity defaults to \TYPO3\CMS\Core\Messaging\FlashMessage::OK
+            $storeInSession // [optional] whether the message should be stored in the session or only in the \TYPO3\CMS\Core\Messaging\FlashMessageQueue object (default is false)
         );
     }
 
