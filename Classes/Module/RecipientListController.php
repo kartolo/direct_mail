@@ -66,8 +66,8 @@ final class RecipientListController extends MainController
         protected $httpReferer = '',
         protected array $allowedTables = ['tt_address', 'fe_users'],
 
-        private bool $submit = false
-
+        protected bool $submit = false,
+        protected string $queryConfig = ''
     ) {
     }
 
@@ -101,6 +101,8 @@ final class RecipientListController extends MainController
         $this->table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
         $this->indata = $parsedBody['indata'] ?? $queryParams['indata'] ?? [];
         $this->submit = (bool)($parsedBody['submit'] ?? $queryParams['submit'] ?? false);
+
+        $this->queryConfig = (string)($parsedBody['queryConfig'] ?? $queryParams['queryConfig'] ?? '');
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         return $this->indexAction($moduleTemplate);
@@ -629,7 +631,7 @@ final class RecipientListController extends MainController
         $queryTable = $set['queryTable'] ?? '';
         $queryLimit = $set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100;
         $queryLimitDisabled = ($set['queryLimitDisabled'] ?? $mailGroup['queryLimitDisabled']) == '' ? 0 : 1;
-        $queryConfig = GeneralUtility::_GP('queryConfig');
+        $queryConfig = $this->queryConfig;
         $whichTables = (int)$mailGroup['whichtables'];
         $table = '';
         if ($whichTables&1) {

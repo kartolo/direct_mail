@@ -51,6 +51,8 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 final class DmailController extends MainController
 {
 
+    protected FlashMessageQueue $flashMessageQueue;
+
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
         protected readonly IconFactory $iconFactory,
@@ -59,8 +61,6 @@ final class DmailController extends MainController
         protected readonly string $moduleName = 'directmail_module_directmail',
         protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
 
-        protected ?FlashMessageService $flashMessageService = null,
-        protected ?FlashMessageQueue $flashMessageQueue = null,
         protected ?LanguageService $languageService = null,
 
         protected array $pageinfo = [],
@@ -94,15 +94,18 @@ final class DmailController extends MainController
         protected array $sysDmailGroupUid = [],
         protected array $mailgroupUid = [],
         protected bool $mailingModeMailGroup = false,
-        protected string $requestUri = ''
+        protected string $requestUri = '',
+        protected string $queryConfig = '',
+        protected string $sendMailDatetimeHr = '',
+        protected bool $testmail = false,
+        protected bool $savedraft = false
     ) {
     }
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
         $this->languageService = $this->getLanguageService();
-        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        $this->flashMessageQueue = $this->flashMessageService->getMessageQueueByIdentifier('DmailQueue');
+        $this->flashMessageQueue = GeneralUtility::makeInstance(FlashMessageService::class)->getMessageQueueByIdentifier('DmailQueue');
 
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
@@ -156,6 +159,10 @@ final class DmailController extends MainController
         $this->sysDmailGroupUid = $parsedBody['sys_dmail_group_uid'] ?? $queryParams['sys_dmail_group_uid'] ?? [];
         $this->mailgroupUid = $parsedBody['mailgroup_uid'] ?? $queryParams['mailgroup_uid'] ?? [];
         $this->mailingModeMailGroup = (bool)($parsedBody['mailingMode_mailGroup'] ?? $queryParams['mailingMode_mailGroup'] ?? false);
+        $this->queryConfig = (string)($parsedBody['queryConfig'] ?? $queryParams['queryConfig'] ?? '');
+        $this->sendMailDatetimeHr = (string)($parsedBody['send_mail_datetime_hr'] ?? $queryParams['send_mail_datetime_hr'] ?? '');
+        $this->testmail = (bool)($parsedBody['testmail'] ?? $queryParams['testmail'] ?? false);
+        $this->savedraft = (bool)($parsedBody['savedraft'] ?? $queryParams['savedraft'] ?? false);
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         return $this->indexAction($moduleTemplate);
@@ -1253,7 +1260,7 @@ final class DmailController extends MainController
                 $result = $this->cmd_compileMailGroup($recipientGroups);
                 $queryInfo = $result['queryInfo'];
 
-                $distributionTime = strtotime(GeneralUtility::_GP('send_mail_datetime_hr'));
+                $distributionTime = strtotime($this->sendMailDatetimeHr);
                 if ($distributionTime < time()) {
                     $distributionTime = time();
                 }
@@ -1264,12 +1271,12 @@ final class DmailController extends MainController
                     'query_info' => serialize($queryInfo),
                 ];
 
-                if (GeneralUtility::_GP('testmail')) {
+                if ($this->testmail) {
                     $updateFields['subject'] = ($this->params['testmail'] ?? '') . ' ' . $row['subject'];
                 }
 
                 // create a draft version of the record
-                if (GeneralUtility::_GP('savedraft')) {
+                if ($this->savedraft) {
                     $updateFields['type'] = $row['type'] == 0 ? 2 : 3;
                     $updateFields['scheduled'] = 0;
                     $content = $this->languageService->sL($this->lllFile . ':send_draft_scheduler');
@@ -1700,7 +1707,7 @@ final class DmailController extends MainController
         $queryTable = $set['queryTable'] ?? '';
         $queryLimit = $set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100;
         $queryLimitDisabled = ($set['queryLimitDisabled'] ?? $mailGroup['queryLimitDisabled']) == '' ? 0 : 1;
-        $queryConfig = GeneralUtility::_GP('queryConfig');
+        $queryConfig = $this->queryConfig;
         $whichTables = (int)$mailGroup['whichtables'];
         $table = '';
         if ($whichTables&1) {
