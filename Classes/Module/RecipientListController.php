@@ -67,7 +67,10 @@ final class RecipientListController extends MainController
         protected array $allowedTables = ['tt_address', 'fe_users'],
 
         protected bool $submit = false,
-        protected string $queryConfig = ''
+        protected string $queryConfig = '',
+        protected array $importStep = [],
+        protected array $csvImport = [],
+        protected array $csvFile = []
     ) {
     }
 
@@ -103,6 +106,9 @@ final class RecipientListController extends MainController
         $this->submit = (bool)($parsedBody['submit'] ?? $queryParams['submit'] ?? false);
 
         $this->queryConfig = (string)($parsedBody['queryConfig'] ?? $queryParams['queryConfig'] ?? '');
+        $this->importStep = is_array($parsedBody['importStep'] ?? '') ? $parsedBody['importStep'] : [];
+        $this->csvImport = is_array($parsedBody['CSV_IMPORT'] ?? '') ? $parsedBody['CSV_IMPORT'] : [];
+        $this->csvFile = is_array($parsedBody['file'] ?? '') ? $parsedBody['file'] : [];
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         return $this->indexAction($moduleTemplate);
@@ -188,7 +194,16 @@ final class RecipientListController extends MainController
                 break;
             case 'displayImport':
                 /* @var $importer \DirectMailTeam\DirectMail\Importer */
-                $importer = GeneralUtility::makeInstance(Importer::class, $this->languageService, $this->getBackendUser(), $this->lllFile);
+                $importer = GeneralUtility::makeInstance(
+                    Importer::class,
+                    $this->languageService,
+                    $this->getBackendUser(),
+                    $this->lllFile,
+                    $this->id,
+                    $this->importStep,
+                    $this->csvImport,
+                    $this->csvFile
+                );
                 $importer->init($this);
                 $theOutput = $importer->displayImport();
                 $type = 3;

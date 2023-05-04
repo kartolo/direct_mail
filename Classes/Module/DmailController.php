@@ -98,7 +98,8 @@ final class DmailController extends MainController
         protected string $queryConfig = '',
         protected string $sendMailDatetimeHr = '',
         protected bool $testmail = false,
-        protected bool $savedraft = false
+        protected bool $savedraft = false,
+        protected array $set = [],
     ) {
     }
 
@@ -163,6 +164,7 @@ final class DmailController extends MainController
         $this->sendMailDatetimeHr = (string)($parsedBody['send_mail_datetime_hr'] ?? $queryParams['send_mail_datetime_hr'] ?? '');
         $this->testmail = (bool)($parsedBody['testmail'] ?? $queryParams['testmail'] ?? false);
         $this->savedraft = (bool)($parsedBody['savedraft'] ?? $queryParams['savedraft'] ?? false);
+        $this->set = is_array($parsedBody['SET'] ?? '') ? $parsedBody['SET'] : [];
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         return $this->indexAction($moduleTemplate);
@@ -1703,7 +1705,7 @@ final class DmailController extends MainController
      */
     public function updateSpecialQuery(array $mailGroup)
     {
-        $set = GeneralUtility::_GP('SET');
+        $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
         $queryLimit = $set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100;
         $queryLimitDisabled = ($set['queryLimitDisabled'] ?? $mailGroup['queryLimitDisabled']) == '' ? 0 : 1;

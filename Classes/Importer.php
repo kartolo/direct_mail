@@ -64,6 +64,10 @@ class Importer
         protected LanguageService $languageService,
         protected BackendUserAuthentication $beUser,
         protected readonly string $lllFile,
+        protected readonly int $id,
+        protected array $importStep,
+        protected array $csvImport,
+        protected array $csvFile
     ) {
     }
     /**
@@ -76,7 +80,7 @@ class Importer
         $this->parent = &$pObj;
 
         // get some importer default from pageTS
-        $this->params = BackendUtility::getPagesTSconfig((int)GeneralUtility::_GP('id'))['mod.']['web_modules.']['dmail.']['importer.'] ?? [];
+        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.']['importer.'] ?? [];
         $this->messageQueue = $this->getMessageQueue();
     }
 
@@ -161,7 +165,7 @@ class Importer
             ],
         ];
 
-        $step = GeneralUtility::_GP('importStep');
+        $step = $this->importStep;
         $defaultConf = [
             'remove_existing' => 0,
             'first_fieldname' => 0,
@@ -170,13 +174,8 @@ class Importer
             'update_unique' => 0,
         ];
 
-        if (GeneralUtility::_GP('CSV_IMPORT')) {
-            $importerConfig = GeneralUtility::_GP('CSV_IMPORT');
-            if ($step['next'] === 'mapping') {
-                $this->indata = $importerConfig + $defaultConf;
-            } else {
-                $this->indata = $importerConfig;
-            }
+        if (!empty($this->csvImport)) {
+            $this->indata = ($step['next'] === 'mapping') ? ($this->csvImport + $defaultConf) : $this->csvImport;
         }
 
         if (empty($this->indata)) {
@@ -957,10 +956,9 @@ class Importer
         if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
             $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
         } else {
-            $file = GeneralUtility::_GP('file');
-            $extendedFileUtility->start($file);
+            $extendedFileUtility->start($this->csvFile);
             $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::cast(DuplicationBehavior::REPLACE));
-            $tempFile = $extendedFileUtility->func_upload($file['upload']['1']);
+            $tempFile = $extendedFileUtility->func_upload($this->csvFile['upload']['1']);
 
             if (is_object($tempFile[0])) {
                 $storageConfig = $tempFile[0]->getStorage()->getConfiguration();
