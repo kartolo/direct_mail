@@ -38,7 +38,6 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Backend\Attribute\Controller;
 // the module template will be initialized in handleRequest()
@@ -106,7 +105,7 @@ final class DmailController extends MainController
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
         $this->languageService = $this->getLanguageService();
-        $this->flashMessageQueue = GeneralUtility::makeInstance(FlashMessageService::class)->getMessageQueueByIdentifier('DmailQueue');
+        $this->flashMessageQueue = $this->getFlashMessageQueue('DmailQueue');
 
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();

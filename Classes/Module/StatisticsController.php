@@ -21,7 +21,6 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 // the module template will be initialized in handleRequest()
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
@@ -33,6 +32,9 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 final class StatisticsController extends MainController
 {
+
+    protected FlashMessageQueue $flashMessageQueue;
+
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
         protected readonly IconFactory $iconFactory,
@@ -40,7 +42,6 @@ final class StatisticsController extends MainController
         protected readonly string $moduleName = 'directmail_module_statistics',
         protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
 
-        protected ?FlashMessageService $flashMessageService = null,
         protected ?LanguageService $languageService = null,
 
         protected array $pageinfo = [],
@@ -87,7 +88,7 @@ final class StatisticsController extends MainController
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
         $this->languageService = $this->getLanguageService();
-        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+        $this->flashMessageQueue = $this->getFlashMessageQueue('StatisticsQueue');
 
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
@@ -147,8 +148,6 @@ final class StatisticsController extends MainController
 
     public function indexAction(ModuleTemplate $view): ResponseInterface
     {
-        $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier('StatisticsQueue');
-
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
 
             $module = $this->getModulName();
@@ -170,7 +169,7 @@ final class StatisticsController extends MainController
                         ContextualFeedbackSeverity::WARNING,
                         false
                     );
-                    $messageQueue->addMessage($message);
+                    $this->flashMessageQueue->addMessage($message);
                 }
             } else {
                 $message = $this->createFlashMessage(
@@ -179,7 +178,7 @@ final class StatisticsController extends MainController
                     ContextualFeedbackSeverity::WARNING,
                     false
                 );
-                $messageQueue->addMessage($message);
+                $this->flashMessageQueue->addMessage($message);
                 $view->assignMultiple(
                     [
                         'dmLinks' => $this->getDMPages($this->moduleName),
@@ -193,7 +192,7 @@ final class StatisticsController extends MainController
                 ContextualFeedbackSeverity::WARNING,
                 false
             );
-            $messageQueue->addMessage($message);
+            $this->flashMessageQueue->addMessage($message);
             return $view->renderResponse('NoAccess');
         }
 

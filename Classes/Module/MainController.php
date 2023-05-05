@@ -24,6 +24,7 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
@@ -119,8 +120,6 @@ class MainController
         // initialize backend user language
         //$this->sys_language_uid = 0; //@TODO
 
-        $this->messageQueue = $this->getMessageQueue();
-
         if ($this->updatePageTree) {
             \TYPO3\CMS\Backend\Utility\BackendUtility::setUpdateSignal('updatePageTree');
         }
@@ -167,12 +166,6 @@ class MainController
         );
     }
 
-    protected function getMessageQueue()
-    {
-        $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        return $flashMessageService->getMessageQueueByIdentifier();
-    }
-
     protected function getModulName()
     {
         $module = $this->pageinfo['module'] ?? false;
@@ -196,6 +189,14 @@ class MainController
     protected function getLanguageService(): LanguageService
     {
         return GeneralUtility::makeInstance(LanguageServiceFactory::class)->createFromUserPreferences($this->getBackendUser());
+    }
+
+    /**
+     * @return FlashMessageQueue
+     */
+    protected function getFlashMessageQueue(string $identifier): FlashMessageQueue
+    {
+        return GeneralUtility::makeInstance(FlashMessageService::class)->getMessageQueueByIdentifier($identifier);
     }
 
     /**

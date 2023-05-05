@@ -27,6 +27,9 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 final class ConfigurationController extends MainController
 {
+
+    protected FlashMessageQueue $flashMessageQueue;
+
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
         protected readonly IconFactory $iconFactory,
@@ -35,7 +38,6 @@ final class ConfigurationController extends MainController
         protected readonly string $TSconfPrefix = 'mod.web_modules.dmail.',
         protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
 
-        protected ?FlashMessageService $flashMessageService = null,
         protected ?LanguageService $languageService = null,
 
         protected array $pageTS = [],
@@ -50,7 +52,7 @@ final class ConfigurationController extends MainController
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
         $this->languageService = $this->getLanguageService();
-        $this->flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+        $this->flashMessageQueue = $this->getFlashMessageQueue('ConfigurationQueue');
 
         $queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
@@ -79,8 +81,6 @@ final class ConfigurationController extends MainController
 
     public function indexAction(ModuleTemplate $view): ResponseInterface
     {
-        $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier('ConfigurationQueue');
-
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
 
             $module = $this->getModulName();
@@ -102,7 +102,7 @@ final class ConfigurationController extends MainController
                         ContextualFeedbackSeverity::WARNING,
                         false
                     );
-                    $messageQueue->addMessage($message);
+                    $this->flashMessageQueue->addMessage($message);
                 }
             } else {
                 $message = $this->createFlashMessage(
@@ -111,7 +111,7 @@ final class ConfigurationController extends MainController
                     ContextualFeedbackSeverity::WARNING,
                     false
                 );
-                $messageQueue->addMessage($message);
+                $this->flashMessageQueue->addMessage($message);
                 $view->assignMultiple(
                     [
                         'dmLinks' => $this->getDMPages($this->moduleName),
@@ -125,7 +125,7 @@ final class ConfigurationController extends MainController
                 ContextualFeedbackSeverity::WARNING,
                 false
             );
-            $messageQueue->addMessage($message);
+            $this->flashMessageQueue->addMessage($message);
             return $view->renderResponse('NoAccess');
         }
 
@@ -153,7 +153,7 @@ final class ConfigurationController extends MainController
     {
         if ($this->getBackendUser()->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
             if (is_array($this->pageTS) && count($this->pageTS)) {
-                $notificationQueue = $this->flashMessageService->getMessageQueueByIdentifier(FlashMessageQueue::NOTIFICATION_QUEUE);
+                $notificationQueue = $this->getFlashMessageQueue(FlashMessageQueue::NOTIFICATION_QUEUE);
                 $done = false;
                 if($this->submit) {
                     $done = GeneralUtility::makeInstance(TsUtility::class)->updatePagesTSconfig($this->id, $this->pageTS, $this->TSconfPrefix);
