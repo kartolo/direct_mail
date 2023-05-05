@@ -53,33 +53,24 @@ class FeGroupsRepository extends MainRepository
             )
         )
         ->andWhere(
-            $queryBuilder->expr()->and()
-            ->add(
+            $queryBuilder->expr()->and(
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group_mm.uid_local',
                     $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
-                )
-            )
-            ->add(
+                ),
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group_mm.tablenames',
                     $queryBuilder->createNamedParameter($this->table)
-                )
-            )
-            ->add(
+                ),
                 $queryBuilder->expr()->neq(
                     $switchTable . '.email',
                     $queryBuilder->createNamedParameter('')
-                )
-            )
-            ->add(
+                ),
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group.deleted',
                     $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
-                )
-            )
-            // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
-            ->add(
+                ),
+                // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
                 $queryBuilder->expr()->eq(
                     $switchTable . '.module_sys_dmail_newsletter',
                     1
@@ -112,20 +103,15 @@ class FeGroupsRepository extends MainRepository
             )
         )
         ->andWhere(
-            $queryBuilder->expr()->and()
-            ->add(
+            $queryBuilder->expr()->and(
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group.uid',
                     $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
-                )
-            )
-            ->add(
+                ),
                 $queryBuilder->expr()->eq(
                     'fe_groups.uid',
                     $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')
-                )
-            )
-            ->add(
+                ),
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group_mm.tablenames',
                     $queryBuilder->createNamedParameter($this->table)
@@ -162,20 +148,17 @@ class FeGroupsRepository extends MainRepository
             )
             ->orWhere($usergroupInList)
             ->andWhere(
-                $queryBuilder->expr()->and()
-                    ->add(
-                        $queryBuilder->expr()->neq(
-                            $switchTable . '.email',
-                            $queryBuilder->createNamedParameter('')
-                        )
-                    )
+                $queryBuilder->expr()->and(
+                    $queryBuilder->expr()->neq(
+                        $switchTable . '.email',
+                        $queryBuilder->createNamedParameter('')
+                    ),
                     // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
-                    ->add(
-                        $queryBuilder->expr()->eq(
-                            $switchTable . '.module_sys_dmail_newsletter',
-                            1
-                        )
+                    $queryBuilder->expr()->eq(
+                        $switchTable . '.module_sys_dmail_newsletter',
+                        1
                     )
+                )
             )
             ->orderBy($switchTable . '.uid')
             ->addOrderBy($switchTable . '.email');

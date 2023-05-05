@@ -85,14 +85,11 @@ class TempRepository extends MainRepository
             ->selectLiteral('DISTINCT ' . $table . '.uid', $table . '.email')
             ->from($table)
             ->andWhere(
-                $queryBuilder->expr()->and()
-                ->add(
+                $queryBuilder->expr()->and(
                     $queryBuilder->expr()->in(
                         $table . '.pid',
                         $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
-                    )
-                )
-                ->add(
+                    ),
                     $queryBuilder->expr()->neq(
                         $table . '.email',
                         $queryBuilder->createNamedParameter('')
@@ -119,37 +116,28 @@ class TempRepository extends MainRepository
                 )
             )
             ->andWhere(
-                $queryBuilder->expr()->and()
-                    ->add(
-                        $queryBuilder->expr()->in(
-                            $table . '.pid',
-                            $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
-                        )
+                $queryBuilder->expr()->and(
+                    $queryBuilder->expr()->in(
+                        $table . '.pid',
+                        $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
+                    ),
+                    $queryBuilder->expr()->eq(
+                        'mm_1.uid_foreign',
+                        $queryBuilder->quoteIdentifier('g_mm.uid_foreign')
+                    ),
+                    $queryBuilder->expr()->eq(
+                        'sys_dmail_group.uid',
+                        $queryBuilder->quoteIdentifier('g_mm.uid_local')
+                    ),
+                    $queryBuilder->expr()->eq(
+                        'sys_dmail_group.uid',
+                        $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
+                    ),
+                    $queryBuilder->expr()->neq(
+                        $table . '.email',
+                        $queryBuilder->createNamedParameter('')
                     )
-                    ->add(
-                        $queryBuilder->expr()->eq(
-                            'mm_1.uid_foreign',
-                            $queryBuilder->quoteIdentifier('g_mm.uid_foreign')
-                        )
-                    )
-                    ->add(
-                        $queryBuilder->expr()->eq(
-                            'sys_dmail_group.uid',
-                            $queryBuilder->quoteIdentifier('g_mm.uid_local')
-                        )
-                    )
-                    ->add(
-                        $queryBuilder->expr()->eq(
-                            'sys_dmail_group.uid',
-                            $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
-                        )
-                    )
-                    ->add(
-                        $queryBuilder->expr()->neq(
-                            $table . '.email',
-                            $queryBuilder->createNamedParameter('')
-                        )
-                    )
+                )
             )
             ->orderBy($table . '.uid')
             ->addOrderBy($table . '.email')
@@ -199,32 +187,24 @@ class TempRepository extends MainRepository
             )
         )
         ->andWhere(
-            $queryBuilder->expr()->and()
-            ->add(
+            $queryBuilder->expr()->and(
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group_mm.uid_local',
                     $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
-                )
-            )
-            ->add(
+                ),
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group_mm.tablenames',
                     $queryBuilder->createNamedParameter($table)
-                )
-            )
-            ->add(
+                ),
                 $queryBuilder->expr()->neq(
                     $table . '.email',
                     $queryBuilder->createNamedParameter('')
-                )
-            )
-            ->add(
+                ),
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group.deleted',
                     $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
             )
-            ->add($addWhere ?? '')
         )
         ->orderBy($table . '.uid')
         ->addOrderBy($table . '.email')
