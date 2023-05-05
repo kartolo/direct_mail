@@ -5,173 +5,122 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Utility;
 
 /**
- * Code from TYPO3\CMS\Scheduler\Controller\SchedulerModuleController listTasksAction
+ * Code from:
+ *  TYPO3\CMS\Scheduler\Controller\SchedulerModuleController listTasksAction
+ *  TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository getGroupedTasks
  */
 
 use DirectMailTeam\DirectMail\Repository\TempRepository;
-use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Scheduler\Scheduler;
+use TYPO3\CMS\Scheduler\Service\TaskService;
+use TYPO3\CMS\Scheduler\Task\AbstractTask;
+use TYPO3\CMS\Scheduler\Task\TaskSerializer;
+use TYPO3\CMS\Scheduler\Validation\Validator\TaskValidator;
 
 class SchedulerUtility
 {
-    protected static function getRegisteredClasses(LanguageService $languageService): array
+    protected static function isValidTaskObject($task): bool
     {
-        $list = [];
-        foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks'] ?? [] as $class => $registrationInformation) {
-            $list[$class] = [
-                'extension' => $registrationInformation['extension'],
-                'title' => isset($registrationInformation['title']) ? $languageService->sL($registrationInformation['title']) : '',
-                'description' => isset($registrationInformation['description']) ? $registrationInformation['description'] : '',
-                'provider' => $registrationInformation['additionalFields'] ?? '',
-            ];
-        }
-        return $list;
+        return (new TaskValidator())->isValid($task);
     }
 
-    public static function getDMTable(LanguageService $languageService): array
+    public static function getDMTable(): array
     {
-        $tasks = GeneralUtility::makeInstance(TempRepository::class)->seachDMTask();
-        $taskTable = [];
+        $taskSerializer = GeneralUtility::makeInstance(TaskSerializer::class);
+        $registeredClasses = GeneralUtility::makeInstance(TaskService::class)->getAvailableTaskTypes();
+
+        $tasks = GeneralUtility::makeInstance(TempRepository::class)->getDMTasks();
+
+        $taskGroupsWithTasks = [];
+        $errorClasses = [];
 
         if (is_array($tasks) && count($tasks) > 0) {
-            $lllFile = 'LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf';
-
-            $registeredClasses = self::getRegisteredClasses($languageService);
-            $dateFormat = Typo3ConfVarsUtility::getDateFormat();
             foreach ($tasks as $task) {
-                $isRunning = false;
-                $showAsDisabled = false;
-
-                $taskTableRow = [
-                    'translationKey' => ((int)$task['disable'] === 1) ? 'enable' : 'disable',
-                    'class' => '',
-                    'classTitle' => '',
-                    'classExtension' => '',
-                    'validClass' => false,
-                    'uid' => $task['uid'],
+                $taskData = [
+                    'uid' => (int)$task['uid'],
+                    'lastExecutionTime' => (int)$task['lastexecution_time'],
+                    'lastExecutionContext' => $task['lastexecution_context'],
+                    'errorMessage' => '',
                     'description' => $task['description'],
-                    'additionalInformation' => '',
-                    'progress' => '',
-                    'task' => '',
-                    'status' => '',
-                    'type' => '',
-                    'frequency' => '',
-                    'lastExecution' => '',
-                    'nextExecution' => '-',
-                    'execType' => '',
-                    'frequency' => '',
-                    'multiple' => ''
                 ];
 
-                $exceptionWithClass = false;
-                $taskObj = null;
                 try {
-                    $taskObj = unserialize($task['serialized_task_object']);
-
-                    $class = get_class($taskObj);
-                    if ($class === \__PHP_Incomplete_Class::class && preg_match('/^O:[0-9]+:"(?P<classname>.+?)"/', $task['serialized_task_object'], $matches) === 1) {
-                        $class = $matches['classname'];
-                    }
-
-                    $taskTableRow['class'] = $class;
-
-                    if (!empty($task['lastexecution_time'])) {
-                        $taskTableRow['lastExecution'] = date($dateFormat, (int)$task['lastexecution_time']);
-                        $context = ($task['lastexecution_context'] === 'CLI') ? 'label.cron' : 'label.manual';
-                        $taskTableRow['lastExecution'] .= ' (' . $languageService->sL($lllFile . ':' . $context) . ')';
-                    }
-                } catch (\BadMethodCallException $e) {
-                    $exceptionWithClass = true;
+                    $taskObject = $taskSerializer->deserialize($task['serialized_task_object']);
+                } catch (InvalidTaskException $e) {
+                    $taskData['errorMessage'] = $e->getMessage();
+                    $taskData['class'] = $taskSerializer->extractClassName($task['serialized_task_object']);
+                    $errorClasses[] = $taskData;
+                    continue;
                 }
 
-                $scheduler = GeneralUtility::makeInstance(Scheduler::class);
+                $taskClass = $taskSerializer->resolveClassName($taskObject);
+                $taskData['class'] = $taskClass;
 
-                if (!$exceptionWithClass && isset($registeredClasses[get_class($taskObj)]) && $scheduler->isValidTaskObject($taskObj)) {
-                    $taskTableRow['validClass'] = true;
-
-                    $labels = [];
-
-                    if ($task instanceof ProgressProviderInterface) {
-                        $taskTableRow['progress'] = round((float)$taskObj->getProgress(), 2);
-                    }
-                    $taskTableRow['classTitle'] = $registeredClasses[$class]['title'];
-                    $taskTableRow['classExtension'] = $registeredClasses[$class]['extension'];
-                    $taskTableRow['additionalInformation'] = $taskObj->getAdditionalInformation();
-
-                    if (!empty($task['serialized_executions'])) {
-                        $labels[] = [
-                            'class' => 'success',
-                            'text' => $languageService->sL($lllFile . ':status.running'),
-                        ];
-                        $isRunning = true;
-                        $taskTableRow['status'] = $languageService->sL($lllFile . ':status.running');
-                    }
-
-                    if (!$isRunning && $task['disable'] !== 1) {
-                        $nextDate = date($dateFormat, (int)$task['nextexecution']);
-                        if (empty($task['nextexecution'])) {
-                            $nextDate = $languageService->sL($lllFile . ':none');
-                        } elseif ($task['nextexecution'] < $GLOBALS['EXEC_TIME']) {
-                            $labels[] = [
-                                'class' => 'warning',
-                                'text' => $languageService->sL($lllFile . ':status.late'),
-                                'description' => $languageService->sL($lllFile . ':status.legend.scheduled'),
-                            ];
-                        }
-                        $taskTableRow['nextExecution'] = $nextDate;
-                    }
-
-                    if ($taskObj->getType() === 1) {//AbstractTask::TYPE_SINGLE
-                        $execType = $languageService->sL($lllFile . ':label.type.single');
-                        $frequency = '-';
-                    } else {
-                        $execType = $languageService->sL($lllFile . ':label.type.recurring');
-                        if ($taskObj->getExecution()->getCronCmd() == '') {
-                            $frequency = $taskObj->getExecution()->getInterval();
-                        } else {
-                            $frequency = $taskObj->getExecution()->getCronCmd();
-                        }
-                    }
-
-                    if ($task['disable'] && !$isRunning) {
-                        $labels[] = [
-                            'class' => 'default',
-                            'text' => $languageService->sL($lllFile . ':status.disabled'),
-                        ];
-                        $showAsDisabled = true;
-                    }
-
-                    $taskTableRow['execType'] = $execType;
-                    $taskTableRow['frequency'] = $frequency;
-
-                    $multiple = $taskObj->getExecution()->getMultiple() ? 'yes' : 'no';
-                    $taskTableRow['multiple'] = $languageService->sL($lllFile . ':' . $multiple);
-
-                    if (!empty($task['lastexecution_failure'])) {
-                        $exceptionArray = @unserialize($task['lastexecution_failure']);
-                        if (!is_array($exceptionArray) || empty($exceptionArray)) {
-                            $labelDescription = $languageService->sL($lllFile . ':' . 'msg.executionFailureDefault');
-                        } else {
-                            $labelDescription = ''; sprintf($languageService->sL($lllFile . ':' . 'msg.executionFailureReport'), $exceptionArray['code'], $exceptionArray['message']);
-                        }
-                        $labels[] = [
-                            'class' => 'danger',
-                            'text' => 'status.failure',
-                            'description' => $labelDescription,
-                        ];
-                    }
-                    $taskTableRow['labels'] = $labels;
-
-                    if ($showAsDisabled) {
-                        $taskTableRow['showAsDisabled'] = 'disabled';
-                    }
-
-                    $taskTable[] = $taskTableRow;
+                if (!self::isValidTaskObject($taskObject)) {
+                    $taskData['errorMessage'] = 'The class ' . $taskClass . ' is not a valid task';
+                    $errorClasses[] = $taskData;
+                    continue;
                 }
+
+                if (!isset($registeredClasses[$taskClass])) {
+                    $taskData['errorMessage'] = 'The class ' . $taskClass . ' is not a registered task';
+                    $errorClasses[] = $taskData;
+                    continue;
+                }
+
+                if ($taskObject instanceof ProgressProviderInterface) {
+                    $taskData['progress'] = round((float)$taskObject->getProgress(), 2);
+                }
+
+                if (!isset($registeredClasses[$taskClass])) {
+                    $taskData['errorMessage'] = 'The class ' . $taskClass . ' is not a registered task';
+                    $errorClasses[] = $taskData;
+                    continue;
+                }
+
+                if ($taskObject instanceof ProgressProviderInterface) {
+                    $taskData['progress'] = round((float)$taskObject->getProgress(), 2);
+                }
+                $taskData['classTitle'] = $registeredClasses[$taskClass]['title'];
+                $taskData['classExtension'] = $registeredClasses[$taskClass]['extension'];
+                $taskData['additionalInformation'] = $taskObject->getAdditionalInformation();
+                $taskData['disabled'] = (bool)$task['disable'];
+                $taskData['isRunning'] = !empty($task['serialized_executions']);
+                $taskData['nextExecution'] = (int)$task['nextexecution'];
+                $taskData['type'] = 'single';
+                $taskData['frequency'] = '';
+                if ($taskObject->getType() === AbstractTask::TYPE_RECURRING) {
+                    $taskData['type'] = 'recurring';
+                    $taskData['frequency'] = $taskObject->getExecution()->getCronCmd() ?: $taskObject->getExecution()->getInterval();
+                }
+                $taskData['multiple'] = (bool)$taskObject->getExecution()->getMultiple();
+                $taskData['lastExecutionFailure'] = false;
+                if (!empty($task['lastexecution_failure'])) {
+                    $taskData['lastExecutionFailure'] = true;
+                    $exceptionArray = @unserialize($task['lastexecution_failure']);
+                    $taskData['lastExecutionFailureCode'] = '';
+                    $taskData['lastExecutionFailureMessage'] = '';
+                    if (is_array($exceptionArray)) {
+                        $taskData['lastExecutionFailureCode'] = $exceptionArray['code'];
+                        $taskData['lastExecutionFailureMessage'] = $exceptionArray['message'];
+                    }
+                }
+
+                // If a group is deleted or no group is set it needs to go into "not assigned groups"
+                $groupIndex = $task['isTaskGroupDeleted'] === 1 || $task['isTaskGroupDeleted'] === null ? 0 : (int)$task['task_group'];
+                if (!isset($taskGroupsWithTasks[$groupIndex])) {
+                    $taskGroupsWithTasks[$groupIndex] = [
+                        'tasks' => [],
+                        'groupName' => $task['taskGroupName'],
+                        'groupUid' => $task['taskGroupId'],
+                        'groupDescription' => $task['taskGroupDescription'],
+                        'groupHidden' => $task['isTaskGroupHidden'],
+                    ];
+                }
+                $taskGroupsWithTasks[$groupIndex]['tasks'][] = $taskData;
             }
         }
 
-        return $taskTable;
+        return ['taskGroupsWithTasks' => $taskGroupsWithTasks, 'errorClasses' => $errorClasses];
     }
 }

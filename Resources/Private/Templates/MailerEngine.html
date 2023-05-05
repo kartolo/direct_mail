@@ -1,4 +1,4 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers" data-namespace-typo3-fluid="true">
 
 <f:layout name="Module" />
 
@@ -9,7 +9,7 @@
 	<f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
 	<h1><f:translate key="{lll}header_mailer" /></h1>
     <h3><f:translate key="{lll}dmail_mailerengine_status" /></h3>
-    <f:render arguments="{schedulerTable: schedulerTable}" section="Scheduler" />
+    <f:render arguments="{tasks: tasks, errorClasses: errorClasses}" section="Scheduler" />
 
 	<f:if condition="{invoke}">
 		<h3><f:translate key="{lll}dmail_mailerengine_manual_invoke" /></h3>
@@ -55,65 +55,218 @@
 </f:section>
 
 <f:section name="Scheduler">
-
-
-    <f:if condition="{schedulerTable -> f:count()}">
+    <f:if condition="{tasks}">
         <f:then>
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr class="t3-row-header">
-                        <th><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.id"/></th>
-                        <th><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:task"/></th>
-                        <th><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.status"/></th>
-                        <th><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.type"/></th>
-                        <th><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.frequency"/></th>
-                        <th><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.parallel"/></th>
-                        <th><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.lastExecution"/></th>
-                        <th><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.nextExecution"/></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <f:for each="{schedulerTable}" as="task" iteration="taskIterator">
-                        <f:if condition="{task.validClass}">
-                            <tr class="{task.showAsDisabled}">
-                                <td class="right">{task.uid}</td>
-                                <td class="nowrap-disabled">
-                                    <div class="name">
-                                        <strong>{task.classTitle} ({task.classExtension})</strong>
-                                        <f:if condition="{task.progress}">
-                                            <div class="progress">
-                                                <div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="{task.progress}" aria-valuemin="0" aria-valuemax="100" style="width: {task.progress}%;">{task.progress}%</div>
-                                            </div>
-                                        </f:if>
-                                        <f:if condition="{task.additionalInformation}">
-                                            <div class="additional-information"><f:format.nl2br>{task.additionalInformation}</f:format.nl2br></div>
-                                        </f:if>
-                                    </div>
-                                    <f:if condition="{task.description} != ''">
-                                        <div class="text-muted" style="margin-top: 0.5em;"><f:format.nl2br>{task.description}</f:format.nl2br></div>
-                                    </f:if>
-                                </td>
-                                <td>
-                                    <f:for each="{task.labels}" as="label">
-                                        <f:if condition="{task.validClass}">
-                                            <span class="label label-{label.class}" title="{label.description}">{label.text}</span>
-                                        </f:if>
-                                    </f:for>
-                                </td>
-                                <td>{task.execType}</td>
-                                <td>{task.frequency}</td>
-                                <td>{task.multiple}</td>
-                                <td>{task.lastExecution}</td>
-                                <td><span class="{task.labels.nextexecution.class}">{task.nextExecution}</span></td>
-                            </tr>
-                        </f:if>
-                    </f:for>
-                </tbody>
-            </table>
+            <f:render section="TaskList" arguments="{_all}" />
         </f:then>
         <f:else>
-            <p><strong><f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmail_mailerengine_tasknotfound" /></strong></p>
+            <f:be.infobox state="-1" message="{f:translate(key: 'LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:msg.noTasks')}" />
         </f:else>
     </f:if>
 </f:section>
+
+<f:section name="TaskList">
+    <div class="t3js-group-draggable">
+        <f:for each="{tasks}" as="taskGroup" key="taskGroupId">
+            <f:render section="table" arguments="{_all}"/>
+        </f:for>
+    </div>
+</f:section>
+
+<f:section name="table">
+    <div class="{f:if(condition: '{taskGroup.groupUid} == 0', then: 't3js-scheduler-sorting-disabled')} panel panel-default scheduler-group-panel" data-multi-record-selection-identifier="task-group-{taskGroup.groupUid}">
+        <div class="panel-heading multi-record-selection-panel {f:if(condition: '{taskGroup.groupUid} == 0', else: 'scheduler-group-dragitem t3js-group-draggable-item')}" data-task-group-id="{taskGroup.groupUid}">
+            <f:if condition="!{taskGroup.groupName}">
+                <f:then>
+                    <span>{f:translate(key: 'LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.noGroup')}</span>
+                </f:then>
+                <f:else>
+                    <typo3-scheduler-editable-group-name
+                        groupName="{taskGroup.groupName}"
+                        groupId="{taskGroup.groupUid}"
+                        editable="true"
+                    >
+                        {taskGroup.groupName}
+                    </typo3-scheduler-editable-group-name>
+                    <f:if condition="{taskGroup.groupHidden}">
+                        <span class="badge badge-secondary"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.group.isDisabled" /></span>
+                    </f:if>
+                </f:else>
+            </f:if>
+            <div class="float-end">
+                <button type="button"
+                        class="btn btn-default btn-sm t3js-toggle-table"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#scheduler-task-group-{taskGroupId}"
+                        aria-expanded="{f:if(condition: taskGroup.taskGroupCollapsed, then: 'false', else: 'true')}"
+                >
+                    <span class="collapseIcon">
+                        <core:icon identifier="{f:if(condition: taskGroup.taskGroupCollapsed, then: 'actions-view-list-expand', else: 'actions-view-list-collapse')}" size="small" />
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="panel-collapse collapse {f:if(condition: '!{taskGroup.taskGroupCollapsed}', then: 'show')}" id="scheduler-task-group-{taskGroupId}" data-table="task-group-{taskGroup.groupUid}">
+            <div class="table-fit">
+                <table class="table table-striped table-hover" data-scheduler-table>
+                    <thead>
+                        <tr class="taskGroup_{taskGroup.groupUid}">
+                            <th></th>
+                            <th><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.id"/></th>
+                            <th class="col-task col-word-break"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:task"/></th>
+                            <th class="col-min"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.status"/></th>
+                            <th class="col-state"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.type"/></th>
+                            <th class="col-state"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.frequency"/></th>
+                            <th class="col-min"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.parallel"/></th>
+                            <th class="col-min"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.lastExecution"/></th>
+                            <th class="col-min"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.nextExecution"/></th>
+                        </tr>
+                    </thead>
+                    <tbody data-multi-record-selection-row-selection="true">
+                    <f:for each="{taskGroup.tasks}" as="task">
+                        <tr class="{f:if(condition:'{task.disabled}', then: 'disabled')} taskGroup_{taskGroupId}" data-task-id="{task.uid}" data-multi-record-selection-element="true">
+                            <td class="align-top">{task.uid}</td>
+                            <td class="align-top col-task col-word-break">
+                                <div class="name">
+                                    <strong>{task.classTitle} ({task.classExtension})</strong>
+                                    <f:if condition="{task.progress}">
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="{task.progress}" aria-valuemin="0" aria-valuemax="100" style="width: {task.progress}%;">{task.progress}%</div>
+                                        </div>
+                                    </f:if>
+                                    <f:if condition="{task.additionalInformation}">
+                                        <div class="additional-information"><f:format.nl2br>{task.additionalInformation}</f:format.nl2br></div>
+                                    </f:if>
+                                </div>
+                                <f:if condition="{task.description} != ''">
+                                    <div class="text-body-secondary" style="margin-top: 0.5em;"><f:format.nl2br>{task.description}</f:format.nl2br></div>
+                                </f:if>
+                            </td>
+                            <td class="align-top col-min">
+                                <f:if condition="{task.isRunning}">
+                                    <span class="badge badge-success"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:status.running" /></span>
+                                </f:if>
+                                <f:if condition="{task.nextExecution} && {task.nextExecution} < {now} && !{taskGroup.groupHidden} && !{task.disabled}">
+                                        <span
+                                            class="badge badge-warning"
+                                            title="{f:translate(key:'LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:status.legend.scheduled')}"
+                                        >
+                                            <f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:status.late" />
+                                        </span>
+                                </f:if>
+                                <f:if condition="{task.disabled} && !{task.isRunning}">
+                                    <span class="badge badge-secondary"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:status.disabled" /></span>
+                                </f:if>
+                                <f:if condition="{taskGroup.groupHidden} && !{task.isRunning}">
+                                    <span class="badge badge-secondary"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:status.disabledByGroup" /></span>
+                                </f:if>
+                                <f:if condition="{task.lastExecutionFailure}">
+                                    <f:if condition="{task.lastExecutionFailureMessage}">
+                                        <f:then>
+                                                <span
+                                                    class="badge badge-danger"
+                                                    title="{f:translate(
+                                                        key:'LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:msg.executionFailureReport',
+                                                        arguments:{0: task.lastExecutionFailureCode, 1: task.lastExecutionFailureMessage}
+                                                    )}"
+                                                >
+                                                    <f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:status.failure" />
+                                                </span>
+                                        </f:then>
+                                        <f:else>
+                                                <span
+                                                    class="badge badge-danger"
+                                                    title="{f:translate(key:'LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:msg.executionFailureDefault')}"
+                                                >
+                                                    <f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:status.failure" />
+                                                </span>
+                                        </f:else>
+                                    </f:if>
+                                </f:if>
+                                <f:for each="{task.labels}" as="label">
+                                    <span class="badge badge-{label.class}" title="{label.description}">{label.text}</span>
+                                </f:for>
+                            </td>
+                            <td class="align-top col-state">
+                                <f:if condition="{task.type} === 'single'">
+                                    <f:then>
+                                        <f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.type.single" />
+                                    </f:then>
+                                    <f:else>
+                                        <f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.type.recurring" />
+                                    </f:else>
+                                </f:if>
+                            </td>
+                            <td class="align-top col-state">
+                                <f:if condition="{task.type} === 'single'">
+                                    <f:then>-</f:then>
+                                    <f:else>{task.frequency}</f:else>
+                                </f:if>
+                            </td>
+                            <td class="align-top col-min">
+                                <f:if condition="{task.multiple}">
+                                    <f:then>
+                                        <f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:yes" />
+                                    </f:then>
+                                    <f:else>
+                                        <f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:no" />
+                                    </f:else>
+                                </f:if>
+                            </td>
+                            <td class="align-top col-min">
+                                <f:if condition="{task.lastExecutionTime}">
+                                    <f:then>
+                                        <f:format.date format="{dateFormat.day} {dateFormat.time}" date="{task.lastExecutionTime}" /><br>
+                                        <f:if condition="{task.lastExecutionContext} == 'CLI'">
+                                            <f:then>
+                                                <span class="text-body-secondary"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.cron" /></span>
+                                            </f:then>
+                                            <f:else>
+                                                <span class="text-body-secondary"><f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.manual" /></span>
+                                            </f:else>
+                                        </f:if>
+                                    </f:then>
+                                    <f:else>-</f:else>
+                                </f:if>
+                            </td>
+                            <td class="align-top col-min">
+                                <f:if condition="{task.isRunning} || {task.disabled} || {taskGroup.groupHidden}">
+                                    <f:then>-</f:then>
+                                    <f:else>
+                                        <f:if condition="{task.nextExecution}">
+                                            <f:then>
+                                                <f:format.date format="{dateFormat.day} {dateFormat.time}" date="{task.nextExecution}" />
+                                            </f:then>
+                                            <f:else>
+                                                <f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:none" />
+                                            </f:else>
+                                        </f:if>
+                                    </f:else>
+                                </f:if>
+                            </td>
+                        </tr>
+                    </f:for>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="10">
+                                <f:if condition="!{taskGroup.groupName}">
+                                    <f:then>
+                                        <span class="t3js-table-total-items" title="{f:translate(key: 'LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.noGroup.taskCount')}">{taskGroup.tasks -> f:count()}</span>
+                                        <f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.noGroup" />
+                                    </f:then>
+                                    <f:else>
+                                        <span class="t3js-table-total-items" title="{f:translate(key: 'LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:label.group.taskCount')}">{taskGroup.tasks -> f:count()}</span>
+                                        <f:translate key="LLL:EXT:scheduler/Resources/Private/Language/locallang.xlf:function.scheduler" />
+                                    </f:else>
+                                </f:if>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</f:section>
+
 </html>

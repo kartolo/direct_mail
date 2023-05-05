@@ -87,10 +87,10 @@ final class MailerEngineController extends MainController
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $mailerEngine = $this->mailerengine();
-
+                    $tasks = $this->getSchedulerTable();
                     $view->assignMultiple(
                         [
-                            'schedulerTable' => $this->getSchedulerTable(),
+                            'tasks' => $tasks['taskGroupsWithTasks'],
                             'data' => $mailerEngine['data'],
                             'id' => $this->id,
                             'invoke' => $mailerEngine['invoke'],
@@ -138,10 +138,9 @@ final class MailerEngineController extends MainController
 
     protected function getSchedulerTable(): array
     {
-        $schedulerTable = [];
+        $schedulerTable = ['taskGroupsWithTasks' => [], 'errorClasses' => []];
         if (ExtensionManagementUtility::isLoaded('scheduler')) {
-            //$this->languageService->includeLLFile('EXT:scheduler/Resources/Private/Language/locallang.xlf');
-            $schedulerTable = SchedulerUtility::getDMTable($this->languageService);
+            $schedulerTable = SchedulerUtility::getDMTable();
         }
         return $schedulerTable;
     }

@@ -470,36 +470,47 @@ class TempRepository extends MainRepository
         }
     }
 
-    public function seachDMTask()
+    /**
+     * Code from:
+     *  TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository getGroupedTasks
+     */
+    public function getDMTasks(): array
     {
         $table = 'tx_scheduler_task';
         $queryBuilder = $this->getQueryBuilder($table);
+        $queryBuilder->getRestrictions()->removeAll();
 
         $searchStrNew = 'directmail:mailingqueue';
-        //@TODO remove in v12
-        $searchStrOld = '\DirectmailScheduler';
 
         $queryBuilder
-            ->select('uid', 'disable', 'description', 'nextexecution', 'lastexecution_time', 'lastexecution_failure', 'lastexecution_context', 'serialized_task_object', 'serialized_executions')
-            ->from($table)
+            ->select('t.*')
+            ->addSelect(
+                'g.groupName AS taskGroupName',
+                'g.description AS taskGroupDescription',
+                'g.uid AS taskGroupId',
+                'g.deleted AS isTaskGroupDeleted',
+                'g.hidden AS isTaskGroupHidden',
+            )
+            ->from($table, 't')
+            ->leftJoin(
+                't',
+                'tx_scheduler_task_group',
+                'g',
+                $queryBuilder->expr()->eq('t.task_group', $queryBuilder->quoteIdentifier('g.uid'))
+            )
             ->where(
                 $queryBuilder->expr()->like(
-                    'serialized_task_object',
+                    't.serialized_task_object',
                     $queryBuilder->createNamedParameter('%' . $queryBuilder->escapeLikeWildcards($searchStrNew) . '%')
-                )
-            )
-            ->orWhere(
-                $queryBuilder->expr()->like(
-                    'serialized_task_object',
-                    $queryBuilder->createNamedParameter('%' . $queryBuilder->escapeLikeWildcards($searchStrOld) . '%')
                 )
             )
             ->andWhere(
                 $queryBuilder->expr()->eq(
-                    'deleted',
+                    't.deleted',
                     $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
-            );
+            )
+            ->orderBy('g.sorting');
 
         return $queryBuilder->executeQuery()->fetchAllAssociative();
     }
