@@ -132,7 +132,13 @@
     </f:if>
     <f:if condition="{type} == 3">
 		<div>
-			<h2>{formcontent.output.title}</h2>
+			<h2>{formcontent.output.title}
+                <button type="button" class="btn btn-sm btn-outline-dark" data-bs-trigger="hover" data-bs-toggle="popover"
+                    data-bs-title="{f:translate(key: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_RecipientList.xlf:mailgroup_import.description')}"
+                    data-bs-content="{f:translate(key: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_RecipientList.xlf:mailgroup_import.details')}">
+                    <core:icon identifier="actions-system-help-open" size="small" />
+                </button>
+            </h2>
 			<hr style="border:solid;"/>
 			<h3>{formcontent.output.subtitle}</h3>
 			<form action="" method="post" name="dmailform" enctype="multipart/form-data">

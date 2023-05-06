@@ -1770,7 +1770,6 @@ final class DmailController extends MainController
     {
         $output = [
             'title' => $this->languageService->sL($this->lllFile . ':nl_cat'),
-            'subtitle' => '',
             'rowsFound' => false,
             'rows' => [],
             'pages_uid' => $this->pages_uid,
@@ -1808,11 +1807,7 @@ final class DmailController extends MainController
             (int)$this->pages_uid,
             (int)$row['sys_language_uid']
         );
-        if (empty($rows)) {
-            $output['subtitle'] = $this->languageService->sL($this->lllFile . ':nl_cat_msg1');
-        } else {
-            //https://api.typo3.org/master/class_t_y_p_o3_1_1_c_m_s_1_1_backend_1_1_utility_1_1_backend_utility.html#a5522e461e5ce3b1b5c87ee7546af449d
-            $output['subtitle'] = BackendUtility::cshItem($this->cshTable, 'assign_categories');
+        if (!empty($rows)) {
             $output['rowsFound'] = true;
 
             $colPosVal = 99;

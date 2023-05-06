@@ -517,21 +517,19 @@ class Importer
                 $output['upload']['newFileUid'] = $this->indata['newFileUid'] ?? 0;
         }
 
-        $output['title'] = $this->languageService->sL($this->lllFile . ':mailgroup_import') . BackendUtility::cshItem($this->cshTable ?? '', 'mailgroup_import');
+        $output['title'] = $this->languageService->sL($this->lllFile . ':mailgroup_import');
         $theOutput = sprintf('%s', $out);
 
         /**
          *  Hook for displayImport
          *  use it to manipulate the steps in the import process
          */
-        $hookObjectsArr = [];
-        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport']) &&
-            is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'])) {
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'] ?? false)) {
+            $hookObjectsArr = [];
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'] as $classRef) {
                 $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
-        }
-        if (count($hookObjectsArr)) {
+
             foreach ($hookObjectsArr as $hookObj) {
                 if (method_exists($hookObj, 'displayImport')) {
                     $theOutput = $hookObj->displayImport($this);
