@@ -16,7 +16,9 @@ defined('TYPO3') || die();
 
     /**
      * Setting up the direct mail module
+     * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Deprecation-97312-DeprecateCSH-relatedMethods.html
      */
+/**
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail', 'EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_group', 'EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmailg.xlf');
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('sys_dmail_category', 'EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmailcat.xlf');
@@ -27,7 +29,7 @@ defined('TYPO3') || die();
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_DirectMailNavFrame_Configuration', 'EXT:direct_mail/Resources/Private/Language/locallang_csh_Configuration.xlf');
     //old
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_MOD_web_DirectMailNavFrame', 'EXT:direct_mail/Resources/Private/Language/locallang_csh_web_txdirectmail.xlf');
-
+*/
     if (TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('tt_address')) <= TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('2.3.5')) {
         include_once(TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('direct_mail') . 'Configuration/TCA/Overrides/tt_address.php');
     }
