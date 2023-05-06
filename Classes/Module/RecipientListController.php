@@ -45,6 +45,7 @@ final class RecipientListController extends MainController
         protected ?LanguageService $languageService = null,
         protected ?ServerRequestInterface $request = null,
 
+        protected array $queryParams = [],
         protected array $pageinfo = [],
         protected int $id = 0,
         protected bool $access = false,
@@ -80,10 +81,10 @@ final class RecipientListController extends MainController
         $this->flashMessageQueue = $this->getFlashMessageQueue('RecipientListQueue');
 
         $this->request = $request;
-        $queryParams = $request->getQueryParams();
+        $this->queryParams = $request->getQueryParams();
         $parsedBody = $request->getParsedBody();
 
-        $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
+        $this->id = (int)($parsedBody['id'] ?? $this->queryParams['id'] ?? 0);
         $permsClause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
         $pageAccess = BackendUtility::readPageAccess($this->id, $permsClause);
         $this->pageinfo = is_array($pageAccess) ? $pageAccess : [];
@@ -94,18 +95,18 @@ final class RecipientListController extends MainController
         $this->requestUri = $normalizedParams->getRequestUri();
         $this->httpReferer = $request->getServerParams()['HTTP_REFERER'];
 
-        $this->cmd = (string)($parsedBody['cmd'] ?? $queryParams['cmd'] ?? '');
-        $this->group_uid = (int)($parsedBody['group_uid'] ?? $queryParams['group_uid'] ?? 0);
-        $this->lCmd = $parsedBody['lCmd'] ?? $queryParams['lCmd'] ?? '';
-        $this->csv = $parsedBody['csv'] ?? $queryParams['csv'] ?? '';
+        $this->cmd = (string)($parsedBody['cmd'] ?? $this->queryParams['cmd'] ?? '');
+        $this->group_uid = (int)($parsedBody['group_uid'] ?? $this->queryParams['group_uid'] ?? 0);
+        $this->lCmd = $parsedBody['lCmd'] ?? $this->queryParams['lCmd'] ?? '';
+        $this->csv = $parsedBody['csv'] ?? $this->queryParams['csv'] ?? '';
         $this->set = is_array($parsedBody['SET'] ?? '') ? $parsedBody['SET'] : [];
 
-        $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
-        $this->table = (string)($parsedBody['table'] ?? $queryParams['table'] ?? '');
-        $this->indata = $parsedBody['indata'] ?? $queryParams['indata'] ?? [];
-        $this->submit = (bool)($parsedBody['submit'] ?? $queryParams['submit'] ?? false);
+        $this->uid = (int)($parsedBody['uid'] ?? $this->queryParams['uid'] ?? 0);
+        $this->table = (string)($parsedBody['table'] ?? $this->queryParams['table'] ?? '');
+        $this->indata = $parsedBody['indata'] ?? $this->queryParams['indata'] ?? [];
+        $this->submit = (bool)($parsedBody['submit'] ?? $this->queryParams['submit'] ?? false);
 
-        $this->queryConfig = (string)($parsedBody['queryConfig'] ?? $queryParams['queryConfig'] ?? '');
+        $this->queryConfig = (string)($parsedBody['queryConfig'] ?? $this->queryParams['queryConfig'] ?? '');
         $this->importStep = is_array($parsedBody['importStep'] ?? '') ? $parsedBody['importStep'] : [];
         $this->csvImport = is_array($parsedBody['CSV_IMPORT'] ?? '') ? $parsedBody['CSV_IMPORT'] : [];
         $this->csvFile = is_array($parsedBody['file'] ?? '') ? $parsedBody['file'] : [];
@@ -251,7 +252,7 @@ final class RecipientListController extends MainController
                 'id'          => $row['uid'],
                 'icon'        => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render(),
                 'editLink'    => $this->editLink('sys_dmail_group', $row['uid']),
-                'reciplink'   => $this->linkRecip_record('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']),
+                'reciplink'   => $this->linkRecipRecord('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']),
                 'type'        => htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])),
                 'description' => BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'] ?? '')),
                 'count'       => $count,
@@ -469,7 +470,7 @@ final class RecipientListController extends MainController
      * @return string The link
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function linkRecip_record($str, $uid)
+    protected function linkRecipRecord($str, $uid)
     {
         $moduleUrl = $this->buildUriFromRoute(
             $this->moduleName,
@@ -516,7 +517,17 @@ final class RecipientListController extends MainController
             'group_icon' => $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL),
             'group_title' => htmlspecialchars($group['title'] ?? ''),
             'group_totalRecipients' => $totalRecipients,
-            'group_link_listall' => ($this->lCmd == '') ? GeneralUtility::linkThisScript(['lCmd'=>'listall']) : '',
+            'group_link_listall' => ($this->lCmd == '') ? (string)$this->buildUriFromRoute(
+                $this->moduleName,
+                [
+                    'id' => $this->id,
+                    'group_uid' => (int)($this->queryParams['group_uid'] ?? 0),
+                    'cmd' =>'displayMailGroup',
+                    'SET[dmail_mode]' => 'recip',
+                    'lCmd' => 'listall'
+                ]
+            )
+            : '',
             'tables' => [],
             'special' => [],
         ];
@@ -591,7 +602,16 @@ final class RecipientListController extends MainController
                         'title_table' => 'mailgroup_table_address',
                         'title_recip' => 'mailgroup_recip_number',
                         'recip_counter' => ' ' . count($idLists['tt_address']),
-                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv'=>'tt_address']),
+                        'mailgroup_download_link' => (string)$this->buildUriFromRoute(
+                            $this->moduleName,
+                            [
+                                'id' => $this->id,
+                                'group_uid' => (int)($this->queryParams['group_uid'] ?? 0),
+                                'cmd' =>'displayMailGroup',
+                                'SET[dmail_mode]' => 'recip',
+                                'csv' => 'tt_address'
+                            ]
+                        )
                     ];
                 }
 
@@ -600,7 +620,16 @@ final class RecipientListController extends MainController
                         'title_table' => 'mailgroup_table_fe_users',
                         'title_recip' => 'mailgroup_recip_number',
                         'recip_counter' => ' ' . count($idLists['fe_users']),
-                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv'=>'fe_users']),
+                        'mailgroup_download_link' => (string)$this->buildUriFromRoute(
+                            $this->moduleName,
+                            [
+                                'id' => $this->id,
+                                'group_uid' => (int)($this->queryParams['group_uid'] ?? 0),
+                                'cmd' =>'displayMailGroup',
+                                'SET[dmail_mode]' => 'recip',
+                                'csv' => 'fe_users'
+                            ]
+                        )
                     ];
                 }
 
@@ -609,7 +638,16 @@ final class RecipientListController extends MainController
                         'title_table' => 'mailgroup_plain_list',
                         'title_recip' => 'mailgroup_recip_number',
                         'recip_counter' => ' ' . count($idLists['PLAINLIST']),
-                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv'=>'PLAINLIST']),
+                        'mailgroup_download_link' => (string)$this->buildUriFromRoute(
+                            $this->moduleName,
+                            [
+                                'id' => $this->id,
+                                'group_uid' => (int)($this->queryParams['group_uid'] ?? 0),
+                                'cmd' =>'displayMailGroup',
+                                'SET[dmail_mode]' => 'recip',
+                                'csv' => 'PLAINLIST'
+                            ]
+                        )
                     ];
                 }
 
@@ -618,7 +656,16 @@ final class RecipientListController extends MainController
                         'title_table' => 'mailgroup_table_custom',
                         'title_recip' => 'mailgroup_recip_number',
                         'recip_counter' => ' ' . count($idLists[$this->userTable]),
-                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv' => $this->userTable]),
+                        'mailgroup_download_link' => (string)$this->buildUriFromRoute(
+                            $this->moduleName,
+                            [
+                                'id' => $this->id,
+                                'group_uid' => (int)($this->queryParams['group_uid'] ?? 0),
+                                'cmd' =>'displayMailGroup',
+                                'SET[dmail_mode]' => 'recip',
+                                'csv' => $this->userTable
+                            ]
+                        ),
                     ];
                 }
 
