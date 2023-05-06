@@ -818,7 +818,7 @@ final class DmailController extends MainController
             'replyto_email'      => $this->params['replyto_email'] ?? '',
             'replyto_name'       => $this->params['replyto_name'] ?? '',
             'return_path'        => $this->params['return_path'] ?? '',
-            'priority'           => (int)$this->params['priority'],
+            'priority'           => $this->params['priority'] ?? 3,
             'use_rdct'           => (!empty($this->params['use_rdct']) ? (int)$this->params['use_rdct'] : 0),
             'long_link_mode'     => (!empty($this->params['long_link_mode']) ? (int)$this->params['long_link_mode'] : 0),
             'organisation'       => $this->params['organisation'] ?? '',
