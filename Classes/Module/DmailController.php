@@ -1903,7 +1903,7 @@ final class DmailController extends MainController
             'replyto_email'         => $parameters['replyto_email'] ?? '',
             'replyto_name'          => $parameters['replyto_name'] ?? '',
             'return_path'           => $parameters['return_path'] ?? '',
-            'priority'              => $parameters['priority'] ?? 0,
+            'priority'              => $parameters['priority'] ?? 3,
             'use_rdct'              => (!empty($parameters['use_rdct']) ? $parameters['use_rdct'] : 0), /*$parameters['use_rdct'],*/
             'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode'] : 0), //$parameters['long_link_mode'],
             'organisation'          => $parameters['organisation'] ?? '',
@@ -1991,7 +1991,7 @@ final class DmailController extends MainController
             'replyto_email'         => $parameters['replyto_email'] ?? '',
             'replyto_name'          => $parameters['replyto_name'] ?? '',
             'return_path'           => $parameters['return_path'] ?? '',
-            'priority'              => $parameters['priority'] ?? 0,
+            'priority'              => $parameters['priority'] ?? 3,
             'use_rdct'              => (!empty($parameters['use_rdct']) ? $parameters['use_rdct'] : 0),
             'long_link_mode'        => $parameters['long_link_mode'] ?? '',
             'organisation'          => $parameters['organisation'] ?? '',
