@@ -94,6 +94,8 @@ class JumpurlController implements MiddlewareInterface
                 $urlId = $jumpurl;
                 $this->initDirectMailRecord($mailId);
                 $this->initRecipientRecord($submittedRecipient);
+                $rid = $this->recipientRecord['uid'] ?? 0;
+
                 $jumpurl = $this->getTargetUrl((int)$jumpurl);
 
                 // try to build the ready-to-use target url
@@ -123,7 +125,7 @@ class JumpurlController implements MiddlewareInterface
                 }
 
                 // to count the dmailerping correctly, we need something unique
-                $authCode = preg_replace("/[^a-zA-Z0-9]/", "", $submittedAuthCode);
+                $submittedAuthCode = preg_replace("/[^a-zA-Z0-9]/", "", $submittedAuthCode);
             }
 
             if ($this->responseType !== 0) {
@@ -134,7 +136,7 @@ class JumpurlController implements MiddlewareInterface
                     'response_type' => $this->responseType,
                     'url_id'        => (int)$urlId,
                     'rtbl'          => mb_substr($this->recipientTable, 0, 1),
-                    'rid'           => $authCode ?? (int) $this->recipientRecord['uid'],
+                    'rid'           => $rid ?? $submittedAuthCode,
                 ];
                 $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
                 if ($sysDmailMaillogRepository->hasRecentLog($mailLogParams) === false) {
@@ -261,7 +263,7 @@ class JumpurlController implements MiddlewareInterface
             if (isset($this->recipientRecord[$substField])) {
                 $processedTargetUrl = str_replace(
                     '###USER_' . $substField . '###',
-                    $this->recipientRecord[$substField],
+                    (string) $this->recipientRecord[$substField],
                     $processedTargetUrl
                 );
             }
