@@ -117,8 +117,6 @@ final class RecipientListController extends MainController
 
     public function indexAction(ModuleTemplate $view): ResponseInterface
     {
-        #$this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
-
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
 
             $module = $this->getModulName();

@@ -31,12 +31,6 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  */
 class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
 {
-    public function __construct()
-    {
-        // add locallang file
-        $this->getLanguangeService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
-    }
-
     /**
      * This method is used to define new fields for adding or editing a task
      * In this case, it adds an email field
@@ -127,7 +121,7 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
                 $return = true;
             } catch (\Exception $e) {
                 $this->addMessage(
-                    $this->getLanguangeService()->getLL('scheduler.bounceMail.dataVerification') .
+                    $this->getLanguangeService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:scheduler.bounceMail.dataVerification') .
                     $e->getMessage(),
                     FlashMessage::ERROR
                 );
@@ -135,7 +129,7 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
             }
         } else {
             $this->addMessage(
-                $this->getLanguangeService()->getLL('scheduler.bounceMail.phpImapError'),
+                $this->getLanguangeService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:scheduler.bounceMail.phpImapError'),
                 FlashMessage::ERROR
             );
             $return = false;
@@ -149,9 +143,9 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
         // create server input field
         return [
             'code'     => $fieldHTML,
-            'label'    => $this->getLanguangeService()->getLL('scheduler.bounceMail.' . $fieldName),
+            'label'    => $this->getLanguangeService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:scheduler.bounceMail.' . $fieldName),
             'cshKey'   => $fieldName,
-            'cshLabel' => $this->getLanguangeService()->getLL('scheduler.bounceMail.csh.' . $fieldName),
+            'cshLabel' => $this->getLanguangeService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:scheduler.bounceMail.csh.' . $fieldName),
         ];
     }
 

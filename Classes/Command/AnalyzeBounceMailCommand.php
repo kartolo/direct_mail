@@ -83,7 +83,7 @@ class AnalyzeBounceMailCommand extends Command
         $count = 0;
         // check if PHP IMAP is installed
         if (!extension_loaded('imap')) {
-            $io->error($this->languageService->getLL('scheduler.bounceMail.phpImapError'));
+            $io->error($this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:scheduler.bounceMail.phpImapError'));
             return Command::FAILURE;
         }
 
@@ -234,7 +234,7 @@ class AnalyzeBounceMailCommand extends Command
             $imapStream = $mailServer->getImapStream();
             return $mailServer;
         } catch (\Exception $e) {
-            $io->error($this->languageService->getLL('scheduler.bounceMail.dataVerification') . $e->getMessage());
+            $io->error($this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:scheduler.bounceMail.dataVerification') . $e->getMessage());
             return false;
         }
     }
@@ -252,6 +252,5 @@ class AnalyzeBounceMailCommand extends Command
     {
         $languageServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
         $this->languageService = $languageServiceFactory->create('en'); //@TODO
-        $this->languageService->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
     }
 }
