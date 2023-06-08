@@ -187,7 +187,7 @@ class JumpurlController implements MiddlewareInterface
 
         if (!empty($this->directMailRecord)) {
             $mailContent = unserialize(
-                base64_decode($this->directMailRecord['mailContent']),
+                base64_decode((string)$this->directMailRecord['mailContent']),
                 ['allowed_classes' => false]
             );
             if ($targetIndex >= 0) {
