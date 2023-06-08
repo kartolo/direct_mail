@@ -46,6 +46,7 @@ final class MailerEngineController extends MainController
 
         protected array $pageinfo = [],
         protected int $id = 0,
+        protected int $uid = 0, //for cmd == 'delete'
         protected bool $access = false,
         protected bool $invokeMailerEngine = false,
         protected string $cmd = '',
@@ -62,6 +63,8 @@ final class MailerEngineController extends MainController
         $parsedBody = $request->getParsedBody();
 
         $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
+        $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
+        $this->cmd = (string)($parsedBody['cmd'] ?? $queryParams['cmd'] ?? '');
         $this->invokeMailerEngine = (bool)($queryParams['invokeMailerEngine'] ?? false);
 
         $permsClause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
