@@ -86,8 +86,8 @@ class JumpurlController implements MiddlewareInterface
         if ($this->shouldProcess()) {
             $mailId = (int)$this->request->getQueryParams()['mid'];
             $submittedRecipient = isset($this->request->getQueryParams()['rid']) ? (string)$this->request->getQueryParams()['rid'] : '';
-            $submittedAuthCode  = $this->request->getQueryParams()['aC'];
-            $jumpurl = $this->request->getQueryParams()['jumpurl'];
+            $submittedAuthCode  = $this->request->getQueryParams()['aC'] ?? '';
+            $jumpurl = $this->request->getQueryParams()['jumpurl'] ?? '';
 
             $urlId = 0;
             if (MathUtility::canBeInterpretedAsInteger($jumpurl)) {
@@ -179,25 +179,28 @@ class JumpurlController implements MiddlewareInterface
      * Fetches the target url from the direct mail record
      *
      * @param int $targetIndex
-     * @return string|null
+     * @return string
      */
-    protected function getTargetUrl(int $targetIndex): ?string
+    protected function getTargetUrl(int $targetIndex): string
     {
-        $targetUrl = null;
+        $targetUrl = '';
 
         if (!empty($this->directMailRecord)) {
             $mailContent = unserialize(
                 base64_decode((string)$this->directMailRecord['mailContent']),
                 ['allowed_classes' => false]
             );
-            if ($targetIndex >= 0) {
-                // Link (number)
-                $this->responseType = self::RESPONSE_TYPE_HREF;
-                $targetUrl = $mailContent['html']['hrefs'][$targetIndex]['absRef'];
-            } else {
-                // Link (number, plaintext)
-                $this->responseType = self::RESPONSE_TYPE_PLAIN;
-                $targetUrl = $mailContent['plain']['link_ids'][abs($targetIndex)];
+
+            if(is_array($mailContent)) {
+                if ($targetIndex >= 0) {
+                    // Link (number)
+                    $this->responseType = self::RESPONSE_TYPE_HREF;
+                    $targetUrl = $mailContent['html']['hrefs'][$targetIndex]['absRef'];
+                } else {
+                    // Link (number, plaintext)
+                    $this->responseType = self::RESPONSE_TYPE_PLAIN;
+                    $targetUrl = $mailContent['plain']['link_ids'][abs($targetIndex)];
+                }
             }
             $targetUrl = htmlspecialchars_decode(urldecode($targetUrl));
         }
