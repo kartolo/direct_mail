@@ -600,7 +600,9 @@ class Dmailer implements LoggerAwareInterface
                         }
                     }
 
-                    $this->logger->debug($this->getLanguageService()->getLL('dmailer_sending') . ' ' . $ct . ' ' . $this->getLanguageService()->getLL('dmailer_sending_to_table') . ' ' . $table);
+                    $this->logger->debug(
+                        $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_sending') . ' ' . $ct . ' ' . $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_sending_to_table') . ' ' . $table
+                    );
                 }
             }
         }
@@ -695,19 +697,19 @@ class Dmailer implements LoggerAwareInterface
      */
     protected function setBeginEnd(int $mid, string $key): void
     {
-        $subject = $this->getLanguageService()->getLL('dmailer_mid') . ' ' . $mid . ' ';
+        $subject = $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_mid') . ' ' . $mid . ' ';
         $message = '';
 
         GeneralUtility::makeInstance(SysDmailRepository::class)->dmailerSetBeginEnd($mid, $key);
 
         switch ($key) {
             case 'begin':
-                $subject .= $this->getLanguageService()->getLL('dmailer_job_begin');
-                $message = $this->getLanguageService()->getLL('dmailer_job_begin');
+                $subject .= $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_job_begin');
+                $message = $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:');
                 break;
             case 'end':
-                $subject .= $this->getLanguageService()->getLL('dmailer_job_end');
-                $message = $this->getLanguageService()->getLL('dmailer_job_end');
+                $subject .= $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_job_end');
+                $message = $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_job_end');
                 break;
             default:
                 // do nothing
@@ -750,14 +752,13 @@ class Dmailer implements LoggerAwareInterface
             $this->getLanguageService()->init(trim($language));
         }
 
-        // always include locallang file
-        $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
-
         $row = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForRuncron();
-        $this->logger->debug($this->getLanguageService()->getLL('dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'));
+        $this->logger->debug($this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_invoked_at') . ' ' . date('h:i:s d-m-Y'));
 
         if (is_array($row)) {
-            $this->logger->debug($this->getLanguageService()->getLL('dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->getLL('dmailer_processed'));
+            $this->logger->debug(
+                $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_sys_dmail_record') . ' ' . $row['uid'] . ', \'' . $row['subject'] . '\'' . $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_processed')
+            );
             $this->prepare($row);
             $query_info = unserialize($row['query_info']);
 
@@ -785,11 +786,11 @@ class Dmailer implements LoggerAwareInterface
                 $this->setBeginEnd((int)$row['uid'], 'end');
             }
         } else {
-            $this->logger->debug($this->getLanguageService()->getLL('dmailer_nothing_to_do'));
+            $this->logger->debug($this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_nothing_to_do'));
         }
 
         $parsetime = $this->getMilliseconds() - $parseTimeStart;
-        $this->logger->debug($this->getLanguageService()->getLL('dmailer_ending') . ' ' . $parsetime . ' ms');
+        $this->logger->debug($this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_ending') . ' ' . $parsetime . ' ms');
     }
 
     /**
@@ -1369,7 +1370,7 @@ class Dmailer implements LoggerAwareInterface
      *
      * @return string The absolute address
      */
-    protected function absRef(string $ref)
+    protected function absRef(string $ref): string
     {
         $ref = trim($ref);
         $info = parse_url($ref);
@@ -1448,7 +1449,7 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Creates an address object ready to be used with the symfony mailer
      */
-    protected function createRecipient(string $email, $name = ''): Address
+    protected function createRecipient(string $email, string $name = ''): Address
     {
         return new Address($email, $name);
     }
