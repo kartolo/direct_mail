@@ -437,15 +437,15 @@
     </h3>
     <f:translate key="{lll}dmail_HTML_url"/>
     <br>
-    <input type="text" value="http://" name="createMailFrom_HTMLUrl" class="form-control" />
+    <input type="text" value="" placeholder="https://" name="createMailFrom_HTMLUrl" class="form-control" />
     <br>
     <f:translate key="{lll}dmail_plaintext_url"/>
     <br>
-    <input type="text" value="http://" name="createMailFrom_plainUrl" class="form-control" />
+    <input type="text" value="" placeholder="https://" name="createMailFrom_plainUrl" class="form-control" />
     <br>
     <f:translate key="{lll}dmail_subject"/>
     <br>
-    <input type="text" value="{f:translate(key: '{lll}dmail_write_subject')}" name="createMailFrom_URL" class="form-control" />
+    <input type="text" value="" placeholder="{f:translate(key: '{lll}dmail_write_subject')}" name="createMailFrom_URL" class="form-control" />
     <br>
     <f:if condition="{data.no_valid_url}">
         <br>
