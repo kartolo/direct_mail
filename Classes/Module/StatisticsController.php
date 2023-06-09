@@ -1329,14 +1329,30 @@ final class StatisticsController extends MainController
      */
     protected function directMailCompactView(array $row): array
     {
-        $dmailInfo = '';
+        $dmailInfo = [];
+        $fromInfo = [
+            $this->languageService->sL($this->lllFile . ':view_replyto') => htmlspecialchars($row['replyto_name']). '&lt;' . htmlspecialchars($row['replyto_email']) . '&gt;',
+            $this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.organisation') => htmlspecialchars($row['organisation']),
+            $this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.return_path') => htmlspecialchars($row['return_path'])
+        ];
+        $mailInfo = [
+            $this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.priority') => BackendUtility::getProcessedValue('sys_dmail', 'priority', $row['priority']),
+            $this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.transfer_encoding') => BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']),
+            $this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.charset') => BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']),
+        ];
+
         // Render record:
         if ($row['type']) {
             $dmailData = $row['plainParams'] . ', ' . $row['HTMLParams'];
         } else {
             $page = BackendUtility::getRecord('pages', $row['page'], 'title');
             $dmailData = $row['page'] . ', ' . htmlspecialchars($page['title'] ?? '');
-            $dmailInfo = DirectMailUtility::fName('plainParams') . ' ' . htmlspecialchars($row['plainParams'] . LF . DirectMailUtility::fName('HTMLParams') . $row['HTMLParams']) . '; ' . LF;
+            $dmailInfo = [
+                DirectMailUtility::fName('plainParams') => htmlspecialchars($row['plainParams']),
+                DirectMailUtility::fName('HTMLParams') => htmlspecialchars($row['HTMLParams']),
+                $this->languageService->sL($this->lllFile . ':view_media') => htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail', 'includeMedia', $row['includeMedia'])),
+                $this->languageService->sL($this->lllFile . ':view_flowed') => htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail', 'flowedFormat', $row['flowedFormat']))
+            ];
         }
 
         $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectSysDmailMaillogsCompactView($row['uid']);
@@ -1347,24 +1363,17 @@ final class StatisticsController extends MainController
             'subject'       => htmlspecialchars($row['subject']),
             'from_name'     => htmlspecialchars($row['from_name']),
             'from_email'    => htmlspecialchars($row['from_email']),
-            'replyto_name'  => htmlspecialchars($row['replyto_name']),
-            'replyto_email' => htmlspecialchars($row['replyto_email']),
             'type'          => BackendUtility::getProcessedValue('sys_dmail', 'type', $row['type']),
             'dmailData'     => $dmailData,
+            'fromInfo'      => $fromInfo,
             'dmailInfo'     => $dmailInfo,
-            'priority'      => BackendUtility::getProcessedValue('sys_dmail', 'priority', $row['priority']),
-            'encoding'      => BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']),
-            'charset'       => BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']),
+            'mailInfo'      => $mailInfo,
             'sendOptions'   => BackendUtility::getProcessedValue('sys_dmail', 'sendOptions', $row['sendOptions']) . ($row['attachment'] ? '; ' : ''),
             'attachment'    => BackendUtility::getProcessedValue('sys_dmail', 'attachment', $row['attachment']),
-            'flowedFormat'  => BackendUtility::getProcessedValue('sys_dmail', 'flowedFormat', $row['flowedFormat']),
-            'includeMedia'  => BackendUtility::getProcessedValue('sys_dmail', 'includeMedia', $row['includeMedia']),
             'delBegin'      => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '-',
             'delEnd'        => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '-',
             'totalRecip'    => $this->countTotalRecipientFromQueryInfo($row['query_info']),
             'sentRecip'     => count($res),
-            'organisation'  => htmlspecialchars($row['organisation']),
-            'return_path'   => htmlspecialchars($row['return_path']),
         ];
         return $data;
     }

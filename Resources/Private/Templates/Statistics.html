@@ -418,20 +418,6 @@
 
 <f:section name="compactView">
     <f:variable name="lll"  value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
-    <f:variable name="lll2" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:" />
-
-    <f:variable name="mailInfo"><f:translate key="{lll2}sys_dmail.priority" /> {row.priority};
-<f:translate key="{lll2}sys_dmail.transfer_encoding" /> {row.encoding};
-<f:translate key="{lll2}sys_dmail.charset" /> {row.charset}</f:variable>
-
-    <f:variable name="dmailInfo">{row.dmailInfo}<f:translate key="{lll}view_media" /> {row.includeMedia};
-<f:translate key="{lll}view_flowed" /> {row.flowedFormat}
-</f:variable>
-
-    <f:variable name="fromInfo"><f:translate key="{lll}view_replyto" /> {row.replyto_name} &lt;{row.replyto_email}&gt;;
-<f:translate key="{lll2}sys_dmail.organisation" /> {row.organisation};
-<f:translate key="{lll2}sys_dmail.return_path" /> {row.return_path}
-</f:variable>
 
     <h3><f:translate key="{lll}stats_direct_mail" /></h3>
     <table class="table table-striped table-hover">
@@ -441,17 +427,23 @@
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_from" /></td>
             <td>{row.from_name} &lt;{row.from_email}&gt;</td>
-            <td><span title="{fromInfo -> f:format.raw()}"><f:format.raw>{row.iconInfo}</f:format.raw></span></td>
+            <td>
+                <f:render section="help" arguments="{title: '{lll}view_from', content: '{row.fromInfo}'}" />
+            </td>
         </tr>
-        <tr class="db_list_normal">
+        <tr class="db_list_normal"></tr>
             <td><f:translate key="{lll}view_dmail" /></td>
             <td>{row.type} : {row.dmailData}</td>
-            <td><span title="{dmailInfo -> f:format.raw()}"><f:format.raw>{row.iconInfo}</f:format.raw></span></td>
+            <td>
+                <f:render section="help" arguments="{title: '{lll}view_dmail', content: '{row.dmailInfo}'}" />
+            </td>
         </tr>
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_mail" /></td>
             <td>{row.sendOptions}{row.attachment}</td>
-            <td><span title="{mailInfo -> f:format.raw()}"><f:format.raw>{row.iconInfo}</f:format.raw></span></td>
+            <td>
+                <f:render section="help" arguments="{title: '{lll}view_mail', content: '{row.mailInfo}'}" />
+            </td>
         </tr>
         <tr class="db_list_normal">
             <td><f:translate key="{lll}view_delivery_begin_end" /></td>
@@ -514,4 +506,15 @@
 	</f:if>
 </f:section>
 
+<f:section name="help">
+    <f:variable name="contentStr" value="" />
+    <f:for each="{content}" as="val" key="label">
+        <f:variable name="contentStr">{contentStr} {label} {val}<br></f:variable>
+    </f:for>
+    &nbsp;
+    <button type="button" class="btn btn-sm btn-outline-dark" data-bs-trigger="hover" data-bs-toggle="popover" data-bs-title="{f:translate(key: '{title}')}" data-bs-html="true" data-bs-content="{contentStr}">
+        <core:icon identifier="actions-info" size="small" />
+    </button>
+    <br>
+</f:section>
 </html>

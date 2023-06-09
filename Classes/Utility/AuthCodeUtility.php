@@ -50,7 +50,7 @@ class AuthCodeUtility
         if ($authcodeFieldList) {
             $fieldArr = GeneralUtility::trimExplode(',', $authcodeFieldList, true);
             foreach ($fieldArr as $k => $v) {
-                $recCopy_temp[$k] = $recipientRecord[$v];
+                $recCopy_temp[$k] = $recipientRecord[$v] ?? '';
             }
         } else {
             $recCopy_temp = $recipientRecord;

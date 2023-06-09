@@ -89,13 +89,13 @@
             <h4 class="panel-title">
                 <a role="button" data-bs-toggle="collapse" data-bs-parent="#accordion" href="#collapse{index}" aria-expanded="true" aria-controls="collapse{index}" class="collapsed">
                     <span class="caret"></span>
-                    <f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:{title}"/>
+                    <f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:{title}" />
                 </a>
             </h4>
         </div>
         <div id="collapse{index}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{index}">
             <div class="panel-body">
-                <f:render section="{section}" arguments="{implodedParams: configuration}"/>
+                <f:render section="{section}" arguments="{implodedParams: configuration}" />
             </div>
         </div>
     </div>
@@ -103,7 +103,7 @@
 
 <f:section name="help">
     <f:variable name="contentAdditional" value="" />
-    <f:if condition="{content2} != ''"><f:variable name="contentAdditional"> <f:translate key="{content2}"/></f:variable></f:if>
+    <f:if condition="{content2} != ''"><f:variable name="contentAdditional"> <f:translate key="{content2}" /></f:variable></f:if>
     &nbsp;
     <button type="button" class="btn btn-sm btn-outline-dark" data-bs-trigger="hover" data-bs-toggle="popover" data-bs-title="{f:translate(key: '{title}')}" data-bs-content="{f:translate(key: '{content}')}{contentAdditional}">
         <core:icon identifier="actions-system-help-open" size="small" />
