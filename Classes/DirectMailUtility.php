@@ -17,6 +17,7 @@ namespace DirectMailTeam\DirectMail;
 
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\DmRegistryUtility;
+use DirectMailTeam\DirectMail\Utility\FetchUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -148,7 +149,7 @@ class DirectMailUtility
         $htmlmail->setIncludeMedia($row['includeMedia']);
 
         if ($urls['plainTextUrl']) {
-            $mailContent = GeneralUtility::getURL(self::addUserPass($urls['plainTextUrl'], $params));
+            $mailContent = GeneralUtility::makeInstance(FetchUtility::class)->getContents(self::addUserPass($urls['plainTextUrl'], $params));
             $htmlmail->addPlain($mailContent);
             if (!$mailContent || !$htmlmail->getPartPlainConfig('content')) {
                 $errorMsg[] = $lang->sL($lllFile . ':dmail_no_plain_content');

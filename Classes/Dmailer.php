@@ -19,6 +19,7 @@ use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\TempRepository;
 use DirectMailTeam\DirectMail\Utility\AuthCodeUtility;
+use DirectMailTeam\DirectMail\Utility\FetchUtility;
 use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -836,24 +837,12 @@ class Dmailer implements LoggerAwareInterface
                 // TODO: why are there table related tags here?
                 if (in_array($media['tag'], ['img', 'table', 'tr', 'td'], true) && !$media['use_jumpurl'] && !$media['do_not_embed']) {
                     if (ini_get('allow_url_fopen')) {
-                        $context = null;
-                        $applicationContext = Environment::getContext();
-                        if ($applicationContext->isDevelopment()) {
-                            $context = stream_context_create(
-                                [
-                                    'ssl' => [
-                                        'verify_peer' => Typo3ConfVarsUtility::getDMConfigSSLVerifyPeer(),
-                                        'verify_peer_name' => Typo3ConfVarsUtility::getDMConfigSSLVerifyPeerName(),
-                                    ],
-                                ]
-                            );
-                        }
-
+                        $context = GeneralUtility::makeInstance(FetchUtility::class)->getStreamContext();
                         if (($fp = fopen($media['absRef'], 'r', false, $context)) !== false) {
                             $mailer->embed($fp, basename($media['absRef']));
                         }
                     } else {
-                        $mailer->embed(GeneralUtility::getUrl($media['absRef']), basename($media['absRef']));
+                        $mailer->embed(GeneralUtility::makeInstance(FetchUtility::class)->getContents($media['absRef']), basename($media['absRef']));
                     }
                     $this->theParts['html']['content'] = str_replace($media['subst_str'], 'cid:' . basename($media['absRef']), $this->theParts['html']['content']);
                 }
@@ -965,7 +954,7 @@ class Dmailer implements LoggerAwareInterface
     protected function fetchHTML(string $url): bool
     {
         // Fetches the content of the page
-        $this->theParts['html']['content'] = GeneralUtility::getURL($url);
+        $this->theParts['html']['content'] = GeneralUtility::makeInstance(FetchUtility::class)->getContents($url);
         if ($this->theParts['html']['content']) {
             $urlPart = parse_url($url);
             if (Typo3ConfVarsUtility::getDMConfigUseHttpToFetch()) {
@@ -1254,7 +1243,7 @@ class Dmailer implements LoggerAwareInterface
         // get all media and search for use_jumpurl then add it to the hrefs array
         $this->extractMediaLinks();
         foreach ($this->theParts['html']['media'] as $mediaData) {
-            if ($mediaData['use_jumpurl'] === 1) {
+            if (($mediaData['use_jumpurl'] ?? false) === 1) {
                 $this->theParts['html']['hrefs'][$mediaData['ref']] = $mediaData;
             }
         }

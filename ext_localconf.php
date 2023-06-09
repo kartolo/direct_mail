@@ -54,6 +54,7 @@ defined('TYPO3') || die();
      */
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseImplicitPortToFetch'] = $extConf['UseImplicitPortToFetch'];
 
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerify'] = $extConf['SSLVerify'];
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerifyPeer'] = $extConf['SSLVerifyPeer'];
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerifyPeerName'] = $extConf['SSLVerifyPeerName'];
 

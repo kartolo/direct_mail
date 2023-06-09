@@ -10,6 +10,7 @@ use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\TempRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
+use DirectMailTeam\DirectMail\Utility\FetchUtility;
 use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -1590,7 +1591,7 @@ final class StatisticsController extends MainController
                 $url = $pathSite . $url;
             }
 
-            $content = GeneralUtility::getURL($url);
+            $content = GeneralUtility::makeInstance(FetchUtility::class)->getContents($url);
             if (is_string($content) && preg_match('/\<\s*title\s*\>(.*)\<\s*\/\s*title\s*\>/i', $content, $matches)) {
                 // get the page title
                 $contentTitle = GeneralUtility::fixed_lgd_cs(trim($matches[1]), 50);

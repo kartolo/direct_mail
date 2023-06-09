@@ -53,25 +53,31 @@ class Typo3ConfVarsUtility
     public static function getDMConfigNotificationJob(): bool
     {
         $dmConfig = self::getDMConfig();
-        return (bool)$dmConfig['notificationJob'];
+        return (bool)($dmConfig['notificationJob'] ?? false);
+    }
+
+    public static function getDMConfigSSLVerify(): bool
+    {
+        $dmConfig = self::getDMConfig();
+        return (bool)($dmConfig['SSLVerify'] ?? true);
     }
 
     public static function getDMConfigSSLVerifyPeer(): bool
     {
         $dmConfig = self::getDMConfig();
-        return (bool)$dmConfig['SSLVerifyPeer'];
+        return (bool)($dmConfig['SSLVerifyPeer'] ?? false);
     }
 
     public static function getDMConfigSSLVerifyPeerName(): bool
     {
         $dmConfig = self::getDMConfig();
-        return (bool)$dmConfig['SSLVerifyPeerName'];
+        return (bool)($dmConfig['SSLVerifyPeerName'] ?? false);
     }
 
     public static function getDMConfigUseHttpToFetch(): bool
     {
         $dmConfig = self::getDMConfig();
-        return (bool)$dmConfig['UseHttpToFetch'];
+        return (bool)($dmConfig['UseHttpToFetch'] ?? false);
     }
 
     public static function getDateFormat()
