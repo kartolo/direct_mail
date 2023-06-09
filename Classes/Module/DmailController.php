@@ -240,7 +240,7 @@ final class DmailController extends MainController
         return $view->renderResponse('Dmail');
     }
 
-    protected function moduleContent()
+    protected function moduleContent(): array
     {
         $isExternalDirectMailRecord = false;
 
@@ -579,7 +579,7 @@ final class DmailController extends MainController
      *
      * @return array config for form list of internal pages
      */
-    protected function getConfigFormInternal()
+    protected function getConfigFormInternal(): array
     {
         return [
             'title' => 'dmail_dovsk_crFromNL',
@@ -596,7 +596,7 @@ final class DmailController extends MainController
      *
      * @return string
      */
-    protected function getNewsletterTabIcon($expand = false)
+    protected function getNewsletterTabIcon(bool $expand = false)
     {
         // opened - closes
         $icon = $expand ? 'apps-pagetree-expand' : 'apps-pagetree-collapse';
@@ -900,7 +900,7 @@ final class DmailController extends MainController
      * @return string the link
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function linkDMailRecord($uid)
+    protected function linkDMailRecord(int $uid)
     {
         return $this->buildUriFromRoute(
             $this->moduleName,
@@ -921,7 +921,7 @@ final class DmailController extends MainController
      * @return Uri|string link with the trash icon
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function deleteLink($uid)
+    protected function deleteLink(int $uid)
     {
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
 
@@ -1139,7 +1139,7 @@ final class DmailController extends MainController
      *
      * @return array List of the recipient
      */
-    public function displayMailGroupTest($result)
+    public function displayMailGroupTest(array $result): array
     {
         $idLists = $result['queryInfo']['id_lists'];
         $out = [];
@@ -1365,7 +1365,11 @@ final class DmailController extends MainController
      * @return array the table showing the recipient's info
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    public function getRecordList(array $listArr, $table, $editLinkFlag = 1, $testMailLink = 0): array
+    public function getRecordList(
+        array $listArr,
+        string $table,
+        $editLinkFlag = 1,
+        $testMailLink = 0): array
     {
         $count = 0;
         $trs = [];
@@ -1429,7 +1433,7 @@ final class DmailController extends MainController
      * @param array $direct_mail_row
      * @return	array		HTML
      */
-    protected function cmd_finalmail($direct_mail_row)
+    protected function cmd_finalmail(array $direct_mail_row): array
     {
         /**
          * Hook for cmd_finalmail
@@ -1517,7 +1521,7 @@ final class DmailController extends MainController
      *
      * @return array list of the recipient ID
      */
-    public function cmd_compileMailGroup(array $groups)
+    public function cmd_compileMailGroup(array $groups): array
     {
         // If supplied with an empty array, quit instantly as there is nothing to do
         if (!count($groups)) {
@@ -1716,7 +1720,7 @@ final class DmailController extends MainController
      *
      * @return array Mailgroup DB record after updated
      */
-    public function updateSpecialQuery(array $mailGroup)
+    public function updateSpecialQuery(array $mailGroup): array
     {
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
@@ -1778,9 +1782,9 @@ final class DmailController extends MainController
      * @param array $row The dmail row.
      * @param $indata
      *
-     * @return string HTML form showing the categories
+     * @return array HTML form showing the categories
      */
-    public function makeCategoriesForm(array $row, $indata)
+    public function makeCategoriesForm(array $row, $indata): array
     {
         $output = [
             'title' => $this->languageService->sL($this->lllFile . ':nl_cat'),
@@ -1877,7 +1881,7 @@ final class DmailController extends MainController
      * @param array $params direct_mail settings
      * @return string
      */
-    public function getLanguageParam($sysLanguageUid, array $params)
+    public function getLanguageParam($sysLanguageUid, array $params): string
     {
         if (isset($params['langParams.'][$sysLanguageUid])) {
             $param = $params['langParams.'][$sysLanguageUid];

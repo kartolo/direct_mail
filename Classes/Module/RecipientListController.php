@@ -173,9 +173,9 @@ final class RecipientListController extends MainController
     /**
      * Show the module content
      *
-     * @return string The compiled content of the module.
+     * @return array The compiled content of the module.
      */
-    protected function moduleContent()
+    protected function moduleContent(): array
     {
         $theOutput = '';
         $data = [];
@@ -218,10 +218,10 @@ final class RecipientListController extends MainController
     /**
      * Shows the existing recipient lists and shows link to create a new one or import a list
      *
-     * @return string List of existing recipient list, link to create a new list and link to import
+     * @return array List of existing recipient list, link to create a new list and link to import
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function showExistingRecipientLists()
+    protected function showExistingRecipientLists(): array
     {
         $data = [
             'rows' => [],
@@ -286,7 +286,7 @@ final class RecipientListController extends MainController
      *
      * @return	array List of the uid in an array
      */
-    protected function cmd_compileMailGroup(int $groupUid)
+    protected function cmd_compileMailGroup(int $groupUid): array
     {
         $idLists = [];
         if ($groupUid) {
@@ -441,7 +441,7 @@ final class RecipientListController extends MainController
      *
      * @return array the edit link config
      */
-    protected function editLink($table, $uid): array
+    protected function editLink(string $table, int $uid): array
     {
         $editLinkConfig = ['onClick' => '', 'icon' => $this->getIconActionsOpen()];
         // check if the user has the right to modify the table
@@ -468,7 +468,7 @@ final class RecipientListController extends MainController
      * @return string The link
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function linkRecipRecord($str, $uid)
+    protected function linkRecipRecord(string $str, int $uid): string
     {
         $moduleUrl = $this->buildUriFromRoute(
             $this->moduleName,
@@ -487,9 +487,9 @@ final class RecipientListController extends MainController
      *
      * @param array $result Array containing list of recipient uid
      *
-     * @return string list of all recipient (HTML)
+     * @return array list of all recipient (HTML)
      */
-    protected function displayMailGroup($result)
+    protected function displayMailGroup(array $result): array
     {
         $totalRecipients = 0;
         $idLists = $result['queryInfo']['id_lists'];
@@ -684,7 +684,7 @@ final class RecipientListController extends MainController
      *
      * @return array Updated DB records
      */
-    protected function updateSpecialQuery($mailGroup)
+    protected function updateSpecialQuery(array $mailGroup): array
     {
         $set = $this->set;
         $queryTable = $set['queryTable'] ?? '';
@@ -745,7 +745,7 @@ final class RecipientListController extends MainController
      *
      * @return array HTML form to make a special query
      */
-    protected function specialQuery()
+    protected function specialQuery(): array
     {
         $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->iconFactory, GeneralUtility::makeInstance(UriBuilder::class), $this->moduleTemplateFactory);
         //$queryGenerator->setFormName('dmailform');
@@ -764,9 +764,9 @@ final class RecipientListController extends MainController
     /**
      * Shows user's info and categories
      *
-     * @return	string HTML showing user's info and the categories
+     * @return	array HTML showing user's info and the categories
      */
-    protected function displayUserInfo()
+    protected function displayUserInfo(): array
     {
         if (!in_array($this->table, ['tt_address', 'fe_users'])) {
             return [];
