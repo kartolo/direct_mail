@@ -17,6 +17,7 @@ use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use DirectMailTeam\DirectMail\Repository\TtContentCategoryMmRepository;
 use DirectMailTeam\DirectMail\Repository\TtContentRepository;
 use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
+use DirectMailTeam\DirectMail\Utility\TsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
@@ -121,6 +122,15 @@ final class DmailController extends MainController
         $this->pageinfo = is_array($pageAccess) ? $pageAccess : [];
         $this->access = is_array($this->pageinfo) ? true : false;
 
+        // get the config from pageTS
+        $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
+        $this->implodedParams = GeneralUtility::makeInstance(TsUtility::class)->implodeTSParams($this->params);
+
+        if ($this->params['userTable'] ?? false && isset($GLOBALS['TCA'][$this->params['userTable']]) && is_array($GLOBALS['TCA'][$this->params['userTable']])) {
+            $this->userTable = $this->params['userTable'];
+            $this->allowedTables[] = $this->userTable;
+        }
+
         $normalizedParams = $request->getAttribute('normalizedParams');
 
         $this->pageRenderer->loadJavaScriptModule('@typo3/backend/date-time-picker.js');
@@ -164,6 +174,10 @@ final class DmailController extends MainController
         $this->testmail = (bool)($parsedBody['testmail'] ?? $queryParams['testmail'] ?? false);
         $this->savedraft = (bool)($parsedBody['savedraft'] ?? $queryParams['savedraft'] ?? false);
         $this->set = is_array($parsedBody['SET'] ?? '') ? $parsedBody['SET'] : [];
+
+        if ($this->updatePageTree) {
+            \TYPO3\CMS\Backend\Utility\BackendUtility::setUpdateSignal('updatePageTree');
+        }
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         return $this->indexAction($moduleTemplate);
@@ -1973,7 +1987,11 @@ final class DmailController extends MainController
      *
      * @return	int/bool Error or warning message produced during the process
      */
-    public function createDirectMailRecordFromExternalURL($subject, $externalUrlHtml, $externalUrlPlain, array $parameters)
+    public function createDirectMailRecordFromExternalURL(
+        string $subject,
+        string $externalUrlHtml,
+        string $externalUrlPlain,
+        array $parameters)
     {
         $result = false;
 
