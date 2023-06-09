@@ -469,7 +469,7 @@ final class StatisticsController extends MainController
             $this->makeStatTempTableContent($row);
         }
 
-        $compactView = $this->directMail_compactView($row);
+        $compactView = $this->directMailCompactView($row);
 
         $mailResponsesGeneral = $this->mailResponsesGeneral($row['uid']);
         $tables = [];
@@ -1319,7 +1319,7 @@ final class StatisticsController extends MainController
      *
      * @return string The compact infos of the direct mail record
      */
-    protected function directMail_compactView($row)
+    protected function directMailCompactView($row)
     {
         $dmailInfo = '';
         // Render record:
@@ -1327,7 +1327,7 @@ final class StatisticsController extends MainController
             $dmailData = $row['plainParams'] . ', ' . $row['HTMLParams'];
         } else {
             $page = BackendUtility::getRecord('pages', $row['page'], 'title');
-            $dmailData = $row['page'] . ', ' . htmlspecialchars($page['title']);
+            $dmailData = $row['page'] . ', ' . htmlspecialchars($page['title'] ?? '');
             $dmailInfo = DirectMailUtility::fName('plainParams') . ' ' . htmlspecialchars($row['plainParams'] . LF . DirectMailUtility::fName('HTMLParams') . $row['HTMLParams']) . '; ' . LF;
         }
 
