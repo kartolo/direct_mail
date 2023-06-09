@@ -67,7 +67,7 @@ final class ConfigurationController extends MainController
         $this->pageTS = $parsedBody['pageTS'] ?? $queryParams['pageTS'] ?? [];
         $this->submit = isset($parsedBody['submit']) ? true : false;
 
-        foreach(['includeMedia', 'flowedFormat', 'use_rdct', 'long_link_mode', 'enable_jump_url', 'jumpurl_tracking_privacy', 'enable_mailto_jump_url'] as $checkboxName) {
+        foreach(['includeMedia', 'flowedFormat', 'use_rdct', 'long_link_mode', 'enable_jump_url', 'jumpurl_tracking_privacy', 'enable_mailto_jump_url', 'showContentTitle', 'prependContentTitle'] as $checkboxName) {
             if(!isset($this->pageTS[$checkboxName])) {
                 $this->pageTS[$checkboxName] = '0';
             }

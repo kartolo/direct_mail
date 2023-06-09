@@ -62,6 +62,15 @@
                 }"
                 section="Panel"
             />
+            <f:render
+                arguments="{
+                    configuration: implodedParams,
+                    index: 7,
+                    section: 'box-7',
+                    title: 'configure_options_statistics'
+                }"
+                section="Panel"
+            />
             <button class="btn btn-default" type="submit" name="submit"><f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:configure_update_configuration" /></button>
         </form>
     </f:if>
@@ -318,4 +327,24 @@
     <input type="text" name="pageTS[testmail]" value="{implodedParams.testmail}" class="form-control" />
 </f:section>
 
+<f:section name="box-7">
+    <div class="form-check form-switch">
+        <input type="checkbox" name="pageTS[showContentTitle]" value="1" class="form-check-input" id="pageTS[showContentTitle]" {f:if(condition: "1 == {implodedParams.showContentTitle}" , then: 'checked="checked"')}>
+        <label class="form-check-label" for="pageTS[showContentTitle]">
+            <f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:configure_options_statistics.showContentTitle" />
+        </label>
+    </div>
+    <div class="form-check form-switch">
+        <input type="checkbox" name="pageTS[prependContentTitle]" value="1" class="form-check-input" id="pageTS[prependContentTitle]" {f:if(condition: "1 == {implodedParams.prependContentTitle}" , then: 'checked="checked"')}>
+        <label class="form-check-label" for="pageTS[prependContentTitle]">
+            <f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:configure_options_statistics.prependContentTitle" />
+        </label>
+    </div>
+    <div class="form-outline">
+        <input type="number" name="pageTS[maxLabelLength]" value="{implodedParams.maxLabelLength}" class="form-control" id="pageTS[maxLabelLength]">
+        <label class="form-label" for="pageTS[maxLabelLength]">
+            <f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:configure_options_statistics.maxLabelLength" />
+        </label>
+    </div>
+</f:section>
 </html>

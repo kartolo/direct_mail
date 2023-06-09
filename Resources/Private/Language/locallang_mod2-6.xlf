@@ -157,6 +157,18 @@
 			<trans-unit id="configure_user_table_description" resname="configure_user_table_description">
 				<source>Enter the name of a custom-defined table, with compatible columns defined, which may also be used for direct mails distribution.</source>
 			</trans-unit>
+			<trans-unit id="configure_options_statistics" resname="configure_options_statistics">
+				<source>settings for the statistics module:</source>
+			</trans-unit>
+			<trans-unit id="configure_options_statistics.showContentTitle" resname="configure_options_statistics.showContentTitle">
+				<source>if set to 1, then only content title, in which the link can be found, will be shown in the click statistics.</source>
+			</trans-unit>
+			<trans-unit id="configure_options_statistics.prependContentTitle" resname="configure_options_statistics.prependContentTitle">
+				<source>if set to 1, then content title and the linked words will be shown</source>
+			</trans-unit>
+			<trans-unit id="configure_options_statistics.maxLabelLength" resname="configure_options_statistics.maxLabelLength">
+				<source>maximum length of the clicked statistics label</source>
+			</trans-unit>
 			<trans-unit id="dmail_HTML_url" resname="dmail_HTML_url">
 				<source>URL of HTML content:</source>
 			</trans-unit>

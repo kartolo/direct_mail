@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Module;
 
+
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
@@ -11,6 +12,7 @@ use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\TempRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use DirectMailTeam\DirectMail\Utility\FetchUtility;
+use DirectMailTeam\DirectMail\Utility\TsUtility;
 use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -33,7 +35,6 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 final class StatisticsController extends MainController
 {
-
     protected FlashMessageQueue $flashMessageQueue;
 
     public function __construct(
@@ -81,6 +82,8 @@ final class StatisticsController extends MainController
         private bool $reasonUnknownList    = false,
         private bool $reasonUnknownDisable = false,
         private bool $reasonUnknownCSV     = false,
+
+        protected array $implodedParams = [],
 
         private string $siteUrl = ''
     ) {
@@ -142,6 +145,9 @@ final class StatisticsController extends MainController
         $this->reasonUnknownList    = (bool)($parsedBody['reasonUnknownList'] ?? $queryParams['reasonUnknownList'] ?? false);
         $this->reasonUnknownDisable = (bool)($parsedBody['reasonUnknownDisable'] ?? $queryParams['reasonUnknownDisable'] ?? false);
         $this->reasonUnknownCSV     = (bool)($parsedBody['reasonUnknownCSV'] ?? $queryParams['reasonUnknownCSV'] ?? false);
+
+        $params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.'] ?? [];
+        $this->implodedParams = GeneralUtility::makeInstance(TsUtility::class)->implodeTSParams($params);
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         return $this->indexAction($moduleTemplate);
@@ -234,9 +240,9 @@ final class StatisticsController extends MainController
     /**
      * Shows the info of a page
      *
-     * @return string The infopage of the sent newsletters
+     * @return array The infopage of the sent newsletters
      */
-    protected function displayPageInfo()
+    protected function displayPageInfo(): array
     {
         // Here the dmail list is rendered:
         $rows = GeneralUtility::makeInstance(SysDmailRepository::class)->selectForPageInfo($this->id);
@@ -276,9 +282,9 @@ final class StatisticsController extends MainController
     /**
      * Shows user's info and categories
      *
-     * @return string HTML showing user's info and the categories
+     * @return array HTML showing user's info and the categories
      */
-    protected function displayUserInfo()
+    protected function displayUserInfo(): array
     {
         if ($this->submit) {
             if (count($this->indata) < 1) {
@@ -460,10 +466,10 @@ final class StatisticsController extends MainController
      *
      * @param array $row DB record
      *
-     * @return string Statistics of a mail
+     * @return array Statistics of a mail
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function stats($row)
+    protected function stats(array $row): array
     {
         if ($this->recalcCache) {
             $this->makeStatTempTableContent($row);
@@ -665,7 +671,6 @@ final class StatisticsController extends MainController
             $urlstr = $this->getUrlStr($uParts);
 
             $label = $this->getLinkLabel($url, $urlstr, false, $htmlLinks[$id]['label']);
-
             $img = '<a href="' . $urlstr . '" target="_blank">' . $iconAppsToolbarMenuSearch . '</a>';
 
             if (isset($urlCounter['html'][$id]['plainId'])) {
@@ -1283,7 +1288,10 @@ final class StatisticsController extends MainController
      * @return string wrapped string as a link
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function linkDMail_record($str, $uid, $aTitle='')
+    protected function linkDMail_record(
+        string $str,
+        int $uid,
+        string $aTitle = ''): string
     {
         $moduleUrl = $this->buildUriFromRoute(
             $this->moduleName,
@@ -1317,9 +1325,9 @@ final class StatisticsController extends MainController
      *
      * @param array $row Direct mail record
      *
-     * @return string The compact infos of the direct mail record
+     * @return array The compact infos of the direct mail record
      */
-    protected function directMailCompactView($row)
+    protected function directMailCompactView(array $row): array
     {
         $dmailInfo = '';
         // Render record:
@@ -1369,10 +1377,9 @@ final class StatisticsController extends MainController
      *
      * @return string show number of pieces and the percent
      */
-    protected function showWithPercent($pieces, $total)
+    protected function showWithPercent(int $pieces, int $total): string
     {
-        $total = (int)$total;
-        $str = $pieces ? number_format((int)$pieces) : '0';
+        $str = $pieces ? number_format($pieces) : '0';
         if ($total) {
             $str .= ' / ' . number_format(($pieces/$total*100), 2) . '%';
         }
@@ -1384,7 +1391,7 @@ final class StatisticsController extends MainController
      *
      * @param array $mrow DB mail records
      */
-    protected function makeStatTempTableContent(array $mrow)
+    protected function makeStatTempTableContent(array $mrow): void
     {
         $done = GeneralUtility::makeInstance(TempRepository::class)->deleteOldCache((int)$mrow['uid']);
         $rows = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectStatTempTableContent($mrow['uid']);
@@ -1458,7 +1465,7 @@ final class StatisticsController extends MainController
      *
      * @param array $recRec Statistic array
      */
-    protected function storeRecRec(array $recRec)
+    protected function storeRecRec(array $recRec): void
     {
         if (is_array($recRec)) {
             $recRec['pings_first'] = empty($recRec['pings']) ? 0 : (int)(@min($recRec['pings']));
@@ -1567,7 +1574,11 @@ final class StatisticsController extends MainController
      *
      * @return string The label for the passed $url parameter
      */
-    public function getLinkLabel($url, $urlStr, $forceFetch = false, $linkedWord = '')
+    public function getLinkLabel(
+        string $url,
+        string $urlStr,
+        bool $forceFetch = false,
+        string $linkedWord = ''): string
     {
         $pathSite = $this->getBaseURL();
         $label = $linkedWord;
@@ -1597,19 +1608,20 @@ final class StatisticsController extends MainController
                 $contentTitle = GeneralUtility::fixed_lgd_cs(trim($matches[1]), 50);
             } else {
                 // file?
+                // https://api.typo3.org/main/_general_utility_8php_source.html
                 $file = GeneralUtility::split_fileref($url);
                 $contentTitle = $file['file'];
             }
+
         }
-/**
-        if ($this->params['showContentTitle'] == 1) {
+
+        if ($this->implodedParams['showContentTitle'] == 1) {
             $label = $contentTitle;
         }
 
-        if ($this->params['prependContentTitle'] == 1) {
+        if ($this->implodedParams['prependContentTitle'] == 1) {
             $label =  $contentTitle . ' (' . $linkedWord . ')';
         }
-*/
 
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] ?? false)) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] as $funcRef) {
@@ -1623,8 +1635,8 @@ final class StatisticsController extends MainController
             $label = $url;
         }
 
-        if (isset($this->params['maxLabelLength']) && ($this->params['maxLabelLength'] > 0)) {
-            $label = GeneralUtility::fixed_lgd_cs($label, $this->params['maxLabelLength']);
+        if (isset($this->implodedParams['maxLabelLength']) && ($this->implodedParams['maxLabelLength'] > 0)) {
+            $label = GeneralUtility::fixed_lgd_cs($label, (int)$this->implodedParams['maxLabelLength']);
         }
 
         return $label;

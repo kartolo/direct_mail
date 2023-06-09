@@ -46,6 +46,11 @@ class FetchUtility
 
     public function getContents(string $url): string
     {
-        return (string)$this->getResponse($url)->getBody()->getContents();
+        try  {
+            $respose = $this->getResponse($url);
+            return (string)$respose->getBody()->getContents();
+        } catch(\Exception $e) {
+        }
+        return '';
     }
 }
