@@ -307,9 +307,11 @@ class TempRepository extends MainRepository
                         $queryBuilder = $this->getQueryBuilder($table);
                         $queryBuilder->select('*')
                         ->from($table)
-                        ->add('where', 'pid=' . (int)$row['pid'] .
-                            ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . (int)$sys_language_content .
-                            ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . (int)$row['uid'])
+                        ->where(
+                            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($row['pid'], Connection::PARAM_INT)),
+                            $queryBuilder->expr()->eq($GLOBALS['TCA'][$table]['ctrl']['languageField'], $queryBuilder->createNamedParameter($sys_language_content, Connection::PARAM_INT)),
+                            $queryBuilder->expr()->eq($GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'], $queryBuilder->createNamedParameter($row['uid'], Connection::PARAM_INT))
+                        )
                         ->setMaxResults(1); /* LIMIT 1*/
                         $olrow = $queryBuilder->executeQuery()->fetchAssociative();
 
