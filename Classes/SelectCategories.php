@@ -54,6 +54,7 @@ class SelectCategories
             }
         }
 
+        //@TODO Where can you find 'sys_language_uid' without 'static_info_tables'?
         if (is_array($params['items']) && !empty($params['items'])) {
             $table = (string)$params['config']['itemsProcFunc_config']['table'];
             $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
@@ -62,7 +63,9 @@ class SelectCategories
                 if (is_array($rows)) {
                     foreach ($rows as $rowCat) {
                         if ($localizedRowCat = $tempRepository->getRecordOverlay($table, $rowCat, $sys_language_uid)) {
-                            $params['items'][$k][0] = $localizedRowCat['category'];
+                            if(count($localizedRowCat)) {
+                                $params['items'][$k][0] = $localizedRowCat['category'];
+                            }
                         }
                     }
                 }

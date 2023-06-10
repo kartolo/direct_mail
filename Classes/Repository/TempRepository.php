@@ -291,55 +291,58 @@ class TempRepository extends MainRepository
      *
      * @return mixed Returns the input record, possibly overlaid with a translation.
      */
-    public function getRecordOverlay(string $table, array $row, int $sys_language_content)
+    public function getRecordOverlay(
+        string $table,
+        array $row,
+        int $sys_language_content): array
     {
         if ($row['uid'] > 0 && $row['pid'] > 0) {
-            if ($GLOBALS['TCA'][$table] && $GLOBALS['TCA'][$table]['ctrl']['languageField'] && $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']) {
-                if (!$GLOBALS['TCA'][$table]['ctrl']['transOrigPointerTable']) {
-                    // Will try to overlay a record only
-                    // if the sys_language_content value is larger that zero.
-                    if ($sys_language_content > 0) {
-                        // Must be default language or [All], otherwise no overlaying:
-                        if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] <= 0) {
-                            // Select overlay record:
-                            $queryBuilder = $this->getQueryBuilder($table);
-                            $olrow = $queryBuilder->select('*')
-                            ->from($table)
-                            ->add('where', 'pid=' . (int)$row['pid'] .
-                                ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . (int)$sys_language_content .
-                                ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . (int)$row['uid'])
-                            ->setMaxResults(1)/* LIMIT 1*/
-                            ->executeQuery()
-                            ->fetchAssociative();
+            if ($GLOBALS['TCA'][$table] && $GLOBALS['TCA'][$table]['ctrl']['languageField']) {
+                // Will try to overlay a record only
+                // if the sys_language_content value is larger that zero.
+                if ($sys_language_content > 0) {
+                    // Must be default language or [All], otherwise no overlaying:
+                    if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] <= 0) {
+                        // Select overlay record:
+                        $queryBuilder = $this->getQueryBuilder($table);
+                        $queryBuilder->select('*')
+                        ->from($table)
+                        ->add('where', 'pid=' . (int)$row['pid'] .
+                            ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['languageField'] . '=' . (int)$sys_language_content .
+                            ' AND ' . $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] . '=' . (int)$row['uid'])
+                        ->setMaxResults(1); /* LIMIT 1*/
+                        $olrow = $queryBuilder->executeQuery()->fetchAssociative();
 
-                            // Merge record content by traversing all fields:
-                            if (is_array($olrow)) {
-                                foreach ($row as $fN => $fV) {
-                                    if ($fN != 'uid' && $fN != 'pid' && isset($olrow[$fN])) {
-                                        if ($GLOBALS['TCA'][$table]['l10n_mode'][$fN] != 'exclude' && ($GLOBALS['TCA'][$table]['l10n_mode'][$fN] != 'mergeIfNotBlank' || strcmp(trim($olrow[$fN]), ''))) {
-                                            $row[$fN] = $olrow[$fN];
-                                        }
+                        // Merge record content by traversing all fields:
+                        if (is_array($olrow)) {
+                            foreach ($row as $fN => $fV) {
+                                if ($fN != 'uid' && $fN != 'pid' && isset($olrow[$fN])) {
+                                    if(!isset($GLOBALS['TCA'][$table]['l10n_mode'][$fN]) && strcmp(trim((string)$olrow[$fN]), '')) {
+                                        $row[$fN] = $olrow[$fN];
+                                    }
+                                    elseif (isset($GLOBALS['TCA'][$table]['l10n_mode'][$fN]) && $GLOBALS['TCA'][$table]['l10n_mode'][$fN] != 'exclude' && ($GLOBALS['TCA'][$table]['l10n_mode'][$fN] != 'mergeIfNotBlank' || strcmp(trim((string)$olrow[$fN]), ''))) {
+                                        $row[$fN] = $olrow[$fN];
                                     }
                                 }
                             }
+                        }
 
-                        // Otherwise, check if sys_language_content is different from the value of the record
-                        // that means a japanese site might try to display french content.
-                        } elseif ($sys_language_content != $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]) {
-                            unset($row);
-                        }
-                    } else {
-                        // When default language is displayed,
-                        // we never want to return a record carrying another language!:
-                        if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] > 0) {
-                            unset($row);
-                        }
+                    // Otherwise, check if sys_language_content is different from the value of the record
+                    // that means a japanese site might try to display french content.
+                    } elseif ($sys_language_content != $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]) {
+                        unset($row);
+                    }
+                } else {
+                    // When default language is displayed,
+                    // we never want to return a record carrying another language!:
+                    if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] > 0) {
+                        unset($row);
                     }
                 }
             }
         }
 
-        return $row;
+        return $row ?? [];
     }
 
     /**
