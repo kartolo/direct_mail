@@ -47,6 +47,7 @@ final class MailerEngineController extends MainController
         protected array $pageinfo = [],
         protected int $id = 0,
         protected int $uid = 0, //for cmd == 'delete'
+        protected int $currentPageNumber = 1,
         protected bool $access = false,
         protected bool $invokeMailerEngine = false,
         protected string $cmd = '',
@@ -66,7 +67,8 @@ final class MailerEngineController extends MainController
         $this->uid = (int)($parsedBody['uid'] ?? $queryParams['uid'] ?? 0);
         $this->cmd = (string)($parsedBody['cmd'] ?? $queryParams['cmd'] ?? '');
         $this->invokeMailerEngine = (bool)($queryParams['invokeMailerEngine'] ?? false);
-
+        $this->currentPageNumber = (int)($queryParams['currentPageNumber'] ?? 1);
+        $this->currentPageNumber = $this->currentPageNumber > 0 ? $this->currentPageNumber : 1;
         $permsClause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
         $pageAccess = BackendUtility::readPageAccess($this->id, $permsClause);
         $this->pageinfo = is_array($pageAccess) ? $pageAccess : [];
@@ -90,11 +92,23 @@ final class MailerEngineController extends MainController
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $mailerEngine = $this->mailerengine();
+
+                    $itemsPerPage = 100; //@TODO
+                    $paginator = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Pagination\ArrayPaginator::class, $mailerEngine['data'], $this->currentPageNumber, $itemsPerPage);
+
                     $tasks = $this->getSchedulerTable();
                     $view->assignMultiple(
                         [
                             'tasks' => $tasks['taskGroupsWithTasks'],
                             'data' => $mailerEngine['data'],
+                            'pagination' => [
+                                'numberOfPages' => $paginator->getNumberOfPages(),
+                                'currentPageNumber' => $paginator->getCurrentPageNumber(),
+                                'keyOfFirstPaginatedItem' => $paginator->getKeyOfFirstPaginatedItem(),
+                                'keyOfLastPaginatedItem' => $paginator->getKeyOfLastPaginatedItem(),
+                                'paginatedItems' => $paginator->getPaginatedItems(),
+                                'links' =>  array_fill(0, $paginator->getNumberOfPages(), '')
+                            ],
                             'id' => $this->id,
                             'invoke' => $mailerEngine['invoke'],
                             'moduleName' => $this->moduleName,
