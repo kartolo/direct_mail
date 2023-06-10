@@ -705,7 +705,7 @@ class Importer
         }
 
         $resultImport['invalid_email'] = $invalidEmailCSV;
-        $resultImport['double'] = is_array($filteredCSV['double']) ? $filteredCSV['double'] : [];
+        $resultImport['double'] = is_array($filteredCSV['double'] ?? false) ? $filteredCSV['double'] : [];
 
         // start importing
         /* @var $dataHandler DataHandler */
