@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 defined('TYPO3') || die();
 
-// https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ExtensionArchitecture/BestPractises/ConfigurationFiles.html
+// https://docs.typo3.org/m/typo3/reference-coreapi/12.4/en-us/ExtensionArchitecture/BestPractises/ConfigurationFiles.html
 (function () {
     // Category field disabled by default in backend forms.
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('

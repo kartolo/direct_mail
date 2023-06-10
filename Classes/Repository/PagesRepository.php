@@ -33,7 +33,7 @@ class PagesRepository extends MainRepository
         );
 
         /**
-         * https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/PageTypes/TypesOfPages.html
+         * https://docs.typo3.org/m/typo3/reference-coreapi/12.4/en-us/ApiOverview/PageTypes/TypesOfPages.html
          * typo3/sysext/core/Classes/Domain/Repository/PageRepository.php
          *
          * Regards custom configurations, otherwise ignores spacers (199), recyclers (255) and folders (254)

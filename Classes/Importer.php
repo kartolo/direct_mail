@@ -900,7 +900,7 @@ class Importer
         /* @var $extendedFileUtility ExtendedFileUtility */
         $extendedFileUtility = GeneralUtility::makeInstance(ExtendedFileUtility::class);
         $extendedFileUtility->setActionPermissions($userPermissions);
-        //https://docs.typo3.org/c/typo3/cms-core/11.5/en-us/Changelog/7.4/Deprecation-63603-ExtendedFileUtilitydontCheckForUniqueIsDeprecated.html
+        // https://docs.typo3.org/c/typo3/cms-core/12.4/en-us/Changelog/7.4/Deprecation-63603-ExtendedFileUtilitydontCheckForUniqueIsDeprecated.html
         $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::REPLACE);
 
         if (empty($this->indata['newFile'])) {

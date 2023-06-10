@@ -1,6 +1,6 @@
 <?php
 
-//https://docs.typo3.org/m/typo3/reference-coreapi/11.5/en-us/ApiOverview/Icon/Index.html
+// https://docs.typo3.org/m/typo3/reference-coreapi/12.4/en-us/ApiOverview/Icon/Index.html
 return [
     // icon identifier
     'directmail-attachment' => [
