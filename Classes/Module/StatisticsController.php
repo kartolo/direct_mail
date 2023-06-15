@@ -1533,7 +1533,7 @@ class StatisticsController extends MainController
 
         $urlParts = parse_url($url);
         if (!$forceFetch && (substr($url, 0, strlen($pathSite)) === $pathSite)) {
-            if ($urlParts['fragment'] && (substr($urlParts['fragment'], 0, 1) == 'c')) {
+            if ($urlParts['fragment'] ?? '' && (substr($urlParts['fragment'], 0, 1) == 'c')) {
                 // linking directly to a content
                 $elementUid = (int)(substr($urlParts['fragment'], 1));
                 $row = BackendUtility::getRecord('tt_content', $elementUid);
