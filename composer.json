@@ -25,7 +25,7 @@
     "typo3/cms-core": "^11.5",
     "typo3/cms-dashboard": "^11.5",
 	"php": "^7.4 || ^8.0 || ^8.1",
-    "friendsoftypo3/tt-address": "^5.3 || ^6.0 || ^7.0",
+    "friendsoftypo3/tt-address": "^6.0 || ^7.0 || ^8.0",
     "tedivm/fetch": "0.7.*"
   },
   "require-dev": {
