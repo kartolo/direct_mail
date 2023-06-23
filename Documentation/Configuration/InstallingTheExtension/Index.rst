@@ -39,10 +39,6 @@ extension configuration variables:
   the site if the table can't be written (Direct Mail creates a lot of
   log records while sending the email).
 
-- **Interval of the cronjob:** Time interval of the cron task you set in
-  minute. This is used to control if the cron task is still running or
-  if there is an error while sending the email.
-
 - **Enable notification email:** Allow Direct Mail to send notification
   emails about start and end of mailing job.
 

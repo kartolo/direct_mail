@@ -1,0 +1,138 @@
+##
+## @package TYPO3
+## @subpackage tx_directmail
+## @version $Id:setup.txt 6012 2007-07-23 12:54:25 +0000 (Mo, 23 Jul 2007) ivankartolo $
+##
+
+[traverse(request.getQueryParams(), "type") == 99]
+// add template path for fluid_styled_content
+lib.contentElement {
+  templateRootPaths.100 = EXT:direct_mail/Resources/Private/Plaintext/FluidContentElement/Templates/
+  layoutRootPaths.100 = EXT:direct_mail/Resources/Private/Plaintext/FluidContentElement/Layouts/
+}
+[global]
+
+lib.plaintextHeader = COA
+lib.plaintextHeader {
+  10 = USER
+  10 {
+    userFunc = DirectMailTeam\DirectMail\Plugin\DirectMail->main
+  }
+}
+lib.plaintextText < lib.plaintextHeader
+lib.plaintextTextpic < lib.plaintextHeader
+lib.plaintextTextmedia < lib.plaintextHeader
+lib.plaintextImage < lib.plaintextHeader
+lib.plaintextUploads < lib.plaintextHeader
+lib.plaintextShortcut < lib.plaintextHeader
+lib.plaintextBullets < lib.plaintextHeader
+lib.plaintextTable < lib.plaintextHeader
+lib.plaintextHTML < lib.plaintextHeader
+
+plugin.tx_directmail_pi1 = USER
+plugin.tx_directmail_pi1 {
+  userFunc = DirectMailTeam\DirectMail\Plugin\DirectMail->main
+
+  siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
+  flowedFormat = {$plugin.tx_directmail_pi1.flowedFormat}
+
+  header.defaultType = 1
+  header.date = D-m-Y
+  header.datePrefix = |###HEADER_DATE_PREFIX### |
+  header.linkPrefix = | ###HEADER_LINK_PREFIX### |
+  header.1.preLineLen = 76
+  header.1.postLineLen = 76
+  header.1.preBlanks=1
+  header.1.stdWrap.case = upper
+
+  header.2 < .header.1
+  header.2.preLineChar=*
+  header.2.postLineChar=*
+
+  header.3.preBlanks=2
+  header.3.postBlanks=1
+  header.3.stdWrap.case = upper
+
+  header.4 < .header.1
+  header.4.preLineChar= =
+  header.4.postLineChar= =
+  header.4.preLineBlanks= 1
+  header.4.postLineBlanks= 1
+
+  header.5.removeSplitChar = {$plugin.tx_directmail_pi1.removeSplitChar}
+  header.5.preBlanks=1
+  header.5.autonumber=1
+  header.5.prefix = |: >> |
+
+  defaultOutput (
+|
+[###UNRENDERED_CONTENT### ###CType### ]
+|
+  )
+
+  uploads.header = |###UPLOADS_HEADER###|
+
+  images.header = |###IMAGES_HEADER###|
+  images.linkPrefix = |###IMAGE_LINK_PREFIX### |
+  images.captionHeader = |###CAPTION_HEADER###|
+
+  textmedia.header = |###MEDIA_HEADER###|
+  textmedia.linkPrefix = |###IMAGE_LINK_PREFIX### |
+  textmedia.captionHeader = |###CAPTION_HEADER###|
+
+  bulletlist.0.bullet = |*  |
+  bulletlist.1.bullet = |#  |
+  bulletlist.2.bullet = | - |
+  bulletlist.3.bullet = |>  |
+  bulletlist.3.secondRow = |.  |
+  bulletlist.3.blanks = 1
+
+  shortcut =< tt_content.shortcut.20
+  shortcut.0.conf.tt_content =< plugin.tx_directmail_pi1
+  shortcut.0.tables = tt_content
+
+  bodytext.doubleLF = {$plugin.tx_directmail_pi1.doubleLF}
+  bodytext.stdWrap.parseFunc.tags {
+    link < styles.content.parseFunc.tags.link
+    typolist = USER
+    typolist.userFunc = tx_directmail_pi1->typolist
+    typolist.siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
+    typolist.bulletlist =< plugin.tx_directmail_pi1.bulletlist
+    typohead = USER
+    typohead.userFunc = tx_directmail_pi1->typohead
+    typohead.siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
+    typohead.header =< plugin.tx_directmail_pi1.header
+    typocode = USER
+    typocode.userFunc = tx_directmail_pi1->typocode
+    typocode.siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
+  }
+}
+
+tx_directmail_pi1 >
+tx_directmail_pi1 = PAGE
+tx_directmail_pi1.typeNum = 99
+
+tx_directmail_pi1.config {
+	disableAllHeaderCode = 1
+  additionalHeaders.10.header = Content-type:text/plain
+}
+
+tx_directmail_pi1 {
+	10 = FLUIDTEMPLATE
+	10 {
+		templateName = Plain
+		templateRootPaths {
+			10 = EXT:direct_mail/Resources/Private/Plaintext/Templates/
+		}
+		layoutRootPaths {
+			10 = EXT:direct_mail/Resources/Private/Plaintext/Layouts/
+		}
+		variables {
+			contentNormal < styles.content.get
+			contentNormal.select.where = {#colPos}=0
+			date = TEXT
+			date.data = date:U
+			date.strftime = %e. %B %Y
+		}
+	}
+}

@@ -1,10 +1,11 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Plugin;
 
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 1999-2005 Kasper Skaarhoj (kasperYYYY@typo3.com)
+*  (c) 1999-2005 Kasper Skårhøj (kasperYYYY@typo3.com)
 *  (c) 2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 *  All rights reserved
 *
@@ -29,19 +30,15 @@ namespace DirectMailTeam\DirectMail\Plugin;
 ***************************************************************/
 
 /**
- * @author		Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @author		Kasper Skårhøj <kasperYYYY@typo3.com>
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *
- * @package 	TYPO3
- * @subpackage 	direct_mail
- *
  */
 
+use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
-use DirectMailTeam\DirectMail\DirectMailUtility;
 use TYPO3\CMS\Frontend\DataProcessing\FilesProcessor;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
@@ -55,7 +52,6 @@ use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
  */
 class DirectMail extends AbstractPlugin
 {
-
     /**
      * ObjectRenderer
      *
@@ -66,7 +62,7 @@ class DirectMail extends AbstractPlugin
      * @var MarkerBasedTemplateService
      */
     protected $templateService;
-    public $conf = array();
+    public $conf = [];
     public $prefixId = 'tx_directmail_pi1';
     public $scriptRelPath = 'pi1/class.tx_directmail_pi1.php';
     public $extKey = 'direct_mail';
@@ -91,7 +87,7 @@ class DirectMail extends AbstractPlugin
 
         $this->init($conf);
 
-        $lines = array();
+        $lines = [];
         $cType = (string)$this->cObj->data['CType'];
         switch ($cType) {
             case 'header':
@@ -144,12 +140,12 @@ class DirectMail extends AbstractPlugin
             case 'html':
                 $lines[] = $this->getHtml();
                 break;
-            case (!!preg_match('/menu_.*/', $cType)):
+            case (bool)preg_match('/menu_.*/', $cType):
                 $lines[] = $this->getHeader();
                 $lines[] = $this->getMenuContent($cType);
                 break;
             default:
-                    // Hook for processing other content types
+                // Hook for processing other content types
                 if (is_array($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'])) {
                     foreach ($TYPO3_CONF_VARS['EXTCONF']['direct_mail']['renderCType'] as $classRef) {
                         $procObj = GeneralUtility::makeInstance($classRef);
@@ -169,7 +165,7 @@ class DirectMail extends AbstractPlugin
         $content = implode(LF, $lines);
 
         // Substitute labels
-        $markerArray = array();
+        $markerArray = [];
         $markerArray = $this->addLabelsMarkers($markerArray);
         $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
         $content = $this->templateService->substituteMarkerArray($content, $markerArray);
@@ -183,8 +179,6 @@ class DirectMail extends AbstractPlugin
      * Initializing the parent class
      *
      * @param	array		$conf TS conf
-     *
-     * @return	void
      */
     public function init(array $conf)
     {
@@ -236,9 +230,9 @@ class DirectMail extends AbstractPlugin
      *
      * @return	string		Plain content.
      */
-    public function getHtml($str = array())
+    public function getHtml($str = [])
     {
-        return $this->breakContent(strip_tags(preg_replace('/<br\s*\/?>/i', LF, $this->parseBody(is_string($str)?$str:$this->cObj->data['bodytext']))));
+        return $this->breakContent(strip_tags(preg_replace('/<br\s*\/?>/i', LF, $this->parseBody(is_string($str) ? $str: $this->cObj->data['bodytext']))));
     }
 
     /**
@@ -265,15 +259,15 @@ class DirectMail extends AbstractPlugin
             '10' => 'TYPO3\CMS\Frontend\DataProcessing\FilesProcessor',
             '10.' => [
                 'references.' => [
-                    'fieldName' => $fieldname
+                    'fieldName' => $fieldname,
                 ],
                 'folders.' => [
-                    'field' => 'file_folder'
+                    'field' => 'file_folder',
                 ],
                 'sorting.' => [
-                    'field' => 'filelink_sorting'
-                ]
-            ]
+                    'field' => 'filelink_sorting',
+                ],
+            ],
         ];
 
         $images = GeneralUtility::makeInstance(FilesProcessor::class)->process(
@@ -289,7 +283,7 @@ class DirectMail extends AbstractPlugin
                 $imagesArray[] = [
                     'image' => $this->getLink($image->getPublicUrl()),
                     'link' => $this->getLink($image->getLink()),
-                    'caption' => $image->getDescription()
+                    'caption' => $image->getDescription(),
                 ];
             }
 
@@ -309,7 +303,7 @@ class DirectMail extends AbstractPlugin
      *
      * @return	string		Processed content
      */
-    public function parseBody($str, $altConf='bodytext')
+    public function parseBody($str, $altConf = 'bodytext')
     {
         if ($this->conf[$altConf . '.']['doubleLF']) {
             $str = preg_replace("/\n/", "\n\n", $str);
@@ -319,7 +313,7 @@ class DirectMail extends AbstractPlugin
         $str = $this->cObj->stdWrap($str, $this->conf[$altConf . '.']['stdWrap.']);
 
         // Then all a-tags:
-        $aConf = array();
+        $aConf = [];
         $aConf['parseFunc.']['tags.']['a'] = 'USER';
         $aConf['parseFunc.']['tags.']['a.']['userFunc'] = 'DirectMailTeam\DirectMail\Plugin\DirectMail->atag_to_http';
         $aConf['parseFunc.']['tags.']['a.']['siteUrl'] = $this->siteUrl;
@@ -341,10 +335,10 @@ class DirectMail extends AbstractPlugin
      *
      * @return	string		Content
      */
-    public function renderUploads($str, $uploadPath='uploads/media/')
+    public function renderUploads($str, $uploadPath = 'uploads/media/')
     {
         $files = explode(',', $str);
-        $lines = array();
+        $lines = [];
 
         if (count($files) > 0 && strlen($files[0])) {
             if ($this->conf['uploads.']['header']) {
@@ -361,7 +355,7 @@ class DirectMail extends AbstractPlugin
      * Renders a content element header, observing the layout type giving different header formattings
      *
      * @param	string		$str The header string
-     * @param	integer		$type The layout type of the header (in the content element)
+     * @param	int		$type The layout type of the header (in the content element)
      *
      * @return	string		Content
      */
@@ -382,7 +376,7 @@ class DirectMail extends AbstractPlugin
                     $str = preg_replace('/' . preg_quote($tConf['removeSplitChar'], '/') . '/', '', $str);
                 }
 
-                $lines = array();
+                $lines = [];
 
                 $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preBlanks'], 0, 1000);
                 if ($blanks) {
@@ -440,7 +434,7 @@ class DirectMail extends AbstractPlugin
      *
      * @param	array		$lines Array of existing lines to which the new char-pattern should be added
      * @param	string		$preLineChar The character pattern to repeat. Default is "-"
-     * @param	integer		$len The length of the line. $preLineChar will be repeated to fill in this length.
+     * @param	int		$len The length of the line. $preLineChar will be repeated to fill in this length.
      *
      * @return	array		The input array with a new line added.
      * @see renderHeader()
@@ -466,7 +460,7 @@ class DirectMail extends AbstractPlugin
     public function breakContent($str)
     {
         $cParts = explode(LF, $str);
-        $lines = array();
+        $lines = [];
         foreach ($cParts as $substrs) {
             $lines[] = $this->breakLines($substrs, '');
         }
@@ -488,7 +482,7 @@ class DirectMail extends AbstractPlugin
         $tConf = $this->conf['bulletlist.'][$type . '.'];
 
         $cParts = explode(LF, $str);
-        $lines = array();
+        $lines = [];
         $c = 0;
 
         foreach ($cParts as $substrs) {
@@ -522,7 +516,7 @@ class DirectMail extends AbstractPlugin
     {
         $cParts = explode(LF, $str);
 
-        $lines = array();
+        $lines = [];
         $cols = (int)$this->conf['cols'] ?: 0;
         $c = 0;
         foreach ($cParts as $substrs) {
@@ -546,13 +540,13 @@ class DirectMail extends AbstractPlugin
         $colChar = '|';
 
         // Make table:
-        $outLines = array();
+        $outLines = [];
         $outLines[] = $this->addDiv($messure, '', $divChar, $joinChar, $cols);
 
         foreach ($lines as $k => $v) {
             $top = (int)$messure[1][$k];
             for ($aa = 0; $aa < $top; $aa++) {
-                $tempArr = array();
+                $tempArr = [];
                 for ($bb = 0; $bb < $cols; $bb++) {
                     $tempArr[$bb] = str_pad($v[$bb][$aa], $messure[0][$bb], ' ');
                 }
@@ -573,12 +567,11 @@ class DirectMail extends AbstractPlugin
      * @param	int			$cols Number of table columns
      *
      * @return	string		Divider line for the table
-     * @access private
      * @see breakTable()
      */
     public function addDiv(array $messure, $content, $divChar, $joinChar, $cols)
     {
-        $tempArr = array();
+        $tempArr = [];
         for ($a = 0; $a < $cols; $a++) {
             $tempArr[$a] = str_pad($content, $messure[0][$a], $divChar);
         }
@@ -591,13 +584,12 @@ class DirectMail extends AbstractPlugin
      * @param	array		$tableLines Array with [table rows] [table cells] [lines in cell]
      *
      * @return	array		Statistics (max lines/lengths)
-     * @access private
      * @see breakTable()
      */
     public function traverseTable(array $tableLines)
     {
-        $maxLen = array();
-        $maxLines = array();
+        $maxLen = [];
+        $maxLines = [];
 
         foreach ($tableLines as $k => $v) {
             foreach ($v as $kk => $vv) {
@@ -611,7 +603,7 @@ class DirectMail extends AbstractPlugin
                 }
             }
         }
-        return array($maxLen,$maxLines);
+        return [$maxLen, $maxLines];
     }
 
     /**
@@ -627,7 +619,7 @@ class DirectMail extends AbstractPlugin
         if ($fieldname === 'assets') {
             $fieldname = 'textmedia';
         }
-        $lines = array();
+        $lines = [];
         $imageExists = false;
 
         // create the image, imagelink and image caption block
@@ -637,20 +629,20 @@ class DirectMail extends AbstractPlugin
                 if ($image['link']) {
                     $theLink = $this->getLink($image['link']);
                     if ($theLink) {
-                        $lines[] = $this->getString($this->conf[$fieldname.'.']['linkPrefix']) . $theLink;
+                        $lines[] = $this->getString($this->conf[$fieldname . '.']['linkPrefix']) . $theLink;
                     }
                 }
                 if ($image['caption']) {
-                    $cHeader = trim($this->getString($this->conf[$fieldname.'.']['captionHeader']));
-                    $lines[] = $cHeader . ' ' .$this->breakContent($image['caption']);
+                    $cHeader = trim($this->getString($this->conf[$fieldname . '.']['captionHeader']));
+                    $lines[] = $cHeader . ' ' . $this->breakContent($image['caption']);
                 }
                 // add newline
                 $lines[] = '';
                 $imageExists = true;
             }
         }
-        if ($this->conf[$fieldname.'.']['header'] && $imageExists) {
-            array_unshift($lines, $this->getString($this->conf[$fieldname.'.']['header']));
+        if ($this->conf[$fieldname . '.']['header'] && $imageExists) {
+            array_unshift($lines, $this->getString($this->conf[$fieldname . '.']['header']));
         }
 
         return LF . implode(LF, $lines);
@@ -669,8 +661,8 @@ class DirectMail extends AbstractPlugin
             'parameter' => $link,
             'forceAbsoluteUrl' => '1',
             'forceAbsoluteUrl.' => [
-                'scheme' => GeneralUtility::getIndpEnv('TYPO3_SSL')?'https':'http'
-            ]
+                'scheme' => GeneralUtility::getIndpEnv('TYPO3_SSL')?'https':'http',
+            ],
         ]);
     }
 
@@ -700,7 +692,6 @@ class DirectMail extends AbstractPlugin
      * @param	string		$str Input string
      *
      * @return	string		Output string
-     * @access private
      */
     public function getString($str)
     {

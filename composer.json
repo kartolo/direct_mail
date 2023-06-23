@@ -22,10 +22,11 @@
     "issues": "https://github.com/kartolo/direct_mail/issues"
   },
   "require": {
-    "typo3/cms-core": "^10.4",
-    "friendsoftypo3/jumpurl": "^8.0",
-    "friendsoftypo3/tt-address": "^4.3 || ^5.0 || ^6.0",
-    "friendsoftypo3/rdct": "^2.0"
+    "typo3/cms-core": "^11.5",
+    "typo3/cms-dashboard": "^11.5",
+	  "php": "^7.4 || ^8.0 || ^8.1",
+    "friendsoftypo3/tt-address": "^6.0 || ^7.0 || ^8.0",
+    "tedivm/fetch": "0.7.*"
   },
   "require-dev": {
     "roave/security-advisories": "dev-master"
@@ -33,19 +34,13 @@
   "minimum-stability": "dev",
   "autoload": {
     "psr-4": {
-      "DirectMailTeam\\DirectMail\\": "Classes",
-      "Fetch\\": "Resources/Private/Php/Fetch/src/Fetch"
+      "DirectMailTeam\\DirectMail\\": "Classes"
     }
   },
   "replace": {
     "typo3-ter/direct-mail": "self.version"
   },
   "extra": {
-    "typo3/class-alias-loader": {
-      "class-alias-maps": [
-        "Migrations/Code/ClassAliasMap.php"
-      ]
-    },
     "typo3/cms": {
       "extension-key": "direct_mail"
     }
