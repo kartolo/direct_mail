@@ -643,7 +643,7 @@ class StatisticsController extends MainController
                     ($html ? $id : '-'),
                     ($html ? '-' : $id),
                     ($html ? $urlCounter['html'][$id]['counter'] : $urlCounter['plain'][$origId]['counter']),
-                    $urlCounter['html'][$id]['counter'],
+                    $urlCounter['html'][$id]['counter'] ?? 0,
                     $urlCounter['plain'][$origId]['counter'] ?? 0,
                     $img,
                 ];
@@ -1533,7 +1533,7 @@ class StatisticsController extends MainController
 
         $urlParts = parse_url($url);
         if (!$forceFetch && (substr($url, 0, strlen($pathSite)) === $pathSite)) {
-            if ($urlParts['fragment'] && (substr($urlParts['fragment'], 0, 1) == 'c')) {
+            if ($urlParts['fragment'] ?? '' && (substr($urlParts['fragment'], 0, 1) == 'c')) {
                 // linking directly to a content
                 $elementUid = (int)(substr($urlParts['fragment'], 1));
                 $row = BackendUtility::getRecord('tt_content', $elementUid);
@@ -1559,11 +1559,11 @@ class StatisticsController extends MainController
                 $contentTitle = $file['file'];
             }
         }
-/** 
+/**
         if ($this->params['showContentTitle'] == 1) {
             $label = $contentTitle;
         }
-        
+
         if ($this->params['prependContentTitle'] == 1) {
             $label =  $contentTitle . ' (' . $linkedWord . ')';
         }
