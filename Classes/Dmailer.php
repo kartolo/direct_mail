@@ -247,8 +247,8 @@ class Dmailer implements LoggerAwareInterface
         }
 
         //$this->encoding          = $row['encoding'];
-        $this->theParts          = unserialize(base64_decode($row['mailContent']));
-        $this->messageid         = $this->theParts['messageid'];
+        $this->theParts          = unserialize(base64_decode((string)$row['mailContent'])) ?: [];
+        $this->messageid         = $this->theParts['messageid'] ?? 0;
         $this->subject           = $this->ensureCorrectEncoding($row['subject']);
         $this->fromEmail         = $row['from_email'];
         $this->fromName          = $this->ensureCorrectEncoding($row['from_name']);
@@ -262,7 +262,7 @@ class Dmailer implements LoggerAwareInterface
         $this->dmailer['sectionBoundary']    = '<!--DMAILER_SECTION_BOUNDARY';
         $this->dmailer['html_content']       = $this->theParts['html']['content'] ?? '';
         $this->dmailer['plain_content']      = $this->theParts['plain']['content'] ?? '';
-        $this->dmailer['messageID']          = $this->theParts['messageid'];
+        $this->dmailer['messageID']          = $this->theParts['messageid'] ?? 0;
         $this->dmailer['sys_dmail_uid']      = $row['uid'];
         $this->dmailer['sys_dmail_rec']      = $row;
         $this->dmailer['boundaryParts_html'] = explode($this->dmailer['sectionBoundary'], '_END-->' . $this->dmailer['html_content']);
