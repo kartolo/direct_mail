@@ -328,7 +328,7 @@ class DmailController extends MainController
                         $data['info']['dmail']['cmd'] = 'send_test';
 
                         // add attachment here, since attachment added in 2nd step
-                        $unserializedMailContent = unserialize(base64_decode($row['mailContent']));
+                        $unserializedMailContent = unserialize(base64_decode((string)$row['mailContent']));
                         $temp = $this->compileQuickMail($row, $unserializedMailContent['plain']['content'] ?? '', false);
                         if ($temp['errorTitle']) {
                             $this->messageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], 2, false));
