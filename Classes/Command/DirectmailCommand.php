@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Command;
 
 use DirectMailTeam\DirectMail\Dmailer;
@@ -18,7 +19,7 @@ class DirectmailCommand extends Command
         $this->setDescription('This command invokes dmailer in order to process queued messages.');
         //$this->setHelp('');
     }
-    
+
     /**
      * @param InputInterface $input
      * @param OutputInterface $output

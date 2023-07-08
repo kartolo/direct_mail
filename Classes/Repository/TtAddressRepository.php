@@ -1,41 +1,55 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 
-class TtAddressRepository extends MainRepository {
+class TtAddressRepository extends MainRepository
+{
     protected string $table = 'tt_address';
-    
+
     /**
      * @return array|bool
      */
-    public function selectTtAddressByUid(int $uid, string $permsClause) //: array|bool 
+    public function selectTtAddressByUid(int $uid, string $permsClause) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->select($this->table.'.*')
+        ->select($this->table . '.*')
         ->from($this->table, $this->table)
         ->leftjoin(
             $this->table,
             'pages',
             'pages',
-            $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier($this->table.'.pid'))
+            $queryBuilder->expr()->eq(
+                'pages.uid',
+                $queryBuilder->quoteIdentifier($this->table . '.pid')
+            )
         )
-        ->add('where', $this->table.'.uid = ' . intval($uid) . 
-            ' AND ' . $permsClause . ' AND pages.deleted = 0')
-
-//         debug($queryBuilder->getSQL());
-//         debug($queryBuilder->getParameters());
-        ->execute()
-        ->fetchAll();
+        ->where(
+            $queryBuilder->expr()->eq(
+                $this->table . '.uid',
+                $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'pages.deleted',
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+            )
+        )
+        ->andWhere(
+            $permsClause
+        )
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
-    
+
     /**
      * @return array|bool
      */
@@ -48,7 +62,7 @@ class TtAddressRepository extends MainRepository {
         ->getRestrictions()
         ->removeAll()
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        
+
         return $queryBuilder
         ->select(
             'uid',
@@ -58,59 +72,75 @@ class TtAddressRepository extends MainRepository {
         ->where(
             $queryBuilder->expr()->eq(
                 'pid',
-                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             )
         )
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
 
     /**
      * @return array|bool
      */
-    public function selectTtAddressForTestmail(string $intList, string $permsClause) //: array|bool
+    public function selectTtAddressForTestmail(array $intList, string $permsClause) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->select($this->table.'.*')
+        ->select($this->table . '.*')
         ->from($this->table)
         ->leftJoin(
             $this->table,
             'pages',
             'pages',
-            $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier($this->table.'.pid'))
+            $queryBuilder->expr()->eq(
+                'pages.uid',
+                $queryBuilder->quoteIdentifier($this->table . '.pid')
+            )
         )
-        ->add('where', $this->table.'.uid IN (' . $intList . ')' .
-            ' AND ' . $permsClause)
-        ->execute()
-        ->fetchAll();
+        ->where(
+            $queryBuilder->expr()->in(
+                $this->table . '.uid',
+                $queryBuilder->createNamedParameter($intList, Connection::PARAM_INT_ARRAY)
+            )
+        )
+        ->andWhere(
+            $permsClause
+        )
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
-    
+
     /**
      * @return array|bool
      */
     public function selectTtAddressForSendMailTest(int $ttAddressUid, string $permsClause) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
-        
+
         return $queryBuilder
         ->select('a.*')
         ->from($this->table, 'a')
         ->leftJoin(
-            'a', 
-            'pages', 
-            'pages', 
-            $queryBuilder->expr()->eq('pages.uid', $queryBuilder->quoteIdentifier('a.pid'))
+            'a',
+            'pages',
+            'pages',
+            $queryBuilder->expr()->eq(
+                'pages.uid',
+                $queryBuilder->quoteIdentifier('a.pid')
+            )
         )
         ->where(
-            $queryBuilder->expr()->eq('a.uid', $queryBuilder->createNamedParameter($ttAddressUid, \PDO::PARAM_INT))
+            $queryBuilder->expr()->eq(
+                'a.uid',
+                $queryBuilder->createNamedParameter($ttAddressUid, Connection::PARAM_INT)
+            )
         )
         ->andWhere($permsClause)
-        ->execute()
-        ->fetchAll();
+        ->executeQuery()
+        ->fetchAllAssociative();
     }
-    
+
     /**
      * @return array|bool
      */
@@ -123,10 +153,10 @@ class TtAddressRepository extends MainRepository {
         ->where(
             $queryBuilder->expr()->eq(
                 'pid',
-                $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
             )
         )
-        ->execute();
+        ->executeStatement();
     }
 
     /**
@@ -147,16 +177,24 @@ class TtAddressRepository extends MainRepository {
 
             if ($v <= VersionNumberUtility::convertVersionNumberToInteger('6.0.0')) {
                 $queryBuilder->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)),
-                    $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0))
+                    $queryBuilder->expr()->eq(
+                        'uid',
+                        $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
+                    ),
+                    $queryBuilder->expr()->eq(
+                        'deleted',
+                        $queryBuilder->createNamedParameter(0)
+                    )
                 );
-            }
-            else {
+            } else {
                 $queryBuilder->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT))
+                    $queryBuilder->expr()->eq(
+                        'uid',
+                        $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
+                    )
                 );
             }
-            $rows = $queryBuilder->execute()->fetchAll();
+            $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
 
             if ($rows) {
                 if (is_array($rows[0])) {
@@ -165,5 +203,179 @@ class TtAddressRepository extends MainRepository {
             }
         }
         return 0;
+    }
+
+        /**
+     * Return all uid's from 'tt_address' for a static direct mail group.
+     *
+     * @param int $uid The uid of the direct_mail group
+     *
+     * @return array The resulting array of uid's
+     */
+    public function getStaticIdList(int $uid): array
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        $queryBuilder
+        ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
+        ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
+        ->innerJoin(
+            'sys_dmail_group_mm',
+            'sys_dmail_group',
+            'sys_dmail_group',
+            $queryBuilder->expr()->eq(
+                'sys_dmail_group_mm.uid_local',
+                $queryBuilder->quoteIdentifier('sys_dmail_group.uid')
+            )
+        )
+        ->innerJoin(
+            'sys_dmail_group_mm',
+            $this->table,
+            $this->table,
+            $queryBuilder->expr()->eq(
+                'sys_dmail_group_mm.uid_foreign',
+                $queryBuilder->quoteIdentifier($this->table . '.uid')
+            )
+        )
+        ->andWhere(
+            $queryBuilder->expr()->and()
+            ->add(
+                $queryBuilder->expr()->eq(
+                    'sys_dmail_group_mm.uid_local',
+                    $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
+                )
+            )
+            ->add(
+                $queryBuilder->expr()->eq(
+                    'sys_dmail_group_mm.tablenames',
+                    $queryBuilder->createNamedParameter($this->table)
+                )
+            )
+            ->add(
+                $queryBuilder->expr()->neq(
+                    $this->table . '.email',
+                    $queryBuilder->createNamedParameter('')
+                )
+            )
+            ->add(
+                $queryBuilder->expr()->eq(
+                    'sys_dmail_group.deleted',
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                )
+            )
+        )
+        ->orderBy($this->table . '.uid')
+        ->addOrderBy($this->table . '.email');
+
+        $res = $queryBuilder->executeQuery();
+
+        $outArr = [];
+
+        while ($row = $res->fetchAssociative()) {
+            $outArr[] = $row['uid'];
+        }
+
+        return $outArr;
+    }
+
+    /**
+     * Return all uid's from 'tt_address' where the $pid is in $pidList.
+     * If $cat is 0 or empty, then all entries (with pid $pid) is returned else only
+     * entires which are subscribing to the categories of the group with uid $group_uid is returned.
+     * The relation between the recipients in 'tt_address' and sys_dmail_categories is a true MM relation
+     * (Must be correctly defined in TCA).
+     *
+     * @param array $pidArray The pidArray
+     * @param int $groupUid The groupUid.
+     * @param int $cat The number of relations from sys_dmail_group to sysmail_categories
+     *
+     * @return	array The resulting array of uid's
+     */
+    public function getIdList(array $pidArray, int $groupUid, int $cat): array
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        if ($cat < 1) {
+            $queryBuilder
+            ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
+            ->from($this->table)
+            ->andWhere(
+                $queryBuilder->expr()->and()
+                ->add(
+                    $queryBuilder->expr()->in(
+                        $this->table . '.pid',
+                        $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
+                    )
+                )
+                ->add(
+                    $queryBuilder->expr()->neq(
+                        $this->table . '.email',
+                        $queryBuilder->createNamedParameter('')
+                    )
+                )
+            )
+            ->orderBy($this->table . '.uid')
+            ->addOrderBy($this->table . '.email');
+            $res = $queryBuilder->executeQuery();
+        } else {
+            $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
+            $res = $queryBuilder
+            ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
+            ->from('sys_dmail_group', 'sys_dmail_group')
+            ->from('sys_dmail_group_category_mm', 'g_mm')
+            ->from($mmTable, 'mm_1')
+            ->leftJoin(
+                'mm_1',
+                $this->table,
+                $this->table,
+                $queryBuilder->expr()->eq(
+                    $this->table . '.uid',
+                    $queryBuilder->quoteIdentifier('mm_1.uid_local')
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->and()
+                    ->add(
+                        $queryBuilder->expr()->in(
+                            $this->table . '.pid',
+                            $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
+                        )
+                    )
+                    ->add(
+                        $queryBuilder->expr()->eq(
+                            'mm_1.uid_foreign',
+                            $queryBuilder->quoteIdentifier('g_mm.uid_foreign')
+                        )
+                    )
+                    ->add(
+                        $queryBuilder->expr()->eq(
+                            'sys_dmail_group.uid',
+                            $queryBuilder->quoteIdentifier('g_mm.uid_local')
+                        )
+                    )
+                    ->add(
+                        $queryBuilder->expr()->eq(
+                            'sys_dmail_group.uid',
+                            $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
+                        )
+                    )
+                    ->add(
+                        $queryBuilder->expr()->neq(
+                            $this->table . '.email',
+                            $queryBuilder->createNamedParameter('')
+                        )
+                    )
+            )
+            ->orderBy($this->table . '.uid')
+            ->addOrderBy($this->table . '.email')
+            ->executeQuery();
+        }
+
+        $outArr = [];
+        while ($row = $res->fetchAssociative()) {
+            $outArr[] = $row['uid'];
+        }
+
+        return $outArr;
     }
 }

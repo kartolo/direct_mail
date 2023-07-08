@@ -184,32 +184,8 @@
 			<trans-unit id="dmail_frames_not allowed" resname="dmail_frames_not allowed">
 				<source>Pages with HTML frames may not be fetched.</source>
 			</trans-unit>
-			<trans-unit id="dmail_mailerengine_cron_caution" resname="dmail_mailerengine_cron_caution">
-				<source>Caution</source>
-			</trans-unit>
-			<trans-unit id="dmail_mailerengine_cron_caution_msg" resname="dmail_mailerengine_cron_caution_msg">
-				<source>Please check the cronjob or cronjob is not set.</source>
-			</trans-unit>
-			<trans-unit id="dmail_mailerengine_cron_lastrun" resname="dmail_mailerengine_cron_lastrun">
-				<source>Last run: </source>
-			</trans-unit>
-			<trans-unit id="dmail_mailerengine_cron_ok" resname="dmail_mailerengine_cron_ok">
-				<source>OK</source>
-			</trans-unit>
-			<trans-unit id="dmail_mailerengine_cron_ok_msg" resname="dmail_mailerengine_cron_ok_msg">
-				<source>Cronjob is running.</source>
-			</trans-unit>
-			<trans-unit id="dmail_mailerengine_cron_status" resname="dmail_mailerengine_cron_status">
-				<source>Cron job status</source>
-			</trans-unit>
-			<trans-unit id="dmail_mailerengine_cron_warning" resname="dmail_mailerengine_cron_warning">
-				<source>Warning</source>
-			</trans-unit>
-			<trans-unit id="dmail_mailerengine_cron_warning_msg" resname="dmail_mailerengine_cron_warning_msg">
-				<source>Please check the cronjob.</source>
-			</trans-unit>
-			<trans-unit id="dmail_mailerengine_current_time" resname="dmail_mailerengine_current_time">
-				<source>Current time:</source>
+			<trans-unit id="dmail_mailerengine_tasknotfound" resname="dmail_mailerengine_tasknotfound">
+				<source>Direct Mail scheduled task was not found!</source>
 			</trans-unit>
 			<trans-unit id="dmail_mailerengine_delete" resname="dmail_mailerengine_delete">
 				<source>Delete</source>
@@ -300,6 +276,9 @@
 			</trans-unit>
 			<trans-unit id="dmail_query" resname="dmail_query">
 				<source>Query</source>
+			</trans-unit>
+			<trans-unit id="queryLimitDisabled" resname="queryLimitDisabled">
+				<source>Do not use a limit when sending</source>
 			</trans-unit>
 			<trans-unit id="dmail_send" resname="dmail_send">
 				<source>Send</source>

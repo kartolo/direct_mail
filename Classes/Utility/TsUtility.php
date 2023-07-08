@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Utility;
@@ -7,7 +8,7 @@ use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class TsUtility 
+class TsUtility
 {
     /**
      * Implodes a multi dimensional TypoScript array, $p,
@@ -25,15 +26,14 @@ class TsUtility
             foreach ($p as $kb => $val) {
                 if (is_array($val)) {
                     $implodeParams = array_merge($implodeParams, $this->implodeTSParams($val, $k . $kb));
-                }
-                else {
+                } else {
                     $implodeParams[$k . $kb] = $val;
                 }
             }
         }
         return $implodeParams;
     }
-    
+
     /**
      * Updates Page TSconfig for a page with $id
      * The function seems to take $pageTS as an array with properties
@@ -49,14 +49,13 @@ class TsUtility
      * @param string $tsConfPrefix Prefix for object paths
      * @param array|string $impParams [Description needed.]
      *
-     * @return	void
      *
      * @see implodeTSParams(), getPagesTSconfig()
      */
     public function updatePagesTSconfig(int $id, array $pageTs, string $tsConfPrefix, $impParams = '')
     {
         $done = false;
-        $id = intval($id);
+        $id = (int)$id;
         if (is_array($pageTs) && $id > 0) {
             if (!is_array($impParams)) {
                 $impParams = $this->implodeTSParams(BackendUtility::getPagesTSconfig($id));
@@ -92,13 +91,13 @@ class TsUtility
                     }
                 }
                 $tsLines = array_reverse($tsLines);
-                
+
                 // store those changes
                 $tsConf = implode(LF, $tsLines);
                 $done = GeneralUtility::makeInstance(PagesRepository::class)->updatePageTSconfig((int)$id, $tsConf);
             }
         }
-        
+
         return $done;
     }
 }

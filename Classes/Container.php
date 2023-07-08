@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -26,9 +27,6 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author		Kasper Skårhøj <kasperYYYY>@typo3.com>
  * @author		Thorsten Kahler <thorsten.kahler@dkd.de>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class Container
 {
@@ -39,17 +37,17 @@ class Container
      * @var TypoScriptFrontendController
      */
     protected $cObj;
-    
+
     /**
      * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.4/Deprecation-94956-PublicCObj.html
-     * 
+     *
      * @param ContentObjectRenderer $cObj
      */
     public function setContentObjectRenderer(ContentObjectRenderer $cObj): void
     {
         $this->cObj = $cObj;
     }
-    
+
     /**
      * This function wraps HTML comments around the content.
      * The comments contain the uids of assigned direct mail categories.
@@ -71,7 +69,7 @@ class Container
             if ($content != '') {
                 // setting the default
                 $categoryList = '';
-                if (intval($this->cObj->data['module_sys_dmail_category']) >= 1) {
+                if ((int)$this->cObj->data['module_sys_dmail_category'] >= 1) {
                     // if content type "RECORDS" we have to strip off
                     // boundaries from indcluded records
                     if ($this->cObj->data['CType'] == 'shortcut') {
@@ -122,7 +120,7 @@ class Container
     public function breakLines($content, array $conf)
     {
         $linebreak = $GLOBALS['TSFE']->cObj->stdWrap(($conf['linebreak'] ? $conf['linebreak'] : chr(32) . LF), $conf['linebreak.']);
-        $charWidth = $GLOBALS['TSFE']->cObj->stdWrap(($conf['charWidth'] ? intval($conf['charWidth']) : 76), $conf['charWidth.']);
+        $charWidth = $GLOBALS['TSFE']->cObj->stdWrap(($conf['charWidth'] ? (int)$conf['charWidth'] : 76), $conf['charWidth.']);
 
         return MailUtility::breakLinesForEmail($content, $linebreak, $charWidth);
     }

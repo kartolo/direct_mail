@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 defined('TYPO3') || die();
@@ -14,7 +15,7 @@ defined('TYPO3') || die();
     /**
      * Language of the cron task:
      */
-    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cron_language'] = $extConf['cron_language'] ? $extConf['cron_language'] : 'en';
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronLanguage'] = $extConf['cronLanguage'] ? $extConf['cronLanguage'] : 'en';
 
     /**
      * Number of messages sent per cycle of the cron task:
@@ -42,21 +43,19 @@ defined('TYPO3') || die();
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['notificationJob'] = $extConf['notificationJob'];
 
     /**
-     * Interval of the cronjob
-     */
-    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['cronInt'] = $extConf['cronInt'];
-
-    /**
      * Use HTTP to fetch contents
      */
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseHttpToFetch'] = $extConf['UseHttpToFetch'];
 
     /**
-     * Use implicit port in URL for fetching Newsletter-Content: Even if your TYPO3 Backend is on a non-standard-port, 
-     * the URL for fetching the newsletter contents from one of your Frontend-Domains will not use the PORT you are using to access your TYPO3 Backend, 
+     * Use implicit port in URL for fetching Newsletter-Content: Even if your TYPO3 Backend is on a non-standard-port,
+     * the URL for fetching the newsletter contents from one of your Frontend-Domains will not use the PORT you are using to access your TYPO3 Backend,
      * but use implicit port instead (e.g. no explicit port in URL)
      */
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['UseImplicitPortToFetch'] = $extConf['UseImplicitPortToFetch'];
+
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerifyPeer'] = $extConf['SSLVerifyPeer'];
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['SSLVerifyPeerName'] = $extConf['SSLVerifyPeerName'];
 
     /**
      * Registering class to scheduler
@@ -71,7 +70,7 @@ defined('TYPO3') || die();
         'extension'            => 'direct_mail',
         'title'                => 'Direct Mail: Create Mail from Draft',
         'description'        => 'This task allows you to select a DirectMail draft that gets copied and then sent to the. This allows automatic (periodic) sending of the same TYPO3 page.',
-        'additionalFields'    => 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraftAdditionalFields'
+        'additionalFields'    => 'DirectMailTeam\\DirectMail\\Scheduler\\MailFromDraftAdditionalFields',
     ];
 
     // bounce mail per scheduler
@@ -79,6 +78,14 @@ defined('TYPO3') || die();
         'extension' => 'direct_mail',
         'title' => 'Direct Mail: Analyze bounce mail',
         'description' => 'This task will get bounce mail from the configured mailbox',
-        'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields'
+        'additionalFields' => 'DirectMailTeam\\DirectMail\\Scheduler\\AnalyzeBounceMailAdditionalFields',
     ];
+
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig(
+        "@import 'EXT:direct_mail/Configuration/TSconfig/options.tsconfig'"
+    );
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptSetup(
+        "@import 'EXT:direct_mail/Configuration/TSconfig/page.tsconfig'"
+    );
+
 })();

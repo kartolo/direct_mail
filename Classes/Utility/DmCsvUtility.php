@@ -1,14 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Utility;
 
-use DirectMailTeam\DirectMail\Repository\PagesRepository;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\CsvUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class DmCsvUtility 
+class DmCsvUtility
 {
     /**
      * Parsing csv-formated text to an array
@@ -30,20 +28,20 @@ class DmCsvUtility
         while ($data = fgetcsv($fh, 1000, $sep)) {
             $lines[] = $data;
         }
-        
+
         fclose($fh);
         return $lines;
     }
-    
+
     /**
      * Parse CSV lines into array form
      *
      * @param array $lines CSV lines
-     * @param string $fieldList List of the fields
+     * @param array $fieldList List of the fields
      *
      * @return array parsed CSV values
      */
-    public function rearrangeCsvValues(array $lines, $fieldList): array
+    public function rearrangeCsvValues(array $lines, array $fieldListArr): array
     {
         $out = [];
         if (is_array($lines) && count($lines) > 0) {
@@ -57,13 +55,12 @@ class DmCsvUtility
             // adds that number to the field value (accummulation) and '=[value]'
             // overrides any existing value in the field
             $first = $lines[0];
-            $fieldListArr = explode(',', $fieldList);
-            if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']) {
-                $fieldListArr = array_merge($fieldListArr, explode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['addRecipFields']));
+            if ($dmConfigAddRecipFields = Typo3ConfVarsUtility::getDMConfigAddRecipFields()) {
+                $fieldListArr = array_merge($fieldListArr, explode(',', $dmConfigAddRecipFields));
             }
             $fieldName = 1;
             $fieldOrder = [];
-            
+
             foreach ($first as $v) {
                 list($fName, $fConf) = preg_split('|[\[\]]|', $v);
                 $fName = trim($fName);
@@ -78,7 +75,7 @@ class DmCsvUtility
             if (!$fieldName) {
                 $fieldOrder = [
                     ['name'],
-                    ['email']
+                    ['email'],
                 ];
             }
             // Re-map values
@@ -87,7 +84,7 @@ class DmCsvUtility
                 // Advance pointer if the first line was field names
                 next($lines);
             }
-            
+
             $c = 0;
             foreach ($lines as $data) {
                 // Must be a line with content.
@@ -101,13 +98,11 @@ class DmCsvUtility
                                 if (trim($data[$kk])) {
                                     if (substr($fN[1], 0, 1) == '=') {
                                         $out[$c][$fN[0]] = trim(substr($fN[1], 1));
-                                    }
-                                    elseif (substr($fN[1], 0, 1) == '+') {
+                                    } elseif (substr($fN[1], 0, 1) == '+') {
                                         $out[$c][$fN[0]] += substr($fN[1], 1);
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 $out[$c][$fN[0]] = trim($data[$kk]);
                             }
                         }
@@ -123,8 +118,6 @@ class DmCsvUtility
      * Send csv values as download by sending appropriate HTML header
      *
      * @param array $idArr Values to be put into csv
-     *
-     * @return void Sent HML header for a file download
      */
     public function downloadCSV(array $idArr)
     {
@@ -133,13 +126,13 @@ class DmCsvUtility
         if (is_array($idArr) && count($idArr)) {
             reset($idArr);
             $lines[] = CsvUtility::csvValues(array_keys(current($idArr)));
-            
+
             reset($idArr);
             foreach ($idArr as $rec) {
                 $lines[] = CsvUtility::csvValues($rec);
             }
         }
-        
+
         $filename = 'DirectMail_export_' . date('dmy-Hi') . '.csv';
         $mimeType = 'application/octet-stream';
         header('Content-Type: ' . $mimeType);

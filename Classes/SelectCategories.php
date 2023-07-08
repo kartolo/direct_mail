@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -25,32 +26,25 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Localize categories for backend forms
  *
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class SelectCategories
 {
     /**
      * Get the localization of the select field items (right-hand part of form)
      * Referenced by TCA
+     * https://docs.typo3.org/m/typo3/reference-tca/11.5/en-us/ColumnsConfig/CommonProperties/ItemsProcFunc.html
      *
      * @param	array $params Array of searched translation
-     *
-     * @return	void
      */
-    public function get_localized_categories(array $params)
+    public function getLocalizedCategories(array &$params): void
     {
         $sys_language_uid = 0;
-        $languageService = $this->getLanguageService();
-        //initialize backend user language
-        $lang = $languageService->lang == 'default' ? 'en' : $languageService->lang;
-
+        $lang = $this->getLang();
         if ($lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
             $sysPage = GeneralUtility::makeInstance(PageRepository::class);
             $rows = GeneralUtility::makeInstance(SysLanguageRepository::class)->selectSysLanguageForSelectCategories(
-                $lang, 
-                $sysPage->enableFields('sys_language'), 
+                $lang,
+                $sysPage->enableFields('sys_language'),
                 $sysPage->enableFields('static_languages')
             );
             if (is_array($rows)) {
@@ -63,9 +57,8 @@ class SelectCategories
         if (is_array($params['items']) && !empty($params['items'])) {
             $table = (string)$params['config']['itemsProcFunc_config']['table'];
             $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
-            
             foreach ($params['items'] as $k => $item) {
-                $rows = $tempRepository->selectRowsByUid($table, intval($item[1]));
+                $rows = $tempRepository->selectRowsByUid($table, (int)$item[1]);
                 if (is_array($rows)) {
                     foreach ($rows as $rowCat) {
                         if ($localizedRowCat = $tempRepository->getRecordOverlay($table, $rowCat, $sys_language_uid)) {
@@ -76,11 +69,18 @@ class SelectCategories
             }
         }
     }
-    
+
+    protected function getLang(): string
+    {
+        //initialize backend user language
+        $languageService = $this->getLanguageService();
+        return $languageService->lang == 'default' ? 'en' : $languageService->lang;
+    }
+
     /**
      * @return LanguageService
      */
-    public function getLanguageService(): LanguageService
+    protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }

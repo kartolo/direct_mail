@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Scheduler;
 
 /*
@@ -15,9 +16,10 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  */
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
+use DirectMailTeam\DirectMail\Module\DmailController;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -30,23 +32,19 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * directmail record that is ready for sending right away
  *
  * @author	Benjamin Mack <benni@typo3.org>
- * @package TYPO3
- * @subpackage	tx_directmail
  */
 class MailFromDraft extends AbstractTask
 {
-    public $draftUid = null;
+    public int $draftUid = 0;
 
-    protected $hookObjects = [];
+    protected array $hookObjects = [];
 
     /**
      * Setter function to set the draft ID that the task should use
      *
      * @param int $draftUid The UID of the sys_dmail record (needs to be of type=3 or type=4)
-     *
-     * @return void
      */
-    public function setDraft($draftUid)
+    public function setDraft(int $draftUid): void
     {
         $this->draftUid = $draftUid;
     }
@@ -57,7 +55,7 @@ class MailFromDraft extends AbstractTask
      *
      * @return	bool
      */
-    public function execute()
+    public function execute(): bool
     {
         if ($this->draftUid > 0) {
             $this->initializeHookObjects();
@@ -66,11 +64,10 @@ class MailFromDraft extends AbstractTask
             $draftRecord = BackendUtility::getRecord('sys_dmail', $this->draftUid);
 
             // update recipients
-            $recipientGroups = explode(",", $draftRecord['recipientGroups']);
-            $SOBE = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance( \DirectMailTeam\DirectMail\Module\Dmail::class );
-            $SOBE->init();
+            $recipientGroups = explode(',', $draftRecord['recipientGroups']);
+            $dmailController = GeneralUtility::makeInstance(DmailController::class);
 
-            $newRecipients = $SOBE->cmd_compileMailGroup($recipientGroups);
+            $newRecipients = $dmailController->cmd_compileMailGroup($recipientGroups);
 
             // get some parameters from tsConfig
             $defaultParams = BackendUtility::getPagesTSconfig($draftRecord['pid'])['mod.']['web_modules.']['dmail.'] ?? [];
@@ -90,17 +87,7 @@ class MailFromDraft extends AbstractTask
                 throw new \Exception('No site found in root line of page ' . $draftRecord['page'] . '!');
             }
 
-            // Insert the new dmail record into the DB
-            //$GLOBALS['TYPO3_DB']->exec_INSERTquery('sys_dmail', $draftRecord);
-            //$this->dmailUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
-
-            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-            $databaseConnectionSysDmailMail = $connectionPool->getConnectionForTable('sys_dmail');
-            $databaseConnectionSysDmailMail->insert(
-                'sys_dmail',
-                $draftRecord
-            );
-            $this->dmailUid = (int)$databaseConnectionSysDmailMail->lastInsertId('sys_dmail');
+            $this->dmailUid = GeneralUtility::makeInstance(SysDmailRepository::class)->insertDMailRecord($draftRecord);
 
             // Call a hook after insertion of the cloned dmail record
             // This hook can get used to modify fields of the direct mail.
@@ -123,7 +110,7 @@ class MailFromDraft extends AbstractTask
             if ($mailRecord['mailContent'] && $mailRecord['renderedsize'] > 0) {
                 $updateData = [
                     'scheduled' => time(),
-                    'issent'    => 1
+                    'issent'    => 1,
                 ];
                 // Call a hook before enqueuing the cloned dmail record into
                 // the direct mail delivery queue
@@ -132,13 +119,7 @@ class MailFromDraft extends AbstractTask
                 $this->callHooks('enqueueClonedDmail', $hookParams);
                 // Update the cloned dmail so it will get sent upon next
                 // invocation of the mailer engine
-                $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-                $connection = $connectionPool->getConnectionForTable('sys_dmail');
-                $connection->update(
-                    'sys_dmail', // table
-                    $updateData, // value array
-                    [ 'uid' => intval($this->dmailUid) ] // where
-                );
+                GeneralUtility::makeInstance(SysDmailRepository::class)->updateDMailRecord($this->dmailUid, $updateData);
             }
         }
         return true;
@@ -160,27 +141,24 @@ class MailFromDraft extends AbstractTask
             if (!empty($siteFinder->getAllSites())) {
                 $site = $siteFinder->getSiteByPageId($pageId);
                 $base = $site->getBase();
-                if($base->getHost()) {
+                if ($base->getHost()) {
                     return true;
                 }
-            }
-            else {
+            } else {
                 return false; // No site found in root line of pageId
             }
         }
-        
+
         return false; // No valid pageId
     }
-    
+
     /**
      * Calls the passed hook method of all configured hook object instances
      *
      * @param string $hookMethod The hook method name
      * @param array $hookParams The hook params
-     *
-     * @return    void
      */
-    public function callHooks($hookMethod, array $hookParams)
+    public function callHooks(string $hookMethod, array $hookParams)
     {
         foreach ($this->hookObjects as $hookObjectInstance) {
             $hookObjectInstance->$hookMethod($hookParams, $this);
@@ -190,12 +168,11 @@ class MailFromDraft extends AbstractTask
     /**
      * Initializes hook objects for this class
      *
-     * @return void
      * @throws \Exception
      */
     public function initializeHookObjects()
     {
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'])) {
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] ?? false)) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] as $hookObj) {
                 $hookObjectInstance = GeneralUtility::makeInstance($hookObj);
                 if (!(is_object($hookObjectInstance) && ($hookObjectInstance instanceof MailFromDraftHookInterface))) {

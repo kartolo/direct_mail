@@ -1,11 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Utility;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class AuthCodeUtility 
+class AuthCodeUtility
 {
     /**
      * check if the supplied auth code is identical with the counted authCode
@@ -19,7 +20,7 @@ class AuthCodeUtility
     {
         if (!empty($submittedAuthCode)) {
             $hmac = self::getHmac($recipientRecord, $authcodeFieldList);
-            if($submittedAuthCode === $hmac) {
+            if ($submittedAuthCode === $hmac) {
                 return true;
             }
             /**
@@ -27,7 +28,7 @@ class AuthCodeUtility
              * for old e-mails
              */
             $authCodeToMatch = self::getAuthCode($recipientRecord, $authcodeFieldList);
-            if($submittedAuthCode === $authCodeToMatch) {
+            if ($submittedAuthCode === $authCodeToMatch) {
                 return true;
             }
         }
@@ -38,7 +39,7 @@ class AuthCodeUtility
      * @TODO remove in v12
      * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.3/Deprecation-94309-DeprecatedGeneralUtilitystdAuthCode.html
      */
-    public static function getAuthCode(array $recipientRecord, string $authcodeFieldList): string 
+    public static function getAuthCode(array $recipientRecord, string $authcodeFieldList): string
     {
         return GeneralUtility::stdAuthCode($recipientRecord, $authcodeFieldList);
     }
@@ -51,8 +52,7 @@ class AuthCodeUtility
             foreach ($fieldArr as $k => $v) {
                 $recCopy_temp[$k] = $recipientRecord[$v];
             }
-        } 
-        else {
+        } else {
             $recCopy_temp = $recipientRecord;
         }
         $preKey = implode('|', $recCopy_temp);

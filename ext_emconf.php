@@ -9,15 +9,15 @@ $EM_CONF[$_EXTKEY] = [
     'author_company' => 'd.k.d Internet Service GmbH',
     'state' => 'stable',
     'clearcacheonload' => 0,
-    'version' => '8.0.0',
+    'version' => '9.5.0',
     'constraints' => [
         'depends' => [
             'typo3' => '11.5.0-11.99.99',
             'lowlevel' => '11.5.0-11.99.99',
-            'tt_address' => '5.3.0-7.0.99',
-            'php' => '7.4.0-8.0.99',
+            'tt_address' => '6.0.0-8.0.99',
+            'php' => '7.4.0-8.1.99',
             'jumpurl' => '8.0.3-',
-            'rdct' => '2.1.0'
+            'rdct' => '2.1.0',
         ],
         'conflicts' => [
         ],
@@ -28,7 +28,7 @@ $EM_CONF[$_EXTKEY] = [
     ],
     'autoload' => [
         'psr-4' => [
-            'DirectMailTeam\\DirectMail\\' => 'Classes/'
-        ]
+            'DirectMailTeam\\DirectMail\\' => 'Classes/',
+        ],
     ],
 ];

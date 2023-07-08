@@ -23,7 +23,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Hooks which is called while FE rendering
  *
  * Class TypoScriptFrontendController
- * @package DirectMailTeam\DirectMail\Hooks
  */
 class TypoScriptFrontendController
 {
@@ -37,13 +36,11 @@ class TypoScriptFrontendController
         $directMailFeGroup = (int)GeneralUtility::_GET('dmail_fe_group');
         $accessToken = (string)GeneralUtility::_GET('access_token');
         if ($directMailFeGroup > 0 && GeneralUtility::makeInstance(DmRegistryUtility::class)->validateAndRemoveAccessToken($accessToken)) {
-
             /** @var UserAspect $userAspect */
             $userAspect = $typoScriptFrontendController->getContext()->getAspect('frontend.user');
 
             // we reset the content if required
             if (!in_array($directMailFeGroup, $userAspect->getGroupIds(), true)) {
-
                 // code was refactor, using a different hook!
                 $typoScriptFrontendController->getContext()->setAspect(
                     'frontend.user',
