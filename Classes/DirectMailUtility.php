@@ -18,6 +18,7 @@ namespace DirectMailTeam\DirectMail;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\DmRegistryUtility;
 use DirectMailTeam\DirectMail\Utility\FetchUtility;
+use DirectMailTeam\DirectMail\Utility\RdctUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -378,33 +379,24 @@ class DirectMailUtility
      * @see makeRedirectUrl()
      * @deprecated since TYPO3 CMS 7, will be removed in TYPO3 CMS 8. Use mailer API instead
      */
-    public static function substUrlsInPlainText(string $message, string $urlmode = '76', string $index_script_url = '')
+    public static function substUrlsInPlainText(string $message, string $urlmode = '76', string $index_script_url = ''): string
     {
-        switch ($urlmode) {
-            case '':
-                $lengthLimit = false;
-                break;
-            case 'all':
-                $lengthLimit = 0;
-                break;
-            case '76':
+        $rdctUtility = GeneralUtility::makeInstance(RdctUtility::class);
+        if (!$rdctUtility->installed()) {
+            return $message;
+        }
 
-            default:
-                $lengthLimit = (int)$urlmode;
-        }
-        if ($lengthLimit === false) {
-            // No processing
-            $messageSubstituted = $message;
-        } else {
-            $messageSubstituted = preg_replace_callback(
-                '/(http|https):\\/\\/.+(?=[\\]\\.\\?]*([\\! \'"()<>]+|$))/iU',
-                function (array $matches) use ($lengthLimit, $index_script_url) {
-                    $redirects = GeneralUtility::makeInstance(\FoT3\Rdct\Redirects::class);
-                    return $redirects->makeRedirectUrl($matches[0], $lengthLimit, $index_script_url);
-                },
-                $message
-            );
-        }
+        $lengthLimit = $urlmode === 'all' ? 0 :(int)$urlmode;
+        //$pattern = '/(http|https):\\/\\/.+(?=[\\]\\.\\?]*([\\! \'"()<>]+|$))/iU';
+        // https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch08s02.html
+        $pattern = '/\b((https?):\/\/|(www)\.)[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i';
+        $messageSubstituted = preg_replace_callback(
+            $pattern,
+            function (array $matches) use ($rdctUtility, $lengthLimit, $index_script_url) {
+                return $rdctUtility->getRedirects()->makeRedirectUrl($matches[0], $lengthLimit, $index_script_url);
+            },
+            $message
+        );
         return $messageSubstituted;
     }
 
