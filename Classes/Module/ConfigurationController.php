@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\Utility\TsUtility;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Attribute\Controller;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -15,10 +19,7 @@ use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
-use TYPO3\CMS\Backend\Attribute\Controller;
-// the module template will be initialized in handleRequest()
-use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
-use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -27,12 +28,12 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 final class ConfigurationController extends MainController
 {
-
     protected FlashMessageQueue $flashMessageQueue;
 
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
         protected readonly IconFactory $iconFactory,
+        protected readonly PageRenderer $pageRenderer,
 
         protected readonly string $moduleName = 'directmail_module_configuration',
         protected readonly string $TSconfPrefix = 'mod.web_modules.dmail.',
@@ -81,6 +82,9 @@ final class ConfigurationController extends MainController
 
     public function indexAction(ModuleTemplate $view): ResponseInterface
     {
+        // Load JavaScript via PageRenderer
+        $this->pageRenderer->loadRequireJs();
+        $this->pageRenderer->loadJavaScriptModule('@directmailteam/diractmail/Configuration.js');
         if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
 
             $module = $this->getModulName();
@@ -94,6 +98,7 @@ final class ConfigurationController extends MainController
                     $this->setDefaultValues();
                     $view->assignMultiple([
                         'implodedParams' => $this->implodedParams,
+                        'uid' => $this->id
                     ]);
                 } elseif ($this->id != 0) {
                     $message = $this->createFlashMessage(
@@ -130,6 +135,63 @@ final class ConfigurationController extends MainController
         }
 
         return $view->renderResponse('Configuration');
+    }
+
+    /**
+     * @return ResponseFactory
+     */
+    protected function getResponseFactory(): ResponseFactoryInterface
+    {
+        return GeneralUtility::makeInstance(ResponseFactoryInterface::class);
+    }
+
+    public function updateConfigAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->id = (int)($request->getParsedBody()['uid'] ?? 0);
+        $permsClause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
+        $pageAccess = BackendUtility::readPageAccess($this->id, $permsClause);
+        $this->pageinfo = is_array($pageAccess) ? $pageAccess : [];
+        $this->access = is_array($this->pageinfo) ? true : false;
+
+
+        if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
+            if ($this->getBackendUser()->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {
+                $this->languageService = $this->getLanguageService();
+                $this->pageTS = $request->getParsedBody()['pageTS'] ?? [];
+
+
+
+                foreach(['includeMedia', 'flowedFormat', 'use_rdct', 'long_link_mode', 'enable_jump_url', 'jumpurl_tracking_privacy', 'enable_mailto_jump_url', 'showContentTitle', 'prependContentTitle'] as $checkboxName) {
+                    if(!isset($this->pageTS[$checkboxName])) {
+                        $this->pageTS[$checkboxName] = '0';
+                    }
+                }
+
+                $done = false;
+                if (is_array($this->pageTS) && count($this->pageTS)) {
+                    $done = GeneralUtility::makeInstance(TsUtility::class)->updatePagesTSconfig($this->id, $this->pageTS, $this->TSconfPrefix);
+                }
+
+                if ($done) {
+                    $title = $this->languageService->sL($this->lllFile . ':mod.configuration.saved.title');
+                    $message = $this->languageService->sL($this->lllFile . ':mod.configuration.saved');
+                }
+                else {
+                    $title = $this->languageService->sL($this->lllFile . ':mod.configuration.not_saved');
+                    $message = $this->languageService->sL($this->lllFile . ':mod.configuration.not_saved.title');
+                }
+
+                $responseFactory = $this->getResponseFactory();
+                $response = $responseFactory->createResponse()->withHeader('Content-Type', 'application/json; charset=utf-8');
+                $response->getBody()->write(json_encode(['result' => [
+                    'title' => $title,
+                    'message' => $message,
+                    'type' => $done
+                ]], JSON_THROW_ON_ERROR));
+                return $response;
+
+            }
+        }
     }
 
     protected function setDefaultValues(): void
