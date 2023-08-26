@@ -153,7 +153,7 @@ class MainController
      */
     protected function createFlashMessage(
         string $messageText,
-        string $messageHeader = '',
+        string $messageHeader,
         ContextualFeedbackSeverity $messageType,
         bool $storeInSession = false): FlashMessage
     {
