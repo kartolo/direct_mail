@@ -1845,10 +1845,9 @@ final class DmailController extends MainController
                     $colPosVal = $row['colPos'];
                 }
 
-                $this->categories = GeneralUtility::makeInstance(TempRepository::class)->makeCategories('tt_content', $row, $this->sys_language_uid);
-                reset($this->categories);
+                $categories = GeneralUtility::makeInstance(TempRepository::class)->makeCategories('tt_content', $row, $this->sys_language_uid);
                 $cboxes = [];
-                foreach ($this->categories as $pKey => $pVal) {
+                foreach ($categories as $pKey => $pVal) {
                     $cboxes[] = [
                         'pKey' => $pKey,
                         'checked' => GeneralUtility::inList($categoriesRow, $pKey) ? true : false,
