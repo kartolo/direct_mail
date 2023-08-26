@@ -862,7 +862,6 @@ final class DmailController extends MainController
         if ($dmail['sys_dmail']['NEW']['pid'] && $dmail['sys_dmail']['NEW']['sendOptions']) {
             /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
             $dataHandler = $this->getDataHandler();
-            $dataHandler->stripslashes_values = 0;
             $dataHandler->start($dmail, []);
             $dataHandler->process_datamap();
             $this->sys_dmail_uid = $dataHandler->substNEWwithIDs['NEW'];
@@ -1811,7 +1810,6 @@ final class DmailController extends MainController
 
             /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
             $dataHandler = $this->getDataHandler();
-            $dataHandler->stripslashes_values = 0;
             $dataHandler->start($data, []);
             $dataHandler->process_datamap();
 
@@ -1970,7 +1968,6 @@ final class DmailController extends MainController
 
             /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
             $dataHandler = $this->getDataHandler();
-            $dataHandler->stripslashes_values = 0;
             $dataHandler->start($tcemainData, []);
             $dataHandler->process_datamap();
             $result = $dataHandler->substNEWwithIDs['NEW'];
@@ -2055,7 +2052,6 @@ final class DmailController extends MainController
 
             /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
             $dataHandler = $this->getDataHandler();
-            $dataHandler->stripslashes_values = 0;
             $dataHandler->start($tcemainData, []);
             $dataHandler->process_datamap();
             $result = $dataHandler->substNEWwithIDs['NEW'];

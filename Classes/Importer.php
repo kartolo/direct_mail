@@ -710,7 +710,6 @@ class Importer
         // start importing
         /* @var $dataHandler DataHandler */
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
-        $dataHandler->stripslashes_values = 0;
         //$dataHandler->enableLogging = 0;
         $dataHandler->start($data, []);
         $dataHandler->process_datamap();

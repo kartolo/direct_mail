@@ -314,7 +314,6 @@ final class StatisticsController extends MainController
 
                     /* @var $dataHandler \TYPO3\CMS\Core\DataHandling\DataHandler */
                     $dataHandler = $this->getDataHandler();
-                    $dataHandler->stripslashes_values = 0;
                     $dataHandler->start($data, []);
                     $dataHandler->process_datamap();
                 }

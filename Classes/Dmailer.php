@@ -813,7 +813,7 @@ class Dmailer implements LoggerAwareInterface
         // Default line break for Unix systems.
         // Line break for Windows. This is needed because PHP on Windows systems
         // send mails via SMTP instead of using sendmail, and thus the linebreak needs to be \r\n.
-        $this->linebreak = Environment::isWindows() ? CRLF : LF;
+        //$this->linebreak = Environment::isWindows() ? CRLF : LF;
 
         // Mailer engine parameters
         if (!$this->nonCron) {
