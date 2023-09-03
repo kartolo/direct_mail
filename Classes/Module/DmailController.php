@@ -74,6 +74,7 @@ final class DmailController extends MainController
         protected int $currentStep = 1,
 
         protected int $uid = 0,
+        protected array $MOD_SETTINGS = [],
 
         protected bool $backButtonPressed = false,
 
@@ -1500,7 +1501,7 @@ final class DmailController extends MainController
             );
             $this->flashMessageQueue->addMessage($message);
         }
-
+        $sendMailDatetime = date('H:i d-m-Y', time());
         return [
             'id' => $this->id,
             'sys_dmail_uid' => $this->sys_dmail_uid,
@@ -1508,8 +1509,8 @@ final class DmailController extends MainController
             'hookSelectDisabled' => $hookSelectDisabled, // put content from hook
             'lastGroup' => $lastGroup,
             'opt' => $opt,
-            'send_mail_datetime_hr' => strftime('%H:%M %d-%m-%Y', time()),
-            'send_mail_datetime' => strftime('%H:%M %d-%m-%Y', time()),
+            'send_mail_datetime_hr' => $sendMailDatetime,
+            'send_mail_datetime' =>    $sendMailDatetime,
         ];
     }
 
