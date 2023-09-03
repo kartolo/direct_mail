@@ -24,6 +24,7 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+use TYPO3\CMS\Core\Page\PageRenderer;
 // the module template will be initialized in handleRequest()
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -32,12 +33,12 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 final class RecipientListController extends MainController
 {
-
     protected FlashMessageQueue $flashMessageQueue;
 
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
         protected readonly IconFactory $iconFactory,
+        protected readonly PageRenderer $pageRenderer,
 
         protected readonly string $moduleName = 'directmail_module_recipientlist',
         protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
@@ -754,9 +755,9 @@ final class RecipientListController extends MainController
         //if ($this->MOD_SETTINGS['queryTable'] && $this->MOD_SETTINGS['queryConfig']) {
         //    $queryGenerator->extFieldLists['queryFields'] = 'uid';
         //}
+        $this->pageRenderer->loadJavaScriptModule('@typo3/lowlevel/query-generator.js');
+        $this->pageRenderer->loadJavaScriptModule('@typo3/backend/date-time-picker.js');
 
-        //$this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Lowlevel/QueryGenerator');
-        //$this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Backend/DateTimePicker');
         [$html, $query] = $queryGenerator->queryMakerDM($this->request, $this->allowedTables);
         return ['selectTables' => $html, 'query' => $query];
     }
