@@ -21,10 +21,10 @@
 				</f:if>
 				<f:if condition="{data.info.quickmail}">
 					<input type="hidden" name="cmd" value="{data.info.quickmail.cmd}">
-                    <input type="hidden" name="quickmail[senderName]" value="{data.info.quickmail.senderName}" />
-                    <input type="hidden" name="quickmail[senderEmail]" value="{data.info.quickmail.senderEmail}" />
-                    <input type="hidden" name="quickmail[subject]" value="{data.info.quickmail.subject}" />
-                    <input type="hidden" name="quickmail[message]" value="{data.info.quickmail.message}" />
+					<input type="hidden" name="quickmail[senderName]" value="{data.info.quickmail.senderName}" />
+					<input type="hidden" name="quickmail[senderEmail]" value="{data.info.quickmail.senderEmail}" />
+					<input type="hidden" name="quickmail[subject]" value="{data.info.quickmail.subject}" />
+					<input type="hidden" name="quickmail[message]" value="{data.info.quickmail.message}" />
 					<input type="hidden" name="quickmail[breakLines]" value="{data.info.quickmail.breakLines}" />
 				</f:if>
 				<f:if condition="{data.info.dmail}">
@@ -39,9 +39,9 @@
 							<th>{data.info.table.theadTitle1} <b>{data.info.table.theadTitle2}</b></th>
 							<th style="text-align: right;">
 								<f:if condition="{data.info.table.edit}">
-                                    <f:then>
-                                        <a href="{data.info.table.editParams}"><core:icon identifier="actions-open" size="small" /><b> {data.info.table.label}<f:translate key="{lll}dmail_edit"/></b></a>
-                                    </f:then>
+									<f:then>
+										<a href="{data.info.table.editParams}"><core:icon identifier="actions-open" size="small" /><b> {data.info.table.label}<f:translate key="{lll}dmail_edit"/></b></a>
+									</f:then>
 									<f:else><core:icon identifier="actions-open" size="small" /> ({data.info.table.label})</f:else>
 								</f:if>
 							</th>
@@ -202,18 +202,16 @@
 					<br>
 					<div class="form-control-wrap">
 						<div class="input-group">
-							<input class="form-control t3js-datetimepicker t3js-clearable"
+							<input class="form-control form-control-clearable t3js-datetimepicker t3js-clearable"
 								data-date-type="datetime"
 								data-date-offset="0"
 								type="text"
 								id="tceforms-datetimefield-startdate"
 								name="send_mail_datetime_hr" value="{data.final.finalForm.send_mail_datetime_hr}">
 							<input name="send_mail_datetime" value="{data.final.finalForm.send_mail_datetime}" type="hidden">
-							<span class="input-group-btn">
-								<label class="btn btn-default" for="tceforms-datetimefield-startdate">
-									<span class="fa fa-calendar"></span>
-								</label>
-							</span>
+                            <button class="btn btn-default" type="button" data-global-event="click" data-action-focus="#tceforms-datetimefield-startdate">
+                                <core:icon identifier="actions-edit-pick-date" />
+                            </button>
 						</div>
 					</div>
 					<br>
