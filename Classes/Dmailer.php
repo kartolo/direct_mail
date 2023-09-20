@@ -519,7 +519,10 @@ class Dmailer implements LoggerAwareInterface
             return '';
         }
 
-        $relationTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'];
+        $relationTable = $GLOBALS['TCA'][$table]['columns']['module_sys_dmail_category']['config']['MM'] ?? null;
+        if ($relationTable === null) {
+            return '';
+        }
 
         $rows = GeneralUtility::makeInstance(TempRepository::class)->getListOfRecipentCategories($table, $relationTable, $uid);
 
