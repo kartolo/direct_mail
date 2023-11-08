@@ -186,10 +186,10 @@ class DirectMail extends AbstractPlugin
 
         $this->conf = $conf;
         $this->pi_loadLL('EXT:direct_mail/Resources/Private/Language/Plaintext/locallang.xlf');
-        $this->siteUrl = $this->conf['siteUrl'];
+        $this->siteUrl = $this->conf['siteUrl'] ?? null;
 
         // Default linebreak;
-        if ($this->conf['flowedFormat']) {
+        if ($this->conf['flowedFormat'] ?? false) {
             $this->linebreak = chr(32) . LF;
         }
     }
@@ -310,7 +310,7 @@ class DirectMail extends AbstractPlugin
         }
         // Regular parsing:
         $str = preg_replace('/<br\s*\/?>/i', LF, $str);
-        $str = $this->cObj->stdWrap($str, $this->conf[$altConf . '.']['stdWrap.']);
+        $str = $this->cObj->stdWrap($str, $this->conf[$altConf . '.']['stdWrap.'] ?? null);
 
         // Then all a-tags:
         $aConf = [];
@@ -320,7 +320,7 @@ class DirectMail extends AbstractPlugin
         $str = $this->cObj->stdWrap($str, $aConf);
         $str = str_replace('&nbsp;', ' ', htmlspecialchars_decode($str));
 
-        if ($this->conf[$altConf . '.']['header']) {
+        if ($this->conf[$altConf . '.']['header'] ?? false) {
             $str = $this->getString($this->conf[$altConf . '.']['header']) . LF . $str;
         }
 
@@ -362,7 +362,7 @@ class DirectMail extends AbstractPlugin
     public function renderHeader($str, $type = 0)
     {
         if ($str) {
-            $hConf = $this->conf['header.'];
+            $hConf = $this->conf['header.'] ?? null;
             $defaultType = DirectMailUtility::intInRangeWrapper((int)$hConf['defaultType'], 1, 5);
             $type = DirectMailUtility::intInRangeWrapper((int)$type, 0, 6);
             if (!$type) {
@@ -696,7 +696,7 @@ class DirectMail extends AbstractPlugin
     public function getString($str)
     {
         $parts = explode('|', $str);
-        return strcmp($parts[1], '')?$parts[1]:$parts[0];
+        return strcmp($parts[1] ?? null, '')?$parts[1]:$parts[0];
     }
 
     /**
@@ -709,7 +709,7 @@ class DirectMail extends AbstractPlugin
      */
     public function userProcess($mConfKey, $passVar)
     {
-        if ($this->conf[$mConfKey]) {
+        if ($this->conf[$mConfKey] ?? false) {
             $funcConf = $this->conf[$mConfKey . '.'];
             $funcConf['parentObj']=&$this;
             $passVar = $GLOBALS['TSFE']->cObj->callUserFunction($this->conf[$mConfKey], $funcConf, $passVar);
