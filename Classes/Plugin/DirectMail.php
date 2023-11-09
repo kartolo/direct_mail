@@ -305,7 +305,7 @@ class DirectMail extends AbstractPlugin
      */
     public function parseBody($str, $altConf = 'bodytext')
     {
-        if ($this->conf[$altConf . '.']['doubleLF']) {
+        if ($this->conf[$altConf . '.']['doubleLF'] ?? false) {
             $str = preg_replace("/\n/", "\n\n", $str);
         }
         // Regular parsing:
