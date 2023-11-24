@@ -216,7 +216,7 @@ class TtAddressRepository extends MainRepository
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $res = $queryBuilder
+        $queryBuilder
         ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
         ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
         ->innerJoin(
@@ -238,7 +238,7 @@ class TtAddressRepository extends MainRepository
             )
         )
         ->andWhere(
-            $queryBuilder->expr()->andX()
+            $queryBuilder->expr()->and()
             ->add(
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group_mm.uid_local',
@@ -265,8 +265,9 @@ class TtAddressRepository extends MainRepository
             )
         )
         ->orderBy($this->table . '.uid')
-        ->addOrderBy($this->table . '.email')
-        ->executeQuery();
+        ->addOrderBy($this->table . '.email');
+
+        $res = $queryBuilder->executeQuery();
 
         $outArr = [];
 
@@ -295,11 +296,11 @@ class TtAddressRepository extends MainRepository
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         if ($cat < 1) {
-            $res = $queryBuilder
+            $queryBuilder
             ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
             ->from($this->table)
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                 ->add(
                     $queryBuilder->expr()->in(
                         $this->table . '.pid',
@@ -314,8 +315,8 @@ class TtAddressRepository extends MainRepository
                 )
             )
             ->orderBy($this->table . '.uid')
-            ->addOrderBy($this->table . '.email')
-            ->executeQuery();
+            ->addOrderBy($this->table . '.email');
+            $res = $queryBuilder->executeQuery();
         } else {
             $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
             $res = $queryBuilder
@@ -333,7 +334,7 @@ class TtAddressRepository extends MainRepository
                 )
             )
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                     ->add(
                         $queryBuilder->expr()->in(
                             $this->table . '.pid',

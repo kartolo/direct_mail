@@ -74,9 +74,8 @@ class Typo3ConfVarsUtility
         return (bool)$dmConfig['UseHttpToFetch'];
     }
 
-    public static function getDMConfigCronInt(): int
+    public static function getDateFormat()
     {
-        $dmConfig = self::getDMConfig();
-        return (int)$dmConfig['cronInt'];
+        return $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'] . ' ' . $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm'];
     }
 }

@@ -328,7 +328,7 @@ class DmailController extends MainController
                         $data['info']['dmail']['cmd'] = 'send_test';
 
                         // add attachment here, since attachment added in 2nd step
-                        $unserializedMailContent = unserialize(base64_decode($row['mailContent']));
+                        $unserializedMailContent = unserialize(base64_decode((string)$row['mailContent']));
                         $temp = $this->compileQuickMail($row, $unserializedMailContent['plain']['content'] ?? '', false);
                         if ($temp['errorTitle']) {
                             $this->messageQueue->addMessage($this->createFlashMessage($temp['errorText'], $temp['errorTitle'], 2, false));
@@ -1258,9 +1258,8 @@ class DmailController extends MainController
     protected function sendTestMailToTable(array $idLists, string $table, Dmailer $htmlmail): int
     {
         $sentFlag = 0;
-        if (is_array($idLists[$table])) {
-            $rows = ($table != 'PLAINLIST') ? GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$table], $table, '*') : $idLists['PLAINLIST'];
-
+        if (isset($idLists[$table]) && is_array($idLists[$table])) {
+            $rows = ($table != 'PLAINLIST') ? GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$table], $table, ['*']) : $idLists['PLAINLIST'];
             foreach ($rows as $row) {
                 $recipRow = $htmlmail->convertFields($row);
                 $recipRow['sys_dmail_categories_list'] = $htmlmail->getListOfRecipentCategories($table, $recipRow['uid']);
@@ -1573,11 +1572,11 @@ class DmailController extends MainController
                         break;
                     case 1:
                         // List of mails
+                        $mailGroupList = (string)$mailGroup['list'];
                         if ($mailGroup['csv'] == 1) {
                             $dmCsvUtility = GeneralUtility::makeInstance(DmCsvUtility::class);
-                            $recipients = $dmCsvUtility->rearrangeCsvValues($dmCsvUtility->getCsvValues($mailGroup['list']), $this->fieldList);
+                            $recipients = $dmCsvUtility->rearrangeCsvValues($dmCsvUtility->getCsvValues($mailGroupList), $this->getFieldList());
                         } else {
-                            $mailGroupList = $mailGroup['list'];
                             $recipients = $mailGroupList ? $this->rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroupList))) : [];
                         }
                         $idLists['PLAINLIST'] = $this->cleanPlainList($recipients);
@@ -1636,7 +1635,7 @@ class DmailController extends MainController
     public function updateSpecialQuery(array $mailGroup)
     {
         $set = GeneralUtility::_GP('SET');
-        $queryTable = $set['queryTable'];
+        $queryTable = $set['queryTable'] ?? '';
         $queryLimit = $set['queryLimit'] ?? $mailGroup['queryLimit'] ?? 100;
         $queryLimitDisabled = ($set['queryLimitDisabled'] ?? $mailGroup['queryLimitDisabled']) == '' ? 0 : 1;
         $queryConfig = GeneralUtility::_GP('queryConfig');

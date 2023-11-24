@@ -7,6 +7,7 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
+use DirectMailTeam\DirectMail\Utility\SchedulerUtility;
 use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -14,6 +15,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 class MailerEngineController extends MainController
 {
@@ -58,12 +60,11 @@ class MailerEngineController extends MainController
 
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
-                    $cronMonitor = $this->cronMonitor();
                     $mailerEngine = $this->mailerengine();
 
                     $this->view->assignMultiple(
                         [
-                            'cronMonitor' => $cronMonitor,
+                            'schedulerTable' => $this->getSchedulerTable(),
                             'data' => $mailerEngine['data'],
                             'id' => $this->id,
                             'invoke' => $mailerEngine['invoke'],
@@ -99,93 +100,14 @@ class MailerEngineController extends MainController
         return new HtmlResponse($this->moduleTemplate->renderContent());
     }
 
-    /**
-     * Monitor the cronjob.
-     *
-     * @return	string		status of the cronjob in HTML Tableformat
-     */
-    public function cronMonitor()
+    protected function getSchedulerTable(): array
     {
-        $mailerStatus = 0;
-        $lastExecutionTime = 0;
-        $logContent = '';
-        $error = '';
-
-        // seconds
-        $cronInterval = Typo3ConfVarsUtility::getDMConfigCronInt() * 60;
-        $lastCronjobShouldBeNewThan = (time() - $cronInterval);
-        $filename = $this->getDmailerLogFilePath();
-        if (file_exists($filename)) {
-            $logContent = file_get_contents($filename);
-            $lastExecutionTime = substr($logContent, 0, 10);
+        $schedulerTable = [];
+        if (ExtensionManagementUtility::isLoaded('scheduler')) {
+            $this->getLanguageService()->includeLLFile('EXT:scheduler/Resources/Private/Language/locallang.xlf');
+            $schedulerTable = SchedulerUtility::getDMTable($this->getLanguageService());
         }
-
-        /*
-         * status:
-         * 	1 = ok
-         * 	0 = check
-         * 	-1 = cron stopped
-         *
-         * cron running or error (die function in dmailer_log)
-         */
-        if (file_exists($this->getDmailerLockFilePath())) {
-            $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectByResponseType(0);
-            if (is_array($res)) {
-                foreach ($res as $lastSend) {
-                    if (($lastSend['tstamp'] < time()) && ($lastSend['tstamp'] > $lastCronjobShouldBeNewThan)) {
-                        // cron is sending
-                        $mailerStatus = 1;
-                    } else {
-                        // there's lock file but cron is not sending
-                        $mailerStatus = -1;
-                    }
-                }
-            }
-        // cron is idle or no cron
-        } elseif (strpos($logContent, 'error')) {
-            // error in log file
-            $mailerStatus = -1;
-            $error = substr($logContent, strpos($logContent, 'error') + 7);
-        } elseif (!strlen($logContent) || ($lastExecutionTime < $lastCronjobShouldBeNewThan)) {
-            // cron is not set or not running
-            $mailerStatus = 0;
-        } else {
-            // last run of cron is in the interval
-            $mailerStatus = 1;
-        }
-
-        $currentDate = ' / ' . $this->getLanguageService()->getLL('dmail_mailerengine_current_time') . ' ' . BackendUtility::datetime(time()) . '. ';
-        $lastRun = ' ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_lastrun') . ($lastExecutionTime ? BackendUtility::datetime($lastExecutionTime) : '-') . $currentDate;
-        switch ($mailerStatus) {
-            case -1:
-                $message = $this->createFlashMessage(
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_warning') . ': ' . ($error ? $error : $this->getLanguageService()->getLL('dmail_mailerengine_cron_warning_msg')) . $lastRun,
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
-                    2,
-                    false
-                );
-                $this->messageQueue->addMessage($message);
-                break;
-            case 0:
-                $message = $this->createFlashMessage(
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_caution_msg') . $lastRun,
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
-                    1,
-                    false
-                );
-                $this->messageQueue->addMessage($message);
-                break;
-            case 1:
-                $message = $this->createFlashMessage(
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_ok') . ': ' . $this->getLanguageService()->getLL('dmail_mailerengine_cron_ok_msg') . $lastRun,
-                    $this->getLanguageService()->getLL('dmail_mailerengine_cron_status'),
-                    0,
-                    false
-                );
-                $this->messageQueue->addMessage($message);
-                break;
-            default:
-        }
+        return $schedulerTable;
     }
 
     /**
@@ -195,7 +117,7 @@ class MailerEngineController extends MainController
      * @return	string		List of the mailing status
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    public function mailerengine()
+    protected function mailerengine(): array
     {
         $invoke = false;
         $moduleUrl = '';
@@ -229,7 +151,7 @@ class MailerEngineController extends MainController
                 $data[] = [
                     'uid'             => $row['uid'],
                     'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-                    'subject'         => $this->linkDMail_record(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)), $row['uid']),
+                    'subject'         => $this->linkDMailRecord(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)), $row['uid']),
                     'scheduled'       => BackendUtility::datetime($row['scheduled']),
                     'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
                     'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
@@ -243,7 +165,7 @@ class MailerEngineController extends MainController
         return ['invoke' => $invoke, 'moduleUrl' => $moduleUrl, 'data' => $data];
     }
 
-    private function getSysDmailMaillogsCountres(int $uid): int
+    protected function getSysDmailMaillogsCountres(int $uid): int
     {
         $countres = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogs($uid);
         $count = 0;
@@ -263,7 +185,7 @@ class MailerEngineController extends MainController
      * @param int $uid Uid of the record
      * @return bool
      */
-    public function canDelete($uid)
+    protected function canDelete(int $uid): bool
     {
         $dmail = BackendUtility::getRecord('sys_dmail', $uid);
 
@@ -276,14 +198,12 @@ class MailerEngineController extends MainController
      *
      * @param int $uid Record uid to be deleted
      */
-    public function deleteDMail(int $uid)
+    protected function deleteDMail(int $uid): void
     {
         $table = 'sys_dmail';
         if ($GLOBALS['TCA'][$table]['ctrl']['delete']) {
             $done = GeneralUtility::makeInstance(SysDmailRepository::class)->updateSysDmailRecord($uid, [$GLOBALS['TCA'][$table]['ctrl']['delete'] => 1]);
         }
-
-        return;
     }
 
     /**
@@ -293,7 +213,7 @@ class MailerEngineController extends MainController
      * @see		Dmailer::start
      * @see		Dmailer::runcron
      */
-    public function invokeMEngine()
+    protected function invokeMEngine(): void
     {
         // TODO: remove htmlmail
         /* @var $htmlmail \DirectMailTeam\DirectMail\Dmailer */
@@ -311,7 +231,7 @@ class MailerEngineController extends MainController
      *
      * @return string wrapped string as a link
      */
-    public function linkDMail_record($str, $uid)
+    protected function linkDMailRecord(string $str, int $uid): string
     {
         return $str;
         //TODO: Link to detail page for the new queue

@@ -85,15 +85,17 @@ class JumpurlController implements MiddlewareInterface
 
         if ($this->shouldProcess()) {
             $mailId = (int)$this->request->getQueryParams()['mid'];
-            $submittedRecipient = (string)$this->request->getQueryParams()['rid'];
-            $submittedAuthCode  = $this->request->getQueryParams()['aC'];
-            $jumpurl = $this->request->getQueryParams()['jumpurl'];
+            $submittedRecipient = isset($this->request->getQueryParams()['rid']) ? (string)$this->request->getQueryParams()['rid'] : '';
+            $submittedAuthCode  = $this->request->getQueryParams()['aC'] ?? '';
+            $jumpurl = $this->request->getQueryParams()['jumpurl'] ?? '';
 
             $urlId = 0;
             if (MathUtility::canBeInterpretedAsInteger($jumpurl)) {
                 $urlId = $jumpurl;
                 $this->initDirectMailRecord($mailId);
                 $this->initRecipientRecord($submittedRecipient);
+                $rid = $this->recipientRecord['uid'] ?? 0;
+
                 $jumpurl = $this->getTargetUrl((int)$jumpurl);
 
                 // try to build the ready-to-use target url
@@ -123,7 +125,7 @@ class JumpurlController implements MiddlewareInterface
                 }
 
                 // to count the dmailerping correctly, we need something unique
-                $recipientUid = $submittedAuthCode;
+                $submittedAuthCode = preg_replace("/[^a-zA-Z0-9]/", "", $submittedAuthCode);
             }
 
             if ($this->responseType !== 0) {
@@ -134,7 +136,7 @@ class JumpurlController implements MiddlewareInterface
                     'response_type' => $this->responseType,
                     'url_id'        => (int)$urlId,
                     'rtbl'          => mb_substr($this->recipientTable, 0, 1),
-                    'rid'           => (int)($recipientUid ?? $this->recipientRecord['uid']),
+                    'rid'           => $rid ?? $submittedAuthCode,
                 ];
                 $sysDmailMaillogRepository = GeneralUtility::makeInstance(SysDmailMaillogRepository::class);
                 if ($sysDmailMaillogRepository->hasRecentLog($mailLogParams) === false) {
@@ -177,25 +179,28 @@ class JumpurlController implements MiddlewareInterface
      * Fetches the target url from the direct mail record
      *
      * @param int $targetIndex
-     * @return string|null
+     * @return string
      */
-    protected function getTargetUrl(int $targetIndex): ?string
+    protected function getTargetUrl(int $targetIndex): string
     {
-        $targetUrl = null;
+        $targetUrl = '';
 
         if (!empty($this->directMailRecord)) {
             $mailContent = unserialize(
-                base64_decode($this->directMailRecord['mailContent']),
+                base64_decode((string)$this->directMailRecord['mailContent']),
                 ['allowed_classes' => false]
             );
-            if ($targetIndex >= 0) {
-                // Link (number)
-                $this->responseType = self::RESPONSE_TYPE_HREF;
-                $targetUrl = $mailContent['html']['hrefs'][$targetIndex]['absRef'];
-            } else {
-                // Link (number, plaintext)
-                $this->responseType = self::RESPONSE_TYPE_PLAIN;
-                $targetUrl = $mailContent['plain']['link_ids'][abs($targetIndex)];
+
+            if(is_array($mailContent)) {
+                if ($targetIndex >= 0) {
+                    // Link (number)
+                    $this->responseType = self::RESPONSE_TYPE_HREF;
+                    $targetUrl = $mailContent['html']['hrefs'][$targetIndex]['absRef'];
+                } else {
+                    // Link (number, plaintext)
+                    $this->responseType = self::RESPONSE_TYPE_PLAIN;
+                    $targetUrl = $mailContent['plain']['link_ids'][abs($targetIndex)];
+                }
             }
             $targetUrl = htmlspecialchars_decode(urldecode($targetUrl));
         }
@@ -261,7 +266,7 @@ class JumpurlController implements MiddlewareInterface
             if (isset($this->recipientRecord[$substField])) {
                 $processedTargetUrl = str_replace(
                     '###USER_' . $substField . '###',
-                    $this->recipientRecord[$substField],
+                    (string) $this->recipientRecord[$substField],
                     $processedTargetUrl
                 );
             }

@@ -245,14 +245,43 @@ class MainController
         return $dmLinks;
     }
 
+    protected function getFieldList(): array
+    {
+        return [
+            'uid',
+            'name',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'title',
+            'email',
+            'phone',
+            'www',
+            'address',
+            'company',
+            'city',
+            'zip',
+            'country',
+            'fax',
+            'module_sys_dmail_category',
+            'module_sys_dmail_html'
+        ];
+    }
+
+    protected function getFieldListFeUsers(): array
+    {
+        $fieldList = $this->getFieldList();
+        foreach(['telephone' => 'phone'] as $key => $val) {
+            $index = array_search($val, $fieldList);
+            $fieldList[$index] = $key;
+        }
+
+        return $fieldList;
+    }
+
     protected function getTempPath(): string
     {
         return Environment::getPublicPath() . '/typo3temp/';
-    }
-
-    protected function getDmailerLogFilePath(): string
-    {
-        return $this->getTempPath() . 'tx_directmail_dmailer_log.txt';
     }
 
     protected function getDmailerLockFilePath(): string
@@ -292,7 +321,7 @@ class MainController
             $tableIcon = $this->iconFactory->getIconForRecord($table, []);
             foreach ($listArr as $row) {
                 $editLink = '';
-                if ($row['uid'] && $isAllowedEditTable) {
+                if (($row['uid'] ?? false) && $isAllowedEditTable) {
                     $urlParameters = [
                         'edit' => [
                             $table => [
