@@ -1582,6 +1582,13 @@ class DirectMailUtility
             }
             $set = array();
             foreach ($pageTs as $f => $v) {
+                // only get the first line of input and ignore the rest
+                $v = strtok(trim($v), "\r\n");
+                // if token is not found (false)
+                if ($v === false) {
+                    // then set empty string
+                    $v = '';
+                }
                 $f = $tsConfPrefix . $f;
                 if ((!isset($impParams[$f]) && trim($v)) || strcmp(trim($impParams[$f]), trim($v))) {
                     $set[$f] = trim($v);
