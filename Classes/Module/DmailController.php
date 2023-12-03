@@ -197,6 +197,7 @@ final class DmailController extends MainController
             if ($module == 'dmail') {
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
+                    $this->pageRenderer->loadJavaScriptModule('@typo3/backend/date-time-picker.js');
                     $markers = $this->moduleContent();
                     $view->assignMultiple(
                         [
@@ -1466,31 +1467,15 @@ final class DmailController extends MainController
         if ($groups) {
             foreach ($groups as $group) {
                 $result = $this->cmd_compileMailGroup([$group['uid']]);
-                $count = 0;
-                $idLists = $result['queryInfo']['id_lists'];
-                if (is_array($idLists['tt_address'] ?? false)) {
-                    $count += count($idLists['tt_address']);
-                }
-                if (is_array($idLists['fe_users'] ?? false)) {
-                    $count += count($idLists['fe_users']);
-                }
-                if (is_array($idLists['PLAINLIST'] ?? false)) {
-                    $count += count($idLists['PLAINLIST']);
-                }
-                if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
-                    $count += count($idLists[$this->userTable]);
-                }
-
                 $opt[] = [
                     'uid' => $group['uid'],
                     'title' => $group['title'],
-                    'count' => $count,
+                    'count' => $this->countRecipients($result['queryInfo']['id_lists']),
                 ];
                 $lastGroup = $group;
             }
         }
 
-        $groupInput = '';
         // added disabled. see hook
         if (count($opt) === 0) {
             $message = $this->createFlashMessage(

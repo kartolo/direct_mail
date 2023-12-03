@@ -65,7 +65,7 @@ class MainController
     protected string $perms_clause = '';
 
     protected array $implodedParams = [];
-    protected $userTable;
+    protected string $userTable = '';
     protected array $allowedTables = [];
     protected int $sys_language_uid = 0;
     protected array $pageinfo = [];
@@ -451,4 +451,17 @@ class MainController
         return $tree->ids;
     }
 
+    protected function countRecipients(array $idLists): int
+    {
+        $count = 0;
+        foreach(['tt_address', 'fe_users', 'PLAINLIST'] as $recipientsType) {
+            if (is_array($idLists[$recipientsType] ?? false)) {
+                $count += count($idLists[$recipientsType]);
+            }
+        }
+        if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
+            $count += count($idLists[$this->userTable]);
+        }
+        return $count;
+    }
 }

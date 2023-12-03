@@ -215,20 +215,6 @@ final class RecipientListController extends MainController
         return ['data' => $data, 'content' => $theOutput, 'type' => $type];
     }
 
-    protected function countRecipients(array $idLists): int
-    {
-        $count = 0;
-        foreach(['tt_address', 'fe_users', 'PLAINLIST'] as $recipientsType) {
-            if (is_array($idLists[$recipientsType] ?? false)) {
-                $count += count($idLists[$recipientsType]);
-            }
-        }
-        if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
-            $count += count($idLists[$this->userTable]);
-        }
-        return $count;
-    }
-
     /**
      * Shows the existing recipient lists and shows link to create a new one or import a list
      *
@@ -394,7 +380,10 @@ final class RecipientListController extends MainController
                                 GeneralUtility::makeInstance(UriBuilder::class), 
                                 $this->moduleTemplateFactory
                             );
-                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup
+                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList(
+                                $queryGenerator, 
+                                $table, 
+                                $mailGroup
                             );
                         }
                         break;
