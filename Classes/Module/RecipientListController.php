@@ -16,20 +16,19 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Attribute\Controller;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Page\PageRenderer;
-// the module template will be initialized in handleRequest()
-use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
-use TYPO3\CMS\Backend\Template\ModuleTemplate;
-use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class RecipientListController extends MainController
 {
@@ -216,6 +215,20 @@ final class RecipientListController extends MainController
         return ['data' => $data, 'content' => $theOutput, 'type' => $type];
     }
 
+    protected function countRecipients($idLists): int
+    {
+        $count = 0;
+        foreach(['tt_address', 'fe_users', 'PLAINLIST'] as $recipientsType) {
+            if (is_array($idLists[$recipientsType] ?? false)) {
+                $count += count($idLists[$recipientsType]);
+            }
+        }
+        if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
+            $count += count($idLists[$this->userTable]);
+        }
+        return $count;
+    }
+
     /**
      * Shows the existing recipient lists and shows link to create a new one or import a list
      *
@@ -225,28 +238,36 @@ final class RecipientListController extends MainController
     protected function showExistingRecipientLists(): array
     {
         $data = [
+            'editOnClickLink' => $this->getEditOnClickLink([
+                'edit' => [
+                    'sys_dmail_group' => [
+                        $this->id => 'new',
+                    ],
+                ],
+                'returnUrl' => $this->requestUri,
+            ]),
+            'moduleUrl' => $this->buildUriFromRoute(
+                $this->moduleName,
+                [
+                    'id' => $this->id,
+                    'cmd' => 'displayImport',
+                ]
+            ),
             'rows' => [],
+            'sysDmailGroupIcon' => $this->iconFactory->getIconForRecord(
+                'sys_dmail_group', 
+                [], 
+                Icon::SIZE_SMALL
+            )
         ];
 
-        $rows = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupByPid($this->id, trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby']));
+        $rows = GeneralUtility::makeInstance(SysDmailGroupRepository::class)->selectSysDmailGroupByPid(
+            $this->id, 
+            trim($GLOBALS['TCA']['sys_dmail_group']['ctrl']['default_sortby'])
+        );
 
         foreach ($rows as $row) {
             $result = $this->cmd_compileMailGroup((int)$row['uid']);
-            $count = 0;
-            $idLists = $result['queryInfo']['id_lists'];
-
-            if (is_array($idLists['tt_address'] ?? false)) {
-                $count += count($idLists['tt_address']);
-            }
-            if (is_array($idLists['fe_users'] ?? false)) {
-                $count += count($idLists['fe_users']);
-            }
-            if (is_array($idLists['PLAINLIST'] ?? false)) {
-                $count += count($idLists['PLAINLIST']);
-            }
-            if (is_array($idLists[$this->userTable] ?? false)) {
-                $count += count($idLists[$this->userTable]);
-            }
             $data['rows'][] = [
                 'id'          => $row['uid'],
                 'icon'        => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render(),
@@ -254,29 +275,10 @@ final class RecipientListController extends MainController
                 'reciplink'   => $this->linkRecipRecord('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']),
                 'type'        => htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])),
                 'description' => BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'] ?? '')),
-                'count'       => $count,
+                'count'       => $this->countRecipients($result['queryInfo']['id_lists']),
             ];
         }
 
-        $data['editOnClickLink'] = $this->getEditOnClickLink([
-            'edit' => [
-                'sys_dmail_group' => [
-                    $this->id => 'new',
-                ],
-            ],
-            'returnUrl' => $this->requestUri,
-        ]);
-
-        $data['sysDmailGroupIcon'] = $this->iconFactory->getIconForRecord('sys_dmail_group', [], Icon::SIZE_SMALL);
-
-        // Import
-        $data['moduleUrl'] = $this->buildUriFromRoute(
-            $this->moduleName,
-            [
-                'id' => $this->id,
-                'cmd' => 'displayImport',
-            ]
-        );
         return $data;
     }
 
@@ -323,15 +325,21 @@ final class RecipientListController extends MainController
                             $whichTables = (int)$mailGroup['whichtables'];
                             // tt_address
                             if ($whichTables&1) {
-                                $idLists['tt_address'] = GeneralUtility::makeInstance(TtAddressRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
+                                $idLists['tt_address'] = GeneralUtility::makeInstance(TtAddressRepository::class)->getIdList(
+                                    $pageIdArray, $groupUid, $mailGroup['select_categories']
+                                );
                             }
                             // fe_users
                             if ($whichTables&2) {
-                                $idLists['fe_users'] = GeneralUtility::makeInstance(FeUsersRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
+                                $idLists['fe_users'] = GeneralUtility::makeInstance(FeUsersRepository::class)->getIdList(
+                                    $pageIdArray, $groupUid, $mailGroup['select_categories']
+                                );
                             }
                             // user table
                             if ($this->userTable && ($whichTables&4)) {
-                                $idLists[$this->userTable] = GeneralUtility::makeInstance(TempRepository::class)->getIdList($this->userTable, $pageIdArray, $groupUid, $mailGroup['select_categories']);
+                                $idLists[$this->userTable] = GeneralUtility::makeInstance(TempRepository::class)->getIdList(
+                                    $this->userTable, $pageIdArray, $groupUid, $mailGroup['select_categories']
+                                );
                             }
                             // fe_groups
                             if ($whichTables&8) {
@@ -378,12 +386,20 @@ final class RecipientListController extends MainController
                         }
 
                         if ($table) {
-                            $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->iconFactory, GeneralUtility::makeInstance(UriBuilder::class), $this->moduleTemplateFactory);
-                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup);
+                            $queryGenerator = GeneralUtility::makeInstance(
+                                DmQueryGenerator::class, 
+                                $this->iconFactory, 
+                                GeneralUtility::makeInstance(UriBuilder::class), 
+                                $this->moduleTemplateFactory
+                            );
+                            $idLists[$table] = GeneralUtility::makeInstance(TempRepository::class)->getSpecialQueryIdList($queryGenerator, $table, $mailGroup
+                            );
                         }
                         break;
                     case 4:
-                        $groups = array_unique(GeneralUtility::makeInstance(SysDmailGroupRepository::class)->getMailGroups($mailGroup['mail_groups'] ?? '', [$mailGroup['uid']], $this->perms_clause));
+                        $groups = array_unique(GeneralUtility::makeInstance(
+                            SysDmailGroupRepository::class)->getMailGroups($mailGroup['mail_groups'] ?? '', [$mailGroup['uid']], $this->perms_clause)
+                        );
                         foreach ($groups as $group) {
                             $collect = $this->cmd_compileMailGroup($group);
                             if (is_array($collect['queryInfo']['id_lists'])) {
@@ -492,18 +508,7 @@ final class RecipientListController extends MainController
      */
     protected function displayMailGroup(array $result): array
     {
-        $totalRecipients = 0;
         $idLists = $result['queryInfo']['id_lists'];
-
-        foreach(['tt_address', 'fe_users', 'PLAINLIST'] as $recipientsType) {
-            if (is_array($idLists[$recipientsType] ?? false)) {
-                $totalRecipients += count($idLists[$recipientsType]);
-            }
-        }
-        if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
-            $totalRecipients += count($idLists[$this->userTable]);
-        }
-
         $group = BackendUtility::getRecord('sys_dmail_group', $this->group_uid);
         $group = is_array($group) ? $group : [];
         $data = [
@@ -511,7 +516,7 @@ final class RecipientListController extends MainController
             'group_id' => $this->group_uid,
             'group_icon' => $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL),
             'group_title' => htmlspecialchars($group['title'] ?? ''),
-            'group_totalRecipients' => $totalRecipients,
+            'group_totalRecipients' => $this->countRecipients($idLists),
             'group_link_listall' => ($this->lCmd == '') ? (string)$this->buildUriFromRoute(
                 $this->moduleName,
                 [
@@ -568,7 +573,10 @@ final class RecipientListController extends MainController
                     ];
                 }
                 if (is_array($idLists['fe_users'] ?? false)) {
-                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['fe_users'], 'fe_users');
+                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues(
+                        $idLists['fe_users'], 
+                        'fe_users'
+                    );
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_fe_users',
                         'recipListConfig' => $this->getRecordList($rows, 'fe_users'),
@@ -583,7 +591,10 @@ final class RecipientListController extends MainController
                     ];
                 }
                 if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
-                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$this->userTable], $this->userTable);
+                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues(
+                        $idLists[$this->userTable], 
+                        $this->userTable
+                    );
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_custom',
                         'recipListConfig' => $this->getRecordList($rows, $this->userTable),
@@ -744,7 +755,12 @@ final class RecipientListController extends MainController
      */
     protected function specialQuery(): array
     {
-        $queryGenerator = GeneralUtility::makeInstance(DmQueryGenerator::class, $this->iconFactory, GeneralUtility::makeInstance(UriBuilder::class), $this->moduleTemplateFactory);
+        $queryGenerator = GeneralUtility::makeInstance(
+            DmQueryGenerator::class, 
+            $this->iconFactory, 
+            GeneralUtility::makeInstance(UriBuilder::class), 
+            $this->moduleTemplateFactory
+        );
         //$queryGenerator->setFormName('dmailform');
         $queryGenerator->setFormName('queryform');
 
