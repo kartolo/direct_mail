@@ -495,14 +495,10 @@ final class RecipientListController extends MainController
         $totalRecipients = 0;
         $idLists = $result['queryInfo']['id_lists'];
 
-        if (is_array($idLists['tt_address'] ?? false)) {
-            $totalRecipients += count($idLists['tt_address']);
-        }
-        if (is_array($idLists['fe_users'] ?? false)) {
-            $totalRecipients += count($idLists['fe_users']);
-        }
-        if (is_array($idLists['PLAINLIST'] ?? false)) {
-            $totalRecipients += count($idLists['PLAINLIST']);
+        foreach(['tt_address', 'fe_users', 'PLAINLIST'] as $recipientsType) {
+            if (is_array($idLists[$recipientsType] ?? false)) {
+                $totalRecipients += count($idLists[$recipientsType]);
+            }
         }
         if (!in_array($this->userTable, ['tt_address', 'fe_users', 'PLAINLIST']) && is_array($idLists[$this->userTable] ?? false)) {
             $totalRecipients += count($idLists[$this->userTable]);
