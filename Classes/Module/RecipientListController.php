@@ -20,6 +20,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -255,13 +256,14 @@ final class RecipientListController extends MainController
         foreach ($rows as $row) {
             $result = $this->cmd_compileMailGroup((int)$row['uid']);
             $data['rows'][] = [
-                'id'          => $row['uid'],
-                'icon'        => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render(),
-                'editLink'    => $this->editLink('sys_dmail_group', $row['uid']),
-                'reciplink'   => $this->linkRecipRecord('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']),
-                'type'        => htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])),
-                'description' => BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'] ?? '')),
-                'count'       => $this->countRecipients($result['queryInfo']['id_lists']),
+                'id'            => $row['uid'],
+                'icon'          => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render(),
+                'editLink'      => $this->editLink('sys_dmail_group', $row['uid']),
+                'reciplink'     => $this->linkRecipRecord($row['uid']),
+                'reciplinkText' => htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)),
+                'type'          => htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])),
+                'description'   => BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'] ?? '')),
+                'count'         => $this->countRecipients($result['queryInfo']['id_lists']),
             ];
         }
 
@@ -470,15 +472,14 @@ final class RecipientListController extends MainController
     /**
      * Shows link to show the recipient infos
      *
-     * @param string $str Name of the recipient link
      * @param int $uid Uid of the recipient link
      *
-     * @return string The link
+     * @return Uri The link
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function linkRecipRecord(string $str, int $uid): string
+    protected function linkRecipRecord(int $uid): Uri
     {
-        $moduleUrl = $this->buildUriFromRoute(
+        return $this->buildUriFromRoute(
             $this->moduleName,
             [
                 'id' => $this->id,
@@ -487,7 +488,6 @@ final class RecipientListController extends MainController
                 'SET[dmail_mode]' => 'recip',
             ]
         );
-        return '<a href="' . $moduleUrl . '">' . $str . '</a>';
     }
 
     /**

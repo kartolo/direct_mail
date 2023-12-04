@@ -30,7 +30,7 @@
         <h3><f:translate key="{lll}subscriber_profile" /></h3>
         <f:translate key="{lll}subscriber_profile_instructions" />
         <br><br>
-        <form action="" method="post" name="dmailform" enctype="multipart/form-data">
+        <form action="" method="post" name="queryform" enctype="multipart/form-data">
 	        <f:for each="{data.categories}" as="cat">
                 <input type="checkbox" name="indata[categories][{data.uid}][{cat.pkey}]" value="1" class="form-check-input" {f:if(condition: "1 == {cat.checked}" , then: 'checked="checked"')}> <f:format.raw>{cat.pVal}</f:format.raw>
 	            <br>
@@ -78,7 +78,7 @@
             <h3><f:translate key="{lll}dmail_makeQuery" /></h3>
 			</f:comment>
 			<f:comment>'queryform' for QueryGenerator.js from lowlevel</f:comment>
-            <form action="" method="post" name="dmailform" enctype="multipart/form-data">
+            <form action="" method="post" name="queryform" enctype="multipart/form-data">
 
                 <div class="form-check form-switch">
                     <input type="checkbox" name="SET[queryLimitDisabled]" value="1" class="form-check-input" {f:if(condition: "1 == {data.queryLimitDisabled}", then: 'checked="checked"')}>
@@ -114,7 +114,7 @@
 						</f:if>
 					</td>
                     <td nowrap="nowrap">{row.id}</td>
-                    <td nowrap="nowrap"><f:format.raw>{row.reciplink}</f:format.raw></td>
+                    <td nowrap="nowrap"><a href="{row.reciplink}"><strong><f:format.raw>{row.reciplinkText}</f:format.raw></strong></a></td>
                     <td nowrap="nowrap"><f:format.raw>{row.type}</f:format.raw></td>
                     <td nowrap="nowrap"><f:format.raw>{row.description}</f:format.raw></td>
                     <td>{row.count}</td>
@@ -141,7 +141,7 @@
             </h2>
 			<hr style="border:solid;"/>
 			<h3>{formcontent.output.subtitle}</h3>
-			<form action="" method="post" name="dmailform" enctype="multipart/form-data">
+			<form action="" method="post" name="queryform" enctype="multipart/form-data">
 				<f:if condition="{formcontent.output.upload.show}">
 					<f:translate key="{lll}mailgroup_import_upload_file" />
 					<fieldset class="form-section">
