@@ -663,7 +663,7 @@ class Importer
                         if ($this->indata['all_html']) {
                             $data['tt_address'][$userID[$foundUser[0]]]['module_sys_dmail_html'] = $this->indata['all_html'];
                         }
-                        if (is_array($this->indata['cat']) && !in_array('cats', $this->indata['map'])) {
+                        if (is_array($this->indata['cat'] ?? false) && !in_array('cats', $this->indata['map'])) {
                             if ($this->indata['add_cat']) {
                                 $rows = GeneralUtility::makeInstance(SysDmailTtAddressCategoryMmRepository::class)->selectUidsByUidLocal((int)$userID[$foundUser[0]]);
                                 if (is_array($rows)) {
@@ -788,7 +788,6 @@ class Importer
         $encaps = ($encaps === 'singleQuote') ? "'" : $encaps;
         $encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
 
-        ini_set('auto_detect_line_endings', true);
         $handle = fopen($fileAbsolutePath, 'r');
         if ($handle === false) {
             return $mydata;
@@ -803,7 +802,6 @@ class Importer
         fclose($handle);
         reset($mydata);
         $mydata = $this->convCharset($mydata);
-        ini_set('auto_detect_line_endings', false);
         return $mydata;
     }
 
@@ -835,7 +833,6 @@ class Importer
         $encaps = ($encaps === 'singleQuote') ? "'" : $encaps;
         $encaps = ($encaps === 'doubleQuote') ? '"' : $encaps;
 
-        ini_set('auto_detect_line_endings', true);
         $handle = fopen($fileAbsolutePath, 'r');
         if ($handle === false) {
             return $mydata;
@@ -854,7 +851,6 @@ class Importer
         fclose($handle);
         reset($mydata);
         $mydata = $this->convCharset($mydata);
-        ini_set('auto_detect_line_endings', false);
         return $mydata;
     }
 
