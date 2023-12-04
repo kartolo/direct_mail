@@ -409,6 +409,9 @@
 			<trans-unit id="mailgroup_header" resname="mailgroup_header">
 				<source>Recipient List</source>
 			</trans-unit>
+			<trans-unit id="importer_header" resname="importer_header">
+				<source>Importer</source>
+			</trans-unit>
 			<trans-unit id="mailgroup_import" resname="mailgroup_import">
 				<source>Import CSV into 'ADDRESS' table</source>
 			</trans-unit>

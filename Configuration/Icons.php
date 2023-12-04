@@ -73,6 +73,10 @@ return [
         'provider' => \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
         'source' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-recipient-list.svg',
     ],
+    'directmail-module-importer' => [
+        'provider' => \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
+        'source' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-importer.svg',
+    ],
     'directmail-module-statistics' => [
         'provider' => \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
         'source' => 'EXT:direct_mail/Resources/Public/Images/module-directmail-statistics.svg',

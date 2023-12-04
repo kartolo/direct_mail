@@ -1,6 +1,6 @@
 <?php
 
-namespace DirectMailTeam\DirectMail;
+namespace DirectMailTeam\DirectMail\Module;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -20,18 +20,28 @@ use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailTtAddressCategoryMmRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Attribute\Controller;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
@@ -42,7 +52,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
  */
-class Importer
+final class ImporterController extends MainController
 {
     /**
      * The GET-Data
@@ -51,37 +61,115 @@ class Importer
     public $indata = [];
     public $params = [];
 
-    /**
-     * Parent object
-     *
-     * @var RecipientList
-     */
-    public $parent;
-
     protected $messageQueue;
 
+    protected FlashMessageQueue $flashMessageQueue;
+
     public function __construct(
-        protected LanguageService $languageService,
-        protected BackendUserAuthentication $beUser,
-        protected readonly string $lllFile,
-        protected readonly int $id,
-        protected array $importStep,
-        protected array $csvImport,
-        protected array $csvFile
+        protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly IconFactory $iconFactory,
+        protected readonly PageRenderer $pageRenderer,
+
+        protected readonly string $moduleName = 'directmail_module_importer',
+        protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
+
+        protected ?LanguageService $languageService = null,
+        protected ?ServerRequestInterface $request = null,
+        protected ?BackendUserAuthentication $beUser = null,
+
+        protected array $queryParams = [],
+
+        protected $httpReferer = '',
+        protected $requestHostOnly = '',
+        protected array $importStep = [],
+        protected array $csvImport = [],
+        protected array $csvFile = []
     ) {
     }
-    /**
-     * Init the class
-     *
-     * @param $pObj $pObj The parent object
-     */
-    public function init(&$pObj): void
+
+    public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
-        $this->parent = &$pObj;
+        $this->languageService = $this->getLanguageService();
+        $this->flashMessageQueue = $this->getFlashMessageQueue('RecipientListQueue');
+
+        $this->request = $request;
+        $this->queryParams = $request->getQueryParams();
+        $parsedBody = $request->getParsedBody();
+
+        $this->id = (int)($parsedBody['id'] ?? $this->queryParams['id'] ?? 0);
+        $permsClause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
+        $pageAccess = BackendUtility::readPageAccess($this->id, $permsClause);
+        $this->pageinfo = is_array($pageAccess) ? $pageAccess : [];
+        $this->access = is_array($this->pageinfo) ? true : false;
+
+        $this->beUser = $this->getBackendUser();
+
+        $this->httpReferer = $request->getServerParams()['HTTP_REFERER'];
+
+        $normalizedParams = $request->getAttribute('normalizedParams');
+        $this->requestHostOnly = $normalizedParams->getRequestHostOnly();
 
         // get some importer default from pageTS
         $this->params = BackendUtility::getPagesTSconfig($this->id)['mod.']['web_modules.']['dmail.']['importer.'] ?? [];
-        $this->messageQueue = $this->getMessageQueue();
+        $this->importStep = is_array($parsedBody['importStep'] ?? '') ? $parsedBody['importStep'] : [];
+        $this->csvImport = is_array($parsedBody['CSV_IMPORT'] ?? '') ? $parsedBody['CSV_IMPORT'] : [];
+        $this->csvFile = is_array($parsedBody['file'] ?? '') ? $parsedBody['file'] : [];
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($request);
+        return $this->indexAction($moduleTemplate);
+    }
+
+    public function indexAction(ModuleTemplate $view): ResponseInterface
+    {
+        if (($this->id && $this->access) || ($this->isAdmin() && !$this->id)) {
+
+            $module = $this->getModulName();
+
+            if ($module == 'dmail') {
+                // Direct mail module
+                if (($this->pageinfo['doktype'] ?? 0) == 254) {
+                    $data = $this->moduleContent();
+                    $view->assignMultiple(
+                        [
+                            'formcontent' => $data,
+                            'show' => true,
+                        ]
+                    );
+                } elseif ($this->id != 0) {
+                    $message = $this->createFlashMessage(
+                        $this->languageService->sL($this->lllFile . ':dmail_noRegular'),
+                        $this->languageService->sL($this->lllFile . ':dmail_newsletters'),
+                        ContextualFeedbackSeverity::WARNING,
+                        false
+                    );
+                    $this->flashMessageQueue->addMessage($message);
+                }
+            } else {
+                $message = $this->createFlashMessage(
+                    $this->languageService->sL($this->lllFile . ':select_folder'),
+                    $this->languageService->sL($this->lllFile . ':header_recip'),
+                    ContextualFeedbackSeverity::WARNING,
+                    false
+                );
+                $this->flashMessageQueue->addMessage($message);
+                $view->assignMultiple(
+                    [
+                        'dmLinks' => $this->getDMPages($this->moduleName),
+                    ]
+                );
+            }
+        } else {
+            $message = $this->createFlashMessage(
+                $this->languageService->sL($this->lllFile . ':mod.main.no_access'),
+                $this->languageService->sL($this->lllFile . ':mod.main.no_access.title'),
+                ContextualFeedbackSeverity::WARNING,
+                false
+            );
+            $this->flashMessageQueue->addMessage($message);
+            return $view->renderResponse('NoAccess');
+        }
+
+        return $view->renderResponse('Importer');
     }
 
     /**
@@ -89,7 +177,7 @@ class Importer
      *
      * @return	array		HTML form
      */
-    public function displayImport(): array
+    protected function moduleContent(): array
     {
         $output = [
             'title' => '',
@@ -396,7 +484,7 @@ class Importer
                 }
 
                 // get categories
-                $temp['value'] = BackendUtility::getPagesTSconfig($this->parent->getId())['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
+                $temp['value'] = BackendUtility::getPagesTSconfig($this->getId())['TCEFORM.']['sys_dmail_group.']['select_categories.']['PAGE_TSCONFIG_IDLIST'] ?? null;
                 if (is_numeric($temp['value'])) {
                     $rowCat = GeneralUtility::makeInstance(SysDmailCategoryRepository::class)->selectSysDmailCategoryByPid((int)$temp['value']);
                     if (!empty($rowCat)) {
@@ -720,7 +808,7 @@ class Importer
                 $logsStr .= $log . PHP_EOL;
             }
             $message = $this->createFlashMessage($logsStr, 'Import errors', ContextualFeedbackSeverity::ERROR, false);
-            $this->messageQueue->addMessage($message);
+            $this->flashMessageQueue->addMessage($message);
         }
         /**
          * Hook for doImport Mail
@@ -900,8 +988,8 @@ class Importer
 
         if (empty($this->indata['newFile'])) {
             // Checking referer / executing:
-            $refInfo = parse_url($this->parent->getHttpReferer());
-            $httpHost = $this->parent->getRequestHostOnly();
+            $refInfo = parse_url($this->getHttpReferer());
+            $httpHost = $this->getRequestHostOnly();
 
             if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
                 $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
@@ -948,8 +1036,8 @@ class Importer
         $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::REPLACE);
 
         // Checking referer / executing:
-        $refInfo = parse_url($this->parent->getHttpReferer());
-        $httpHost = $this->parent->getRequestHostOnly();
+        $refInfo = parse_url($this->getHttpReferer());
+        $httpHost = $this->getRequestHostOnly();
 
         if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
             $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
@@ -1018,36 +1106,13 @@ class Importer
         return $context->getPropertyFromAspect('date', 'timestamp');
     }
 
-    protected function getMessageQueue(): FlashMessageQueue
+    public function getRequestHostOnly(): string
     {
-        $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        return $flashMessageService->getMessageQueueByIdentifier();
+        return $this->requestHostOnly;
     }
 
-    /**
-        https://api.typo3.org/main/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
-        const 	NOTICE = -2
-        const 	INFO = -1
-        const 	OK = 0
-        const 	WARNING = 1
-        const 	ERROR = 2
-     * @param string $messageText
-     * @param string $messageHeader
-     * @param ContextualFeedbackSeverity $messageType
-     * @param bool $storeInSession
-     */
-    protected function createFlashMessage(
-        string $messageText,
-        string $messageHeader,
-        ContextualFeedbackSeverity $messageType,
-        bool $storeInSession = false): FlashMessage
+    private function getHttpReferer(): string
     {
-        return GeneralUtility::makeInstance(
-            FlashMessage::class,
-            $messageText,
-            $messageHeader, // [optional] the header
-            $messageType, // [optional] the severity defaults to \TYPO3\CMS\Core\Messaging\FlashMessage::OK
-            $storeInSession // [optional] whether the message should be stored in the session or only in the \TYPO3\CMS\Core\Messaging\FlashMessageQueue object (default is false)
-        );
+        return $this->httpReferer;
     }
 }

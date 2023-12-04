@@ -1,10 +1,11 @@
 <?php
 //https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ExtensionArchitecture/HowTo/BackendModule/ModuleConfiguration.html
+use DirectMailTeam\DirectMail\Module\ConfigurationController;
 use DirectMailTeam\DirectMail\Module\DmailController;
+use DirectMailTeam\DirectMail\Module\ImporterController;
+use DirectMailTeam\DirectMail\Module\MailerEngineController;
 use DirectMailTeam\DirectMail\Module\RecipientListController;
 use DirectMailTeam\DirectMail\Module\StatisticsController;
-use DirectMailTeam\DirectMail\Module\MailerEngineController;
-use DirectMailTeam\DirectMail\Module\ConfigurationController;
 
 return [
     'directmail' => [
@@ -41,9 +42,23 @@ return [
             ],
         ],
     ],
-    'directmail_module_statistics' => [
+    'directmail_module_importer' => [
         'parent' => 'directmail',
         'position' => ['after' => 'directmail_module_recipientlist'],
+        'access' => 'group,user',
+        'workspaces' => 'live',
+        'path' => '/module/directmail/importer',
+        'iconIdentifier' => 'directmail-module-importer',
+        'labels' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallangImporter.xlf',
+        'routes' => [
+            '_default' => [
+                'target' => ImporterController::class . '::handleRequest',
+            ],
+        ],
+    ],
+    'directmail_module_statistics' => [
+        'parent' => 'directmail',
+        'position' => ['after' => 'directmail_module_importer'],
         'access' => 'group,user',
         'workspaces' => 'live',
         'path' => '/module/directmail/statistics',

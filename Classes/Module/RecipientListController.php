@@ -63,16 +63,13 @@ final class RecipientListController extends MainController
         protected string $table = '',
         protected array $indata = [],
 
-        protected $requestHostOnly = '',
+        
         protected $requestUri = '',
-        protected $httpReferer = '',
+        
         protected array $allowedTables = ['tt_address', 'fe_users'],
 
         protected bool $submit = false,
         protected string $queryConfig = '',
-        protected array $importStep = [],
-        protected array $csvImport = [],
-        protected array $csvFile = []
     ) {
     }
 
@@ -92,10 +89,8 @@ final class RecipientListController extends MainController
         $this->access = is_array($this->pageinfo) ? true : false;
 
         $normalizedParams = $request->getAttribute('normalizedParams');
-        $this->requestHostOnly = $normalizedParams->getRequestHostOnly();
         $this->requestUri = $normalizedParams->getRequestUri();
-        $this->httpReferer = $request->getServerParams()['HTTP_REFERER'];
-
+        
         $this->cmd = (string)($parsedBody['cmd'] ?? $this->queryParams['cmd'] ?? '');
         $this->group_uid = (int)($parsedBody['group_uid'] ?? $this->queryParams['group_uid'] ?? 0);
         $this->lCmd = $parsedBody['lCmd'] ?? $this->queryParams['lCmd'] ?? '';
@@ -108,9 +103,6 @@ final class RecipientListController extends MainController
         $this->submit = (bool)($parsedBody['submit'] ?? $this->queryParams['submit'] ?? false);
 
         $this->queryConfig = (string)($parsedBody['queryConfig'] ?? $this->queryParams['queryConfig'] ?? '');
-        $this->importStep = is_array($parsedBody['importStep'] ?? '') ? $parsedBody['importStep'] : [];
-        $this->csvImport = is_array($parsedBody['CSV_IMPORT'] ?? '') ? $parsedBody['CSV_IMPORT'] : [];
-        $this->csvFile = is_array($parsedBody['file'] ?? '') ? $parsedBody['file'] : [];
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         return $this->indexAction($moduleTemplate);
@@ -130,7 +122,6 @@ final class RecipientListController extends MainController
                         [
                             'data' => $data['data'],
                             'type' => $data['type'],
-                            'formcontent' => $data['content'],
                             'show' => true,
                         ]
                     );
@@ -178,7 +169,6 @@ final class RecipientListController extends MainController
      */
     protected function moduleContent(): array
     {
-        $theOutput = '';
         $data = [];
         // COMMAND:
         switch ($this->cmd) {
@@ -191,29 +181,12 @@ final class RecipientListController extends MainController
                 $data = $this->displayMailGroup($result);
                 $type = 2;
                 break;
-            case 'displayImport':
-                /* @var $importer \DirectMailTeam\DirectMail\Importer */
-                $importer = GeneralUtility::makeInstance(
-                    Importer::class,
-                    $this->languageService,
-                    $this->getBackendUser(),
-                    $this->lllFile,
-                    $this->id,
-                    $this->importStep,
-                    $this->csvImport,
-                    $this->csvFile
-                );
-                $importer->init($this);
-                $theOutput = $importer->displayImport();
-                $type = 3;
-                break;
             default:
                 $data = $this->showExistingRecipientLists();
-                $theOutput = '';
                 $type = 4;
         }
 
-        return ['data' => $data, 'content' => $theOutput, 'type' => $type];
+        return ['data' => $data, 'type' => $type];
     }
 
     /**
@@ -233,13 +206,6 @@ final class RecipientListController extends MainController
                 ],
                 'returnUrl' => $this->requestUri,
             ]),
-            'moduleUrl' => $this->buildUriFromRoute(
-                $this->moduleName,
-                [
-                    'id' => $this->id,
-                    'cmd' => 'displayImport',
-                ]
-            ),
             'rows' => [],
             'sysDmailGroupIcon' => $this->iconFactory->getIconForRecord(
                 'sys_dmail_group', 
@@ -874,15 +840,5 @@ final class RecipientListController extends MainController
             }
         }
         return $dataout;
-    }
-
-    public function getRequestHostOnly(): string
-    {
-        return $this->requestHostOnly;
-    }
-
-    public function getHttpReferer(): string
-    {
-        return $this->httpReferer;
     }
 }

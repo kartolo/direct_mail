@@ -11,6 +11,8 @@ services:
     tags: ['backend.controller']
   DirectMailTeam\DirectMail\Module\DmailController:
     tags: ['backend.controller']
+  DirectMailTeam\DirectMail\Module\ImporterController:
+    tags: ['backend.controller']
   DirectMailTeam\DirectMail\Module\MailerEngineController:
     tags: ['backend.controller']
   DirectMailTeam\DirectMail\Module\RecipientListController:
