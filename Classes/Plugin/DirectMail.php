@@ -48,6 +48,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -917,7 +918,7 @@ class DirectMail
     {
         $labels = GeneralUtility::trimExplode(',', $this->labelsList);
         foreach ($labels as $labelName) {
-            $markerArray['###' . strtoupper($labelName) . '###'] = $this->pi_getLL($labelName);
+            $markerArray['###' . strtoupper($labelName) . '###'] = (string)LocalizationUtility::translate($labelName, 'direct_mail');
         }
         return $markerArray;
     }
