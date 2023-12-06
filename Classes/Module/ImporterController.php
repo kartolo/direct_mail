@@ -15,15 +15,12 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
-use DirectMailTeam\DirectMail\Module\RecipientList;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailTtAddressCategoryMmRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Attribute\Controller;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -32,20 +29,16 @@ use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
-use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
-use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
+use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 
 /**
  * Recipient list module for tx_directmail extension
@@ -54,21 +47,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 final class ImporterController extends MainController
 {
-    /**
-     * The GET-Data
-     * @var array
-     */
-    public $indata = [];
-    public $params = [];
-
-    protected $messageQueue;
-
     protected FlashMessageQueue $flashMessageQueue;
 
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
-        protected readonly IconFactory $iconFactory,
-        protected readonly PageRenderer $pageRenderer,
 
         protected readonly string $moduleName = 'directmail_module_importer',
         protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
@@ -79,11 +61,12 @@ final class ImporterController extends MainController
 
         protected array $queryParams = [],
 
-        protected $httpReferer = '',
-        protected $requestHostOnly = '',
+        protected string $httpReferer = '',
+        protected string $requestHostOnly = '',
         protected array $importStep = [],
         protected array $csvImport = [],
-        protected array $csvFile = []
+        protected array $csvFile = [],
+        protected array $indata = []
     ) {
     }
 
@@ -837,7 +820,7 @@ final class ImporterController extends MainController
      * @param string $id Record ID
      * @param array $dataArray The data to be imported
      */
-    public function addDataArray(array &$data, $id, array $dataArray): void
+    public function addDataArray(array &$data, string $id, array $dataArray): void
     {
         $data['tt_address'][$id] = $dataArray;
         $data['tt_address'][$id]['pid'] = $this->indata['storage'];
@@ -901,7 +884,7 @@ final class ImporterController extends MainController
      *
      * @return	array File content in array
      */
-    public function readExampleCSV($records = 3): array
+    public function readExampleCSV(int $records = 3): array
     {
         $mydata = [];
 
@@ -1062,7 +1045,7 @@ final class ImporterController extends MainController
      * @param int $fileUid
      * @return \TYPO3\CMS\Core\Resource\File|bool
      */
-    private function getFileById(int $fileUid) //: \TYPO3\CMS\Core\Resource\File|bool
+    private function getFileById(int $fileUid): File|bool
     {
         $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
         try {

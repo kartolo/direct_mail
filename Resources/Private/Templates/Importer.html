@@ -7,17 +7,21 @@
 <f:render partial="Main" arguments="{dmLinks: dmLinks}" section="DMLinks" />
 <f:if condition="{show}">
     <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
-    <f:variable name="lll4" value="LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:" />
-
     <h1><f:translate key="{lll}importer_header" /></h1>
 	<div>
-		<h2>{formcontent.output.title}
-			<button type="button" class="btn btn-sm btn-outline-dark" data-bs-trigger="hover" data-bs-toggle="popover"
-				data-bs-title="{f:translate(key: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_RecipientList.xlf:mailgroup_import.description')}"
-				data-bs-content="{f:translate(key: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_RecipientList.xlf:mailgroup_import.details')}">
+		<h2>{formcontent.output.title}</h2>
+		<p class="d-inline-flex gap-1">
+			<button class="btn btn-sm btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#importHelp" aria-expanded="false" aria-controls="importHelp">
 				<core:icon identifier="actions-system-help-open" size="small" />
 			</button>
-		</h2>
+		</p>
+		<div class="collapse" id="importHelp">
+			<div class="card card-body">
+				<strong><f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_RecipientList.xlf:mailgroup_import.description" /></strong>
+				<br>
+				<f:translate key="LLL:EXT:direct_mail/Resources/Private/Language/locallang_csh_RecipientList.xlf:mailgroup_import.details" />
+			</div>
+		</div>
 		<hr style="border:solid;"/>
 		<h3>{formcontent.output.subtitle}</h3>
 		<form action="" method="post" name="queryform" enctype="multipart/form-data">
@@ -42,11 +46,12 @@
 					<br><br>
 				</fieldset>
 				<br>
-				<input type="hidden" name="cmd" value="displayImport">
 				<input type="hidden" name="importStep[next]" value="conf">
 				<input type="hidden" name="file[upload][1][data]" value="1">
 				<input type="hidden" name="file[upload][1][target]" value="{formcontent.output.upload.target}">
-				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_next')}" name="CSV_IMPORT[next]"><f:translate key="{lll}mailgroup_import_next" /></button>
+				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_next')}" name="CSV_IMPORT[next]">
+					<f:translate key="{lll}mailgroup_import_next" />
+				</button>
 				<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.upload.newFile}">
 				<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.upload.newFileUid}">
 			</f:if>
@@ -164,11 +169,14 @@
 					</table>
 				</fieldset>
 				<br>
-				<input type="hidden" name="cmd" value="displayImport">
 				<input type="hidden" name="importStep[next]" value="mapping">
 				<input type="hidden" name="importStep[back]" value="upload">
-				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_back')}" name="CSV_IMPORT[back]"><f:translate key="{lll}mailgroup_import_back" /></button>
-				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_next')}" name="CSV_IMPORT[next]"><f:translate key="{lll}mailgroup_import_next" /></button>
+				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_back')}" name="CSV_IMPORT[back]">
+					<f:translate key="{lll}mailgroup_import_back" />
+				</button>
+				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_next')}" name="CSV_IMPORT[next]">
+					<f:translate key="{lll}mailgroup_import_next" />
+				</button>
 				<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.conf.newFile}">
 				<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.conf.newFileUid}">
 			</f:if>
@@ -192,7 +200,9 @@
 							</tr>
 						</tbody>
 					</table>
-					<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_update')}" name="CSV_IMPORT[update]"><f:translate key="{lll}mailgroup_import_update" /></button>
+					<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_update')}" name="CSV_IMPORT[update]">
+						<f:translate key="{lll}mailgroup_import_update" />
+					</button>
 					<br><br>
 				</fieldset>
 				<f:if condition="{formcontent.output.mapping.error -> f:count()}">
@@ -298,12 +308,15 @@
 					</table>
 				</fieldset>
 				<br>
-				<input type="hidden" name="cmd" value="displayImport">
 				<input type="hidden" name="importStep[next]" value="startImport">
 				<input type="hidden" name="importStep[back]" value="conf">
 
-				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_back')}" name="CSV_IMPORT[back]"><f:translate key="{lll}mailgroup_import_back" /></button>
-				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_next')}" name="CSV_IMPORT[next]"><f:translate key="{lll}mailgroup_import_next" /></button>
+				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_back')}" name="CSV_IMPORT[back]">
+					<f:translate key="{lll}mailgroup_import_back" />
+				</button>
+				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_next')}" name="CSV_IMPORT[next]">
+					<f:translate key="{lll}mailgroup_import_next" />
+				</button>
 				<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.mapping.newFile}">
 				<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.mapping.newFileUid}">
 				<input type="hidden" name="CSV_IMPORT[storage]" value="{formcontent.output.mapping.storage}">
@@ -334,6 +347,7 @@
 												<td nowrap="">{iterator.cycle}</td>
 												<td>{row.val}</td>
 												<td>{row.email}</td>
+											</tr>
 										</f:for>
 									</f:if>
 								</tbody>
@@ -352,10 +366,12 @@
 					</f:for>
 				</f:if>
 				<br>
-				<input type="hidden" name="cmd" value="displayImport">
+				<input type="hidden" name="importStep[next]" value="startImport">
 				<input type="hidden" name="importStep[back]" value="mapping">
 
-				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_back')}" name="CSV_IMPORT[back]"><f:translate key="{lll}mailgroup_import_back" /></button>
+				<button class="btn btn-default btn-sm" type="submit" value="{f:translate(key: '{lll}mailgroup_import_back')}" name="CSV_IMPORT[back]">
+					<f:translate key="{lll}mailgroup_import_back" />
+				</button>
 				<input type="hidden" name="CSV_IMPORT[newFile]" value="{formcontent.output.startImport.newFile}">
 				<input type="hidden" name="CSV_IMPORT[newFileUid]" value="{formcontent.output.startImport.newFileUid}">
 				<input type="hidden" name="CSV_IMPORT[storage]" value="{formcontent.output.startImport.storage}">
