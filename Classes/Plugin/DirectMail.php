@@ -345,7 +345,7 @@ class DirectMail
     public function getHeader(): string
     {
         // links...
-        return $this->renderHeader($this->cObj->data['header'], $this->cObj->data['header_layout']);
+        return $this->renderHeader($this->cObj->data['header'], (int)$this->cObj->data['header_layout']);
     }
 
     /**
