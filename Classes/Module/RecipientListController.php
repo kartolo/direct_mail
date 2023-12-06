@@ -790,8 +790,6 @@ final class RecipientListController extends MainController
                 // do nothing
         }
 
-        $theOutput = '';
-
         $row = $rows[0] ?? [];
 
         if (is_array($row) && count($row)) {

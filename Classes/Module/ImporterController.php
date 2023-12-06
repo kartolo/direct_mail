@@ -301,7 +301,6 @@ final class ImporterController extends MainController
             }
         }
 
-        $out = '';
         switch ($stepCurrent) {
             case 'conf':
                 $output['conf']['show'] = true;
@@ -589,7 +588,6 @@ final class ImporterController extends MainController
         }
 
         $output['title'] = $this->languageService->sL($this->lllFile . ':mailgroup_import');
-        $theOutput = sprintf('%s', $out);
 
         /**
          *  Hook for displayImport
@@ -603,12 +601,12 @@ final class ImporterController extends MainController
 
             foreach ($hookObjectsArr as $hookObj) {
                 if (method_exists($hookObj, 'displayImport')) {
-                    $theOutput = $hookObj->displayImport($this);
+                    $output = $hookObj->displayImport($this);
                 }
             }
         }
 
-        return ['output' => $output, 'theOutput' => $theOutput];
+        return ['output' => $output];
     }
 
     /*****
