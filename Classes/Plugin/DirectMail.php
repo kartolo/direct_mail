@@ -48,6 +48,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -59,7 +60,7 @@ class DirectMail
 {
     use DefaultJavaScriptAssetTrait;
 
-    protected ?ContentObjectRenderer $cObj = null;
+    public ?ContentObjectRenderer $cObj = null;
 
     //public $prefixId;
     public $prefixId = 'tx_directmail_pi1';
@@ -128,6 +129,16 @@ class DirectMail
             $alternativeLanguageKeys = array_reverse($alternativeLanguageKeys);
             $this->altLLkey = implode(',', $alternativeLanguageKeys);
         }
+    }
+
+    /**
+     * Sets the content object render instance.
+     *
+     * @param \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer $contentObjectRenderer
+     */
+    public function setContentObjectRenderer(ContentObjectRenderer $contentObjectRenderer): void
+    {
+        $this->cObj = $contentObjectRenderer;
     }
 
     /**
@@ -344,7 +355,7 @@ class DirectMail
     public function getHeader(): string
     {
         // links...
-        return $this->renderHeader($this->cObj->data['header'], $this->cObj->data['header_layout']);
+        return $this->renderHeader($this->cObj->data['header'], (int)$this->cObj->data['header_layout']);
     }
 
     /**
@@ -917,7 +928,7 @@ class DirectMail
     {
         $labels = GeneralUtility::trimExplode(',', $this->labelsList);
         foreach ($labels as $labelName) {
-            $markerArray['###' . strtoupper($labelName) . '###'] = $this->pi_getLL($labelName);
+            $markerArray['###' . strtoupper($labelName) . '###'] = (string)LocalizationUtility::translate($labelName, 'direct_mail');
         }
         return $markerArray;
     }
