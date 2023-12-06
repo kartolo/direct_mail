@@ -132,6 +132,16 @@ class DirectMail
     }
 
     /**
+     * Sets the content object render instance.
+     *
+     * @param \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer $contentObjectRenderer
+     */
+    public function setContentObjectRenderer(ContentObjectRenderer $contentObjectRenderer): void
+    {
+        $this->cObj = $contentObjectRenderer;
+    }
+
+    /**
      * Main function, called from TypoScript
      * A content object that renders "tt_content" records. See the comment to this class for TypoScript example of how to trigger it.
      * This detects the CType of the current content element and renders it accordingly. Only wellknown types are rendered.
