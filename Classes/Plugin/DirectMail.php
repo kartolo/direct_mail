@@ -60,7 +60,7 @@ class DirectMail
 {
     use DefaultJavaScriptAssetTrait;
 
-    protected ?ContentObjectRenderer $cObj = null;
+    public ?ContentObjectRenderer $cObj = null;
 
     //public $prefixId;
     public $prefixId = 'tx_directmail_pi1';
