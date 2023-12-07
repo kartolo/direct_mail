@@ -229,7 +229,7 @@ class Readmail
             $cp['reason_text'] = trim($parts[1])?trim($parts[1]):$cp['content'];
             $cp['mailserver'] = 'Qmail';
             $cp['reason'] = $this->extractReason($cp['reason_text']);
-        } elseif (strstr($c, 'The Postfix program')) {
+        } elseif (strstr($c, 'Postfix')) {
             // Postfix
             $cp['content'] = trim($c);
             $parts = explode('>:', $c, 2);
