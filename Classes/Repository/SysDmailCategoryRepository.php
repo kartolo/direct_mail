@@ -53,6 +53,7 @@ class SysDmailCategoryRepository extends MainRepository
                 )
             )
             ->orderBy($orderBy)
+            ->executeQuery()
             ->fetchAllAssociative();
     }
 }
