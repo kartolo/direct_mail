@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DirectMailTeam\DirectMail\Module;
 
 /*
@@ -15,10 +17,12 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Event\ImporterOutputEvent;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailTtAddressCategoryMmRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
@@ -51,6 +55,7 @@ final class ImporterController extends MainController
 
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly EventDispatcherInterface $eventDispatcher,
 
         protected readonly string $moduleName = 'directmail_module_importer',
         protected readonly string $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf',
@@ -265,6 +270,7 @@ final class ImporterController extends MainController
             unset($this->indata['newFile']);
             unset($this->indata['newFileUid']);
         }
+
         $stepCurrent = '';
         if ($this->indata['back'] ?? false) {
             $stepCurrent = $step['back'];
@@ -276,7 +282,11 @@ final class ImporterController extends MainController
 
         if (strlen($this->indata['csv'] ?? '') > 0) {
             $this->indata['mode'] = 'csv';
-            $tempFile = $this->writeTempFile($this->indata['csv'] ?? '', $this->indata['newFile'] ?? '', $this->indata['newFileUid'] ?? 0);
+            $tempFile = $this->writeTempFile(
+                $this->indata['csv'] ?? '',
+                $this->indata['newFile'] ?? '',
+                (int)($this->indata['newFileUid'] ?? 0)
+            );
             $this->indata['newFile'] = $tempFile['newFile'];
             $this->indata['newFileUid'] = $tempFile['newFileUid'];
         } elseif (!empty($this->indata['newFile'])) {
@@ -589,22 +599,11 @@ final class ImporterController extends MainController
 
         $output['title'] = $this->languageService->sL($this->lllFile . ':mailgroup_import');
 
-        /**
-         *  Hook for displayImport
-         *  use it to manipulate the steps in the import process
-         */
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'] ?? false)) {
-            $hookObjectsArr = [];
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'] as $classRef) {
-                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
-            }
-
-            foreach ($hookObjectsArr as $hookObj) {
-                if (method_exists($hookObj, 'displayImport')) {
-                    $output = $hookObj->displayImport($this);
-                }
-            }
-        }
+         /** @var ImporterEvent $event */
+         $event = $this->eventDispatcher->dispatch(
+            new ImporterOutputEvent($output)
+        );
+        $output = $event->getOutput();
 
         return ['output' => $output];
     }

@@ -106,22 +106,6 @@ mailHeadersHook
          With this hook, you can add or edit the headers of the e-mail for each recipient
 
 
-.. _hooks_cmd_displayImport:
-cmd_displayImport
-'''''''''''''''''
-
-.. container:: table-row
-
-   Property
-         ``$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['cmd_displayImport']``
-
-   Method
-         ``cmd_displayImport``
-
-   Description
-         Use this hook if you have your own importer.
-
-
 .. _hooks_doImport:
 doImport
 ''''''''
