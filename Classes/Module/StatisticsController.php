@@ -1253,7 +1253,7 @@ class StatisticsController extends MainController
 
                 if ($listType == 'PLAINLIST') {
                     $itemId = $row['rid'] - 1;
-                    $details = print_r($setup['id_lists']['PLAINLIST'][$itemId], 1);
+                    $details = print_r($setup['id_lists']['PLAINLIST'][$itemId], true);
                 } elseif ($listType == 'fe_users') {
                     $details = 'fe_user uid: ' . $row['rid'];
                 }
@@ -1325,7 +1325,7 @@ class StatisticsController extends MainController
 
                 if ($listType == 'PLAINLIST') {
                     $itemId = $row['rid'] - 1;
-                    $details = print_r($setup['id_lists']['PLAINLIST'][$itemId], 1);
+                    $details = print_r($setup['id_lists']['PLAINLIST'][$itemId], true);
                 } elseif ($listType == 'fe_users') {
                     $details = 'fe_user uid: ' . $row['rid'];
                 }
