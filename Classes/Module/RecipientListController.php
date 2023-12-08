@@ -180,7 +180,7 @@ final class RecipientListController extends MainController
                 $type = 1;
                 break;
             case 'displayMailGroup':
-                $result = $this->cmd_compileMailGroup($this->group_uid);
+                $result = $this->compileMailGroup($this->group_uid);
                 $data = $this->displayMailGroup($result);
                 $type = 2;
                 break;
@@ -223,7 +223,7 @@ final class RecipientListController extends MainController
         );
 
         foreach ($rows as $row) {
-            $result = $this->cmd_compileMailGroup((int)$row['uid']);
+            $result = $this->compileMailGroup((int)$row['uid']);
             $data['rows'][] = [
                 'id'            => $row['uid'],
                 'icon'          => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render(),
@@ -246,7 +246,7 @@ final class RecipientListController extends MainController
      *
      * @return	array List of the uid in an array
      */
-    protected function cmd_compileMailGroup(int $groupUid): array
+    protected function compileMailGroup(int $groupUid): array
     {
         $idLists = [];
         if ($groupUid) {
@@ -363,7 +363,7 @@ final class RecipientListController extends MainController
                             SysDmailGroupRepository::class)->getMailGroups($mailGroup['mail_groups'] ?? '', [$mailGroup['uid']], $this->perms_clause)
                         );
                         foreach ($groups as $group) {
-                            $collect = $this->cmd_compileMailGroup($group);
+                            $collect = $this->compileMailGroup($group);
                             if (is_array($collect['queryInfo']['id_lists'])) {
                                 $idLists = array_merge_recursive($idLists, $collect['queryInfo']['id_lists']);
                             }
