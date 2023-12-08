@@ -599,7 +599,7 @@ final class ImporterController extends MainController
 
         $output['title'] = $this->languageService->sL($this->lllFile . ':mailgroup_import');
 
-         /** @var ImporterEvent $event */
+         /** @var ImporterOutputEvent $event */
          $event = $this->eventDispatcher->dispatch(
             new ImporterOutputEvent($output)
         );
@@ -711,7 +711,10 @@ final class ImporterController extends MainController
             $user = [];
             $userID = [];
 
-            $rows = GeneralUtility::makeInstance(TtAddressRepository::class)->selectTtAddressByPid((int)$this->indata['storage'], $this->indata['record_unique']);
+            $rows = GeneralUtility::makeInstance(TtAddressRepository::class)->selectTtAddressByPid(
+                (int)$this->indata['storage'],
+                $this->indata['record_unique']
+            );
 
             if (is_array($rows)) {
                 foreach ($rows as $row) {

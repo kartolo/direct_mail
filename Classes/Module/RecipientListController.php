@@ -6,12 +6,14 @@ namespace DirectMailTeam\DirectMail\Module;
 
 use DirectMailTeam\DirectMail\DmQueryGenerator;
 use DirectMailTeam\DirectMail\Importer;
+use DirectMailTeam\DirectMail\Event\RecipientListCompileMailGroupEvent;
 use DirectMailTeam\DirectMail\Repository\FeGroupsRepository;
 use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailGroupRepository;
 use DirectMailTeam\DirectMail\Repository\TempRepository;
 use DirectMailTeam\DirectMail\Repository\TtAddressRepository;
 use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Attribute\Controller;
@@ -37,6 +39,7 @@ final class RecipientListController extends MainController
 
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly EventDispatcherInterface $eventDispatcher,
         protected readonly IconFactory $iconFactory,
         protected readonly PageRenderer $pageRenderer,
 
@@ -384,25 +387,12 @@ final class RecipientListController extends MainController
                 }
             }
         }
-        /**
-         * Hook for cmd_compileMailGroup
-         * manipulate the generated id_lists
-         */
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'] ?? false)) {
-            $hookObjectsArr = [];
 
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup'] as $classRef) {
-                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
-            }
-            foreach ($hookObjectsArr as $hookObj) {
-                if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
-                    $temporaryList = $hookObj->cmd_compileMailGroup_postProcess($idLists, $this, $mailGroup);
-                }
-            }
-
-            unset($idLists);
-            $idLists = $temporaryList;
-        }
+        /** @var RecipientListCompileMailGroupEvent $event */
+        $event = $this->eventDispatcher->dispatch(
+            new RecipientListCompileMailGroupEvent($idLists, $mailGroup)
+        );
+        $idLists = $event->getIdLists();
 
         return [
             'queryInfo' => ['id_lists' => $idLists],
