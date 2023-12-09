@@ -2,6 +2,17 @@
 
 <f:layout name="Module" />
 
+<f:comment>
+<f:section name="Before">
+    <f:be.pageRenderer
+        includeJavaScriptModules="{
+            0: '@typo3/backend/modal.js',
+            1: '@typo3/backend/date-time-picker.js'
+        }"
+    />
+</f:section>
+</f:comment>
+
 <f:section name="Content">
 <f:flashMessages queueIdentifier="DmailQueue" />
 <f:render partial="Main" arguments="{dmLinks: dmLinks}" section="DMLinks" />
@@ -289,7 +300,9 @@
     <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <table class="table table-striped table-hover">
         <tr>
-            <th colspan="4"><f:translate key="{lll}dmail_number_records"/> <strong>{subtable.count}</strong></th>
+            <th colspan="2"><f:translate key="{lll}dmail_number_records"/> <strong>{subtable.count}</strong></th>
+            <th><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.uid" /></th>
+            <th colspan="2"></th>
         </tr>
         <f:for each="{subtable.trs}" as="tr">
             <tr>
@@ -299,6 +312,7 @@
                         <a href="{tr.editOnClick}" title="{f:translate(key: '{lll}dmail_edit')}"><core:icon identifier="actions-open" /></a>
                     </f:if>
                 </td>
+                <td>{tr.uid}</td>
                 <td>
                     <f:if condition="{tr.testLink}">
                         <f:then>

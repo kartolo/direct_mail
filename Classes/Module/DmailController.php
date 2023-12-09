@@ -1418,6 +1418,7 @@ final class DmailController extends MainController
                     'icon' => $tableIcon,
                     'editOnClick' => $editOnClick,
                     'testLink' => $moduleUrl,
+                    'uid' => $row['uid'],
                     'name' => $row['name'],
                     'email' => $row['email'],
                 ];
