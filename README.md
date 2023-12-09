@@ -15,8 +15,8 @@ The extension provides several scheduler tasks to let integrators control when a
 ## Documentation and support
 
 -  **Documentation**
-
-   https://docs.typo3.org/typo3cms/extensions/direct_mail/
+  
+   https://docs.typo3.org/p/directmailteam/direct-mail/main/en-us/
 
 -  **Slack channel**
 
