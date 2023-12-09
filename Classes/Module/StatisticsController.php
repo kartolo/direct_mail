@@ -1339,13 +1339,23 @@ final class StatisticsController extends MainController
             $this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.transfer_encoding') => BackendUtility::getProcessedValue('sys_dmail', 'encoding', $row['encoding']),
             $this->languageService->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail.charset') => BackendUtility::getProcessedValue('sys_dmail', 'charset', $row['charset']),
         ];
+        $dmailData = [
+            'plainParams' => '',
+            'HTMLParams' => '',
+            'page' => '',
+            'title' => ''
+
+        ];
 
         // Render record:
         if ($row['type']) {
-            $dmailData = $row['plainParams'] . ', ' . $row['HTMLParams'];
+            $dmailData['plainParams'] = $row['plainParams'];
+            $dmailData['HTMLParams'] = $row['HTMLParams'];
         } else {
             $page = BackendUtility::getRecord('pages', $row['page'], 'title');
-            $dmailData = $row['page'] . ', ' . htmlspecialchars($page['title'] ?? '');
+            $dmailData['page'] = $row['page'];
+            $dmailData['title'] = htmlspecialchars($page['title'] ?? '');
+
             $dmailInfo = [
                 DirectMailUtility::fName('plainParams') => htmlspecialchars($row['plainParams']),
                 DirectMailUtility::fName('HTMLParams') => htmlspecialchars($row['HTMLParams']),

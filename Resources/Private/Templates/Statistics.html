@@ -433,7 +433,18 @@
         </tr>
         <tr class="db_list_normal"></tr>
             <td><f:translate key="{lll}view_dmail" /></td>
-            <td>{row.type} : {row.dmailData}</td>
+            <td>{row.type} : <f:if condition="{row.dmailData.page}">[{row.dmailData.page}] </f:if><f:if condition="{row.dmailData.title}">{row.dmailData.title}</f:if>
+				<f:if condition="{row.dmailData.plainParams} || {row.dmailData.HTMLParams}">
+					<ul>
+						<f:if condition="{row.dmailData.plainParams}">
+							<li><a href="{row.dmailData.plainParams}" target="_blank">{row.dmailData.plainParams}</a></li>
+						</f:if>
+						<f:if condition="{row.dmailData.HTMLParams}">
+							<li><a href="{row.dmailData.HTMLParams}" target="_blank">{row.dmailData.HTMLParams}</a></li>
+						</f:if>
+					</ul>
+				</f:if>
+            </td>
             <td>
                 <f:render section="help" arguments="{title: '{lll}view_dmail', content: '{row.dmailInfo}'}" />
             </td>
