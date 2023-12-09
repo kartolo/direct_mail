@@ -240,7 +240,7 @@ final class RecipientListController extends MainController
     }
 
     /**
-     * Put all recipients uid from all table into an array
+     * Put all recipients uid from all tables into an array
      *
      * @param int $groupUid Uid of the group
      *

@@ -144,23 +144,6 @@ mailFromDraft
          direct_mail mailin engine
 
 
-.. _hooks_cmd_compileMailGroup:
-cmd_compileMailGroup
-''''''''''''''''''''
-
-.. container:: table-row
-
-   Property
-         ``$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup']``
-         ``$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod3']['cmd_compileMailGroup']``
-
-   Data type
-         ``cmd_compileMailGroup_postProcess``
-
-   Description
-         Manipulate the generated ``id_list`` from various recipient lists.
-
-
 .. _hooks_queryInfoHook:
 queryInfoHook
 '''''''''''''

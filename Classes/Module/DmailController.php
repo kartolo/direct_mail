@@ -7,6 +7,7 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\DmQueryGenerator;
+use DirectMailTeam\DirectMail\Event\DmailCompileMailGroupEvent;
 use DirectMailTeam\DirectMail\Repository\FeGroupsRepository;
 use DirectMailTeam\DirectMail\Repository\FeUsersRepository;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
@@ -18,6 +19,7 @@ use DirectMailTeam\DirectMail\Repository\TtContentCategoryMmRepository;
 use DirectMailTeam\DirectMail\Repository\TtContentRepository;
 use DirectMailTeam\DirectMail\Utility\DmCsvUtility;
 use DirectMailTeam\DirectMail\Utility\TsUtility;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
@@ -55,6 +57,7 @@ final class DmailController extends MainController
 
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly EventDispatcherInterface $eventDispatcher,
         protected readonly IconFactory $iconFactory,
         protected readonly PageRenderer $pageRenderer,
 
@@ -1548,26 +1551,11 @@ final class DmailController extends MainController
             $idLists['PLAINLIST'] = $this->cleanPlainList($idLists['PLAINLIST']);
         }
 
-        /**
-         * Hook for cmd_compileMailGroup
-         * manipulate the generated id_lists
-         */
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] ?? false)) {
-            $hookObjectsArr = [];
-            $temporaryList = '';
-
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail']['mod2']['cmd_compileMailGroup'] as $classRef) {
-                $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
-            }
-            foreach ($hookObjectsArr as $hookObj) {
-                if (method_exists($hookObj, 'cmd_compileMailGroup_postProcess')) {
-                    $temporaryList = $hookObj->cmd_compileMailGroup_postProcess($idLists, $this, $groups);
-                }
-            }
-
-            unset($idLists);
-            $idLists = $temporaryList;
-        }
+        /** @var DmailCompileMailGroupEvent $event */
+        $event = $this->eventDispatcher->dispatch(
+            new DmailCompileMailGroupEvent($idLists, $groups)
+        );
+        $idLists = $event->getIdLists();
 
         return [
             'queryInfo' => ['id_lists' => $idLists],
