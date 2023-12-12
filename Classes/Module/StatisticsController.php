@@ -171,7 +171,7 @@ final class StatisticsController extends MainController
                     $itemsPerPage = 100; //@TODO
                     $paginator = GeneralUtility::makeInstance(
                         ArrayPaginator::class, 
-                        $data['dataPageInfo'], 
+                        $data['dataPageInfo'] ?? [], 
                         $this->currentPageNumber, 
                         $itemsPerPage
                     );
@@ -231,33 +231,33 @@ final class StatisticsController extends MainController
 
     protected function moduleContent(): array
     {
-        $theOutput = [];
+        $output = [];
 
         if (!$this->sys_dmail_uid) {
-            $theOutput['dataPageInfo'] = $this->displayPageInfo();
+            $output['dataPageInfo'] = $this->displayPageInfo();
         } else {
             $row = GeneralUtility::makeInstance(SysDmailRepository::class)->selectSysDmailById($this->sys_dmail_uid, $this->id);
             if (is_array($row)) {
                 // COMMAND:
                 switch ($this->cmd) {
                     case 'displayUserInfo': //@TODO ???
-                        $theOutput['dataUserInfo'] = $this->displayUserInfo();
+                        $output['dataUserInfo'] = $this->displayUserInfo();
                         break;
                     case 'stats':
-                        $theOutput['dataStats'] = $this->stats($row);
+                        $output['dataStats'] = $this->stats($row);
                         break;
                     default:
                         // Hook for handling of custom direct mail commands:
                         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd] ?? false)) {
                             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['handledirectmailcmd-' . $this->cmd] as $funcRef) {
                                 $params = ['pObj' => &$this];
-                                $theOutput['dataHook'] = GeneralUtility::callUserFunction($funcRef, $params, $this);
+                                $output['dataHook'] = GeneralUtility::callUserFunction($funcRef, $params, $this);
                             }
                         }
                 }
             }
         }
-        return $theOutput;
+        return $output;
     }
 
     /**
