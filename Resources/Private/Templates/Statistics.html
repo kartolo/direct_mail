@@ -10,7 +10,11 @@
     <h1><f:translate key="{lll}stats_overview_header" /></h1>
 	<f:if condition="{data.dataPageInfo}">
 	    <f:then>
-	       <f:render section="dataPageInfo" arguments="{dataPageInfo:data.dataPageInfo}" />
+	       <f:render section="dataPageInfo" arguments="{
+			dataPageInfo:data.dataPageInfo,
+			pagination:pagination,
+			moduleName:moduleName,
+			id:id}" />
 	    </f:then>
 	    <f:else if="{data.dataUserInfo}">
 	       <f:render section="dataUserInfo" arguments="{dataUserInfo:data.dataUserInfo}" />
@@ -28,6 +32,19 @@
 <f:section name="dataPageInfo">
     <f:variable name="lll" value="LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:" />
     <h3><f:translate key="{lll}stats_overview_choose" /></h3>
+	<f:if condition="{pagination.numberOfPages}">
+		<div style="padding-top: 20px;"></div>
+        <nav>
+            <ul class="pagination">
+                <f:for each="{pagination.links}" key="key" as="link">
+                    <f:variable name="idx" value="{key + 1}" />
+                    <li class="page-item"><f:be.link route="{moduleName}" class="page-link" parameters="{id: id, currentPageNumber: idx}">{idx}</f:be.link></li>
+                </f:for>
+            </ul>
+        </nav>
+        <div style="padding-top: 20px;"></div>
+    </f:if>
+
     <table class="table table-striped table-hover">
         <thead>
 			<th>&nbsp;</th>
@@ -39,7 +56,7 @@
 			<th nowrap="nowrap"><b><f:translate key="{lll}stats_overview_total_sent" /></b></th>
 			<th><b><f:translate key="{lll}stats_overview_status" /></b></th>
         </thead>
-        <f:for each="{dataPageInfo}" as="row">
+        <f:for each="{pagination.paginatedItems}" as="row">
             <tr class="db_list_normal">
                 <td><f:format.raw>{row.icon}</f:format.raw></td>
                 <td>{row.id}</td>

@@ -7,28 +7,28 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
+use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Utility\SchedulerUtility;
 use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Http\HtmlResponse;
-use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
-use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Backend\Attribute\Controller;
-// the module template will be initialized in handleRequest()
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use DirectMailTeam\DirectMail\Repository\PagesRepository;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\Uri;
+use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+use TYPO3\CMS\Core\Pagination\ArrayPaginator;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 final class MailerEngineController extends MainController
 {
@@ -94,8 +94,13 @@ final class MailerEngineController extends MainController
                     $mailerEngine = $this->mailerengine();
 
                     $itemsPerPage = 100; //@TODO
-                    $paginator = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Pagination\ArrayPaginator::class, $mailerEngine['data'], $this->currentPageNumber, $itemsPerPage);
-
+                    $paginator = GeneralUtility::makeInstance(
+                        ArrayPaginator::class, 
+                        $mailerEngine['data'], 
+                        $this->currentPageNumber, 
+                        $itemsPerPage
+                    );
+                     
                     $tasks = $this->getSchedulerTable();
                     $view->assignMultiple(
                         [

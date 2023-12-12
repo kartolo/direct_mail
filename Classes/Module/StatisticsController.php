@@ -17,21 +17,21 @@ use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Attribute\Controller;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
-// the module template will be initialized in handleRequest()
-use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
-use TYPO3\CMS\Backend\Template\ModuleTemplate;
-use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Pagination\ArrayPaginator;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 final class StatisticsController extends MainController
 {
@@ -48,6 +48,7 @@ final class StatisticsController extends MainController
 
         protected array $pageinfo = [],
         protected int $id = 0,
+        protected int $currentPageNumber = 1,
         protected bool $access = false,
 
         protected string $requestUri = '',
@@ -101,6 +102,9 @@ final class StatisticsController extends MainController
         $this->id = (int)($parsedBody['id'] ?? $queryParams['id'] ?? 0);
         $this->cmd            = (string)($parsedBody['cmd']          ?? $queryParams['cmd'] ?? '');
         $this->sys_dmail_uid  = (int)($parsedBody['sys_dmail_uid']   ?? $queryParams['sys_dmail_uid'] ?? 0);
+
+        $this->currentPageNumber = (int)($queryParams['currentPageNumber'] ?? 1);
+        $this->currentPageNumber = $this->currentPageNumber > 0 ? $this->currentPageNumber : 1;
 
         $permsClause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
         $pageAccess = BackendUtility::readPageAccess($this->id, $permsClause);
@@ -163,9 +167,28 @@ final class StatisticsController extends MainController
                 // Direct mail module
                 if (($this->pageinfo['doktype'] ?? 0) == 254) {
                     $data = $this->moduleContent();
+
+                    $itemsPerPage = 100; //@TODO
+                    $paginator = GeneralUtility::makeInstance(
+                        ArrayPaginator::class, 
+                        $data['dataPageInfo'], 
+                        $this->currentPageNumber, 
+                        $itemsPerPage
+                    );
+
                     $view->assignMultiple(
                         [
                             'data' => $data,
+                            'pagination' => [
+                                'numberOfPages' => $paginator->getNumberOfPages(),
+                                'currentPageNumber' => $paginator->getCurrentPageNumber(),
+                                'keyOfFirstPaginatedItem' => $paginator->getKeyOfFirstPaginatedItem(),
+                                'keyOfLastPaginatedItem' => $paginator->getKeyOfLastPaginatedItem(),
+                                'paginatedItems' => $paginator->getPaginatedItems(),
+                                'links' =>  array_fill(0, $paginator->getNumberOfPages(), '')
+                            ],
+                            'id' => $this->id,
+                            'moduleName' => $this->moduleName,
                             'show' => true,
                         ]
                     );
