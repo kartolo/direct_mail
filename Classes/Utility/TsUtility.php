@@ -58,7 +58,13 @@ class TsUtility
             $impParams = $this->implodeTSParams(BackendUtility::getPagesTSconfig($id));
             $set = [];
             foreach ($pageTs as $f => $v) {
-                $v = trim($v);
+                // only get the first line of input and ignore the rest
+                $v = strtok(trim($v), "\r\n");
+                // if token is not found (false)
+                if ($v === false) {
+                    // then set empty string
+                    $v = '';
+                }
                 $f = $tsConfPrefix . $f;
                 $tempF = isset($impParams[$f]) ? trim($impParams[$f]) : '';
                 if (strcmp($tempF, $v)) {
