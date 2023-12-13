@@ -1,0 +1,7 @@
+module.tx_dashboard {
+    view {
+        templateRootPaths {
+            110 = EXT:direct_mail/Resources/Private/Templates/Dashboard/Widgets/
+        }
+    }
+}

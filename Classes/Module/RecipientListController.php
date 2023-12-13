@@ -32,7 +32,6 @@ class RecipientListController extends MainController
     protected string $lCmd = '';
     protected string $csv = '';
     protected array $set = [];
-    protected string $fieldList = 'uid,name,first_name,middle_name,last_name,title,email,phone,www,address,company,city,zip,country,fax,module_sys_dmail_category,module_sys_dmail_html';
 
     protected $MOD_SETTINGS;
 
@@ -285,11 +284,11 @@ class RecipientListController extends MainController
                         break;
                     case 1:
                         // List of mails
+                        $mailGroupList = (string)$mailGroup['list'];
                         if ($mailGroup['csv'] == 1) {
                             $dmCsvUtility = GeneralUtility::makeInstance(DmCsvUtility::class);
-                            $recipients = $dmCsvUtility->rearrangeCsvValues($dmCsvUtility->getCsvValues($mailGroup['list']), $this->fieldList);
+                            $recipients = $dmCsvUtility->rearrangeCsvValues($dmCsvUtility->getCsvValues($mailGroupList), $this->getFieldList());
                         } else {
-                            $mailGroupList = $mailGroup['list'];
                             $recipients = $mailGroupList ? $this->rearrangePlainMails(array_unique(preg_split('|[[:space:],;]+|', $mailGroupList))) : [];
                         }
                         $idLists['PLAINLIST'] = $this->cleanPlainList($recipients);
@@ -465,13 +464,13 @@ class RecipientListController extends MainController
         $csvValue = $this->csv; //'tt_address', 'fe_users', 'PLAINLIST', $this->userTable
         if ($csvValue) {
             $dmCsvUtility = GeneralUtility::makeInstance(DmCsvUtility::class);
+
             if ($csvValue == 'PLAINLIST') {
                 $dmCsvUtility->downloadCSV($idLists['PLAINLIST']);
             } elseif (GeneralUtility::inList('tt_address,fe_users,' . $this->userTable, $csvValue)) {
                 if ($this->getBackendUser()->check('tables_select', $csvValue)) {
-                    $fields = $csvValue == 'fe_users' ? str_replace('phone', 'telephone', $this->fieldList) : $this->fieldList;
-                    $fields .= ',tstamp';
-
+                    $fields = $csvValue == 'fe_users' ? $this->getFieldListFeUsers() : $this->getFieldList();
+                    $fields[] = 'tstamp';
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists[$csvValue], $csvValue, $fields);
                     $dmCsvUtility->downloadCSV($rows);
                 } else {
@@ -490,7 +489,11 @@ class RecipientListController extends MainController
             case 'listall':
                 if (is_array($idLists['tt_address'] ?? false)) {
                     //https://github.com/FriendsOfTYPO3/tt_address/blob/master/ext_tables.sql
-                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues($idLists['tt_address'], 'tt_address', 'uid,name,first_name,middle_name,last_name,email');
+                    $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues(
+                        $idLists['tt_address'], 
+                        'tt_address', 
+                        ['uid', 'name', 'first_name', 'middle_name', 'last_name', 'email']
+                    );
                     $data['tables'][] = [
                         'title_table' => 'mailgroup_table_address',
                         'recipListConfig' => $this->getRecordList($rows, 'tt_address'),

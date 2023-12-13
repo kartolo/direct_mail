@@ -18,11 +18,11 @@ class TempRepository extends MainRepository
      *
      * @param array $listArr List of recipient IDs
      * @param string $table Table name
-     * @param string $fields Field to be selected
+     * @param array $fields Field to be selected
      *
      * @return array recipients' data
      */
-    public function fetchRecordsListValues(array $listArr, string $table, string $fields = 'uid,name,email'): array
+    public function fetchRecordsListValues(array $listArr, string $table, array $fields = ['uid', 'name', 'email']): array
     {
         $outListArr = [];
         if (is_array($listArr) && count($listArr)) {
@@ -34,10 +34,8 @@ class TempRepository extends MainRepository
             ->removeAll()
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
-            $fieldArray = GeneralUtility::trimExplode(',', $fields);
-
             // handle selecting multiple fields
-            foreach ($fieldArray as $i => $field) {
+            foreach ($fields as $i => $field) {
                 if ($i) {
                     $queryBuilder->addSelect($field);
                 } else {
@@ -87,7 +85,7 @@ class TempRepository extends MainRepository
             ->selectLiteral('DISTINCT ' . $table . '.uid', $table . '.email')
             ->from($table)
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                 ->add(
                     $queryBuilder->expr()->in(
                         $table . '.pid',
@@ -121,7 +119,7 @@ class TempRepository extends MainRepository
                 )
             )
             ->andWhere(
-                $queryBuilder->expr()->andX()
+                $queryBuilder->expr()->and()
                     ->add(
                         $queryBuilder->expr()->in(
                             $table . '.pid',
@@ -201,7 +199,7 @@ class TempRepository extends MainRepository
             )
         )
         ->andWhere(
-            $queryBuilder->expr()->andX()
+            $queryBuilder->expr()->and()
             ->add(
                 $queryBuilder->expr()->eq(
                     'sys_dmail_group_mm.uid_local',
@@ -470,5 +468,39 @@ class TempRepository extends MainRepository
                 ['uid' => $uid]
             );
         }
+    }
+
+    public function seachDMTask()
+    {
+        $table = 'tx_scheduler_task';
+        $queryBuilder = $this->getQueryBuilder($table);
+
+        $searchStrNew = 'directmail:mailingqueue';
+        //@TODO remove in v12
+        $searchStrOld = '\DirectmailScheduler';
+
+        $queryBuilder
+            ->select('uid', 'disable', 'description', 'nextexecution', 'lastexecution_time', 'lastexecution_failure', 'lastexecution_context', 'serialized_task_object', 'serialized_executions')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->like(
+                    'serialized_task_object',
+                    $queryBuilder->createNamedParameter('%' . $queryBuilder->escapeLikeWildcards($searchStrNew) . '%')
+                )
+            )
+            ->orWhere(
+                $queryBuilder->expr()->like(
+                    'serialized_task_object',
+                    $queryBuilder->createNamedParameter('%' . $queryBuilder->escapeLikeWildcards($searchStrOld) . '%')
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'deleted',
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                )
+            );
+
+        return $queryBuilder->executeQuery()->fetchAllAssociative();
     }
 }

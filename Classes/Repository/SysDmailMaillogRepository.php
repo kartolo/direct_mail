@@ -99,6 +99,35 @@ class SysDmailMaillogRepository extends MainRepository
     /**
      * @return array|bool
      */
+    public function countSysDmailMaillogByMid(int $mid) //: array|bool
+    {
+        $queryBuilder = $this->getQueryBuilder($this->table);
+
+        return $queryBuilder
+        ->selectLiteral('COUNT(*) AS counter')
+        ->from($this->table)
+        ->where(
+            $queryBuilder->expr()->eq(
+                'mid',
+                $queryBuilder->createNamedParameter($mid, Connection::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                'sys_dmail_maillog.response_type',
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+            ),
+            $queryBuilder->expr()->gt(
+                'sys_dmail_maillog.html_sent',
+                $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+            )
+        )
+        ->groupBy('mid')
+        ->executeQuery()
+        ->fetchAssociative();
+    }
+
+    /**
+     * @return array|bool
+     */
     public function countSysDmailMaillogPingByMid(int $mid) //: array|bool
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
@@ -121,27 +150,6 @@ class SysDmailMaillogRepository extends MainRepository
         ->groupBy('rid')
         ->addGroupBy('rtbl')
         ->orderBy('COUNT(*)')
-        ->executeQuery()
-        ->fetchAllAssociative();
-    }
-
-    /**
-     * @return array|bool
-     */
-    public function selectByResponseType(int $responseType) //: array|bool
-    {
-        $queryBuilder = $this->getQueryBuilder($this->table);
-
-        return $queryBuilder
-        ->select('uid', 'tstamp')
-        ->from($this->table)
-        ->where(
-            $queryBuilder->expr()->eq(
-                'response_type',
-                $queryBuilder->createNamedParameter($responseType, Connection::PARAM_INT)
-            )
-        )
-        ->orderBy('tstamp', 'DESC')
         ->executeQuery()
         ->fetchAllAssociative();
     }
@@ -241,7 +249,7 @@ class SysDmailMaillogRepository extends MainRepository
         $popularLinks = [];
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $statement = $queryBuilder
+        $queryBuilder
             ->select('url_id')
             ->addSelectLiteral('COUNT(*) AS counter')
             ->from($this->table)
@@ -258,12 +266,14 @@ class SysDmailMaillogRepository extends MainRepository
                 )
             )
             ->groupBy('url_id')
-            ->orderBy('counter')
-            ->executeQuery();
+            ->orderBy('counter');
+
+        $statement = $queryBuilder->executeQuery();
 
         while ($row = $statement->fetchAssociative()) {
             $popularLinks[$row['url_id']] = $row;
         }
+
         return $popularLinks;
     }
 
@@ -520,7 +530,7 @@ class SysDmailMaillogRepository extends MainRepository
         ->select('uid', 'email')
         ->from($this->table)
         ->where(
-            $queryBuilder->expr()->andX(
+            $queryBuilder->expr()->and(
                 $queryBuilder->expr()->eq(
                     'rid',
                     $queryBuilder->createNamedParameter($rid, Connection::PARAM_INT)

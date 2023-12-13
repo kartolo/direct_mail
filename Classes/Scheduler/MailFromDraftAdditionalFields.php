@@ -15,8 +15,8 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\AbstractAdditionalFieldProvider;
@@ -50,37 +50,16 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
     {
         // Initialize extra field value
         if (empty($taskInfo['selecteddraft'])) {
-            if ($schedulerModuleController->getCurrentAction() === 'edit') {
-                // In case of edit, and editing a test task, set to internal value if not data was submitted already
-                $taskInfo['selecteddraft'] = $task->draftUid;
-            } else {
-                // Otherwise set an empty value, as it will not be used anyway
-                $taskInfo['selecteddraft'] = '';
-            }
+            // In case of edit, and editing a test task, set to internal value if not data was submitted already
+            // Otherwise set an empty value, as it will not be used anyway
+            $taskInfo['selecteddraft'] = ($schedulerModuleController->getCurrentAction() === 'edit') ? $task->draftUid : '';
         }
 
         // fetch all available drafts
         $drafts = [];
 
-        $queryBuilder =  GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('sys_dmail');
-        $draftsInternal = $queryBuilder
-            ->select('*')
-            ->from('sys_dmail')
-            ->where(
-                $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(2))
-            )
-            ->executeQuery()
-            ->fetchAllAssociative();
-
-        $draftsExternal = $queryBuilder
-            ->select('*')
-            ->from('sys_dmail')
-            ->where(
-                $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(3))
-            )
-            ->executeQuery()
-            ->fetchAllAssociative();
+        $draftsInternal = GeneralUtility::makeInstance(SysDmailRepository::class)->getDraftsByType(2);
+        $draftsExternal = GeneralUtility::makeInstance(SysDmailRepository::class)->getDraftsByType(3);
 
         if (is_array($draftsInternal)) {
             $drafts = array_merge($drafts, $draftsInternal);
@@ -99,7 +78,7 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
         } else {
             foreach ($drafts as $draft) {
                 // see #44577
-                $selected = (($schedulerModuleController->getCurrentAction() === 'edit' && $task->draftUid === $draft['uid']) ? ' selected="selected"' : '');
+                $selected = (((string)$schedulerModuleController->getCurrentAction() === 'edit' && $task->draftUid === $draft['uid']) ? ' selected="selected"' : '');
                 $fieldHtml .= '<option value="' . $draft['uid'] . '"' . $selected . '>' . $draft['subject'] . ' [' . $draft['uid'] . ']</option>';
             }
         }
@@ -129,21 +108,11 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
      */
     public function validateAdditionalFields(array &$submittedData, SchedulerModuleController $schedulerModuleController)
     {
-        $draftUid = $submittedData['selecteddraft'] = (int)$submittedData['selecteddraft'];
+        $draftUid = $submittedData['selecteddraft'] = (int) $submittedData['selecteddraft'];
         if ($draftUid > 0) {
             $draftRecord = BackendUtility::getRecord('sys_dmail', $draftUid);
 
-            $queryBuilder =  GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getQueryBuilderForTable('sys_dmail');
-            //@TODO
-            $draftsInternal = $queryBuilder
-                ->select('*')
-                ->from('sys_dmail')
-                ->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($draftUid))
-                )
-                ->executeQuery()
-                ->fetchAllAssociative();
+            $draftsInternal = GeneralUtility::makeInstance(SysDmailRepository::class)->getDraftByUid($draftUid);
 
             if ($draftRecord['type'] == 2 || $draftRecord['type'] == 3) {
                 $result = true;

@@ -417,7 +417,17 @@ class Dmailer implements LoggerAwareInterface
             $this->dmailer['sys_dmail_rec']['return_path'] = str_replace('###XID###', $midRidId, $this->dmailer['sys_dmail_rec']['return_path']);
 
             if ($returnCode) {
-                $recipient = $this->createRecipient($recipientRow['email'], $this->ensureCorrectEncoding($recipientRow['name']));
+                $recipientName = $recipientRow['name'] ?? '';
+                if ($recipientName == '') {
+                    if ($recipientRow['first_name'] ?? '') {
+                        $recipientName = $recipientRow['first_name'] . ' ';
+                    }
+                    if ($recipientRow['middle_name'] ?? '') {
+                        $recipientName .= $recipientRow['middle_name'] . ' ';
+                    }
+                    $recipientName .= $recipientRow['last_name'] ?? '';
+                }
+                $recipient = $this->createRecipient($recipientRow['email'], $this->ensureCorrectEncoding($recipientName));
                 $this->sendTheMail($recipient, $recipientRow);
             }
         }
@@ -864,7 +874,7 @@ class Dmailer implements LoggerAwareInterface
         if ((int)$this->dmailer['sys_dmail_rec']['attachment'] > 0) {
             $files = DirectMailUtility::getAttachments((int)$this->dmailer['sys_dmail_rec']['uid']);
             foreach ($files as $file) {
-                $mailer->attachFromPath($file->getForLocalProcessing());
+                $mailer->attachFromPath($file->getForLocalProcessing(), $file->getName());
             }
         }
     }
@@ -886,7 +896,7 @@ class Dmailer implements LoggerAwareInterface
         }
 
         if (GeneralUtility::validEmail($this->dmailer['sys_dmail_rec']['return_path'])) {
-            $mailer->sender($this->dmailer['sys_dmail_rec']['return_path']);
+            $mailer->returnPath($this->dmailer['sys_dmail_rec']['return_path']);
         }
 
         // TODO: setContent should set the images (includeMedia) or add attachment
@@ -989,7 +999,7 @@ class Dmailer implements LoggerAwareInterface
             return;
         }
         foreach ($this->theParts['html']['hrefs'] as $urlId => $val) {
-            if ($val['no_jumpurl']) {
+            if ($val['no_jumpurl'] ?? false) {
                 // A tag attribute "no_jumpurl=1" allows to disable jumpurl for custom links
                 $substVal = $val['absRef'];
             } elseif ($this->jumperURLPrefix && ($val['tag'] != 'form') && (!strstr($val['ref'], 'mailto:'))) {
