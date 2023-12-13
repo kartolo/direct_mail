@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail\Scheduler;
 
 /*
@@ -18,7 +19,7 @@ use Fetch\Server;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
+use TYPO3\CMS\Scheduler\AbstractAdditionalFieldProvider;
 use TYPO3\CMS\Scheduler\Controller\SchedulerModuleController;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
@@ -26,10 +27,9 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * Class AnalyzeBounceMailAdditionalFields
  * This provides additional fields for the AnalyzeBounceMail task.
  *
- * @package DirectMailTeam\DirectMail\Scheduler
  * @author Ivan Kartolo <ivan.kartolo@gmail.com>
  */
-class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterface
+class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
 {
     public function __construct()
     {
@@ -61,12 +61,11 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
         $passwordHTML = '<input type="password" name="tx_scheduler[bouncePassword]" value="' . ($task ? $task->getPassword() : '') . '"/>';
         $maxProcessedHTML = '<input type="text" name="tx_scheduler[bounceProcessed]" value="' . ($task ? $task->getMaxProcessed() : '') . '"/>';
 
-        if($task){
+        if ($task) {
             $serviceHTML = '<select name="tx_scheduler[bounceService]" id="bounceService">' .
                 '<option value="imap" ' . ($task->getService() === 'imap'? 'selected="selected"' : '') . '>IMAP</option>' .
                 '<option value="pop3" ' . ($task->getService() === 'pop3'? 'selected="selected"' : '') . '>POP3</option>' .
                 '</select>';
-
         } else {
             $serviceHTML = '<select name="tx_scheduler[bounceService]" id="bounceService">' .
                 '<option value="imap" >IMAP</option>' .
@@ -74,7 +73,7 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
                 '</select>';
         }
 
-        $additionalFields = array();
+        $additionalFields = [];
         $additionalFields['server'] = $this->createAdditionalFields('server', $serverHTML);
         $additionalFields['port'] = $this->createAdditionalFields('port', $portHTML);
         $additionalFields['user'] = $this->createAdditionalFields('user', $userHTML);
@@ -90,7 +89,6 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
      *
      * @param array $submittedData An array containing the data submitted by the add/edit task form
      * @param AnalyzeBounceMail $task Reference to the scheduler backend module
-     * @return void
      */
     public function saveAdditionalFields(array $submittedData, AbstractTask $task)
     {
@@ -128,7 +126,7 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
                 $imapStream = $mailServer->getImapStream();
                 $return = true;
             } catch (\Exception $e) {
-                $schedulerModule->addMessage(
+                $this->addMessage(
                     $this->getLanguangeService()->getLL('scheduler.bounceMail.dataVerification') .
                     $e->getMessage(),
                     FlashMessage::ERROR
@@ -136,7 +134,7 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
                 $return = false;
             }
         } else {
-            $schedulerModule->addMessage(
+            $this->addMessage(
                 $this->getLanguangeService()->getLL('scheduler.bounceMail.phpImapError'),
                 FlashMessage::ERROR
             );
@@ -149,12 +147,12 @@ class AnalyzeBounceMailAdditionalFields implements AdditionalFieldProviderInterf
     protected function createAdditionalFields($fieldName, $fieldHTML)
     {
         // create server input field
-        return array(
+        return [
             'code'     => $fieldHTML,
             'label'    => $this->getLanguangeService()->getLL('scheduler.bounceMail.' . $fieldName),
             'cshKey'   => $fieldName,
-            'cshLabel' => $this->getLanguangeService()->getLL('scheduler.bounceMail.csh.' . $fieldName)
-        );
+            'cshLabel' => $this->getLanguangeService()->getLL('scheduler.bounceMail.csh.' . $fieldName),
+        ];
     }
 
     /**

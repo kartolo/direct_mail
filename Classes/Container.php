@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -14,19 +15,18 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
+use DirectMailTeam\DirectMail\Repository\SysDmailTtContentCategoryMmRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Container class for auxilliary functions of tx_directmail
  *
- * @author		Kasper Sk�rh�j <kasperYYYY>@typo3.com>
+ * @author		Kasper Skårhøj <kasperYYYY>@typo3.com>
  * @author		Thorsten Kahler <thorsten.kahler@dkd.de>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class Container
 {
@@ -36,7 +36,17 @@ class Container
     /**
      * @var TypoScriptFrontendController
      */
-    public $cObj;
+    protected $cObj;
+
+    /**
+     * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.4/Deprecation-94956-PublicCObj.html
+     *
+     * @param ContentObjectRenderer $cObj
+     */
+    public function setContentObjectRenderer(ContentObjectRenderer $cObj): void
+    {
+        $this->cObj = $cObj;
+    }
 
     /**
      * This function wraps HTML comments around the content.
@@ -48,7 +58,7 @@ class Container
      *
      * @return    string        content of the email with dmail boundaries
      */
-    public function insert_dMailer_boundaries($content, $conf = array())
+    public function insert_dMailer_boundaries($content, $conf = [])
     {
         if (isset($conf['useParentCObj']) && $conf['useParentCObj']) {
             $this->cObj = $conf['parentObj']->cObj;
@@ -59,7 +69,7 @@ class Container
             if ($content != '') {
                 // setting the default
                 $categoryList = '';
-                if (intval($this->cObj->data['module_sys_dmail_category']) >= 1) {
+                if ((int)$this->cObj->data['module_sys_dmail_category'] >= 1) {
                     // if content type "RECORDS" we have to strip off
                     // boundaries from indcluded records
                     if ($this->cObj->data['CType'] == 'shortcut') {
@@ -67,41 +77,16 @@ class Container
                     }
 
                     // get categories of tt_content element
-                    $foreignTable = 'sys_dmail_category';
-                    $select = "$foreignTable.uid";
-                    $localTableUidList = intval($this->cObj->data['uid']);
-                    $mmTable = 'sys_dmail_ttcontent_category_mm';
-                    $whereClause = '';
-                    $orderBy = $foreignTable . '.uid';
-
-                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($foreignTable);
-                    $statement = $queryBuilder
-                        ->select($select)
-                        ->from($foreignTable)
-                        ->from($mmTable)
-                        ->where(
-                            $queryBuilder->expr()->eq(
-                                $foreignTable . '.uid',
-                                $mmTable . '.uid_foreign'
-                            )
-                        )
-                        ->andWhere(
-                            $queryBuilder->expr()->in(
-                                $mmTable . '.uid_local',
-                                $localTableUidList
-                            )
-                        )
-                        ->orderBy($orderBy)
-                        ->execute();
-
-
-                    while (($row = $statement->fetch())) {
-                        $categoryList .= $row['uid'] . ',';
+                    $rowCats = GeneralUtility::makeInstance(SysDmailCategoryRepository::class)->selectSysDmailCategoryForContainer((int)$this->cObj->data['uid']);
+                    if ($rowCats && count($rowCats)) {
+                        foreach ($rowCats as $cat) {
+                            $categoryList .= $cat['uid'] . ',';
+                        }
+                        $categoryList = rtrim($categoryList, ',');
                     }
-                    $categoryList = rtrim($categoryList, ',');
                 }
                 // wrap boundaries around content
-                $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . $content . $this->boundaryEnd;
+                $content = $this->cObj->wrap($categoryList, $this->boundaryStartWrap) . PHP_EOL . trim($content) . PHP_EOL . $this->boundaryEnd . PHP_EOL;
             }
         }
         return $content;
@@ -135,7 +120,7 @@ class Container
     public function breakLines($content, array $conf)
     {
         $linebreak = $GLOBALS['TSFE']->cObj->stdWrap(($conf['linebreak'] ? $conf['linebreak'] : chr(32) . LF), $conf['linebreak.']);
-        $charWidth = $GLOBALS['TSFE']->cObj->stdWrap(($conf['charWidth'] ? intval($conf['charWidth']) : 76), $conf['charWidth.']);
+        $charWidth = $GLOBALS['TSFE']->cObj->stdWrap(($conf['charWidth'] ? (int)$conf['charWidth'] : 76), $conf['charWidth.']);
 
         return MailUtility::breakLinesForEmail($content, $linebreak, $charWidth);
     }
@@ -150,26 +135,13 @@ class Container
      */
     public function insertSitemapBoundaries($content, array $conf)
     {
-        $uid = $this->cObj->data['uid'];
+        $uid = (int)$this->cObj->data['uid'];
         $content = '';
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_dmail_ttcontent_category_mm');
-        $categories = $queryBuilder
-            ->select('*')
-            ->from('sys_dmail_ttcontent_category_mm')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'uid_local',
-                    (int) $uid
-                )
-            )
-            ->orderBy('sorting')
-            ->execute()
-            ->fetchAll();
+        $categories = GeneralUtility::makeInstance(SysDmailTtContentCategoryMmRepository::class)->selectByUidLocal($uid);
 
-
-        if (count($categories) > 0) {
-            $categoryList = array();
+        if ($categories && count($categories) > 0) {
+            $categoryList = [];
             foreach ($categories as $category) {
                 $categoryList[] = $category['uid_foreign'];
             }

@@ -1,10 +1,3 @@
-##
-## @package TYPO3
-## @subpackage tx_directmail
-## @version $Id$
-##
-
-
 #
 # Table structure for table 'cache_sys_dmail_stat'
 #
@@ -100,6 +93,8 @@ CREATE TABLE sys_dmail_group (
   title tinytext NOT NULL,
   description text NOT NULL,
   query blob,
+  queryLimit varchar(255) DEFAULT '' NOT NULL,
+  queryLimitDisabled tinyint(4) unsigned DEFAULT '1' NOT NULL,
   static_list int(11) DEFAULT '0' NOT NULL,
   list mediumblob,
   csv tinyint(4) DEFAULT '0' NOT NULL,
@@ -131,11 +126,11 @@ CREATE TABLE sys_dmail_group_mm (
 CREATE TABLE sys_dmail_maillog (
   uid int(11) unsigned NOT NULL auto_increment,
   mid int(11) unsigned DEFAULT '0' NOT NULL,
-  rid varchar(11) DEFAULT '0' NOT NULL,
+  rid varchar(40) DEFAULT '0' NOT NULL,
   email varchar(255) DEFAULT '' NOT NULL,
   rtbl char(1) DEFAULT '' NOT NULL,
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
-  url tinyblob NULL,
+  url blob NULL,
   size int(11) unsigned DEFAULT '0' NOT NULL,
   parsetime int(11) unsigned DEFAULT '0' NOT NULL,
   response_type tinyint(4) DEFAULT '0' NOT NULL,
@@ -240,4 +235,3 @@ CREATE TABLE tt_address (
 CREATE TABLE tt_content (
   module_sys_dmail_category int(10) unsigned DEFAULT '0' NOT NULL,
 );
-

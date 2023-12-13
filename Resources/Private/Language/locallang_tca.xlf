@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<xliff version="1.0">
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 	<file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:03:27Z">
 		<header>
 			<description>Labels for the Direct Mail tables</description>
@@ -208,6 +208,15 @@
 		</trans-unit>
 		<trans-unit id="sys_dmail_group.whichtables.I.3">
 			<source>Website User Group</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.query">
+			<source>Query</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.queryLimit">
+			<source>Query Limit</source>
+		</trans-unit>
+		<trans-unit id="sys_dmail_group.queryLimitDisabled">
+			<source>Query Limit Disabled</source>
 		</trans-unit>
 		</body>
 	</file>

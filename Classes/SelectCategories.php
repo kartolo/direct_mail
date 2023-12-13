@@ -1,4 +1,5 @@
 <?php
+
 namespace DirectMailTeam\DirectMail;
 
 /*
@@ -14,96 +15,73 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\Repository\SysLanguageRepository;
+use DirectMailTeam\DirectMail\Repository\TempRepository;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
  * Localize categories for backend forms
  *
  * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- *
- * @package 	TYPO3
- * @subpackage 	tx_directmail
  */
 class SelectCategories
 {
-    public $sys_language_uid = 0;
-    public $collate_locale = 'C';
-
     /**
      * Get the localization of the select field items (right-hand part of form)
      * Referenced by TCA
+     * https://docs.typo3.org/m/typo3/reference-tca/11.5/en-us/ColumnsConfig/CommonProperties/ItemsProcFunc.html
      *
      * @param	array $params Array of searched translation
-     *
-     * @return	void
      */
-    public function get_localized_categories(array $params)
+    public function getLocalizedCategories(array &$params): void
     {
-        global $LANG;
-
-        /*
-                $params['items'] = &$items;
-                $params['config'] = $config;
-                $params['TSconfig'] = $iArray;
-                $params['table'] = $table;
-                $params['row'] = $row;
-                $params['field'] = $field;
-        */
-        $config = $params['config'];
-        $table = $config['itemsProcFunc_config']['table'];
-
-        // initialize backend user language
-        if ($LANG->lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
+        $sys_language_uid = 0;
+        $lang = $this->getLang();
+        if ($lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
             $sysPage = GeneralUtility::makeInstance(PageRepository::class);
-
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getQueryBuilderForTable('sys_language');
-            $res = $queryBuilder
-                ->select('sys_language.uid')
-                ->from('sys_language')
-                ->leftJoin(
-                    'sys_language',
-                    'static_languages',
-                    'static_languages',
-                    $queryBuilder->expr()->eq('sys_language.language_isocode', $queryBuilder->quoteIdentifier('static_languages.lg_typo3'))
-                )
-                ->where(
-                    $queryBuilder->expr()->eq('static_languages.lg_typo3', $queryBuilder->createNamedParameter($GLOBALS['LANG']->lang.
-                        $sysPage->enableFields('sys_language') .
-                        $sysPage->enableFields('static_languages')))
-                )
-
-                ->execute()
-                ->fetchAll();
-            foreach ( $res as $row) {
-                $this->sys_language_uid = $row['uid'];
-                $this->collate_locale = $row['lg_collate_locale'];
+            $rows = GeneralUtility::makeInstance(SysLanguageRepository::class)->selectSysLanguageForSelectCategories(
+                $lang,
+                $sysPage->enableFields('sys_language'),
+                $sysPage->enableFields('static_languages')
+            );
+            if (is_array($rows)) {
+                foreach ($rows as $row) {
+                    $sys_language_uid = (int)$row['uid'];
+                }
             }
-
         }
 
         if (is_array($params['items']) && !empty($params['items'])) {
+            $table = (string)$params['config']['itemsProcFunc_config']['table'];
+            $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
             foreach ($params['items'] as $k => $item) {
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                    ->getQueryBuilderForTable($table);
-                $res = $queryBuilder
-                    ->select('*')
-                    ->from($table)
-                    ->where(
-                        $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter(intval($item[1])))
-                    )
-                    ->execute()
-                    ->fetchAll();
-                foreach ($res as $rowCat) {
-                    if (($localizedRowCat = DirectMailUtility::getRecordOverlay($table, $rowCat, $this->sys_language_uid, ''))) {
-                        $params['items'][$k][0] = $localizedRowCat['category'];
+                $rows = $tempRepository->selectRowsByUid($table, (int)$item[1]);
+                if (is_array($rows)) {
+                    foreach ($rows as $rowCat) {
+                        if ($localizedRowCat = $tempRepository->getRecordOverlay($table, $rowCat, $sys_language_uid)) {
+                            $params['items'][$k][0] = $localizedRowCat['category'];
+                        }
                     }
                 }
-
             }
         }
+    }
+
+    protected function getLang(): string
+    {
+        //initialize backend user language
+        $languageService = $this->getLanguageService();
+        return $languageService->lang == 'default' ? 'en' : $languageService->lang;
+    }
+
+    /**
+     * @return LanguageService
+     */
+    protected function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }

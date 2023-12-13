@@ -1,0 +1,80 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  DirectMailTeam\DirectMail\:
+    resource: '../Classes/*'
+
+  DirectMailTeam\DirectMail\Command\InvokeMailerEngineCommand:
+    tags:
+      - name: 'console.command'
+        command: 'directmail:invokemailerengine'
+        description: 'Invoke Mailer Engine of EXT:directmail'
+  DirectMailTeam\DirectMail\Command\DirectmailCommand:
+    tags:
+      - name: 'console.command'
+        command: 'directmail:mailingqueue'
+        description: 'This command invokes dmailer in order to process queued messages.'
+  DirectMailTeam\DirectMail\Command\AnalyzeBounceMailCommand:
+    tags:
+      - name: 'console.command'
+        command: 'directmail:analyzebouncemail'
+        description: 'This command will get bounce mail from the configured mailbox.'
+
+  dashboard.provider.dm:
+    class: 'DirectMailTeam\DirectMail\Widgets\Provider\DmProvider'
+
+  dashboard.widget.dm:
+    class: 'DirectMailTeam\DirectMail\Widgets\DmWidget'
+    arguments:
+      $view: '@dashboard.views.widget'
+      $dataProvider: '@dashboard.provider.dm'
+    tags:
+      - name: dashboard.widget
+        identifier: 'dm'
+        groupNames: 'dm'
+        title: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dm.title'
+        description: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dm.description'
+        iconIdentifier: 'content-widget-text'
+        height: 'small'
+
+  dashboard.provider.dmMailEngineStatus:
+    class: 'DirectMailTeam\DirectMail\Widgets\Provider\DmMailEngineStatusDataProvider'
+
+  dashboard.widget.dmMailEngineStatus:
+    class: 'TYPO3\CMS\Dashboard\Widgets\DoughnutChartWidget'
+    arguments:
+      $view: '@dashboard.views.widget'
+      $dataProvider: '@dashboard.provider.dmMailEngineStatus'
+      $options:
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: 'dmMailEngineStatus'
+        groupNames: 'dm'
+        title: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dmMailEngineStatus.title'
+        description: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dmMailEngineStatus.description'
+        iconIdentifier: 'content-widget-chart-pie'
+        height: 'small'
+
+  dashboard.provider.dmStatistics:
+    class: 'DirectMailTeam\DirectMail\Widgets\Provider\DmStatisticsDataProvider'
+
+  dashboard.widget.dmStatistics:
+    class: 'TYPO3\CMS\Dashboard\Widgets\BarChartWidget'
+    arguments:
+      $view: '@dashboard.views.widget'
+      $dataProvider: '@dashboard.provider.dmStatistics'
+      $options:
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: 'dmStatistics'
+        groupNames: 'dm'
+        title: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dmStatistics.title'
+        description: 'LLL:EXT:direct_mail/Resources/Private/Language/locallang.xlf:widgets.dmStatistics.description'
+        iconIdentifier: 'content-widget-chart-bar'
+        height: 'medium'
+        width: 'medium'

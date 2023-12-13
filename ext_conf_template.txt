@@ -1,23 +1,26 @@
-	# cat=basic; type=int+; label=Number of messages per cycle : Number of messages to be sent per cycle of the dmailer cron task.
+# cat=basic; type=int+; label=Number of messages per cycle : Number of messages to be sent per cycle of the dmailer cron task.
 sendPerCycle = 50
 
-	# cat=basic; type=string; label=Language of the cron task : Language used to localize progress messages sent by the dmailer cron task.
-cron_language = en
+# cat=basic; type=string; label=Language of the cron task : Language used to localize progress messages sent by the dmailer cron task.
+cronLanguage = en
 
-	# cat=basic; type=string; label= Additional DB fields of the recipient : Additional fields that may be substituted in the direct mail messages.
+# cat=basic; type=string; label= Additional DB fields of the recipient : Additional fields that may be substituted in the direct mail messages.
 addRecipFields =
 
-	# cat=basic; type=string; label=Administrator Email: Administrator email is used to send email if there's cronjob error.
+# cat=basic; type=string; label=Administrator Email: Administrator email is used to send email if there's cronjob error.
 adminEmail = admin@website.com
 
-	# cat=basic; type=int+; label=Interval of the cronjob: Interval of the cronjob (in minute).
-cronInt = 5
-
-	# cat=basic/enable; type=boolean; label=Enable notification email : Allow direct mail to send notification about start and end of a mailing job.
+# cat=basic/enable; type=boolean; label=Enable notification email : Allow direct mail to send notification about start and end of a mailing job.
 notificationJob = 1
 
-	# cat=basic/enable; type=boolean; label=Use http connection for fetching Newsletter-Content: Even if your TYPO3 Backend is in SSL-Mode, the URL for fetching the newsletter contents will be http
+# cat=basic/enable; type=boolean; label=Use http connection for fetching Newsletter-Content: Even if your TYPO3 Backend is in SSL-Mode, the URL for fetching the newsletter contents will be http
 UseHttpToFetch = 0
 
-	# cat=basic/enable; type=boolean; label=Use implicit port in URL for fetching Newsletter-Content: Even if your TYPO3 Backend is on a non-standard-port, the URL for fetching the newsletter contents from one of your Frontend-Domains will not use the PORT you are using to access your TYPO3 Backend, but use implicit port instead (e.g. no explicit port in URL)
+# cat=basic/enable; type=boolean; label=Use implicit port in URL for fetching Newsletter-Content: Even if your TYPO3 Backend is on a non-standard-port, the URL for fetching the newsletter contents from one of your Frontend-Domains will not use the PORT you are using to access your TYPO3 Backend, but use implicit port instead (e.g. no explicit port in URL)
 UseImplicitPortToFetch = 0
+
+# cat=basic/enable; type=boolean; label=Require verification of SSL certificate used. (For Development)
+SSLVerifyPeer = 1
+
+# cat=basic/enable; type=boolean; label=Require verification of peer name. (For Development)
+SSLVerifyPeerName = 1
