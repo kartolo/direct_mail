@@ -60,7 +60,7 @@
             <tr class="db_list_normal">
                 <td><f:format.raw>{row.icon}</f:format.raw></td>
                 <td>{row.id}</td>
-                <td><f:format.raw>{row.subject}</f:format.raw></td>
+                <td><a title="{row.subject -> f:format.htmlentities()}" href="{row.url}"><f:format.htmlentities>{row.subjectShort}</f:format.htmlentities></a></td>
 	            <td>{row.scheduled}</td>
 	            <td>{row.scheduled_begin}</td>
 	            <td>{row.scheduled_end}</td>

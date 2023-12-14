@@ -22,6 +22,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -275,7 +276,9 @@ final class StatisticsController extends MainController
                 $data[] = [
                     'id'              => $row['uid'],
                     'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-                    'subject'         => $this->linkDMailRecord(GeneralUtility::fixed_lgd_cs($row['subject'], 50) . '  ', $row['uid'], $row['subject']),
+                    'url'             => $this->linkDMailRecord($row['uid']),
+                    'subject'         => htmlspecialchars($row['subject']),
+                    'subjectShort'    => htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 50)),
                     'scheduled'       => BackendUtility::datetime($row['scheduled']),
                     'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
                     'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
@@ -1301,21 +1304,16 @@ final class StatisticsController extends MainController
     }
 
     /**
-     * Wrap a string with a link
+     * get url for dmail record
      *
-     * @param string $str String to be wrapped with a link
      * @param int $uid Record uid to be link
-     * @param string $aTitle Title param of the link tag
      *
-     * @return string wrapped string as a link
+     * @return Uri
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function linkDMailRecord(
-        string $str,
-        int $uid,
-        string $aTitle = ''): string
+    protected function linkDMailRecord(int $uid): Uri
     {
-        $moduleUrl = $this->buildUriFromRoute(
+        return $this->buildUriFromRoute(
             $this->moduleName,
             [
                 'id' => $this->id,
@@ -1324,7 +1322,6 @@ final class StatisticsController extends MainController
                 'SET[dmail_mode]' => 'direct',
             ]
         );
-        return '<a title="' . htmlspecialchars($aTitle) . '" href="' . $moduleUrl . '">' . htmlspecialchars($str) . '</a>';
     }
 
     /**
