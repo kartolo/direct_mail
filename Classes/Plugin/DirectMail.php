@@ -186,10 +186,10 @@ class DirectMail extends AbstractPlugin
 
         $this->conf = $conf;
         $this->pi_loadLL('EXT:direct_mail/Resources/Private/Language/Plaintext/locallang.xlf');
-        $this->siteUrl = $this->conf['siteUrl'];
+        $this->siteUrl = $this->conf['siteUrl'] ?? null;
 
         // Default linebreak;
-        if ($this->conf['flowedFormat']) {
+        if ($this->conf['flowedFormat'] ?? false) {
             $this->linebreak = chr(32) . LF;
         }
     }
@@ -305,12 +305,12 @@ class DirectMail extends AbstractPlugin
      */
     public function parseBody($str, $altConf = 'bodytext')
     {
-        if ($this->conf[$altConf . '.']['doubleLF']) {
+        if ($this->conf[$altConf . '.']['doubleLF'] ?? false) {
             $str = preg_replace("/\n/", "\n\n", $str);
         }
         // Regular parsing:
         $str = preg_replace('/<br\s*\/?>/i', LF, $str);
-        $str = $this->cObj->stdWrap($str, $this->conf[$altConf . '.']['stdWrap.']);
+        $str = $this->cObj->stdWrap($str, $this->conf[$altConf . '.']['stdWrap.'] ?? null);
 
         // Then all a-tags:
         $aConf = [];
@@ -320,7 +320,7 @@ class DirectMail extends AbstractPlugin
         $str = $this->cObj->stdWrap($str, $aConf);
         $str = str_replace('&nbsp;', ' ', htmlspecialchars_decode($str));
 
-        if ($this->conf[$altConf . '.']['header']) {
+        if ($this->conf[$altConf . '.']['header'] ?? false) {
             $str = $this->getString($this->conf[$altConf . '.']['header']) . LF . $str;
         }
 
@@ -362,30 +362,30 @@ class DirectMail extends AbstractPlugin
     public function renderHeader($str, $type = 0)
     {
         if ($str) {
-            $hConf = $this->conf['header.'];
-            $defaultType = DirectMailUtility::intInRangeWrapper((int)$hConf['defaultType'], 1, 5);
+            $hConf = $this->conf['header.'] ?? null;
+            $defaultType = !empty($hConf['defaultType']) ? DirectMailUtility::intInRangeWrapper((int)$hConf['defaultType'], 1, 5) : 0;
             $type = DirectMailUtility::intInRangeWrapper((int)$type, 0, 6);
             if (!$type) {
                 $type = $defaultType;
             }
             if ($type != 6) {
                 // not hidden
-                $tConf = $hConf[$type . '.'];
+                $tConf = $hConf[$type . '.'] ?? null;
 
-                if ($tConf['removeSplitChar']) {
+                if ($tConf['removeSplitChar'] ?? false) {
                     $str = preg_replace('/' . preg_quote($tConf['removeSplitChar'], '/') . '/', '', $str);
                 }
 
                 $lines = [];
 
-                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preBlanks'], 0, 1000);
+                $blanks = !empty($tConf['preBlanks']) ? DirectMailUtility::intInRangeWrapper((int)$tConf['preBlanks'], 0, 1000) : 0;
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
 
-                $lines = $this->pad($lines, $tConf['preLineChar'], $tConf['preLineLen']);
+                $lines = $this->pad($lines, $tConf['preLineChar'] ?? null, $tConf['preLineLen'] ?? null);
 
-                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preLineBlanks'], 0, 1000);
+                $blanks = !empty($tConf['preLineBlanks']) ? DirectMailUtility::intInRangeWrapper((int)$tConf['preLineBlanks'], 0, 1000) : 0;
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
@@ -395,8 +395,8 @@ class DirectMail extends AbstractPlugin
                 }
 
                 $prefix = '';
-                $str = $this->getString($tConf['prefix']) . $str;
-                if ($tConf['autonumber']) {
+                $str = $this->getString($tConf['prefix'] ?? null) . $str;
+                if ($tConf['autonumber'] ?? false) {
                     $str = $this->cObj->parentRecordNumber . $str;
                 }
                 if ($this->cObj->data['header_position'] === 'right') {
@@ -405,20 +405,20 @@ class DirectMail extends AbstractPlugin
                 if ($this->cObj->data['header_position'] === 'center') {
                     $prefix = str_pad(' ', floor(($this->charWidth-strlen($str))/2));
                 }
-                $lines[] = $this->cObj->stdWrap($prefix . $str, $tConf['stdWrap.']);
+                $lines[] = $this->cObj->stdWrap($prefix . $str, $tConf['stdWrap.'] ?? null);
 
                 if ($this->cObj->data['header_link']) {
                     $lines[] = $this->getString($hConf['linkPrefix']) . $this->getLink($this->cObj->data['header_link']);
                 }
 
-                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postLineBlanks'], 0, 1000);
+                $blanks = !empty($tConf['postLineBlanks']) ? DirectMailUtility::intInRangeWrapper((int)$tConf['postLineBlanks'], 0, 1000) : 0;
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
 
-                $lines = $this->pad($lines, $tConf['postLineChar'], $tConf['postLineLen']);
+                $lines = $this->pad($lines, $tConf['postLineChar'] ?? null, $tConf['postLineLen'] ?? null);
 
-                $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postBlanks'], 0, 1000);
+                $blanks = !empty($tConf['postBlanks']) ? DirectMailUtility::intInRangeWrapper((int)$tConf['postBlanks'], 0, 1000) : 0;
                 if ($blanks) {
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
@@ -696,7 +696,7 @@ class DirectMail extends AbstractPlugin
     public function getString($str)
     {
         $parts = explode('|', $str);
-        return strcmp($parts[1], '')?$parts[1]:$parts[0];
+        return strcmp($parts[1] ?? null, '')?$parts[1]:$parts[0];
     }
 
     /**
@@ -709,7 +709,7 @@ class DirectMail extends AbstractPlugin
      */
     public function userProcess($mConfKey, $passVar)
     {
-        if ($this->conf[$mConfKey]) {
+        if ($this->conf[$mConfKey] ?? false) {
             $funcConf = $this->conf[$mConfKey . '.'];
             $funcConf['parentObj']=&$this;
             $passVar = $GLOBALS['TSFE']->cObj->callUserFunction($this->conf[$mConfKey], $funcConf, $passVar);
