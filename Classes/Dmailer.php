@@ -354,7 +354,9 @@ class Dmailer implements LoggerAwareInterface
     public function sendAdvanced(array $recipientRow, string $tableNameChar): int
     {
         $returnCode = 0;
-        $recipientRow = array_map('htmlspecialchars', $recipientRow);
+        foreach($recipientRow as $key => $val) {
+            $recipientRow[$key] = is_null($val) ? $val : htmlspecialchars($val);
+        }
 
         // Workaround for strict checking of email addresses in TYPO3
         // (trailing newline = invalid address)
