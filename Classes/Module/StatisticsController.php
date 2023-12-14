@@ -275,7 +275,7 @@ final class StatisticsController extends MainController
                 $data[] = [
                     'id'              => $row['uid'],
                     'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-                    'subject'         => $this->linkDMail_record(GeneralUtility::fixed_lgd_cs($row['subject'], 50) . '  ', $row['uid'], $row['subject']),
+                    'subject'         => $this->linkDMailRecord(GeneralUtility::fixed_lgd_cs($row['subject'], 50) . '  ', $row['uid'], $row['subject']),
                     'scheduled'       => BackendUtility::datetime($row['scheduled']),
                     'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',
                     'scheduled_end'   => $row['scheduled_end'] ? BackendUtility::datetime($row['scheduled_end']) : '',
@@ -1310,7 +1310,7 @@ final class StatisticsController extends MainController
      * @return string wrapped string as a link
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function linkDMail_record(
+    protected function linkDMailRecord(
         string $str,
         int $uid,
         string $aTitle = ''): string
