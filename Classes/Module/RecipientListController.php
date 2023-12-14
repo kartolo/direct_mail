@@ -191,7 +191,7 @@ class RecipientListController extends MainController
                 'icon'        => $this->iconFactory->getIconForRecord('sys_dmail_group', $row, Icon::SIZE_SMALL)->render(),
                 'editLink'    => $this->editLink('sys_dmail_group', $row['uid']),
                 'reciplink'   => $this->linkRecip_record('<strong>' . htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['title'], 30)) . '</strong>&nbsp;&nbsp;', $row['uid']),
-                'type'        => htmlspecialchars(BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])),
+                'type'        => htmlspecialchars((string) BackendUtility::getProcessedValue('sys_dmail_group', 'type', $row['type'])),
                 'description' => BackendUtility::getProcessedValue('sys_dmail_group', 'description', htmlspecialchars($row['description'] ?? '')),
                 'count'       => $count,
             ];
@@ -490,8 +490,8 @@ class RecipientListController extends MainController
                 if (is_array($idLists['tt_address'] ?? false)) {
                     //https://github.com/FriendsOfTYPO3/tt_address/blob/master/ext_tables.sql
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues(
-                        $idLists['tt_address'], 
-                        'tt_address', 
+                        $idLists['tt_address'],
+                        'tt_address',
                         ['uid', 'name', 'first_name', 'middle_name', 'last_name', 'email']
                     );
                     $data['tables'][] = [
