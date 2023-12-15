@@ -10,7 +10,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SysDmailGroupRepository extends MainRepository
 {
-    protected string $table = 'sys_dmail_group';
+    protected string $table      = 'sys_dmail_group';
+    protected string $tablePages = 'pages';
 
     /**
      * @return array|bool
@@ -90,11 +91,11 @@ class SysDmailGroupRepository extends MainRepository
         ->from($this->table)
         ->leftJoin(
             $this->table,
-            'pages',
-            'pages',
+            $this->tablePages,
+            $this->tablePages,
             $queryBuilder->expr()->eq(
                 $this->table . '.pid',
-                $queryBuilder->quoteIdentifier('pages.uid')
+                $queryBuilder->quoteIdentifier($this->tablePages . '.uid')
             )
         )
         ->where(
@@ -133,10 +134,10 @@ class SysDmailGroupRepository extends MainRepository
             ->from($this->table, $this->table)
             ->leftJoin(
                 $this->table,
-                'pages',
-                'pages',
+                $this->tablePages,
+                $this->tablePages,
                 $queryBuilder->expr()->eq(
-                    'pages.uid',
+                    $this->tablePages . '.uid',
                     $queryBuilder->quoteIdentifier($this->table . '.pid')
                 )
             )

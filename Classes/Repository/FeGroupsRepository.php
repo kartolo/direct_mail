@@ -8,7 +8,11 @@ use TYPO3\CMS\Core\Database\Connection;
 
 class FeGroupsRepository extends MainRepository
 {
-    protected string $table = 'fe_groups';
+    protected string $table                        = 'fe_groups';
+    protected string $tableFeUsers                 = 'fe_users';
+    protected string $tableSysDmailGroup           = 'sys_dmail_group';
+    protected string $tableSysDmailGroupMm         = 'sys_dmail_group_mm';
+    protected string $tableSysDmailGroupCategoryMm = 'sys_dmail_group_category_mm';
 
     /**
      * Return all uid's from 'fe_groups' for a static direct mail group.
@@ -19,66 +23,65 @@ class FeGroupsRepository extends MainRepository
      */
     public function getStaticIdList(int $uid): array
     {
-        $switchTable = 'fe_users';
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         $res = $queryBuilder
-        ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
-        ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
+        ->selectLiteral('DISTINCT ' . $this->tableFeUsers . '.uid', $this->tableFeUsers . '.email')
+        ->from($this->tableSysDmailGroupMm, $this->tableSysDmailGroupMm)
         ->innerJoin(
-            'sys_dmail_group_mm',
-            'sys_dmail_group',
-            'sys_dmail_group',
+            $this->tableSysDmailGroupMm,
+            $this->tableSysDmailGroup,
+            $this->tableSysDmailGroup,
             $queryBuilder->expr()->eq(
-                'sys_dmail_group_mm.uid_local',
-                $queryBuilder->quoteIdentifier('sys_dmail_group.uid')
+                $this->tableSysDmailGroupMm . '.uid_local',
+                $queryBuilder->quoteIdentifier($this->tableSysDmailGroup . '.uid')
             )
         )
         ->innerJoin(
-            'sys_dmail_group_mm',
+            $this->tableSysDmailGroupMm,
             $this->table,
             $this->table,
             $queryBuilder->expr()->eq(
-                'sys_dmail_group_mm.uid_foreign',
+                $this->tableSysDmailGroupMm . '.uid_foreign',
                 $queryBuilder->quoteIdentifier($this->table . '.uid')
             )
         )
         ->innerJoin(
             $this->table,
-            $switchTable,
-            $switchTable,
+            $this->tableFeUsers,
+            $this->tableFeUsers,
             $queryBuilder->expr()->inSet(
-                $switchTable . '.usergroup',
+                $this->tableFeUsers . '.usergroup',
                 $queryBuilder->quoteIdentifier($this->table . '.uid')
             )
         )
         ->andWhere(
             $queryBuilder->expr()->and(
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group_mm.uid_local',
+                    $this->tableSysDmailGroupMm . '.uid_local',
                     $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group_mm.tablenames',
+                    $this->tableSysDmailGroupMm . '.tablenames',
                     $queryBuilder->createNamedParameter($this->table)
                 ),
                 $queryBuilder->expr()->neq(
-                    $switchTable . '.email',
+                    $this->tableFeUsers . '.email',
                     $queryBuilder->createNamedParameter('')
                 ),
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group.deleted',
+                    $this->tableSysDmailGroup . '.deleted',
                     $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 ),
                 // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
                 $queryBuilder->expr()->eq(
-                    $switchTable . '.module_sys_dmail_newsletter',
+                    $this->tableFeUsers . '.module_sys_dmail_newsletter',
                     1
                 )
             )
         )
-        ->orderBy($switchTable . '.uid')
-        ->addOrderBy($switchTable . '.email')
+        ->orderBy($this->tableFeUsers . '.uid')
+        ->addOrderBy($this->tableFeUsers . '.email')
         ->executeQuery();
 
         $outArr = [];
@@ -92,28 +95,28 @@ class FeGroupsRepository extends MainRepository
         $queryBuilder
         ->selectLiteral('DISTINCT ' . $this->table . '.uid')
         ->from($this->table, $this->table)
-        ->from('sys_dmail_group', 'sys_dmail_group')
+        ->from($this->tableSysDmailGroup, $this->tableSysDmailGroup)
         ->leftJoin(
-            'sys_dmail_group',
-            'sys_dmail_group_mm',
-            'sys_dmail_group_mm',
+            $this->tableSysDmailGroup,
+            $this->tableSysDmailGroupMm,
+            $this->tableSysDmailGroupMm,
             $queryBuilder->expr()->eq(
-                'sys_dmail_group_mm.uid_local',
-                $queryBuilder->quoteIdentifier('sys_dmail_group.uid')
+                $this->tableSysDmailGroupMm . '.uid_local',
+                $queryBuilder->quoteIdentifier($this->tableSysDmailGroup . '.uid')
             )
         )
         ->andWhere(
             $queryBuilder->expr()->and(
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group.uid',
+                    $this->tableSysDmailGroup . '.uid',
                     $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
-                    'fe_groups.uid',
-                    $queryBuilder->quoteIdentifier('sys_dmail_group_mm.uid_foreign')
+                    $this->table . '.uid',
+                    $queryBuilder->quoteIdentifier($this->tableSysDmailGroupMm . '.uid_foreign')
                 ),
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group_mm.tablenames',
+                    $this->tableSysDmailGroupMm. '.tablenames',
                     $queryBuilder->createNamedParameter($this->table)
                 )
             )
@@ -131,7 +134,7 @@ class FeGroupsRepository extends MainRepository
         if (!empty($subgroups)) {
             $usergroupInList = null;
             foreach ($subgroups as $subgroup) {
-                $usergroupInList .= (($usergroupInList == null) ? null : ' OR') . ' INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',' . (int)$subgroup . ',\') )';
+                $usergroupInList .= (($usergroupInList == null) ? null : ' OR') . ' INSTR( CONCAT(\',\',' . $this->tableFeUsers . '.usergroup,\',\'),CONCAT(\',' . (int)$subgroup . ',\') )';
             }
             $usergroupInList = '(' . $usergroupInList . ')';
 
@@ -139,29 +142,29 @@ class FeGroupsRepository extends MainRepository
             $queryBuilder = $this->getQueryBuilder($this->table);
 
             $queryBuilder
-            ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
+            ->selectLiteral('DISTINCT ' . $this->tableFeUsers . '.uid', $this->tableFeUsers . '.email')
             ->from($this->table, $this->table)
             ->innerJoin(
                 $this->table,
-                $switchTable,
-                $switchTable
+                $this->tableFeUsers,
+                $this->tableFeUsers
             )
             ->orWhere($usergroupInList)
             ->andWhere(
                 $queryBuilder->expr()->and(
                     $queryBuilder->expr()->neq(
-                        $switchTable . '.email',
+                        $this->tableFeUsers . '.email',
                         $queryBuilder->createNamedParameter('')
                     ),
                     // for fe_users and fe_group, only activated modulde_sys_dmail_newsletter
                     $queryBuilder->expr()->eq(
-                        $switchTable . '.module_sys_dmail_newsletter',
+                        $this->tableFeUsers . '.module_sys_dmail_newsletter',
                         1
                     )
                 )
             )
-            ->orderBy($switchTable . '.uid')
-            ->addOrderBy($switchTable . '.email');
+            ->orderBy($this->tableFeUsers . '.uid')
+            ->addOrderBy($this->tableFeUsers . '.email');
 
             $res = $queryBuilder->executeQuery();
 
@@ -184,33 +187,29 @@ class FeGroupsRepository extends MainRepository
     {
         // get all subgroups of this fe_group
         // fe_groups having this id in their subgroup field
-
-        $mmTable = 'sys_dmail_group_mm';
-        $groupTable = 'sys_dmail_group';
-
         $queryBuilder = $this->getQueryBuilder($this->table);
 
-        $queryBuilder->selectLiteral('DISTINCT fe_groups.uid')
+        $queryBuilder->selectLiteral('DISTINCT ' . $this->table. '.uid')
         ->from($this->table, $this->table)
         ->join(
             $this->table,
-            $mmTable,
-            $mmTable,
+            $this->tableSysDmailGroupMm,
+            $this->tableSysDmailGroupMm,
             $queryBuilder->expr()->eq(
-                $mmTable . '.uid_local',
+                $this->tableSysDmailGroupMm . '.uid_local',
                 $queryBuilder->quoteIdentifier($this->table . '.uid')
             )
         )
         ->join(
-            $mmTable,
-            $groupTable,
-            $groupTable,
+            $this->tableSysDmailGroupMm,
+            $this->tableSysDmailGroup,
+            $this->tableSysDmailGroup,
             $queryBuilder->expr()->eq(
-                $mmTable . '.uid_local',
-                $queryBuilder->quoteIdentifier($groupTable . '.uid')
+                $this->tableSysDmailGroupMm . '.uid_local',
+                $queryBuilder->quoteIdentifier($this->tableSysDmailGroup . '.uid')
             )
         )
-        ->andWhere('INSTR( CONCAT(\',\',fe_groups.subgroup,\',\'),\',' . $groupId . ',\' )');
+        ->andWhere('INSTR( CONCAT(\',\', ' . $this->table . '.subgroup,\',\'),\',' . $groupId . ',\' )');
 
         $res = $queryBuilder->executeQuery();
 
@@ -240,11 +239,10 @@ class FeGroupsRepository extends MainRepository
      */
     public function getIdList(array $pidArray, int $groupUid, int $cat): array
     {
-        $switchTable = 'fe_users';
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         // fe user group uid should be in list of fe users list of user groups
-        //		$field = $switchTable.'.usergroup';
+        //		$field = $this->tableFeUsers.'.usergroup';
         //		$command = $this->table.'.uid';
         // This approach, using standard SQL, does not work,
         // even when fe_users.usergroup is defined as varchar(255) instead of tinyblob
@@ -253,48 +251,48 @@ class FeGroupsRepository extends MainRepository
 
         if ($cat < 1) {
             $res = $queryBuilder
-            ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
-            ->from($switchTable, $switchTable)
+            ->selectLiteral('DISTINCT ' . $this->tableFeUsers . '.uid', $this->tableFeUsers . '.email')
+            ->from($this->tableFeUsers, $this->tableFeUsers)
             ->from($this->table, $this->table)
             ->andWhere(
                 $queryBuilder->expr()->and()
                 ->add(
                     $queryBuilder->expr()->in(
-                        'fe_groups.pid',
+                        $this->table . '.pid',
                         $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
                     )
                 )
-                ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
+                ->add('INSTR( CONCAT(\',\',' . $this->tableFeUsers . '.usergroup,\',\'),CONCAT(\',\',' . $this->table . '.uid ,\',\') )')
                 ->add(
                     $queryBuilder->expr()->neq(
-                        $switchTable . '.email',
+                        $this->tableFeUsers . '.email',
                         $queryBuilder->createNamedParameter('')
                     )
                 )
                 ->add(
                     $queryBuilder->expr()->eq(
-                        'fe_users.module_sys_dmail_newsletter',
+                        $this->tableFeUsers . '.module_sys_dmail_newsletter',
                         1
                     )
                 )
             )
-            ->orderBy($switchTable . '.uid')
-            ->addOrderBy($switchTable . '.email')
+            ->orderBy($this->tableFeUsers . '.uid')
+            ->addOrderBy($this->tableFeUsers . '.email')
             ->executeQuery();
         } else {
-            $mmTable = $GLOBALS['TCA'][$switchTable]['columns']['module_sys_dmail_category']['config']['MM'];
+            $mmTable = $GLOBALS['TCA'][$this->tableFeUsers]['columns']['module_sys_dmail_category']['config']['MM'];
             $res = $queryBuilder
-            ->selectLiteral('DISTINCT ' . $switchTable . '.uid', $switchTable . '.email')
-            ->from('sys_dmail_group', 'sys_dmail_group')
-            ->from('sys_dmail_group_category_mm', 'g_mm')
-            ->from('fe_groups', 'fe_groups')
+            ->selectLiteral('DISTINCT ' . $this->tableFeUsers . '.uid', $this->tableFeUsers . '.email')
+            ->from($this->tableSysDmailGroup, $this->tableSysDmailGroup)
+            ->from($this->tableSysDmailGroupCategoryMm, 'g_mm')
+            ->from($this->table, $this->table)
             ->from($mmTable, 'mm_1')
             ->leftJoin(
                 'mm_1',
-                $switchTable,
-                $switchTable,
+                $this->tableFeUsers,
+                $this->tableFeUsers,
                 $queryBuilder->expr()->eq(
-                    $switchTable . '.uid',
+                    $this->tableFeUsers . '.uid',
                     $queryBuilder->quoteIdentifier('mm_1.uid_local')
                 )
             )
@@ -302,11 +300,11 @@ class FeGroupsRepository extends MainRepository
                 $queryBuilder->expr()->and()
                     ->add(
                         $queryBuilder->expr()->in(
-                            'fe_groups.pid',
+                            $this->table . '.pid',
                             $queryBuilder->createNamedParameter($pidArray, Connection::PARAM_INT_ARRAY)
                         )
                     )
-                    ->add('INSTR( CONCAT(\',\',fe_users.usergroup,\',\'),CONCAT(\',\',fe_groups.uid ,\',\') )')
+                    ->add('INSTR( CONCAT(\',\',' . $this->tableFeUsers . '.usergroup,\',\'),CONCAT(\',\',' . $this->table . '.uid ,\',\') )')
                     ->add(
                         $queryBuilder->expr()->eq(
                             'mm_1.uid_foreign',
@@ -315,31 +313,31 @@ class FeGroupsRepository extends MainRepository
                     )
                     ->add(
                         $queryBuilder->expr()->eq(
-                            'sys_dmail_group.uid',
+                            $this->tableSysDmailGroup . '.uid',
                             $queryBuilder->quoteIdentifier('g_mm.uid_local')
                         )
                     )
                     ->add(
                         $queryBuilder->expr()->eq(
-                            'sys_dmail_group.uid',
+                            $this->tableSysDmailGroup . '.uid',
                             $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
                         )
                     )
                     ->add(
                         $queryBuilder->expr()->neq(
-                            $switchTable . '.email',
+                            $this->tableFeUsers . '.email',
                             $queryBuilder->createNamedParameter('')
                         )
                     )
                     ->add(
                         $queryBuilder->expr()->eq(
-                            'fe_users.module_sys_dmail_newsletter',
+                            $this->tableFeUsers . '.module_sys_dmail_newsletter',
                             1
                         )
                     )
             )
-            ->orderBy($switchTable . '.uid')
-            ->addOrderBy($switchTable . '.email')
+            ->orderBy($this->tableFeUsers . '.uid')
+            ->addOrderBy($this->tableFeUsers . '.email')
             ->executeQuery();
         }
 

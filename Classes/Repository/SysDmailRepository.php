@@ -10,7 +10,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SysDmailRepository extends MainRepository
 {
-    protected string $table = 'sys_dmail';
+    protected string $table                = 'sys_dmail';
+    protected string $tableSysDmailMaillog = 'sys_dmail_maillog';
 
     /**
      * @return array|bool
@@ -161,42 +162,47 @@ class SysDmailRepository extends MainRepository
         ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
         return $queryBuilder
-        ->selectLiteral('sys_dmail.uid', 'sys_dmail.subject', 'sys_dmail.scheduled', 'sys_dmail.scheduled_begin', 'sys_dmail.scheduled_end', 'COUNT(sys_dmail_maillog.mid) AS count')
+        ->selectLiteral($this->table . '.uid', 
+                        $this->table . '.subject', 
+                        $this->table . '.scheduled',
+                        $this->table . '.scheduled_begin', 
+                        $this->table . '.scheduled_end', 
+                        'COUNT(' . $this->tableSysDmailMaillog . '.mid) AS count')
         ->from($this->table, $this->table)
         ->leftJoin(
-            'sys_dmail',
-            'sys_dmail_maillog',
-            'sys_dmail_maillog',
+            $this->table,
+            $this->tableSysDmailMaillog,
+            $this->tableSysDmailMaillog,
             $queryBuilder->expr()->eq(
-                'sys_dmail.uid',
-                $queryBuilder->quoteIdentifier('sys_dmail_maillog.mid')
+                $this->table . '.uid',
+                $queryBuilder->quoteIdentifier($this->tableSysDmailMaillog . '.mid')
             )
         )
         ->where(
             $queryBuilder->expr()->eq(
-                'sys_dmail.pid',
+                $this->table . '.pid',
                 $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->in(
-                'sys_dmail.type',
+                $this->table . '.type',
                 $queryBuilder->createNamedParameter([0, 1], Connection::PARAM_INT_ARRAY)
             ),
             $queryBuilder->expr()->eq(
-                'sys_dmail.issent',
+                $this->table . '.issent',
                 $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
-                'sys_dmail_maillog.response_type',
+                $this->tableSysDmailMaillog . '.response_type',
                 $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->gt(
-                'sys_dmail_maillog.html_sent',
+                $this->tableSysDmailMaillog . '.html_sent',
                 $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
-        ->groupBy('sys_dmail_maillog.mid')
-        ->orderBy('sys_dmail.scheduled', 'DESC')
-        ->addOrderBy('sys_dmail.scheduled_begin', 'DESC')
+        ->groupBy($this->tableSysDmailMaillog . '.mid')
+        ->orderBy($this->table . '.scheduled', 'DESC')
+        ->addOrderBy($this->table . '.scheduled_begin', 'DESC')
         ->executeQuery()
         ->fetchAllAssociative();
     }
@@ -355,7 +361,10 @@ class SysDmailRepository extends MainRepository
             ->select('*')
             ->from($this->table)
             ->where(
-                $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter($type, Connection::PARAM_INT))
+                $queryBuilder->expr()->eq(
+                    'type', 
+                    $queryBuilder->createNamedParameter($type, Connection::PARAM_INT)
+                )
             )
             ->executeQuery()
             ->fetchAllAssociative();
@@ -369,7 +378,10 @@ class SysDmailRepository extends MainRepository
             ->select('*')
             ->from($this->table)
             ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($draftUid, Connection::PARAM_INT))
+                $queryBuilder->expr()->eq(
+                    'uid', 
+                    $queryBuilder->createNamedParameter($draftUid, Connection::PARAM_INT)
+                )
             )
             ->executeQuery()
             ->fetchAllAssociative();

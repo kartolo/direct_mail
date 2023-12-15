@@ -6,7 +6,8 @@ namespace DirectMailTeam\DirectMail\Repository;
 
 class SysLanguageRepository extends MainRepository
 {
-    protected string $table = 'sys_language';
+    protected string $table                = 'sys_language';
+    protected string $tableStaticLanguages = 'static_languages';
 
     /**
      * @return array|bool
@@ -16,20 +17,20 @@ class SysLanguageRepository extends MainRepository
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-            ->select('sys_language.uid')
+            ->select($this->table . '.uid')
             ->from($this->table)
             ->leftJoin(
                 $this->table,
-                'static_languages',
-                'static_languages',
+                $this->tableStaticLanguages,
+                $this->tableStaticLanguages,
                 $queryBuilder->expr()->eq(
-                    'sys_language.language_isocode',
-                    $queryBuilder->quoteIdentifier('static_languages.lg_typo3')
+                    $this->table . '.language_isocode',
+                    $queryBuilder->quoteIdentifier($this->tableStaticLanguages . '.lg_typo3')
                 )
             )
             ->where(
                 $queryBuilder->expr()->eq(
-                    'static_languages.lg_typo3',
+                    $this->tableStaticLanguages . '.lg_typo3',
                     $queryBuilder->createNamedParameter($lang . $sys_language . $static_languages)
                 )
             )

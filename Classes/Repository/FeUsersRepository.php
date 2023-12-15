@@ -8,7 +8,11 @@ use TYPO3\CMS\Core\Database\Connection;
 
 class FeUsersRepository extends MainRepository
 {
-    protected string $table = 'fe_users';
+    protected string $table                        = 'fe_users';
+    protected string $tablePages                   = 'pages';
+    protected string $tableSysDmailGroup           = 'sys_dmail_group';
+    protected string $tableSysDmailGroupMm         = 'sys_dmail_group_mm';
+    protected string $tableSysDmailGroupCategoryMm = 'sys_dmail_group_category_mm';
 
     /**
      * @return array|bool
@@ -22,10 +26,10 @@ class FeUsersRepository extends MainRepository
         ->from($this->table, $this->table)
         ->leftjoin(
             $this->table,
-            'pages',
-            'pages',
+            $this->tablePages,
+            $this->tablePages,
             $queryBuilder->expr()->eq(
-                'pages.uid',
+                $this->tablePages . '.uid',
                 $queryBuilder->quoteIdentifier($this->table . '.pid')
             )
         )
@@ -35,7 +39,7 @@ class FeUsersRepository extends MainRepository
                 $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
-                'pages.deleted',
+                $this->tablePages . '.deleted',
                 $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
@@ -54,7 +58,7 @@ class FeUsersRepository extends MainRepository
      * @return mixed Returns array (the record) if found, otherwise blank/0 (zero)
      * @see getPage_noCheck()
      */
-    public function getRawRecord(int $uid)
+    public function getRawRecord(int $uid) //@TOOD
     {
         if ($uid > 0) {
             $queryBuilder = $this->getQueryBuilder($this->table);
@@ -94,33 +98,33 @@ class FeUsersRepository extends MainRepository
 
         $res = $queryBuilder
         ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
-        ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
+        ->from($this->tableSysDmailGroupMm, $this->tableSysDmailGroupMm)
         ->innerJoin(
-            'sys_dmail_group_mm',
-            'sys_dmail_group',
-            'sys_dmail_group',
+            $this->tableSysDmailGroupMm,
+            $this->tableSysDmailGroup,
+            $this->tableSysDmailGroup,
             $queryBuilder->expr()->eq(
-                'sys_dmail_group_mm.uid_local',
-                $queryBuilder->quoteIdentifier('sys_dmail_group.uid')
+                $this->tableSysDmailGroupMm . '.uid_local',
+                $queryBuilder->quoteIdentifier($this->tableSysDmailGroup . '.uid')
             )
         )
         ->innerJoin(
-            'sys_dmail_group_mm',
+            $this->tableSysDmailGroupMm,
             $this->table,
             $this->table,
             $queryBuilder->expr()->eq(
-                'sys_dmail_group_mm.uid_foreign',
+                $this->tableSysDmailGroupMm . '.uid_foreign',
                 $queryBuilder->quoteIdentifier($this->table . '.uid')
             )
         )
         ->andWhere(
             $queryBuilder->expr()->and(
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group_mm.uid_local',
+                    $this->tableSysDmailGroupMm . '.uid_local',
                     $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group_mm.tablenames',
+                    $this->tableSysDmailGroupMm . '.tablenames',
                     $queryBuilder->createNamedParameter($this->table)
                 ),
                 $queryBuilder->expr()->neq(
@@ -128,7 +132,7 @@ class FeUsersRepository extends MainRepository
                     $queryBuilder->createNamedParameter('')
                 ),
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group.deleted',
+                    $this->tableSysDmailGroup . '.deleted',
                     $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
@@ -190,7 +194,7 @@ class FeUsersRepository extends MainRepository
                         $queryBuilder->createNamedParameter('')
                     ),
                     $queryBuilder->expr()->eq(
-                        'fe_users.module_sys_dmail_newsletter',
+                        $this->table . '.module_sys_dmail_newsletter',
                         1
                     )
                 )
@@ -202,8 +206,8 @@ class FeUsersRepository extends MainRepository
             $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
-            ->from('sys_dmail_group', 'sys_dmail_group')
-            ->from('sys_dmail_group_category_mm', 'g_mm')
+            ->from($this->tableSysDmailGroup, $this->tableSysDmailGroup)
+            ->from($this->tableSysDmailGroupCategoryMm, 'g_mm')
             ->from($mmTable, 'mm_1')
             ->leftJoin(
                 'mm_1',
@@ -225,11 +229,11 @@ class FeUsersRepository extends MainRepository
                         $queryBuilder->quoteIdentifier('g_mm.uid_foreign')
                     ),
                     $queryBuilder->expr()->eq(
-                        'sys_dmail_group.uid',
+                        $this->tableSysDmailGroup . '.uid',
                         $queryBuilder->quoteIdentifier('g_mm.uid_local')
                     ),
                     $queryBuilder->expr()->eq(
-                        'sys_dmail_group.uid',
+                        $this->tableSysDmailGroup . '.uid',
                         $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
                     ),
                     $queryBuilder->expr()->neq(
@@ -237,7 +241,7 @@ class FeUsersRepository extends MainRepository
                         $queryBuilder->createNamedParameter('')
                     ),
                     $queryBuilder->expr()->eq(
-                        'fe_users.module_sys_dmail_newsletter',
+                        $this->table . '.module_sys_dmail_newsletter',
                         1
                     )
                 )

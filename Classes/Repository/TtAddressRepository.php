@@ -12,7 +12,11 @@ use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 
 class TtAddressRepository extends MainRepository
 {
-    protected string $table = 'tt_address';
+    protected string $table                        = 'tt_address';
+    protected string $tablePages                   = 'pages';
+    protected string $tableSysDmailGroup           = 'sys_dmail_group';
+    protected string $tableSysDmailGroupMm         = 'sys_dmail_group_mm';
+    protected string $tableSysDmailGroupCategoryMm = 'sys_dmail_group_category_mm';
 
     /**
      * @return array|bool
@@ -26,10 +30,10 @@ class TtAddressRepository extends MainRepository
         ->from($this->table, $this->table)
         ->leftjoin(
             $this->table,
-            'pages',
-            'pages',
+            $this->tablePages,
+            $this->tablePages,
             $queryBuilder->expr()->eq(
-                'pages.uid',
+                $this->tablePages . '.uid',
                 $queryBuilder->quoteIdentifier($this->table . '.pid')
             )
         )
@@ -39,7 +43,7 @@ class TtAddressRepository extends MainRepository
                 $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
             ),
             $queryBuilder->expr()->eq(
-                'pages.deleted',
+                $this->tablePages . '.deleted',
                 $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
             )
         )
@@ -91,10 +95,10 @@ class TtAddressRepository extends MainRepository
         ->from($this->table)
         ->leftJoin(
             $this->table,
-            'pages',
-            'pages',
+            $this->tablePages,
+            $this->tablePages,
             $queryBuilder->expr()->eq(
-                'pages.uid',
+                $this->tablePages . '.uid',
                 $queryBuilder->quoteIdentifier($this->table . '.pid')
             )
         )
@@ -123,10 +127,10 @@ class TtAddressRepository extends MainRepository
         ->from($this->table, 'a')
         ->leftJoin(
             'a',
-            'pages',
-            'pages',
+            $this->tablePages,
+            $this->tablePages,
             $queryBuilder->expr()->eq(
-                'pages.uid',
+                $this->tablePages . '.uid',
                 $queryBuilder->quoteIdentifier('a.pid')
             )
         )
@@ -175,6 +179,7 @@ class TtAddressRepository extends MainRepository
             $queryBuilder = $this->getQueryBuilder($this->table);
             $queryBuilder->select('*')->from($this->table);
 
+            //@TODO composer.json "friendsoftypo3/tt-address": "^7.1 || ^8.0"
             if ($v <= VersionNumberUtility::convertVersionNumberToInteger('6.0.0')) {
                 $queryBuilder->where(
                     $queryBuilder->expr()->eq(
@@ -218,33 +223,33 @@ class TtAddressRepository extends MainRepository
 
         $queryBuilder
         ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
-        ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
+        ->from($this->tableSysDmailGroupMm, $this->tableSysDmailGroupMm)
         ->innerJoin(
-            'sys_dmail_group_mm',
-            'sys_dmail_group',
-            'sys_dmail_group',
+            $this->tableSysDmailGroupMm,
+            $this->tableSysDmailGroup,
+            $this->tableSysDmailGroup,
             $queryBuilder->expr()->eq(
-                'sys_dmail_group_mm.uid_local',
-                $queryBuilder->quoteIdentifier('sys_dmail_group.uid')
+                $this->tableSysDmailGroupMm . '.uid_local',
+                $queryBuilder->quoteIdentifier($this->tableSysDmailGroup . '.uid')
             )
         )
         ->innerJoin(
-            'sys_dmail_group_mm',
+            $this->tableSysDmailGroupMm,
             $this->table,
             $this->table,
             $queryBuilder->expr()->eq(
-                'sys_dmail_group_mm.uid_foreign',
+                $this->tableSysDmailGroupMm . '.uid_foreign',
                 $queryBuilder->quoteIdentifier($this->table . '.uid')
             )
         )
         ->andWhere(
             $queryBuilder->expr()->and(
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group_mm.uid_local',
+                    $this->tableSysDmailGroupMm . '.uid_local',
                     $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group_mm.tablenames',
+                    $this->tableSysDmailGroupMm . '.tablenames',
                     $queryBuilder->createNamedParameter($this->table)
                 ),
                 $queryBuilder->expr()->neq(
@@ -252,7 +257,7 @@ class TtAddressRepository extends MainRepository
                     $queryBuilder->createNamedParameter('')
                 ),
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group.deleted',
+                    $this->tableSysDmailGroup . '.deleted',
                     $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
             )
@@ -311,8 +316,8 @@ class TtAddressRepository extends MainRepository
             $mmTable = $GLOBALS['TCA'][$this->table]['columns']['module_sys_dmail_category']['config']['MM'];
             $res = $queryBuilder
             ->selectLiteral('DISTINCT ' . $this->table . '.uid', $this->table . '.email')
-            ->from('sys_dmail_group', 'sys_dmail_group')
-            ->from('sys_dmail_group_category_mm', 'g_mm')
+            ->from($this->tableSysDmailGroup, $this->tableSysDmailGroup)
+            ->from($this->tableSysDmailGroupCategoryMm, 'g_mm')
             ->from($mmTable, 'mm_1')
             ->leftJoin(
                 'mm_1',
@@ -334,11 +339,11 @@ class TtAddressRepository extends MainRepository
                         $queryBuilder->quoteIdentifier('g_mm.uid_foreign')
                     ),
                     $queryBuilder->expr()->eq(
-                        'sys_dmail_group.uid',
+                        $this->tableSysDmailGroup . '.uid',
                         $queryBuilder->quoteIdentifier('g_mm.uid_local')
                     ),
                     $queryBuilder->expr()->eq(
-                        'sys_dmail_group.uid',
+                        $this->tableSysDmailGroup . '.uid',
                         $queryBuilder->createNamedParameter($groupUid, Connection::PARAM_INT)
                     ),
                     $queryBuilder->expr()->neq(

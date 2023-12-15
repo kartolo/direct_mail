@@ -8,7 +8,8 @@ use TYPO3\CMS\Core\Database\Connection;
 
 class SysDmailCategoryRepository extends MainRepository
 {
-    protected string $table = 'sys_dmail_category';
+    protected string $table                            = 'sys_dmail_category';
+    protected string $tableSysDmailTtcontentCategoryMm = 'sys_dmail_ttcontent_category_mm';
 
     /**
      * @return array|bool
@@ -31,28 +32,24 @@ class SysDmailCategoryRepository extends MainRepository
 
     public function selectSysDmailCategoryForContainer(int $uid) //: array|bool
     {
-        $select = $this->table . '.uid';
-        $mmTable = 'sys_dmail_ttcontent_category_mm';
-        $orderBy = $this->table . '.uid';
-
         $queryBuilder = $this->getQueryBuilder($this->table);
         return $queryBuilder
-            ->select($select)
+            ->select($this->table . '.uid')
             ->from($this->table)
-            ->from($mmTable)
+            ->from($this->tableSysDmailTtcontentCategoryMm)
             ->where(
                 $queryBuilder->expr()->eq(
                     $this->table . '.uid',
-                    $mmTable . '.uid_foreign'
+                    $this->tableSysDmailTtcontentCategoryMm . '.uid_foreign'
                 )
             )
             ->andWhere(
                 $queryBuilder->expr()->in(
-                    $mmTable . '.uid_local',
+                    $this->tableSysDmailTtcontentCategoryMm . '.uid_local',
                     $uid
                 )
             )
-            ->orderBy($orderBy)
+            ->orderBy($this->table . '.uid')
             ->executeQuery()
             ->fetchAllAssociative();
     }
