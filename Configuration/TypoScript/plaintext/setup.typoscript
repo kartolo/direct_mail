@@ -23,10 +23,19 @@ plugin.tx_directmail_pi1 {
   header.date = D-m-Y
   header.datePrefix = |###HEADER_DATE_PREFIX### |
   header.linkPrefix = | ###HEADER_LINK_PREFIX### |
+
+  header.1.prefix = ||
+  header.1.preLineChar =
   header.1.preLineLen = 76
+  header.1.postLineChar =
   header.1.postLineLen = 76
+  header.1.preLineBlanks = 0
+  header.1.postLineBlanks = 0
   header.1.preBlanks=1
+  header.1.postBlanks = 0
   header.1.stdWrap.case = upper
+  header.1.removeSplitChar =
+  header.1.autonumber = 0
 
   header.2 < .header.1
   header.2.preLineChar=*
@@ -75,6 +84,7 @@ plugin.tx_directmail_pi1 {
   shortcut.0.tables = tt_content
 
   bodytext.doubleLF = {$plugin.tx_directmail_pi1.doubleLF}
+  bodytext.header =
   bodytext.stdWrap.parseFunc.tags {
     link < styles.content.parseFunc.tags.link
     typolist = USER
