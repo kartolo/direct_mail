@@ -297,7 +297,7 @@ class TempRepository extends MainRepository
         int $sys_language_content): array
     {
         if ($row['uid'] > 0 && $row['pid'] > 0) {
-            if ($GLOBALS['TCA'][$table] && $GLOBALS['TCA'][$table]['ctrl']['languageField']) {
+            if ($GLOBALS['TCA'][$table] && $GLOBALS['TCA'][$table]['ctrl']['languageField'] && $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']) {
                 // Will try to overlay a record only
                 // if the sys_language_content value is larger that zero.
                 if ($sys_language_content > 0) {
