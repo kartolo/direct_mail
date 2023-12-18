@@ -15,11 +15,9 @@ namespace DirectMailTeam\DirectMail;
  * The TYPO3 project - inspiring people to share!
  */
 
-use DirectMailTeam\DirectMail\Repository\SysLanguageRepository;
 use DirectMailTeam\DirectMail\Repository\TempRepository;
-use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -38,23 +36,18 @@ class SelectCategories
      */
     public function getLocalizedCategories(array &$params): void
     {
-        $sys_language_uid = 0;
+        $sysLanguageUid = 0;
         $lang = $this->getLang();
-        if ($lang && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-            $sysPage = GeneralUtility::makeInstance(PageRepository::class);
-            $rows = GeneralUtility::makeInstance(SysLanguageRepository::class)->selectSysLanguageForSelectCategories(
-                $lang,
-                $sysPage->enableFields('sys_language'),
-                $sysPage->enableFields('static_languages')
-            );
-            if (is_array($rows)) {
-                foreach ($rows as $row) {
-                    $sys_language_uid = (int)$row['uid'];
-                }
+
+        $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+        $site = $siteFinder->getSiteByPageId($params['row']['pid']);
+        $languages = $site->getAllLanguages();
+        foreach($languages as $language) {
+            if($language->getTwoLetterIsoCode() == $lang) {
+                $sysLanguageUid = $language->getLanguageId();
             }
         }
 
-        //@TODO Where can you find 'sys_language_uid' without 'static_info_tables'?
         if (is_array($params['items']) && !empty($params['items'])) {
             $table = (string)$params['config']['itemsProcFunc_config']['table'];
             $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
