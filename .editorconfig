@@ -18,7 +18,7 @@ indent_size = 2
 
 # JSON-Files
 [*.json]
-indent_style = tab
+indent_size = 2
 
 # ReST-Files
 [*.rst]
@@ -33,10 +33,6 @@ indent_size = 2
 [*.neon]
 indent_size = 2
 indent_style = tab
-
-# package.json
-[package.json]
-indent_size = 2
 
 # TypoScript
 [*.{typoscript,tsconfig}]

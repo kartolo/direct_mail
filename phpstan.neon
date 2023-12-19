@@ -1,0 +1,24 @@
+parameters:
+  parallel:
+      # Don't be overly greedy on machines with more CPU's to be a good neighbor especially on CI
+      maximumNumberOfProcesses: 5
+
+  level: 3
+
+  bootstrapFiles:
+    - .Build/vendor/autoload.php
+
+  paths:
+    - Classes
+    - Configuration
+    - Tests
+
+  scanDirectories:
+    - Classes
+    - Configuration
+    - Tests
+
+  type_coverage:
+      return_type: 100
+      param_type: 100
+      property_type: 95
