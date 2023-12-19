@@ -43,7 +43,7 @@ class SelectCategories
         $site = $siteFinder->getSiteByPageId($params['row']['pid']);
         $languages = $site->getAllLanguages();
         foreach($languages as $language) {
-            if($language->getTwoLetterIsoCode() == $lang) {
+            if($language->getLocale()->getLanguageCode() == $lang) {
                 $sysLanguageUid = $language->getLanguageId();
             }
         }
