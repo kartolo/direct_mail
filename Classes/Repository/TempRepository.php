@@ -22,7 +22,10 @@ class TempRepository extends MainRepository
      *
      * @return array recipients' data
      */
-    public function fetchRecordsListValues(array $listArr, string $table, array $fields = ['uid', 'name', 'email']): array
+    public function fetchRecordsListValues(
+        array $listArr, 
+        string $table, 
+        array $fields = ['uid', 'name', 'email']): array
     {
         $outListArr = [];
         if (is_array($listArr) && count($listArr)) {
@@ -163,37 +166,40 @@ class TempRepository extends MainRepository
      */
     public function getStaticIdList(string $table, int $uid): array
     {
+        $tableSysDmailGroup = 'sys_dmail_group';
+        $tableSysDmailGroupMm = 'sys_dmail_group_mm';
+
         $queryBuilder = $this->getQueryBuilder($table);
 
         $res = $queryBuilder
         ->selectLiteral('DISTINCT ' . $table . '.uid', $table . '.email')
-        ->from('sys_dmail_group_mm', 'sys_dmail_group_mm')
+        ->from($tableSysDmailGroupMm, $tableSysDmailGroupMm)
         ->innerJoin(
-            'sys_dmail_group_mm',
-            'sys_dmail_group',
-            'sys_dmail_group',
+            $tableSysDmailGroupMm,
+            $tableSysDmailGroup,
+            $tableSysDmailGroup,
             $queryBuilder->expr()->eq(
-                'sys_dmail_group_mm.uid_local',
-                $queryBuilder->quoteIdentifier('sys_dmail_group.uid')
+                $tableSysDmailGroupMm . '.uid_local',
+                $queryBuilder->quoteIdentifier($tableSysDmailGroup . '.uid')
             )
         )
         ->innerJoin(
-            'sys_dmail_group_mm',
+            $tableSysDmailGroupMm,
             $table,
             $table,
             $queryBuilder->expr()->eq(
-                'sys_dmail_group_mm.uid_foreign',
+                $tableSysDmailGroupMm . '.uid_foreign',
                 $queryBuilder->quoteIdentifier($table . '.uid')
             )
         )
         ->andWhere(
             $queryBuilder->expr()->and(
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group_mm.uid_local',
+                    $tableSysDmailGroupMm . '.uid_local',
                     $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group_mm.tablenames',
+                    $tableSysDmailGroupMm . '.tablenames',
                     $queryBuilder->createNamedParameter($table)
                 ),
                 $queryBuilder->expr()->neq(
@@ -201,7 +207,7 @@ class TempRepository extends MainRepository
                     $queryBuilder->createNamedParameter('')
                 ),
                 $queryBuilder->expr()->eq(
-                    'sys_dmail_group.deleted',
+                    $tableSysDmailGroup . '.deleted',
                     $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
                 )
             )
