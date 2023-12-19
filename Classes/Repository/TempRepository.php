@@ -259,25 +259,65 @@ class TempRepository extends MainRepository
         $categories = [];
 
         $mmField = $table == 'sys_dmail_group' ? 'select_categories' : 'module_sys_dmail_category';
+        $tableSysDmailCategory = 'sys_dmail_category';
 
         $pageTsConfig = BackendUtility::getTCEFORM_TSconfig($table, $row);
         if (is_array($pageTsConfig[$mmField])) {
             $pidList = $pageTsConfig[$mmField]['PAGE_TSCONFIG_IDLIST'] ?? [];
             if ($pidList) {
-                $queryBuilder = $this->getQueryBuilder('sys_dmail_category');
-                $res = $queryBuilder->select('*')
-                ->from('sys_dmail_category')
-                ->add('where', 'sys_dmail_category.pid IN (' . str_replace(',', "','", $queryBuilder->createNamedParameter($pidList)) . ')' .
-                    ' AND l18n_parent=0')
-                ->executeQuery();
+                $pidList = GeneralUtility::intExplode(',', $pidList);
+                $queryBuilder = $this->getQueryBuilder($tableSysDmailCategory);
+                $queryBuilder->select('*')
+                ->from($tableSysDmailCategory)
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'l18n_parent', 
+                        $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                    ),
+                    $queryBuilder->expr()->in(
+                        $tableSysDmailCategory . '.pid',
+                        $queryBuilder->createNamedParameter($pidList, Connection::PARAM_INT_ARRAY)
+                    )
+                );
+
+                $res = $queryBuilder->executeQuery();
+
                 while ($rowCat = $res->fetchAssociative()) {
-                    if ($localizedRowCat = $this->getRecordOverlay('sys_dmail_category', $rowCat, $sysLanguageUid)) {
+                    if ($localizedRowCat = $this->getRecordOverlay($tableSysDmailCategory, $rowCat, $sysLanguageUid)) {
                         $categories[$localizedRowCat['uid']] = htmlspecialchars($localizedRowCat['category']);
                     }
                 }
             }
         }
+
         return $categories;
+    }
+
+    protected function selectByMultipleCondition(
+        string $table, 
+        array $row, 
+        int $sysLanguageUid,
+        array $tcaTable
+    ) {
+        $queryBuilder = $this->getQueryBuilder($table);
+        $queryBuilder->select('*')
+        ->from($table)
+        ->where(
+            $queryBuilder->expr()->eq(
+                'pid', 
+                $queryBuilder->createNamedParameter($row['pid'], Connection::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                $tcaTable['ctrl']['languageField'], 
+                $queryBuilder->createNamedParameter($sysLanguageUid, Connection::PARAM_INT)
+            ),
+            $queryBuilder->expr()->eq(
+                $tcaTable['ctrl']['transOrigPointerField'], 
+                $queryBuilder->createNamedParameter($row['uid'], Connection::PARAM_INT)
+            )
+        )
+        ->setMaxResults(1); /* LIMIT 1*/
+        return $queryBuilder->executeQuery()->fetchAssociative();
     }
 
     /**
@@ -287,57 +327,51 @@ class TempRepository extends MainRepository
      *
      * @param string $table Table name
      * @param array $row Record to overlay. Must contain uid, pid and languageField
-     * @param int $sys_language_content Language ID of the content
+     * @param int $sysLanguageUid Language ID of the content
      *
-     * @return mixed Returns the input record, possibly overlaid with a translation.
+     * @return array Returns the input record, possibly overlaid with a translation.
      */
     public function getRecordOverlay(
         string $table,
         array $row,
-        int $sys_language_content): array
+        int $sysLanguageUid): array
     {
         if ($row['uid'] > 0 && $row['pid'] > 0) {
-            if ($GLOBALS['TCA'][$table] && $GLOBALS['TCA'][$table]['ctrl']['languageField'] && $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']) {
+            $tcaTable = $GLOBALS['TCA'][$table] ?? false;
+            if ($tcaTable && $tcaTable['ctrl']['languageField'] && $tcaTable['ctrl']['transOrigPointerField']) {
                 // Will try to overlay a record only
-                // if the sys_language_content value is larger that zero.
-                if ($sys_language_content > 0) {
+                // if the sysLanguageUid value is larger that zero.
+                if ($sysLanguageUid > 0) {
                     // Must be default language or [All], otherwise no overlaying:
-                    if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] <= 0) {
+                    if ($row[$tcaTable['ctrl']['languageField']] <= 0) {
                         // Select overlay record:
-                        $queryBuilder = $this->getQueryBuilder($table);
-                        $queryBuilder->select('*')
-                        ->from($table)
-                        ->where(
-                            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($row['pid'], Connection::PARAM_INT)),
-                            $queryBuilder->expr()->eq($GLOBALS['TCA'][$table]['ctrl']['languageField'], $queryBuilder->createNamedParameter($sys_language_content, Connection::PARAM_INT)),
-                            $queryBuilder->expr()->eq($GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'], $queryBuilder->createNamedParameter($row['uid'], Connection::PARAM_INT))
-                        )
-                        ->setMaxResults(1); /* LIMIT 1*/
-                        $olrow = $queryBuilder->executeQuery()->fetchAssociative();
+                        $olrow = $this->selectByMultipleCondition($table, $row, $sysLanguageUid, $tcaTable);
 
                         // Merge record content by traversing all fields:
                         if (is_array($olrow)) {
                             foreach ($row as $fN => $fV) {
                                 if ($fN != 'uid' && $fN != 'pid' && isset($olrow[$fN])) {
-                                    if(!isset($GLOBALS['TCA'][$table]['l10n_mode'][$fN]) && strcmp(trim((string)$olrow[$fN]), '')) {
+                                    if(!isset($tcaTable['l10n_mode'][$fN]) && strcmp(trim((string)$olrow[$fN]), '')) {
                                         $row[$fN] = $olrow[$fN];
                                     }
-                                    elseif (isset($GLOBALS['TCA'][$table]['l10n_mode'][$fN]) && $GLOBALS['TCA'][$table]['l10n_mode'][$fN] != 'exclude' && ($GLOBALS['TCA'][$table]['l10n_mode'][$fN] != 'mergeIfNotBlank' || strcmp(trim((string)$olrow[$fN]), ''))) {
+                                    elseif (isset($tcaTable['l10n_mode'][$fN]) && $tcaTable['l10n_mode'][$fN] != 'exclude' 
+                                        && ($tcaTable['l10n_mode'][$fN] != 'mergeIfNotBlank' || strcmp(trim((string)$olrow[$fN]), ''))
+                                    ) {
                                         $row[$fN] = $olrow[$fN];
                                     }
                                 }
                             }
                         }
 
-                    // Otherwise, check if sys_language_content is different from the value of the record
+                    // Otherwise, check if sysLanguageUid is different from the value of the record
                     // that means a japanese site might try to display french content.
-                    } elseif ($sys_language_content != $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']]) {
+                    } elseif ($sysLanguageUid != $row[$tcaTable['ctrl']['languageField']]) {
                         unset($row);
                     }
                 } else {
                     // When default language is displayed,
                     // we never want to return a record carrying another language!:
-                    if ($row[$GLOBALS['TCA'][$table]['ctrl']['languageField']] > 0) {
+                    if ($row[$tcaTable['ctrl']['languageField']] > 0) {
                         unset($row);
                     }
                 }
