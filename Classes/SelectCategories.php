@@ -55,7 +55,7 @@ class SelectCategories
                 $rows = $tempRepository->selectRowsByUid($table, (int)$item[1]);
                 if (is_array($rows)) {
                     foreach ($rows as $rowCat) {
-                        if ($localizedRowCat = $tempRepository->getRecordOverlay($table, $rowCat, $sys_language_uid)) {
+                        if ($localizedRowCat = $tempRepository->getRecordOverlay($table, $rowCat, $sysLanguageUid)) {
                             if(count($localizedRowCat)) {
                                 $params['items'][$k][0] = $localizedRowCat['category'];
                             }
