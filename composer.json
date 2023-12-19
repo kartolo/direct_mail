@@ -1,48 +1,52 @@
 {
-  "name": "directmailteam/direct-mail",
-  "type": "typo3-cms-extension",
-  "description": "Advanced Direct Mail/Newsletter mailer system with sophisticated options for personalization of emails including response statistics.",
-  "keywords": [
-    "TYPO3",
-    "extension",
-    "directmail",
-    "newsletter"
-  ],
-  "homepage": "https://github.com/kartolo/direct_mail",
-  "authors": [
-    {
-      "name": "Ivan Kartolo",
-      "role": "Developer"
-    }
-  ],
-  "license": [
-    "GPL-2.0-or-later"
-  ],
-  "support": {
-    "issues": "https://github.com/kartolo/direct_mail/issues"
-  },
-  "require": {
-    "typo3/cms-core": "^11.5",
-    "typo3/cms-dashboard": "^11.5",
+	"name": "directmailteam/direct-mail",
+	"type": "typo3-cms-extension",
+	"description": "Advanced Direct Mail/Newsletter mailer system with sophisticated options for personalization of emails including response statistics.",
+	"keywords": [
+		"TYPO3",
+		"extension",
+		"directmail",
+		"newsletter"
+	],
+	"homepage": "https://github.com/kartolo/direct_mail",
+	"authors": [
+		{
+			"name": "Ivan Kartolo",
+			"role": "Developer"
+		}
+	],
+	"license": [
+		"GPL-2.0-or-later"
+	],
+	"support": {
+		"issues": "https://github.com/kartolo/direct_mail/issues"
+	},
+	"require": {
+		"typo3/cms-core": "^11.5",
 	  "php": "^7.4 || ^8.0 || ^8.1 || ^8.2",
-    "friendsoftypo3/tt-address": "^6.0 || ^7.0 || ^8.0",
-    "tedivm/fetch": "0.7.*"
-  },
-  "require-dev": {
-    "roave/security-advisories": "dev-master"
-  },
-  "minimum-stability": "dev",
-  "autoload": {
-    "psr-4": {
-      "DirectMailTeam\\DirectMail\\": "Classes"
-    }
-  },
-  "replace": {
-    "typo3-ter/direct-mail": "self.version"
-  },
-  "extra": {
-    "typo3/cms": {
-      "extension-key": "direct_mail"
-    }
-  }
+		"friendsoftypo3/tt-address": "^6.0 || ^7.0 || ^8.0",
+		"tedivm/fetch": "0.7.*"
+	},
+	"require-dev": {
+		"roave/security-advisories": "dev-master"
+	},
+	"suggest": {
+		"typo3/cms-dashboard": "^11.5",
+		"friendsoftypo3/rdct": "^2.1",
+		"friendsoftypo3/jumpurl": "^8.1"
+	},
+	"minimum-stability": "dev",
+	"autoload": {
+		"psr-4": {
+			"DirectMailTeam\\DirectMail\\": "Classes"
+		}
+	},
+	"replace": {
+		"typo3-ter/direct-mail": "self.version"
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "direct_mail"
+		}
+	}
 }
