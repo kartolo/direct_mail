@@ -34,7 +34,6 @@
     }
   },
   "replace": {
-    "directmailteam/direct-mail": "self.version",
     "typo3-ter/direct-mail": "self.version"
   },
   "extra": {
