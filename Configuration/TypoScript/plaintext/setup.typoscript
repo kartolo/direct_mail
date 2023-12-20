@@ -12,23 +12,6 @@ lib.contentElement {
 }
 [global]
 
-lib.plaintextHeader = COA
-lib.plaintextHeader {
-  10 = USER
-  10 {
-    userFunc = DirectMailTeam\DirectMail\Plugin\DirectMail->main
-  }
-}
-lib.plaintextText < lib.plaintextHeader
-lib.plaintextTextpic < lib.plaintextHeader
-lib.plaintextTextmedia < lib.plaintextHeader
-lib.plaintextImage < lib.plaintextHeader
-lib.plaintextUploads < lib.plaintextHeader
-lib.plaintextShortcut < lib.plaintextHeader
-lib.plaintextBullets < lib.plaintextHeader
-lib.plaintextTable < lib.plaintextHeader
-lib.plaintextHTML < lib.plaintextHeader
-
 plugin.tx_directmail_pi1 = USER
 plugin.tx_directmail_pi1 {
   userFunc = DirectMailTeam\DirectMail\Plugin\DirectMail->main
@@ -40,10 +23,19 @@ plugin.tx_directmail_pi1 {
   header.date = D-m-Y
   header.datePrefix = |###HEADER_DATE_PREFIX### |
   header.linkPrefix = | ###HEADER_LINK_PREFIX### |
+
+  header.1.prefix = ||
+  header.1.preLineChar =
   header.1.preLineLen = 76
+  header.1.postLineChar =
   header.1.postLineLen = 76
+  header.1.preLineBlanks = 0
+  header.1.postLineBlanks = 0
   header.1.preBlanks=1
+  header.1.postBlanks = 0
   header.1.stdWrap.case = upper
+  header.1.removeSplitChar =
+  header.1.autonumber = 0
 
   header.2 < .header.1
   header.2.preLineChar=*
@@ -92,6 +84,7 @@ plugin.tx_directmail_pi1 {
   shortcut.0.tables = tt_content
 
   bodytext.doubleLF = {$plugin.tx_directmail_pi1.doubleLF}
+  bodytext.header =
   bodytext.stdWrap.parseFunc.tags {
     link < styles.content.parseFunc.tags.link
     typolist = USER
@@ -107,6 +100,21 @@ plugin.tx_directmail_pi1 {
     typocode.siteUrl = {$plugin.tx_directmail_pi1.siteUrl}
   }
 }
+
+lib.plaintextHeader = COA
+lib.plaintextHeader {
+  10 < plugin.tx_directmail_pi1
+}
+lib.plaintextText < lib.plaintextHeader
+lib.plaintextTextpic < lib.plaintextHeader
+lib.plaintextTextmedia < lib.plaintextHeader
+lib.plaintextImage < lib.plaintextHeader
+lib.plaintextUploads < lib.plaintextHeader
+lib.plaintextShortcut < lib.plaintextHeader
+lib.plaintextBullets < lib.plaintextHeader
+lib.plaintextTable < lib.plaintextHeader
+lib.plaintextHTML < lib.plaintextHeader
+
 
 tx_directmail_pi1 >
 tx_directmail_pi1 = PAGE
