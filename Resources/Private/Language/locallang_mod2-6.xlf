@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-	<file source-language="en" datatype="plaintext" original="EXT:direct_mail/Resources/Private/Language/Modules/locallang_mod2-6.xlf" date="2022-01-29T12:00:00Z" product-name="direct_mail">
-		<header>
-			<description>Labels for the main Direct Mail module</description>
-			<type>module</type>
-			<authorName>Ivan Kartolo</authorName>
-			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
-		</header>
+	<file source-language="en" datatype="plaintext"
+		  original="EXT:direct_mail/Resources/Private/Language/Modules/locallang_mod2-6.xlf" date="2022-01-29T12:00:00Z"
+		  product-name="direct_mail">
+		<header/>
 		<body>
 			<trans-unit id="configure_HTMLParams_description" resname="configure_HTMLParams_description">
 				<source>Enter the additional URL parameters used to fetch the HTML content from a TYPO3 page.</source>
 			</trans-unit>
 			<trans-unit id="configure_HTMLParams_details" resname="configure_HTMLParams_details">
-				<source>The specified parameters will be added to the URL used to fetch the HTML content of the direct mail from a TYPO3 page. If in doubt, leave it blank.</source>
+				<source>The specified parameters will be added to the URL used to fetch the HTML content of the direct
+					mail from a TYPO3 page. If in doubt, leave it blank.
+				</source>
 			</trans-unit>
 			<trans-unit id="configure_default_content" resname="configure_default_content">
 				<source>Default values for mail content format</source>
@@ -29,13 +28,17 @@
 			<trans-unit id="configure_directmail_charset" resname="configure_directmail_charset">
 				<source>Default character set for direct mails built from external pages</source>
 			</trans-unit>
-			<trans-unit id="configure_directmail_charset_description" resname="configure_directmail_charset_description">
-				<source>Specify the character set used in direct mails when they are built from external pages and character set cannot be auto-detected.</source>
+			<trans-unit id="configure_directmail_charset_description"
+						resname="configure_directmail_charset_description">
+				<source>Specify the character set used in direct mails when they are built from external pages and
+					character set cannot be auto-detected.
+				</source>
 			</trans-unit>
 			<trans-unit id="configure_directmail_encoding" resname="configure_directmail_encoding">
 				<source>Default encoding of direct mails</source>
 			</trans-unit>
-			<trans-unit id="configure_directmail_encoding_description" resname="configure_directmail_encoding_description">
+			<trans-unit id="configure_directmail_encoding_description"
+						resname="configure_directmail_encoding_description">
 				<source>Select the default content transfer encoding of direct mails.</source>
 			</trans-unit>
 			<trans-unit id="configure_html_only" resname="configure_html_only">
@@ -53,15 +56,17 @@
 			<trans-unit id="configure_http_username_description" resname="configure_http_username_description">
 				<source>If mail content is protected by HTTP authentication, enter the username here.</source>
 			</trans-unit>
-			<trans-unit id="configure_http_username_details" resname="configure_http_username_details" xml:space="preserve">
+			<trans-unit id="configure_http_username_details" resname="configure_http_username_details"
+						xml:space="preserve">
 				<source><![CDATA[The username and password is used to fetch mail content. They are NOT sent in the mail!
 	If you do not specify a username and password and the newsletter pages happen to be protected, an error will occur and no mail content will be fetched.]]></source>
 			</trans-unit>
 			<trans-unit id="configure_jumpurl_tracking_privacy" resname="configure_jumpurl_tracking_privacy">
 				<source>Privacy jumpurl</source>
 			</trans-unit>
-			<trans-unit id="configure_jumpurl_tracking_privacy_description" resname="configure_jumpurl_tracking_privacy_description">
-				<source>Set this option, to anonymize click statistics </source>
+			<trans-unit id="configure_jumpurl_tracking_privacy_description"
+						resname="configure_jumpurl_tracking_privacy_description">
+				<source>Set this option, to anonymize click statistics</source>
 			</trans-unit>
 			<trans-unit id="configure_options_additional" resname="configure_options_additional">
 				<source>Additional module options</source>
@@ -75,23 +80,31 @@
 			<trans-unit id="configure_options_links_jumpurl" resname="configure_options_links_jumpurl">
 				<source>Enable jump URL's:</source>
 			</trans-unit>
-			<trans-unit id="configure_options_links_jumpurl_description" resname="configure_options_links_jumpurl_description">
+			<trans-unit id="configure_options_links_jumpurl_description"
+						resname="configure_options_links_jumpurl_description">
 				<source>Check this option to enable jump URL's and the collection of click statistics.</source>
 			</trans-unit>
 			<trans-unit id="configure_options_links_rdct" resname="configure_options_links_rdct">
-				<source>This configuration determines how QuickMails are handled and further sets the default value for Direct Mails.</source>
+				<source>This configuration determines how QuickMails are handled and further sets the default value for
+					Direct Mails.
+				</source>
 			</trans-unit>
 			<trans-unit id="configure_options_mailto_jumpurl" resname="configure_options_mailto_jumpurl">
 				<source>Enable jump URL's for mailto links:</source>
 			</trans-unit>
-			<trans-unit id="configure_options_mailto_jumpurl_description" resname="configure_options_mailto_jumpurl_description">
+			<trans-unit id="configure_options_mailto_jumpurl_description"
+						resname="configure_options_mailto_jumpurl_description">
 				<source>Check this option to enable jump URL's for mailto links.</source>
 			</trans-unit>
 			<trans-unit id="configure_plainParams_description" resname="configure_plainParams_description">
-				<source>Enter the additional URL parameters used to fetch the plain text content from a TYPO3 page.</source>
+				<source>Enter the additional URL parameters used to fetch the plain text content from a TYPO3 page.
+				</source>
 			</trans-unit>
 			<trans-unit id="configure_plainParams_details" resname="configure_plainParams_details">
-				<source>The specified parameters will be added to the URL used to fetch the plain text content of the direct mail from a TYPO3 page. If in doubt, set it either to '&amp;type=99' or, when using TemplaVoila, to '&amp;print=1'.</source>
+				<source>The specified parameters will be added to the URL used to fetch the plain text content of the
+					direct mail from a TYPO3 page. If in doubt, set it either to '&amp;type=99' or, when using
+					TemplaVoila, to '&amp;print=1'.
+				</source>
 			</trans-unit>
 			<trans-unit id="configure_plain_and_html" resname="configure_plain_and_html">
 				<source>Plain text and HTML</source>
@@ -117,30 +130,42 @@
 			<trans-unit id="configure_quickmail_encoding" resname="configure_quickmail_encoding">
 				<source>Encoding for quick mails</source>
 			</trans-unit>
-			<trans-unit id="configure_quickmail_encoding_description" resname="configure_quickmail_encoding_description">
+			<trans-unit id="configure_quickmail_encoding_description"
+						resname="configure_quickmail_encoding_description">
 				<source>Select the content transfer encoding to use when sending quick mails.</source>
 			</trans-unit>
 			<trans-unit id="configure_simulate_usergroup" resname="configure_simulate_usergroup">
 				<source>Frontend User Group</source>
 			</trans-unit>
-			<trans-unit id="configure_simulate_usergroup_description" resname="configure_simulate_usergroup_description">
-				<source>If mail content is protected by Frontend user authentication, enter the user group here.</source>
+			<trans-unit id="configure_simulate_usergroup_description"
+						resname="configure_simulate_usergroup_description">
+				<source>If mail content is protected by Frontend user authentication, enter the user group here.
+				</source>
 			</trans-unit>
-			<trans-unit id="configure_simulate_usergroup_details" resname="configure_simulate_usergroup_details" xml:space="preserve">
+			<trans-unit id="configure_simulate_usergroup_details" resname="configure_simulate_usergroup_details"
+						xml:space="preserve">
 				<source><![CDATA[The usergroup with the uid specified is used to to fetch the mail content.
 	If you do not specify a usergroup uid and the page has frontend user restrictions, an error will occur and no mail content will be fetched.]]></source>
 			</trans-unit>
 			<trans-unit id="configure_test_dmail_group_uids" resname="configure_test_dmail_group_uids">
 				<source>List of UID numbers of test recipient lists:</source>
 			</trans-unit>
-			<trans-unit id="configure_test_dmail_group_uids_description" resname="configure_test_dmail_group_uids_description">
-				<source>Alternatively to sending test-mails to individuals, you can choose to send to a whole list. This is the list of recipient lists UID numbers available for this action.</source>
+			<trans-unit id="configure_test_dmail_group_uids_description"
+						resname="configure_test_dmail_group_uids_description">
+				<source>Alternatively to sending test-mails to individuals, you can choose to send to a whole list. This
+					is the list of recipient lists UID numbers available for this action.
+				</source>
 			</trans-unit>
 			<trans-unit id="configure_test_tt_address_uids" resname="configure_test_tt_address_uids">
 				<source>List of UID numbers of test recipients (tt_address):</source>
 			</trans-unit>
-			<trans-unit id="configure_test_tt_address_uids_description" resname="configure_test_tt_address_uids_description">
-				<source>Before sending mails, you should test the mail content by sending test mails to one or more test recipients. The available recipients for testing are determined by this list of UID numbers. So first, find out the UID numbers (tt_address) of the recipients you wish to use for testing, then enter them here in a comma-separated list.</source>
+			<trans-unit id="configure_test_tt_address_uids_description"
+						resname="configure_test_tt_address_uids_description">
+				<source>Before sending mails, you should test the mail content by sending test mails to one or more test
+					recipients. The available recipients for testing are determined by this list of UID numbers. So
+					first, find out the UID numbers (tt_address) of the recipients you wish to use for testing, then
+					enter them here in a comma-separated list.
+				</source>
 			</trans-unit>
 			<trans-unit id="configure_testmail" resname="configure_testmail">
 				<source>Subject for the testmail.</source>
@@ -155,7 +180,9 @@
 				<source>Custom-defined table:</source>
 			</trans-unit>
 			<trans-unit id="configure_user_table_description" resname="configure_user_table_description">
-				<source>Enter the name of a custom-defined table, with compatible columns defined, which may also be used for direct mails distribution.</source>
+				<source>Enter the name of a custom-defined table, with compatible columns defined, which may also be
+					used for direct mails distribution.
+				</source>
 			</trans-unit>
 			<trans-unit id="dmail_HTML_url" resname="dmail_HTML_url">
 				<source>URL of HTML content:</source>
@@ -203,7 +230,9 @@
 				<source>Mailer Engine Invoked!</source>
 			</trans-unit>
 			<trans-unit id="dmail_mailerengine_manual_explain" resname="dmail_mailerengine_manual_explain">
-				<source>If TYPO3 is not configured to automatically invoke the Mailer Engine, you can invoke it by clicking here:</source>
+				<source>If TYPO3 is not configured to automatically invoke the Mailer Engine, you can invoke it by
+					clicking here:
+				</source>
 			</trans-unit>
 			<trans-unit id="dmail_mailerengine_manual_invoke" resname="dmail_mailerengine_manual_invoke">
 				<source>Manually Invoke Engine</source>
@@ -403,10 +432,14 @@
 			<trans-unit id="mailgroup_import_back" resname="mailgroup_import_back">
 				<source>Back</source>
 			</trans-unit>
-			<trans-unit id="mailgroup_import_csv_dublette-description" resname="mailgroup_import_csv_dublette-description">
-				<source>Filter email dublettes from csv data. If a dublette is found, only the first entry is imported.</source>
+			<trans-unit id="mailgroup_import_csv_dublette-description"
+						resname="mailgroup_import_csv_dublette-description">
+				<source>Filter email dublettes from csv data. If a dublette is found, only the first entry is
+					imported.
+				</source>
 			</trans-unit>
-			<trans-unit id="mailgroup_import_csv_validemail-description" resname="mailgroup_import_csv_validemail-description">
+			<trans-unit id="mailgroup_import_csv_validemail-description"
+						resname="mailgroup_import_csv_validemail-description">
 				<source>Only update/import valid emails from csv data.</source>
 			</trans-unit>
 			<trans-unit id="mailgroup_import_current_file" resname="mailgroup_import_current_file">
@@ -488,7 +521,7 @@
 				<source>OR</source>
 			</trans-unit>
 			<trans-unit id="mailgroup_import_overwrite" resname="mailgroup_import_overwrite">
-				<source>Overwrite existing file: </source>
+				<source>Overwrite existing file:</source>
 			</trans-unit>
 			<trans-unit id="mailgroup_import_paste_csv" resname="mailgroup_import_paste_csv">
 				<source>Paste the CSV data:</source>
@@ -496,7 +529,8 @@
 			<trans-unit id="mailgroup_import_ready_import" resname="mailgroup_import_ready_import">
 				<source>Ready to import</source>
 			</trans-unit>
-			<trans-unit id="mailgroup_import_ready_import_label" resname="mailgroup_import_ready_import_label" xml:space="preserve">
+			<trans-unit id="mailgroup_import_ready_import_label" resname="mailgroup_import_ready_import_label"
+						xml:space="preserve">
 				<source><![CDATA[All necessary information for the import have been entered.
 	By clicking on the "Import" button below, all data will be written in tt_address.]]></source>
 			</trans-unit>
@@ -627,7 +661,9 @@
 				<source>Update category settings</source>
 			</trans-unit>
 			<trans-unit id="nl_l_warning" resname="nl_l_warning">
-				<source>There are already %s Direct Mails based on this newsletter. Are you sure you want to create another one?</source>
+				<source>There are already %s Direct Mails based on this newsletter. Are you sure you want to create
+					another one?
+				</source>
 			</trans-unit>
 			<trans-unit id="nl_select" resname="nl_select">
 				<source>Select a newsletter</source>
@@ -767,7 +803,8 @@
 			<trans-unit id="stats_disable_returned_reason_unknown" resname="stats_disable_returned_reason_unknown">
 				<source>Disable returned recipients for unknown reason</source>
 			</trans-unit>
-			<trans-unit id="stats_disable_returned_unknown_recipient" resname="stats_disable_returned_unknown_recipient">
+			<trans-unit id="stats_disable_returned_unknown_recipient"
+						resname="stats_disable_returned_unknown_recipient">
 				<source>Disable returned recipients with unknown recipient</source>
 			</trans-unit>
 			<trans-unit id="stats_emails" resname="stats_emails">
@@ -788,10 +825,12 @@
 			<trans-unit id="stats_emails_returned_mailbox_full_list" resname="stats_emails_returned_mailbox_full_list">
 				<source>Email adresses of returned mails with mailbox full:</source>
 			</trans-unit>
-			<trans-unit id="stats_emails_returned_reason_unknown_list" resname="stats_emails_returned_reason_unknown_list">
+			<trans-unit id="stats_emails_returned_reason_unknown_list"
+						resname="stats_emails_returned_reason_unknown_list">
 				<source>Email adresses of returned mails for unknown reason:</source>
 			</trans-unit>
-			<trans-unit id="stats_emails_returned_unknown_recipient_list" resname="stats_emails_returned_unknown_recipient_list">
+			<trans-unit id="stats_emails_returned_unknown_recipient_list"
+						resname="stats_emails_returned_unknown_recipient_list">
 				<source>Email adresses of returned mails with unknown recipient:</source>
 			</trans-unit>
 			<trans-unit id="stats_error_in_header" resname="stats_error_in_header">
@@ -930,19 +969,25 @@
 				<source>Testmail - Individual</source>
 			</trans-unit>
 			<trans-unit id="testmail_individual_msg" resname="testmail_individual_msg">
-				<source>Select a recipient of the testmail. The mail will be generated based on the profile of the recipient you select.</source>
+				<source>Select a recipient of the testmail. The mail will be generated based on the profile of the
+					recipient you select.
+				</source>
 			</trans-unit>
 			<trans-unit id="testmail_mailgroup" resname="testmail_mailgroup">
 				<source>Testmail - Recipient list</source>
 			</trans-unit>
 			<trans-unit id="testmail_mailgroup_msg" resname="testmail_mailgroup_msg">
-				<source>Select a recipient list for the testmail. The mails will be generated based on the profiles of the recipients in that list.</source>
+				<source>Select a recipient list for the testmail. The mails will be generated based on the profiles of
+					the recipients in that list.
+				</source>
 			</trans-unit>
 			<trans-unit id="testmail_simple" resname="testmail_simple">
 				<source>Testmail - Simple</source>
 			</trans-unit>
 			<trans-unit id="testmail_simple_msg" resname="testmail_simple_msg">
-				<source>A simple testmail includes all mail elements regardless of category. But any USER_fields are not substituted with data. Enter an email-address for the testmail:</source>
+				<source>A simple testmail includes all mail elements regardless of category. But any USER_fields are not
+					substituted with data. Enter an email-address for the testmail:
+				</source>
 			</trans-unit>
 			<trans-unit id="view_delivery_begin_end" resname="view_delivery_begin_end">
 				<source>Delivery begun/ended:</source>

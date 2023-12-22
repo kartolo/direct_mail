@@ -1,25 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 	<file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:10:25Z">
-		<header>
-			<description>Labels for the main Direct Mail module</description>
-			<type>module</type>
-			<fileId>EXT:direct_mail/mod/locallang.xml</fileId>
-			<labelContext></labelContext>
-			<authorName>Ivan Kartolo</authorName>
-			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
-			<generator>LFEditor</generator>
-		</header>
+		<header/>
 		<body>
-		<trans-unit id="mlang_labels_tabdescr">
-			<source>Import Recipients from a CSV File.</source>
-		</trans-unit>
-		<trans-unit id="mlang_labels_tablabel">
-			<source>Import Recipients (CSV)</source>
-		</trans-unit>
-		<trans-unit id="mlang_tabs_tab">
-			<source>Recipients Lists</source>
-		</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>Import Recipients from a CSV File.</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>Import Recipients (CSV)</source>
+			</trans-unit>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Recipients Lists</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

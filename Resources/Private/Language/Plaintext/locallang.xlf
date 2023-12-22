@@ -1,40 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 	<file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T11:52:00Z">
-		<header>
-			<description>Labels for the Direct Mail plain text rendering plugin</description>
-			<authorName>Ivan Kartolo</authorName>
-			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
-			<generator>LFEditor</generator>
-		</header>
+		<header/>
 		<body>
-		<trans-unit id="caption_header">
-			<source>CAPTION:</source>
-		</trans-unit>
-		<trans-unit id="header_date_prefix">
-			<source>Date:</source>
-		</trans-unit>
-		<trans-unit id="header_link_prefix">
-			<source>- Headerlink:</source>
-		</trans-unit>
-		<trans-unit id="image_link_prefix">
-			<source>- Imagelink:</source>
-		</trans-unit>
-		<trans-unit id="media_header">
-			<source>MEDIA:</source>
-		</trans-unit>
-		<trans-unit id="images_header">
-			<source>IMAGES:</source>
-		</trans-unit>
-		<trans-unit id="link_prefix">
-			<source>Link:</source>
-		</trans-unit>
-		<trans-unit id="unrendered_content">
-			<source>Unrendered Content Element:</source>
-		</trans-unit>
-		<trans-unit id="uploads_header">
-			<source>DOWNLOADS:</source>
-		</trans-unit>
+			<trans-unit id="caption_header">
+				<source>CAPTION:</source>
+			</trans-unit>
+			<trans-unit id="header_date_prefix">
+				<source>Date:</source>
+			</trans-unit>
+			<trans-unit id="header_link_prefix">
+				<source>- Headerlink:</source>
+			</trans-unit>
+			<trans-unit id="image_link_prefix">
+				<source>- Imagelink:</source>
+			</trans-unit>
+			<trans-unit id="media_header">
+				<source>MEDIA:</source>
+			</trans-unit>
+			<trans-unit id="images_header">
+				<source>IMAGES:</source>
+			</trans-unit>
+			<trans-unit id="link_prefix">
+				<source>Link:</source>
+			</trans-unit>
+			<trans-unit id="unrendered_content">
+				<source>Unrendered Content Element:</source>
+			</trans-unit>
+			<trans-unit id="uploads_header">
+				<source>DOWNLOADS:</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
