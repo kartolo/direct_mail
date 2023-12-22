@@ -1,26 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-	<file source-language="en" target-language="fr" datatype="plaintext" original="messages" date="2016-02-11T21:42:51Z">
-		<header>
-			<description>CSH for Direct Mail Module</description>
-			<type>CSH</type>
-			<fileId>EXT:direct_mail/mod/locallang_csh_web_DirectMailNavFrame</fileId>
-			<csh_table>_MOD_web_DirectMailNavFrame</csh_table>
-			<keep_original_text>1</keep_original_text>
-			<authorName>Ivan Kartolo</authorName>
-			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
-			<generator>LFEditor</generator>
-		</header>
+	<file source-language="en" target-language="fr" datatype="plaintext" original="messages"
+		  date="2016-02-11T21:42:51Z">
+		<header/>
 		<body>
-		<trans-unit id=".alttitle" approved="yes">
-			<source>Web &gt; Direct Mail module</source>
-			<target>Web &gt; Module Envoi ciblé</target>
-		</trans-unit>
-		<trans-unit id=".description" approved="yes">
-			<source>Select the function of the Direct Mail module that you want to use.</source>
-			<target>Sélectionnez la fonction du module d'Envoi ciblé que vous voulez utiliser.</target>
-		</trans-unit>
-		<trans-unit id=".details" approved="yes" xml:space="preserve">
+			<trans-unit id=".alttitle" approved="yes">
+				<source>Web &gt; Direct Mail module</source>
+				<target>Web &gt; Module Envoi ciblé</target>
+			</trans-unit>
+			<trans-unit id=".description" approved="yes">
+				<source>Select the function of the Direct Mail module that you want to use.</source>
+				<target>Sélectionnez la fonction du module d'Envoi ciblé que vous voulez utiliser.</target>
+			</trans-unit>
+			<trans-unit id=".details" approved="yes" xml:space="preserve">
 			<source><![CDATA[The functions of the Direct Mail module are the following, but their availability may be restricted depending on user access rights:
 
 1. Newsletters: this function lets you create a new newsletter or select an existing one; you may also select an existing newsletter in the page tree of the Direct Mail folder; selecting an existing newsletter leads you to a screen that lets you view or edit the newsletter, assign categories to the content elements of the page, view the list of direct mails already based on this newsletter page, or create a new one based on it.
@@ -36,7 +28,7 @@
 6. Categories Conversion: this function is a migration tool that lets you convert your database to the new Direct Mail Categories introduced in version 2.0 of Direct Mail. Please refer to the manual for more information.
 
 7. Module Configuration: this function is an administration tool used to configure a Direct Mail folder. Please refer to the manual for more information.]]></source>
-			<target><![CDATA[Les fonctions du module d'Envoi ciblé sont les suivantes, mais leur disponibilité peut être restreinte selon les droits d'accès de l'utilisateur:
+				<target><![CDATA[Les fonctions du module d'Envoi ciblé sont les suivantes, mais leur disponibilité peut être restreinte selon les droits d'accès de l'utilisateur:
 
 1. Pages: cette fonction vous permet de créer une page de nouvelles ou d'en sélectionner une déjà existante; vous pouvez aussi sélectionner une page existante dans l'arborescence des pages du dossier d'Envoi ciblé; sélectionner une page existante mène à une fenêtre qui vous permet de visionner ou d'éditer la page de nouvelles, d'assigner des rubriques aux éléments de contenu de la page, de voir la liste des bulletins construits à partir de cette page, ou d'en créer un nouveau à partir de celle-ci.
 
@@ -52,47 +44,57 @@
 
 7. Configuration du module: cette fonction est un outil d'administration utilisé pour configurer un dossier d'Envoi ciblé. Pour plus d'information, veuillez consulter le manuel.]]></target>
 		</trans-unit>
-		<trans-unit id="assign_categories.alttitle" approved="yes">
-			<source>Select a direct mail</source>
-			<target>Assigner des rubriques aux éléments de contenu</target>
-		</trans-unit>
-		<trans-unit id="assign_categories.description" approved="yes">
-			<source>Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</source>
-			<target>Assigner des rubriques à un élément de contenu signifie que cet élément sera inclus dans un bulletin personnalisé seulement si le destinataire est abonné à au moins une de ces rubriques.</target>
-		</trans-unit>
-		<trans-unit id="assign_categories.details" approved="yes" xml:space="preserve">
+			<trans-unit id="assign_categories.alttitle" approved="yes">
+				<source>Select a direct mail</source>
+				<target>Assigner des rubriques aux éléments de contenu</target>
+			</trans-unit>
+			<trans-unit id="assign_categories.description" approved="yes">
+				<source>Assigning categories to a content element means that the element will appear in the mail only if
+					the recipient user has chosen that category in his profile.
+				</source>
+				<target>Assigner des rubriques à un élément de contenu signifie que cet élément sera inclus dans un
+					bulletin personnalisé seulement si le destinataire est abonné à au moins une de ces rubriques.
+				</target>
+			</trans-unit>
+			<trans-unit id="assign_categories.details" approved="yes" xml:space="preserve">
 			<source><![CDATA[Check a checkbox in order to assign a category to a content element.
 
 If you do not assign any category to an element, the element will appear in all mails.]]></source>
-			<target><![CDATA[Cochez dans la case vis-à-vis la rubrique pour l'assigner à l'élément de contenu. Après avoir coché ou décoché toutes les cases désirées, appuyez sur le bouton "Mettre à jour les rubriques des éléments de contenu".
+				<target><![CDATA[Cochez dans la case vis-à-vis la rubrique pour l'assigner à l'élément de contenu. Après avoir coché ou décoché toutes les cases désirées, appuyez sur le bouton "Mettre à jour les rubriques des éléments de contenu".
 
 Si aucune rubrique n'est assignée à un élément de contenu, l'élément sera inclus dans le bulletin personnalisé de tous les destinataires.]]></target>
 		</trans-unit>
-		<trans-unit id="create_directmail_from_nl.alttitle" approved="yes">
-			<source>Create a new direct mail from newsletter</source>
-			<target>Créer un nouveau bulletin basé sur une page</target>
-		</trans-unit>
-		<trans-unit id="create_directmail_from_nl.description" approved="yes">
-			<source>No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</source>
-			<target>Aucun bulletin n'a été créé à partir du contenu des pages suivantes. Cliquez sur celle à partir de laquelle vous voulez créer un nouveau bulletin.</target>
-		</trans-unit>
-		<trans-unit id="create_directmail_from_url.alttitle" approved="yes">
-			<source>Create a new direct mail from an external URL</source>
-			<target>Créer un bulletin basé sur une URL externe</target>
-		</trans-unit>
-		<trans-unit id="create_directmail_from_url.description" approved="yes">
-			<source>Use this form to create a new direct mail based on content grabbed from an external URL.</source>
-			<target>Utilisez ce formulaire pour créer un bulletin à partir du contenu d'adresses URL externes.</target>
-		</trans-unit>
-		<trans-unit id="create_newsletter.alttitle" approved="yes">
-			<source>Create a newsletter</source>
-			<target>Créer une nouvelle page de nouvelles</target>
-		</trans-unit>
-		<trans-unit id="create_newsletter.description" approved="yes">
-			<source>Click on this link if you want to create a new newsletter.</source>
-			<target>Cliquez sur ce lien si vous voulez créer une nouvelle page de nouvelles.</target>
-		</trans-unit>
-		<trans-unit id="create_newsletter.details" approved="yes" xml:space="preserve">
+			<trans-unit id="create_directmail_from_nl.alttitle" approved="yes">
+				<source>Create a new direct mail from newsletter</source>
+				<target>Créer un nouveau bulletin basé sur une page</target>
+			</trans-unit>
+			<trans-unit id="create_directmail_from_nl.description" approved="yes">
+				<source>No direct mail has been created using the content of the following newsletters. Click on the one
+					you want to use to create a new direct mail.
+				</source>
+				<target>Aucun bulletin n'a été créé à partir du contenu des pages suivantes. Cliquez sur celle à partir
+					de laquelle vous voulez créer un nouveau bulletin.
+				</target>
+			</trans-unit>
+			<trans-unit id="create_directmail_from_url.alttitle" approved="yes">
+				<source>Create a new direct mail from an external URL</source>
+				<target>Créer un bulletin basé sur une URL externe</target>
+			</trans-unit>
+			<trans-unit id="create_directmail_from_url.description" approved="yes">
+				<source>Use this form to create a new direct mail based on content grabbed from an external URL.
+				</source>
+				<target>Utilisez ce formulaire pour créer un bulletin à partir du contenu d'adresses URL externes.
+				</target>
+			</trans-unit>
+			<trans-unit id="create_newsletter.alttitle" approved="yes">
+				<source>Create a newsletter</source>
+				<target>Créer une nouvelle page de nouvelles</target>
+			</trans-unit>
+			<trans-unit id="create_newsletter.description" approved="yes">
+				<source>Click on this link if you want to create a new newsletter.</source>
+				<target>Cliquez sur ce lien si vous voulez créer une nouvelle page de nouvelles.</target>
+			</trans-unit>
+			<trans-unit id="create_newsletter.details" approved="yes" xml:space="preserve">
 			<source><![CDATA[A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
 
 You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
@@ -114,7 +116,7 @@ You may personalize the direct mails that will be sent to each recipient by inse
 ###SYS_TABLE_NAME###
 ###SYS_MAIL_ID###
 ###SYS_AUTHCODE###]]></source>
-			<target><![CDATA[Une page de nouvelles est essentiellement un page TYPO3 ordinaire déposée dans le dossier d'Envoi ciblé. Si vous cliquez sur ce lien, on vous présentera un formulaire combiné de création de page et de création d'un premier élément de contenu. Après avoir créé la page, vous pourrez y ajouter d'autres éléments de contenu.
+				<target><![CDATA[Une page de nouvelles est essentiellement un page TYPO3 ordinaire déposée dans le dossier d'Envoi ciblé. Si vous cliquez sur ce lien, on vous présentera un formulaire combiné de création de page et de création d'un premier élément de contenu. Après avoir créé la page, vous pourrez y ajouter d'autres éléments de contenu.
 
 Vous pouvez personnaliser les bulletins qui seront envoyés à chaque destinataire en insérant les marqueurs suivants dans les éléments de contenu de la page de nouvelles. Les marqueurs seront remplacés par les valeurs correspondantes trouvées dans l'enregistrement du destinataire, lorsque disponibles:
 
@@ -136,15 +138,15 @@ Vous pouvez personnaliser les bulletins qui seront envoyés à chaque destinatai
 ###SYS_MAIL_ID###
 ###SYS_AUTHCODE###]]></target>
 		</trans-unit>
-		<trans-unit id="directmail_actions.alttitle" approved="yes">
-			<source>Direct Mails options menu</source>
-			<target>Menu d'options des bulletins</target>
-		</trans-unit>
-		<trans-unit id="directmail_actions.description" approved="yes">
-			<source>Select the action you want to perform on this direct mail.</source>
-			<target>Sélectionnez l'action que vous voulez prendre sur ce bulletin.</target>
-		</trans-unit>
-		<trans-unit id="directmail_actions.details" approved="yes" xml:space="preserve">
+			<trans-unit id="directmail_actions.alttitle" approved="yes">
+				<source>Direct Mails options menu</source>
+				<target>Menu d'options des bulletins</target>
+			</trans-unit>
+			<trans-unit id="directmail_actions.description" approved="yes">
+				<source>Select the action you want to perform on this direct mail.</source>
+				<target>Sélectionnez l'action que vous voulez prendre sur ce bulletin.</target>
+			</trans-unit>
+			<trans-unit id="directmail_actions.details" approved="yes" xml:space="preserve">
 			<source><![CDATA[Possible actions are the following, but their availability vary depending on the current state of the direct mail:
 
 1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
@@ -154,7 +156,7 @@ Vous pouvez personnaliser les bulletins qui seront envoyés à chaque destinatai
 3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
 
 4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.]]></source>
-			<target><![CDATA[Les actions possibles sont les suivantes, mais leur disponibilité varie selon l'état courant du bulletin:
+				<target><![CDATA[Les actions possibles sont les suivantes, mais leur disponibilité varie selon l'état courant du bulletin:
 
 1. Préparer le bulletin pour l'envoi massif: cette option permet de procéder à l'acquisition des contenus du bulletin; ces contenus seront compilés dans un format spécial en vue de l'éventuel envoi du bulletin; cette opération doit être effectuée avant toute autre; il est recommandé de passer en revue les propriétés du bulletin présentées dans la fenêtre et, au besoin, de les mettre à jour, avant de procéder à l'acquisition des contenus;
 
@@ -165,38 +167,48 @@ Vous pouvez personnaliser les bulletins qui seront envoyés à chaque destinatai
 4. Afficher les statistiques de l'envoi massif: cette option permet d'afficher les statistiques d'envoi et de réponse du bulletin, et de prendre action sur les messages retournés. Cette option n'est disponible que lorsque l'envoi massif à été programmé.
 	    ]]></target>
 		</trans-unit>
-		<trans-unit id="folders.alttitle" approved="yes">
-			<source>Available Direct Mail folders</source>
-			<target>Dossiers d'Envoi ciblé disponibles</target>
-		</trans-unit>
-		<trans-unit id="folders.description" approved="yes">
-			<source>Select the Direct Mail folder you wish to work with.</source>
-			<target>Sélectionnez le dossier d'Envoi ciblé sur lequel vous désirez travailler.</target>
-		</trans-unit>
-		<trans-unit id="folders.details" approved="yes">
-			<source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
-			<target>Chaque dossier d'Envoi ciblé constitue une aire de travail spécifiquement configurée pour ce module.</target>
-		</trans-unit>
-		<trans-unit id="select_directmail.alttitle" approved="yes">
-			<source></source>
-			<target>Choisissez un bulletin</target>
-		</trans-unit>
-		<trans-unit id="select_directmail.description" approved="yes">
-			<source>The following direct mails have not yet been sent. Click on the one you want to work on.</source>
-			<target>Les bulletins présentés dans cette liste n'ont pas encore été envoyés. Cliquez sur celui sur lequel vous voulez prendre action.</target>
-		</trans-unit>
-		<trans-unit id="select_newsletter.alttitle" approved="yes">
-			<source>Select a newsletter</source>
-			<target>Choisissez une page existante</target>
-		</trans-unit>
-		<trans-unit id="select_newsletter.description" approved="yes">
-			<source>Click on one of these already created newsletters.</source>
-			<target>Cliquez sur une de ces pages déjà existantes.</target>
-		</trans-unit>
-		<trans-unit id="select_newsletter.details" approved="yes">
-			<source>You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</source>
-			<target>Vous pouvez cliquer sur une des pages de cette liste pour voir l'information à propos de cette page, classifier ses éléments de contenu, ou encore l'utiliser pour créer un bulletin.</target>
-		</trans-unit>
+			<trans-unit id="folders.alttitle" approved="yes">
+				<source>Available Direct Mail folders</source>
+				<target>Dossiers d'Envoi ciblé disponibles</target>
+			</trans-unit>
+			<trans-unit id="folders.description" approved="yes">
+				<source>Select the Direct Mail folder you wish to work with.</source>
+				<target>Sélectionnez le dossier d'Envoi ciblé sur lequel vous désirez travailler.</target>
+			</trans-unit>
+			<trans-unit id="folders.details" approved="yes">
+				<source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.
+				</source>
+				<target>Chaque dossier d'Envoi ciblé constitue une aire de travail spécifiquement configurée pour ce
+					module.
+				</target>
+			</trans-unit>
+			<trans-unit id="select_directmail.alttitle" approved="yes">
+				<source></source>
+				<target>Choisissez un bulletin</target>
+			</trans-unit>
+			<trans-unit id="select_directmail.description" approved="yes">
+				<source>The following direct mails have not yet been sent. Click on the one you want to work on.
+				</source>
+				<target>Les bulletins présentés dans cette liste n'ont pas encore été envoyés. Cliquez sur celui sur
+					lequel vous voulez prendre action.
+				</target>
+			</trans-unit>
+			<trans-unit id="select_newsletter.alttitle" approved="yes">
+				<source>Select a newsletter</source>
+				<target>Choisissez une page existante</target>
+			</trans-unit>
+			<trans-unit id="select_newsletter.description" approved="yes">
+				<source>Click on one of these already created newsletters.</source>
+				<target>Cliquez sur une de ces pages déjà existantes.</target>
+			</trans-unit>
+			<trans-unit id="select_newsletter.details" approved="yes">
+				<source>You may click on one of the listed newsletter to view information about it, categorize its
+					content elements, and eventually use it to create a direct mail.
+				</source>
+				<target>Vous pouvez cliquer sur une des pages de cette liste pour voir l'information à propos de cette
+					page, classifier ses éléments de contenu, ou encore l'utiliser pour créer un bulletin.
+				</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

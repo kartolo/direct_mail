@@ -1,44 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-    <file source-language="en" datatype="plaintext" original="EXT:direct_mail/Resources/Private/Language/Modules/locallang.xlf" date="2023-01-11T17:00:00Z" product-name="direct_mail">
-        <header/>
-        <body>
-            <trans-unit id="widgets.dm.title" resname="widgets.dm.title">
-                <source>Direct Mail - Pages</source>
-            </trans-unit>
-            <trans-unit id="widgets.dm.description" resname="widgets.dm.description">
-                <source>Direct Mail - Pages with the 'Direct Mail' module</source>
-            </trans-unit>
+	<file source-language="en" datatype="plaintext"
+		  original="EXT:direct_mail/Resources/Private/Language/Modules/locallang.xlf" date="2023-01-11T17:00:00Z"
+		  product-name="direct_mail">
+		<header/>
+		<body>
+			<trans-unit id="widgets.dm.title" resname="widgets.dm.title">
+				<source>Direct Mail - Pages</source>
+			</trans-unit>
+			<trans-unit id="widgets.dm.description" resname="widgets.dm.description">
+				<source>Direct Mail - Pages with the 'Direct Mail' module</source>
+			</trans-unit>
 			<trans-unit id="widgets.dmMailEngineStatus.title" resname="widgets.dmMailEngineStatus.title">
-                <source>Direct Mail - Mail Engine Status</source>
-            </trans-unit>
-            <trans-unit id="widgets.dmMailEngineStatus.description" resname="widgets.dmMailEngineStatus.description">
-                <source>Direct Mail - Shows the number of sent/unsent newsletters</source>
-            </trans-unit>
+				<source>Direct Mail - Mail Engine Status</source>
+			</trans-unit>
+			<trans-unit id="widgets.dmMailEngineStatus.description" resname="widgets.dmMailEngineStatus.description">
+				<source>Direct Mail - Shows the number of sent/unsent newsletters</source>
+			</trans-unit>
 			<trans-unit id="widgets.dmStatistics.title" resname="widgets.dmStatistics.title">
-                <source>Direct Mail - Statistics</source>
-            </trans-unit>
-            <trans-unit id="widgets.dmStatistics.description" resname="widgets.dmStatistics.description">
-                <source>Direct Mail - Shows recipients from the last 10 newsletters</source>
-            </trans-unit>
-            <trans-unit id="widget_group.dm" resname="widget_group.dm">
-                <source>Direct Mail - Widgets</source>
-            </trans-unit>
-            <trans-unit id="dashboard.dm" resname="dashboard.dm">
-                <source>Direct Mail - Dashboard</source>
-            </trans-unit>
-            <trans-unit id="dashboard.dm.description" resname="dashboard.dm.description">
-                <source>Direct Mail - Dashboard Description</source>
-            </trans-unit>
+				<source>Direct Mail - Statistics</source>
+			</trans-unit>
+			<trans-unit id="widgets.dmStatistics.description" resname="widgets.dmStatistics.description">
+				<source>Direct Mail - Shows recipients from the last 10 newsletters</source>
+			</trans-unit>
+			<trans-unit id="widget_group.dm" resname="widget_group.dm">
+				<source>Direct Mail - Widgets</source>
+			</trans-unit>
+			<trans-unit id="dashboard.dm" resname="dashboard.dm">
+				<source>Direct Mail - Dashboard</source>
+			</trans-unit>
+			<trans-unit id="dashboard.dm.description" resname="dashboard.dm.description">
+				<source>Direct Mail - Dashboard Description</source>
+			</trans-unit>
 			<trans-unit id="widgets.dm.label.sent" resname="widgets.dm.label.sent">
-                <source>sent</source>
-            </trans-unit>
+				<source>sent</source>
+			</trans-unit>
 			<trans-unit id="widgets.dm.label.unsent" resname="widgets.dm.label.unsent">
-                <source>unsent</source>
-            </trans-unit>
+				<source>unsent</source>
+			</trans-unit>
 			<trans-unit id="widgets.dm.label.numberSentNewsletters" resname="widgets.dm.label.numberSentNewsletters">
-                <source>Number of the sent newsletters</source>
-            </trans-unit>
-        </body>
-    </file>
+				<source>Number of the sent newsletters</source>
+			</trans-unit>
+		</body>
+	</file>
 </xliff>
