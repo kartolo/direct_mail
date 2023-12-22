@@ -79,6 +79,7 @@
   "scripts": {
     "ci:composer:normalize": "@composer normalize --no-check-lock --dry-run",
     "ci:composer:psr-verify": "@composer dumpautoload --optimize --strict-psr --no-plugins",
+    "ci:json:lint": "find . ! -path '*/.cache/*' ! -path '*/.Build/*' ! -path '*/node_modules/*' -name '*.json' | xargs -r php .Build/bin/jsonlint -q",
     "ci:php": [
       "@ci:php:cs-fixer",
       "@ci:php:lint",
@@ -89,6 +90,15 @@
     "ci:php:lint": "find .*.php *.php Classes Configuration Tests -name '*.php' -print0 | xargs -r -0 -n 1 -P 4 php -l",
     "ci:php:sniff": "phpcs --standard=.phpcs.xml -n -p -s --extensions=php .",
     "ci:php:stan": "phpstan --no-progress",
+    "ci:static": [
+      "@ci:composer:normalize",
+      "@ci:json:lint",
+      "@ci:php:cs-fixer",
+      "@ci:php:lint",
+      "@ci:php:sniff",
+      "@ci:php:stan",
+      "@ci:yaml:lint"
+    ],
     "ci:xliff:lint": "php Build/bin/console lint:xliff Resources/Private/Language",
     "ci:yaml:lint": "find . ! -path '*.Build/*' ! -path '*node_modules/*' -regextype egrep -regex '.*.ya?ml$' | xargs -r php ./.Build/bin/yaml-lint",
     "fix:composer:normalize": "@composer normalize --no-check-lock",
@@ -111,6 +121,7 @@
   "scripts-descriptions": {
     "ci:composer:normalize": "Checks the composer.json.",
     "ci:composer:psr-verify": "Verifies PSR-4 namespace correctness.",
+    "ci:json:lint": "Lints the JSON files.",
     "ci:php": "Runs all static checks for the PHP files.",
     "ci:php:cs-fixer": "Checks the code style with the PHP Coding Standards Fixer (PHP-CS-Fixer).",
     "ci:php:lint": "Lints the PHP files for syntax errors.",
