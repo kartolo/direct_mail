@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Documentation: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-Ruleset -->
+<ruleset name="direct_mail">
+    <!-- Configuration -->
+    <config name="encoding" value="utf-8"/>
+    <config name="testVersion" value="7.4-8.3"/>
+    <arg name="extensions" value="php/php"/>
+
+    <!-- Exclude git directory -->
+    <exclude-pattern>.git/</exclude-pattern>
+    <!-- Exclude third party code -->
+    <exclude-pattern>vendor/</exclude-pattern>
+    <exclude-pattern>.Build/</exclude-pattern>
+    <!-- PSR2 ruleset -->
+    <rule ref="PSR12" />
+    <!-- PHPCompatibility ruleset -->
+    <rule ref="PHPCompatibility"/>
+</ruleset>
