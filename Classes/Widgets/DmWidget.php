@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Widgets;
 
-
 use DirectMailTeam\DirectMail\Widgets\Provider\DmProvider;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetInterface;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-
 
 class DmWidget implements WidgetInterface
 {

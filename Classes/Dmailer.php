@@ -27,14 +27,13 @@ use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Mail\MailMessage;
-use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class, doing the sending of Direct-mails, eg. through a cron-job
  *
- * @author		Kasper Skårhøj <kasperYYYY@typo3.com>
+ * @author      Kasper Skårhøj <kasperYYYY@typo3.com>
  * @author      Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  */
 class Dmailer implements LoggerAwareInterface
@@ -461,7 +460,7 @@ class Dmailer implements LoggerAwareInterface
      * @param array $cArray Array of content split by dmail boundary
      * @param string $userCategories The list of categories the user is subscribing to.
      *
-     * @return	string		Content of the email, which the recipient subscribed
+     * @return  string      Content of the email, which the recipient subscribed
      */
     protected function getBoundaryParts($cArray, $userCategories): string
     {
@@ -508,7 +507,7 @@ class Dmailer implements LoggerAwareInterface
      * @param string $table Tablename of the recipient
      * @param int $uid Uid of the recipient
      *
-     * @return	string		list of categories
+     * @return  string      list of categories
      */
     public function getListOfRecipentCategories(string $table, int $uid): string
     {
@@ -533,9 +532,9 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Mass send to recipient in the list
      *
-     * @param	array $query_info List of recipients' ID in the sys_dmail table
-     * @param	int $mid Directmail ID. UID of the sys_dmail table
-     * @return	bool
+     * @param   array $query_info List of recipients' ID in the sys_dmail table
+     * @param   int $mid Directmail ID. UID of the sys_dmail table
+     * @return  bool
      */
     protected function masssendList(array $query_info, int $mid): bool
     {
@@ -643,7 +642,7 @@ class Dmailer implements LoggerAwareInterface
                     'logUid' => $logUid,
                     'html_sent' => (int)$this->sendAdvanced($recipRow, $tableKey),
                     'parsetime' => $this->getMilliseconds() - $parseTimeStart,
-                    'size' => strlen($this->message)
+                    'size' => strlen($this->message),
                 ];
                 $ok = $sysDmailMaillogRepository->updateSysDmailMaillogForShipOfMail($values);
 
@@ -665,7 +664,7 @@ class Dmailer implements LoggerAwareInterface
      * Converting array key.
      * fe_user and tt_address are using different fieldname for the same information
      *
-     * @param array	$recipRow Recipient's data array
+     * @param array $recipRow Recipient's data array
      *
      * @return array Fixed recipient's data array
      */
@@ -934,9 +933,9 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Add HTML to an email
      *
-     * @param	string $file String location of the HTML
+     * @param   string $file String location of the HTML
      *
-     * @return	mixed		bool: HTML fetch status. string: if HTML is a frameset.
+     * @return  mixed       bool: HTML fetch status. string: if HTML is a frameset.
      */
     public function addHTML(string $file)
     {
@@ -957,7 +956,7 @@ class Dmailer implements LoggerAwareInterface
     /**
      * Fetches the HTML-content from either url or local server file
      *
-     * @param	string $url Url of the html to fetch
+     * @param   string $url Url of the html to fetch
      *
      * @return bool Whether the data was fetched or not
      */
@@ -1296,7 +1295,7 @@ class Dmailer implements LoggerAwareInterface
      * Creates a regular expression out of a list of tags
      *
      * @param array $tags Array the list of tags
-     * 		(either as array or string if it is one tag)
+     *      (either as array or string if it is one tag)
      *
      * @return string the regular expression
      */
@@ -1317,7 +1316,7 @@ class Dmailer implements LoggerAwareInterface
      * Check it with is_set();
      *
      * @param string $tag Tag is either like this "<TAG OPTION ATTRIB=VALUE>" or
-     *				 this " OPTION ATTRIB=VALUE>" which means you can omit the tag-name
+     *               this " OPTION ATTRIB=VALUE>" which means you can omit the tag-name
      * @param bool $removeQuotes When TRUE (default) quotes around a value will get removed
      *
      * @return array array with attributes as keys in lower-case

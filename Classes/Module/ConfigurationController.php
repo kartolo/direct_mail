@@ -97,10 +97,10 @@ class ConfigurationController extends MainController
         }
     }
 
-   /**
-     * Update the pageTS
-     * No return value: sent header to the same page
-     */
+    /**
+      * Update the pageTS
+      * No return value: sent header to the same page
+      */
     protected function updatePageTS(): void
     {
         if ($this->getBackendUser()->doesUserHaveAccess(BackendUtility::getRecord('pages', $this->id), 2)) {

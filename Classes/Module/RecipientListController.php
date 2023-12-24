@@ -224,7 +224,7 @@ class RecipientListController extends MainController
      *
      * @param int $groupUid Uid of the group
      *
-     * @return	array List of the uid in an array
+     * @return  array List of the uid in an array
      */
     protected function cmd_compileMailGroup(int $groupUid)
     {
@@ -261,19 +261,19 @@ class RecipientListController extends MainController
                         if (count($pageIdArray)) {
                             $whichTables = (int)$mailGroup['whichtables'];
                             // tt_address
-                            if ($whichTables&1) {
+                            if ($whichTables & 1) {
                                 $idLists['tt_address'] = GeneralUtility::makeInstance(TtAddressRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
                             // fe_users
-                            if ($whichTables&2) {
+                            if ($whichTables & 2) {
                                 $idLists['fe_users'] = GeneralUtility::makeInstance(FeUsersRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
                             // user table
-                            if ($this->userTable && ($whichTables&4)) {
+                            if ($this->userTable && ($whichTables & 4)) {
                                 $idLists[$this->userTable] = GeneralUtility::makeInstance(TempRepository::class)->getIdList($this->userTable, $pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
                             // fe_groups
-                            if ($whichTables&8) {
+                            if ($whichTables & 8) {
                                 if (!is_array($idLists['fe_users'])) {
                                     $idLists['fe_users'] = [];
                                 }
@@ -308,11 +308,11 @@ class RecipientListController extends MainController
                         $mailGroup = $this->updateSpecialQuery($mailGroup);
                         $whichTables = (int)$mailGroup['whichtables'];
                         $table = '';
-                        if ($whichTables&1) {
+                        if ($whichTables & 1) {
                             $table = 'tt_address';
-                        } elseif ($whichTables&2) {
+                        } elseif ($whichTables & 2) {
                             $table = 'fe_users';
-                        } elseif ($this->userTable && ($whichTables&4)) {
+                        } elseif ($this->userTable && ($whichTables & 4)) {
                             $table = $this->userTable;
                         }
 
@@ -455,7 +455,7 @@ class RecipientListController extends MainController
             'group_icon' => $this->iconFactory->getIconForRecord('sys_dmail_group', $group, Icon::SIZE_SMALL),
             'group_title' => htmlspecialchars($group['title'] ?? ''),
             'group_totalRecipients' => $totalRecipients,
-            'group_link_listall' => ($this->lCmd == '') ? GeneralUtility::linkThisScript(['lCmd'=>'listall']) : '',
+            'group_link_listall' => ($this->lCmd == '') ? GeneralUtility::linkThisScript(['lCmd' => 'listall']) : '',
             'tables' => [],
             'special' => [],
         ];
@@ -490,8 +490,8 @@ class RecipientListController extends MainController
                 if (is_array($idLists['tt_address'] ?? false)) {
                     //https://github.com/FriendsOfTYPO3/tt_address/blob/master/ext_tables.sql
                     $rows = GeneralUtility::makeInstance(TempRepository::class)->fetchRecordsListValues(
-                        $idLists['tt_address'], 
-                        'tt_address', 
+                        $idLists['tt_address'],
+                        'tt_address',
                         ['uid', 'name', 'first_name', 'middle_name', 'last_name', 'email']
                     );
                     $data['tables'][] = [
@@ -530,7 +530,7 @@ class RecipientListController extends MainController
                         'title_table' => 'mailgroup_table_address',
                         'title_recip' => 'mailgroup_recip_number',
                         'recip_counter' => ' ' . count($idLists['tt_address']),
-                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv'=>'tt_address']),
+                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv' => 'tt_address']),
                     ];
                 }
 
@@ -539,7 +539,7 @@ class RecipientListController extends MainController
                         'title_table' => 'mailgroup_table_fe_users',
                         'title_recip' => 'mailgroup_recip_number',
                         'recip_counter' => ' ' . count($idLists['fe_users']),
-                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv'=>'fe_users']),
+                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv' => 'fe_users']),
                     ];
                 }
 
@@ -548,7 +548,7 @@ class RecipientListController extends MainController
                         'title_table' => 'mailgroup_plain_list',
                         'title_recip' => 'mailgroup_recip_number',
                         'recip_counter' => ' ' . count($idLists['PLAINLIST']),
-                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv'=>'PLAINLIST']),
+                        'mailgroup_download_link' => GeneralUtility::linkThisScript(['csv' => 'PLAINLIST']),
                     ];
                 }
 
@@ -587,11 +587,11 @@ class RecipientListController extends MainController
         $queryConfig = GeneralUtility::_GP('queryConfig');
         $whichTables = (int)$mailGroup['whichtables'];
         $table = '';
-        if ($whichTables&1) {
+        if ($whichTables & 1) {
             $table = 'tt_address';
-        } elseif ($whichTables&2) {
+        } elseif ($whichTables & 2) {
             $table = 'fe_users';
-        } elseif ($this->userTable && ($whichTables&4)) {
+        } elseif ($this->userTable && ($whichTables & 4)) {
             $table = $this->userTable;
         }
 
@@ -608,7 +608,8 @@ class RecipientListController extends MainController
 
         $this->MOD_SETTINGS['queryLimit'] = $queryLimit;
 
-        if ($this->MOD_SETTINGS['queryTable'] != $table
+        if (
+            $this->MOD_SETTINGS['queryTable'] != $table
             || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query']
             || $this->MOD_SETTINGS['queryLimit'] != $mailGroup['queryLimit']
             || $queryLimitDisabled != $mailGroup['queryLimitDisabled']
@@ -658,7 +659,7 @@ class RecipientListController extends MainController
     /**
      * Shows user's info and categories
      *
-     * @return	string HTML showing user's info and the categories
+     * @return  string HTML showing user's info and the categories
      */
     protected function displayUserInfo()
     {

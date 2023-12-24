@@ -31,10 +31,10 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  * Static class.
  * Functions in this class are used by more than one modules.
  *
- * @author		Kasper Skaarhoj <kasperYYYY@typo3.com>
- * @author  	Jan-Erik Revsbech <jer@moccompany.com>
- * @author  	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
- * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
+ * @author      Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @author      Jan-Erik Revsbech <jer@moccompany.com>
+ * @author      Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @author      Ivan-Dharma Kartolo <ivan.kartolo@dkd.de>
  */
 class DirectMailUtility
 {
@@ -362,7 +362,6 @@ class DirectMailUtility
                 $lengthLimit = 0;
                 break;
             case '76':
-
             default:
                 $lengthLimit = (int)$urlmode;
         }

@@ -1,20 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Widgets\Provider;
 
-use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
-use DirectMailTeam\DirectMail\Widgets\Provider\DmProvider;
+use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\WidgetApi;
 use TYPO3\CMS\Dashboard\Widgets\ChartDataProviderInterface;
-
-use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\SysLog\Type as SystemLogType;
-
 
 class DmStatisticsDataProvider implements ChartDataProviderInterface
 {
@@ -26,7 +21,7 @@ class DmStatisticsDataProvider implements ChartDataProviderInterface
         $newsletters = 10
     ) {
         $this->languageService = $languageService;
-        #print_r($newsletters);
+        //print_r($newsletters);
         $this->newsletters = $newsletters;
     }
 
@@ -70,13 +65,13 @@ class DmStatisticsDataProvider implements ChartDataProviderInterface
         $pids = [];
         $pages = GeneralUtility::makeInstance(DmProvider::class)->getDmPages();
         if (count($pages) !== 0) {
-            foreach($pages as $page) {
+            foreach ($pages as $page) {
                 $pids[] = $page['uid'];
             }
             $newsletters = GeneralUtility::makeInstance(SysDmailRepository::class)->selectSysDmailsByPids($pids, $this->newsletters);
             if (count($newsletters) !== 0) {
-                foreach($newsletters as $newsletter) {
-                    $this->labels[] = $newsletter['subject'] . ' ['. $newsletter['uid'] . ']';
+                foreach ($newsletters as $newsletter) {
+                    $this->labels[] = $newsletter['subject'] . ' [' . $newsletter['uid'] . ']';
                     $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->countSysDmailMaillogByMid($newsletter['uid']);
                     $counter = $res['counter'] ?? 0;
                     $this->data[] = $counter;
@@ -90,4 +85,3 @@ class DmStatisticsDataProvider implements ChartDataProviderInterface
         return $GLOBALS['LANG'];
     }
 }
-

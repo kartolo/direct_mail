@@ -31,7 +31,7 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * takes a specific draft and compiles it again, and then creates another
  * directmail record that is ready for sending right away
  *
- * @author	Benjamin Mack <benni@typo3.org>
+ * @author  Benjamin Mack <benni@typo3.org>
  */
 class MailFromDraft extends AbstractTask
 {
@@ -53,7 +53,7 @@ class MailFromDraft extends AbstractTask
      * Function executed from scheduler.
      * Creates a new newsletter record, and sets the scheduled time to "now"
      *
-     * @return	bool
+     * @return  bool
      */
     public function execute(): bool
     {
@@ -80,7 +80,8 @@ class MailFromDraft extends AbstractTask
             $draftRecord['query_info'] = serialize($newRecipients['queryInfo']);
 
             // check if domain record is set
-            if (Environment::isCli()
+            if (
+                Environment::isCli()
                 && (int)$draftRecord['type'] !== 1
                 && !$this->checkUrlBase((int)$draftRecord['page'])
             ) {

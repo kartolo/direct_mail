@@ -26,7 +26,7 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
 /**
  * Aditional fields provider class for usage with the Scheduler's MailFromDraft task
  *
- * @author		Benjamin Mack <benni@typo3.org>
+ * @author      Benjamin Mack <benni@typo3.org>
  */
 class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
 {
@@ -34,17 +34,17 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
      * This method is used to define new fields for adding or editing a task
      * In this case, it adds an email field
      *
-     * @param	array					$taskInfo reference to the array containing the info used in the add/edit form
-     * @param	object					$task when editing, reference to the current task object. Null when adding.
-     * @param	SchedulerModuleController		$schedulerModuleController reference to the calling object (Scheduler's BE module)
+     * @param   array                   $taskInfo reference to the array containing the info used in the add/edit form
+     * @param   object                  $task when editing, reference to the current task object. Null when adding.
+     * @param   SchedulerModuleController       $schedulerModuleController reference to the calling object (Scheduler's BE module)
      *
-     * @return	array					Array containg all the information pertaining to the additional fields
-     *									The array is multidimensional, keyed to the task class name and each field's id
-     *									For each field it provides an associative sub-array with the following:
-     *										['code']		=> The HTML code for the field
-     *										['label']		=> The label of the field (possibly localized)
-     *										['cshKey']		=> The CSH key for the field
-     *										['cshLabel']	=> The code of the CSH label
+     * @return  array                   Array containg all the information pertaining to the additional fields
+     *                                  The array is multidimensional, keyed to the task class name and each field's id
+     *                                  For each field it provides an associative sub-array with the following:
+     *                                      ['code']        => The HTML code for the field
+     *                                      ['label']       => The label of the field (possibly localized)
+     *                                      ['cshKey']      => The CSH key for the field
+     *                                      ['cshLabel']    => The code of the CSH label
      */
     public function getAdditionalFields(array &$taskInfo, $task, SchedulerModuleController $schedulerModuleController)
     {
@@ -101,14 +101,14 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
      * This method checks any additional data that is relevant to the specific task
      * If the task class is not relevant, the method is expected to return true
      *
-     * @param	array					$submittedData Reference to the array containing the data submitted by the user
-     * @param	SchedulerModuleController		$schedulerModuleController Reference to the calling object (Scheduler's BE module)
+     * @param   array                   $submittedData Reference to the array containing the data submitted by the user
+     * @param   SchedulerModuleController       $schedulerModuleController Reference to the calling object (Scheduler's BE module)
      *
-     * @return	bool					True if validation was ok (or selected class is not relevant), false otherwise
+     * @return  bool                    True if validation was ok (or selected class is not relevant), false otherwise
      */
     public function validateAdditionalFields(array &$submittedData, SchedulerModuleController $schedulerModuleController)
     {
-        $draftUid = $submittedData['selecteddraft'] = (int) $submittedData['selecteddraft'];
+        $draftUid = $submittedData['selecteddraft'] = (int)$submittedData['selecteddraft'];
         if ($draftUid > 0) {
             $draftRecord = BackendUtility::getRecord('sys_dmail', $draftUid);
 
@@ -134,8 +134,8 @@ class MailFromDraftAdditionalFields extends AbstractAdditionalFieldProvider
      * This method is used to save any additional input into the current task object
      * if the task class matches
      *
-     * @param	array				$submittedData Array containing the data submitted by the user
-     * @param	AbstractTask	$task Reference to the current task object
+     * @param   array               $submittedData Array containing the data submitted by the user
+     * @param   AbstractTask    $task Reference to the current task object
      */
     public function saveAdditionalFields(array $submittedData, AbstractTask $task)
     {

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Widgets\Provider;
@@ -8,7 +9,6 @@ use DirectMailTeam\DirectMail\Widgets\DmDataProviderInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class DmProvider implements DmDataProviderInterface
 {
@@ -42,4 +42,3 @@ class DmProvider implements DmDataProviderInterface
         return $GLOBALS['BE_USER'];
     }
 }
-

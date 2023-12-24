@@ -28,8 +28,8 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -39,7 +39,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Recipient list module for tx_directmail extension
  *
- * @author		Ivan-Dharma Kartolo	<ivan.kartolo@dkd.de>
+ * @author      Ivan-Dharma Kartolo <ivan.kartolo@dkd.de>
  */
 class Importer
 {
@@ -76,7 +76,7 @@ class Importer
     /**
      * Import CSV-Data in step-by-step mode
      *
-     * @return	array		HTML form
+     * @return  array       HTML form
      */
     public function displayImport(): array
     {
@@ -211,7 +211,7 @@ class Importer
         }
 
         // check if "email" is mapped
-		$error = [];
+        $error = [];
         if (isset($stepCurrent) && $stepCurrent === 'startImport') {
             $map = $this->indata['map'];
             // check noMap
@@ -227,9 +227,9 @@ class Importer
         }
 
         $out = '';
-		if(!isset($stepCurrent)) {
-			$stepCurrent = '';
-		}
+        if (!isset($stepCurrent)) {
+            $stepCurrent = '';
+        }
         switch ($stepCurrent) {
             case 'conf':
                 $output['conf']['show'] = true;
@@ -269,7 +269,7 @@ class Importer
                 // TODO: make it variable?
                 $optUnique = [
                     ['val' => 'email', 'text' => 'email'],
-                    ['val' =>'name', 'text' => 'name'],
+                    ['val' => 'name', 'text' => 'name'],
                 ];
 
                 $output['conf']['disableInput'] = ($this->params['inputDisable'] ?? 0) == 1 ? true : false;
@@ -524,8 +524,10 @@ class Importer
          *  use it to manipulate the steps in the import process
          */
         $hookObjectsArr = [];
-        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport']) &&
-            is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'])) {
+        if (
+            isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport']) &&
+            is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'])
+        ) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['direct_mail/mod3/class.tx_directmail_recipient_list.php']['displayImport'] as $classRef) {
                 $hookObjectsArr[] = GeneralUtility::makeInstance($classRef);
             }
@@ -562,7 +564,7 @@ class Importer
         foreach ($mappedCsv as $k => $csvData) {
             if (!in_array($k, $remove)) {
                 $found = 0;
-                foreach ($cmpCsv as $kk =>$cmpData) {
+                foreach ($cmpCsv as $kk => $cmpData) {
                     if ($k != $kk) {
                         if ($csvData[$this->indata['record_unique']] == $cmpData[$this->indata['record_unique']]) {
                             $double[] = $mappedCsv[$kk];
@@ -769,7 +771,7 @@ class Importer
      * Read in the given CSV file. The function is used during the final file import.
      * Removes first the first data row if the CSV has fieldnames.
      *
-     * @return	array		file content in array
+     * @return  array       file content in array
      */
     public function readCSV(): array
     {
@@ -813,9 +815,9 @@ class Importer
      * Read in the given CSV file. Only showed a couple of the CSV values as example
      * Removes first the first data row if the CSV has fieldnames.
      *
-     * @param	int $records Number of example values
+     * @param   int $records Number of example values
      *
-     * @return	array File content in array
+     * @return  array File content in array
      */
     public function readExampleCSV($records = 3): array
     {
@@ -865,7 +867,7 @@ class Importer
      *
      * @param array $data Contains values to convert
      *
-     * @return	array	array of charset-converted values
+     * @return  array   array of charset-converted values
      * @see \TYPO3\CMS\Core\Charset\CharsetConverter::conv[]
      */
     public function convCharset(array $data): array
@@ -883,7 +885,7 @@ class Importer
     /**
      * Write CSV Data to a temporary file and will be used for the import
      *
-     * @return	array		path and uid of the temp file
+     * @return  array       path and uid of the temp file
      */
     public function writeTempFile(string $csv, string $newFile, int $newFileUid): array
     {
@@ -933,7 +935,7 @@ class Importer
     /**
      * Checks if a file has been uploaded and returns the complete physical fileinfo if so.
      *
-     * @return	array	\TYPO3\CMS\Core\Resource\File	the complete physical file name, including path info.
+     * @return  array   \TYPO3\CMS\Core\Resource\File   the complete physical file name, including path info.
      * @throws \Exception
      */
     public function checkUpload(): array
@@ -979,7 +981,7 @@ class Importer
         $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
         try {
             return $resourceFactory->getFileObject($fileUid);
-        } catch(\TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException $e) {
+        } catch (\TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException $e) {
         }
         return false;
     }
@@ -1000,7 +1002,7 @@ class Importer
     /**
      * Returns first temporary folder of the user account
      *
-     * @return	string Absolute path to first "_temp_" folder of the current user, otherwise blank.
+     * @return  string Absolute path to first "_temp_" folder of the current user, otherwise blank.
      */
     public function userTempFolder(): string
     {
@@ -1044,11 +1046,11 @@ class Importer
 
     /**
         https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
-        const 	NOTICE = -2
-        const 	INFO = -1
-        const 	OK = 0
-        const 	WARNING = 1
-        const 	ERROR = 2
+        const   NOTICE = -2
+        const   INFO = -1
+        const   OK = 0
+        const   WARNING = 1
+        const   ERROR = 2
      * @param string $messageText
      * @param string $messageHeader
      * @param int $messageType

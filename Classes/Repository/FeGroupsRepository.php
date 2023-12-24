@@ -253,7 +253,7 @@ class FeGroupsRepository extends MainRepository
      * @param int $groupUid The groupUid.
      * @param int $cat The number of relations from sys_dmail_group to sysmail_categories
      *
-     * @return	array The resulting array of uid's
+     * @return  array The resulting array of uid's
      */
     public function getIdList(array $pidArray, int $groupUid, int $cat): array
     {
@@ -261,8 +261,8 @@ class FeGroupsRepository extends MainRepository
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         // fe user group uid should be in list of fe users list of user groups
-        //		$field = $switchTable.'.usergroup';
-        //		$command = $this->table.'.uid';
+        //      $field = $switchTable.'.usergroup';
+        //      $command = $this->table.'.uid';
         // This approach, using standard SQL, does not work,
         // even when fe_users.usergroup is defined as varchar(255) instead of tinyblob
         // $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';

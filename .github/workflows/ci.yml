@@ -70,7 +70,8 @@ jobs:
           - "composer:normalize"
           - "composer:psr-verify"
           - "json:lint"
-#          - "php:sniff"
+          - "php:sniff"
+          - "php:cs-fixer"
 #          - "php:stan"
           - "xliff:lint"
         php-version:

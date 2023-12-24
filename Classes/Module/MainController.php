@@ -135,11 +135,11 @@ class MainController
 
     /**
         https://api.typo3.org/11.5/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
-        const 	NOTICE = -2
-        const 	INFO = -1
-        const 	OK = 0
-        const 	WARNING = 1
-        const 	ERROR = 2
+        const   NOTICE = -2
+        const   INFO = -1
+        const   OK = 0
+        const   WARNING = 1
+        const   ERROR = 2
      * @param string $messageText
      * @param string $messageHeader
      * @param int $messageType
@@ -264,14 +264,14 @@ class MainController
             'country',
             'fax',
             'module_sys_dmail_category',
-            'module_sys_dmail_html'
+            'module_sys_dmail_html',
         ];
     }
 
     protected function getFieldListFeUsers(): array
     {
         $fieldList = $this->getFieldList();
-        foreach(['telephone' => 'phone'] as $key => $val) {
+        foreach (['telephone' => 'phone'] as $key => $val) {
             $index = array_search($val, $fieldList);
             $fieldList[$index] = $key;
         }
@@ -300,7 +300,7 @@ class MainController
      * @param array $listArr All DB records to be formated
      * @param string $table Table name
      *
-     * @return	array		list of record
+     * @return  array       list of record
      */
     protected function getRecordList(array $listArr, string $table)
     {
@@ -406,14 +406,14 @@ class MainController
          * $plainlist is a multidimensional array.
          * this method only remove if a value has the same array
          * $plainlist = [
-         * 		0 => [
-         * 			name => '',
-         * 			email => '',
-         * 		],
-         * 		1 => [
-         * 			name => '',
-         * 			email => '',
-         * 		],
+         *      0 => [
+         *          name => '',
+         *          email => '',
+         *      ],
+         *      1 => [
+         *          name => '',
+         *          email => '',
+         *      ],
          * ];
          */
         return array_map('unserialize', array_unique(array_map('serialize', $plainlist)));

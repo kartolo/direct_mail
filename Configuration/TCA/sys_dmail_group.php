@@ -163,7 +163,7 @@ return [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.queryLimit',
             'config' => [
                 'type' => 'input',
-            ]
+            ],
         ],
         'queryLimitDisabled' => [
             'label' => 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_tca.xlf:sys_dmail_group.queryLimitDisabled',

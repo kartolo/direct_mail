@@ -205,7 +205,7 @@ class TtAddressRepository extends MainRepository
         return 0;
     }
 
-        /**
+    /**
      * Return all uid's from 'tt_address' for a static direct mail group.
      *
      * @param int $uid The uid of the direct_mail group
@@ -289,7 +289,7 @@ class TtAddressRepository extends MainRepository
      * @param int $groupUid The groupUid.
      * @param int $cat The number of relations from sys_dmail_group to sysmail_categories
      *
-     * @return	array The resulting array of uid's
+     * @return  array The resulting array of uid's
      */
     public function getIdList(array $pidArray, int $groupUid, int $cat): array
     {
