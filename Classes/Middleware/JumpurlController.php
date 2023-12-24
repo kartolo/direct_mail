@@ -34,7 +34,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 /**
  * JumpUrl processing hook on TYPO3\CMS\Frontend\Http\RequestHandler
  *
- * @author		Ivan Kartolo <ivan.kartolo@gmail.com>
+ * @author      Ivan Kartolo <ivan.kartolo@gmail.com>
  */
 class JumpurlController implements MiddlewareInterface
 {
@@ -125,7 +125,7 @@ class JumpurlController implements MiddlewareInterface
                 }
 
                 // to count the dmailerping correctly, we need something unique
-                $submittedAuthCode = preg_replace("/[^a-zA-Z0-9]/", "", $submittedAuthCode);
+                $submittedAuthCode = preg_replace('/[^a-zA-Z0-9]/', '', $submittedAuthCode);
             }
 
             if ($this->responseType !== 0) {
@@ -191,7 +191,7 @@ class JumpurlController implements MiddlewareInterface
                 ['allowed_classes' => false]
             );
 
-            if(is_array($mailContent)) {
+            if (is_array($mailContent)) {
                 if ($targetIndex >= 0) {
                     // Link (number)
                     $this->responseType = self::RESPONSE_TYPE_HREF;
@@ -266,7 +266,7 @@ class JumpurlController implements MiddlewareInterface
             if (isset($this->recipientRecord[$substField])) {
                 $processedTargetUrl = str_replace(
                     '###USER_' . $substField . '###',
-                    (string) $this->recipientRecord[$substField],
+                    (string)$this->recipientRecord[$substField],
                     $processedTargetUrl
                 );
             }
@@ -304,11 +304,13 @@ class JumpurlController implements MiddlewareInterface
     protected function performFeUserAutoLogin()
     {
         // TODO: add a switch in Direct Mail configuration to decide if this option should be enabled by default
-        if ($this->recipientTable === 'fe_users' &&
+        if (
+            $this->recipientTable === 'fe_users' &&
             GeneralUtility::inList(
                 $this->directMailRecord['authcode_fieldList'],
                 'password'
-            )) {
+            )
+        ) {
             $_POST['user'] = $this->recipientRecord['username'];
             $_POST['pass'] = $this->recipientRecord['password'];
             $_POST['pid'] = $this->recipientRecord['pid'];

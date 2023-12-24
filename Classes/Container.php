@@ -25,8 +25,8 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 /**
  * Container class for auxilliary functions of tx_directmail
  *
- * @author		Kasper Skårhøj <kasperYYYY>@typo3.com>
- * @author		Thorsten Kahler <thorsten.kahler@dkd.de>
+ * @author      Kasper Skårhøj <kasperYYYY>@typo3.com>
+ * @author      Thorsten Kahler <thorsten.kahler@dkd.de>
  */
 class Container
 {

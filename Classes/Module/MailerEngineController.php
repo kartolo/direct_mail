@@ -8,14 +8,13 @@ use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
 use DirectMailTeam\DirectMail\Utility\SchedulerUtility;
-use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class MailerEngineController extends MainController
 {
@@ -114,7 +113,7 @@ class MailerEngineController extends MainController
      * Shows the status of the mailer engine.
      * TODO: Should really only show some entries, or provide a browsing interface.
      *
-     * @return	string		List of the mailing status
+     * @return  string      List of the mailing status
      * @throws RouteNotFoundException If the named route doesn't exist
      */
     protected function mailerengine(): array
@@ -210,8 +209,8 @@ class MailerEngineController extends MainController
      * Invoking the mail engine
      * This method no longer returns logs in backend modul directly
      *
-     * @see		Dmailer::start
-     * @see		Dmailer::runcron
+     * @see     Dmailer::start
+     * @see     Dmailer::runcron
      */
     protected function invokeMEngine(): void
     {

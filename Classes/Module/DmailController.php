@@ -181,8 +181,10 @@ class DmailController extends MainController
         $hideCategoryStep = false;
         $tsconfig = $this->getTSConfig();
 
-        if ((isset($tsconfig['tx_directmail.']['hideSteps']) &&
-            $tsconfig['tx_directmail.']['hideSteps'] === 'cat') || $isExternalDirectMailRecord) {
+        if (
+            (isset($tsconfig['tx_directmail.']['hideSteps']) &&
+            $tsconfig['tx_directmail.']['hideSteps'] === 'cat') || $isExternalDirectMailRecord
+        ) {
             $hideCategoryStep = true;
         }
 
@@ -271,10 +273,10 @@ class DmailController extends MainController
                         $data['info']['internal']['cmd'] = $nextCmd ? $nextCmd : 'cats';
                     }
                 // TODO: Error message - Error while adding the DB set
-                }
-                // external URL
-                // $this->createMailFrom_URL is the External URL subject
-                elseif ($this->createMailFrom_URL != '' && !$quickmail['send']) {
+                } elseif ($this->createMailFrom_URL != '' && !$quickmail['send']) {
+                    // external URL
+                    // $this->createMailFrom_URL is the External URL subject
+
                     $newUid = $this->createDirectMailRecordFromExternalURL(
                         $this->createMailFrom_URL,
                         $this->createMailFrom_HTMLUrl,
@@ -296,9 +298,9 @@ class DmailController extends MainController
                         // TODO: Error message - Error while adding the DB set
                         $this->error = 'no_valid_url';
                     }
-                }
-                // Quickmail
-                elseif ($quickmail['send']) {
+                } elseif ($quickmail['send']) {
+                    // Quickmail
+
                     $temp = $this->createDMailQuick($quickmail);
                     if (!$temp['errorTitle']) {
                         $fetchError = false;
@@ -318,9 +320,9 @@ class DmailController extends MainController
                     $data['info']['quickmail']['subject'] = htmlspecialchars($quickmail['subject'] ?? '');
                     $data['info']['quickmail']['message'] = htmlspecialchars($quickmail['message'] ?? '');
                     $data['info']['quickmail']['breakLines'] = ($quickmail['breakLines'] ?? false) ? (int)$quickmail['breakLines'] : 0;
-                }
-                // existing dmail
-                elseif ($row) {
+                } elseif ($row) {
+                    // existing dmail
+
                     if ($row['type'] == '1' && (empty($row['HTMLParams']) || empty($row['plainParams']))) {
                         // it's a quickmail
                         $fetchError = false;
@@ -1089,7 +1091,7 @@ class DmailController extends MainController
      * @param array $row Directmal DB record
      *
      * @return string Messages if the mail is sent or planned to sent
-     * @todo	remove htmlmail. sending test mail
+     * @todo    remove htmlmail. sending test mail
      */
     protected function sendMail($row)
     {
@@ -1347,7 +1349,7 @@ class DmailController extends MainController
      * Shows the final steps of the process. Show recipient list and calendar library
      *
      * @param array $direct_mail_row
-     * @return	array		HTML
+     * @return  array       HTML
      */
     protected function cmd_finalmail($direct_mail_row)
     {
@@ -1548,19 +1550,19 @@ class DmailController extends MainController
                         // Make queries
                         if (count($pageIdArray)) {
                             $whichTables = (int)$mailGroup['whichtables'];
-                            if ($whichTables&1) {
+                            if ($whichTables & 1) {
                                 // tt_address
                                 $idLists['tt_address'] = GeneralUtility::makeInstance(TtAddressRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
-                            if ($whichTables&2) {
+                            if ($whichTables & 2) {
                                 // fe_users
                                 $idLists['fe_users'] = GeneralUtility::makeInstance(FeUsersRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
-                            if ($this->userTable && ($whichTables&4)) {
+                            if ($this->userTable && ($whichTables & 4)) {
                                 // user table
                                 $idLists[$this->userTable] = GeneralUtility::makeInstance(TempRepository::class)->getIdList($this->userTable, $pageIdArray, $groupUid, $mailGroup['select_categories']);
                             }
-                            if ($whichTables&8) {
+                            if ($whichTables & 8) {
                                 // fe_groups
                                 if (!is_array($idLists['fe_users'])) {
                                     $idLists['fe_users'] = [];
@@ -1596,11 +1598,11 @@ class DmailController extends MainController
                         $mailGroup = $this->updateSpecialQuery($mailGroup);
                         $whichTables = (int)$mailGroup['whichtables'];
                         $table = '';
-                        if ($whichTables&1) {
+                        if ($whichTables & 1) {
                             $table = 'tt_address';
-                        } elseif ($whichTables&2) {
+                        } elseif ($whichTables & 2) {
                             $table = 'fe_users';
-                        } elseif ($this->userTable && ($whichTables&4)) {
+                        } elseif ($this->userTable && ($whichTables & 4)) {
                             $table = $this->userTable;
                         }
 
@@ -1641,11 +1643,11 @@ class DmailController extends MainController
         $queryConfig = GeneralUtility::_GP('queryConfig');
         $whichTables = (int)$mailGroup['whichtables'];
         $table = '';
-        if ($whichTables&1) {
+        if ($whichTables & 1) {
             $table = 'tt_address';
-        } elseif ($whichTables&2) {
+        } elseif ($whichTables & 2) {
             $table = 'fe_users';
-        } elseif ($this->userTable && ($whichTables&4)) {
+        } elseif ($this->userTable && ($whichTables & 4)) {
             $table = $this->userTable;
         }
 
@@ -1661,7 +1663,8 @@ class DmailController extends MainController
 
         $this->MOD_SETTINGS['queryLimit'] = $queryLimit;
 
-        if ($this->MOD_SETTINGS['queryTable'] != $table
+        if (
+            $this->MOD_SETTINGS['queryTable'] != $table
             || $this->MOD_SETTINGS['queryConfig'] != $mailGroup['query']
             || $this->MOD_SETTINGS['queryLimit'] != $mailGroup['queryLimit']
             || $queryLimitDisabled != $mailGroup['queryLimitDisabled']
@@ -1834,8 +1837,8 @@ class DmailController extends MainController
             'replyto_name'          => $parameters['replyto_name'] ?? '',
             'return_path'           => $parameters['return_path'] ?? '',
             'priority'              => $parameters['priority'] ?? 0,
-            'use_rdct'              => (!empty($parameters['use_rdct']) ? $parameters['use_rdct']:0), /*$parameters['use_rdct'],*/
-            'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode']:0), //$parameters['long_link_mode'],
+            'use_rdct'              => (!empty($parameters['use_rdct']) ? $parameters['use_rdct'] : 0), /*$parameters['use_rdct'],*/
+            'long_link_mode'        => (!empty($parameters['long_link_mode']) ? $parameters['long_link_mode'] : 0), //$parameters['long_link_mode'],
             'organisation'          => $parameters['organisation'] ?? '',
             'authcode_fieldList'    => $parameters['authcode_fieldList'] ?? '',
             'sendOptions'           => $GLOBALS['TCA']['sys_dmail']['columns']['sendOptions']['config']['default'],
@@ -1906,7 +1909,7 @@ class DmailController extends MainController
      * @param string $externalUrlPlain Linkt to the text version
      * @param array $parameters Additional newsletter parameters
      *
-     * @return	int/bool Error or warning message produced during the process
+     * @return  int/bool Error or warning message produced during the process
      */
     public function createDirectMailRecordFromExternalURL($subject, $externalUrlHtml, $externalUrlPlain, array $parameters)
     {
@@ -2004,7 +2007,7 @@ class DmailController extends MainController
         return ''; // No valid pageId
     }
 
-        /**
+    /**
      * Get the configured charset.
      *
      * This method used to initialize the TSFE object to get the charset on a per page basis. Now it just evaluates the

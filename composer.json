@@ -106,7 +106,7 @@
       "@fix:php:cs",
       "@fix:php:sniff"
     ],
-    "fix:php:cs": "php-cs-fixer fix --config .phpcs-fixer.php",
+    "fix:php:cs": "php-cs-fixer fix --config .php-cs-fixer.php",
     "fix:php:sniff": "phpcbf --standard=.phpcs.xml -n -p -s --extensions=php .",
     "prepare-release": [
       "rm -rf .github",

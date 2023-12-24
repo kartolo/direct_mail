@@ -1,12 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
-namespace DirectMailTeam\DirectMail\Utility;
-
 /**
  * Code from TYPO3\CMS\Scheduler\Controller\SchedulerModuleController listTasksAction
  */
+
+declare(strict_types=1);
+
+namespace DirectMailTeam\DirectMail\Utility;
 
 use DirectMailTeam\DirectMail\Repository\TempRepository;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -61,7 +61,7 @@ class SchedulerUtility
                     'nextExecution' => '-',
                     'execType' => '',
                     'frequency' => '',
-                    'multiple' => ''
+                    'multiple' => '',
                 ];
 
                 $exceptionWithClass = false;
@@ -146,14 +146,15 @@ class SchedulerUtility
                     $taskTableRow['frequency'] = $frequency;
 
                     $multiple = $taskObj->getExecution()->getMultiple() ? 'yes' : 'no';
-                    $taskTableRow['multiple'] = $languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:'.$multiple);
+                    $taskTableRow['multiple'] = $languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:' . $multiple);
 
                     if (!empty($task['lastexecution_failure'])) {
                         $exceptionArray = @unserialize($task['lastexecution_failure']);
                         if (!is_array($exceptionArray) || empty($exceptionArray)) {
                             $labelDescription = $languageService->getLL('msg.executionFailureDefault');
                         } else {
-                            $labelDescription = ''; sprintf($languageService->getLL('msg.executionFailureReport'), $exceptionArray['code'], $exceptionArray['message']);
+                            $labelDescription = '';
+                            sprintf($languageService->getLL('msg.executionFailureReport'), $exceptionArray['code'], $exceptionArray['message']);
                         }
                         $labels[] = [
                             'class' => 'danger',

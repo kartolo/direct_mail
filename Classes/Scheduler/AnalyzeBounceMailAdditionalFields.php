@@ -63,8 +63,8 @@ class AnalyzeBounceMailAdditionalFields extends AbstractAdditionalFieldProvider
 
         if ($task) {
             $serviceHTML = '<select name="tx_scheduler[bounceService]" id="bounceService">' .
-                '<option value="imap" ' . ($task->getService() === 'imap'? 'selected="selected"' : '') . '>IMAP</option>' .
-                '<option value="pop3" ' . ($task->getService() === 'pop3'? 'selected="selected"' : '') . '>POP3</option>' .
+                '<option value="imap" ' . ($task->getService() === 'imap' ? 'selected="selected"' : '') . '>IMAP</option>' .
+                '<option value="pop3" ' . ($task->getService() === 'pop3' ? 'selected="selected"' : '') . '>POP3</option>' .
                 '</select>';
         } else {
             $serviceHTML = '<select name="tx_scheduler[bounceService]" id="bounceService">' .

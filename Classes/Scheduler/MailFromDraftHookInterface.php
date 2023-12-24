@@ -21,7 +21,7 @@ namespace DirectMailTeam\DirectMail\Scheduler;
  * The mentioned class is responsible for automatically sending direct mail
  * newsletters via a scheduler task.
  *
- * @author		Bernhard Kraft <kraft@webconsulting.at>
+ * @author      Bernhard Kraft <kraft@webconsulting.at>
  */
 interface MailFromDraftHookInterface
 {
@@ -30,8 +30,8 @@ interface MailFromDraftHookInterface
      *
      * The draft record is passed via reference by the key 'draftRecord' in the $hookParams argument.
      *
-     * @param	array $hookParams Parameters to the hook. All passed by reference
-     * @param	object $parentObject A reference to the calling object instance
+     * @param   array $hookParams Parameters to the hook. All passed by reference
+     * @param   object $parentObject A reference to the calling object instance
      */
     public function postInsertClone(array $hookParams, &$parentObject);
 
@@ -41,8 +41,8 @@ interface MailFromDraftHookInterface
      * The values 'scheduled' and 'issent' in the hook parameter key 'updateData' are
      * responsible for marking the direct mail as "to be sent".
      *
-     * @param	array		$hookParams Parameters to the hook. All passed by reference
-     * @param	object		$parentObject A reference to the calling object instance
+     * @param   array       $hookParams Parameters to the hook. All passed by reference
+     * @param   object      $parentObject A reference to the calling object instance
      */
     public function enqueueClonedDmail(array $hookParams, &$parentObject);
 }

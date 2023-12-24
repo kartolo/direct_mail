@@ -46,7 +46,7 @@ class FeUsersRepository extends MainRepository
         ->fetchAllAssociative();
     }
 
-        /**
+    /**
      * Returns record no matter what - except if record is deleted
      *
      * @param int $uid The uid to look up in $table
@@ -81,13 +81,13 @@ class FeUsersRepository extends MainRepository
         return 0;
     }
 
-     /**
-     * Return all uid's from 'fe_users' for a static direct mail group.
-     *
-     * @param int $uid The uid of the direct_mail group
-     *
-     * @return array The resulting array of uid's
-     */
+    /**
+    * Return all uid's from 'fe_users' for a static direct mail group.
+    *
+    * @param int $uid The uid of the direct_mail group
+    *
+    * @return array The resulting array of uid's
+    */
     public function getStaticIdList(int $uid): array
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
@@ -170,15 +170,15 @@ class FeUsersRepository extends MainRepository
      * @param int $groupUid The groupUid.
      * @param int $cat The number of relations from sys_dmail_group to sysmail_categories
      *
-     * @return	array The resulting array of uid's
+     * @return  array The resulting array of uid's
      */
     public function getIdList(array $pidArray, int $groupUid, int $cat): array
     {
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         // fe user group uid should be in list of fe users list of user groups
-        //		$field = $this->table.'.usergroup';
-        //		$command = $this->table.'.uid';
+        //      $field = $this->table.'.usergroup';
+        //      $command = $this->table.'.uid';
         // This approach, using standard SQL, does not work,
         // even when fe_users.usergroup is defined as varchar(255) instead of tinyblob
         // $usergroupInList = ' AND ('.$field.' LIKE \'%,\'||'.$command.'||\',%\' OR '.$field.' LIKE '.$command.'||\',%\' OR '.$field.' LIKE \'%,\'||'.$command.' OR '.$field.'='.$command.')';
@@ -206,7 +206,8 @@ class FeUsersRepository extends MainRepository
                     $queryBuilder->expr()->eq(
                         'fe_users.module_sys_dmail_newsletter',
                         1
-                ))
+                    )
+                )
             )
             ->orderBy($this->table . '.uid')
             ->addOrderBy($this->table . '.email')

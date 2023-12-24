@@ -29,8 +29,8 @@ use TYPO3\CMS\Lowlevel\Database\QueryGenerator;
 /**
  * Used to generate queries for selecting users in the database
  *
- * @author		Kasper Skårhøj <kasper@typo3.com>
- * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @author      Kasper Skårhøj <kasper@typo3.com>
+ * @author      Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  */
 class DmQueryGenerator extends QueryGenerator
 {
@@ -129,7 +129,7 @@ class DmQueryGenerator extends QueryGenerator
                 // Show query
                 $this->enablePrefix = true;
                 $queryString = $this->getQuery($this->queryConfig);
-                if($queryLimitDisabled) {
+                if ($queryLimitDisabled) {
                     $this->extFieldLists['queryLimit'] = '';
                 }
                 $selectQueryString = $this->getSelectQuery($queryString);

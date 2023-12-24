@@ -539,7 +539,7 @@ class StatisticsController extends MainController
                 ],
                 [
                     'stats_links_clicked_per_respondent',
-                    ($uniqueHtmlResponses + $uniquePlainResponses ? number_format((($table['1']['counter'] ?? 0) + ($table['2']['counter'] ?? 0)) / ($uniqueHtmlResponses+$uniquePlainResponses), 2) : '-'),
+                    ($uniqueHtmlResponses + $uniquePlainResponses ? number_format((($table['1']['counter'] ?? 0) + ($table['2']['counter'] ?? 0)) / ($uniqueHtmlResponses + $uniquePlainResponses), 2) : '-'),
                     ($uniqueHtmlResponses  ? number_format(($table['1']['counter']) / ($uniqueHtmlResponses), 2)  : '-'),
                     ($uniquePlainResponses ? number_format(($table['2']['counter']) / ($uniquePlainResponses), 2) : '-'),
                 ],
@@ -1241,7 +1241,7 @@ class StatisticsController extends MainController
      * @return string wrapped string as a link
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function linkDMail_record($str, $uid, $aTitle='')
+    protected function linkDMail_record($str, $uid, $aTitle = '')
     {
         $moduleUrl = $this->buildUriFromRoute(
             $this->moduleName,
@@ -1332,7 +1332,7 @@ class StatisticsController extends MainController
         $total = (int)$total;
         $str = $pieces ? number_format((int)$pieces) : '0';
         if ($total) {
-            $str .= ' / ' . number_format(($pieces/$total*100), 2) . '%';
+            $str .= ' / ' . number_format(($pieces / $total * 100), 2) . '%';
         }
         return $str;
     }
@@ -1373,8 +1373,8 @@ class StatisticsController extends MainController
                         $recRec['response'][] = $row['tstamp'];
                         break;
                     case '0':
-                        $recRec['recieved_html'] = $row['html_sent']&1;
-                        $recRec['recieved_plain'] = $row['html_sent']&2;
+                        $recRec['recieved_html'] = $row['html_sent'] & 1;
+                        $recRec['recieved_plain'] = $row['html_sent'] & 2;
                         $recRec['size'] = $row['size'];
                         $recRec['tstamp'] = $row['tstamp'];
                         break;
@@ -1467,14 +1467,14 @@ class StatisticsController extends MainController
                 if ($isInt) {
                     $uid = (int)$m[1];
                 }
-//                @TODO
-//                 else {
-//                     // initialize the page selector
-//                     /** @var PageRepository $sys_page */
-//                     $sys_page = GeneralUtility::makeInstance(PageRepository::class);
-//                     $sys_page->init(true);
-//                     $uid = $sys_page->getPageIdFromAlias($m[1]);
-//                 }
+                //                @TODO
+                //                 else {
+                //                     // initialize the page selector
+                //                     /** @var PageRepository $sys_page */
+                //                     $sys_page = GeneralUtility::makeInstance(PageRepository::class);
+                //                     $sys_page->init(true);
+                //                     $uid = $sys_page->getPageIdFromAlias($m[1]);
+                //                 }
                 $rootLine = BackendUtility::BEgetRootLine($uid);
                 $pages = array_shift($rootLine);
                 // array_shift reverses the array (rootline has numeric index in the wrong order!)
@@ -1559,16 +1559,15 @@ class StatisticsController extends MainController
                 $contentTitle = $file['file'];
             }
         }
-/**
-        if ($this->params['showContentTitle'] == 1) {
-            $label = $contentTitle;
-        }
+        /**
+                if ($this->params['showContentTitle'] == 1) {
+                    $label = $contentTitle;
+                }
 
-        if ($this->params['prependContentTitle'] == 1) {
-            $label =  $contentTitle . ' (' . $linkedWord . ')';
-        }
-*/
-
+                if ($this->params['prependContentTitle'] == 1) {
+                    $label =  $contentTitle . ' (' . $linkedWord . ')';
+                }
+        */
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] ?? false)) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['directmail']['getLinkLabel'] as $funcRef) {
                 $params = ['pObj' => &$this, 'url' => $url, 'urlStr' => $urlStr, 'label' => $label];

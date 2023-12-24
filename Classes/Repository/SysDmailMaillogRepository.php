@@ -604,7 +604,7 @@ class SysDmailMaillogRepository extends MainRepository
                 ),
                 $queryBuilder->expr()->gte(
                     'tstamp',
-                    $queryBuilder->createNamedParameter($mailLogParameters['tstamp']-10, Connection::PARAM_INT)
+                    $queryBuilder->createNamedParameter($mailLogParameters['tstamp'] - 10, Connection::PARAM_INT)
                 )
             );
 
@@ -639,7 +639,7 @@ class SysDmailMaillogRepository extends MainRepository
      * @param int $rid Recipient UID
      * @param string $rtbl Recipient table
      *
-     * @return	bool Number of found records
+     * @return  bool Number of found records
      */
     public function dmailerIsSend(int $mid, int $rid, string $rtbl): bool
     {
@@ -739,10 +739,10 @@ class SysDmailMaillogRepository extends MainRepository
     /**
      * Get IDs of recipient, which has been sent
      *
-     * @param	int $mid Newsletter ID. UID of the sys_dmail record
-     * @param	string $rtbl Recipient table
+     * @param   int $mid Newsletter ID. UID of the sys_dmail record
+     * @param   string $rtbl Recipient table
      *
-     * @return	string		list of sent recipients
+     * @return  string      list of sent recipients
      */
     public function dmailerGetSentMails(int $mid, string $rtbl): string
     {

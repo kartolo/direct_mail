@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Localize categories for backend forms
  *
- * @author		Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * @author      Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  */
 class SelectCategories
 {
@@ -34,7 +34,7 @@ class SelectCategories
      * Referenced by TCA
      * https://docs.typo3.org/m/typo3/reference-tca/11.5/en-us/ColumnsConfig/CommonProperties/ItemsProcFunc.html
      *
-     * @param	array $params Array of searched translation
+     * @param   array $params Array of searched translation
      */
     public function getLocalizedCategories(array &$params): void
     {

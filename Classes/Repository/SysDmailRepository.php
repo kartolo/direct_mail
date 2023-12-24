@@ -69,8 +69,7 @@ class SysDmailRepository extends MainRepository
                     $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)
                 )
             );
-        }
-        else {
+        } else {
             $queryBuilder->andWhere(
                 $queryBuilder->expr()->eq(
                     'scheduled',

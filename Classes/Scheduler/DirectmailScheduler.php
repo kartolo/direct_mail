@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
 * Class tx_directmail_scheduler
 *
-* @author	Ivan Kartolo <ivan.kartolo@dkd.de>
+* @author   Ivan Kartolo <ivan.kartolo@dkd.de>
 * @deprecated will be removed in TYPO3 v12.0. Use DirectmailCommand instead.
 */
 class DirectmailScheduler extends \TYPO3\CMS\Scheduler\Task\AbstractTask
@@ -30,7 +30,7 @@ class DirectmailScheduler extends \TYPO3\CMS\Scheduler\Task\AbstractTask
      * Function executed from scheduler.
      * Send the newsletter
      *
-     * @return	bool
+     * @return  bool
      */
     public function execute()
     {
