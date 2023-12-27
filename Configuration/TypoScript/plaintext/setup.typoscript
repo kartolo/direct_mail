@@ -4,7 +4,7 @@
 ## @version $Id:setup.txt 6012 2007-07-23 12:54:25 +0000 (Mo, 23 Jul 2007) ivankartolo $
 ##
 
-[traverse(request.getQueryParams(), "type") == 99]
+[request && traverse(request.getQueryParams(), "type") == 99]
 // add template path for fluid_styled_content
 lib.contentElement {
   templateRootPaths.100 = EXT:direct_mail/Resources/Private/Plaintext/FluidContentElement/Templates/
