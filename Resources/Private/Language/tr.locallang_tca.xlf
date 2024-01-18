@@ -1,216 +1,292 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-	<file source-language="en" target-language="tr" datatype="plaintext" original="messages" date="2016-02-05T12:03:27Z">
-		<header>
-			<description>Labels for the Direct Mail tables</description>
-			<type>database</type>
-			<fileId>EXT:direct_mail/Resources/Private/Language/locallang_tca.xml</fileId>
-			<labelContext></labelContext>
-			<authorName>Ivan Kartolo</authorName>
-			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
-			<generator>LFEditor</generator>
-		</header>
-		<body>
-		<trans-unit id="sys_dmail" approved="yes">
-			<source>Direct mails</source>
-			<target>Doğrudan mailler</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.HTMLParams" approved="yes">
-			<source>Parameters, HTML:</source>
-			<target>Parametreler, HTML:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.HTMLParams.ALT.1" approved="yes">
-			<source>URL for HTML content:</source>
-			<target>HTML-içeriği için URL:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.attachment" approved="yes">
-			<source>Attachments:</source>
-			<target>İliştirmeler:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.from_email" approved="yes">
-			<source>Sender email:</source>
-			<target>Gönderenin e-maili:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.from_name" approved="yes">
-			<source>Sender name:</source>
-			<target>Gönderenin adı:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.issent" approved="yes">
-			<source>Is sent:</source>
-			<target>Gönderilmiştir:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.organisation" approved="yes">
-			<source>Organization:</source>
-			<target>Organizasyon:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.page" approved="yes">
-			<source>Mail page:</source>
-			<target>Mail sayfası:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.plainParams" approved="yes">
-			<source>Parameters, Plain text:</source>
-			<target>Parametreler, Basit metin:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.plainParams.ALT.1" approved="yes">
-			<source>URL for plain text content:</source>
-			<target>Basit metin için URL:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.priority" approved="yes">
-			<source>Priority:</source>
-			<target>Öncelikli:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.priority.I.0" approved="yes">
-			<source>Low</source>
-			<target>Düşük:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.priority.I.2" approved="yes">
-			<source>High</source>
-			<target>Yüksek:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.renderedsize" approved="yes">
-			<source>Compiled size:</source>
-			<target>Sunulan ebat:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.replyto_email" approved="yes">
-			<source>Reply email:</source>
-			<target>Cevap e-maili:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.replyto_name" approved="yes">
-			<source>Reply name:</source>
-			<target>Cevap adı:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.return_path" approved="yes">
-			<source>Return Path:</source>
-			<target>Geri dönüş yolu:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.sendOptions" approved="yes">
-			<source>Format of mail content:</source>
-			<target>Dahil edilen:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.sendOptions.I.0" approved="yes">
-			<source>Plain text</source>
-			<target>HTML</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.sendOptions.I.1" approved="yes">
-			<source>HTML</source>
-			<target>HTML</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.subject" approved="yes">
-			<source>Subject:</source>
-			<target>Konu:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.type.I.0" approved="yes">
-			<source>TYPO3 Page</source>
-			<target>TYPO3 sayfası</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.type.I.1" approved="yes">
-			<source>External URL</source>
-			<target>Dış URL</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group" approved="yes">
-			<source>Recipient list</source>
-			<target>Doğrudan mail grubu</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.csv.I.0" approved="yes">
-			<source>Separate emails by space/comma/linebreak</source>
-			<target>E-maillerin boşluk/virgül/satır bitimi tarafından ayrılması</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.csv.I.1" approved="yes">
-			<source>CSV [name],[email]</source>
-			<target>CSV [adı],[e-maili]</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.list" approved="yes">
-			<source>Recipients:</source>
-			<target>Alıcılar:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.mail_groups" approved="yes">
-			<source>Other recipient lists:</source>
-			<target>Başka mail grupları:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories" approved="yes">
-			<source>Must subscribe to one of the categories:</source>
-			<target>Hazır bulunması gereken kategoriler:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.0" approved="yes">
-			<source></source>
-			<target>Kategori 0</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.1" approved="yes">
-			<source></source>
-			<target>Kategori 1</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.2" approved="yes">
-			<source></source>
-			<target>Kategori 2</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.3" approved="yes">
-			<source></source>
-			<target>Kategori 3</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.4" approved="yes">
-			<source></source>
-			<target>Kategori 4</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.5" approved="yes">
-			<source></source>
-			<target>Kategori 5</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.6" approved="yes">
-			<source></source>
-			<target>Kategori 6</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.7" approved="yes">
-			<source></source>
-			<target>Kategori 7</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.8" approved="yes">
-			<source></source>
-			<target>Kategori 8</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.9" approved="yes">
-			<source></source>
-			<target>Kategori 9</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.static_list" approved="yes">
-			<source>Recipients:</source>
-			<target>Alıcılar:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.type.I.0" approved="yes">
-			<source>From pages</source>
-			<target>Sayfalardan</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.type.I.1" approved="yes">
-			<source>Plain list</source>
-			<target>Basit liste</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.type.I.2" approved="yes">
-			<source>Static list</source>
-			<target>Statik grup</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.type.I.3" approved="yes">
-			<source>Special query</source>
-			<target>Özel soru</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.type.I.4" approved="yes">
-			<source>From other recipient lists</source>
-			<target>Başka mail grupları</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.whichtables" approved="yes">
-			<source>Types of records:</source>
-			<target>Tablolar:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.whichtables.I.0" approved="yes">
-			<source>Address</source>
-			<target>Kullanıcı tarafından belirlenen tablo</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.whichtables.I.1" approved="yes">
-			<source>Website user</source>
-			<target>Website kullanıcısı</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.whichtables.I.2" approved="yes">
-			<source>From custom-defined table</source>
-			<target>Kullanıcı tablosu tanımlandı</target>
-		</trans-unit>
-		</body>
-	</file>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:03:27Z" target-language="tr">
+    <header>
+      <description>Labels for the Direct Mail tables</description>
+      <type>database</type>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_tca.xml</fileId>
+      <labelContext/>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id="module_sys_dmail_group.category">
+        <source>Subscribe to categories</source>
+        <target state="needs-translation">Subscribe to categories</target>
+      </trans-unit>
+      <trans-unit id="module_sys_dmail_group.htmlemail">
+        <source>Recieve e-mails as HTML?</source>
+        <target state="needs-translation">Recieve e-mails as HTML?</target>
+      </trans-unit>
+      <trans-unit id="module_sys_dmail_group.newsletter">
+        <source>Activate Newsletter</source>
+        <target state="needs-translation">Activate Newsletter</target>
+      </trans-unit>
+      <trans-unit id="pages.module.I.5">
+        <source>Direct Mail</source>
+        <target state="needs-translation">Direct Mail</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail" approved="yes">
+        <source>Direct mails</source>
+        <target state="final">Doğrudan mailler</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.HTMLParams" approved="yes">
+        <source>Parameters, HTML:</source>
+        <target state="final">Parametreler, HTML:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.HTMLParams.ALT.1" approved="yes">
+        <source>URL for HTML content:</source>
+        <target state="final">HTML-içeriği için URL:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.attachment" approved="yes">
+        <source>Attachments:</source>
+        <target state="final">İliştirmeler:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.authcode_fieldList">
+        <source>Fields used in the computation of authentication codes:</source>
+        <target state="needs-translation">Fields used in the computation of authentication codes:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.charset">
+        <source>Message text character set:</source>
+        <target state="needs-translation">Message text character set:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.flowedFormat">
+        <source>Use flowing text format in plain text content:</source>
+        <target state="needs-translation">Use flowing text format in plain text content:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.from_email" approved="yes">
+        <source>Sender email:</source>
+        <target state="final">Gönderenin e-maili:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.from_name" approved="yes">
+        <source>Sender name:</source>
+        <target state="final">Gönderenin adı:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.includeMedia">
+        <source>Include images and other media in HTML content:</source>
+        <target state="needs-translation">Include images and other media in HTML content:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.issent" approved="yes">
+        <source>Is sent:</source>
+        <target state="final">Gönderilmiştir:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.long_link_mode">
+        <source>Redirect not only links longer than 76 characters but ALL links:</source>
+        <target state="needs-translation">Redirect not only links longer than 76 characters but ALL links:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.long_link_rdct_url">
+        <source>Long links redirection url:</source>
+        <target state="needs-translation">Long links redirection url:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.organisation" approved="yes">
+        <source>Organization:</source>
+        <target state="final">Organizasyon:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.page" approved="yes">
+        <source>Mail page:</source>
+        <target state="final">Mail sayfası:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.plainParams" approved="yes">
+        <source>Parameters, Plain text:</source>
+        <target state="final">Parametreler, Basit metin:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.plainParams.ALT.1" approved="yes">
+        <source>URL for plain text content:</source>
+        <target state="final">Basit metin için URL:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority" approved="yes">
+        <source>Priority:</source>
+        <target state="final">Öncelikli:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority.I.0" approved="yes">
+        <source>Low</source>
+        <target state="final">Düşük:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority.I.1">
+        <source>Normal</source>
+        <target state="needs-translation">Normal</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority.I.2" approved="yes">
+        <source>High</source>
+        <target state="final">Yüksek:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.renderedsize" approved="yes">
+        <source>Compiled size:</source>
+        <target state="final">Sunulan ebat:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.replyto_email" approved="yes">
+        <source>Reply email:</source>
+        <target state="final">Cevap e-maili:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.replyto_name" approved="yes">
+        <source>Reply name:</source>
+        <target state="final">Cevap adı:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.return_path" approved="yes">
+        <source>Return Path:</source>
+        <target state="final">Geri dönüş yolu:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.scheduled">
+        <source>Scheduled time:</source>
+        <target state="needs-translation">Scheduled time:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.scheduled_begin">
+        <source>Delivery start:</source>
+        <target state="needs-translation">Delivery start:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.scheduled_end">
+        <source>Delivery end:</source>
+        <target state="needs-translation">Delivery end:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.sendOptions" approved="yes">
+        <source>Format of mail content:</source>
+        <target state="final">Dahil edilen:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.sendOptions.I.0" approved="yes">
+        <source>Plain text</source>
+        <target state="final">HTML</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.sendOptions.I.1">
+        <source>HTML</source>
+        <target state="needs-translation">HTML</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.subject" approved="yes">
+        <source>Subject:</source>
+        <target state="final">Konu:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.tab1">
+        <source>Composition</source>
+        <target state="needs-translation">Composition</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.tab2">
+        <source>Mail headers</source>
+        <target state="needs-translation">Mail headers</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.tab3">
+        <source>Send options</source>
+        <target state="needs-translation">Send options</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.transfer_encoding">
+        <source>Content transfer encoding:</source>
+        <target state="needs-translation">Content transfer encoding:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.type.I.0" approved="yes">
+        <source>TYPO3 Page</source>
+        <target state="final">TYPO3 sayfası</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.type.I.1" approved="yes">
+        <source>External URL</source>
+        <target state="final">Dış URL</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.use_rdct">
+        <source>Redirect links longer than 76 characters:</source>
+        <target state="needs-translation">Redirect links longer than 76 characters:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_category">
+        <source>Direct Mail Category</source>
+        <target state="needs-translation">Direct Mail Category</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_category.category">
+        <source>Category:</source>
+        <target state="needs-translation">Category:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_category.old_cat_number">
+        <source>Old category number:</source>
+        <target state="needs-translation">Old category number:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group" approved="yes">
+        <source>Recipient list</source>
+        <target state="final">Doğrudan mail grubu</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.advanced">
+        <source>Configuration</source>
+        <target state="needs-translation">Configuration</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.csv">
+        <source>List format:</source>
+        <target state="needs-translation">List format:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.csv.I.0" approved="yes">
+        <source>Separate emails by space/comma/linebreak</source>
+        <target state="final">E-maillerin boşluk/virgül/satır bitimi tarafından ayrılması</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.csv.I.1" approved="yes">
+        <source>CSV [name],[email]</source>
+        <target state="final">CSV [adı],[e-maili]</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.list" approved="yes">
+        <source>Recipients:</source>
+        <target state="final">Alıcılar:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.mail_groups" approved="yes">
+        <source>Other recipient lists:</source>
+        <target state="final">Başka mail grupları:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.recursive">
+        <source>Include page subtree:</source>
+        <target state="needs-translation">Include page subtree:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.select_categories" approved="yes">
+        <source>Must subscribe to one of the categories:</source>
+        <target state="final">Hazır bulunması gereken kategoriler:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.static_list" approved="yes">
+        <source>Recipients:</source>
+        <target state="final">Alıcılar:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.0" approved="yes">
+        <source>From pages</source>
+        <target state="final">Sayfalardan</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.1" approved="yes">
+        <source>Plain list</source>
+        <target state="final">Basit liste</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.2" approved="yes">
+        <source>Static list</source>
+        <target state="final">Statik grup</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.3" approved="yes">
+        <source>Special query</source>
+        <target state="final">Özel soru</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.4" approved="yes">
+        <source>From other recipient lists</source>
+        <target state="final">Başka mail grupları</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables" approved="yes">
+        <source>Types of records:</source>
+        <target state="final">Tablolar:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.0" approved="yes">
+        <source>Address</source>
+        <target state="final">Kullanıcı tarafından belirlenen tablo</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.1" approved="yes">
+        <source>Website user</source>
+        <target state="final">Website kullanıcısı</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.2" approved="yes">
+        <source>From custom-defined table</source>
+        <target state="final">Kullanıcı tablosu tanımlandı</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.3">
+        <source>Website User Group</source>
+        <target state="needs-translation">Website User Group</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.query">
+        <source>Query</source>
+        <target state="needs-translation">Query</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.queryLimit">
+        <source>Query Limit</source>
+        <target state="needs-translation">Query Limit</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.queryLimitDisabled">
+        <source>Query Limit Disabled</source>
+        <target state="needs-translation">Query Limit Disabled</target>
+      </trans-unit>
+    </body>
+  </file>
 </xliff>
