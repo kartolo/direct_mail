@@ -14,11 +14,11 @@
     <body>
       <trans-unit id=".alttitle">
         <source>Direct Mail &gt; Direct Mail module</source>
-        <target state="needs-translation">Direct Mail &gt; Direct Mail module</target>
+        <target state="translated">Direct Mail &gt; Direct Mail Modul</target>
       </trans-unit>
       <trans-unit id=".description">
         <source>Select the function of the Direct Mail module that you want to use.</source>
-        <target state="needs-translation">Select the function of the Direct Mail module that you want to use.</target>
+        <target state="translated">Wählen Sie die Funktion des Direkt-Mail-Moduls, das Sie verwenden möchten.</target>
       </trans-unit>
       <trans-unit id=".details" xml:space="preserve">
 			<source><![CDATA[The functions of the Direct Mail module are the following, but their availability may be restricted depending on user access rights:
@@ -53,58 +53,58 @@
 7. Module Configuration: this function is an administration tool used to configure a Direct Mail folder. Please refer to the manual for more information.]]></target></trans-unit>
       <trans-unit id="_.seeAlso">
         <source>sys_dmail, sys_dmail_group, sys_dmail_category</source>
-        <target state="needs-translation">sys_dmail, sys_dmail_group, sys_dmail_category</target>
+        <target state="translated">sys_dmail, sys_dmail_group, sys_dmail_category</target>
       </trans-unit>
       <trans-unit id="assign_categories.alttitle">
         <source>Select a direct mail</source>
-        <target state="needs-translation">Select a direct mail</target>
+        <target state="translated">Wähle ein Direct Mail Datensatz</target>
       </trans-unit>
       <trans-unit id="assign_categories.description">
         <source>Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</source>
-        <target state="needs-translation">Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</target>
+        <target state="translated">Die Zuordnung von Kategorien zu einem Inhaltselement bedeutet, dass das Element nur in der E-Mail erscheint, wenn der Empfänger diese Kategorie in seinem Profil ausgewählt hat.</target>
       </trans-unit>
       <trans-unit id="assign_categories.details" xml:space="preserve">
 			<source><![CDATA[Check a checkbox in order to assign a category to a content element.
 
 If you do not assign any category to an element, the element will appear in all mails.]]></source>
-		<target state="needs-translation"><![CDATA[Check a checkbox in order to assign a category to a content element.
+		<target state="translated"><![CDATA[Aktivieren Sie ein Kontrollkästchen, um eine Kategorie einem Inhaltselement zuzuordnen.
 
-If you do not assign any category to an element, the element will appear in all mails.]]></target></trans-unit>
+Wenn Sie einem Element keine Kategorie zuweisen, wird das Element in allen Mails erscheinen.]]></target></trans-unit>
       <trans-unit id="assign_categories.seeAlso">
         <source>sys_dmail_category</source>
-        <target state="needs-translation">sys_dmail_category</target>
+        <target state="translated">sys_dmail_category</target>
       </trans-unit>
       <trans-unit id="create_directmail_from_nl.alttitle">
         <source>Create a new direct mail from newsletter</source>
-        <target state="needs-translation">Create a new direct mail from newsletter</target>
+        <target state="translated">Neue Direktnachricht aus dem Newsletter erstellen</target>
       </trans-unit>
       <trans-unit id="create_directmail_from_nl.description">
         <source>No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</source>
-        <target state="needs-translation">No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</target>
+        <target state="translated">Es wurde keine E-Mail mit dem Inhalt der folgenden Newsletter erstellt. Klicken Sie auf die Mail, die Sie verwenden möchten, um eine neue E-Mail zu erstellen.</target>
       </trans-unit>
       <trans-unit id="create_directmail_from_nl.seeAlso">
         <source>sys_dmail</source>
-        <target state="needs-translation">sys_dmail</target>
+        <target state="translated">sys_dmail</target>
       </trans-unit>
       <trans-unit id="create_directmail_from_url.alttitle">
         <source>Create a new direct mail from an external URL</source>
-        <target state="needs-translation">Create a new direct mail from an external URL</target>
+        <target state="translated">Neue Direktnachricht von einer externen URL erstellen</target>
       </trans-unit>
       <trans-unit id="create_directmail_from_url.description">
         <source>Use this form to create a new direct mail based on content grabbed from an external URL.</source>
-        <target state="needs-translation">Use this form to create a new direct mail based on content grabbed from an external URL.</target>
+        <target state="translated">Benutzen Sie dieses Formular, um eine neue Direktnachricht basierend auf Inhalten, die von einer externen URL erfasst werden, zu erstellen.</target>
       </trans-unit>
       <trans-unit id="create_directmail_from_url.seeAlso">
         <source>sys_dmail</source>
-        <target state="needs-translation">sys_dmail</target>
+        <target state="translated">sys_dmail</target>
       </trans-unit>
       <trans-unit id="create_newsletter.alttitle">
         <source>Create a newsletter</source>
-        <target state="needs-translation">Create a newsletter</target>
+        <target state="translated">Newsletter erstellen</target>
       </trans-unit>
       <trans-unit id="create_newsletter.description">
         <source>Click on this link if you want to create a new newsletter.</source>
-        <target state="needs-translation">Click on this link if you want to create a new newsletter.</target>
+        <target state="translated">Klicken Sie auf diesen Link, wenn Sie einen neuen Newsletter erstellen möchten.</target>
       </trans-unit>
       <trans-unit id="create_newsletter.details" xml:space="preserve">
 			<source><![CDATA[A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
@@ -128,14 +128,14 @@ You may personalize the direct mails that will be sent to each recipient by inse
 ###SYS_TABLE_NAME###
 ###SYS_MAIL_ID###
 ###SYS_AUTHCODE###]]></source>
-		<target state="needs-translation"><![CDATA[A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
+		<target state="translated"><![CDATA[Ein Newsletter ist im Grunde eine normale TYPO3-Seite, die im Direct Mail-Ordner liegt. Wenn Sie auf diesen Link klicken, gelangen Sie zu einem Formular, mit dem Sie eine Seite erstellen und ein erstes Inhaltselement anlegen können. Nachdem Sie die Seite erstellt haben, können Sie ihr weitere Inhalte hinzufügen.
 
-You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
+Sie können die Mails, die an jeden Empfänger gesendet werden, personalisieren, indem Sie die folgenden Markierungen in die Inhaltselemente der Newsletter-Seite einfügen. Die Markierungen werden durch den entsprechenden Wert ersetzt, der in jedem Empfängerdatensatz gefunden wird, sofern verfügbar:
 
-###USER_uid### (the unique id of the recipient)
-###USER_name### (full name)
-###USER_firstname### (first name calculated)
-###USER_NAME### and ###USER_FIRSTNAME### will insert uppercase versions of the equivalents
+###USER_uid### (die eindeutige ID des Empfängers)
+###USER_name### (vollständiger Name)
+###USER_firstname### (errechneter Vorname)
+###USER_NAME### und ###USER_FIRSTNAME### fügen Großbuchstaben-Versionen der Entsprechungen ein
 ###USER_title###
 ###USER_email###
 ###USER_phone###
@@ -151,11 +151,11 @@ You may personalize the direct mails that will be sent to each recipient by inse
 ###SYS_AUTHCODE###]]></target></trans-unit>
       <trans-unit id="directmail_actions.alttitle">
         <source>Direct Mails options menu</source>
-        <target state="needs-translation">Direct Mails options menu</target>
+        <target state="translated">Direct Mail Optionen</target>
       </trans-unit>
       <trans-unit id="directmail_actions.description">
         <source>Select the action you want to perform on this direct mail.</source>
-        <target state="needs-translation">Select the action you want to perform on this direct mail.</target>
+        <target state="translated">Wählen Sie die Aktion aus, die Sie auf dieser Direktmail ausführen möchten.</target>
       </trans-unit>
       <trans-unit id="directmail_actions.details" xml:space="preserve">
 			<source><![CDATA[Possible actions are the following, but their availability vary depending on the current state of the direct mail:
@@ -167,50 +167,50 @@ You may personalize the direct mails that will be sent to each recipient by inse
 3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
 
 4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.]]></source>
-		<target state="needs-translation"><![CDATA[Possible actions are the following, but their availability vary depending on the current state of the direct mail:
+		<target state="translated"><![CDATA[Mögliche Aktionen sind die folgenden, aber ihre Verfügbarkeit hängt vom aktuellen Status der Direktnachricht ab:
 
-1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
+1. Mail-Inhalt abrufen und kompilieren: Mit dieser Option können Sie den Inhalt der Direktnachricht abrufen, die in einem speziellen Format für spätere Mails kompiliert wird; diese Aktion muss durchgeführt werden, bevor eine andere Aktion durchgeführt werden kann; Sie sollten die Eigenschaften der Direktmail, wie sie auf dem Bildschirm dargestellt sind, und bei Bedarf bearbeiten, bevor Sie Inhalte abrufen.
 
-2. Send a testmail: this option lets you send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application.
+2. Senden Sie eine Testmail: Mit dieser Option können Sie eine Test-E-Mail senden, um sicherzustellen, dass die E-Mail-Nachrichten, die an die Empfängerliste gesendet werden, wie erwartet aussehen, wenn sie in einer Client-E-Mail-Anwendung empfangen werden.
 
-3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
+3. Massenversand: Mit dieser Option können Sie den tatsächlichen Versand der Direktnachricht an eine bestimmte Empfängerliste festlegen.
 
-4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.]]></target></trans-unit>
+4. Sehen Sie sich die Statistiken dieser E-Mail an: Mit dieser Option können Sie Statistiken über die direkte Mail und die Antworten überprüfen und Maßnahmen für zurückgegebene Mails ergreifen; Diese Option ist erst verfügbar, nachdem die Massenversand gestartet wurde.]]></target></trans-unit>
       <trans-unit id="directmail_actions.seeAlso">
         <source>sys_dmail</source>
-        <target state="needs-translation">sys_dmail</target>
+        <target state="translated">sys_dmail</target>
       </trans-unit>
       <trans-unit id="folders.alttitle">
         <source>Available Direct Mail folders</source>
-        <target state="needs-translation">Available Direct Mail folders</target>
+        <target state="translated">Verfügbare Direct Mail-Ordner</target>
       </trans-unit>
       <trans-unit id="folders.description">
         <source>Select the Direct Mail folder you wish to work with.</source>
-        <target state="needs-translation">Select the Direct Mail folder you wish to work with.</target>
+        <target state="translated">Wählen Sie den Direct-Mail-Ordner aus, mit dem Sie arbeiten möchten.</target>
       </trans-unit>
       <trans-unit id="folders.details">
         <source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
-        <target state="needs-translation">Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</target>
+        <target state="translated">Jeder Direct Mail Ordner ist ein speziell konfigurierter Arbeitsbereich für das Direct Mail Modul.</target>
       </trans-unit>
       <trans-unit id="select_directmail.description">
         <source>The following direct mails have not yet been sent. Click on the one you want to work on.</source>
-        <target state="needs-translation">The following direct mails have not yet been sent. Click on the one you want to work on.</target>
+        <target state="translated">Die folgenden Direktnachrichten wurden noch nicht versendet. Klicken Sie auf die, an der Sie arbeiten möchten.</target>
       </trans-unit>
       <trans-unit id="select_directmail.seeAlso">
         <source>sys_dmail</source>
-        <target state="needs-translation">sys_dmail</target>
+        <target state="translated">sys_dmail</target>
       </trans-unit>
       <trans-unit id="select_newsletter.alttitle">
         <source>Select a newsletter</source>
-        <target state="needs-translation">Select a newsletter</target>
+        <target state="translated">Newsletter auswählen</target>
       </trans-unit>
       <trans-unit id="select_newsletter.description">
         <source>Click on one of these already created newsletters.</source>
-        <target state="needs-translation">Click on one of these already created newsletters.</target>
+        <target state="translated">Klicken Sie auf einen der bereits erstellten Newsletter.</target>
       </trans-unit>
       <trans-unit id="select_newsletter.details">
         <source>You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</source>
-        <target state="needs-translation">You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</target>
+        <target state="translated">Sie können auf einen der gelisteten Newsletter klicken, um Informationen darüber zu sehen, kategorisieren Sie die Inhaltselemente und verwenden Sie sie schließlich, um eine direkte E-Mail zu erstellen.</target>
       </trans-unit>
     </body>
   </file>
