@@ -12,15 +12,15 @@
       <generator>LFEditor</generator>
     </header>
     <body>
-      <trans-unit id=".alttitle">
+      <trans-unit id=".alttitle" approved="yes">
         <source>Direct Mail &gt; Direct Mail module</source>
-        <target state="needs-translation">Direct Mail &gt; Direct Mail module</target>
+        <target state="final">Direct Mail &gt; Direct Mail modul</target>
       </trans-unit>
-      <trans-unit id=".description">
+      <trans-unit id=".description" approved="yes">
         <source>Select the function of the Direct Mail module that you want to use.</source>
-        <target state="needs-translation">Select the function of the Direct Mail module that you want to use.</target>
+        <target state="final">Vælg den funktion fra Direct Mail modulet, som du ønsker at bruge.</target>
       </trans-unit>
-      <trans-unit id=".details" xml:space="preserve">
+      <trans-unit id=".details" xml:space="preserve" approved="yes">
 			<source><![CDATA[The functions of the Direct Mail module are the following, but their availability may be restricted depending on user access rights:
 
 1. Newsletters: this function lets you create a new newsletter or select an existing one; you may also select an existing newsletter in the page tree of the Direct Mail folder; selecting an existing newsletter leads you to a screen that lets you view or edit the newsletter, assign categories to the content elements of the page, view the list of direct mails already based on this newsletter page, or create a new one based on it.
@@ -36,77 +36,77 @@
 6. Categories Conversion: this function is a migration tool that lets you convert your database to the new Direct Mail Categories introduced in version 2.0 of Direct Mail. Please refer to the manual for more information.
 
 7. Module Configuration: this function is an administration tool used to configure a Direct Mail folder. Please refer to the manual for more information.]]></source>
-		<target state="needs-translation"><![CDATA[The functions of the Direct Mail module are the following, but their availability may be restricted depending on user access rights:
+		<target state="final"><![CDATA[Funktionerne i Direct Mail modulet beskrives i det følgende. Bemærk at deres tilgængelighed kan være begrænset, afhængig af brugerrettigheder:
 
-1. Newsletters: this function lets you create a new newsletter or select an existing one; you may also select an existing newsletter in the page tree of the Direct Mail folder; selecting an existing newsletter leads you to a screen that lets you view or edit the newsletter, assign categories to the content elements of the page, view the list of direct mails already based on this newsletter page, or create a new one based on it.
+1. Nyhedsbreve: denne funktion giver dig mulighed for at oprette et nyt nyhedsbrev eller vælge et eksisterende et; du kan også vælge et eksisterende nyhedsbrev i sidetræet i Direct Mail mappen; hvis du vælger et eksisterende nyhedsbrev, ledes du til et skærmbillede, hvor du kan se eller rette nyhedsbrevet, tilføje kategorier til indholdselementer på siden, få vist en liste af udsendte e-mails, baseret på nyhedsbrevet, eller oprette en ny e-mail, baseret på det valgte nyhedsbrev.
 
-2. Direct Mails: this function lets you create a new direct mail based on a newsletter that has not yet been used to create one, or based on an external URL, or select an existing direct mail; selecting an existing direct mail leads you to a screen that lets you view the current information on the direct mail, edit the properties of the direct mail, and select from a menu of options the action you want to take on the selected direct mail.
+2. Direct Mails: denne funktion giver dig mulighed for at oprette en ny e-mail, baseret på et nyhedsbrev, som ikke allerede har været brugt, eller baseret på en ekstern URL, eller du kan vælge en eksisterende direct mail; hvis du vælger en eksisterende direct mail, ledes du til et skærmbillede, hvor du kan se den aktuelle information om din direct mail, rette egenskaber for din direct mail, og fra en menu af valgmuligheder, kan du vælge hvad der skal ske med det valgte direct mail.
 
-3. Recipient Lists: this function lets you create a new recipient list, import Addresses records from csv data to create a new recipient list, link to the diting form of an existing recipient list, or select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.
+3. Modtagerlister: denne funktion giver dig mulighed for at oprette en ny modtagerliste, importere adresse-records fra CSV-data, linke til redigeringsformularen til en eksisterende modtagerliste eller vælge en eksisterende modtagerliste; vælger du en eksisterende modtagerliste, ledes du til et skærmbillede, hvor du kan se antallet af modtagere for hver type af modtagere på listen, med mulighed for at se en liste af modtagere eller downloade listen som CSV-fil.
 
-4. Mailer Engine Status: this function lets you review the current status of the direct mails that have been scheduled for mass sending, and invoke manually the mailer engine, if it is not configured to be automatically invoked; selecting one of the listed direct mails leads you to the Direct Mails function where you may select to review the statistics of the selected direct mail.
+4. Mailer motor status: denne funktion viser dig den aktuelle status for de direct mails, som er planlagt at masseudsende og du kan manuelt starte mailer motoren, hvis der ikke er konfigureret en automatisk udsendelse; hvis du vælger en af de viste direct mails, ledes du til Direct Mail funktionen, hvor du kan få vist statistikken for den valgte direct mail.
 
-5. QuickMail: this function lets you enter a short message and send it immediately to a recipient list. No newsletter, nor any direct mail is involved in this function.
+5. QuickMail: denne funktion giver dig mulighed for at indtaste en kort besked og udsende den øjeblikkeligt til en modtagerliste. Hverken et nyhedsbrev eller en direct mail vil blive involveret i dette.
 
-6. Categories Conversion: this function is a migration tool that lets you convert your database to the new Direct Mail Categories introduced in version 2.0 of Direct Mail. Please refer to the manual for more information.
+6. Kategori-konvertering: denne funktion er et migreringsværktøj, som hjælper med at konvertere din database til nye Direct Mail kategorier, introduceret i version 2.0 af Direct Mail. Se eventuelt manualen for yderligere information.
 
-7. Module Configuration: this function is an administration tool used to configure a Direct Mail folder. Please refer to the manual for more information.]]></target></trans-unit>
-      <trans-unit id="_.seeAlso">
+7. Modul konfigurering: denne funktion et et administrations-værktøj, der bruges til at konfigurere Direct Mail. Se eventuelt manualen for yderligere information.]]></target></trans-unit>
+      <trans-unit id="_.seeAlso" approved="yes">
         <source>sys_dmail, sys_dmail_group, sys_dmail_category</source>
-        <target state="needs-translation">sys_dmail, sys_dmail_group, sys_dmail_category</target>
+        <target state="final">sys_dmail, sys_dmail_group, sys_dmail_category</target>
       </trans-unit>
-      <trans-unit id="assign_categories.alttitle">
+      <trans-unit id="assign_categories.alttitle" approved="yes">
         <source>Select a direct mail</source>
-        <target state="needs-translation">Select a direct mail</target>
+        <target state="final">Tilføj kategorier til indholdselementer</target>
       </trans-unit>
-      <trans-unit id="assign_categories.description">
+      <trans-unit id="assign_categories.description" approved="yes">
         <source>Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</source>
-        <target state="needs-translation">Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</target>
+        <target state="final">At tilføje kategorier til et indholdselement, betyder at elementet vil optræde i e-mailen, men kun hvis modtageren har den valgte kategori tilføjet i hans profil.</target>
       </trans-unit>
-      <trans-unit id="assign_categories.details" xml:space="preserve">
+      <trans-unit id="assign_categories.details" xml:space="preserve" approved="yes">
 			<source><![CDATA[Check a checkbox in order to assign a category to a content element.
 
 If you do not assign any category to an element, the element will appear in all mails.]]></source>
-		<target state="needs-translation"><![CDATA[Check a checkbox in order to assign a category to a content element.
+		<target state="final"><![CDATA[Vælg en checkboks for at tilføje en kategori til et indholdselement.
 
-If you do not assign any category to an element, the element will appear in all mails.]]></target></trans-unit>
-      <trans-unit id="assign_categories.seeAlso">
+Hvis du ikke tilføjer nogen kategori, vil elementet optræde i alle e-mails.]]></target></trans-unit>
+      <trans-unit id="assign_categories.seeAlso" approved="yes">
         <source>sys_dmail_category</source>
-        <target state="needs-translation">sys_dmail_category</target>
+        <target state="final">sys_dmail_category</target>
       </trans-unit>
-      <trans-unit id="create_directmail_from_nl.alttitle">
+      <trans-unit id="create_directmail_from_nl.alttitle" approved="yes">
         <source>Create a new direct mail from newsletter</source>
-        <target state="needs-translation">Create a new direct mail from newsletter</target>
+        <target state="final">Opret en ny direct mail fra nyhedsbrev</target>
       </trans-unit>
-      <trans-unit id="create_directmail_from_nl.description">
+      <trans-unit id="create_directmail_from_nl.description" approved="yes">
         <source>No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</source>
-        <target state="needs-translation">No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</target>
+        <target state="final">Ingen direct mail er blevet oprettet med indhold fra det pågældende nyhedsbrev. Klik på det nyhedsbrev, som du ønsker at brug til at oprette en ny direct mail med.</target>
       </trans-unit>
-      <trans-unit id="create_directmail_from_nl.seeAlso">
+      <trans-unit id="create_directmail_from_nl.seeAlso" approved="yes">
         <source>sys_dmail</source>
-        <target state="needs-translation">sys_dmail</target>
+        <target state="final">sys_dmail</target>
       </trans-unit>
-      <trans-unit id="create_directmail_from_url.alttitle">
+      <trans-unit id="create_directmail_from_url.alttitle" approved="yes">
         <source>Create a new direct mail from an external URL</source>
-        <target state="needs-translation">Create a new direct mail from an external URL</target>
+        <target state="final">Opret en direct mail fra en ekstern URL</target>
       </trans-unit>
-      <trans-unit id="create_directmail_from_url.description">
+      <trans-unit id="create_directmail_from_url.description" approved="yes">
         <source>Use this form to create a new direct mail based on content grabbed from an external URL.</source>
-        <target state="needs-translation">Use this form to create a new direct mail based on content grabbed from an external URL.</target>
+        <target state="final">Brug denne formular til at oprette en direct mail, baseret på indholdet fra en eksterne URL.</target>
       </trans-unit>
-      <trans-unit id="create_directmail_from_url.seeAlso">
+      <trans-unit id="create_directmail_from_url.seeAlso" approved="yes">
         <source>sys_dmail</source>
-        <target state="needs-translation">sys_dmail</target>
+        <target state="final">sys_dmail</target>
       </trans-unit>
-      <trans-unit id="create_newsletter.alttitle">
+      <trans-unit id="create_newsletter.alttitle" approved="yes">
         <source>Create a newsletter</source>
-        <target state="needs-translation">Create a newsletter</target>
+        <target state="final">Opret et nyhedsbrev</target>
       </trans-unit>
-      <trans-unit id="create_newsletter.description">
+      <trans-unit id="create_newsletter.description" approved="yes">
         <source>Click on this link if you want to create a new newsletter.</source>
-        <target state="needs-translation">Click on this link if you want to create a new newsletter.</target>
+        <target state="final">Klik på dette link, hvis du vil oprette et nyt nyhedsbrev.</target>
       </trans-unit>
-      <trans-unit id="create_newsletter.details" xml:space="preserve">
+      <trans-unit id="create_newsletter.details" xml:space="preserve" approved="yes">
 			<source><![CDATA[A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
 
 You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
@@ -128,14 +128,14 @@ You may personalize the direct mails that will be sent to each recipient by inse
 ###SYS_TABLE_NAME###
 ###SYS_MAIL_ID###
 ###SYS_AUTHCODE###]]></source>
-		<target state="needs-translation"><![CDATA[A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
+		<target state="final"><![CDATA[Et nyhedsbrev er grundlæggende en helt almindelig TYPO3 side, som hører til under et Direct Mail mappe. Ved at klikke på dette link, vil du blive ført til et kombineret side- og indholdselement skærmbillede. Efter at siden er oprettet, kan du tilføje yderligere indhold.
 
-You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
+Du kan personalisere den direct mail der sendes ud til hver modtager, ved at indsætte de følgende markører i indholdselementet i dit nyhedsbrev-side. Markørerne vil blive udskiftet med de tilhørende værdier, som findes i hver modtager-record, såfremt de er tilgængelige:
 
-###USER_uid### (the unique id of the recipient)
-###USER_name### (full name)
-###USER_firstname### (first name calculated)
-###USER_NAME### and ###USER_FIRSTNAME### will insert uppercase versions of the equivalents
+###USER_uid### (den unikke id på modtageren)
+###USER_name### (fulde navn)
+###USER_firstname### (først navn, beregnet)
+###USER_NAME### og ###USER_FIRSTNAME### vil indsætte versioner med versaler af de samme
 ###USER_title###
 ###USER_email###
 ###USER_phone###
@@ -149,15 +149,15 @@ You may personalize the direct mails that will be sent to each recipient by inse
 ###SYS_TABLE_NAME###
 ###SYS_MAIL_ID###
 ###SYS_AUTHCODE###]]></target></trans-unit>
-      <trans-unit id="directmail_actions.alttitle">
+      <trans-unit id="directmail_actions.alttitle" approved="yes">
         <source>Direct Mails options menu</source>
-        <target state="needs-translation">Direct Mails options menu</target>
+        <target state="final">Direct Mail valg menu</target>
       </trans-unit>
-      <trans-unit id="directmail_actions.description">
+      <trans-unit id="directmail_actions.description" approved="yes">
         <source>Select the action you want to perform on this direct mail.</source>
-        <target state="needs-translation">Select the action you want to perform on this direct mail.</target>
+        <target state="final">Vælg den handling du ønsker til denne direct mail.</target>
       </trans-unit>
-      <trans-unit id="directmail_actions.details" xml:space="preserve">
+      <trans-unit id="directmail_actions.details" xml:space="preserve" approved="yes">
 			<source><![CDATA[Possible actions are the following, but their availability vary depending on the current state of the direct mail:
 
 1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
@@ -167,50 +167,50 @@ You may personalize the direct mails that will be sent to each recipient by inse
 3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
 
 4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.]]></source>
-		<target state="needs-translation"><![CDATA[Possible actions are the following, but their availability vary depending on the current state of the direct mail:
+		<target state="final"><![CDATA[Følgende handlinger er mulige, men tilgængeligheden af de enkelte handlinger afhænger af, hvilken status din direct mail har:
 
-1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
+1. Hent og kompilér mail-indholdet: Denne mulighed lader dig hente eller overtage indholdet i din direct mail, som vil blive kompileret i et specielt format til senere udsendelse; denne handling skal gennemføres før nogen anden handling; du bør gennemgå egenskaberne for din direct mail som vist på skærmen, og rette dem om nødvendigt, før du henter indholdet.
 
-2. Send a testmail: this option lets you send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application.
+2. Send en test e-mail: Dette valg giver dig mulighed for at sende en test e-mail, for at sikre dig at e-mailen, der udsendes til modtagerlisten, ser ud som forventet, når den modtages i en brugers e-mail program.
 
-3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
+3. Masseudsendes af e-mail: Dette valg lader dig tilrettelægge den aktuelle udsendelse af din direct mail til en udvalgt modtager-liste.
 
-4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.]]></target></trans-unit>
-      <trans-unit id="directmail_actions.seeAlso">
+4. Se statistik over e-mails: Dette valgt giver mulighed for at gennemgå statistik på din direct mail og dens respons, og handle på returnerede e-mails; dette valg er kun muligt efter at en masseudsendelse af e-mails er gennemført.]]></target></trans-unit>
+      <trans-unit id="directmail_actions.seeAlso" approved="yes">
         <source>sys_dmail</source>
-        <target state="needs-translation">sys_dmail</target>
+        <target state="final">sys_dmail</target>
       </trans-unit>
-      <trans-unit id="folders.alttitle">
+      <trans-unit id="folders.alttitle" approved="yes">
         <source>Available Direct Mail folders</source>
-        <target state="needs-translation">Available Direct Mail folders</target>
+        <target state="final">Tilgængelige Direct Mail mapper</target>
       </trans-unit>
-      <trans-unit id="folders.description">
+      <trans-unit id="folders.description" approved="yes">
         <source>Select the Direct Mail folder you wish to work with.</source>
-        <target state="needs-translation">Select the Direct Mail folder you wish to work with.</target>
+        <target state="final">Vælg den Direct Mail mappe, som du vil arbejde med.</target>
       </trans-unit>
-      <trans-unit id="folders.details">
+      <trans-unit id="folders.details" approved="yes">
         <source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
-        <target state="needs-translation">Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</target>
+        <target state="final">Hver Direct Mail mappe er et specielt konfigureret arbejdsområde til Direct Mail modulet.</target>
       </trans-unit>
-      <trans-unit id="select_directmail.description">
+      <trans-unit id="select_directmail.description" approved="yes">
         <source>The following direct mails have not yet been sent. Click on the one you want to work on.</source>
-        <target state="needs-translation">The following direct mails have not yet been sent. Click on the one you want to work on.</target>
+        <target state="final">De følgende direct mails er ikke udsendt endnu. Klik på en, hvis du vil arbejde med den.</target>
       </trans-unit>
-      <trans-unit id="select_directmail.seeAlso">
+      <trans-unit id="select_directmail.seeAlso" approved="yes">
         <source>sys_dmail</source>
-        <target state="needs-translation">sys_dmail</target>
+        <target state="final">sys_dmail</target>
       </trans-unit>
-      <trans-unit id="select_newsletter.alttitle">
+      <trans-unit id="select_newsletter.alttitle" approved="yes">
         <source>Select a newsletter</source>
-        <target state="needs-translation">Select a newsletter</target>
+        <target state="final">Vælg et nyhedsbrev</target>
       </trans-unit>
-      <trans-unit id="select_newsletter.description">
+      <trans-unit id="select_newsletter.description" approved="yes">
         <source>Click on one of these already created newsletters.</source>
-        <target state="needs-translation">Click on one of these already created newsletters.</target>
+        <target state="final">Klik på et af de allerede oprettede nyhedsbreve.</target>
       </trans-unit>
-      <trans-unit id="select_newsletter.details">
+      <trans-unit id="select_newsletter.details" approved="yes">
         <source>You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</source>
-        <target state="needs-translation">You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</target>
+        <target state="final">Du kan klikke på et af de viste nyhedsbreve og få yderligere information om dette, kategorisere dets indholdselementer, og eventuelt benytte det til at oprette en direct mail.</target>
       </trans-unit>
     </body>
   </file>
