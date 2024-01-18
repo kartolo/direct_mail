@@ -21,195 +21,195 @@
       </trans-unit>
       <trans-unit id="module_sys_dmail_group.newsletter">
         <source>Activate Newsletter</source>
-        <target state="needs-translation">Activate Newsletter</target>
+        <target state="translated">Newsletter aktivieren</target>
       </trans-unit>
       <trans-unit id="pages.module.I.5">
         <source>Direct Mail</source>
-        <target state="needs-translation">Direct Mail</target>
+        <target state="translated">Direct Mail</target>
       </trans-unit>
       <trans-unit id="sys_dmail">
         <source>Direct mails</source>
-        <target state="needs-translation">Direct mails</target>
+        <target state="translated">Direct Mail</target>
       </trans-unit>
       <trans-unit id="sys_dmail.HTMLParams">
         <source>Parameters, HTML:</source>
-        <target state="needs-translation">Parameters, HTML:</target>
+        <target state="translated">Parameter, HTML:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.HTMLParams.ALT.1">
         <source>URL for HTML content:</source>
-        <target state="needs-translation">URL for HTML content:</target>
+        <target state="translated">URL für HTML-Inhalt:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.attachment">
         <source>Attachments:</source>
-        <target state="needs-translation">Attachments:</target>
+        <target state="translated">Anhänge:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.authcode_fieldList">
         <source>Fields used in the computation of authentication codes:</source>
-        <target state="needs-translation">Fields used in the computation of authentication codes:</target>
+        <target state="translated">Für die Berechnung der Authentifizierungscodes verwendete Felder:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.charset">
         <source>Message text character set:</source>
-        <target state="needs-translation">Message text character set:</target>
+        <target state="translated">Zeichensatz für den Nachrichtentext:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.flowedFormat">
         <source>Use flowing text format in plain text content:</source>
-        <target state="needs-translation">Use flowing text format in plain text content:</target>
+        <target state="translated">Fließtextformat in einfachem Textinhalt verwenden:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.from_email">
         <source>Sender email:</source>
-        <target state="needs-translation">Sender email:</target>
+        <target state="translated">Absender E-Mail:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.from_name">
         <source>Sender name:</source>
-        <target state="needs-translation">Sender name:</target>
+        <target state="translated">Absender Name:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.includeMedia">
         <source>Include images and other media in HTML content:</source>
-        <target state="needs-translation">Include images and other media in HTML content:</target>
+        <target state="translated">Bilder und andere Medien in HTML-Mail einbeziehen:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.issent">
         <source>Is sent:</source>
-        <target state="needs-translation">Is sent:</target>
+        <target state="translated">Ist gesendet:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.long_link_mode">
         <source>Redirect not only links longer than 76 characters but ALL links:</source>
-        <target state="needs-translation">Redirect not only links longer than 76 characters but ALL links:</target>
+        <target state="translated">Alle Links weiterleiten, nicht nur die, die länger als 76 Zeichen sind:</target>
       </trans-unit>
-      <trans-unit id="sys_dmail.long_link_rdct_url">
+      <trans-unit id="sys_dmail.long_link_rdct_url" approved="yes">
         <source>Long links redirection url:</source>
-        <target state="needs-translation">Long links redirection url:</target>
+        <target state="final">Weiterleitungs-URL:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.organisation">
         <source>Organization:</source>
-        <target state="needs-translation">Organization:</target>
+        <target state="translated">Organisation:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.page">
         <source>Mail page:</source>
-        <target state="needs-translation">Mail page:</target>
+        <target state="translated">Mailseite:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.plainParams">
         <source>Parameters, Plain text:</source>
-        <target state="needs-translation">Parameters, Plain text:</target>
+        <target state="translated">Parameter, reiner Text:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.plainParams.ALT.1">
         <source>URL for plain text content:</source>
-        <target state="needs-translation">URL for plain text content:</target>
+        <target state="translated">URL des einfachen Textinhalts:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.priority">
         <source>Priority:</source>
-        <target state="needs-translation">Priority:</target>
+        <target state="translated">Priorität:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.priority.I.0">
         <source>Low</source>
-        <target state="needs-translation">Low</target>
+        <target state="translated">Niedrig</target>
       </trans-unit>
       <trans-unit id="sys_dmail.priority.I.1">
         <source>Normal</source>
-        <target state="needs-translation">Normal</target>
+        <target state="translated">Normal</target>
       </trans-unit>
       <trans-unit id="sys_dmail.priority.I.2">
         <source>High</source>
-        <target state="needs-translation">High</target>
+        <target state="translated">Hoch</target>
       </trans-unit>
       <trans-unit id="sys_dmail.renderedsize">
         <source>Compiled size:</source>
-        <target state="needs-translation">Compiled size:</target>
+        <target state="translated">Kompilierte Größe:</target>
       </trans-unit>
-      <trans-unit id="sys_dmail.replyto_email">
+      <trans-unit id="sys_dmail.replyto_email" approved="yes">
         <source>Reply email:</source>
-        <target state="needs-translation">Reply email:</target>
+        <target state="final">Antwort E-Mail (Reply-To):</target>
       </trans-unit>
       <trans-unit id="sys_dmail.replyto_name">
         <source>Reply name:</source>
-        <target state="needs-translation">Reply name:</target>
+        <target state="translated">Antwort-Name:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.return_path">
         <source>Return Path:</source>
-        <target state="needs-translation">Return Path:</target>
+        <target state="translated">Return Path:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.scheduled">
         <source>Scheduled time:</source>
-        <target state="needs-translation">Scheduled time:</target>
+        <target state="translated">Geplanter Zeitpunkt:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.scheduled_begin">
         <source>Delivery start:</source>
-        <target state="needs-translation">Delivery start:</target>
+        <target state="translated">Versandstart:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.scheduled_end">
         <source>Delivery end:</source>
-        <target state="needs-translation">Delivery end:</target>
+        <target state="translated">Versandende:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.sendOptions">
         <source>Format of mail content:</source>
-        <target state="needs-translation">Format of mail content:</target>
+        <target state="translated">Format des Mail-Inhalts:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.sendOptions.I.0">
         <source>Plain text</source>
-        <target state="needs-translation">Plain text</target>
+        <target state="translated">Nur-Text</target>
       </trans-unit>
       <trans-unit id="sys_dmail.sendOptions.I.1">
         <source>HTML</source>
-        <target state="needs-translation">HTML</target>
+        <target state="translated">HTML</target>
       </trans-unit>
       <trans-unit id="sys_dmail.subject">
         <source>Subject:</source>
-        <target state="needs-translation">Subject:</target>
+        <target state="translated">Betreff:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.tab1">
         <source>Composition</source>
-        <target state="needs-translation">Composition</target>
+        <target state="translated">Komposition</target>
       </trans-unit>
       <trans-unit id="sys_dmail.tab2">
         <source>Mail headers</source>
-        <target state="needs-translation">Mail headers</target>
+        <target state="translated">Mail headers</target>
       </trans-unit>
       <trans-unit id="sys_dmail.tab3">
         <source>Send options</source>
-        <target state="needs-translation">Send options</target>
+        <target state="translated">Versand-Optionen</target>
       </trans-unit>
       <trans-unit id="sys_dmail.transfer_encoding">
         <source>Content transfer encoding:</source>
-        <target state="needs-translation">Content transfer encoding:</target>
+        <target state="translated">Inhaltskodierung:</target>
       </trans-unit>
       <trans-unit id="sys_dmail.type.I.0">
         <source>TYPO3 Page</source>
-        <target state="needs-translation">TYPO3 Page</target>
+        <target state="translated">TYPO3 Seite</target>
       </trans-unit>
       <trans-unit id="sys_dmail.type.I.1">
         <source>External URL</source>
-        <target state="needs-translation">External URL</target>
+        <target state="translated">Externe URL</target>
       </trans-unit>
       <trans-unit id="sys_dmail.use_rdct">
         <source>Redirect links longer than 76 characters:</source>
-        <target state="needs-translation">Redirect links longer than 76 characters:</target>
+        <target state="translated">Links mit mehr als 76 Zeichen weiterleiten:</target>
       </trans-unit>
       <trans-unit id="sys_dmail_category">
         <source>Direct Mail Category</source>
-        <target state="needs-translation">Direct Mail Category</target>
+        <target state="translated">Direct Mail Kategorie</target>
       </trans-unit>
       <trans-unit id="sys_dmail_category.category">
         <source>Category:</source>
-        <target state="needs-translation">Category:</target>
+        <target state="translated">Kategorie:</target>
       </trans-unit>
       <trans-unit id="sys_dmail_category.old_cat_number">
         <source>Old category number:</source>
-        <target state="needs-translation">Old category number:</target>
+        <target state="translated">Alte Kategorie-Nummer:</target>
       </trans-unit>
       <trans-unit id="sys_dmail_group">
         <source>Recipient list</source>
-        <target state="needs-translation">Recipient list</target>
+        <target state="translated">Empfängerliste</target>
       </trans-unit>
       <trans-unit id="sys_dmail_group.advanced">
         <source>Configuration</source>
-        <target state="needs-translation">Configuration</target>
+        <target state="translated">Konfiguration</target>
       </trans-unit>
       <trans-unit id="sys_dmail_group.csv">
         <source>List format:</source>
-        <target state="needs-translation">List format:</target>
+        <target state="translated">Listen-Format:</target>
       </trans-unit>
       <trans-unit id="sys_dmail_group.csv.I.0">
         <source>Separate emails by space/comma/linebreak</source>
-        <target state="needs-translation">Separate emails by space/comma/linebreak</target>
+        <target state="translated">Trennen Sie E-Mails durch Leerzeichen/Komma/Zeilenumbruch</target>
       </trans-unit>
       <trans-unit id="sys_dmail_group.csv.I.1">
         <source>CSV [name],[email]</source>
