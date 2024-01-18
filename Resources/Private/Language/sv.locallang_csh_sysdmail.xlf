@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-11T21:43:17Z" target-language="sv-SE">
+    <header>
+      <description>Context Sensitive Help for sys_dmail table</description>
+      <type>CSH</type>
+      <csh_table>sys_dmail</csh_table>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xml</fileId>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".description">
+        <source>A direct mail is a highly customized and personalized newsletter sent to subscribers either as HTML or Plain text, with or without attachments.</source>
+        <target state="needs-translation">A direct mail is a highly customized and personalized newsletter sent to subscribers either as HTML or Plain text, with or without attachments.</target>
+      </trans-unit>
+      <trans-unit id=".details" xml:space="preserve">
+			<source><![CDATA[Direct mail records are produced by the Direct Mail module.
+
+A direct mail record contains information about a newsletter such as subject, sender, priority, attachments and whether HTML or Plain text content is allowed. Furthermore, it also holds the compiled mail content which is sent to the subscribers.]]></source>
+		<target state="needs-translation"><![CDATA[Direct mail records are produced by the Direct Mail module.
+
+A direct mail record contains information about a newsletter such as subject, sender, priority, attachments and whether HTML or Plain text content is allowed. Furthermore, it also holds the compiled mail content which is sent to the subscribers.]]></target></trans-unit>
+      <trans-unit id="HTMLParams.description" xml:space="preserve">
+			<source><![CDATA[If the Direct mail is of type 'TYPO3 Page', enter the additional URL parameters used to fetch the HTML content.
+
+If the Direct Mail is of type 'External URL',enter the complete URL used to fetch the HTML content.]]></source>
+		<target state="needs-translation"><![CDATA[If the Direct mail is of type 'TYPO3 Page', enter the additional URL parameters used to fetch the HTML content.
+
+If the Direct Mail is of type 'External URL',enter the complete URL used to fetch the HTML content.]]></target></trans-unit>
+      <trans-unit id="HTMLParams.details" xml:space="preserve">
+			<source><![CDATA[When the Direct mail is of type 'TYPO3 Page', the specified parameters will be added to the URL used to fetch the HTML content of the direct mail. If in doubt, leave it blank.
+
+When the Direct Mail is of type 'External URL', this field should contain the complete URL used to fetch the HTML content.]]></source>
+		<target state="needs-translation"><![CDATA[When the Direct mail is of type 'TYPO3 Page', the specified parameters will be added to the URL used to fetch the HTML content of the direct mail. If in doubt, leave it blank.
+
+When the Direct Mail is of type 'External URL', this field should contain the complete URL used to fetch the HTML content.]]></target></trans-unit>
+      <trans-unit id="_.seeAlso">
+        <source>sys_dmail_group, sys_dmail_category</source>
+        <target state="needs-translation">sys_dmail_group, sys_dmail_category</target>
+      </trans-unit>
+      <trans-unit id="authcode_fieldList.description">
+        <source>List of fields used in the computation of the authentication code included in unsubscribe links and jump URL's in direct mails.</source>
+        <target state="needs-translation">List of fields used in the computation of the authentication code included in unsubscribe links and jump URL's in direct mails.</target>
+      </trans-unit>
+      <trans-unit id="flowedFormat.description">
+        <source>Set this option if you want to use normally flowing text inside the plain text mail content.</source>
+        <target state="needs-translation">Set this option if you want to use normally flowing text inside the plain text mail content.</target>
+      </trans-unit>
+      <trans-unit id="flowedFormat.details">
+        <source>If the option is set, plain text mail content will be broken in fixed length lines, as is standard for plain text email content, but so-called flowed format will be used. This will allow client agents that support this format to display the text as normally flowing text. The option is ignored if 'quoted-printable' is used.</source>
+        <target state="needs-translation">If the option is set, plain text mail content will be broken in fixed length lines, as is standard for plain text email content, but so-called flowed format will be used. This will allow client agents that support this format to display the text as normally flowing text. The option is ignored if 'quoted-printable' is used.</target>
+      </trans-unit>
+      <trans-unit id="from_email.description">
+        <source>Enter the sender email address. (Required)</source>
+        <target state="needs-translation">Enter the sender email address. (Required)</target>
+      </trans-unit>
+      <trans-unit id="from_email.details">
+        <source>This email address will appear as the originating address or sender address in the direct mails received by the recipients.</source>
+        <target state="needs-translation">This email address will appear as the originating address or sender address in the direct mails received by the recipients.</target>
+      </trans-unit>
+      <trans-unit id="from_name.description">
+        <source>Enter the sender name. (Required)</source>
+        <target state="needs-translation">Enter the sender name. (Required)</target>
+      </trans-unit>
+      <trans-unit id="from_name.details">
+        <source>This name will appear as the name of the author or sender in the direct mails received by the recipients.</source>
+        <target state="needs-translation">This name will appear as the name of the author or sender in the direct mails received by the recipients.</target>
+      </trans-unit>
+      <trans-unit id="includeMedia.description">
+        <source>Set this option if you want to incorporate images and other media inside the HTML mail content.</source>
+        <target state="needs-translation">Set this option if you want to incorporate images and other media inside the HTML mail content.</target>
+      </trans-unit>
+      <trans-unit id="includeMedia.details" xml:space="preserve">
+			<source><![CDATA[If the option is set, images and other media are encoded and incorporated into the messages. Sent messages will be heavier to transport.
+If the option is not set, images and media are included in HTML content by absolute reference (href) to their location on the site where they reside.]]></source>
+		<target state="needs-translation"><![CDATA[If the option is set, images and other media are encoded and incorporated into the messages. Sent messages will be heavier to transport.
+If the option is not set, images and media are included in HTML content by absolute reference (href) to their location on the site where they reside.]]></target></trans-unit>
+      <trans-unit id="long_link_mode.description">
+        <source>If set and if use_rdct is set, all links in plain text content will be redirected, not only links longer than 76 characters.</source>
+        <target state="needs-translation">If set and if use_rdct is set, all links in plain text content will be redirected, not only links longer than 76 characters.</target>
+      </trans-unit>
+      <trans-unit id="organisation.description">
+        <source>Enter the name of the sending organization.</source>
+        <target state="needs-translation">Enter the name of the sending organization.</target>
+      </trans-unit>
+      <trans-unit id="organisation.details">
+        <source>The name of the organization will appear in the headers of the mails sent to subscribers.</source>
+        <target state="needs-translation">The name of the organization will appear in the headers of the mails sent to subscribers.</target>
+      </trans-unit>
+      <trans-unit id="plainParams.description" xml:space="preserve">
+			<source><![CDATA[If the Direct mail is of type 'TYPO3 Page', enter the additional URL parameters used to fetch the plain text content of the direct mail.
+
+If the Direct Mail is of type 'External URL',enter the complete URL used to fetch the plain text content.]]></source>
+		<target state="needs-translation"><![CDATA[If the Direct mail is of type 'TYPO3 Page', enter the additional URL parameters used to fetch the plain text content of the direct mail.
+
+If the Direct Mail is of type 'External URL',enter the complete URL used to fetch the plain text content.]]></target></trans-unit>
+      <trans-unit id="plainParams.details" xml:space="preserve">
+			<source><![CDATA[When the Direct mail is of type 'TYPO3 Page', the specified parameters will be added to the URL used to fetch the plain text content of the direct mail. If in doubt, set it either to '&type=99' or, when using TemplaVoila, to '&print=1'.
+
+When the Direct Mail is of type 'External URL', this field should contain the complete URL used to fetch the plain text content.]]></source>
+		<target state="needs-translation"><![CDATA[When the Direct mail is of type 'TYPO3 Page', the specified parameters will be added to the URL used to fetch the plain text content of the direct mail. If in doubt, set it either to '&type=99' or, when using TemplaVoila, to '&print=1'.
+
+When the Direct Mail is of type 'External URL', this field should contain the complete URL used to fetch the plain text content.]]></target></trans-unit>
+      <trans-unit id="priority.description">
+        <source>Enter the email delivery priority.</source>
+        <target state="needs-translation">Enter the email delivery priority.</target>
+      </trans-unit>
+      <trans-unit id="priority.details">
+        <source>The delivery priority will be set in the headers of the mails sent to subscribers.</source>
+        <target state="needs-translation">The delivery priority will be set in the headers of the mails sent to subscribers.</target>
+      </trans-unit>
+      <trans-unit id="replyto_email.description">
+        <source>Enter the email address to which replys are sent. (Optional)</source>
+        <target state="needs-translation">Enter the email address to which replys are sent. (Optional)</target>
+      </trans-unit>
+      <trans-unit id="replyto_email.details">
+        <source>If no reply address is specified, the sender email address will be used.</source>
+        <target state="needs-translation">If no reply address is specified, the sender email address will be used.</target>
+      </trans-unit>
+      <trans-unit id="replyto_name.description">
+        <source>Enter the name of the 'Reply To' email address. (Optional)</source>
+        <target state="needs-translation">Enter the name of the 'Reply To' email address. (Optional)</target>
+      </trans-unit>
+      <trans-unit id="replyto_name.details">
+        <source>If no reply name is specified, the sender name will be used.</source>
+        <target state="needs-translation">If no reply name is specified, the sender name will be used.</target>
+      </trans-unit>
+      <trans-unit id="return_path.description">
+        <source>Enter the return path email address here.</source>
+        <target state="needs-translation">Enter the return path email address here.</target>
+      </trans-unit>
+      <trans-unit id="return_path.details" xml:space="preserve">
+			<source><![CDATA[This is the address to which non-deliverable mails will be returned to.
+If you put in the marker ###XID### it'll be substituted with the unique id of the mail recipient.
+Note that if PHP is executing in safe mode, the Direct mail module may not be able to set the return path to a value different than the value defined at the server level.]]></source>
+		<target state="needs-translation"><![CDATA[This is the address to which non-deliverable mails will be returned to.
+If you put in the marker ###XID### it'll be substituted with the unique id of the mail recipient.
+Note that if PHP is executing in safe mode, the Direct mail module may not be able to set the return path to a value different than the value defined at the server level.]]></target></trans-unit>
+      <trans-unit id="sendOptions.description">
+        <source>Select the format of mail content.</source>
+        <target state="needs-translation">Select the format of mail content.</target>
+      </trans-unit>
+      <trans-unit id="sendOptions.details">
+        <source>If in doubt, set it to both Plain text and HTML. The messages will then be sent with both formats included, and the recipients are normally able to select their preferred format.</source>
+        <target state="needs-translation">If in doubt, set it to both Plain text and HTML. The messages will then be sent with both formats included, and the recipients are normally able to select their preferred format.</target>
+      </trans-unit>
+      <trans-unit id="type.description">
+        <source>Type of source of the Direct mail</source>
+        <target state="needs-translation">Type of source of the Direct mail</target>
+      </trans-unit>
+      <trans-unit id="type.details">
+        <source>The Direct mail may be compiled from a page extracted from the page tree of the TYPO3 site: 'TYPO3 Page', or from a page from another site: 'External URL'.</source>
+        <target state="needs-translation">The Direct mail may be compiled from a page extracted from the page tree of the TYPO3 site: 'TYPO3 Page', or from a page from another site: 'External URL'.</target>
+      </trans-unit>
+      <trans-unit id="use_rdct.description">
+        <source>Redirect long links found in plain text content.</source>
+        <target state="needs-translation">Redirect long links found in plain text content.</target>
+      </trans-unit>
+      <trans-unit id="use_rdct.details">
+        <source>If set, links longer than 76 characters found in plain text content will be redirected: long URL's will be substituted with ?RDCT=[md5hash] parameters.</source>
+        <target state="needs-translation">If set, links longer than 76 characters found in plain text content will be redirected: long URL's will be substituted with ?RDCT=[md5hash] parameters.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
