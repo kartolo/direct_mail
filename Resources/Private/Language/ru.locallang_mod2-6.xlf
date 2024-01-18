@@ -1,0 +1,1368 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:direct_mail/Resources/Private/Language/Modules/locallang_mod2-6.xlf" date="2022-01-29T12:00:00Z" product-name="direct_mail" target-language="ru">
+    <header>
+      <description>Labels for the main Direct Mail module</description>
+      <type>module</type>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+    </header>
+    <body>
+      <trans-unit id="configure_HTMLParams_description" resname="configure_HTMLParams_description">
+        <source>Enter the additional URL parameters used to fetch the HTML content from a TYPO3 page.</source>
+        <target state="needs-translation">Enter the additional URL parameters used to fetch the HTML content from a TYPO3 page.</target>
+      </trans-unit>
+      <trans-unit id="configure_HTMLParams_details" resname="configure_HTMLParams_details">
+        <source>The specified parameters will be added to the URL used to fetch the HTML content of the direct mail from a TYPO3 page. If in doubt, leave it blank.</source>
+        <target state="needs-translation">The specified parameters will be added to the URL used to fetch the HTML content of the direct mail from a TYPO3 page. If in doubt, leave it blank.</target>
+      </trans-unit>
+      <trans-unit id="configure_default_content" resname="configure_default_content">
+        <source>Default values for mail content format</source>
+        <target state="needs-translation">Default values for mail content format</target>
+      </trans-unit>
+      <trans-unit id="configure_default_fetching" resname="configure_default_fetching">
+        <source>Default values for mail content fetching options</source>
+        <target state="needs-translation">Default values for mail content fetching options</target>
+      </trans-unit>
+      <trans-unit id="configure_default_headers" resname="configure_default_headers">
+        <source>Default values for Direct Mails headers</source>
+        <target state="needs-translation">Default values for Direct Mails headers</target>
+      </trans-unit>
+      <trans-unit id="configure_direct_mail_module" resname="configure_direct_mail_module">
+        <source>Configure direct mail module</source>
+        <target state="needs-translation">Configure direct mail module</target>
+      </trans-unit>
+      <trans-unit id="configure_directmail_charset" resname="configure_directmail_charset">
+        <source>Default character set for direct mails built from external pages</source>
+        <target state="needs-translation">Default character set for direct mails built from external pages</target>
+      </trans-unit>
+      <trans-unit id="configure_directmail_charset_description" resname="configure_directmail_charset_description">
+        <source>Specify the character set used in direct mails when they are built from external pages and character set cannot be auto-detected.</source>
+        <target state="needs-translation">Specify the character set used in direct mails when they are built from external pages and character set cannot be auto-detected.</target>
+      </trans-unit>
+      <trans-unit id="configure_directmail_encoding" resname="configure_directmail_encoding">
+        <source>Default encoding of direct mails</source>
+        <target state="needs-translation">Default encoding of direct mails</target>
+      </trans-unit>
+      <trans-unit id="configure_directmail_encoding_description" resname="configure_directmail_encoding_description">
+        <source>Select the default content transfer encoding of direct mails.</source>
+        <target state="needs-translation">Select the default content transfer encoding of direct mails.</target>
+      </trans-unit>
+      <trans-unit id="configure_html_only" resname="configure_html_only">
+        <source>HTML only</source>
+        <target state="needs-translation">HTML only</target>
+      </trans-unit>
+      <trans-unit id="configure_http_password" resname="configure_http_password">
+        <source>HTTP Password</source>
+        <target state="needs-translation">HTTP Password</target>
+      </trans-unit>
+      <trans-unit id="configure_http_password_description" resname="configure_http_password_description">
+        <source>If mail content is protected by HTTP authentication, enter the password here.</source>
+        <target state="needs-translation">If mail content is protected by HTTP authentication, enter the password here.</target>
+      </trans-unit>
+      <trans-unit id="configure_http_username" resname="configure_http_username">
+        <source>HTTP Username</source>
+        <target state="needs-translation">HTTP Username</target>
+      </trans-unit>
+      <trans-unit id="configure_http_username_description" resname="configure_http_username_description">
+        <source>If mail content is protected by HTTP authentication, enter the username here.</source>
+        <target state="needs-translation">If mail content is protected by HTTP authentication, enter the username here.</target>
+      </trans-unit>
+      <trans-unit id="configure_http_username_details" resname="configure_http_username_details" xml:space="preserve">
+				<source><![CDATA[The username and password is used to fetch mail content. They are NOT sent in the mail!
+	If you do not specify a username and password and the newsletter pages happen to be protected, an error will occur and no mail content will be fetched.]]></source>
+			<target state="needs-translation"><![CDATA[The username and password is used to fetch mail content. They are NOT sent in the mail!
+	If you do not specify a username and password and the newsletter pages happen to be protected, an error will occur and no mail content will be fetched.]]></target></trans-unit>
+      <trans-unit id="configure_jumpurl_tracking_privacy" resname="configure_jumpurl_tracking_privacy">
+        <source>Privacy jumpurl</source>
+        <target state="needs-translation">Privacy jumpurl</target>
+      </trans-unit>
+      <trans-unit id="configure_jumpurl_tracking_privacy_description" resname="configure_jumpurl_tracking_privacy_description">
+        <source>Set this option, to anonymize click statistics </source>
+        <target state="needs-translation">Set this option, to anonymize click statistics </target>
+      </trans-unit>
+      <trans-unit id="configure_options_additional" resname="configure_options_additional">
+        <source>Additional module options</source>
+        <target state="needs-translation">Additional module options</target>
+      </trans-unit>
+      <trans-unit id="configure_options_encoding" resname="configure_options_encoding">
+        <source>Options for content transfer encoding and character set</source>
+        <target state="needs-translation">Options for content transfer encoding and character set</target>
+      </trans-unit>
+      <trans-unit id="configure_options_links" resname="configure_options_links">
+        <source>Options for links in mail content</source>
+        <target state="needs-translation">Options for links in mail content</target>
+      </trans-unit>
+      <trans-unit id="configure_options_links_jumpurl" resname="configure_options_links_jumpurl">
+        <source>Enable jump URL's:</source>
+        <target state="needs-translation">Enable jump URL's:</target>
+      </trans-unit>
+      <trans-unit id="configure_options_links_jumpurl_description" resname="configure_options_links_jumpurl_description">
+        <source>Check this option to enable jump URL's and the collection of click statistics.</source>
+        <target state="needs-translation">Check this option to enable jump URL's and the collection of click statistics.</target>
+      </trans-unit>
+      <trans-unit id="configure_options_links_rdct" resname="configure_options_links_rdct">
+        <source>This configuration determines how QuickMails are handled and further sets the default value for Direct Mails.</source>
+        <target state="needs-translation">This configuration determines how QuickMails are handled and further sets the default value for Direct Mails.</target>
+      </trans-unit>
+      <trans-unit id="configure_options_mailto_jumpurl" resname="configure_options_mailto_jumpurl">
+        <source>Enable jump URL's for mailto links:</source>
+        <target state="needs-translation">Enable jump URL's for mailto links:</target>
+      </trans-unit>
+      <trans-unit id="configure_options_mailto_jumpurl_description" resname="configure_options_mailto_jumpurl_description">
+        <source>Check this option to enable jump URL's for mailto links.</source>
+        <target state="needs-translation">Check this option to enable jump URL's for mailto links.</target>
+      </trans-unit>
+      <trans-unit id="configure_plainParams_description" resname="configure_plainParams_description">
+        <source>Enter the additional URL parameters used to fetch the plain text content from a TYPO3 page.</source>
+        <target state="needs-translation">Enter the additional URL parameters used to fetch the plain text content from a TYPO3 page.</target>
+      </trans-unit>
+      <trans-unit id="configure_plainParams_details" resname="configure_plainParams_details">
+        <source>The specified parameters will be added to the URL used to fetch the plain text content of the direct mail from a TYPO3 page. If in doubt, set it either to '&amp;type=99' or, when using TemplaVoila, to '&amp;print=1'.</source>
+        <target state="needs-translation">The specified parameters will be added to the URL used to fetch the plain text content of the direct mail from a TYPO3 page. If in doubt, set it either to '&amp;type=99' or, when using TemplaVoila, to '&amp;print=1'.</target>
+      </trans-unit>
+      <trans-unit id="configure_plain_and_html" resname="configure_plain_and_html">
+        <source>Plain text and HTML</source>
+        <target state="needs-translation">Plain text and HTML</target>
+      </trans-unit>
+      <trans-unit id="configure_plain_only" resname="configure_plain_only">
+        <source>Plain text only</source>
+        <target state="needs-translation">Plain text only</target>
+      </trans-unit>
+      <trans-unit id="configure_priority_high" resname="configure_priority_high">
+        <source>High</source>
+        <target state="needs-translation">High</target>
+      </trans-unit>
+      <trans-unit id="configure_priority_low" resname="configure_priority_low">
+        <source>Low</source>
+        <target state="needs-translation">Low</target>
+      </trans-unit>
+      <trans-unit id="configure_priority_normal" resname="configure_priority_normal">
+        <source>Normal</source>
+        <target state="needs-translation">Normal</target>
+      </trans-unit>
+      <trans-unit id="configure_quickmail_charset" resname="configure_quickmail_charset">
+        <source>Character set for quick mails</source>
+        <target state="needs-translation">Character set for quick mails</target>
+      </trans-unit>
+      <trans-unit id="configure_quickmail_charset_description" resname="configure_quickmail_charset_description">
+        <source>Specify the character set to use when sending quick mails.</source>
+        <target state="needs-translation">Specify the character set to use when sending quick mails.</target>
+      </trans-unit>
+      <trans-unit id="configure_quickmail_encoding" resname="configure_quickmail_encoding">
+        <source>Encoding for quick mails</source>
+        <target state="needs-translation">Encoding for quick mails</target>
+      </trans-unit>
+      <trans-unit id="configure_quickmail_encoding_description" resname="configure_quickmail_encoding_description">
+        <source>Select the content transfer encoding to use when sending quick mails.</source>
+        <target state="needs-translation">Select the content transfer encoding to use when sending quick mails.</target>
+      </trans-unit>
+      <trans-unit id="configure_simulate_usergroup" resname="configure_simulate_usergroup">
+        <source>Frontend User Group</source>
+        <target state="needs-translation">Frontend User Group</target>
+      </trans-unit>
+      <trans-unit id="configure_simulate_usergroup_description" resname="configure_simulate_usergroup_description">
+        <source>If mail content is protected by Frontend user authentication, enter the user group here.</source>
+        <target state="needs-translation">If mail content is protected by Frontend user authentication, enter the user group here.</target>
+      </trans-unit>
+      <trans-unit id="configure_simulate_usergroup_details" resname="configure_simulate_usergroup_details" xml:space="preserve">
+				<source><![CDATA[The usergroup with the uid specified is used to to fetch the mail content.
+	If you do not specify a usergroup uid and the page has frontend user restrictions, an error will occur and no mail content will be fetched.]]></source>
+			<target state="needs-translation"><![CDATA[The usergroup with the uid specified is used to to fetch the mail content.
+	If you do not specify a usergroup uid and the page has frontend user restrictions, an error will occur and no mail content will be fetched.]]></target></trans-unit>
+      <trans-unit id="configure_test_dmail_group_uids" resname="configure_test_dmail_group_uids">
+        <source>List of UID numbers of test recipient lists:</source>
+        <target state="needs-translation">List of UID numbers of test recipient lists:</target>
+      </trans-unit>
+      <trans-unit id="configure_test_dmail_group_uids_description" resname="configure_test_dmail_group_uids_description">
+        <source>Alternatively to sending test-mails to individuals, you can choose to send to a whole list. This is the list of recipient lists UID numbers available for this action.</source>
+        <target state="needs-translation">Alternatively to sending test-mails to individuals, you can choose to send to a whole list. This is the list of recipient lists UID numbers available for this action.</target>
+      </trans-unit>
+      <trans-unit id="configure_test_tt_address_uids" resname="configure_test_tt_address_uids">
+        <source>List of UID numbers of test recipients (tt_address):</source>
+        <target state="needs-translation">List of UID numbers of test recipients (tt_address):</target>
+      </trans-unit>
+      <trans-unit id="configure_test_tt_address_uids_description" resname="configure_test_tt_address_uids_description">
+        <source>Before sending mails, you should test the mail content by sending test mails to one or more test recipients. The available recipients for testing are determined by this list of UID numbers. So first, find out the UID numbers (tt_address) of the recipients you wish to use for testing, then enter them here in a comma-separated list.</source>
+        <target state="needs-translation">Before sending mails, you should test the mail content by sending test mails to one or more test recipients. The available recipients for testing are determined by this list of UID numbers. So first, find out the UID numbers (tt_address) of the recipients you wish to use for testing, then enter them here in a comma-separated list.</target>
+      </trans-unit>
+      <trans-unit id="configure_testmail" resname="configure_testmail">
+        <source>Subject for the testmail.</source>
+        <target state="needs-translation">Subject for the testmail.</target>
+      </trans-unit>
+      <trans-unit id="configure_testmail_description" resname="configure_testmail_description">
+        <source>This will be prepended to the test newsletter subject</source>
+        <target state="needs-translation">This will be prepended to the test newsletter subject</target>
+      </trans-unit>
+      <trans-unit id="configure_update_configuration" resname="configure_update_configuration">
+        <source>Update configuration</source>
+        <target state="needs-translation">Update configuration</target>
+      </trans-unit>
+      <trans-unit id="configure_user_table" resname="configure_user_table">
+        <source>Custom-defined table:</source>
+        <target state="needs-translation">Custom-defined table:</target>
+      </trans-unit>
+      <trans-unit id="configure_user_table_description" resname="configure_user_table_description">
+        <source>Enter the name of a custom-defined table, with compatible columns defined, which may also be used for direct mails distribution.</source>
+        <target state="needs-translation">Enter the name of a custom-defined table, with compatible columns defined, which may also be used for direct mails distribution.</target>
+      </trans-unit>
+      <trans-unit id="dmail_HTML_url" resname="dmail_HTML_url">
+        <source>URL of HTML content:</source>
+        <target state="needs-translation">URL of HTML content:</target>
+      </trans-unit>
+      <trans-unit id="dmail_cancel" resname="dmail_cancel">
+        <source>Cancel</source>
+        <target state="needs-translation">Cancel</target>
+      </trans-unit>
+      <trans-unit id="dmail_createMail" resname="dmail_createMail">
+        <source>Create mail</source>
+        <target state="needs-translation">Create mail</target>
+      </trans-unit>
+      <trans-unit id="dmail_dovsk_crFromNL" resname="dmail_dovsk_crFromNL">
+        <source>Create a new Direct Mail from a page</source>
+        <target state="needs-translation">Create a new Direct Mail from a page</target>
+      </trans-unit>
+      <trans-unit id="dmail_dovsk_crFromUrl" resname="dmail_dovsk_crFromUrl">
+        <source>Create a new Direct Mail from external URL</source>
+        <target state="needs-translation">Create a new Direct Mail from external URL</target>
+      </trans-unit>
+      <trans-unit id="dmail_edit" resname="dmail_edit">
+        <source>Edit</source>
+        <target state="needs-translation">Edit</target>
+      </trans-unit>
+      <trans-unit id="dmail_error" resname="dmail_error">
+        <source>An error was encountered.</source>
+        <target state="needs-translation">An error was encountered.</target>
+      </trans-unit>
+      <trans-unit id="dmail_folders" resname="dmail_folders">
+        <source>Available Direct Mail folders</source>
+        <target state="needs-translation">Available Direct Mail folders</target>
+      </trans-unit>
+      <trans-unit id="dmail_frames_not allowed" resname="dmail_frames_not allowed">
+        <source>Pages with HTML frames may not be fetched.</source>
+        <target state="needs-translation">Pages with HTML frames may not be fetched.</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_tasknotfound" resname="dmail_mailerengine_tasknotfound">
+        <source>Direct Mail scheduled task was not found!</source>
+        <target state="needs-translation">Direct Mail scheduled task was not found!</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_delete" resname="dmail_mailerengine_delete">
+        <source>Delete</source>
+        <target state="needs-translation">Delete</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_delivery_begun" resname="dmail_mailerengine_delivery_begun">
+        <source>Delivery begun</source>
+        <target state="needs-translation">Delivery begun</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_delivery_ended" resname="dmail_mailerengine_delivery_ended">
+        <source>Delivery ended</source>
+        <target state="needs-translation">Delivery ended</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_invoke_now" resname="dmail_mailerengine_invoke_now">
+        <source>Invoke Mailer Engine</source>
+        <target state="needs-translation">Invoke Mailer Engine</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_invoked" resname="dmail_mailerengine_invoked">
+        <source>Mailer Engine Invoked!</source>
+        <target state="needs-translation">Mailer Engine Invoked!</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_manual_explain" resname="dmail_mailerengine_manual_explain">
+        <source>If TYPO3 is not configured to automatically invoke the Mailer Engine, you can invoke it by clicking here:</source>
+        <target state="needs-translation">If TYPO3 is not configured to automatically invoke the Mailer Engine, you can invoke it by clicking here:</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_manual_invoke" resname="dmail_mailerengine_manual_invoke">
+        <source>Manually Invoke Engine</source>
+        <target state="needs-translation">Manually Invoke Engine</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_number_sent" resname="dmail_mailerengine_number_sent">
+        <source># sent</source>
+        <target state="needs-translation"># sent</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_scheduled" resname="dmail_mailerengine_scheduled">
+        <source>Scheduled</source>
+        <target state="needs-translation">Scheduled</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_status" resname="dmail_mailerengine_status">
+        <source>Mail Engine Status</source>
+        <target state="needs-translation">Mail Engine Status</target>
+      </trans-unit>
+      <trans-unit id="dmail_mailerengine_subject" resname="dmail_mailerengine_subject">
+        <source>Subject</source>
+        <target state="needs-translation">Subject</target>
+      </trans-unit>
+      <trans-unit id="dmail_makeQuery" resname="dmail_makeQuery">
+        <source>Make query</source>
+        <target state="needs-translation">Make query</target>
+      </trans-unit>
+      <trans-unit id="dmail_menuItems_testmail" resname="dmail_menuItems_testmail">
+        <source>Send a testmail</source>
+        <target state="needs-translation">Send a testmail</target>
+      </trans-unit>
+      <trans-unit id="dmail_menu_conf" resname="dmail_menu_conf">
+        <source>Module configuration</source>
+        <target state="needs-translation">Module configuration</target>
+      </trans-unit>
+      <trans-unit id="dmail_menu_convert_categories" resname="dmail_menu_convert_categories">
+        <source>Categories Conversion</source>
+        <target state="needs-translation">Categories Conversion</target>
+      </trans-unit>
+      <trans-unit id="dmail_menu_quickMail" resname="dmail_menu_quickMail">
+        <source>QuickMail</source>
+        <target state="needs-translation">QuickMail</target>
+      </trans-unit>
+      <trans-unit id="dmail_newsletters" resname="dmail_newsletters">
+        <source>Direct Mail Extension</source>
+        <target state="needs-translation">Direct Mail Extension</target>
+      </trans-unit>
+      <trans-unit id="dmail_no" resname="dmail_no">
+        <source>NO</source>
+        <target state="needs-translation">NO</target>
+      </trans-unit>
+      <trans-unit id="dmail_noCreateAccess" resname="dmail_noCreateAccess">
+        <source>You cannot create direct mails using pages that are hidden or access-restricted.</source>
+        <target state="needs-translation">You cannot create direct mails using pages that are hidden or access-restricted.</target>
+      </trans-unit>
+      <trans-unit id="dmail_noEdit_isSent" resname="dmail_noEdit_isSent">
+        <source>Cannot edit - mail has been sent</source>
+        <target state="needs-translation">Cannot edit - mail has been sent</target>
+      </trans-unit>
+      <trans-unit id="dmail_noEdit_noPerms" resname="dmail_noEdit_noPerms">
+        <source>Cannot edit - you don't have permissions to edit Direct Mails.</source>
+        <target state="needs-translation">Cannot edit - you don't have permissions to edit Direct Mails.</target>
+      </trans-unit>
+      <trans-unit id="dmail_noRegular" resname="dmail_noRegular">
+        <source>This type of page cannot be used to create direct mails. Please select a regular page.</source>
+        <target state="needs-translation">This type of page cannot be used to create direct mails. Please select a regular page.</target>
+      </trans-unit>
+      <trans-unit id="dmail_no_html_boundaries" resname="dmail_no_html_boundaries">
+        <source>The HTML content does not contain any direct mail boundaries.</source>
+        <target state="needs-translation">The HTML content does not contain any direct mail boundaries.</target>
+      </trans-unit>
+      <trans-unit id="dmail_no_html_content" resname="dmail_no_html_content">
+        <source>The HTML content could not be fetched.</source>
+        <target state="needs-translation">The HTML content could not be fetched.</target>
+      </trans-unit>
+      <trans-unit id="dmail_no_plain_boundaries" resname="dmail_no_plain_boundaries">
+        <source>The plain text content does not contain any direct mail boundaries.</source>
+        <target state="needs-translation">The plain text content does not contain any direct mail boundaries.</target>
+      </trans-unit>
+      <trans-unit id="dmail_no_plain_content" resname="dmail_no_plain_content">
+        <source>The plain text content could not be fetched.</source>
+        <target state="needs-translation">The plain text content could not be fetched.</target>
+      </trans-unit>
+      <trans-unit id="dmail_no_valid_url" resname="dmail_no_valid_url">
+        <source>Enter at least one valid URL!</source>
+        <target state="needs-translation">Enter at least one valid URL!</target>
+      </trans-unit>
+      <trans-unit id="dmail_number_records" resname="dmail_number_records">
+        <source>Number of records:</source>
+        <target state="needs-translation">Number of records:</target>
+      </trans-unit>
+      <trans-unit id="dmail_plaintext_url" resname="dmail_plaintext_url">
+        <source>URL of plain text content:</source>
+        <target state="needs-translation">URL of plain text content:</target>
+      </trans-unit>
+      <trans-unit id="dmail_query" resname="dmail_query">
+        <source>Query</source>
+        <target state="needs-translation">Query</target>
+      </trans-unit>
+      <trans-unit id="queryLimitDisabled" resname="queryLimitDisabled">
+        <source>Do not use a limit when sending</source>
+        <target state="needs-translation">Do not use a limit when sending</target>
+      </trans-unit>
+      <trans-unit id="dmail_send" resname="dmail_send">
+        <source>Send</source>
+        <target state="needs-translation">Send</target>
+      </trans-unit>
+      <trans-unit id="dmail_subject" resname="dmail_subject">
+        <source>Subject:</source>
+        <target state="needs-translation">Subject:</target>
+      </trans-unit>
+      <trans-unit id="dmail_updateQuery" resname="dmail_updateQuery">
+        <source>Update query</source>
+        <target state="needs-translation">Update query</target>
+      </trans-unit>
+      <trans-unit id="dmail_view" resname="dmail_view">
+        <source>Information on direct mail record:</source>
+        <target state="needs-translation">Information on direct mail record:</target>
+      </trans-unit>
+      <trans-unit id="dmail_warning" resname="dmail_warning">
+        <source>Check the following warning.</source>
+        <target state="needs-translation">Check the following warning.</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz1_external_page" resname="dmail_wiz1_external_page">
+        <source>External Pages</source>
+        <target state="needs-translation">External Pages</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz1_internal_page" resname="dmail_wiz1_internal_page">
+        <source>Internal Pages</source>
+        <target state="needs-translation">Internal Pages</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz1_list_dmail" resname="dmail_wiz1_list_dmail">
+        <source>Direct Mail</source>
+        <target state="needs-translation">Direct Mail</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz1_list_header" resname="dmail_wiz1_list_header">
+        <source>Select a newsletter to continue sending:</source>
+        <target state="needs-translation">Select a newsletter to continue sending:</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz1_new_newsletter" resname="dmail_wiz1_new_newsletter">
+        <source>New Newsletter</source>
+        <target state="needs-translation">New Newsletter</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz1_quickmail" resname="dmail_wiz1_quickmail">
+        <source>Quickmail</source>
+        <target state="needs-translation">Quickmail</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz1_quickmail_header" resname="dmail_wiz1_quickmail_header">
+        <source>New Quickmail</source>
+        <target state="needs-translation">New Quickmail</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz1_select_nl_source" resname="dmail_wiz1_select_nl_source">
+        <source>Select newsletter source:</source>
+        <target state="needs-translation">Select newsletter source:</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz2_detail" resname="dmail_wiz2_detail">
+        <source>Detailed Information</source>
+        <target state="needs-translation">Detailed Information</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz2_fetch_success" resname="dmail_wiz2_fetch_success">
+        <source>Page is successfully fetched.</source>
+        <target state="needs-translation">Page is successfully fetched.</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz3_cats" resname="dmail_wiz3_cats">
+        <source>Categories</source>
+        <target state="needs-translation">Categories</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz4_testmail" resname="dmail_wiz4_testmail">
+        <source>Test Mail</source>
+        <target state="needs-translation">Test Mail</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz5_sendmass" resname="dmail_wiz5_sendmass">
+        <source>Mass Send</source>
+        <target state="needs-translation">Mass Send</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz_back" resname="dmail_wiz_back">
+        <source>Back</source>
+        <target state="needs-translation">Back</target>
+      </trans-unit>
+      <trans-unit id="dmail_wiz_next" resname="dmail_wiz_next">
+        <source>Next</source>
+        <target state="needs-translation">Next</target>
+      </trans-unit>
+      <trans-unit id="dmail_write_subject" resname="dmail_write_subject">
+        <source>[write subject]</source>
+        <target state="needs-translation">[write subject]</target>
+      </trans-unit>
+      <trans-unit id="dmail_yes" resname="dmail_yes">
+        <source>YES</source>
+        <target state="needs-translation">YES</target>
+      </trans-unit>
+      <trans-unit id="dmailer_ending" resname="dmailer_ending">
+        <source>Ending, parsetime:</source>
+        <target state="needs-translation">Ending, parsetime:</target>
+      </trans-unit>
+      <trans-unit id="dmailer_invoked_at" resname="dmailer_invoked_at">
+        <source>Invoked at</source>
+        <target state="needs-translation">Invoked at</target>
+      </trans-unit>
+      <trans-unit id="dmailer_job_begin" resname="dmailer_job_begin">
+        <source>Job begin</source>
+        <target state="needs-translation">Job begin</target>
+      </trans-unit>
+      <trans-unit id="dmailer_job_end" resname="dmailer_job_end">
+        <source>Job end</source>
+        <target state="needs-translation">Job end</target>
+      </trans-unit>
+      <trans-unit id="dmailer_mid" resname="dmailer_mid">
+        <source>Job No:</source>
+        <target state="needs-translation">Job No:</target>
+      </trans-unit>
+      <trans-unit id="dmailer_nothing_to_do" resname="dmailer_nothing_to_do">
+        <source>Nothing to do.</source>
+        <target state="needs-translation">Nothing to do.</target>
+      </trans-unit>
+      <trans-unit id="dmailer_processed" resname="dmailer_processed">
+        <source>processed...</source>
+        <target state="needs-translation">processed...</target>
+      </trans-unit>
+      <trans-unit id="dmailer_sending" resname="dmailer_sending">
+        <source>Sending</source>
+        <target state="needs-translation">Sending</target>
+      </trans-unit>
+      <trans-unit id="dmailer_sending_to_table" resname="dmailer_sending_to_table">
+        <source>mails using records from table</source>
+        <target state="needs-translation">mails using records from table</target>
+      </trans-unit>
+      <trans-unit id="dmailer_sys_dmail_record" resname="dmailer_sys_dmail_record">
+        <source>sys_dmail record</source>
+        <target state="needs-translation">sys_dmail record</target>
+      </trans-unit>
+      <trans-unit id="header_conf" resname="header_conf">
+        <source>Configuration</source>
+        <target state="needs-translation">Configuration</target>
+      </trans-unit>
+      <trans-unit id="header_directmail" resname="header_directmail">
+        <source>Direct Mail</source>
+        <target state="needs-translation">Direct Mail</target>
+      </trans-unit>
+      <trans-unit id="header_mailer" resname="header_mailer">
+        <source>Mailer Engine</source>
+        <target state="needs-translation">Mailer Engine</target>
+      </trans-unit>
+      <trans-unit id="header_recip" resname="header_recip">
+        <source>Recipient Lists</source>
+        <target state="needs-translation">Recipient Lists</target>
+      </trans-unit>
+      <trans-unit id="header_stat" resname="header_stat">
+        <source>Statistics</source>
+        <target state="needs-translation">Statistics</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_download" resname="mailgroup_download">
+        <source>Download CSV file</source>
+        <target state="needs-translation">Download CSV file</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_header" resname="mailgroup_header">
+        <source>Recipient List</source>
+        <target state="needs-translation">Recipient List</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import" resname="mailgroup_import">
+        <source>Import CSV into 'ADDRESS' table</source>
+        <target state="needs-translation">Import CSV into 'ADDRESS' table</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_back" resname="mailgroup_import_back">
+        <source>Back</source>
+        <target state="needs-translation">Back</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_csv_dublette-description" resname="mailgroup_import_csv_dublette-description">
+        <source>Filter email dublettes from csv data. If a dublette is found, only the first entry is imported.</source>
+        <target state="needs-translation">Filter email dublettes from csv data. If a dublette is found, only the first entry is imported.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_csv_validemail-description" resname="mailgroup_import_csv_validemail-description">
+        <source>Only update/import valid emails from csv data.</source>
+        <target state="needs-translation">Only update/import valid emails from csv data.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_current_file" resname="mailgroup_import_current_file">
+        <source>Current file:</source>
+        <target state="needs-translation">Current file:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_done" resname="mailgroup_import_done">
+        <source>Import is finished.</source>
+        <target state="needs-translation">Import is finished.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_encapsulation" resname="mailgroup_import_encapsulation">
+        <source>Field encapsulation character (data fields are encapsed with...):</source>
+        <target state="needs-translation">Field encapsulation character (data fields are encapsed with...):</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_first_fieldnames" resname="mailgroup_import_first_fieldnames">
+        <source>First row of import file has fieldnames:</source>
+        <target state="needs-translation">First row of import file has fieldnames:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_header_conf" resname="mailgroup_import_header_conf">
+        <source>Import settings</source>
+        <target state="needs-translation">Import settings</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_header_upload" resname="mailgroup_import_header_upload">
+        <source>Upload CSV</source>
+        <target state="needs-translation">Upload CSV</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_import" resname="mailgroup_import_import">
+        <source>Import</source>
+        <target state="needs-translation">Import</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_all_html" resname="mailgroup_import_mapping_all_html">
+        <source>All recipients receive HTML newsletter</source>
+        <target state="needs-translation">All recipients receive HTML newsletter</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_categories" resname="mailgroup_import_mapping_categories">
+        <source>Categories</source>
+        <target state="needs-translation">Categories</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_cats" resname="mailgroup_import_mapping_cats">
+        <source>Assign the following categories to all recipients:</source>
+        <target state="needs-translation">Assign the following categories to all recipients:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_cats_add" resname="mailgroup_import_mapping_cats_add">
+        <source>Add categories</source>
+        <target state="needs-translation">Add categories</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_charset" resname="mailgroup_import_mapping_charset">
+        <source>Settings</source>
+        <target state="needs-translation">Settings</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_charset_choose" resname="mailgroup_import_mapping_charset_choose">
+        <source>Please select the character set of the import file:</source>
+        <target state="needs-translation">Please select the character set of the import file:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_conf" resname="mailgroup_import_mapping_conf">
+        <source>Field mapping</source>
+        <target state="needs-translation">Field mapping</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_conf_add" resname="mailgroup_import_mapping_conf_add">
+        <source>Additional options</source>
+        <target state="needs-translation">Additional options</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_description" resname="mailgroup_import_mapping_description">
+        <source>Description</source>
+        <target state="needs-translation">Description</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_error" resname="mailgroup_import_mapping_error">
+        <source>Mapping error</source>
+        <target state="needs-translation">Mapping error</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_error_detail" resname="mailgroup_import_mapping_error_detail">
+        <source>Please fix following error(s):</source>
+        <target state="needs-translation">Please fix following error(s):</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_error_email" resname="mailgroup_import_mapping_error_email">
+        <source>&quot;Email&quot; field has to be mapped.</source>
+        <target state="needs-translation">"Email" field has to be mapped.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_error_noMap" resname="mailgroup_import_mapping_error_noMap">
+        <source>No mapping is found. You have to map at least &quot;email&quot; field.</source>
+        <target state="needs-translation">No mapping is found. You have to map at least "email" field.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_mapTo" resname="mailgroup_import_mapping_mapTo">
+        <source>Maps to ...</source>
+        <target state="needs-translation">Maps to ...</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_mapping" resname="mailgroup_import_mapping_mapping">
+        <source>Mapping</source>
+        <target state="needs-translation">Mapping</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_number" resname="mailgroup_import_mapping_number">
+        <source>#</source>
+        <target state="needs-translation">#</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_mapping_value" resname="mailgroup_import_mapping_value">
+        <source>Value</source>
+        <target state="needs-translation">Value</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_next" resname="mailgroup_import_next">
+        <source>Next</source>
+        <target state="needs-translation">Next</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_or" resname="mailgroup_import_or">
+        <source>OR</source>
+        <target state="needs-translation">OR</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_overwrite" resname="mailgroup_import_overwrite">
+        <source>Overwrite existing file: </source>
+        <target state="needs-translation">Overwrite existing file: </target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_paste_csv" resname="mailgroup_import_paste_csv">
+        <source>Paste the CSV data:</source>
+        <target state="needs-translation">Paste the CSV data:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_ready_import" resname="mailgroup_import_ready_import">
+        <source>Ready to import</source>
+        <target state="needs-translation">Ready to import</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_ready_import_label" resname="mailgroup_import_ready_import_label" xml:space="preserve">
+				<source><![CDATA[All necessary information for the import have been entered.
+	By clicking on the "Import" button below, all data will be written in tt_address.]]></source>
+			<target state="needs-translation"><![CDATA[All necessary information for the import have been entered.
+	By clicking on the "Import" button below, all data will be written in tt_address.]]></target></trans-unit>
+      <trans-unit id="mailgroup_import_record_unique" resname="mailgroup_import_record_unique">
+        <source>Specify the field which determines the uniqueness of imported users:</source>
+        <target state="needs-translation">Specify the field which determines the uniqueness of imported users:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_remove_existing" resname="mailgroup_import_remove_existing">
+        <source>Remove all Addresses in the storage folder before importing:</source>
+        <target state="needs-translation">Remove all Addresses in the storage folder before importing:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_report_double" resname="mailgroup_import_report_double">
+        <source>Double records found in the CSV Data:</source>
+        <target state="needs-translation">Double records found in the CSV Data:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_report_invalid_email" resname="mailgroup_import_report_invalid_email">
+        <source>Do not insert/update invalid emails found in csv data:</source>
+        <target state="needs-translation">Do not insert/update invalid emails found in csv data:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_report_new" resname="mailgroup_import_report_new">
+        <source>Insert the following records:</source>
+        <target state="needs-translation">Insert the following records:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_report_update" resname="mailgroup_import_report_update">
+        <source>Update the following records:</source>
+        <target state="needs-translation">Update the following records:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_separator" resname="mailgroup_import_separator">
+        <source>Field delimiter (data fields are separated by...):</source>
+        <target state="needs-translation">Field delimiter (data fields are separated by...):</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_separator_colon" resname="mailgroup_import_separator_colon">
+        <source>colon [:]</source>
+        <target state="needs-translation">colon [:]</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_separator_comma" resname="mailgroup_import_separator_comma">
+        <source>comma [,]</source>
+        <target state="needs-translation">comma [,]</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_separator_semicolon" resname="mailgroup_import_separator_semicolon">
+        <source>semicolon [;]</source>
+        <target state="needs-translation">semicolon [;]</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_separator_tab" resname="mailgroup_import_separator_tab">
+        <source>horizontal tab [TAB]</source>
+        <target state="needs-translation">horizontal tab [TAB]</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_storage" resname="mailgroup_import_storage">
+        <source>Please select the storage folder for the imported users:</source>
+        <target state="needs-translation">Please select the storage folder for the imported users:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_update" resname="mailgroup_import_update">
+        <source>update</source>
+        <target state="needs-translation">update</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_update_unique" resname="mailgroup_import_update_unique">
+        <source>Update existing user, instead renaming the new user:</source>
+        <target state="needs-translation">Update existing user, instead renaming the new user:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import_upload_file" resname="mailgroup_import_upload_file">
+        <source>Choose a file from your local computer:</source>
+        <target state="needs-translation">Choose a file from your local computer:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_list_all" resname="mailgroup_list_all">
+        <source>List all recipients</source>
+        <target state="needs-translation">List all recipients</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_plain_list" resname="mailgroup_plain_list">
+        <source>Plain List</source>
+        <target state="needs-translation">Plain List</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_recip_from" resname="mailgroup_recip_from">
+        <source>Recipients from recipient list:</source>
+        <target state="needs-translation">Recipients from recipient list:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_recip_number" resname="mailgroup_recip_number">
+        <source>Number of recipients:</source>
+        <target state="needs-translation">Number of recipients:</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_table_address" resname="mailgroup_table_address">
+        <source>Address Table</source>
+        <target state="needs-translation">Address Table</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_table_custom" resname="mailgroup_table_custom">
+        <source>Custom Table</source>
+        <target state="needs-translation">Custom Table</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_table_fe_users" resname="mailgroup_table_fe_users">
+        <source>Website User Table</source>
+        <target state="needs-translation">Website User Table</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_table_disallowed_placeholder" resname="mailgroup_table_disallowed_placeholder">
+        <source>Missing permission to display data</source>
+        <target state="needs-translation">Missing permission to display data</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_table_disallowed_csv" resname="mailgroup_table_disallowed_csv">
+        <source>CSV export failed. Insufficient access right.</source>
+        <target state="needs-translation">CSV export failed. Insufficient access right.</target>
+      </trans-unit>
+      <trans-unit id="nl_cat" resname="nl_cat">
+        <source>Assign categories to content elements</source>
+        <target state="needs-translation">Assign categories to content elements</target>
+      </trans-unit>
+      <trans-unit id="nl_cat_msg1" resname="nl_cat_msg1">
+        <source>There are no content elements on the page.</source>
+        <target state="needs-translation">There are no content elements on the page.</target>
+      </trans-unit>
+      <trans-unit id="nl_create" resname="nl_create">
+        <source>Create a newsletter</source>
+        <target state="needs-translation">Create a newsletter</target>
+      </trans-unit>
+      <trans-unit id="nl_create_msg1" resname="nl_create_msg1">
+        <source>Click here to create a new page that you can later send as a direct mail.</source>
+        <target state="needs-translation">Click here to create a new page that you can later send as a direct mail.</target>
+      </trans-unit>
+      <trans-unit id="nl_editPage" resname="nl_editPage">
+        <source>Edit page</source>
+        <target state="needs-translation">Edit page</target>
+      </trans-unit>
+      <trans-unit id="nl_l_ALL" resname="nl_l_ALL">
+        <source>ALL</source>
+        <target state="needs-translation">ALL</target>
+      </trans-unit>
+      <trans-unit id="nl_l_ONLY" resname="nl_l_ONLY">
+        <source>ONLY</source>
+        <target state="needs-translation">ONLY</target>
+      </trans-unit>
+      <trans-unit id="nl_l_attach" resname="nl_l_attach">
+        <source>Attach.</source>
+        <target state="needs-translation">Attach.</target>
+      </trans-unit>
+      <trans-unit id="nl_l_column" resname="nl_l_column">
+        <source>Column</source>
+        <target state="needs-translation">Column</target>
+      </trans-unit>
+      <trans-unit id="nl_l_lastM" resname="nl_l_lastM">
+        <source>Last mod.</source>
+        <target state="needs-translation">Last mod.</target>
+      </trans-unit>
+      <trans-unit id="nl_l_sent" resname="nl_l_sent">
+        <source>Sent?</source>
+        <target state="needs-translation">Sent?</target>
+      </trans-unit>
+      <trans-unit id="nl_l_size" resname="nl_l_size">
+        <source>Size</source>
+        <target state="needs-translation">Size</target>
+      </trans-unit>
+      <trans-unit id="nl_l_subject" resname="nl_l_subject">
+        <source>Subject</source>
+        <target state="needs-translation">Subject</target>
+      </trans-unit>
+      <trans-unit id="nl_l_tDraft" resname="nl_l_tDraft">
+        <source>Draft</source>
+        <target state="needs-translation">Draft</target>
+      </trans-unit>
+      <trans-unit id="nl_l_tPage" resname="nl_l_tPage">
+        <source>PAGE</source>
+        <target state="needs-translation">PAGE</target>
+      </trans-unit>
+      <trans-unit id="nl_l_tUrl" resname="nl_l_tUrl">
+        <source>EXT URL</source>
+        <target state="needs-translation">EXT URL</target>
+      </trans-unit>
+      <trans-unit id="nl_l_type" resname="nl_l_type">
+        <source>Type</source>
+        <target state="needs-translation">Type</target>
+      </trans-unit>
+      <trans-unit id="nl_l_update" resname="nl_l_update">
+        <source>Update category settings</source>
+        <target state="needs-translation">Update category settings</target>
+      </trans-unit>
+      <trans-unit id="nl_l_warning" resname="nl_l_warning">
+        <source>There are already %s Direct Mails based on this newsletter. Are you sure you want to create another one?</source>
+        <target state="needs-translation">There are already %s Direct Mails based on this newsletter. Are you sure you want to create another one?</target>
+      </trans-unit>
+      <trans-unit id="nl_select" resname="nl_select">
+        <source>Select a newsletter</source>
+        <target state="needs-translation">Select a newsletter</target>
+      </trans-unit>
+      <trans-unit id="nl_select_msg1" resname="nl_select_msg1">
+        <source>There are no pages in the mail module.</source>
+        <target state="needs-translation">There are no pages in the mail module.</target>
+      </trans-unit>
+      <trans-unit id="nl_viewPage_HTML" resname="nl_viewPage_HTML">
+        <source>View page in HTML format</source>
+        <target state="needs-translation">View page in HTML format</target>
+      </trans-unit>
+      <trans-unit id="nl_viewPage_TXT" resname="nl_viewPage_TXT">
+        <source>View page in Text format</source>
+        <target state="needs-translation">View page in Text format</target>
+      </trans-unit>
+      <trans-unit id="quickmail_break_lines" resname="quickmail_break_lines">
+        <source>Break lines to 76 char:</source>
+        <target state="needs-translation">Break lines to 76 char:</target>
+      </trans-unit>
+      <trans-unit id="quickmail_message" resname="quickmail_message">
+        <source>Message:</source>
+        <target state="needs-translation">Message:</target>
+      </trans-unit>
+      <trans-unit id="quickmail_sender_email" resname="quickmail_sender_email">
+        <source>Sender Email:</source>
+        <target state="needs-translation">Sender Email:</target>
+      </trans-unit>
+      <trans-unit id="quickmail_sender_name" resname="quickmail_sender_name">
+        <source>Sender Name:</source>
+        <target state="needs-translation">Sender Name:</target>
+      </trans-unit>
+      <trans-unit id="recip_create_mailgroup" resname="recip_create_mailgroup">
+        <source>New recipient list</source>
+        <target state="needs-translation">New recipient list</target>
+      </trans-unit>
+      <trans-unit id="recip_create_mailgroup_msg" resname="recip_create_mailgroup_msg">
+        <source>Create a new recipient list?</source>
+        <target state="needs-translation">Create a new recipient list?</target>
+      </trans-unit>
+      <trans-unit id="recip_group_amount" resname="recip_group_amount">
+        <source>Amount:</source>
+        <target state="needs-translation">Amount:</target>
+      </trans-unit>
+      <trans-unit id="recip_import_mailgroup_msg" resname="recip_import_mailgroup_msg">
+        <source>Click here to import CSV</source>
+        <target state="needs-translation">Click here to import CSV</target>
+      </trans-unit>
+      <trans-unit id="recip_select_mailgroup" resname="recip_select_mailgroup">
+        <source>Select a recipient list</source>
+        <target state="needs-translation">Select a recipient list</target>
+      </trans-unit>
+      <trans-unit id="schedule_draft" resname="schedule_draft">
+        <source>Save these settings as draft (for recurring sendings)</source>
+        <target state="needs-translation">Save these settings as draft (for recurring sendings)</target>
+      </trans-unit>
+      <trans-unit id="schedule_mailgroup" resname="schedule_mailgroup">
+        <source>Recipient list:</source>
+        <target state="needs-translation">Recipient list:</target>
+      </trans-unit>
+      <trans-unit id="schedule_select_mailgroup" resname="schedule_select_mailgroup">
+        <source>Send mail - recipient list</source>
+        <target state="needs-translation">Send mail - recipient list</target>
+      </trans-unit>
+      <trans-unit id="schedule_send_all" resname="schedule_send_all">
+        <source>Send to all subscribers in recipient list</source>
+        <target state="needs-translation">Send to all subscribers in recipient list</target>
+      </trans-unit>
+      <trans-unit id="schedule_testmail" resname="schedule_testmail">
+        <source>Send this as test newsletter</source>
+        <target state="needs-translation">Send this as test newsletter</target>
+      </trans-unit>
+      <trans-unit id="schedule_time" resname="schedule_time">
+        <source>Distribution time (hh:mm dd-mm-yyyy):</source>
+        <target state="needs-translation">Distribution time (hh:mm dd-mm-yyyy):</target>
+      </trans-unit>
+      <trans-unit id="select_folder" resname="select_folder">
+        <source>Please select Direct Mail folder.</source>
+        <target state="needs-translation">Please select Direct Mail folder.</target>
+      </trans-unit>
+      <trans-unit id="send_draft_saved" resname="send_draft_saved">
+        <source>Draft saved</source>
+        <target state="needs-translation">Draft saved</target>
+      </trans-unit>
+      <trans-unit id="send_draft_scheduler" resname="send_draft_scheduler">
+        <source>Your directmail was sent as draft and can now be used from the scheduler.</source>
+        <target state="needs-translation">Your directmail was sent as draft and can now be used from the scheduler.</target>
+      </trans-unit>
+      <trans-unit id="send_recipients" resname="send_recipients">
+        <source>Recipients:</source>
+        <target state="needs-translation">Recipients:</target>
+      </trans-unit>
+      <trans-unit id="send_sending" resname="send_sending">
+        <source>Sending mail</source>
+        <target state="needs-translation">Sending mail</target>
+      </trans-unit>
+      <trans-unit id="send_was_scheduled" resname="send_was_scheduled">
+        <source>Mail scheduled for distribution</source>
+        <target state="needs-translation">Mail scheduled for distribution</target>
+      </trans-unit>
+      <trans-unit id="send_was_scheduled_for" resname="send_was_scheduled_for">
+        <source>The mail was scheduled for distribution at</source>
+        <target state="needs-translation">The mail was scheduled for distribution at</target>
+      </trans-unit>
+      <trans-unit id="send_was_sent" resname="send_was_sent">
+        <source>The mail was sent.</source>
+        <target state="needs-translation">The mail was sent.</target>
+      </trans-unit>
+      <trans-unit id="send_was_sent_to_name" resname="send_was_sent_to_name">
+        <source>The mail was sent to %s.</source>
+        <target state="needs-translation">The mail was sent to %s.</target>
+      </trans-unit>
+      <trans-unit id="send_was_sent_to_number" resname="send_was_sent_to_number">
+        <source>The mail was sent to %s recipients.</source>
+        <target state="needs-translation">The mail was sent to %s recipients.</target>
+      </trans-unit>
+      <trans-unit id="stats_CSV_returned" resname="stats_CSV_returned">
+        <source>CSV of returned recipients</source>
+        <target state="needs-translation">CSV of returned recipients</target>
+      </trans-unit>
+      <trans-unit id="stats_CSV_returned_bad_header" resname="stats_CSV_returned_bad_header">
+        <source>CSV of returned recipients with error in header</source>
+        <target state="needs-translation">CSV of returned recipients with error in header</target>
+      </trans-unit>
+      <trans-unit id="stats_CSV_returned_bad_host" resname="stats_CSV_returned_bad_host">
+        <source>CSV of returned recipients with bad host</source>
+        <target state="needs-translation">CSV of returned recipients with bad host</target>
+      </trans-unit>
+      <trans-unit id="stats_CSV_returned_mailbox_full" resname="stats_CSV_returned_mailbox_full">
+        <source>CSV of returned recipients with mailbox full</source>
+        <target state="needs-translation">CSV of returned recipients with mailbox full</target>
+      </trans-unit>
+      <trans-unit id="stats_CSV_returned_reason_unknown" resname="stats_CSV_returned_reason_unknown">
+        <source>CSV of returned recipients for unknown reason</source>
+        <target state="needs-translation">CSV of returned recipients for unknown reason</target>
+      </trans-unit>
+      <trans-unit id="stats_CSV_returned_unknown_recipient" resname="stats_CSV_returned_unknown_recipient">
+        <source>CSV of returned recipients with unknown recipient</source>
+        <target state="needs-translation">CSV of returned recipients with unknown recipient</target>
+      </trans-unit>
+      <trans-unit id="stats_HTML" resname="stats_HTML">
+        <source>HTML:</source>
+        <target state="needs-translation">HTML:</target>
+      </trans-unit>
+      <trans-unit id="stats_HTML_link_nr" resname="stats_HTML_link_nr">
+        <source>HTML Link #</source>
+        <target state="needs-translation">HTML Link #</target>
+      </trans-unit>
+      <trans-unit id="stats_HTML_mails_viewed" resname="stats_HTML_mails_viewed">
+        <source>HTML mails viewed:</source>
+        <target state="needs-translation">HTML mails viewed:</target>
+      </trans-unit>
+      <trans-unit id="stats_bad_host" resname="stats_bad_host">
+        <source>Bad host:</source>
+        <target state="needs-translation">Bad host:</target>
+      </trans-unit>
+      <trans-unit id="stats_count" resname="stats_count">
+        <source>Count:</source>
+        <target state="needs-translation">Count:</target>
+      </trans-unit>
+      <trans-unit id="stats_direct_mail" resname="stats_direct_mail">
+        <source>Statistics for direct mail:</source>
+        <target state="needs-translation">Statistics for direct mail:</target>
+      </trans-unit>
+      <trans-unit id="stats_disable_returned" resname="stats_disable_returned">
+        <source>Disable returned recipients</source>
+        <target state="needs-translation">Disable returned recipients</target>
+      </trans-unit>
+      <trans-unit id="stats_disable_returned_bad_header" resname="stats_disable_returned_bad_header">
+        <source>Disable returned recipients with error in header</source>
+        <target state="needs-translation">Disable returned recipients with error in header</target>
+      </trans-unit>
+      <trans-unit id="stats_disable_returned_bad_host" resname="stats_disable_returned_bad_host">
+        <source>Disable returned recipients with bad host</source>
+        <target state="needs-translation">Disable returned recipients with bad host</target>
+      </trans-unit>
+      <trans-unit id="stats_disable_returned_mailbox_full" resname="stats_disable_returned_mailbox_full">
+        <source>Disable returned recipients with mailbox full</source>
+        <target state="needs-translation">Disable returned recipients with mailbox full</target>
+      </trans-unit>
+      <trans-unit id="stats_disable_returned_reason_unknown" resname="stats_disable_returned_reason_unknown">
+        <source>Disable returned recipients for unknown reason</source>
+        <target state="needs-translation">Disable returned recipients for unknown reason</target>
+      </trans-unit>
+      <trans-unit id="stats_disable_returned_unknown_recipient" resname="stats_disable_returned_unknown_recipient">
+        <source>Disable returned recipients with unknown recipient</source>
+        <target state="needs-translation">Disable returned recipients with unknown recipient</target>
+      </trans-unit>
+      <trans-unit id="stats_emails" resname="stats_emails">
+        <source>List of recipients from tt_address table:</source>
+        <target state="needs-translation">List of recipients from tt_address table:</target>
+      </trans-unit>
+      <trans-unit id="stats_emails_disabled" resname="stats_emails_disabled">
+        <source>adresses disabled</source>
+        <target state="needs-translation">adresses disabled</target>
+      </trans-unit>
+      <trans-unit id="stats_emails_returned_bad_header_list" resname="stats_emails_returned_bad_header_list">
+        <source>Email adresses of returned mails with error in header:</source>
+        <target state="needs-translation">Email adresses of returned mails with error in header:</target>
+      </trans-unit>
+      <trans-unit id="stats_emails_returned_bad_host_list" resname="stats_emails_returned_bad_host_list">
+        <source>Email adresses of returned mails with bad host:</source>
+        <target state="needs-translation">Email adresses of returned mails with bad host:</target>
+      </trans-unit>
+      <trans-unit id="stats_emails_returned_list" resname="stats_emails_returned_list">
+        <source>Email adresses of returned mails:</source>
+        <target state="needs-translation">Email adresses of returned mails:</target>
+      </trans-unit>
+      <trans-unit id="stats_emails_returned_mailbox_full_list" resname="stats_emails_returned_mailbox_full_list">
+        <source>Email adresses of returned mails with mailbox full:</source>
+        <target state="needs-translation">Email adresses of returned mails with mailbox full:</target>
+      </trans-unit>
+      <trans-unit id="stats_emails_returned_reason_unknown_list" resname="stats_emails_returned_reason_unknown_list">
+        <source>Email adresses of returned mails for unknown reason:</source>
+        <target state="needs-translation">Email adresses of returned mails for unknown reason:</target>
+      </trans-unit>
+      <trans-unit id="stats_emails_returned_unknown_recipient_list" resname="stats_emails_returned_unknown_recipient_list">
+        <source>Email adresses of returned mails with unknown recipient:</source>
+        <target state="needs-translation">Email adresses of returned mails with unknown recipient:</target>
+      </trans-unit>
+      <trans-unit id="stats_error_in_header" resname="stats_error_in_header">
+        <source>Error in Header:</source>
+        <target state="needs-translation">Error in Header:</target>
+      </trans-unit>
+      <trans-unit id="stats_general_information" resname="stats_general_information">
+        <source>General information:</source>
+        <target state="needs-translation">General information:</target>
+      </trans-unit>
+      <trans-unit id="stats_img_link" resname="stats_img_link">
+        <source>Imagelink:</source>
+        <target state="needs-translation">Imagelink:</target>
+      </trans-unit>
+      <trans-unit id="stats_links_clicked_per_respondent" resname="stats_links_clicked_per_respondent">
+        <source>Total responses/Unique responses:</source>
+        <target state="needs-translation">Total responses/Unique responses:</target>
+      </trans-unit>
+      <trans-unit id="stats_list_returned" resname="stats_list_returned">
+        <source>List returned recipients</source>
+        <target state="needs-translation">List returned recipients</target>
+      </trans-unit>
+      <trans-unit id="stats_list_returned_bad_header" resname="stats_list_returned_bad_header">
+        <source>List returned recipients with error in header</source>
+        <target state="needs-translation">List returned recipients with error in header</target>
+      </trans-unit>
+      <trans-unit id="stats_list_returned_bad_host" resname="stats_list_returned_bad_host">
+        <source>List returned recipients with bad host</source>
+        <target state="needs-translation">List returned recipients with bad host</target>
+      </trans-unit>
+      <trans-unit id="stats_list_returned_mailbox_full" resname="stats_list_returned_mailbox_full">
+        <source>List returned recipients with mailbox full</source>
+        <target state="needs-translation">List returned recipients with mailbox full</target>
+      </trans-unit>
+      <trans-unit id="stats_list_returned_reason_unknown" resname="stats_list_returned_reason_unknown">
+        <source>List returned recipients for unknown reason</source>
+        <target state="needs-translation">List returned recipients for unknown reason</target>
+      </trans-unit>
+      <trans-unit id="stats_list_returned_unknown_recipient" resname="stats_list_returned_unknown_recipient">
+        <source>List returned recipients with unknown recipient</source>
+        <target state="needs-translation">List returned recipients with unknown recipient</target>
+      </trans-unit>
+      <trans-unit id="stats_mailbox_full" resname="stats_mailbox_full">
+        <source>Mailbox full:</source>
+        <target state="needs-translation">Mailbox full:</target>
+      </trans-unit>
+      <trans-unit id="stats_mails_returned" resname="stats_mails_returned">
+        <source>Mails returned:</source>
+        <target state="needs-translation">Mails returned:</target>
+      </trans-unit>
+      <trans-unit id="stats_mails_sent" resname="stats_mails_sent">
+        <source>Mails sent:</source>
+        <target state="needs-translation">Mails sent:</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_choose" resname="stats_overview_choose">
+        <source>Choose a newsletter</source>
+        <target state="needs-translation">Choose a newsletter</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_delivery_begun" resname="stats_overview_delivery_begun">
+        <source>Delivery begun</source>
+        <target state="needs-translation">Delivery begun</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_delivery_ended" resname="stats_overview_delivery_ended">
+        <source>Delivery ended</source>
+        <target state="needs-translation">Delivery ended</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_header" resname="stats_overview_header">
+        <source>Newsletter Statistics</source>
+        <target state="needs-translation">Newsletter Statistics</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_queuing" resname="stats_overview_queuing">
+        <source>queuing</source>
+        <target state="needs-translation">queuing</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_scheduled" resname="stats_overview_scheduled">
+        <source>Scheduled</source>
+        <target state="needs-translation">Scheduled</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_sending" resname="stats_overview_sending">
+        <source>sending</source>
+        <target state="needs-translation">sending</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_sent" resname="stats_overview_sent">
+        <source>sent</source>
+        <target state="needs-translation">sent</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_status" resname="stats_overview_status">
+        <source>Status</source>
+        <target state="needs-translation">Status</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_subject" resname="stats_overview_subject">
+        <source>Subject</source>
+        <target state="needs-translation">Subject</target>
+      </trans-unit>
+      <trans-unit id="stats_overview_total_sent" resname="stats_overview_total_sent">
+        <source># sent</source>
+        <target state="needs-translation"># sent</target>
+      </trans-unit>
+      <trans-unit id="stats_plainlist" resname="stats_plainlist">
+        <source>List of recipients:</source>
+        <target state="needs-translation">List of recipients:</target>
+      </trans-unit>
+      <trans-unit id="stats_plaintext" resname="stats_plaintext">
+        <source>Plaintext:</source>
+        <target state="needs-translation">Plaintext:</target>
+      </trans-unit>
+      <trans-unit id="stats_plaintext_link_nr" resname="stats_plaintext_link_nr">
+        <source>Plaintext Link #</source>
+        <target state="needs-translation">Plaintext Link #</target>
+      </trans-unit>
+      <trans-unit id="stats_reason_unkown" resname="stats_reason_unkown">
+        <source>Reason unknown:</source>
+        <target state="needs-translation">Reason unknown:</target>
+      </trans-unit>
+      <trans-unit id="stats_recalculate_cached_data" resname="stats_recalculate_cached_data">
+        <source>Re-calculate Cached Data:</source>
+        <target state="needs-translation">Re-calculate Cached Data:</target>
+      </trans-unit>
+      <trans-unit id="stats_recalculate_stats" resname="stats_recalculate_stats">
+        <source>Re-calculate cached statistics data</source>
+        <target state="needs-translation">Re-calculate cached statistics data</target>
+      </trans-unit>
+      <trans-unit id="stats_recipient_unknown" resname="stats_recipient_unknown">
+        <source>Recipient unknown:</source>
+        <target state="needs-translation">Recipient unknown:</target>
+      </trans-unit>
+      <trans-unit id="stats_response" resname="stats_response">
+        <source>Responses:</source>
+        <target state="needs-translation">Responses:</target>
+      </trans-unit>
+      <trans-unit id="stats_response_link" resname="stats_response_link">
+        <source>Link Responses:</source>
+        <target state="needs-translation">Link Responses:</target>
+      </trans-unit>
+      <trans-unit id="stats_total" resname="stats_total">
+        <source>Total:</source>
+        <target state="needs-translation">Total:</target>
+      </trans-unit>
+      <trans-unit id="stats_total_mails_returned" resname="stats_total_mails_returned">
+        <source>Total mails returned:</source>
+        <target state="needs-translation">Total mails returned:</target>
+      </trans-unit>
+      <trans-unit id="stats_total_responses" resname="stats_total_responses">
+        <source>Total responses (links clicked):</source>
+        <target state="needs-translation">Total responses (links clicked):</target>
+      </trans-unit>
+      <trans-unit id="stats_unique_responses" resname="stats_unique_responses">
+        <source>Unique responses (links clicked):</source>
+        <target state="needs-translation">Unique responses (links clicked):</target>
+      </trans-unit>
+      <trans-unit id="stats_website_users" resname="stats_website_users">
+        <source>List of recipients from fe_users:</source>
+        <target state="needs-translation">List of recipients from fe_users:</target>
+      </trans-unit>
+      <trans-unit id="stats_website_users_disabled" resname="stats_website_users_disabled">
+        <source>website users disabled</source>
+        <target state="needs-translation">website users disabled</target>
+      </trans-unit>
+      <trans-unit id="subscriber_info" resname="subscriber_info">
+        <source>Subscriber Info</source>
+        <target state="needs-translation">Subscriber Info</target>
+      </trans-unit>
+      <trans-unit id="subscriber_profile" resname="subscriber_profile">
+        <source>Subscriber Profile</source>
+        <target state="needs-translation">Subscriber Profile</target>
+      </trans-unit>
+      <trans-unit id="subscriber_profile_htmlemail" resname="subscriber_profile_htmlemail">
+        <source>Receive HTML based mails</source>
+        <target state="needs-translation">Receive HTML based mails</target>
+      </trans-unit>
+      <trans-unit id="subscriber_profile_instructions" resname="subscriber_profile_instructions">
+        <source>Set categories of interest for the subscriber.</source>
+        <target state="needs-translation">Set categories of interest for the subscriber.</target>
+      </trans-unit>
+      <trans-unit id="subscriber_profile_update" resname="subscriber_profile_update">
+        <source>Update profile settings</source>
+        <target state="needs-translation">Update profile settings</target>
+      </trans-unit>
+      <trans-unit id="testmail_individual" resname="testmail_individual">
+        <source>Testmail - Individual</source>
+        <target state="needs-translation">Testmail - Individual</target>
+      </trans-unit>
+      <trans-unit id="testmail_individual_msg" resname="testmail_individual_msg">
+        <source>Select a recipient of the testmail. The mail will be generated based on the profile of the recipient you select.</source>
+        <target state="needs-translation">Select a recipient of the testmail. The mail will be generated based on the profile of the recipient you select.</target>
+      </trans-unit>
+      <trans-unit id="testmail_mailgroup" resname="testmail_mailgroup">
+        <source>Testmail - Recipient list</source>
+        <target state="needs-translation">Testmail - Recipient list</target>
+      </trans-unit>
+      <trans-unit id="testmail_mailgroup_msg" resname="testmail_mailgroup_msg">
+        <source>Select a recipient list for the testmail. The mails will be generated based on the profiles of the recipients in that list.</source>
+        <target state="needs-translation">Select a recipient list for the testmail. The mails will be generated based on the profiles of the recipients in that list.</target>
+      </trans-unit>
+      <trans-unit id="testmail_simple" resname="testmail_simple">
+        <source>Testmail - Simple</source>
+        <target state="needs-translation">Testmail - Simple</target>
+      </trans-unit>
+      <trans-unit id="testmail_simple_msg" resname="testmail_simple_msg">
+        <source>A simple testmail includes all mail elements regardless of category. But any USER_fields are not substituted with data. Enter an email-address for the testmail:</source>
+        <target state="needs-translation">A simple testmail includes all mail elements regardless of category. But any USER_fields are not substituted with data. Enter an email-address for the testmail:</target>
+      </trans-unit>
+      <trans-unit id="view_delivery_begin_end" resname="view_delivery_begin_end">
+        <source>Delivery begun/ended:</source>
+        <target state="needs-translation">Delivery begun/ended:</target>
+      </trans-unit>
+      <trans-unit id="view_dmail" resname="view_dmail">
+        <source>Direct Mail:</source>
+        <target state="needs-translation">Direct Mail:</target>
+      </trans-unit>
+      <trans-unit id="view_flowed" resname="view_flowed">
+        <source>Flowed text:</source>
+        <target state="needs-translation">Flowed text:</target>
+      </trans-unit>
+      <trans-unit id="view_from" resname="view_from">
+        <source>Sender:</source>
+        <target state="needs-translation">Sender:</target>
+      </trans-unit>
+      <trans-unit id="view_mail" resname="view_mail">
+        <source>Email format/attachments:</source>
+        <target state="needs-translation">Email format/attachments:</target>
+      </trans-unit>
+      <trans-unit id="view_media" resname="view_media">
+        <source>Include media:</source>
+        <target state="needs-translation">Include media:</target>
+      </trans-unit>
+      <trans-unit id="view_recipient_total_sent" resname="view_recipient_total_sent">
+        <source>Recipient total/sent:</source>
+        <target state="needs-translation">Recipient total/sent:</target>
+      </trans-unit>
+      <trans-unit id="view_replyto" resname="view_replyto">
+        <source>Reply:</source>
+        <target state="needs-translation">Reply:</target>
+      </trans-unit>
+      <trans-unit id="yes" resname="yes">
+        <source>Yes</source>
+        <target state="needs-translation">Yes</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.server" resname="scheduler.bounceMail.server">
+        <source>Server URL/IP</source>
+        <target state="needs-translation">Server URL/IP</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.csh.server" resname="scheduler.bounceMail.csh.server">
+        <source>URL or IP of the mail server</source>
+        <target state="needs-translation">URL or IP of the mail server</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.port" resname="scheduler.bounceMail.port">
+        <source>Port number</source>
+        <target state="needs-translation">Port number</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.csh.port" resname="scheduler.bounceMail.csh.port">
+        <source>Port number of the mail server</source>
+        <target state="needs-translation">Port number of the mail server</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.user" resname="scheduler.bounceMail.user">
+        <source>Username</source>
+        <target state="needs-translation">Username</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.csh.user" resname="scheduler.bounceMail.csh.user">
+        <source>Username to authenticate</source>
+        <target state="needs-translation">Username to authenticate</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.password" resname="scheduler.bounceMail.password">
+        <source>Password</source>
+        <target state="needs-translation">Password</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.csh.password" resname="scheduler.bounceMail.csh.password">
+        <source>Password of the user</source>
+        <target state="needs-translation">Password of the user</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.service" resname="scheduler.bounceMail.service">
+        <source>Type of mailserver</source>
+        <target state="needs-translation">Type of mailserver</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.csh.service" resname="scheduler.bounceMail.csh.service">
+        <source>IMAP or POP3</source>
+        <target state="needs-translation">IMAP or POP3</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.maxProcessed" resname="scheduler.bounceMail.maxProcessed">
+        <source>Number of bounce mail to be processed</source>
+        <target state="needs-translation">Number of bounce mail to be processed</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.csh.maxProcessed" resname="scheduler.bounceMail.csh.maxProcessed">
+        <source>Maximum number of bounce mail to be processed on one scheduler cycle</source>
+        <target state="needs-translation">Maximum number of bounce mail to be processed on one scheduler cycle</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.dataVerification" resname="scheduler.bounceMail.dataVerification">
+        <source><![CDATA[Connection using the given data is failed. Error message: ]]></source>
+        <target state="needs-translation"><![CDATA[Connection using the given data is failed. Error message: ]]></target>
+      </trans-unit>
+      <trans-unit id="error.no_recipient_groups_found" resname="error.no_recipient_groups_found">
+        <source>No recipient groups found</source>
+        <target state="needs-translation">No recipient groups found</target>
+      </trans-unit>
+      <trans-unit id="scheduler.bounceMail.phpImapError" resname="scheduler.bounceMail.phpImapError">
+        <source>Please install PHP IMAP extension</source>
+        <target state="needs-translation">Please install PHP IMAP extension</target>
+      </trans-unit>
+      <trans-unit id="labels.path" resname="labels.path">
+        <source>Path</source>
+        <target state="needs-translation">Path</target>
+      </trans-unit>
+      <trans-unit id="mod.no_access" resname="mod.no_access">
+        <source>no access</source>
+        <target state="needs-translation">no access</target>
+      </trans-unit>
+      <trans-unit id="mod.no_recipients" resname="mod.no_recipients">
+        <source>no recipients</source>
+        <target state="needs-translation">no recipients</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
