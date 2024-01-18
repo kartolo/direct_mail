@@ -3,53 +3,53 @@
   <file source-language="en" datatype="plaintext" original="EXT:direct_mail/Resources/Private/Language/Modules/locallang.xlf" date="2023-01-11T17:00:00Z" product-name="direct_mail" target-language="da">
     <header/>
     <body>
-      <trans-unit id="widgets.dm.title" resname="widgets.dm.title">
+      <trans-unit id="widgets.dm.title" resname="widgets.dm.title" approved="yes">
         <source>Direct Mail - Pages</source>
-        <target state="needs-translation">Direct Mail - Pages</target>
+        <target state="final">Direct Mail - Sider</target>
       </trans-unit>
-      <trans-unit id="widgets.dm.description" resname="widgets.dm.description">
+      <trans-unit id="widgets.dm.description" resname="widgets.dm.description" approved="yes">
         <source>Direct Mail - Pages with the 'Direct Mail' module</source>
-        <target state="needs-translation">Direct Mail - Pages with the 'Direct Mail' module</target>
+        <target state="final">Direct Mail - Sider med modulet 'Direct Mail'</target>
       </trans-unit>
-      <trans-unit id="widgets.dmMailEngineStatus.title" resname="widgets.dmMailEngineStatus.title">
+      <trans-unit id="widgets.dmMailEngineStatus.title" resname="widgets.dmMailEngineStatus.title" approved="yes">
         <source>Direct Mail - Mail Engine Status</source>
-        <target state="needs-translation">Direct Mail - Mail Engine Status</target>
+        <target state="final">Direct Mail - Mail motor status</target>
       </trans-unit>
-      <trans-unit id="widgets.dmMailEngineStatus.description" resname="widgets.dmMailEngineStatus.description">
+      <trans-unit id="widgets.dmMailEngineStatus.description" resname="widgets.dmMailEngineStatus.description" approved="yes">
         <source>Direct Mail - Shows the number of sent/unsent newsletters</source>
-        <target state="needs-translation">Direct Mail - Shows the number of sent/unsent newsletters</target>
+        <target state="final">Direct Mail - Viser antallet af sendte/ikke-sendte nyhedsbreve</target>
       </trans-unit>
-      <trans-unit id="widgets.dmStatistics.title" resname="widgets.dmStatistics.title">
+      <trans-unit id="widgets.dmStatistics.title" resname="widgets.dmStatistics.title" approved="yes">
         <source>Direct Mail - Statistics</source>
-        <target state="needs-translation">Direct Mail - Statistics</target>
+        <target state="final">Direkte Mail - Statistik</target>
       </trans-unit>
-      <trans-unit id="widgets.dmStatistics.description" resname="widgets.dmStatistics.description">
+      <trans-unit id="widgets.dmStatistics.description" resname="widgets.dmStatistics.description" approved="yes">
         <source>Direct Mail - Shows recipients from the last 10 newsletters</source>
-        <target state="needs-translation">Direct Mail - Shows recipients from the last 10 newsletters</target>
+        <target state="final">Direct Mail - Viser modtagere fra de sidste 10 nyhedsbreve</target>
       </trans-unit>
-      <trans-unit id="widget_group.dm" resname="widget_group.dm">
+      <trans-unit id="widget_group.dm" resname="widget_group.dm" approved="yes">
         <source>Direct Mail - Widgets</source>
-        <target state="needs-translation">Direct Mail - Widgets</target>
+        <target state="final">Direkte Mail - Widgets</target>
       </trans-unit>
-      <trans-unit id="dashboard.dm" resname="dashboard.dm">
+      <trans-unit id="dashboard.dm" resname="dashboard.dm" approved="yes">
         <source>Direct Mail - Dashboard</source>
-        <target state="needs-translation">Direct Mail - Dashboard</target>
+        <target state="final">Direkte Mail - Kontrolpanel</target>
       </trans-unit>
-      <trans-unit id="dashboard.dm.description" resname="dashboard.dm.description">
+      <trans-unit id="dashboard.dm.description" resname="dashboard.dm.description" approved="yes">
         <source>Direct Mail - Dashboard Description</source>
-        <target state="needs-translation">Direct Mail - Dashboard Description</target>
+        <target state="final">Direct Mail - Kontrolpanel beskrivelse</target>
       </trans-unit>
-      <trans-unit id="widgets.dm.label.sent" resname="widgets.dm.label.sent">
+      <trans-unit id="widgets.dm.label.sent" resname="widgets.dm.label.sent" approved="yes">
         <source>sent</source>
-        <target state="needs-translation">sent</target>
+        <target state="final">sendt</target>
       </trans-unit>
-      <trans-unit id="widgets.dm.label.unsent" resname="widgets.dm.label.unsent">
+      <trans-unit id="widgets.dm.label.unsent" resname="widgets.dm.label.unsent" approved="yes">
         <source>unsent</source>
-        <target state="needs-translation">unsent</target>
+        <target state="final">ikke sent</target>
       </trans-unit>
-      <trans-unit id="widgets.dm.label.numberSentNewsletters" resname="widgets.dm.label.numberSentNewsletters">
+      <trans-unit id="widgets.dm.label.numberSentNewsletters" resname="widgets.dm.label.numberSentNewsletters" approved="yes">
         <source>Number of the sent newsletters</source>
-        <target state="needs-translation">Number of the sent newsletters</target>
+        <target state="final">Antal af de sendte nyhedsbreve</target>
       </trans-unit>
     </body>
   </file>
