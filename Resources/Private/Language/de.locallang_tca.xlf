@@ -13,11 +13,11 @@
     <body>
       <trans-unit id="module_sys_dmail_group.category">
         <source>Subscribe to categories</source>
-        <target state="needs-translation">Subscribe to categories</target>
+        <target state="translated">Kategorien abonnieren</target>
       </trans-unit>
       <trans-unit id="module_sys_dmail_group.htmlemail">
         <source>Recieve e-mails as HTML?</source>
-        <target state="needs-translation">Recieve e-mails as HTML?</target>
+        <target state="translated">E-Mails in HTML empfangen?</target>
       </trans-unit>
       <trans-unit id="module_sys_dmail_group.newsletter">
         <source>Activate Newsletter</source>
