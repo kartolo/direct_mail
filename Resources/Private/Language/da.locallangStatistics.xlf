@@ -11,17 +11,17 @@
       <generator>LFEditor</generator>
     </header>
     <body>
-      <trans-unit id="mlang_labels_tabdescr">
+      <trans-unit id="mlang_labels_tabdescr" approved="yes">
         <source>Shows newsletter statistics</source>
-        <target state="needs-translation">Shows newsletter statistics</target>
+        <target state="final">Viser nyhedsbrevsstatistik</target>
       </trans-unit>
-      <trans-unit id="mlang_labels_tablabel">
+      <trans-unit id="mlang_labels_tablabel" approved="yes">
         <source>Shows newsletter statistics</source>
-        <target state="needs-translation">Shows newsletter statistics</target>
+        <target state="final">Viser nyhedsbrevsstatistik</target>
       </trans-unit>
-      <trans-unit id="mlang_tabs_tab">
+      <trans-unit id="mlang_tabs_tab" approved="yes">
         <source>Statistics</source>
-        <target state="needs-translation">Statistics</target>
+        <target state="final">Statistik</target>
       </trans-unit>
     </body>
   </file>
