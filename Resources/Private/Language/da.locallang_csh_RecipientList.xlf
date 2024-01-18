@@ -12,50 +12,50 @@
       <generator>LFEditor</generator>
     </header>
     <body>
-      <trans-unit id=".alttitle">
+      <trans-unit id=".alttitle" approved="yes">
         <source>Direct Mail &gt; Recipient List module</source>
-        <target state="needs-translation">Direct Mail &gt; Recipient List module</target>
+        <target state="final">Direct Mail &gt; Modtagerliste modul</target>
       </trans-unit>
-      <trans-unit id=".description">
+      <trans-unit id=".description" approved="yes">
         <source>Manage the recipient list.</source>
-        <target state="needs-translation">Manage the recipient list.</target>
+        <target state="final">Administrer modtagerlister.</target>
       </trans-unit>
-      <trans-unit id=".details" xml:space="preserve">
+      <trans-unit id=".details" xml:space="preserve" approved="yes">
 			<source>This module lets you:
 - create a new recipient list
 - import Addresses records from CSV-File
 - link to the editing form of an existing recipient list
 - select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.</source>
-		<target state="needs-translation">This module lets you:
-- create a new recipient list
-- import Addresses records from CSV-File
-- link to the editing form of an existing recipient list
-- select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.</target></trans-unit>
-      <trans-unit id="_.seeAlso">
+		<target state="final">I dette modul kan du:
+- oprette en ny modtagerliste
+- importere adresse-records fra CSV-filer
+- linke til redigeringsformularen til en eksisterende modtagerliste
+- vælge en eksisterende modtagerliste; hvis du vælger en eksisterende modtagerliste, føres du til et skærmbillede, hvor du kan se antallet af modtagere på hver type på listen, med mulighed for at få vist modtagerne eller at downloade en CSV-fil.</target></trans-unit>
+      <trans-unit id="_.seeAlso" approved="yes">
         <source>sys_dmail_group</source>
-        <target state="needs-translation">sys_dmail_group</target>
+        <target state="final">sys_dmail_group</target>
       </trans-unit>
-      <trans-unit id="folders.alttitle">
+      <trans-unit id="folders.alttitle" approved="yes">
         <source>Available Direct Mail folders</source>
-        <target state="needs-translation">Available Direct Mail folders</target>
+        <target state="final">Tilgængelige Direct Mail mapper</target>
       </trans-unit>
-      <trans-unit id="folders.description">
+      <trans-unit id="folders.description" approved="yes">
         <source>Select the Direct Mail folder you wish to work with.</source>
-        <target state="needs-translation">Select the Direct Mail folder you wish to work with.</target>
+        <target state="final">Vælg den Direct Mail mappe, som du vil arbejde med.</target>
       </trans-unit>
-      <trans-unit id="folders.details">
+      <trans-unit id="folders.details" approved="yes">
         <source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
-        <target state="needs-translation">Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</target>
+        <target state="final">Hver Direct Mail mappe er et specielt konfigureret arbejdsområde til Direct Mail modulet.</target>
       </trans-unit>
-      <trans-unit id="mailgroup_import.alttitle">
+      <trans-unit id="mailgroup_import.alttitle" approved="yes">
         <source>Import CSV into 'Address' table</source>
-        <target state="needs-translation">Import CSV into 'Address' table</target>
+        <target state="final">Importér CSV ind i adresse-tabellen</target>
       </trans-unit>
-      <trans-unit id="mailgroup_import.description">
+      <trans-unit id="mailgroup_import.description" approved="yes">
         <source>This option lets you import a csv, or comma-separated, list of address records and create a recipient list containing the imported records.</source>
-        <target state="needs-translation">This option lets you import a csv, or comma-separated, list of address records and create a recipient list containing the imported records.</target>
+        <target state="final">Denne mulighed lader dig importere en CSV eller komma-separeret liste af adresse-records og oprette en modtagerliste, der indeholder de importerede records.</target>
       </trans-unit>
-      <trans-unit id="mailgroup_import.details" xml:space="preserve">
+      <trans-unit id="mailgroup_import.details" xml:space="preserve" approved="yes">
 			<source>The records to import are entered one per line. Each record to import is a comma-separated list of field values. You may also specify the use of a semicolon(;) or of a colon (:) as separator instead of the comma.
 
 On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be &quot;name, email&quot;.
@@ -75,21 +75,21 @@ Example of csv field specification:
 185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x
 186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;
 187;12-02-01;Anette Bentholm;madsenbentholm@mail.net4you.dk;;98373677;x</source>
-		<target state="needs-translation">The records to import are entered one per line. Each record to import is a comma-separated list of field values. You may also specify the use of a semicolon(;) or of a colon (:) as separator instead of the comma.
+		<target state="final">De records du vil importere, indtastes en for hver linje. Hver record som skal importeres er en komma-separeret liste med feltværdier. Du kan også benytte semikolon (;) eller kolon (:) som separator i stedet for komma.
 
-On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be "name, email".
+På den første linje kan du indtaste en kommasepareret liste med feltnavne. Denne første linje definerer strukturen for de følgende records- Hvis du ikke indtaster en liste af feltnavne på den første linje, vil systemet gå ud fra at strukturen er "navn, e-mail".
 
-Each field name listed on the first line is analyzed as follows:
+Hvert feltnavn som listes i første linje, analyseres på følgende måde:
 
-1.the field name may one of the field names from the following list: uid, name, title, email, phone, www, address, company, city, zip, country, fax, module_sys_dmail_html, module_sys_dmail_category;
+1. Feltnavnet kan være et feltnavne fra en af følgende liste: id, name, title, email, phone, www, address, company, city, zip, country, fax, module_sys_dmail_html, module_sys_dmail_category;
 
-2.the field name may be omitted in which case the corresponding values will be skipped or omitted;
+2. Feltnavnet kan være  udeladt. I så fald vil de tilhørende værdier også blive udeladt;
 
-3.the field name may start with "user_", assuming that table tt_address was extended with the specified field name;
+3. Feltnavnet kan starte med et "user_", fordi at tabellen tt_address var udvidet med det definerede feltnavn;
 
-4.in addition, fields may be suffixed with "[code]"; in this case, when the value in the imported record is not null, "[+value]" adds that number to the field value and "[=value]" overrides any existing value in the field.
+4. I forlængelse af dette kan feltnavne blive forlænget med et suffix "[code]"; i så fald, hvis værdien ikke er tom, vil "[+value]" tilføje nummeret til feltværdien og "[=value]" vil overskrive alle eksisterende værdier i feltet. 
 
-Example of csv field specification:
+Eksempel på CSV felt-specifikation.
 ;user_date;name;email;zip;phone;user_age[=20]
 185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x
 186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;
