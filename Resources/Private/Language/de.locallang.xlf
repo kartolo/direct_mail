@@ -5,51 +5,51 @@
     <body>
       <trans-unit id="widgets.dm.title" resname="widgets.dm.title">
         <source>Direct Mail - Pages</source>
-        <target state="needs-translation">Direct Mail - Pages</target>
+        <target state="translated">Direct Mail - Seiten</target>
       </trans-unit>
       <trans-unit id="widgets.dm.description" resname="widgets.dm.description">
         <source>Direct Mail - Pages with the 'Direct Mail' module</source>
-        <target state="needs-translation">Direct Mail - Pages with the 'Direct Mail' module</target>
+        <target state="translated">Direct Mail - Seiten mit dem 'Direct Mail'-Modul</target>
       </trans-unit>
       <trans-unit id="widgets.dmMailEngineStatus.title" resname="widgets.dmMailEngineStatus.title">
         <source>Direct Mail - Mail Engine Status</source>
-        <target state="needs-translation">Direct Mail - Mail Engine Status</target>
+        <target state="translated">Direct Mail - E-Mail-Engine-Status</target>
       </trans-unit>
       <trans-unit id="widgets.dmMailEngineStatus.description" resname="widgets.dmMailEngineStatus.description">
         <source>Direct Mail - Shows the number of sent/unsent newsletters</source>
-        <target state="needs-translation">Direct Mail - Shows the number of sent/unsent newsletters</target>
+        <target state="translated">Direct Mail - Zeige Anzahl der gesendeten/nicht gesendeten Newsletter an</target>
       </trans-unit>
       <trans-unit id="widgets.dmStatistics.title" resname="widgets.dmStatistics.title">
         <source>Direct Mail - Statistics</source>
-        <target state="needs-translation">Direct Mail - Statistics</target>
+        <target state="translated">Direct Mail - Statistiken</target>
       </trans-unit>
       <trans-unit id="widgets.dmStatistics.description" resname="widgets.dmStatistics.description">
         <source>Direct Mail - Shows recipients from the last 10 newsletters</source>
-        <target state="needs-translation">Direct Mail - Shows recipients from the last 10 newsletters</target>
+        <target state="translated">Direct Mail - Zeige Empfänger der letzten 10 Newsletters an</target>
       </trans-unit>
       <trans-unit id="widget_group.dm" resname="widget_group.dm">
         <source>Direct Mail - Widgets</source>
-        <target state="needs-translation">Direct Mail - Widgets</target>
+        <target state="translated">Direct Mail - Widgets</target>
       </trans-unit>
       <trans-unit id="dashboard.dm" resname="dashboard.dm">
         <source>Direct Mail - Dashboard</source>
-        <target state="needs-translation">Direct Mail - Dashboard</target>
+        <target state="translated">Direct Mail - Dashboard</target>
       </trans-unit>
       <trans-unit id="dashboard.dm.description" resname="dashboard.dm.description">
         <source>Direct Mail - Dashboard Description</source>
-        <target state="needs-translation">Direct Mail - Dashboard Description</target>
+        <target state="translated">Direct Mail - Dashboard-Beschreibung</target>
       </trans-unit>
       <trans-unit id="widgets.dm.label.sent" resname="widgets.dm.label.sent">
         <source>sent</source>
-        <target state="needs-translation">sent</target>
+        <target state="translated">gesendet</target>
       </trans-unit>
       <trans-unit id="widgets.dm.label.unsent" resname="widgets.dm.label.unsent">
         <source>unsent</source>
-        <target state="needs-translation">unsent</target>
+        <target state="translated">nicht gesendet</target>
       </trans-unit>
       <trans-unit id="widgets.dm.label.numberSentNewsletters" resname="widgets.dm.label.numberSentNewsletters">
         <source>Number of the sent newsletters</source>
-        <target state="needs-translation">Number of the sent newsletters</target>
+        <target state="translated">Anzahl der gesendeten Newsletter</target>
       </trans-unit>
     </body>
   </file>
