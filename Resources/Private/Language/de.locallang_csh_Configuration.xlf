@@ -24,9 +24,9 @@
         <source>Set the configuration for the direct mail module. Please refer to the manual for the detailed information</source>
         <target state="translated">Legen Sie die Konfiguration für das Direct Mail-Modul fest. Bitte lesen Sie die Dokumentation für die detaillierten Informationen</target>
       </trans-unit>
-      <trans-unit id="_.seeAlso">
+      <trans-unit id="_.seeAlso" approved="yes">
         <source>sys_dmail, sys_dmail_group, sys_dmail_category</source>
-        <target state="translated">sys_dmail, sys_dmail_group, sys_dmail_category</target>
+        <target state="final">sys_dmail, sys_dmail_group, sys_dmail_category</target>
       </trans-unit>
       <trans-unit id="folders.alttitle">
         <source>Available Direct Mail folders</source>
