@@ -40,33 +40,33 @@
         <source>Specify the character set used in direct mails when they are built from external pages and character set cannot be auto-detected.</source>
         <target state="final">Angiv det tegnsæt, der bruges i Direct Mails, når de er bygget fra eksterne sider og tegnsæt ikke kan afgøres automatisk.</target>
       </trans-unit>
-      <trans-unit id="configure_directmail_encoding" resname="configure_directmail_encoding">
+      <trans-unit id="configure_directmail_encoding" resname="configure_directmail_encoding" approved="yes">
         <source>Default encoding of direct mails</source>
-        <target state="translated">Standard kodning af Direct Mails</target>
+        <target state="final">Standard kodning af Direct Mails</target>
       </trans-unit>
-      <trans-unit id="configure_directmail_encoding_description" resname="configure_directmail_encoding_description">
+      <trans-unit id="configure_directmail_encoding_description" resname="configure_directmail_encoding_description" approved="yes">
         <source>Select the default content transfer encoding of direct mails.</source>
-        <target state="translated">Vælg standard indhold overførselskodning af Direct Mails.</target>
+        <target state="final">Vælg standard indhold overførselskodning af Direct Mails.</target>
       </trans-unit>
-      <trans-unit id="configure_html_only" resname="configure_html_only">
+      <trans-unit id="configure_html_only" resname="configure_html_only" approved="yes">
         <source>HTML only</source>
-        <target state="translated">Kun HTML</target>
+        <target state="final">Kun HTML</target>
       </trans-unit>
-      <trans-unit id="configure_http_password" resname="configure_http_password">
+      <trans-unit id="configure_http_password" resname="configure_http_password" approved="yes">
         <source>HTTP Password</source>
-        <target state="translated">HTTP Adgangskode</target>
+        <target state="final">HTTP Adgangskode</target>
       </trans-unit>
-      <trans-unit id="configure_http_password_description" resname="configure_http_password_description">
+      <trans-unit id="configure_http_password_description" resname="configure_http_password_description" approved="yes">
         <source>If mail content is protected by HTTP authentication, enter the password here.</source>
-        <target state="translated">Hvis mail-indhold er beskyttet af HTTP-godkendelse, så angiv adgangskoden her.</target>
+        <target state="final">Hvis mail-indhold er beskyttet af HTTP-godkendelse, så angiv adgangskoden her.</target>
       </trans-unit>
-      <trans-unit id="configure_http_username" resname="configure_http_username">
+      <trans-unit id="configure_http_username" resname="configure_http_username" approved="yes">
         <source>HTTP Username</source>
-        <target state="translated">HTTP brugernavn</target>
+        <target state="final">HTTP brugernavn</target>
       </trans-unit>
-      <trans-unit id="configure_http_username_description" resname="configure_http_username_description">
+      <trans-unit id="configure_http_username_description" resname="configure_http_username_description" approved="yes">
         <source>If mail content is protected by HTTP authentication, enter the username here.</source>
-        <target state="translated">Hvis mailindhold er beskyttet af HTTP-godkendelse, så angiv brugernavnet her.</target>
+        <target state="final">Hvis mailindhold er beskyttet af HTTP-godkendelse, så angiv brugernavnet her.</target>
       </trans-unit>
       <trans-unit id="configure_http_username_details" resname="configure_http_username_details" xml:space="preserve">
 				<source><![CDATA[The username and password is used to fetch mail content. They are NOT sent in the mail!
@@ -165,10 +165,10 @@
         <source>If mail content is protected by Frontend user authentication, enter the user group here.</source>
         <target state="needs-translation">If mail content is protected by Frontend user authentication, enter the user group here.</target>
       </trans-unit>
-      <trans-unit id="configure_simulate_usergroup_details" resname="configure_simulate_usergroup_details" xml:space="preserve">
+      <trans-unit id="configure_simulate_usergroup_details" resname="configure_simulate_usergroup_details" xml:space="preserve" approved="yes">
 				<source><![CDATA[The usergroup with the uid specified is used to to fetch the mail content.
 	If you do not specify a usergroup uid and the page has frontend user restrictions, an error will occur and no mail content will be fetched.]]></source>
-			<target state="translated"><![CDATA[Brugergruppen med det angivne uid bruges til at samle mailindhold.
+			<target state="final"><![CDATA[Brugergruppen med det angivne uid bruges til at samle mailindhold.
 Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger, vil der optræde en fejl og der vil ikke blive samlet nogen mail.  ]]></target></trans-unit>
       <trans-unit id="configure_test_dmail_group_uids" resname="configure_test_dmail_group_uids" approved="yes">
         <source>List of UID numbers of test recipient lists:</source>
