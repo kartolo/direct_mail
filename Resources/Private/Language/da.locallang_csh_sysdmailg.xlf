@@ -11,11 +11,11 @@
       <generator>LFEditor</generator>
     </header>
     <body>
-      <trans-unit id=".description">
+      <trans-unit id=".description" approved="yes">
         <source>A list of recipients of direct mails</source>
-        <target state="needs-translation">A list of recipients of direct mails</target>
+        <target state="final">En liste af modtagere af direct mails</target>
       </trans-unit>
-      <trans-unit id=".details" xml:space="preserve">
+      <trans-unit id=".details" xml:space="preserve" approved="yes">
 			<source><![CDATA[Recipient lists are used by the Direct mail module to send newsletters to a group of recipients.
 
 There are five types of Recipient lists:
@@ -29,100 +29,100 @@ There are five types of Recipient lists:
 4.Special query: a list dynamically built using a SQL query; after creating the list, you may specify the query against one of the tables: Address, Website User or Custom-defined Table; to do so, you must select the Recipient list function of the Direct Mail module and click on the title of the list;
 
 5.From other recipient lists: a list dynamically built from other recipient lists individually selected from the Recipient list table.]]></source>
-		<target state="needs-translation"><![CDATA[Recipient lists are used by the Direct mail module to send newsletters to a group of recipients.
+		<target state="final"><![CDATA[Modtager-lister bruges af Direct mail modulet til at sende nyhedsbreve til grupper af modtagere.
 
-There are five types of Recipient lists:
+Der er fem typer modtager-lister:
 
-1.From pages: a list dynamically built from records found on pages of the website; you select the pages with the Starting Point field; you may include records from subtrees using the Include page subtree checkbox; you must specify the type(s) of records to include: Address, Website User, Website User Group and/or From custom-defined Table; if Website User Group is checked and a Website User Group is found, all Website Users members of the group will be included in the list; you may also restrict the selection of records to those with specific categories assignments;
+1. Fra sider: En liste der er dynamisk opbygges fra records, der findes på en side; du vælger siden med Start-punkt feltet; du kan inkludere records fra sub-sider, ved at bruge 'Inkludér side-subtræ' check-boksen; du skal angive hvilke(n) type af records, der skal inkluderes: Adresser, Website bruger, Website brugergruppe og/eller fra en brugerdefineret tabel; hvis Website brugergruppe er valgt og der findes en Website brugergruppe, vil alle medlemer af den valgte Website brugergruppe blive inkluderet på listen; du kan også begrænse valgene, ved at vælge specifikke kategorier;
 
-2.Plain list: a list of email addresses separated by space, comma  or line break; if you change the List format, you may rather enter, one per line, a name and address, separated by a comma; sending Direct mail to such list will send only plain text email messages; moreover, only non-categorized content will be sent;
+2. Enkel liste: En liste af e-mail adresser, separeret af kommaer, mellemrum eller linjeskift; hvis du ændrer listeformatet, bør du kun indtaste en adresse pr. linje - et navn og en adresse - afskilt a komma; direct mails sendt til denne type lister, vil kun blive sendt i ren-tekst mails;
 
-3.Static list: a list of individually selected records; the type of record may be Address, Website User, or Website User Group; if a  Website User Group is selected, all Website Users members of the group will be included in the list;
+3. Statisk liste: En liste af individuelt udvalgte records; typen kan være adresser, website brugere, eller website brugergrupper; hvis en website brugergruppe er valgt, vil alle website brugere af gruppen blive en del af listen;
 
-4.Special query: a list dynamically built using a SQL query; after creating the list, you may specify the query against one of the tables: Address, Website User or Custom-defined Table; to do so, you must select the Recipient list function of the Direct Mail module and click on the title of the list;
+4. Specielle forespørgsler: en liste, opbygget dynamisk ved hjælp af SQL-forespørgsler; efter at listen er oprettet, kan du specificere din forespørgsel mod følgende tabeller: Adresser, website bruger eller brugerdefinerede tabeller; for at gøre dette muligt, må du føste vælge Modtager-liste funktionen i Direct Mail modulet og klikke på titlen til listen;
 
-5.From other recipient lists: a list dynamically built from other recipient lists individually selected from the Recipient list table.]]></target></trans-unit>
-      <trans-unit id="_.seeAlso">
+5. Fra andre modtager-lister: en dynamisk opbygget liste fra andre modtager-lister, individuelt udvalgt fra Modtager-liste tabellen.]]></target></trans-unit>
+      <trans-unit id="_.seeAlso" approved="yes">
         <source>sys_dmail, sys_dmail_category</source>
-        <target state="needs-translation">sys_dmail, sys_dmail_category</target>
+        <target state="final">sys_dmail_group, sys_dmail_category</target>
       </trans-unit>
-      <trans-unit id="csv.description">
+      <trans-unit id="csv.description" approved="yes">
         <source>Select the format you wish to use for entering the list od recipients.</source>
-        <target state="needs-translation">Select the format you wish to use for entering the list od recipients.</target>
+        <target state="final">Vælg hvilket format du ønsker at bruge til indtastning af listen på modtagere.</target>
       </trans-unit>
-      <trans-unit id="csv.details">
+      <trans-unit id="csv.details" approved="yes">
         <source>The emails entered in the list of recipients should be entered using the format you select here.</source>
-        <target state="needs-translation">The emails entered in the list of recipients should be entered using the format you select here.</target>
+        <target state="final">De e-mails der indtastes i listen af modtagere, bør indtastes ved brug af det format du vælger her.</target>
       </trans-unit>
-      <trans-unit id="description.description">
+      <trans-unit id="description.description" approved="yes">
         <source>Enter a textual description of the recipient list.</source>
-        <target state="needs-translation">Enter a textual description of the recipient list.</target>
+        <target state="final">Indtast en beskrivelse af modtager-listen.</target>
       </trans-unit>
-      <trans-unit id="description.details">
+      <trans-unit id="description.details" approved="yes">
         <source>This is a description that may document the purpose, use and/or content of the recipient list.</source>
-        <target state="needs-translation">This is a description that may document the purpose, use and/or content of the recipient list.</target>
+        <target state="final">Dette er beskrivelsen, som bør dokumentere formålet, dets brug og/eller indholdet af modtager-listen.</target>
       </trans-unit>
-      <trans-unit id="list.description">
+      <trans-unit id="list.description" approved="yes">
         <source>Enter the list of email addresses of the recipient list.</source>
-        <target state="needs-translation">Enter the list of email addresses of the recipient list.</target>
+        <target state="final">Indtast listen af e-mail adresser på modtagerlisten.</target>
       </trans-unit>
-      <trans-unit id="list.details">
+      <trans-unit id="list.details" approved="yes">
         <source>Enter a list of email addresses separated by space, comma, or line break. If you change the list format, you may rather enter one entry per line as follows: name and address, separated by a comma.</source>
-        <target state="needs-translation">Enter a list of email addresses separated by space, comma, or line break. If you change the list format, you may rather enter one entry per line as follows: name and address, separated by a comma.</target>
+        <target state="final">Indtast en liste af e-mail adresser, adskilt med enten mellemrum, komma eller linjeskift. Hvis du ændrer formatet på listen, anbefales det at du indtaster en optegnelse pr. linje som følgende: navn og adresse, adskilt af komma.</target>
       </trans-unit>
-      <trans-unit id="mail_groups.description">
+      <trans-unit id="mail_groups.description" approved="yes">
         <source>Select the recipient lists that you want to include in the current one.</source>
-        <target state="needs-translation">Select the recipient lists that you want to include in the current one.</target>
+        <target state="final">Vælg den modtagerliste, som du ønsker at inkludere i den aktuelle liste.</target>
       </trans-unit>
-      <trans-unit id="mail_groups.details">
+      <trans-unit id="mail_groups.details" approved="yes">
         <source>You may select any recipient list other than the current one. All recipients included in the selected lists will the included in the current one.</source>
-        <target state="needs-translation">You may select any recipient list other than the current one. All recipients included in the selected lists will the included in the current one.</target>
+        <target state="final">Du kan vælge en hvilken som helst liste, bortset fra den aktuelle. Alle modtagere som findes på de valgte lister, vil blive inkluderet i den aktuelle liste.</target>
       </trans-unit>
-      <trans-unit id="pages.description">
+      <trans-unit id="pages.description" approved="yes">
         <source>Select entry points in the page tree of the site.</source>
-        <target state="needs-translation">Select entry points in the page tree of the site.</target>
+        <target state="final">Vælg adgangspunkter i websitets sidetræ.</target>
       </trans-unit>
-      <trans-unit id="pages.details">
+      <trans-unit id="pages.details" approved="yes">
         <source>You may select here one or more pages in the page tree of the site. The pages will be searched for records that match the conditions specified by the other fields on the form.</source>
-        <target state="needs-translation">You may select here one or more pages in the page tree of the site. The pages will be searched for records that match the conditions specified by the other fields on the form.</target>
+        <target state="final">Du kan her vælge en eller flere sider i sidetræet. På siderne vil der blive søgt efter records det svarer til betingelserne, specificeret i andre felter.</target>
       </trans-unit>
-      <trans-unit id="recursive.description">
+      <trans-unit id="recursive.description" approved="yes">
         <source>Check the box if you want to include all pages of the subtrees in the search.</source>
-        <target state="needs-translation">Check the box if you want to include all pages of the subtrees in the search.</target>
+        <target state="final">Vælg denne boks hvis du vil inkludere alle sider af undertræet i din søgning.</target>
       </trans-unit>
-      <trans-unit id="recursive.details">
+      <trans-unit id="recursive.details" approved="yes">
         <source>If the box is checked, all pages included in the page subtrees of the entry points will also be searched for records that match the conditions specified by the other fields on the form.</source>
-        <target state="needs-translation">If the box is checked, all pages included in the page subtrees of the entry points will also be searched for records that match the conditions specified by the other fields on the form.</target>
+        <target state="final">Hvis boksen er valgt, vil alle sider i sidens sub-træ blive gennemsøgt for records der opfylder de betingelser, som er specificeret i andre felter.</target>
       </trans-unit>
-      <trans-unit id="select_categories.description">
+      <trans-unit id="select_categories.description" approved="yes">
         <source>Check the categories to which selected recipients must be subscribed.</source>
-        <target state="needs-translation">Check the categories to which selected recipients must be subscribed.</target>
+        <target state="final">Vælg hvilke kategorier som modtagere skal abonnere på.</target>
       </trans-unit>
-      <trans-unit id="select_categories.details">
+      <trans-unit id="select_categories.details" approved="yes">
         <source>If you check one or more categories, only recipients subscribed to at least one of these categories will be included.</source>
-        <target state="needs-translation">If you check one or more categories, only recipients subscribed to at least one of these categories will be included.</target>
+        <target state="final">Hvis du vælger en eller flere kategorier, er det kun modtagere som har abonneret på mindst een af disse kategorier, der vil komme på listen.</target>
       </trans-unit>
-      <trans-unit id="static_list.description">
+      <trans-unit id="static_list.description" approved="yes">
         <source>Select the recipients you wish to include in the recipient list.</source>
-        <target state="needs-translation">Select the recipients you wish to include in the recipient list.</target>
+        <target state="final">Vælg modtagerne som du ønsker at inkludere på modtagerlisten.</target>
       </trans-unit>
-      <trans-unit id="static_list.details">
+      <trans-unit id="static_list.details" approved="yes">
         <source>You may select recipients of the following types: Address, Website User or Website User Group. If you include a Website User Group, all Website Users members of the group will be included in the list.</source>
-        <target state="needs-translation">You may select recipients of the following types: Address, Website User or Website User Group. If you include a Website User Group, all Website Users members of the group will be included in the list.</target>
+        <target state="final">Du kan vælge modtagere af følgende typer: Adresser, website brugere eller website brugergrupper. Hvis du vælger en website brugergruppe, vil alle website brugere af gruppen, blive inkluderet på listen.</target>
       </trans-unit>
-      <trans-unit id="title.description">
+      <trans-unit id="title.description" approved="yes">
         <source>Enter the title of the recipient list.</source>
-        <target state="needs-translation">Enter the title of the recipient list.</target>
+        <target state="final">Indtast titlen på modtager-listen.</target>
       </trans-unit>
-      <trans-unit id="title.details">
+      <trans-unit id="title.details" approved="yes">
         <source>This is the name that will be used to refer to this list.</source>
-        <target state="needs-translation">This is the name that will be used to refer to this list.</target>
+        <target state="final">Dette er navnet, der vil blive brugt når der refereres til listen.</target>
       </trans-unit>
-      <trans-unit id="type.description">
+      <trans-unit id="type.description" approved="yes">
         <source>Select the type of recipient list.</source>
-        <target state="needs-translation">Select the type of recipient list.</target>
+        <target state="final">Vælg hvilken type modtager-liste.</target>
       </trans-unit>
-      <trans-unit id="type.details" xml:space="preserve">
+      <trans-unit id="type.details" xml:space="preserve" approved="yes">
 			<source><![CDATA[There are five types of Recipient lists:
 
 1.From pages: a list dynamically built from records found on pages of the website; you select the pages with the Starting Point field; you may include records from subtrees using the Include page subtree checkbox; you must specify the type(s) of records to include: Address, Website User, Website User Group and/or From custom-defined Table; if Website User Group is checked and a Website User Group is found, all Website Users members of the group will be included in the list; you may also restrict the selection of records to those with specific categories assignments;
@@ -134,24 +134,24 @@ There are five types of Recipient lists:
 4.Special query: a list dynamically built using a SQL query; after creating the list, you may specify the query against one of the tables: Address, Website User or Custom-defined Table; to do so, you must select the Recipient list function of the Direct Mail module and click on the title of the list;
 
 5.From other recipient lists: a list dynamically built from other recipient lists individually selected from the Recipient list table.]]></source>
-		<target state="needs-translation"><![CDATA[There are five types of Recipient lists:
+		<target state="final"><![CDATA[Der er fem typer modtager-lister:
 
-1.From pages: a list dynamically built from records found on pages of the website; you select the pages with the Starting Point field; you may include records from subtrees using the Include page subtree checkbox; you must specify the type(s) of records to include: Address, Website User, Website User Group and/or From custom-defined Table; if Website User Group is checked and a Website User Group is found, all Website Users members of the group will be included in the list; you may also restrict the selection of records to those with specific categories assignments;
+1. Fra sider: En liste der er dynamisk opbygges fra records, der findes på en side; du vælger siden med Start-punkt feltet; du kan inkludere records fra sub-sider, ved at bruge 'Inkludér side-subtræ' check-boksen; du skal angive hvilke(n) type af records, der skal inkluderes: Adresser, Website bruger, Website brugergruppe og/eller fra en brugerdefineret tabel; hvis Website brugergruppe er valgt og der findes en Website brugergruppe, vil alle medlemer af den valgte Website brugergruppe blive inkluderet på listen; du kan også begrænse valgene, ved at vælge specifikke kategorier;
 
-2.Plain list: a list of email addresses separated by space, comma  or line break; if you change the List format, you may rather enter, one per line, a name and address, separated by a comma; sending Direct mail to such list will send only plain text email messages; moreover, only non-categorized content will be sent;
+2. Enkel liste: En liste af e-mail adresser, separeret af kommaer, mellemrum eller linjeskift; hvis du ændrer listeformatet, bør du kun indtaste en adresse pr. linje - et navn og en adresse - afskilt a komma; direct mails sendt til denne type lister, vil kun blive sendt i ren-tekst mails;
 
-3.Static list: a list of individually selected records; the type of record may be Address, Website User, or Website User Group; if a  Website User Group is selected, all Website Users members of the group will be included in the list;
+3. Statisk liste: En liste af individuelt udvalgte records; typen kan være adresser, website brugere, eller website brugergrupper; hvis en website brugergruppe er valgt, vil alle website brugere af gruppen blive en del af listen;
 
-4.Special query: a list dynamically built using a SQL query; after creating the list, you may specify the query against one of the tables: Address, Website User or Custom-defined Table; to do so, you must select the Recipient list function of the Direct Mail module and click on the title of the list;
+4. Specielle forespørgsler: en liste, opbygget dynamisk ved hjælp af SQL-forespørgsler; efter at listen er oprettet, kan du specificere din forespørgsel mod følgende tabeller: Adresser, website bruger eller brugerdefinerede tabeller; for at gøre dette muligt, må du føste vælge Modtager-liste funktionen i Direct Mail modulet og klikke på titlen til listen;
 
-5.From other recipient lists: a list dynamically built from other recipient lists individually selected from the Recipient list table.]]></target></trans-unit>
-      <trans-unit id="whichtables.description">
+5. Fra andre modtager-lister: en dynamisk opbygget liste fra andre modtager-lister, individuelt udvalgt fra Modtager-liste tabellen.]]></target></trans-unit>
+      <trans-unit id="whichtables.description" approved="yes">
         <source>Check the types of records you want to be included in the recipient list.</source>
-        <target state="needs-translation">Check the types of records you want to be included in the recipient list.</target>
+        <target state="final">Vælg hvilke typer af records du ønsker skal blive en del af din modtager-liste.</target>
       </trans-unit>
-      <trans-unit id="whichtables.details">
+      <trans-unit id="whichtables.details" approved="yes">
         <source>Check the record types to be selected on the pages specified for constructing the recipient list.</source>
-        <target state="needs-translation">Check the record types to be selected on the pages specified for constructing the recipient list.</target>
+        <target state="final">Vælg de record-typer som skal bruges på siden, hvor modtagerlisten er oprettet.</target>
       </trans-unit>
     </body>
   </file>
