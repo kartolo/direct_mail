@@ -494,7 +494,7 @@ class DirectMail
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
 
-                $lines = $this->pad($lines, $tConf['preLineChar'], $tConf['preLineLen']);
+                $lines = $this->pad($lines, $tConf['preLineChar'], (int)$tConf['preLineLen']);
 
                 $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['preLineBlanks'], 0, 1000);
                 if ($blanks) {
@@ -527,7 +527,7 @@ class DirectMail
                     $lines[] = str_pad('', $blanks-1, LF);
                 }
 
-                $lines = $this->pad($lines, $tConf['postLineChar'], $tConf['postLineLen']);
+                $lines = $this->pad($lines, $tConf['postLineChar'], (int)$tConf['postLineLen']);
 
                 $blanks = DirectMailUtility::intInRangeWrapper((int)$tConf['postBlanks'], 0, 1000);
                 if ($blanks) {
