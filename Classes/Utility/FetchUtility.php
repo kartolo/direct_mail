@@ -15,7 +15,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class FetchUtility
 {
-    public function getStreamContext(): \resource
+    /**
+     * @return resource|null
+     */
+    public function getStreamContext()
     {
         $context = null;
         $applicationContext = Environment::getContext();
