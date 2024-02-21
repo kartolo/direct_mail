@@ -376,7 +376,8 @@ processed.
    Description
          If set, links longer than 76 characters found in plain text content
          will be redirected: long URL's will be substituted with
-         ?RDCT=[md5hash] parameters.
+         ?RDCT=[md5hash] parameters. This needs the extension `rdct <https://packagist.org/packages/friendsoftypo3/rdct>`_
+         to be installed
 
          Note: This configuration determines how Quick Mails are handled and
          further sets the default value for Direct Mails.

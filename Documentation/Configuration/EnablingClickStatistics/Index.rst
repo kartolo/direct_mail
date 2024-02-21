@@ -9,7 +9,8 @@
 Enabling click statistics
 -------------------------
 
-To enable the click statistics of the Direct Mail module, enable the
+To enable the click statistics of the Direct Mail module, please install
+`jumpurl <https://packagist.org/packages/friendsoftypo3/jumpurl>`_ and enable the
 following checkbox in the "Module configuration” function:
 
 |img-16|
