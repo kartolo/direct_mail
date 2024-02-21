@@ -1256,7 +1256,7 @@ class Dmailer implements LoggerAwareInterface
         // get all media and search for use_jumpurl then add it to the hrefs array
         $this->extractMediaLinks();
         foreach ($this->theParts['html']['media'] as $mediaData) {
-            if ($mediaData['use_jumpurl'] === 1) {
+            if (($mediaData['use_jumpurl'] ?? null) === 1) {
                 $this->theParts['html']['hrefs'][$mediaData['ref']] = $mediaData;
             }
         }
