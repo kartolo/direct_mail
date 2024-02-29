@@ -1,236 +1,292 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-	<file source-language="en" target-language="es" datatype="plaintext" original="messages" date="2016-02-05T12:03:27Z">
-		<header>
-			<description>Labels for the Direct Mail tables</description>
-			<type>database</type>
-			<fileId>EXT:direct_mail/Resources/Private/Language/locallang_tca.xml</fileId>
-			<labelContext></labelContext>
-			<authorName>Ivan Kartolo</authorName>
-			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
-			<generator>LFEditor</generator>
-		</header>
-		<body>
-		<trans-unit id="sys_dmail" approved="yes">
-			<source>Direct mails</source>
-			<target>Boletín</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.HTMLParams" approved="yes">
-			<source>Parameters, HTML:</source>
-			<target>Parámetros, HTML:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.HTMLParams.ALT.1" approved="yes">
-			<source>URL for HTML content:</source>
-			<target>URL para contenido HTML:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.attachment" approved="yes">
-			<source>Attachments:</source>
-			<target>Archivos adjuntos:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.from_email" approved="yes">
-			<source>Sender email:</source>
-			<target>Direccíon del remitente:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.from_name" approved="yes">
-			<source>Sender name:</source>
-			<target>Nombre del remitente:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.issent" approved="yes">
-			<source>Is sent:</source>
-			<target>Enviado:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.long_link_mode" approved="yes">
-			<source>Redirect not only links longer than 76 characters but ALL links:</source>
-			<target>No solo vínculos más extensos de 76 caracteres sino TODOS los vínculos:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.long_link_rdct_url" approved="yes">
-			<source>Long links redirection url:</source>
-			<target>Url de vínculo RDCT:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.organisation" approved="yes">
-			<source>Organization:</source>
-			<target>Organización:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.page" approved="yes">
-			<source>Mail page:</source>
-			<target>Página de boletín:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.plainParams" approved="yes">
-			<source>Parameters, Plain text:</source>
-			<target>Parámetros, texto simple:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.plainParams.ALT.1" approved="yes">
-			<source>URL for plain text content:</source>
-			<target>URL para el texto simple:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.priority" approved="yes">
-			<source>Priority:</source>
-			<target>Prioridad:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.priority.I.0" approved="yes">
-			<source>Low</source>
-			<target>Baja</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.priority.I.2" approved="yes">
-			<source>High</source>
-			<target>Alta</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.renderedsize" approved="yes">
-			<source>Compiled size:</source>
-			<target>Tamaño compilado:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.replyto_email" approved="yes">
-			<source>Reply email:</source>
-			<target>Direccíon de respuesta:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.replyto_name" approved="yes">
-			<source>Reply name:</source>
-			<target>Nombre de respuesta:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.return_path" approved="yes">
-			<source>Return Path:</source>
-			<target>Ruta de retorno:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.scheduled" approved="yes">
-			<source>Scheduled time:</source>
-			<target>Envío requerido</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.scheduled_begin" approved="yes">
-			<source>Delivery start:</source>
-			<target>Envío iniciado</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.scheduled_end" approved="yes">
-			<source>Delivery end:</source>
-			<target>Envío completado</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.sendOptions" approved="yes">
-			<source>Format of mail content:</source>
-			<target>Incluir:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.sendOptions.I.0" approved="yes">
-			<source>Plain text</source>
-			<target>Texto simple</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.sendOptions.I.1" approved="yes">
-			<source>HTML</source>
-			<target>HTML</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.subject" approved="yes">
-			<source>Subject:</source>
-			<target>Asunto:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.type.I.0" approved="yes">
-			<source>TYPO3 Page</source>
-			<target>Página TYPO3</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail.type.I.1" approved="yes">
-			<source>External URL</source>
-			<target>URL Externo</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group" approved="yes">
-			<source>Recipient list</source>
-			<target>Lista de correo</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.csv.I.0" approved="yes">
-			<source>Separate emails by space/comma/linebreak</source>
-			<target>Separar direcciones de correo mediante espacio/coma/fin de línea</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.csv.I.1" approved="yes">
-			<source>CSV [name],[email]</source>
-			<target>CSV [nombre],[email]</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.list" approved="yes">
-			<source>Recipients:</source>
-			<target>Destinatarios:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.mail_groups" approved="yes">
-			<source>Other recipient lists:</source>
-			<target>Otras listas de correo:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories" approved="yes">
-			<source>Must subscribe to one of the categories:</source>
-			<target>Categorías de atención forzada:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.0" approved="yes">
-			<source></source>
-			<target>Cat 0</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.1" approved="yes">
-			<source></source>
-			<target>Cat 1</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.2" approved="yes">
-			<source></source>
-			<target>Cat 2</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.3" approved="yes">
-			<source></source>
-			<target>Cat 3</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.4" approved="yes">
-			<source></source>
-			<target>Cat 4</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.5" approved="yes">
-			<source></source>
-			<target>Cat 5</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.6" approved="yes">
-			<source></source>
-			<target>Cat 6</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.7" approved="yes">
-			<source></source>
-			<target>Cat 7</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.8" approved="yes">
-			<source></source>
-			<target>Cat 8</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.select_categories.I.9" approved="yes">
-			<source></source>
-			<target>Cat 9</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.static_list" approved="yes">
-			<source>Recipients:</source>
-			<target>Destinatarios:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.type.I.0" approved="yes">
-			<source>From pages</source>
-			<target>De las páginas</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.type.I.1" approved="yes">
-			<source>Plain list</source>
-			<target>Lista simple</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.type.I.2" approved="yes">
-			<source>Static list</source>
-			<target>Grupo estático</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.type.I.3" approved="yes">
-			<source>Special query</source>
-			<target>Búsqueda especial</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.type.I.4" approved="yes">
-			<source>From other recipient lists</source>
-			<target>Otra lista de correo</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.whichtables" approved="yes">
-			<source>Types of records:</source>
-			<target>Tablas:</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.whichtables.I.0" approved="yes">
-			<source>Address</source>
-			<target>Dirección</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.whichtables.I.1" approved="yes">
-			<source>Website user</source>
-			<target>Usuarios del Website</target>
-		</trans-unit>
-		<trans-unit id="sys_dmail_group.whichtables.I.2" approved="yes">
-			<source>From custom-defined table</source>
-			<target>Tabla definida por el usuario</target>
-		</trans-unit>
-		</body>
-	</file>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:03:27Z" target-language="es-ES">
+    <header>
+      <description>Labels for the Direct Mail tables</description>
+      <type>database</type>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_tca.xml</fileId>
+      <labelContext/>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id="module_sys_dmail_group.category">
+        <source>Subscribe to categories</source>
+        <target state="needs-translation">Subscribe to categories</target>
+      </trans-unit>
+      <trans-unit id="module_sys_dmail_group.htmlemail">
+        <source>Recieve e-mails as HTML?</source>
+        <target state="needs-translation">Recieve e-mails as HTML?</target>
+      </trans-unit>
+      <trans-unit id="module_sys_dmail_group.newsletter">
+        <source>Activate Newsletter</source>
+        <target state="needs-translation">Activate Newsletter</target>
+      </trans-unit>
+      <trans-unit id="pages.module.I.5">
+        <source>Direct Mail</source>
+        <target state="needs-translation">Direct Mail</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail" approved="yes">
+        <source>Direct mails</source>
+        <target state="final">Boletín</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.HTMLParams" approved="yes">
+        <source>Parameters, HTML:</source>
+        <target state="final">Parámetros, HTML:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.HTMLParams.ALT.1" approved="yes">
+        <source>URL for HTML content:</source>
+        <target state="final">URL para contenido HTML:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.attachment" approved="yes">
+        <source>Attachments:</source>
+        <target state="final">Archivos adjuntos:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.authcode_fieldList">
+        <source>Fields used in the computation of authentication codes:</source>
+        <target state="needs-translation">Fields used in the computation of authentication codes:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.charset">
+        <source>Message text character set:</source>
+        <target state="needs-translation">Message text character set:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.flowedFormat">
+        <source>Use flowing text format in plain text content:</source>
+        <target state="needs-translation">Use flowing text format in plain text content:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.from_email" approved="yes">
+        <source>Sender email:</source>
+        <target state="final">Direccíon del remitente:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.from_name" approved="yes">
+        <source>Sender name:</source>
+        <target state="final">Nombre del remitente:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.includeMedia">
+        <source>Include images and other media in HTML content:</source>
+        <target state="needs-translation">Include images and other media in HTML content:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.issent" approved="yes">
+        <source>Is sent:</source>
+        <target state="final">Enviado:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.long_link_mode" approved="yes">
+        <source>Redirect not only links longer than 76 characters but ALL links:</source>
+        <target state="final">No solo vínculos más extensos de 76 caracteres sino TODOS los vínculos:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.long_link_rdct_url" approved="yes">
+        <source>Long links redirection url:</source>
+        <target state="final">Url de vínculo RDCT:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.organisation" approved="yes">
+        <source>Organization:</source>
+        <target state="final">Organización:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.page" approved="yes">
+        <source>Mail page:</source>
+        <target state="final">Página de boletín:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.plainParams" approved="yes">
+        <source>Parameters, Plain text:</source>
+        <target state="final">Parámetros, texto simple:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.plainParams.ALT.1" approved="yes">
+        <source>URL for plain text content:</source>
+        <target state="final">URL para el texto simple:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority" approved="yes">
+        <source>Priority:</source>
+        <target state="final">Prioridad:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority.I.0" approved="yes">
+        <source>Low</source>
+        <target state="final">Baja</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority.I.1">
+        <source>Normal</source>
+        <target state="needs-translation">Normal</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority.I.2" approved="yes">
+        <source>High</source>
+        <target state="final">Alta</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.renderedsize" approved="yes">
+        <source>Compiled size:</source>
+        <target state="final">Tamaño compilado:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.replyto_email" approved="yes">
+        <source>Reply email:</source>
+        <target state="final">Direccíon de respuesta:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.replyto_name" approved="yes">
+        <source>Reply name:</source>
+        <target state="final">Nombre de respuesta:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.return_path" approved="yes">
+        <source>Return Path:</source>
+        <target state="final">Ruta de retorno:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.scheduled" approved="yes">
+        <source>Scheduled time:</source>
+        <target state="final">Envío requerido</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.scheduled_begin" approved="yes">
+        <source>Delivery start:</source>
+        <target state="final">Envío iniciado</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.scheduled_end" approved="yes">
+        <source>Delivery end:</source>
+        <target state="final">Envío completado</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.sendOptions" approved="yes">
+        <source>Format of mail content:</source>
+        <target state="final">Incluir:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.sendOptions.I.0" approved="yes">
+        <source>Plain text</source>
+        <target state="final">Texto simple</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.sendOptions.I.1">
+        <source>HTML</source>
+        <target state="needs-translation">HTML</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.subject" approved="yes">
+        <source>Subject:</source>
+        <target state="final">Asunto:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.tab1">
+        <source>Composition</source>
+        <target state="needs-translation">Composition</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.tab2">
+        <source>Mail headers</source>
+        <target state="needs-translation">Mail headers</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.tab3">
+        <source>Send options</source>
+        <target state="needs-translation">Send options</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.transfer_encoding">
+        <source>Content transfer encoding:</source>
+        <target state="needs-translation">Content transfer encoding:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.type.I.0" approved="yes">
+        <source>TYPO3 Page</source>
+        <target state="final">Página TYPO3</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.type.I.1" approved="yes">
+        <source>External URL</source>
+        <target state="final">URL Externo</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.use_rdct">
+        <source>Redirect links longer than 76 characters:</source>
+        <target state="needs-translation">Redirect links longer than 76 characters:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_category">
+        <source>Direct Mail Category</source>
+        <target state="needs-translation">Direct Mail Category</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_category.category">
+        <source>Category:</source>
+        <target state="needs-translation">Category:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_category.old_cat_number">
+        <source>Old category number:</source>
+        <target state="needs-translation">Old category number:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group" approved="yes">
+        <source>Recipient list</source>
+        <target state="final">Lista de correo</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.advanced">
+        <source>Configuration</source>
+        <target state="needs-translation">Configuration</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.csv">
+        <source>List format:</source>
+        <target state="needs-translation">List format:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.csv.I.0" approved="yes">
+        <source>Separate emails by space/comma/linebreak</source>
+        <target state="final">Separar direcciones de correo mediante espacio/coma/fin de línea</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.csv.I.1" approved="yes">
+        <source>CSV [name],[email]</source>
+        <target state="final">CSV [nombre],[email]</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.list" approved="yes">
+        <source>Recipients:</source>
+        <target state="final">Destinatarios:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.mail_groups" approved="yes">
+        <source>Other recipient lists:</source>
+        <target state="final">Otras listas de correo:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.recursive">
+        <source>Include page subtree:</source>
+        <target state="needs-translation">Include page subtree:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.select_categories" approved="yes">
+        <source>Must subscribe to one of the categories:</source>
+        <target state="final">Categorías de atención forzada:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.static_list" approved="yes">
+        <source>Recipients:</source>
+        <target state="final">Destinatarios:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.0" approved="yes">
+        <source>From pages</source>
+        <target state="final">De las páginas</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.1" approved="yes">
+        <source>Plain list</source>
+        <target state="final">Lista simple</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.2" approved="yes">
+        <source>Static list</source>
+        <target state="final">Grupo estático</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.3" approved="yes">
+        <source>Special query</source>
+        <target state="final">Búsqueda especial</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.4" approved="yes">
+        <source>From other recipient lists</source>
+        <target state="final">Otra lista de correo</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables" approved="yes">
+        <source>Types of records:</source>
+        <target state="final">Tablas:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.0" approved="yes">
+        <source>Address</source>
+        <target state="final">Dirección</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.1" approved="yes">
+        <source>Website user</source>
+        <target state="final">Usuarios del Website</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.2" approved="yes">
+        <source>From custom-defined table</source>
+        <target state="final">Tabla definida por el usuario</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.3">
+        <source>Website User Group</source>
+        <target state="needs-translation">Website User Group</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.query">
+        <source>Query</source>
+        <target state="needs-translation">Query</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.queryLimit">
+        <source>Query Limit</source>
+        <target state="needs-translation">Query Limit</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.queryLimitDisabled">
+        <source>Query Limit Disabled</source>
+        <target state="needs-translation">Query Limit Disabled</target>
+      </trans-unit>
+    </body>
+  </file>
 </xliff>

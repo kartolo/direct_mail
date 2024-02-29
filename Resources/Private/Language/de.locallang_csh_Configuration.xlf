@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:09:55Z" target-language="de">
+    <header>
+      <description>CSH for Direct Mail Configuration Module</description>
+      <type>CSH</type>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_txdirectmailM6</fileId>
+      <csh_table>_MOD_DirectMailNavFrame_txdirectmailM6</csh_table>
+      <keep_original_text>1</keep_original_text>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".alttitle">
+        <source>Direct Mail &gt; Configuration module</source>
+        <target state="translated">Direct Mail &gt; Konfigurationsmodul</target>
+      </trans-unit>
+      <trans-unit id=".description">
+        <source>Set the configuration</source>
+        <target state="translated">Konfiguration einstellen</target>
+      </trans-unit>
+      <trans-unit id=".details">
+        <source>Set the configuration for the direct mail module. Please refer to the manual for the detailed information</source>
+        <target state="translated">Legen Sie die Konfiguration für das Direct Mail-Modul fest. Bitte lesen Sie die Dokumentation für die detaillierten Informationen</target>
+      </trans-unit>
+      <trans-unit id="_.seeAlso" approved="yes">
+        <source>sys_dmail, sys_dmail_group, sys_dmail_category</source>
+        <target state="final">sys_dmail, sys_dmail_group, sys_dmail_category</target>
+      </trans-unit>
+      <trans-unit id="folders.alttitle">
+        <source>Available Direct Mail folders</source>
+        <target state="translated">Verfügbare Direct Mail-Ordner</target>
+      </trans-unit>
+      <trans-unit id="folders.description">
+        <source>Select the Direct Mail folder you wish to work with.</source>
+        <target state="translated">Wählen Sie den Direct-Mail-Ordner aus, mit dem Sie arbeiten möchten.</target>
+      </trans-unit>
+      <trans-unit id="folders.details">
+        <source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
+        <target state="translated">Jeder Direct Mail Ordner ist ein speziell konfigurierter Arbeitsbereich für das Direct Mail Modul.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

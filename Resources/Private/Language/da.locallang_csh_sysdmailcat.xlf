@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-11T21:42:21Z" target-language="da">
+    <header>
+      <description>Context Sensitive Help for Direct Mail Categories</description>
+      <type>CSH</type>
+      <csh_table>sys_dmail_category</csh_table>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmailcat.xml</fileId>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".description" approved="yes">
+        <source>Direct mail category</source>
+        <target state="final">Direct mail kategori</target>
+      </trans-unit>
+      <trans-unit id=".details" xml:space="preserve" approved="yes">
+			<source><![CDATA[Direct mail categories are used to classify content elements by subject so that direct mails may be personalized.
+
+Direct mail categories may be assigned to content elements in pages that are used to build direct mails.
+
+Subscribers may also subscribe to direct mail categories of interest to them.
+
+When sending direct mails, the Direct mail module uses this information to personalize the email message sent to each subscriber.]]></source>
+		<target state="final"><![CDATA[Direct mail kategorier bruges til at klassificere indholdselementer via emner, så e-mails kan personaliseres.
+
+Direct mail kategorier kan tildeles indholdselementer i sider der bruges til at opbygge e-mails.
+
+Abonnenter kan ligeledes abonnere på Direct mail kategorier, som måtte interessere dem.
+
+Direct mail modulet bruger disse informationer til at personalisere e-mails der sendes til abonnenterne.]]></target></trans-unit>
+      <trans-unit id="_.seeAlso" approved="yes">
+        <source>sys_dmail, sys_dmail_group</source>
+        <target state="final">sys_dmail, sys_dmail_group</target>
+      </trans-unit>
+      <trans-unit id="category.description" approved="yes">
+        <source>Direct mail categories are used to classify content elements.</source>
+        <target state="final">Direct mail kategorier bruges til at klassificere indholdselementer.</target>
+      </trans-unit>
+      <trans-unit id="category.details" approved="yes">
+        <source>A category corresponds to a subject or topic. It is not recommended to use categories to distinguish between contents in various languages, or to distinguish between contents targeted at different audiences. Use the Language field of content elements or Website User Group records for such purposes.</source>
+        <target state="final">En kategori svarer til et emne. Det frarådes at bruge kategorier til at skelne mellem indhold med forskelligt sprog, eller at skelne mellem indhold målrettet forskelligt publikum. Brug sprog-felter i indholdselementer eller Website bruger gruppe-records til sådanne formål.</target>
+      </trans-unit>
+      <trans-unit id="sys_language_uid.description" approved="yes">
+        <source>Select the language of the category.</source>
+        <target state="final">Vælg sprog for kategorien.</target>
+      </trans-unit>
+      <trans-unit id="sys_language_uid.details" xml:space="preserve" approved="yes">
+			<source><![CDATA[This allows you to translate the title of the category in the selected language. This will enable frontend plugins to present the title of the category in the language of the frontend page.
+The available system languages are created by the administrator.]]></source>
+		<target state="final"><![CDATA[Dette giver dig mulighed for at oversætte titlen til kategorien til det valgte sprog. Det vil give frontend plugins mulighed for at præsentere titlerne på sproget for siden.
+De tilgængelige sprog er oprettet af administrator.]]></target></trans-unit>
+    </body>
+  </file>
+</xliff>

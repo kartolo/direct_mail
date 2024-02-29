@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:direct_mail/Resources/Private/Language/Modules/locallang.xlf" date="2023-01-11T17:00:00Z" product-name="direct_mail" target-language="sv-SE">
+    <header/>
+    <body>
+      <trans-unit id="widgets.dm.title" resname="widgets.dm.title">
+        <source>Direct Mail - Pages</source>
+        <target state="needs-translation">Direct Mail - Pages</target>
+      </trans-unit>
+      <trans-unit id="widgets.dm.description" resname="widgets.dm.description">
+        <source>Direct Mail - Pages with the 'Direct Mail' module</source>
+        <target state="needs-translation">Direct Mail - Pages with the 'Direct Mail' module</target>
+      </trans-unit>
+      <trans-unit id="widgets.dmMailEngineStatus.title" resname="widgets.dmMailEngineStatus.title">
+        <source>Direct Mail - Mail Engine Status</source>
+        <target state="needs-translation">Direct Mail - Mail Engine Status</target>
+      </trans-unit>
+      <trans-unit id="widgets.dmMailEngineStatus.description" resname="widgets.dmMailEngineStatus.description">
+        <source>Direct Mail - Shows the number of sent/unsent newsletters</source>
+        <target state="needs-translation">Direct Mail - Shows the number of sent/unsent newsletters</target>
+      </trans-unit>
+      <trans-unit id="widgets.dmStatistics.title" resname="widgets.dmStatistics.title">
+        <source>Direct Mail - Statistics</source>
+        <target state="needs-translation">Direct Mail - Statistics</target>
+      </trans-unit>
+      <trans-unit id="widgets.dmStatistics.description" resname="widgets.dmStatistics.description">
+        <source>Direct Mail - Shows recipients from the last 10 newsletters</source>
+        <target state="needs-translation">Direct Mail - Shows recipients from the last 10 newsletters</target>
+      </trans-unit>
+      <trans-unit id="widget_group.dm" resname="widget_group.dm">
+        <source>Direct Mail - Widgets</source>
+        <target state="needs-translation">Direct Mail - Widgets</target>
+      </trans-unit>
+      <trans-unit id="dashboard.dm" resname="dashboard.dm">
+        <source>Direct Mail - Dashboard</source>
+        <target state="needs-translation">Direct Mail - Dashboard</target>
+      </trans-unit>
+      <trans-unit id="dashboard.dm.description" resname="dashboard.dm.description">
+        <source>Direct Mail - Dashboard Description</source>
+        <target state="needs-translation">Direct Mail - Dashboard Description</target>
+      </trans-unit>
+      <trans-unit id="widgets.dm.label.sent" resname="widgets.dm.label.sent">
+        <source>sent</source>
+        <target state="needs-translation">sent</target>
+      </trans-unit>
+      <trans-unit id="widgets.dm.label.unsent" resname="widgets.dm.label.unsent">
+        <source>unsent</source>
+        <target state="needs-translation">unsent</target>
+      </trans-unit>
+      <trans-unit id="widgets.dm.label.numberSentNewsletters" resname="widgets.dm.label.numberSentNewsletters">
+        <source>Number of the sent newsletters</source>
+        <target state="needs-translation">Number of the sent newsletters</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

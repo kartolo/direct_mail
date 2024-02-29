@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:09:21Z" target-language="ar">
+    <header>
+      <description>CSH for Direct Mail Mailer Engine Module</description>
+      <type>CSH</type>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_txdirectmailM5</fileId>
+      <csh_table>_MOD_DirectMailNavFrame_txdirectmailM5</csh_table>
+      <keep_original_text>1</keep_original_text>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".alttitle">
+        <source>Direct Mail &gt; Mailer Engine module</source>
+        <target state="needs-translation">Direct Mail &gt; Mailer Engine module</target>
+      </trans-unit>
+      <trans-unit id=".description">
+        <source>Show status and queuing jobs of the Mailer Engine</source>
+        <target state="needs-translation">Show status and queuing jobs of the Mailer Engine</target>
+      </trans-unit>
+      <trans-unit id=".details">
+        <source>Show the detailed status and queuing jobs of the Mailer Engine.</source>
+        <target state="needs-translation">Show the detailed status and queuing jobs of the Mailer Engine.</target>
+      </trans-unit>
+      <trans-unit id="_.seeAlso">
+        <source/>
+      </trans-unit>
+      <trans-unit id="folders.alttitle">
+        <source>Available Direct Mail folders</source>
+        <target state="needs-translation">Available Direct Mail folders</target>
+      </trans-unit>
+      <trans-unit id="folders.description">
+        <source>Select the Direct Mail folder you wish to work with.</source>
+        <target state="needs-translation">Select the Direct Mail folder you wish to work with.</target>
+      </trans-unit>
+      <trans-unit id="folders.details">
+        <source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
+        <target state="needs-translation">Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

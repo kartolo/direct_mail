@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:09:55Z" target-language="da">
+    <header>
+      <description>CSH for Direct Mail Configuration Module</description>
+      <type>CSH</type>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_txdirectmailM6</fileId>
+      <csh_table>_MOD_DirectMailNavFrame_txdirectmailM6</csh_table>
+      <keep_original_text>1</keep_original_text>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".alttitle" approved="yes">
+        <source>Direct Mail &gt; Configuration module</source>
+        <target state="final">Direct Mail &gt; Statistik modul</target>
+      </trans-unit>
+      <trans-unit id=".description" approved="yes">
+        <source>Set the configuration</source>
+        <target state="final">Viser statistik over udsendte nyhedsbreve.</target>
+      </trans-unit>
+      <trans-unit id=".details" approved="yes">
+        <source>Set the configuration for the direct mail module. Please refer to the manual for the detailed information</source>
+        <target state="final">Vis detaljerede informationer over udsendte nyhedsbreve.</target>
+      </trans-unit>
+      <trans-unit id="_.seeAlso" approved="yes">
+        <source>sys_dmail, sys_dmail_group, sys_dmail_category</source>
+        <target state="final">sys_dmail, sys_dmail_group, sys_dmail_category</target>
+      </trans-unit>
+      <trans-unit id="folders.alttitle" approved="yes">
+        <source>Available Direct Mail folders</source>
+        <target state="final">Tilgængelige Direct Mail mapper</target>
+      </trans-unit>
+      <trans-unit id="folders.description" approved="yes">
+        <source>Select the Direct Mail folder you wish to work with.</source>
+        <target state="final">Vælg den Direct Mail mappe, du ønsker at arbejde med.</target>
+      </trans-unit>
+      <trans-unit id="folders.details" approved="yes">
+        <source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
+        <target state="final">Hver Direct Mail mappe er et specielt  konfigureret arbejdsområde til Direct Mail modulet.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
