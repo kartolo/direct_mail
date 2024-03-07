@@ -38,7 +38,7 @@ class FetchUtility
 
     public function getResponse(string $url): Response
     {
-        $context = null;
+        $context = [];
         $applicationContext = Environment::getContext();
         if ($applicationContext->isDevelopment()) {
             $context = ['verify' => Typo3ConfVarsUtility::getDMConfigSSLVerify()];
