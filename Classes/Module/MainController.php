@@ -26,6 +26,10 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Site\SiteFinder;
 
 class MainController
 {
@@ -78,6 +82,22 @@ class MainController
         IconFactory $iconFactory = null,
         PageRenderer $pageRenderer = null
     ) {
+        //create context for CLI
+        if (empty($GLOBALS['TYPO3_REQUEST'])) {
+            $context = GeneralUtility::makeInstance(Context::class);
+            // Retrieve site and site language from context
+            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+            $site = $siteFinder->getSiteByPageId(1);
+            $siteLanguageId = $context->getPropertyFromAspect('language', 'id');
+            $siteLanguage = $site->getLanguageById($siteLanguageId);
+            $request = new ServerRequest(new Uri((string)$siteLanguage->getBase()));
+            $request = $request->withAttribute('site', $site);
+            $request = $request->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
+            $request = $request->withAttribute('language', $siteLanguage);
+            $request = $request->withQueryParams(['id' => $site->getRootPageId()]);
+            $GLOBALS['TYPO3_REQUEST'] = $request;
+        }
+
         $this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
         $this->iconFactory = $iconFactory ?? GeneralUtility::makeInstance(IconFactory::class);
         $this->pageRenderer = $pageRenderer ?? GeneralUtility::makeInstance(PageRenderer::class);
