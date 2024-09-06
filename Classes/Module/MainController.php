@@ -126,20 +126,6 @@ class MainController
     }
 
     /**
-     * Configure template paths for your backend module
-     * @return StandaloneView
-     */
-    protected function configureTemplatePaths(string $templateName): StandaloneView
-    {
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setTemplateRootPaths(['EXT:direct_mail/Resources/Private/Templates/']);
-        $view->setPartialRootPaths(['EXT:direct_mail/Resources/Private/Partials/']);
-        $view->setLayoutRootPaths(['EXT:direct_mail/Resources/Private/Layouts/']);
-        $view->setTemplate($templateName);
-        return $view;
-    }
-
-    /**
         https://api.typo3.org/main/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_messaging_1_1_abstract_message.html
         const 	NOTICE = -2
         const 	INFO = -1
