@@ -43,11 +43,7 @@ class Typo3ConfVarsUtility
     public static function getDMConfigSendPerCycle(): int
     {
         $dmConfig = self::getDMConfig();
-        if (trim($dmConfig['sendPerCycle'])) {
-            return (int)(trim($dmConfig['sendPerCycle']));
-        }
-
-        return 50;
+        return (int)($dmConfig['sendPerCycle'] ?? 50);
     }
 
     public static function getDMConfigNotificationJob(): bool
