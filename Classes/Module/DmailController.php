@@ -1899,8 +1899,9 @@ final class DmailController extends MainController
 
         if ($newRecord['sys_language_uid'] > 0) {
             $langParam = $this->getLanguageParam($newRecord['sys_language_uid'], $parameters);
-            $parameters['plainParams'] .= $langParam;
-            $parameters['HTMLParams'] .= $langParam;
+            foreach (['plainParams', 'HTMLParams'] as $param) {
+                $parameters[$param] = empty($parameters[$param]) ? $langParam : $parameters[$param] . $langParam;
+            }
         }
 
         // If params set, set default values:
