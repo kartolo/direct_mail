@@ -36,6 +36,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class RecipientListController extends MainController
 {
+    protected array $allowedTables;
     protected FlashMessageQueue $flashMessageQueue;
 
     public function __construct(
@@ -69,12 +70,11 @@ final class RecipientListController extends MainController
 
         
         protected $requestUri = '',
-        
-        protected array $allowedTables = [DmailRecipientEnum::TtAddress->value, DmailRecipientEnum::FeUsers->value],
 
         protected bool $submit = false,
         protected string $queryConfig = '',
     ) {
+        $this->allowedTables = [DmailRecipientEnum::TtAddress->value, DmailRecipientEnum::FeUsers->value];
     }
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
