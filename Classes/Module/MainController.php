@@ -445,7 +445,6 @@ class MainController
         $tree = GeneralUtility::makeInstance(PageTreeView::class);
         $tree->init(empty($perms_clause) ? ''  : 'AND ' . $perms_clause);
         $tree->makeHTML = 0;
-        $tree->setRecs = 0;
         $tree->getTree($id, $getLevels, '');
 
         return $tree->ids;
