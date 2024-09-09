@@ -6,59 +6,45 @@ namespace DirectMailTeam\DirectMail\Widgets;
 
 
 use DirectMailTeam\DirectMail\Widgets\Provider\DmProvider;
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\View\BackendViewFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Dashboard\Widgets\RequestAwareWidgetInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetInterface;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 
-class DmWidget implements WidgetInterface
+class DmWidget implements WidgetInterface, RequestAwareWidgetInterface
 {
-    /**
-     * @var WidgetConfigurationInterface
-     */
-    private $configuration;
-
-    /**
-     * @var StandaloneView
-     */
-    private $view;
-
-    /**
-     * @var DmProvider
-    */
-    private $dataProvider;
-
-    /**
-     * @var array
-     */
-    private $options;
-
+    private ServerRequestInterface $request;
     public function __construct(
-        WidgetConfigurationInterface $configuration,
-        DmProvider $dataProvider,
-        StandaloneView $view,
-        array $options = []
+        protected readonly WidgetConfigurationInterface $configuration,
+        protected readonly DmProvider $dataProvider,
+        protected readonly BackendViewFactory $backendViewFactory,
+        protected array $options = []
     ) {
-        $this->configuration = $configuration;
-        $this->dataProvider = $dataProvider;
-        $this->view = $view;
-        $this->options = $options;
     }
 
     public function renderWidgetContent(): string
     {
-        $this->view->setTemplate('DmWidget');
-        $this->view->assignMultiple([
-            'items' => $this->dataProvider->getDmPages(),
-            'options' => $this->options,
-            'configuration' => $this->configuration,
-        ]);
-        return $this->view->render();
+        return $this->backendViewFactory
+            ->create($this->request, ['typo3/cms-dashboard', 'directmailteam/direct-mail'])
+            ->assignMultiple([
+                'items' => $this->dataProvider->getDmPages(),
+                'configuration' => $this->configuration,
+                'options' => $this->options,
+            ])
+            ->render('Dashboard/Widgets/DmWidget');
     }
 
     public function getOptions(): array
     {
-        return [];
+        return $this->options;
+    }
+
+    public function setRequest(ServerRequestInterface $request): void
+    {
+        $this->request = $request;
     }
 }
