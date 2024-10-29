@@ -21,12 +21,17 @@ use DirectMailTeam\DirectMail\Utility\FetchUtility;
 use DirectMailTeam\DirectMail\Utility\RdctUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\FileRepository;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -94,6 +99,21 @@ class DirectMailUtility
         bool $forceAbsoluteUrl = true,
         bool $linkAccessRestrictedPages = true
     ): string {
+
+        if (empty($GLOBALS['TYPO3_REQUEST'])) {
+            $context = GeneralUtility::makeInstance(Context::class);
+            // Retrieve site and site language from context
+            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+            $site = $siteFinder->getSiteByPageId(1);
+            $siteLanguageId = $context->getPropertyFromAspect('language', 'id');
+            $siteLanguage = $site->getLanguageById($siteLanguageId);
+            $request = new ServerRequest(new Uri((string)$siteLanguage->getBase()));
+            $request = $request->withAttribute('site', $site);
+            $request = $request->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
+            $request = $request->withAttribute('language', $siteLanguage);
+            $request = $request->withQueryParams(['id' => $site->getRootPageId()]);
+            $GLOBALS['TYPO3_REQUEST'] = $request;
+        }
         $typolinkPageUrl = 't3://page?uid=';
         $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
 
