@@ -17,6 +17,7 @@ namespace DirectMailTeam\DirectMail;
 
 use DirectMailTeam\DirectMail\Repository\TempRepository;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -39,7 +40,7 @@ class SelectCategories
         $lang = $this->getLang();
 
         $site = $params['site'];
-        $languages = $site->getAllLanguages();
+        $languages = ($site instanceof Site) ? $site->getAllLanguages() : [];
         foreach($languages as $language) {
             if($language->getLocale()->getLanguageCode() == $lang) {
                 $sysLanguageUid = $language->getLanguageId();

@@ -840,7 +840,7 @@ class Dmailer implements LoggerAwareInterface
             $this->extractMediaLinks();
             foreach ($this->theParts['html']['media'] as $media) {
                 // TODO: why are there table related tags here?
-                if (in_array($media['tag'], ['img', 'table', 'tr', 'td'], true) && !$media['use_jumpurl'] && !$media['do_not_embed']) {
+                if (isset($media['tag']) && in_array($media['tag'], ['img', 'table', 'tr', 'td'], true) && !$media['use_jumpurl'] && !$media['do_not_embed']) {
                     if (ini_get('allow_url_fopen')) {
                         $context = GeneralUtility::makeInstance(FetchUtility::class)->getStreamContext();
                         if (($fp = fopen($media['absRef'], 'r', false, $context)) !== false) {
