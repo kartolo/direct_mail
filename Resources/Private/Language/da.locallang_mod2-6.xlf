@@ -68,102 +68,102 @@
         <source>If mail content is protected by HTTP authentication, enter the username here.</source>
         <target state="final">Hvis mailindhold er beskyttet af HTTP-godkendelse, så angiv brugernavnet her.</target>
       </trans-unit>
-      <trans-unit id="configure_http_username_details" resname="configure_http_username_details" xml:space="preserve">
+      <trans-unit id="configure_http_username_details" resname="configure_http_username_details" xml:space="preserve" approved="yes">
 				<source><![CDATA[The username and password is used to fetch mail content. They are NOT sent in the mail!
 	If you do not specify a username and password and the newsletter pages happen to be protected, an error will occur and no mail content will be fetched.]]></source>
-			<target state="translated"><![CDATA[Brugernavnet og adgangskoden bruges til at hente mailindhold. De sendes IKKE i mailen!
+			<target state="final"><![CDATA[Brugernavnet og adgangskoden bruges til at hente mailindhold. De sendes IKKE i mailen!
 	- Hvis du ikke angiver et brugernavn og adgangskode og nyhedsbrevets sider tilfældigvis er beskyttet, vil der opstå en fejl og intet mailindhold vil blive hentet.]]></target></trans-unit>
-      <trans-unit id="configure_jumpurl_tracking_privacy" resname="configure_jumpurl_tracking_privacy">
+      <trans-unit id="configure_jumpurl_tracking_privacy" resname="configure_jumpurl_tracking_privacy" approved="yes">
         <source>Privacy jumpurl</source>
-        <target state="translated">Privatliv jumpurl</target>
+        <target state="final">Privatliv jumpurl</target>
       </trans-unit>
       <trans-unit id="configure_jumpurl_tracking_privacy_description" resname="configure_jumpurl_tracking_privacy_description" approved="yes">
         <source>Set this option, to anonymize click statistics </source>
         <target state="final">Angiv denne indstilling for at anonymiserer klikstatistikken </target>
       </trans-unit>
-      <trans-unit id="configure_options_additional" resname="configure_options_additional">
+      <trans-unit id="configure_options_additional" resname="configure_options_additional" approved="yes">
         <source>Additional module options</source>
-        <target state="translated">Yderligere muligheder i modulet</target>
+        <target state="final">Yderligere muligheder i modulet</target>
       </trans-unit>
-      <trans-unit id="configure_options_encoding" resname="configure_options_encoding">
+      <trans-unit id="configure_options_encoding" resname="configure_options_encoding" approved="yes">
         <source>Options for content transfer encoding and character set</source>
-        <target state="translated">Indstillinger for tegnsæt til indholdsoverførsel og tegnsæt</target>
+        <target state="final">Indstillinger for tegnsæt til indholdsoverførsel og tegnsæt</target>
       </trans-unit>
-      <trans-unit id="configure_options_links" resname="configure_options_links">
+      <trans-unit id="configure_options_links" resname="configure_options_links" approved="yes">
         <source>Options for links in mail content</source>
-        <target state="translated">Muligheder for links i mailindhold</target>
+        <target state="final">Muligheder for links i mailindhold</target>
       </trans-unit>
-      <trans-unit id="configure_options_links_jumpurl" resname="configure_options_links_jumpurl">
+      <trans-unit id="configure_options_links_jumpurl" resname="configure_options_links_jumpurl" approved="yes">
         <source>Enable jump URL's:</source>
-        <target state="translated">Aktivér jump-URL'er:</target>
+        <target state="final">Aktivér jump-URL'er:</target>
       </trans-unit>
       <trans-unit id="configure_options_links_jumpurl_description" resname="configure_options_links_jumpurl_description" approved="yes">
         <source>Check this option to enable jump URL's and the collection of click statistics.</source>
         <target state="final">Markér denne indstilling for at aktivere jump-URL'er og indsamling af klikstatistik.</target>
       </trans-unit>
-      <trans-unit id="configure_options_links_rdct" resname="configure_options_links_rdct">
+      <trans-unit id="configure_options_links_rdct" resname="configure_options_links_rdct" approved="yes">
         <source>This configuration determines how QuickMails are handled and further sets the default value for Direct Mails.</source>
-        <target state="translated">Denne konfiguration bestemmer, hvordan QuickMails håndteres og sætter yderligere standardværdien for Direct Mails.</target>
+        <target state="final">Denne konfiguration bestemmer, hvordan QuickMails håndteres og sætter yderligere standardværdien for Direct Mails.</target>
       </trans-unit>
-      <trans-unit id="configure_options_mailto_jumpurl" resname="configure_options_mailto_jumpurl">
+      <trans-unit id="configure_options_mailto_jumpurl" resname="configure_options_mailto_jumpurl" approved="yes">
         <source>Enable jump URL's for mailto links:</source>
-        <target state="translated">Aktivér jump-URL'er for mailto links:</target>
+        <target state="final">Aktivér jump-URL'er for mailto links:</target>
       </trans-unit>
-      <trans-unit id="configure_options_mailto_jumpurl_description" resname="configure_options_mailto_jumpurl_description">
+      <trans-unit id="configure_options_mailto_jumpurl_description" resname="configure_options_mailto_jumpurl_description" approved="yes">
         <source>Check this option to enable jump URL's for mailto links.</source>
-        <target state="translated">Markér denne indstilling for at aktivere jump-URL'er for mailto-links.</target>
+        <target state="final">Markér denne indstilling for at aktivere jump-URL'er for mailto-links.</target>
       </trans-unit>
-      <trans-unit id="configure_plainParams_description" resname="configure_plainParams_description">
+      <trans-unit id="configure_plainParams_description" resname="configure_plainParams_description" approved="yes">
         <source>Enter the additional URL parameters used to fetch the plain text content from a TYPO3 page.</source>
-        <target state="translated">Angiv de ekstra URL-parametre, der bruges til at hente det almindelige tekstindhold fra en TYPO3-side.</target>
+        <target state="final">Angiv de ekstra URL-parametre, der bruges til at hente det almindelige tekstindhold fra en TYPO3-side.</target>
       </trans-unit>
-      <trans-unit id="configure_plainParams_details" resname="configure_plainParams_details">
+      <trans-unit id="configure_plainParams_details" resname="configure_plainParams_details" approved="yes">
         <source>The specified parameters will be added to the URL used to fetch the plain text content of the direct mail from a TYPO3 page. If in doubt, set it either to '&amp;type=99' or, when using TemplaVoila, to '&amp;print=1'.</source>
-        <target state="translated">De angivne parametre vil blive tilføjet til den URL, der bruges til at hente plain-tekst indholdet af direct mail'en fra en TYPO3 side. Hvis du er i tvivl, indstil den enten til '&amp;type=99' eller, hvis du bruger TemplaVoila, til '&amp;print=1'.</target>
+        <target state="final">De angivne parametre vil blive tilføjet til den URL, der bruges til at hente plain-tekst indholdet af direct mail'en fra en TYPO3 side. Hvis du er i tvivl, indstil den enten til '&amp;type=99' eller, hvis du bruger TemplaVoila, til '&amp;print=1'.</target>
       </trans-unit>
-      <trans-unit id="configure_plain_and_html" resname="configure_plain_and_html">
+      <trans-unit id="configure_plain_and_html" resname="configure_plain_and_html" approved="yes">
         <source>Plain text and HTML</source>
-        <target state="translated">Almindelig tekst og HTML</target>
+        <target state="final">Almindelig tekst og HTML</target>
       </trans-unit>
-      <trans-unit id="configure_plain_only" resname="configure_plain_only">
+      <trans-unit id="configure_plain_only" resname="configure_plain_only" approved="yes">
         <source>Plain text only</source>
-        <target state="needs-translation">Plain text only</target>
+        <target state="final">Kun klartekst</target>
       </trans-unit>
-      <trans-unit id="configure_priority_high" resname="configure_priority_high">
+      <trans-unit id="configure_priority_high" resname="configure_priority_high" approved="yes">
         <source>High</source>
-        <target state="needs-translation">High</target>
+        <target state="final">Høj</target>
       </trans-unit>
-      <trans-unit id="configure_priority_low" resname="configure_priority_low">
+      <trans-unit id="configure_priority_low" resname="configure_priority_low" approved="yes">
         <source>Low</source>
-        <target state="needs-translation">Low</target>
+        <target state="final">Lav</target>
       </trans-unit>
-      <trans-unit id="configure_priority_normal" resname="configure_priority_normal">
+      <trans-unit id="configure_priority_normal" resname="configure_priority_normal" approved="yes">
         <source>Normal</source>
-        <target state="needs-translation">Normal</target>
+        <target state="final">Normal</target>
       </trans-unit>
-      <trans-unit id="configure_quickmail_charset" resname="configure_quickmail_charset">
+      <trans-unit id="configure_quickmail_charset" resname="configure_quickmail_charset" approved="yes">
         <source>Character set for quick mails</source>
-        <target state="needs-translation">Character set for quick mails</target>
+        <target state="final">Tegnsæt til hurtige mails</target>
       </trans-unit>
-      <trans-unit id="configure_quickmail_charset_description" resname="configure_quickmail_charset_description">
+      <trans-unit id="configure_quickmail_charset_description" resname="configure_quickmail_charset_description" approved="yes">
         <source>Specify the character set to use when sending quick mails.</source>
-        <target state="needs-translation">Specify the character set to use when sending quick mails.</target>
+        <target state="final">Angiv det tegnsæt der skal bruges, når der sendes hurtige mails.</target>
       </trans-unit>
-      <trans-unit id="configure_quickmail_encoding" resname="configure_quickmail_encoding">
+      <trans-unit id="configure_quickmail_encoding" resname="configure_quickmail_encoding" approved="yes">
         <source>Encoding for quick mails</source>
-        <target state="needs-translation">Encoding for quick mails</target>
+        <target state="final">Tegnsæt til hurtige mails</target>
       </trans-unit>
-      <trans-unit id="configure_quickmail_encoding_description" resname="configure_quickmail_encoding_description">
+      <trans-unit id="configure_quickmail_encoding_description" resname="configure_quickmail_encoding_description" approved="yes">
         <source>Select the content transfer encoding to use when sending quick mails.</source>
-        <target state="needs-translation">Select the content transfer encoding to use when sending quick mails.</target>
+        <target state="final">Vælg tegnsæt til indholdsoverførsel som skal bruges, når du sender hurtige mails.</target>
       </trans-unit>
-      <trans-unit id="configure_simulate_usergroup" resname="configure_simulate_usergroup">
+      <trans-unit id="configure_simulate_usergroup" resname="configure_simulate_usergroup" approved="yes">
         <source>Frontend User Group</source>
-        <target state="needs-translation">Frontend User Group</target>
+        <target state="final">Frontend brugergruppe</target>
       </trans-unit>
-      <trans-unit id="configure_simulate_usergroup_description" resname="configure_simulate_usergroup_description">
+      <trans-unit id="configure_simulate_usergroup_description" resname="configure_simulate_usergroup_description" approved="yes">
         <source>If mail content is protected by Frontend user authentication, enter the user group here.</source>
-        <target state="needs-translation">If mail content is protected by Frontend user authentication, enter the user group here.</target>
+        <target state="final">Hvis mailindhold er beskyttet af Http-godkendelse, så angiv brugernavnet her.</target>
       </trans-unit>
       <trans-unit id="configure_simulate_usergroup_details" resname="configure_simulate_usergroup_details" xml:space="preserve" approved="yes">
 				<source><![CDATA[The usergroup with the uid specified is used to to fetch the mail content.
@@ -366,13 +366,13 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>Query</source>
         <target state="final">Forespørgsel</target>
       </trans-unit>
-      <trans-unit id="queryLimitDisabled" resname="queryLimitDisabled">
+      <trans-unit id="queryLimitDisabled" resname="queryLimitDisabled" approved="yes">
         <source>Do not use a limit when sending</source>
-        <target state="needs-translation">Do not use a limit when sending</target>
+        <target state="final">Brug ikke en grænse, når du sender</target>
       </trans-unit>
-      <trans-unit id="dmail_send" resname="dmail_send">
+      <trans-unit id="dmail_send" resname="dmail_send" approved="yes">
         <source>Send</source>
-        <target state="needs-translation">Send</target>
+        <target state="final">Send</target>
       </trans-unit>
       <trans-unit id="dmail_subject" resname="dmail_subject" approved="yes">
         <source>Subject:</source>
@@ -398,9 +398,9 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>Internal Pages</source>
         <target state="final">Interne sider</target>
       </trans-unit>
-      <trans-unit id="dmail_wiz1_list_dmail" resname="dmail_wiz1_list_dmail">
+      <trans-unit id="dmail_wiz1_list_dmail" resname="dmail_wiz1_list_dmail" approved="yes">
         <source>Direct Mail</source>
-        <target state="needs-translation">Direct Mail</target>
+        <target state="final">Direct Mail</target>
       </trans-unit>
       <trans-unit id="dmail_wiz1_list_header" resname="dmail_wiz1_list_header" approved="yes">
         <source>Select a newsletter to continue sending:</source>
@@ -410,9 +410,9 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>New Newsletter</source>
         <target state="final">Nyt nyhedsbrev</target>
       </trans-unit>
-      <trans-unit id="dmail_wiz1_quickmail" resname="dmail_wiz1_quickmail">
+      <trans-unit id="dmail_wiz1_quickmail" resname="dmail_wiz1_quickmail" approved="yes">
         <source>Quickmail</source>
-        <target state="needs-translation">Quickmail</target>
+        <target state="final">Hurtigmail</target>
       </trans-unit>
       <trans-unit id="dmail_wiz1_quickmail_header" resname="dmail_wiz1_quickmail_header" approved="yes">
         <source>New Quickmail</source>
@@ -434,9 +434,9 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>Categories</source>
         <target state="final">Kategorier</target>
       </trans-unit>
-      <trans-unit id="dmail_wiz4_testmail" resname="dmail_wiz4_testmail">
+      <trans-unit id="dmail_wiz4_testmail" resname="dmail_wiz4_testmail" approved="yes">
         <source>Test Mail</source>
-        <target state="needs-translation">Test Mail</target>
+        <target state="final">Testmail</target>
       </trans-unit>
       <trans-unit id="dmail_wiz5_sendmass" resname="dmail_wiz5_sendmass" approved="yes">
         <source>Mass Send</source>
@@ -494,17 +494,17 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>mails using records from table</source>
         <target state="final">mails der bruger records fra tabel</target>
       </trans-unit>
-      <trans-unit id="dmailer_sys_dmail_record" resname="dmailer_sys_dmail_record">
+      <trans-unit id="dmailer_sys_dmail_record" resname="dmailer_sys_dmail_record" approved="yes">
         <source>sys_dmail record</source>
-        <target state="needs-translation">sys_dmail record</target>
+        <target state="final">sys_dmail element</target>
       </trans-unit>
       <trans-unit id="header_conf" resname="header_conf" approved="yes">
         <source>Configuration</source>
         <target state="final">Konfiguration</target>
       </trans-unit>
-      <trans-unit id="header_directmail" resname="header_directmail">
+      <trans-unit id="header_directmail" resname="header_directmail" approved="yes">
         <source>Direct Mail</source>
-        <target state="needs-translation">Direct Mail</target>
+        <target state="final">Direct Mail</target>
       </trans-unit>
       <trans-unit id="header_mailer" resname="header_mailer" approved="yes">
         <source>Mailer Engine</source>
@@ -562,13 +562,13 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>Import settings</source>
         <target state="final">Import indstillinger</target>
       </trans-unit>
-      <trans-unit id="mailgroup_import_header_upload" resname="mailgroup_import_header_upload">
+      <trans-unit id="mailgroup_import_header_upload" resname="mailgroup_import_header_upload" approved="yes">
         <source>Upload CSV</source>
-        <target state="needs-translation">Upload CSV</target>
+        <target state="final">Upload CSV</target>
       </trans-unit>
-      <trans-unit id="mailgroup_import_import" resname="mailgroup_import_import">
+      <trans-unit id="mailgroup_import_import" resname="mailgroup_import_import" approved="yes">
         <source>Import</source>
-        <target state="needs-translation">Import</target>
+        <target state="final">Importér</target>
       </trans-unit>
       <trans-unit id="mailgroup_import_mapping_all_html" resname="mailgroup_import_mapping_all_html" approved="yes">
         <source>All recipients receive HTML newsletter</source>
@@ -630,9 +630,9 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>Mapping</source>
         <target state="final">Mapning</target>
       </trans-unit>
-      <trans-unit id="mailgroup_import_mapping_number" resname="mailgroup_import_mapping_number">
+      <trans-unit id="mailgroup_import_mapping_number" resname="mailgroup_import_mapping_number" approved="yes">
         <source>#</source>
-        <target state="needs-translation">#</target>
+        <target state="final">#</target>
       </trans-unit>
       <trans-unit id="mailgroup_import_mapping_value" resname="mailgroup_import_mapping_value" approved="yes">
         <source>Value</source>
@@ -751,13 +751,13 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>Website User Table</source>
         <target state="final">Website brugertabel</target>
       </trans-unit>
-      <trans-unit id="mailgroup_table_disallowed_placeholder" resname="mailgroup_table_disallowed_placeholder">
+      <trans-unit id="mailgroup_table_disallowed_placeholder" resname="mailgroup_table_disallowed_placeholder" approved="yes">
         <source>Missing permission to display data</source>
-        <target state="needs-translation">Missing permission to display data</target>
+        <target state="final">Mangler tilladelse til at vise data</target>
       </trans-unit>
-      <trans-unit id="mailgroup_table_disallowed_csv" resname="mailgroup_table_disallowed_csv">
+      <trans-unit id="mailgroup_table_disallowed_csv" resname="mailgroup_table_disallowed_csv" approved="yes">
         <source>CSV export failed. Insufficient access right.</source>
-        <target state="needs-translation">CSV export failed. Insufficient access right.</target>
+        <target state="final">CSV-eksport mislykkedes. Utilstrækkelig adgang.</target>
       </trans-unit>
       <trans-unit id="nl_cat" resname="nl_cat" approved="yes">
         <source>Assign categories to content elements</source>
@@ -823,9 +823,9 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>EXT URL</source>
         <target state="final">EKST URL</target>
       </trans-unit>
-      <trans-unit id="nl_l_type" resname="nl_l_type">
+      <trans-unit id="nl_l_type" resname="nl_l_type" approved="yes">
         <source>Type</source>
-        <target state="needs-translation">Type</target>
+        <target state="final">Type</target>
       </trans-unit>
       <trans-unit id="nl_l_update" resname="nl_l_update" approved="yes">
         <source>Update category settings</source>
@@ -975,9 +975,9 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>CSV of returned recipients with unknown recipient</source>
         <target state="final">CSV af returnerede modtagere med ukendt modtager</target>
       </trans-unit>
-      <trans-unit id="stats_HTML" resname="stats_HTML">
+      <trans-unit id="stats_HTML" resname="stats_HTML" approved="yes">
         <source>HTML:</source>
-        <target state="needs-translation">HTML:</target>
+        <target state="final">HTML:</target>
       </trans-unit>
       <trans-unit id="stats_HTML_link_nr" resname="stats_HTML_link_nr" approved="yes">
         <source>HTML Link #</source>
@@ -1139,9 +1139,9 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>sent</source>
         <target state="final">sendt</target>
       </trans-unit>
-      <trans-unit id="stats_overview_status" resname="stats_overview_status">
+      <trans-unit id="stats_overview_status" resname="stats_overview_status" approved="yes">
         <source>Status</source>
-        <target state="needs-translation">Status</target>
+        <target state="final">Status</target>
       </trans-unit>
       <trans-unit id="stats_overview_subject" resname="stats_overview_subject" approved="yes">
         <source>Subject</source>
@@ -1187,9 +1187,9 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>Link Responses:</source>
         <target state="final">Link til respons:</target>
       </trans-unit>
-      <trans-unit id="stats_total" resname="stats_total">
+      <trans-unit id="stats_total" resname="stats_total" approved="yes">
         <source>Total:</source>
-        <target state="needs-translation">Total:</target>
+        <target state="final">I alt:</target>
       </trans-unit>
       <trans-unit id="stats_total_mails_returned" resname="stats_total_mails_returned" approved="yes">
         <source>Total mails returned:</source>
@@ -1259,9 +1259,9 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>Delivery begun/ended:</source>
         <target state="final">Udsendelse begyndt/afsluttet:</target>
       </trans-unit>
-      <trans-unit id="view_dmail" resname="view_dmail">
+      <trans-unit id="view_dmail" resname="view_dmail" approved="yes">
         <source>Direct Mail:</source>
-        <target state="needs-translation">Direct Mail:</target>
+        <target state="final">Direct Mail:</target>
       </trans-unit>
       <trans-unit id="view_flowed" resname="view_flowed" approved="yes">
         <source>Flowed text:</source>
@@ -1291,9 +1291,9 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>Yes</source>
         <target state="final">Ja</target>
       </trans-unit>
-      <trans-unit id="scheduler.bounceMail.server" resname="scheduler.bounceMail.server">
+      <trans-unit id="scheduler.bounceMail.server" resname="scheduler.bounceMail.server" approved="yes">
         <source>Server URL/IP</source>
-        <target state="needs-translation">Server URL/IP</target>
+        <target state="final">Server URL/IP</target>
       </trans-unit>
       <trans-unit id="scheduler.bounceMail.csh.server" resname="scheduler.bounceMail.csh.server" approved="yes">
         <source>URL or IP of the mail server</source>
@@ -1351,17 +1351,17 @@ Hvis du ikke angiver en brugergruppe og siden har frontend bruger-begrænsninger
         <source>Please install PHP IMAP extension</source>
         <target state="final">Installér venligst PHP IMAP udvidelsen</target>
       </trans-unit>
-      <trans-unit id="labels.path" resname="labels.path">
+      <trans-unit id="labels.path" resname="labels.path" approved="yes">
         <source>Path</source>
-        <target state="needs-translation">Path</target>
+        <target state="final">Sti</target>
       </trans-unit>
-      <trans-unit id="mod.no_access" resname="mod.no_access">
+      <trans-unit id="mod.no_access" resname="mod.no_access" approved="yes">
         <source>no access</source>
-        <target state="needs-translation">no access</target>
+        <target state="final">ingen adgang</target>
       </trans-unit>
-      <trans-unit id="mod.no_recipients" resname="mod.no_recipients">
+      <trans-unit id="mod.no_recipients" resname="mod.no_recipients" approved="yes">
         <source>no recipients</source>
-        <target state="needs-translation">no recipients</target>
+        <target state="final">ingen modtagere</target>
       </trans-unit>
     </body>
   </file>
