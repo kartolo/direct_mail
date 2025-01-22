@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-11T21:42:51Z" target-language="he">
+    <header>
+      <description>CSH for Direct Mail Module</description>
+      <type>CSH</type>
+      <fileId>EXT:direct_mail/mod/locallang_csh_web_DirectMailNavFrame</fileId>
+      <csh_table>_MOD_web_DirectMailNavFrame</csh_table>
+      <keep_original_text>1</keep_original_text>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".alttitle">
+        <source>Web &gt; Direct Mail module</source>
+        <target state="needs-translation">Web &gt; Direct Mail module</target>
+      </trans-unit>
+      <trans-unit id=".description">
+        <source>Select the function of the Direct Mail module that you want to use.</source>
+        <target state="needs-translation">Select the function of the Direct Mail module that you want to use.</target>
+      </trans-unit>
+      <trans-unit id=".details" xml:space="preserve">
+			<source><![CDATA[The functions of the Direct Mail module are the following, but their availability may be restricted depending on user access rights:
+
+1. Newsletters: this function lets you create a new newsletter or select an existing one; you may also select an existing newsletter in the page tree of the Direct Mail folder; selecting an existing newsletter leads you to a screen that lets you view or edit the newsletter, assign categories to the content elements of the page, view the list of direct mails already based on this newsletter page, or create a new one based on it.
+
+2. Direct Mails: this function lets you create a new direct mail based on a newsletter that has not yet been used to create one, or based on an external URL, or select an existing direct mail; selecting an existing direct mail leads you to a screen that lets you view the current information on the direct mail, edit the properties of the direct mail, and select from a menu of options the action you want to take on the selected direct mail.
+
+3. Recipient Lists: this function lets you create a new recipient list, import Addresses records from csv data to create a new recipient list, link to the diting form of an existing recipient list, or select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.
+
+4. Mailer Engine Status: this function lets you review the current status of the direct mails that have been scheduled for mass sending, and invoke manually the mailer engine, if it is not configured to be automatically invoked; selecting one of the listed direct mails leads you to the Direct Mails function where you may select to review the statistics of the selected direct mail.
+
+5. QuickMail: this function lets you enter a short message and send it immediately to a recipient list. No newsletter, nor any direct mail is involved in this function.
+
+6. Categories Conversion: this function is a migration tool that lets you convert your database to the new Direct Mail Categories introduced in version 2.0 of Direct Mail. Please refer to the manual for more information.
+
+7. Module Configuration: this function is an administration tool used to configure a Direct Mail folder. Please refer to the manual for more information.]]></source>
+		<target state="needs-translation"><![CDATA[The functions of the Direct Mail module are the following, but their availability may be restricted depending on user access rights:
+
+1. Newsletters: this function lets you create a new newsletter or select an existing one; you may also select an existing newsletter in the page tree of the Direct Mail folder; selecting an existing newsletter leads you to a screen that lets you view or edit the newsletter, assign categories to the content elements of the page, view the list of direct mails already based on this newsletter page, or create a new one based on it.
+
+2. Direct Mails: this function lets you create a new direct mail based on a newsletter that has not yet been used to create one, or based on an external URL, or select an existing direct mail; selecting an existing direct mail leads you to a screen that lets you view the current information on the direct mail, edit the properties of the direct mail, and select from a menu of options the action you want to take on the selected direct mail.
+
+3. Recipient Lists: this function lets you create a new recipient list, import Addresses records from csv data to create a new recipient list, link to the diting form of an existing recipient list, or select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.
+
+4. Mailer Engine Status: this function lets you review the current status of the direct mails that have been scheduled for mass sending, and invoke manually the mailer engine, if it is not configured to be automatically invoked; selecting one of the listed direct mails leads you to the Direct Mails function where you may select to review the statistics of the selected direct mail.
+
+5. QuickMail: this function lets you enter a short message and send it immediately to a recipient list. No newsletter, nor any direct mail is involved in this function.
+
+6. Categories Conversion: this function is a migration tool that lets you convert your database to the new Direct Mail Categories introduced in version 2.0 of Direct Mail. Please refer to the manual for more information.
+
+7. Module Configuration: this function is an administration tool used to configure a Direct Mail folder. Please refer to the manual for more information.]]></target></trans-unit>
+      <trans-unit id="_.seeAlso">
+        <source>sys_dmail, sys_dmail_group, sys_dmail_category</source>
+        <target state="needs-translation">sys_dmail, sys_dmail_group, sys_dmail_category</target>
+      </trans-unit>
+      <trans-unit id="assign_categories.alttitle">
+        <source>Select a direct mail</source>
+        <target state="needs-translation">Select a direct mail</target>
+      </trans-unit>
+      <trans-unit id="assign_categories.description">
+        <source>Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</source>
+        <target state="needs-translation">Assigning categories to a content element means that the element will appear in the mail only if the recipient user has chosen that category in his profile.</target>
+      </trans-unit>
+      <trans-unit id="assign_categories.details" xml:space="preserve">
+			<source><![CDATA[Check a checkbox in order to assign a category to a content element.
+
+If you do not assign any category to an element, the element will appear in all mails.]]></source>
+		<target state="needs-translation"><![CDATA[Check a checkbox in order to assign a category to a content element.
+
+If you do not assign any category to an element, the element will appear in all mails.]]></target></trans-unit>
+      <trans-unit id="assign_categories.seeAlso">
+        <source>sys_dmail_category</source>
+        <target state="needs-translation">sys_dmail_category</target>
+      </trans-unit>
+      <trans-unit id="create_directmail_from_nl.alttitle">
+        <source>Create a new direct mail from newsletter</source>
+        <target state="needs-translation">Create a new direct mail from newsletter</target>
+      </trans-unit>
+      <trans-unit id="create_directmail_from_nl.description">
+        <source>No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</source>
+        <target state="needs-translation">No direct mail has been created using the content of the following newsletters. Click on the one you want to use to create a new direct mail.</target>
+      </trans-unit>
+      <trans-unit id="create_directmail_from_nl.seeAlso">
+        <source>sys_dmail</source>
+        <target state="needs-translation">sys_dmail</target>
+      </trans-unit>
+      <trans-unit id="create_directmail_from_url.alttitle">
+        <source>Create a new direct mail from an external URL</source>
+        <target state="needs-translation">Create a new direct mail from an external URL</target>
+      </trans-unit>
+      <trans-unit id="create_directmail_from_url.description">
+        <source>Use this form to create a new direct mail based on content grabbed from an external URL.</source>
+        <target state="needs-translation">Use this form to create a new direct mail based on content grabbed from an external URL.</target>
+      </trans-unit>
+      <trans-unit id="create_directmail_from_url.seeAlso">
+        <source>sys_dmail</source>
+        <target state="needs-translation">sys_dmail</target>
+      </trans-unit>
+      <trans-unit id="create_newsletter.alttitle">
+        <source>Create a newsletter</source>
+        <target state="needs-translation">Create a newsletter</target>
+      </trans-unit>
+      <trans-unit id="create_newsletter.description">
+        <source>Click on this link if you want to create a new newsletter.</source>
+        <target state="needs-translation">Click on this link if you want to create a new newsletter.</target>
+      </trans-unit>
+      <trans-unit id="create_newsletter.details" xml:space="preserve">
+			<source><![CDATA[A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
+
+You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
+
+###USER_uid### (the unique id of the recipient)
+###USER_name### (full name)
+###USER_firstname### (first name calculated)
+###USER_NAME### and ###USER_FIRSTNAME### will insert uppercase versions of the equivalents
+###USER_title###
+###USER_email###
+###USER_phone###
+###USER_www###
+###USER_address###
+###USER_company###
+###USER_city###
+###USER_zip###
+###USER_country###
+###USER_fax###
+###SYS_TABLE_NAME###
+###SYS_MAIL_ID###
+###SYS_AUTHCODE###]]></source>
+		<target state="needs-translation"><![CDATA[A newsletter is basically a regular TYPO3 page which resides in the Direct Mail folder. Clicking on this link will lead you to a combined page creation and first content element creation form. After creating the page, you may add more content to it.
+
+You may personalize the direct mails that will be sent to each recipient by inserting the following markers in content elements of the newsletter page. The markers will be substituted with the corresponding value found in each recipient record, whenever available:
+
+###USER_uid### (the unique id of the recipient)
+###USER_name### (full name)
+###USER_firstname### (first name calculated)
+###USER_NAME### and ###USER_FIRSTNAME### will insert uppercase versions of the equivalents
+###USER_title###
+###USER_email###
+###USER_phone###
+###USER_www###
+###USER_address###
+###USER_company###
+###USER_city###
+###USER_zip###
+###USER_country###
+###USER_fax###
+###SYS_TABLE_NAME###
+###SYS_MAIL_ID###
+###SYS_AUTHCODE###]]></target></trans-unit>
+      <trans-unit id="directmail_actions.alttitle">
+        <source>Direct Mails options menu</source>
+        <target state="needs-translation">Direct Mails options menu</target>
+      </trans-unit>
+      <trans-unit id="directmail_actions.description">
+        <source>Select the action you want to perform on this direct mail.</source>
+        <target state="needs-translation">Select the action you want to perform on this direct mail.</target>
+      </trans-unit>
+      <trans-unit id="directmail_actions.details" xml:space="preserve">
+			<source><![CDATA[Possible actions are the following, but their availability vary depending on the current state of the direct mail:
+
+1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
+
+2. Send a testmail: this option lets you send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application.
+
+3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
+
+4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.]]></source>
+		<target state="needs-translation"><![CDATA[Possible actions are the following, but their availability vary depending on the current state of the direct mail:
+
+1. Fetch and compile mail content: this option lets you fetch or acquire the content of the direct mail which will be compiled in a special format for later mailing; this action must be performed before any other action may be taken; you should review the properties of the direct mail as presented on the screen, and edit them, if required, before fetching content.
+
+2. Send a testmail: this option lets you send a test mail to make sure that the email messages that will be sent to the recipient list look as expected when received in a client email application.
+
+3. Mass-send mail: this option lets you schedule the actual sending of the direct mail to a specific recipient list.
+
+4. See statistics of this mail: this option lets you review statistics on the direct mail and the responses, and take action on returned mails; this option is available only after mass-sending the mail has been initiated.]]></target></trans-unit>
+      <trans-unit id="directmail_actions.seeAlso">
+        <source>sys_dmail</source>
+        <target state="needs-translation">sys_dmail</target>
+      </trans-unit>
+      <trans-unit id="folders.alttitle">
+        <source>Available Direct Mail folders</source>
+        <target state="needs-translation">Available Direct Mail folders</target>
+      </trans-unit>
+      <trans-unit id="folders.description">
+        <source>Select the Direct Mail folder you wish to work with.</source>
+        <target state="needs-translation">Select the Direct Mail folder you wish to work with.</target>
+      </trans-unit>
+      <trans-unit id="folders.details">
+        <source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
+        <target state="needs-translation">Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import.alttitle">
+        <source>Import CSV into 'Address' table</source>
+        <target state="needs-translation">Import CSV into 'Address' table</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import.description">
+        <source>This option lets you import a csv, or comma-separated, list of address records and create a recipient list containing the imported records.</source>
+        <target state="needs-translation">This option lets you import a csv, or comma-separated, list of address records and create a recipient list containing the imported records.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import.details" xml:space="preserve">
+			<source><![CDATA[The records to import are entered one per line. Each record to import is a comma-separated list of field values. You may also specify the use of a semicolon(;) or of a colon (:) as separator instead of the comma.
+
+On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be "name, email".
+
+Each field name listed on the first line is analyzed as follows:
+
+1.the field name may one of the field names from the following list: uid, name, title, email, phone, www, address, company, city, zip, country, fax, module_sys_dmail_html, module_sys_dmail_category;
+
+2.the field name may be omitted in which case the corresponding values will be skipped or omitted;
+
+3.the field name may start with "user_", assuming that table tt_address was extended with the specified field name;
+
+4.in addition, fields may be suffixed with "[code]"; in this case, when the value in the imported record is not null, "[+value]" adds that number to the field value and "[=value]" overrides any existing value in the field.
+
+Example of csv field specification:
+;user_date;name;email;zip;phone;user_age[=20]
+185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x
+186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;
+187;12-02-01;Anette Bentholm;madsenbentholm@mail.net4you.dk;;98373677;x]]></source>
+		<target state="needs-translation"><![CDATA[The records to import are entered one per line. Each record to import is a comma-separated list of field values. You may also specify the use of a semicolon(;) or of a colon (:) as separator instead of the comma.
+
+On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be "name, email".
+
+Each field name listed on the first line is analyzed as follows:
+
+1.the field name may one of the field names from the following list: uid, name, title, email, phone, www, address, company, city, zip, country, fax, module_sys_dmail_html, module_sys_dmail_category;
+
+2.the field name may be omitted in which case the corresponding values will be skipped or omitted;
+
+3.the field name may start with "user_", assuming that table tt_address was extended with the specified field name;
+
+4.in addition, fields may be suffixed with "[code]"; in this case, when the value in the imported record is not null, "[+value]" adds that number to the field value and "[=value]" overrides any existing value in the field.
+
+Example of csv field specification:
+;user_date;name;email;zip;phone;user_age[=20]
+185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x
+186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;
+187;12-02-01;Anette Bentholm;madsenbentholm@mail.net4you.dk;;98373677;x]]></target></trans-unit>
+      <trans-unit id="select_directmail.description">
+        <source>The following direct mails have not yet been sent. Click on the one you want to work on.</source>
+        <target state="needs-translation">The following direct mails have not yet been sent. Click on the one you want to work on.</target>
+      </trans-unit>
+      <trans-unit id="select_directmail.seeAlso">
+        <source>sys_dmail</source>
+        <target state="needs-translation">sys_dmail</target>
+      </trans-unit>
+      <trans-unit id="select_newsletter.alttitle">
+        <source>Select a newsletter</source>
+        <target state="needs-translation">Select a newsletter</target>
+      </trans-unit>
+      <trans-unit id="select_newsletter.description">
+        <source>Click on one of these already created newsletters.</source>
+        <target state="needs-translation">Click on one of these already created newsletters.</target>
+      </trans-unit>
+      <trans-unit id="select_newsletter.details">
+        <source>You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</source>
+        <target state="needs-translation">You may click on one of the listed newsletter to view information about it, categorize its content elements, and eventually use it to create a direct mail.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

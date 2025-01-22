@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-11T21:40:52Z" target-language="zh-TW">
+    <header>
+      <description>Context Sensitive Help for Recipient lists</description>
+      <type>CSH</type>
+      <csh_table>sys_dmail_group</csh_table>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmailg.xml</fileId>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".description">
+        <source>A list of recipients of direct mails</source>
+        <target state="needs-translation">A list of recipients of direct mails</target>
+      </trans-unit>
+      <trans-unit id=".details" xml:space="preserve">
+			<source><![CDATA[Recipient lists are used by the Direct mail module to send newsletters to a group of recipients.
+
+There are five types of Recipient lists:
+
+1.From pages: a list dynamically built from records found on pages of the website; you select the pages with the Starting Point field; you may include records from subtrees using the Include page subtree checkbox; you must specify the type(s) of records to include: Address, Website User, Website User Group and/or From custom-defined Table; if Website User Group is checked and a Website User Group is found, all Website Users members of the group will be included in the list; you may also restrict the selection of records to those with specific categories assignments;
+
+2.Plain list: a list of email addresses separated by space, comma  or line break; if you change the List format, you may rather enter, one per line, a name and address, separated by a comma; sending Direct mail to such list will send only plain text email messages; moreover, only non-categorized content will be sent;
+
+3.Static list: a list of individually selected records; the type of record may be Address, Website User, or Website User Group; if a  Website User Group is selected, all Website Users members of the group will be included in the list;
+
+4.Special query: a list dynamically built using a SQL query; after creating the list, you may specify the query against one of the tables: Address, Website User or Custom-defined Table; to do so, you must select the Recipient list function of the Direct Mail module and click on the title of the list;
+
+5.From other recipient lists: a list dynamically built from other recipient lists individually selected from the Recipient list table.]]></source>
+		<target state="needs-translation"><![CDATA[Recipient lists are used by the Direct mail module to send newsletters to a group of recipients.
+
+There are five types of Recipient lists:
+
+1.From pages: a list dynamically built from records found on pages of the website; you select the pages with the Starting Point field; you may include records from subtrees using the Include page subtree checkbox; you must specify the type(s) of records to include: Address, Website User, Website User Group and/or From custom-defined Table; if Website User Group is checked and a Website User Group is found, all Website Users members of the group will be included in the list; you may also restrict the selection of records to those with specific categories assignments;
+
+2.Plain list: a list of email addresses separated by space, comma  or line break; if you change the List format, you may rather enter, one per line, a name and address, separated by a comma; sending Direct mail to such list will send only plain text email messages; moreover, only non-categorized content will be sent;
+
+3.Static list: a list of individually selected records; the type of record may be Address, Website User, or Website User Group; if a  Website User Group is selected, all Website Users members of the group will be included in the list;
+
+4.Special query: a list dynamically built using a SQL query; after creating the list, you may specify the query against one of the tables: Address, Website User or Custom-defined Table; to do so, you must select the Recipient list function of the Direct Mail module and click on the title of the list;
+
+5.From other recipient lists: a list dynamically built from other recipient lists individually selected from the Recipient list table.]]></target></trans-unit>
+      <trans-unit id="_.seeAlso">
+        <source>sys_dmail, sys_dmail_category</source>
+        <target state="needs-translation">sys_dmail, sys_dmail_category</target>
+      </trans-unit>
+      <trans-unit id="csv.description">
+        <source>Select the format you wish to use for entering the list od recipients.</source>
+        <target state="needs-translation">Select the format you wish to use for entering the list od recipients.</target>
+      </trans-unit>
+      <trans-unit id="csv.details">
+        <source>The emails entered in the list of recipients should be entered using the format you select here.</source>
+        <target state="needs-translation">The emails entered in the list of recipients should be entered using the format you select here.</target>
+      </trans-unit>
+      <trans-unit id="description.description">
+        <source>Enter a textual description of the recipient list.</source>
+        <target state="needs-translation">Enter a textual description of the recipient list.</target>
+      </trans-unit>
+      <trans-unit id="description.details">
+        <source>This is a description that may document the purpose, use and/or content of the recipient list.</source>
+        <target state="needs-translation">This is a description that may document the purpose, use and/or content of the recipient list.</target>
+      </trans-unit>
+      <trans-unit id="list.description">
+        <source>Enter the list of email addresses of the recipient list.</source>
+        <target state="needs-translation">Enter the list of email addresses of the recipient list.</target>
+      </trans-unit>
+      <trans-unit id="list.details">
+        <source>Enter a list of email addresses separated by space, comma, or line break. If you change the list format, you may rather enter one entry per line as follows: name and address, separated by a comma.</source>
+        <target state="needs-translation">Enter a list of email addresses separated by space, comma, or line break. If you change the list format, you may rather enter one entry per line as follows: name and address, separated by a comma.</target>
+      </trans-unit>
+      <trans-unit id="mail_groups.description">
+        <source>Select the recipient lists that you want to include in the current one.</source>
+        <target state="needs-translation">Select the recipient lists that you want to include in the current one.</target>
+      </trans-unit>
+      <trans-unit id="mail_groups.details">
+        <source>You may select any recipient list other than the current one. All recipients included in the selected lists will the included in the current one.</source>
+        <target state="needs-translation">You may select any recipient list other than the current one. All recipients included in the selected lists will the included in the current one.</target>
+      </trans-unit>
+      <trans-unit id="pages.description">
+        <source>Select entry points in the page tree of the site.</source>
+        <target state="needs-translation">Select entry points in the page tree of the site.</target>
+      </trans-unit>
+      <trans-unit id="pages.details">
+        <source>You may select here one or more pages in the page tree of the site. The pages will be searched for records that match the conditions specified by the other fields on the form.</source>
+        <target state="needs-translation">You may select here one or more pages in the page tree of the site. The pages will be searched for records that match the conditions specified by the other fields on the form.</target>
+      </trans-unit>
+      <trans-unit id="recursive.description">
+        <source>Check the box if you want to include all pages of the subtrees in the search.</source>
+        <target state="needs-translation">Check the box if you want to include all pages of the subtrees in the search.</target>
+      </trans-unit>
+      <trans-unit id="recursive.details">
+        <source>If the box is checked, all pages included in the page subtrees of the entry points will also be searched for records that match the conditions specified by the other fields on the form.</source>
+        <target state="needs-translation">If the box is checked, all pages included in the page subtrees of the entry points will also be searched for records that match the conditions specified by the other fields on the form.</target>
+      </trans-unit>
+      <trans-unit id="select_categories.description">
+        <source>Check the categories to which selected recipients must be subscribed.</source>
+        <target state="needs-translation">Check the categories to which selected recipients must be subscribed.</target>
+      </trans-unit>
+      <trans-unit id="select_categories.details">
+        <source>If you check one or more categories, only recipients subscribed to at least one of these categories will be included.</source>
+        <target state="needs-translation">If you check one or more categories, only recipients subscribed to at least one of these categories will be included.</target>
+      </trans-unit>
+      <trans-unit id="static_list.description">
+        <source>Select the recipients you wish to include in the recipient list.</source>
+        <target state="needs-translation">Select the recipients you wish to include in the recipient list.</target>
+      </trans-unit>
+      <trans-unit id="static_list.details">
+        <source>You may select recipients of the following types: Address, Website User or Website User Group. If you include a Website User Group, all Website Users members of the group will be included in the list.</source>
+        <target state="needs-translation">You may select recipients of the following types: Address, Website User or Website User Group. If you include a Website User Group, all Website Users members of the group will be included in the list.</target>
+      </trans-unit>
+      <trans-unit id="title.description">
+        <source>Enter the title of the recipient list.</source>
+        <target state="needs-translation">Enter the title of the recipient list.</target>
+      </trans-unit>
+      <trans-unit id="title.details">
+        <source>This is the name that will be used to refer to this list.</source>
+        <target state="needs-translation">This is the name that will be used to refer to this list.</target>
+      </trans-unit>
+      <trans-unit id="type.description">
+        <source>Select the type of recipient list.</source>
+        <target state="needs-translation">Select the type of recipient list.</target>
+      </trans-unit>
+      <trans-unit id="type.details" xml:space="preserve">
+			<source><![CDATA[There are five types of Recipient lists:
+
+1.From pages: a list dynamically built from records found on pages of the website; you select the pages with the Starting Point field; you may include records from subtrees using the Include page subtree checkbox; you must specify the type(s) of records to include: Address, Website User, Website User Group and/or From custom-defined Table; if Website User Group is checked and a Website User Group is found, all Website Users members of the group will be included in the list; you may also restrict the selection of records to those with specific categories assignments;
+
+2.Plain list: a list of email addresses separated by space, comma  or line break; if you change the List format, you may rather enter, one per line, a name and address, separated by a comma; sending Direct mail to such list will send only plain text email messages; moreover, only non-categorized content will be sent;
+
+3.Static list: a list of individually selected records; the type of record may be Address, Website User, or Website User Group; if a  Website User Group is selected, all Website Users members of the group will be included in the list;
+
+4.Special query: a list dynamically built using a SQL query; after creating the list, you may specify the query against one of the tables: Address, Website User or Custom-defined Table; to do so, you must select the Recipient list function of the Direct Mail module and click on the title of the list;
+
+5.From other recipient lists: a list dynamically built from other recipient lists individually selected from the Recipient list table.]]></source>
+		<target state="needs-translation"><![CDATA[There are five types of Recipient lists:
+
+1.From pages: a list dynamically built from records found on pages of the website; you select the pages with the Starting Point field; you may include records from subtrees using the Include page subtree checkbox; you must specify the type(s) of records to include: Address, Website User, Website User Group and/or From custom-defined Table; if Website User Group is checked and a Website User Group is found, all Website Users members of the group will be included in the list; you may also restrict the selection of records to those with specific categories assignments;
+
+2.Plain list: a list of email addresses separated by space, comma  or line break; if you change the List format, you may rather enter, one per line, a name and address, separated by a comma; sending Direct mail to such list will send only plain text email messages; moreover, only non-categorized content will be sent;
+
+3.Static list: a list of individually selected records; the type of record may be Address, Website User, or Website User Group; if a  Website User Group is selected, all Website Users members of the group will be included in the list;
+
+4.Special query: a list dynamically built using a SQL query; after creating the list, you may specify the query against one of the tables: Address, Website User or Custom-defined Table; to do so, you must select the Recipient list function of the Direct Mail module and click on the title of the list;
+
+5.From other recipient lists: a list dynamically built from other recipient lists individually selected from the Recipient list table.]]></target></trans-unit>
+      <trans-unit id="whichtables.description">
+        <source>Check the types of records you want to be included in the recipient list.</source>
+        <target state="needs-translation">Check the types of records you want to be included in the recipient list.</target>
+      </trans-unit>
+      <trans-unit id="whichtables.details">
+        <source>Check the record types to be selected on the pages specified for constructing the recipient list.</source>
+        <target state="needs-translation">Check the record types to be selected on the pages specified for constructing the recipient list.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

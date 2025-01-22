@@ -1,21 +1,21 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-	<file source-language="en" target-language="fr" datatype="plaintext" original="messages" date="2016-02-11T21:40:52Z">
-		<header>
-			<description>Context Sensitive Help for Recipient lists</description>
-			<type>CSH</type>
-			<csh_table>sys_dmail_group</csh_table>
-			<fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmailg.xml</fileId>
-			<authorName>Ivan Kartolo</authorName>
-			<authorEmail>ivan.kartolo@gmail.com</authorEmail>
-			<generator>LFEditor</generator>
-		</header>
-		<body>
-		<trans-unit id=".description" approved="yes">
-			<source>A list of recipients of direct mails</source>
-			<target>Liste de distribution d'envoi ciblé</target>
-		</trans-unit>
-		<trans-unit id=".details" approved="yes" xml:space="preserve">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-11T21:40:52Z" target-language="fr">
+    <header>
+      <description>Context Sensitive Help for Recipient lists</description>
+      <type>CSH</type>
+      <csh_table>sys_dmail_group</csh_table>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmailg.xml</fileId>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".description" approved="yes">
+        <source>A list of recipients of direct mails</source>
+        <target state="final">Liste de distribution d'envoi ciblé</target>
+      </trans-unit>
+      <trans-unit id=".details" xml:space="preserve" approved="yes">
 			<source><![CDATA[Recipient lists are used by the Direct mail module to send newsletters to a group of recipients.
 
 There are five types of Recipient lists:
@@ -29,7 +29,7 @@ There are five types of Recipient lists:
 4.Special query: a list dynamically built using a SQL query; after creating the list, you may specify the query against one of the tables: Address, Website User or Custom-defined Table; to do so, you must select the Recipient list function of the Direct Mail module and click on the title of the list;
 
 5.From other recipient lists: a list dynamically built from other recipient lists individually selected from the Recipient list table.]]></source>
-			<target><![CDATA[Les listes de distribution sont utilisées par le module d'Envoi ciblé pour envoyer des bulletins à des groupes de destinataines ou d'abonnés.
+		<target state="final"><![CDATA[Les listes de distribution sont utilisées par le module d'Envoi ciblé pour envoyer des bulletins à des groupes de destinataines ou d'abonnés.
 
 Il existe cinq types de listes de distribution:
 
@@ -41,89 +41,88 @@ Il existe cinq types de listes de distribution:
 
 4.Requête spéciale: une liste construite de manière dynamique au moyen d'une requête SQL; après avoir d'abord créé la liste de distribution, vous pouvez spécifier la requête contre l'une des tables suivantes: Adresse, Utilisateur de site ou Table définie sur mesure; pour ce faire, vous devez sélectionner la fonction Listes de distribution du module d'Envoi ciblé et cliquer sur le titre de la liste;
 
-5.Depuis d'autres listes de distribution: une liste construite de manière dynamique à partir d'autres listes de distribution sélectionnées individuellement de la table Liste de distribution.]]></target>
-		</trans-unit>
-		<trans-unit id="_.seeAlso" approved="yes">
-			<source>sys_dmail, sys_dmail_category</source>
-			<target>sys_dmail, sys_dmail_category</target>
-		</trans-unit>
-		<trans-unit id="csv.description" approved="yes">
-			<source>Select the format you wish to use for entering the list od recipients.</source>
-			<target>Choisissez le format dans lequel vous voulez entrer la liste des destinataires.</target>
-		</trans-unit>
-		<trans-unit id="csv.details" approved="yes">
-			<source>The emails entered in the list of recipients should be entered using the format you select here.</source>
-			<target>Les adresses des destinataires doivent être entrées dans le format spécifié ici.</target>
-		</trans-unit>
-		<trans-unit id="description.description" approved="yes">
-			<source>Enter a textual description of the recipient list.</source>
-			<target>Entrez une description textuelle de la liste de distribution.</target>
-		</trans-unit>
-		<trans-unit id="description.details" approved="yes">
-			<source>This is a description that may document the purpose, use and/or content of the recipient list.</source>
-			<target>Il s'agit d'une description qui documente la raison d'être, l'utilisation et/ou le contenu de cette liste de distribution.</target>
-		</trans-unit>
-		<trans-unit id="list.description" approved="yes">
-			<source>Enter the list of email addresses of the recipient list.</source>
-			<target>Entrez la liste des adresses de courrier électronique des destinataires de la liste de distribution.</target>
-		</trans-unit>
-		<trans-unit id="list.details" approved="yes">
-			<source>Enter a list of email addresses separated by space, comma, or line break. If you change the list format, you may rather enter one entry per line as follows: name and address, separated by a comma.</source>
-			<target>Entrez une liste d'adresses de courrier électronique séparées par des espaces, des virgules ou des sauts à la ligne. Selon le choix de format de la liste, vous pouvez aussi entrer, à raison d'un destinataire par ligne, le nom et l'adresse, séparés par une virgule.</target>
-		</trans-unit>
-		<trans-unit id="mail_groups.description" approved="yes">
-			<source>Select the recipient lists that you want to include in the current one.</source>
-			<target>Choisissez les listes de distribution que vous désirez inclure dans celle-ci.</target>
-		</trans-unit>
-		<trans-unit id="mail_groups.details" approved="yes">
-			<source>You may select any recipient list other than the current one. All recipients included in the selected lists will the included in the current one.</source>
-			<target>Vous pouvez inclure toute liste de distribution autre que la liste courante. Tous les destinataires inclus dans les listes choisis seront inclus dans la liste courante.</target>
-		</trans-unit>
-		<trans-unit id="pages.description" approved="yes">
-			<source>Select entry points in the page tree of the site.</source>
-			<target>Sélectionnez des points d'entrée dans l'arborescence du site.</target>
-		</trans-unit>
-		<trans-unit id="pages.details" approved="yes">
-			<source>You may select here one or more pages in the page tree of the site. The pages will be searched for records that match the conditions specified by the other fields on the form.</source>
-			<target>Vous pouvez sélectionner une ou plusieurs pages dans l'arborescence du site. La liste de distribution sera construite en recherchant dans ces pages les enregistrements qui satisfont les critères spécifiés par les autres champs du formulaire.</target>
-		</trans-unit>
-		<trans-unit id="recursive.description" approved="yes">
-			<source>Check the box if you want to include all pages of the subtrees in the search.</source>
-			<target>Cochez la case si vous désirez inclure les arborescences dans la construction de la liste.</target>
-		</trans-unit>
-		<trans-unit id="recursive.details" approved="yes">
-			<source>If the box is checked, all pages included in the page subtrees of the entry points will also be searched for records that match the conditions specified by the other fields on the form.</source>
-			<target>Si la case est cochée, la liste de distribution sera construite en recherchant non seulement dans les pages servant de points d'entrée mais aussi dans toute l'arborescence de leurs sous-pages les enregistrements qui satisfont les critères spécifiés par les autres champs du formulaire.</target>
-		</trans-unit>
-		<trans-unit id="select_categories.description" approved="yes">
-			<source>Check the categories to which selected recipients must be subscribed.</source>
-			<target>Cochez les rubriques auxquelles doivent être abonnés les destinataires de la liste de distribution.</target>
-		</trans-unit>
-		<trans-unit id="select_categories.details" approved="yes">
-			<source>If you check one or more categories, only recipients subscribed to at least one of these categories will be included.</source>
-			<target>Si vous cochez une ou plusieurs rubriques, seuls les destinataires abonnés à l'une de ces rubriques seront inclus dans la liste.</target>
-		</trans-unit>
-		<trans-unit id="static_list.description" approved="yes">
-			<source>Select the recipients you wish to include in the recipient list.</source>
-			<target>Choisissez les destinataires que vous désirez inclure dans la liste de distribution.</target>
-		</trans-unit>
-		<trans-unit id="static_list.details" approved="yes">
-			<source>You may select recipients of the following types: Address, Website User or Website User Group. If you include a Website User Group, all Website Users members of the group will be included in the list.</source>
-			<target>Vous pouvez inclure dans la liste des destinataires de type: Adresse, Utilisateur de site ou Groupe d'utilisateurs du site. Si vous sélectionnez un Groupe d'utilisateurs du site, tous les utilisateurs du site membres de ce groupe seront inclus dans la liste de distribution.</target>
-		</trans-unit>
-		<trans-unit id="title.description" approved="yes">
-			<source>Enter the title of the recipient list.</source>
-			<target>Entrez le titre de la liste de distribution.</target>
-		</trans-unit>
-		<trans-unit id="title.details" approved="yes">
-			<source>This is the name that will be used to refer to this list.</source>
-			<target>Il s'agit du nom qui sera utilisé pour référer à cette liste.</target>
-		</trans-unit>
-		<trans-unit id="type.description" approved="yes">
-			<source>Select the type of recipient list.</source>
-			<target>Sélectionnez le type de liste de distribution.</target>
-		</trans-unit>
-		<trans-unit id="type.details" approved="yes" xml:space="preserve">
+5.Depuis d'autres listes de distribution: une liste construite de manière dynamique à partir d'autres listes de distribution sélectionnées individuellement de la table Liste de distribution.]]></target></trans-unit>
+      <trans-unit id="_.seeAlso">
+        <source>sys_dmail, sys_dmail_category</source>
+        <target state="needs-translation">sys_dmail, sys_dmail_category</target>
+      </trans-unit>
+      <trans-unit id="csv.description" approved="yes">
+        <source>Select the format you wish to use for entering the list od recipients.</source>
+        <target state="final">Choisissez le format dans lequel vous voulez entrer la liste des destinataires.</target>
+      </trans-unit>
+      <trans-unit id="csv.details" approved="yes">
+        <source>The emails entered in the list of recipients should be entered using the format you select here.</source>
+        <target state="final">Les adresses des destinataires doivent être entrées dans le format spécifié ici.</target>
+      </trans-unit>
+      <trans-unit id="description.description" approved="yes">
+        <source>Enter a textual description of the recipient list.</source>
+        <target state="final">Entrez une description textuelle de la liste de distribution.</target>
+      </trans-unit>
+      <trans-unit id="description.details" approved="yes">
+        <source>This is a description that may document the purpose, use and/or content of the recipient list.</source>
+        <target state="final">Il s'agit d'une description qui documente la raison d'être, l'utilisation et/ou le contenu de cette liste de distribution.</target>
+      </trans-unit>
+      <trans-unit id="list.description" approved="yes">
+        <source>Enter the list of email addresses of the recipient list.</source>
+        <target state="final">Entrez la liste des adresses de courrier électronique des destinataires de la liste de distribution.</target>
+      </trans-unit>
+      <trans-unit id="list.details" approved="yes">
+        <source>Enter a list of email addresses separated by space, comma, or line break. If you change the list format, you may rather enter one entry per line as follows: name and address, separated by a comma.</source>
+        <target state="final">Entrez une liste d'adresses de courrier électronique séparées par des espaces, des virgules ou des sauts à la ligne. Selon le choix de format de la liste, vous pouvez aussi entrer, à raison d'un destinataire par ligne, le nom et l'adresse, séparés par une virgule.</target>
+      </trans-unit>
+      <trans-unit id="mail_groups.description" approved="yes">
+        <source>Select the recipient lists that you want to include in the current one.</source>
+        <target state="final">Choisissez les listes de distribution que vous désirez inclure dans celle-ci.</target>
+      </trans-unit>
+      <trans-unit id="mail_groups.details" approved="yes">
+        <source>You may select any recipient list other than the current one. All recipients included in the selected lists will the included in the current one.</source>
+        <target state="final">Vous pouvez inclure toute liste de distribution autre que la liste courante. Tous les destinataires inclus dans les listes choisis seront inclus dans la liste courante.</target>
+      </trans-unit>
+      <trans-unit id="pages.description" approved="yes">
+        <source>Select entry points in the page tree of the site.</source>
+        <target state="final">Sélectionnez des points d'entrée dans l'arborescence du site.</target>
+      </trans-unit>
+      <trans-unit id="pages.details" approved="yes">
+        <source>You may select here one or more pages in the page tree of the site. The pages will be searched for records that match the conditions specified by the other fields on the form.</source>
+        <target state="final">Vous pouvez sélectionner une ou plusieurs pages dans l'arborescence du site. La liste de distribution sera construite en recherchant dans ces pages les enregistrements qui satisfont les critères spécifiés par les autres champs du formulaire.</target>
+      </trans-unit>
+      <trans-unit id="recursive.description" approved="yes">
+        <source>Check the box if you want to include all pages of the subtrees in the search.</source>
+        <target state="final">Cochez la case si vous désirez inclure les arborescences dans la construction de la liste.</target>
+      </trans-unit>
+      <trans-unit id="recursive.details" approved="yes">
+        <source>If the box is checked, all pages included in the page subtrees of the entry points will also be searched for records that match the conditions specified by the other fields on the form.</source>
+        <target state="final">Si la case est cochée, la liste de distribution sera construite en recherchant non seulement dans les pages servant de points d'entrée mais aussi dans toute l'arborescence de leurs sous-pages les enregistrements qui satisfont les critères spécifiés par les autres champs du formulaire.</target>
+      </trans-unit>
+      <trans-unit id="select_categories.description" approved="yes">
+        <source>Check the categories to which selected recipients must be subscribed.</source>
+        <target state="final">Cochez les rubriques auxquelles doivent être abonnés les destinataires de la liste de distribution.</target>
+      </trans-unit>
+      <trans-unit id="select_categories.details" approved="yes">
+        <source>If you check one or more categories, only recipients subscribed to at least one of these categories will be included.</source>
+        <target state="final">Si vous cochez une ou plusieurs rubriques, seuls les destinataires abonnés à l'une de ces rubriques seront inclus dans la liste.</target>
+      </trans-unit>
+      <trans-unit id="static_list.description" approved="yes">
+        <source>Select the recipients you wish to include in the recipient list.</source>
+        <target state="final">Choisissez les destinataires que vous désirez inclure dans la liste de distribution.</target>
+      </trans-unit>
+      <trans-unit id="static_list.details" approved="yes">
+        <source>You may select recipients of the following types: Address, Website User or Website User Group. If you include a Website User Group, all Website Users members of the group will be included in the list.</source>
+        <target state="final">Vous pouvez inclure dans la liste des destinataires de type: Adresse, Utilisateur de site ou Groupe d'utilisateurs du site. Si vous sélectionnez un Groupe d'utilisateurs du site, tous les utilisateurs du site membres de ce groupe seront inclus dans la liste de distribution.</target>
+      </trans-unit>
+      <trans-unit id="title.description" approved="yes">
+        <source>Enter the title of the recipient list.</source>
+        <target state="final">Entrez le titre de la liste de distribution.</target>
+      </trans-unit>
+      <trans-unit id="title.details" approved="yes">
+        <source>This is the name that will be used to refer to this list.</source>
+        <target state="final">Il s'agit du nom qui sera utilisé pour référer à cette liste.</target>
+      </trans-unit>
+      <trans-unit id="type.description" approved="yes">
+        <source>Select the type of recipient list.</source>
+        <target state="final">Sélectionnez le type de liste de distribution.</target>
+      </trans-unit>
+      <trans-unit id="type.details" xml:space="preserve" approved="yes">
 			<source><![CDATA[There are five types of Recipient lists:
 
 1.From pages: a list dynamically built from records found on pages of the website; you select the pages with the Starting Point field; you may include records from subtrees using the Include page subtree checkbox; you must specify the type(s) of records to include: Address, Website User, Website User Group and/or From custom-defined Table; if Website User Group is checked and a Website User Group is found, all Website Users members of the group will be included in the list; you may also restrict the selection of records to those with specific categories assignments;
@@ -135,7 +134,7 @@ Il existe cinq types de listes de distribution:
 4.Special query: a list dynamically built using a SQL query; after creating the list, you may specify the query against one of the tables: Address, Website User or Custom-defined Table; to do so, you must select the Recipient list function of the Direct Mail module and click on the title of the list;
 
 5.From other recipient lists: a list dynamically built from other recipient lists individually selected from the Recipient list table.]]></source>
-			<target><![CDATA[Il existe cinq types de listes de distribution:
+		<target state="final"><![CDATA[Il existe cinq types de listes de distribution:
 
 1.Depuis certaines pages: une liste construite de manière dynamique à partir des enregistrements trouvés sur certaines pages du site; vous sélectionnez les pages au moyen du champ Point d'entrée; vous pouvez inclure les enregistrements de l'arborescence en cochant la case Inclure l'arborescence; vous devez spécifier les tables dont les enregistrements seront sélectionnés: Adresse, Utilisateur du site, Groupe d'utilisateurs du site et/ou Table définie sur mesure; si la case Groupe d'utilisateurs du site est cochée et si un Groupe d'utilisateurs du site est trouvé, tous les utilisateurs du site membres de ce groupe seront inclus dans la liste; vous pouvez également restreindre la sélection des enregistrements à ceux qui sont abonnés à certaines rubriques;
 
@@ -145,16 +144,15 @@ Il existe cinq types de listes de distribution:
 
 4.Requête spéciale: une liste construite de manière dynamique au moyen d'une requête SQL; après avoir d'abord créé la liste de distribution, vous pouvez spécifier la requête contre l'une des tables suivantes: Adresse, Utilisateur de site ou Table définie sur mesure; pour ce faire, vous devez sélectionner la fonction Listes de distribution du module d'Envoi ciblé et cliquer sur le titre de la liste;
 
-5.Depuis d'autres listes de distribution: une liste construite de manière dynamique à partir d'autres listes de distribution sélectionnées individuellement de la table Liste de distribution.]]></target>
-		</trans-unit>
-		<trans-unit id="whichtables.description" approved="yes">
-			<source>Check the types of records you want to be included in the recipient list.</source>
-			<target>Cochez les types d'enregistrements à inclure dans la liste de distribution.</target>
-		</trans-unit>
-		<trans-unit id="whichtables.details" approved="yes">
-			<source>Check the record types to be selected on the pages specified for constructing the recipient list.</source>
-			<target>Cochez un ou plusieurs types d'enregistrements que vous voulez voir inclus la liste de distribution.</target>
-		</trans-unit>
-		</body>
-	</file>
+5.Depuis d'autres listes de distribution: une liste construite de manière dynamique à partir d'autres listes de distribution sélectionnées individuellement de la table Liste de distribution.]]></target></trans-unit>
+      <trans-unit id="whichtables.description" approved="yes">
+        <source>Check the types of records you want to be included in the recipient list.</source>
+        <target state="final">Cochez les types d'enregistrements à inclure dans la liste de distribution.</target>
+      </trans-unit>
+      <trans-unit id="whichtables.details" approved="yes">
+        <source>Check the record types to be selected on the pages specified for constructing the recipient list.</source>
+        <target state="final">Cochez un ou plusieurs types d'enregistrements que vous voulez voir inclus la liste de distribution.</target>
+      </trans-unit>
+    </body>
+  </file>
 </xliff>

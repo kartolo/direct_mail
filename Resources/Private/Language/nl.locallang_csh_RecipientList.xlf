@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:04:00Z" target-language="nl">
+    <header>
+      <description>CSH for Direct Mail Recipient List Module</description>
+      <type>CSH</type>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_txdirectmailM3</fileId>
+      <csh_table>_MOD_DirectMailNavFrame_txdirectmailM3</csh_table>
+      <keep_original_text>1</keep_original_text>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".alttitle">
+        <source>Direct Mail &gt; Recipient List module</source>
+        <target state="needs-translation">Direct Mail &gt; Recipient List module</target>
+      </trans-unit>
+      <trans-unit id=".description">
+        <source>Manage the recipient list.</source>
+        <target state="needs-translation">Manage the recipient list.</target>
+      </trans-unit>
+      <trans-unit id=".details" xml:space="preserve">
+			<source>This module lets you:
+- create a new recipient list
+- import Addresses records from CSV-File
+- link to the editing form of an existing recipient list
+- select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.</source>
+		<target state="needs-translation">This module lets you:
+- create a new recipient list
+- import Addresses records from CSV-File
+- link to the editing form of an existing recipient list
+- select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.</target></trans-unit>
+      <trans-unit id="_.seeAlso">
+        <source>sys_dmail_group</source>
+        <target state="needs-translation">sys_dmail_group</target>
+      </trans-unit>
+      <trans-unit id="folders.alttitle">
+        <source>Available Direct Mail folders</source>
+        <target state="needs-translation">Available Direct Mail folders</target>
+      </trans-unit>
+      <trans-unit id="folders.description">
+        <source>Select the Direct Mail folder you wish to work with.</source>
+        <target state="needs-translation">Select the Direct Mail folder you wish to work with.</target>
+      </trans-unit>
+      <trans-unit id="folders.details">
+        <source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
+        <target state="needs-translation">Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import.alttitle">
+        <source>Import CSV into 'Address' table</source>
+        <target state="needs-translation">Import CSV into 'Address' table</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import.description">
+        <source>This option lets you import a csv, or comma-separated, list of address records and create a recipient list containing the imported records.</source>
+        <target state="needs-translation">This option lets you import a csv, or comma-separated, list of address records and create a recipient list containing the imported records.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import.details" xml:space="preserve">
+			<source>The records to import are entered one per line. Each record to import is a comma-separated list of field values. You may also specify the use of a semicolon(;) or of a colon (:) as separator instead of the comma.
+
+On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be &quot;name, email&quot;.
+
+Each field name listed on the first line is analyzed as follows:
+
+1.the field name may one of the field names from the following list: uid, name, title, email, phone, www, address, company, city, zip, country, fax, module_sys_dmail_html, module_sys_dmail_category;
+
+2.the field name may be omitted in which case the corresponding values will be skipped or omitted;
+
+3.the field name may start with &quot;user_&quot;, assuming that table tt_address was extended with the specified field name;
+
+4.in addition, fields may be suffixed with &quot;[code]&quot;; in this case, when the value in the imported record is not null, &quot;[+value]&quot; adds that number to the field value and &quot;[=value]&quot; overrides any existing value in the field.
+
+Example of csv field specification:
+;user_date;name;email;zip;phone;user_age[=20]
+185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x
+186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;
+187;12-02-01;Anette Bentholm;madsenbentholm@mail.net4you.dk;;98373677;x</source>
+		<target state="needs-translation">The records to import are entered one per line. Each record to import is a comma-separated list of field values. You may also specify the use of a semicolon(;) or of a colon (:) as separator instead of the comma.
+
+On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be "name, email".
+
+Each field name listed on the first line is analyzed as follows:
+
+1.the field name may one of the field names from the following list: uid, name, title, email, phone, www, address, company, city, zip, country, fax, module_sys_dmail_html, module_sys_dmail_category;
+
+2.the field name may be omitted in which case the corresponding values will be skipped or omitted;
+
+3.the field name may start with "user_", assuming that table tt_address was extended with the specified field name;
+
+4.in addition, fields may be suffixed with "[code]"; in this case, when the value in the imported record is not null, "[+value]" adds that number to the field value and "[=value]" overrides any existing value in the field.
+
+Example of csv field specification:
+;user_date;name;email;zip;phone;user_age[=20]
+185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x
+186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;
+187;12-02-01;Anette Bentholm;madsenbentholm@mail.net4you.dk;;98373677;x</target></trans-unit>
+    </body>
+  </file>
+</xliff>

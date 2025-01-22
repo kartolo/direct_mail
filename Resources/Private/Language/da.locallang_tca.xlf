@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:03:27Z" target-language="da">
+    <header>
+      <description>Labels for the Direct Mail tables</description>
+      <type>database</type>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_tca.xml</fileId>
+      <labelContext/>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id="module_sys_dmail_group.category" approved="yes">
+        <source>Subscribe to categories</source>
+        <target state="final">Tilmeld til kategorier</target>
+      </trans-unit>
+      <trans-unit id="module_sys_dmail_group.htmlemail" approved="yes">
+        <source>Recieve e-mails as HTML?</source>
+        <target state="final">Modtag e-mails i HTML format?</target>
+      </trans-unit>
+      <trans-unit id="module_sys_dmail_group.newsletter" approved="yes">
+        <source>Activate Newsletter</source>
+        <target state="final">Aktivér nyhedsbrev</target>
+      </trans-unit>
+      <trans-unit id="pages.module.I.5" approved="yes">
+        <source>Direct Mail</source>
+        <target state="final">Direct Mail</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail" approved="yes">
+        <source>Direct mails</source>
+        <target state="final">Direct mail</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.HTMLParams" approved="yes">
+        <source>Parameters, HTML:</source>
+        <target state="final">Parametre, HTML:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.HTMLParams.ALT.1" approved="yes">
+        <source>URL for HTML content:</source>
+        <target state="final">URL til HTML-indhold:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.attachment" approved="yes">
+        <source>Attachments:</source>
+        <target state="final">Vedhæng:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.authcode_fieldList" approved="yes">
+        <source>Fields used in the computation of authentication codes:</source>
+        <target state="final">Felter der bruges i beregningen af autentificerings-koder:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.charset" approved="yes">
+        <source>Message text character set:</source>
+        <target state="final">Beskedens karakter-sæt:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.flowedFormat" approved="yes">
+        <source>Use flowing text format in plain text content:</source>
+        <target state="final">Brug flydende tekstformat i ren tekst indhold:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.from_email" approved="yes">
+        <source>Sender email:</source>
+        <target state="final">Afsender email:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.from_name" approved="yes">
+        <source>Sender name:</source>
+        <target state="final">Afsender navn:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.includeMedia" approved="yes">
+        <source>Include images and other media in HTML content:</source>
+        <target state="final">Inkludér billeder samt medie filer i HTML indhold:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.issent" approved="yes">
+        <source>Is sent:</source>
+        <target state="final">Sendt:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.long_link_mode" approved="yes">
+        <source>Redirect not only links longer than 76 characters but ALL links:</source>
+        <target state="final">Videresend ikke kun links som er længere end 76 karakterer, men ALLE links:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.long_link_rdct_url" approved="yes">
+        <source>Long links redirection url:</source>
+        <target state="final">Lange links videresendelses-url:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.organisation" approved="yes">
+        <source>Organization:</source>
+        <target state="final">Organisation:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.page" approved="yes">
+        <source>Mail page:</source>
+        <target state="final">Side med mail:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.plainParams" approved="yes">
+        <source>Parameters, Plain text:</source>
+        <target state="final">Parametre, Ren tekst:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.plainParams.ALT.1" approved="yes">
+        <source>URL for plain text content:</source>
+        <target state="final">URL til ren-tekst indhold:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority" approved="yes">
+        <source>Priority:</source>
+        <target state="final">Prioritet:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority.I.0" approved="yes">
+        <source>Low</source>
+        <target state="final">Lav</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority.I.1" approved="yes">
+        <source>Normal</source>
+        <target state="final">Normal</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.priority.I.2" approved="yes">
+        <source>High</source>
+        <target state="final">Høj</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.renderedsize" approved="yes">
+        <source>Compiled size:</source>
+        <target state="final">Kompileret størrelse:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.replyto_email" approved="yes">
+        <source>Reply email:</source>
+        <target state="final">Svar email:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.replyto_name" approved="yes">
+        <source>Reply name:</source>
+        <target state="final">Svar navn:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.return_path" approved="yes">
+        <source>Return Path:</source>
+        <target state="final">Retur sti:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.scheduled" approved="yes">
+        <source>Scheduled time:</source>
+        <target state="final">Planlagt tidspunkt:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.scheduled_begin" approved="yes">
+        <source>Delivery start:</source>
+        <target state="final">Levering start:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.scheduled_end" approved="yes">
+        <source>Delivery end:</source>
+        <target state="final">Levering slut:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.sendOptions" approved="yes">
+        <source>Format of mail content:</source>
+        <target state="final">Indholds-format af mail:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.sendOptions.I.0" approved="yes">
+        <source>Plain text</source>
+        <target state="final">Ren tekst</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.sendOptions.I.1" approved="yes">
+        <source>HTML</source>
+        <target state="final">HTML</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.subject" approved="yes">
+        <source>Subject:</source>
+        <target state="final">Emne:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.tab1" approved="yes">
+        <source>Composition</source>
+        <target state="final">Komposition</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.tab2" approved="yes">
+        <source>Mail headers</source>
+        <target state="final">Mail headere</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.tab3" approved="yes">
+        <source>Send options</source>
+        <target state="final">Udsendelsesmuligheder</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.transfer_encoding" approved="yes">
+        <source>Content transfer encoding:</source>
+        <target state="final">Overfør kodet indhold:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.type.I.0" approved="yes">
+        <source>TYPO3 Page</source>
+        <target state="final">TYPO3 side</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.type.I.1" approved="yes">
+        <source>External URL</source>
+        <target state="final">Extern URL</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail.use_rdct" approved="yes">
+        <source>Redirect links longer than 76 characters:</source>
+        <target state="final">Videresend links, som er længere end 76 karakterer:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_category" approved="yes">
+        <source>Direct Mail Category</source>
+        <target state="final">Direct Mail kategori</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_category.category" approved="yes">
+        <source>Category:</source>
+        <target state="final">Kategori:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_category.old_cat_number" approved="yes">
+        <source>Old category number:</source>
+        <target state="final">Gammelt kategorinummer:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group" approved="yes">
+        <source>Recipient list</source>
+        <target state="final">Modtagerliste</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.advanced" approved="yes">
+        <source>Configuration</source>
+        <target state="final">Konfiguration</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.csv" approved="yes">
+        <source>List format:</source>
+        <target state="final">Liste format:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.csv.I.0" approved="yes">
+        <source>Separate emails by space/comma/linebreak</source>
+        <target state="final">Adskil emailadresser med mellemrum/komma/linieskift</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.csv.I.1" approved="yes">
+        <source>CSV [name],[email]</source>
+        <target state="final">CSV [navn],[email adresse]</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.list" approved="yes">
+        <source>Recipients:</source>
+        <target state="final">Modtagere:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.mail_groups" approved="yes">
+        <source>Other recipient lists:</source>
+        <target state="final">Andre maillister:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.recursive" approved="yes">
+        <source>Include page subtree:</source>
+        <target state="final">Inkludér side under-træ:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.select_categories" approved="yes">
+        <source>Must subscribe to one of the categories:</source>
+        <target state="final">Skal tilhøre kategorier:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.static_list" approved="yes">
+        <source>Recipients:</source>
+        <target state="final">Modtagere:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.0" approved="yes">
+        <source>From pages</source>
+        <target state="final">Fra sider</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.1" approved="yes">
+        <source>Plain list</source>
+        <target state="final">Liste</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.2" approved="yes">
+        <source>Static list</source>
+        <target state="final">Statisk gruppe</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.3" approved="yes">
+        <source>Special query</source>
+        <target state="final">Specielt opslag</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.type.I.4" approved="yes">
+        <source>From other recipient lists</source>
+        <target state="final">Andre maillister</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables" approved="yes">
+        <source>Types of records:</source>
+        <target state="final">Tabeller:</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.0" approved="yes">
+        <source>Address</source>
+        <target state="final">Adresse</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.1" approved="yes">
+        <source>Website user</source>
+        <target state="final">Website bruger</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.2" approved="yes">
+        <source>From custom-defined table</source>
+        <target state="final">Brugerdefineret tabel</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.whichtables.I.3" approved="yes">
+        <source>Website User Group</source>
+        <target state="final">Website brugergruppe</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.query" approved="yes">
+        <source>Query</source>
+        <target state="final">Forespørgsel</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.queryLimit" approved="yes">
+        <source>Query Limit</source>
+        <target state="final">Forespørgselsgrænse</target>
+      </trans-unit>
+      <trans-unit id="sys_dmail_group.queryLimitDisabled" approved="yes">
+        <source>Query Limit Disabled</source>
+        <target state="final">Forespørgselsgrænse deaktiveret</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

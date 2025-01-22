@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:02:40Z" target-language="el">
+    <header>
+      <description>CSH for Direct Mail Statistic Module</description>
+      <type>CSH</type>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_txdirectmailM4</fileId>
+      <csh_table>_MOD_DirectMailNavFrametxdirectmailM4</csh_table>
+      <keep_original_text>1</keep_original_text>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".alttitle">
+        <source>Direct Mail &gt; Statistics module</source>
+        <target state="needs-translation">Direct Mail &gt; Statistics module</target>
+      </trans-unit>
+      <trans-unit id=".description">
+        <source>Show statictics of sent newsletter.</source>
+        <target state="needs-translation">Show statictics of sent newsletter.</target>
+      </trans-unit>
+      <trans-unit id=".details">
+        <source>Show detailed information of sent newsletter.</source>
+        <target state="needs-translation">Show detailed information of sent newsletter.</target>
+      </trans-unit>
+      <trans-unit id="_.seeAlso">
+        <source>sys_dmail, sys_dmail_group, sys_dmail_category</source>
+        <target state="needs-translation">sys_dmail, sys_dmail_group, sys_dmail_category</target>
+      </trans-unit>
+      <trans-unit id="folders.alttitle">
+        <source>Available Direct Mail folders</source>
+        <target state="needs-translation">Available Direct Mail folders</target>
+      </trans-unit>
+      <trans-unit id="folders.description">
+        <source>Select the Direct Mail folder you wish to work with.</source>
+        <target state="needs-translation">Select the Direct Mail folder you wish to work with.</target>
+      </trans-unit>
+      <trans-unit id="folders.details">
+        <source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
+        <target state="needs-translation">Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

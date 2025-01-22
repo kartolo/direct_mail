@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-05T12:04:00Z" target-language="da">
+    <header>
+      <description>CSH for Direct Mail Recipient List Module</description>
+      <type>CSH</type>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_txdirectmailM3</fileId>
+      <csh_table>_MOD_DirectMailNavFrame_txdirectmailM3</csh_table>
+      <keep_original_text>1</keep_original_text>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".alttitle" approved="yes">
+        <source>Direct Mail &gt; Recipient List module</source>
+        <target state="final">Direct Mail &gt; Modtagerliste modul</target>
+      </trans-unit>
+      <trans-unit id=".description" approved="yes">
+        <source>Manage the recipient list.</source>
+        <target state="final">Administrer modtagerlister.</target>
+      </trans-unit>
+      <trans-unit id=".details" xml:space="preserve" approved="yes">
+			<source>This module lets you:
+- create a new recipient list
+- import Addresses records from CSV-File
+- link to the editing form of an existing recipient list
+- select an existing recipient list; selecting an existing recipient list leads you to a screen that lets you view the number of recipients of each type in the list, with the options to list the recipients or download a csv file.</source>
+		<target state="final">I dette modul kan du:
+- oprette en ny modtagerliste
+- importere adresse-records fra CSV-filer
+- linke til redigeringsformularen til en eksisterende modtagerliste
+- vælge en eksisterende modtagerliste; hvis du vælger en eksisterende modtagerliste, føres du til et skærmbillede, hvor du kan se antallet af modtagere på hver type på listen, med mulighed for at få vist modtagerne eller at downloade en CSV-fil.</target></trans-unit>
+      <trans-unit id="_.seeAlso" approved="yes">
+        <source>sys_dmail_group</source>
+        <target state="final">sys_dmail_group</target>
+      </trans-unit>
+      <trans-unit id="folders.alttitle" approved="yes">
+        <source>Available Direct Mail folders</source>
+        <target state="final">Tilgængelige Direct Mail mapper</target>
+      </trans-unit>
+      <trans-unit id="folders.description" approved="yes">
+        <source>Select the Direct Mail folder you wish to work with.</source>
+        <target state="final">Vælg den Direct Mail mappe, som du vil arbejde med.</target>
+      </trans-unit>
+      <trans-unit id="folders.details" approved="yes">
+        <source>Each Direct Mail folder is a specifically configured work area for the Direct Mail module.</source>
+        <target state="final">Hver Direct Mail mappe er et specielt konfigureret arbejdsområde til Direct Mail modulet.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import.alttitle" approved="yes">
+        <source>Import CSV into 'Address' table</source>
+        <target state="final">Importér CSV ind i adresse-tabellen</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import.description" approved="yes">
+        <source>This option lets you import a csv, or comma-separated, list of address records and create a recipient list containing the imported records.</source>
+        <target state="final">Denne mulighed lader dig importere en CSV eller komma-separeret liste af adresse-records og oprette en modtagerliste, der indeholder de importerede records.</target>
+      </trans-unit>
+      <trans-unit id="mailgroup_import.details" xml:space="preserve" approved="yes">
+			<source>The records to import are entered one per line. Each record to import is a comma-separated list of field values. You may also specify the use of a semicolon(;) or of a colon (:) as separator instead of the comma.
+
+On the first line you may enter a comma-separated list of field names. This first line provides the structure for the records that follow. If you do not provide a list of field names on the first line, then the structure of the records is assumed to be &quot;name, email&quot;.
+
+Each field name listed on the first line is analyzed as follows:
+
+1.the field name may one of the field names from the following list: uid, name, title, email, phone, www, address, company, city, zip, country, fax, module_sys_dmail_html, module_sys_dmail_category;
+
+2.the field name may be omitted in which case the corresponding values will be skipped or omitted;
+
+3.the field name may start with &quot;user_&quot;, assuming that table tt_address was extended with the specified field name;
+
+4.in addition, fields may be suffixed with &quot;[code]&quot;; in this case, when the value in the imported record is not null, &quot;[+value]&quot; adds that number to the field value and &quot;[=value]&quot; overrides any existing value in the field.
+
+Example of csv field specification:
+;user_date;name;email;zip;phone;user_age[=20]
+185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x
+186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;
+187;12-02-01;Anette Bentholm;madsenbentholm@mail.net4you.dk;;98373677;x</source>
+		<target state="final">De records du vil importere, indtastes en for hver linje. Hver record som skal importeres er en komma-separeret liste med feltværdier. Du kan også benytte semikolon (;) eller kolon (:) som separator i stedet for komma.
+
+På den første linje kan du indtaste en kommasepareret liste med feltnavne. Denne første linje definerer strukturen for de følgende records- Hvis du ikke indtaster en liste af feltnavne på den første linje, vil systemet gå ud fra at strukturen er "navn, e-mail".
+
+Hvert feltnavn som listes i første linje, analyseres på følgende måde:
+
+1. Feltnavnet kan være et feltnavne fra en af følgende liste: id, name, title, email, phone, www, address, company, city, zip, country, fax, module_sys_dmail_html, module_sys_dmail_category;
+
+2. Feltnavnet kan være  udeladt. I så fald vil de tilhørende værdier også blive udeladt;
+
+3. Feltnavnet kan starte med et "user_", fordi at tabellen tt_address var udvidet med det definerede feltnavn;
+
+4. I forlængelse af dette kan feltnavne blive forlænget med et suffix "[code]"; i så fald, hvis værdien ikke er tom, vil "[+value]" tilføje nummeret til feltværdien og "[=value]" vil overskrive alle eksisterende værdier i feltet. 
+
+Eksempel på CSV felt-specifikation.
+;user_date;name;email;zip;phone;user_age[=20]
+185;12-02-01;Connie Greffel;c.greffel@get2net.dk;;39905067;x
+186;12-02-01;Stine Holm;ravnsbjergholm@hotmail.com;;32 96 70 75;
+187;12-02-01;Anette Bentholm;madsenbentholm@mail.net4you.dk;;98373677;x</target></trans-unit>
+    </body>
+  </file>
+</xliff>

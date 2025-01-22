@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="messages" date="2016-02-11T21:43:17Z" target-language="da">
+    <header>
+      <description>Context Sensitive Help for sys_dmail table</description>
+      <type>CSH</type>
+      <csh_table>sys_dmail</csh_table>
+      <fileId>EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xml</fileId>
+      <authorName>Ivan Kartolo</authorName>
+      <authorEmail>ivan.kartolo@gmail.com</authorEmail>
+      <generator>LFEditor</generator>
+    </header>
+    <body>
+      <trans-unit id=".description" approved="yes">
+        <source>A direct mail is a highly customized and personalized newsletter sent to subscribers either as HTML or Plain text, with or without attachments.</source>
+        <target state="final">En direct mail er et tilpasset og personligt nyhedsbrev, sendt til abonnenter, enten som HTML eller ren tekst, med eller uden vedhæftninger.</target>
+      </trans-unit>
+      <trans-unit id=".details" xml:space="preserve" approved="yes">
+			<source><![CDATA[Direct mail records are produced by the Direct Mail module.
+
+A direct mail record contains information about a newsletter such as subject, sender, priority, attachments and whether HTML or Plain text content is allowed. Furthermore, it also holds the compiled mail content which is sent to the subscribers.]]></source>
+		<target state="final"><![CDATA[Direct mail records er oprettet af Direct Mail modulet.
+
+En direct mail record indeholder information om et nyhedsbrev, for eksempel emne, afsender, prioritet, vedhæftning og om enten HTML eller ren tekst er tilladt. Desuden indeholder den altid den dannede e-mails indhold, som er sendt til abonnenterne.]]></target></trans-unit>
+      <trans-unit id="HTMLParams.description" xml:space="preserve" approved="yes">
+			<source><![CDATA[If the Direct mail is of type 'TYPO3 Page', enter the additional URL parameters used to fetch the HTML content.
+
+If the Direct Mail is of type 'External URL',enter the complete URL used to fetch the HTML content.]]></source>
+		<target state="final"><![CDATA[Hvis Direct mail er af typen 'TYPO3 Page', indtast da de supplerende URL parametre, der skal bruges til at hente HTML-indholdet.
+
+Hvis Direct mail er af typen 'Ekstern URL', indtast da den komplette URL, som skal bruges til at hente HTML-indholdet.]]></target></trans-unit>
+      <trans-unit id="HTMLParams.details" xml:space="preserve" approved="yes">
+			<source><![CDATA[When the Direct mail is of type 'TYPO3 Page', the specified parameters will be added to the URL used to fetch the HTML content of the direct mail. If in doubt, leave it blank.
+
+When the Direct Mail is of type 'External URL', this field should contain the complete URL used to fetch the HTML content.]]></source>
+		<target state="final"><![CDATA[Når din Direct mail er af typen 'TYPO3 Page', vil de angivne parametre blive tilføjet til den URL der bruges til at hente HTML-indholdet af din e-mail. Hvis du er i tvivl, så efterlad feltet blankt.
+
+Når din Direct mail er af typen 'Ekstern URL', bør dette felt indholde den komplette URL, der bruges til at hente HTML-indholdet.]]></target></trans-unit>
+      <trans-unit id="_.seeAlso" approved="yes">
+        <source>sys_dmail_group, sys_dmail_category</source>
+        <target state="final">sys_dmail_group, sys_dmail_category</target>
+      </trans-unit>
+      <trans-unit id="authcode_fieldList.description" approved="yes">
+        <source>List of fields used in the computation of the authentication code included in unsubscribe links and jump URL's in direct mails.</source>
+        <target state="final">Liste af felter som bruges i beregningen af den godkendelses-kode der bruges i afmeld-links i e-mails.</target>
+      </trans-unit>
+      <trans-unit id="flowedFormat.description" approved="yes">
+        <source>Set this option if you want to use normally flowing text inside the plain text mail content.</source>
+        <target state="final">Angiv dette valg hvis du vil bruge normalt flydende tekst inde i ren-tekst indholdet.</target>
+      </trans-unit>
+      <trans-unit id="flowedFormat.details" approved="yes">
+        <source>If the option is set, plain text mail content will be broken in fixed length lines, as is standard for plain text email content, but so-called flowed format will be used. This will allow client agents that support this format to display the text as normally flowing text. The option is ignored if 'quoted-printable' is used.</source>
+        <target state="final">Hvis dette valg er angivet, ren-tekst indholdet vil blive brudt op i linjer med fast længde, som er standard for ren-tekst indhold, men et såkaldt flydende format vil blive anvendt. Det vil give e-mail klienter, som understøtter dette format, mulighed for at vise teksten som almindelig flydende tekst. Valget ignoreres, hvis 'quoted-printable' bruges.</target>
+      </trans-unit>
+      <trans-unit id="from_email.description" approved="yes">
+        <source>Enter the sender email address. (Required)</source>
+        <target state="final">Indtast afsenders e-mail adresse. (Obligatiorisk)</target>
+      </trans-unit>
+      <trans-unit id="from_email.details" approved="yes">
+        <source>This email address will appear as the originating address or sender address in the direct mails received by the recipients.</source>
+        <target state="final">Denne e-mail adresse vil optræde som den originale adresse eller afsender-adresse i de e-mails som modtagerne får.</target>
+      </trans-unit>
+      <trans-unit id="from_name.description" approved="yes">
+        <source>Enter the sender name. (Required)</source>
+        <target state="final">Indtast afsender navn. (Obligatorisk)</target>
+      </trans-unit>
+      <trans-unit id="from_name.details" approved="yes">
+        <source>This name will appear as the name of the author or sender in the direct mails received by the recipients.</source>
+        <target state="final">Dette navn vil optræde som navnet på forfatteren eller afsenderen i de e-mails som modtagerne får.</target>
+      </trans-unit>
+      <trans-unit id="includeMedia.description" approved="yes">
+        <source>Set this option if you want to incorporate images and other media inside the HTML mail content.</source>
+        <target state="final">Angiv dette valg, hvis du vil inkludere et billede eller andre medie-typer i HTML-indholdet på e-mailen.</target>
+      </trans-unit>
+      <trans-unit id="includeMedia.details" xml:space="preserve" approved="yes">
+			<source><![CDATA[If the option is set, images and other media are encoded and incorporated into the messages. Sent messages will be heavier to transport.
+If the option is not set, images and media are included in HTML content by absolute reference (href) to their location on the site where they reside.]]></source>
+		<target state="final"><![CDATA[Hvis dette valg er angivet, vil billeder og andre medie-typer blive kodet og indsat i beskeden. Den sendte besked vil fylde mere.
+Hvis dette valg ikke er angivet, vil billeder og andre medie-typer blive inkluderet i HTML-indholdet med absolutte referencer (href) til deres placering på det website, de er hjemmehørende.]]></target></trans-unit>
+      <trans-unit id="long_link_mode.description" approved="yes">
+        <source>If set and if use_rdct is set, all links in plain text content will be redirected, not only links longer than 76 characters.</source>
+        <target state="final">Hvis angivet og hvis use_rdct er sat, vil alle links i ren-tekst indhold blive videresendt, ikke kun dem der er længere end 76 karakterer.</target>
+      </trans-unit>
+      <trans-unit id="organisation.description" approved="yes">
+        <source>Enter the name of the sending organization.</source>
+        <target state="final">Indtast navnet på afsender organisation.</target>
+      </trans-unit>
+      <trans-unit id="organisation.details" approved="yes">
+        <source>The name of the organization will appear in the headers of the mails sent to subscribers.</source>
+        <target state="final">Navnet på den organisation, som vil optræde i header af e-mails, sendt til abonnenter.</target>
+      </trans-unit>
+      <trans-unit id="plainParams.description" xml:space="preserve" approved="yes">
+			<source><![CDATA[If the Direct mail is of type 'TYPO3 Page', enter the additional URL parameters used to fetch the plain text content of the direct mail.
+
+If the Direct Mail is of type 'External URL',enter the complete URL used to fetch the plain text content.]]></source>
+		<target state="final"><![CDATA[Hvis Direct mail er af typen 'TYPO3 Page', indtast da de supplerende URL parametre, der skal bruges til at hente ren-tekst indholdet.
+
+Hvis Direct mail er af typen 'Ekstern URL', indtast da den komplette URL, som skal bruges til at hente ren-tekst indholdet.]]></target></trans-unit>
+      <trans-unit id="plainParams.details" xml:space="preserve" approved="yes">
+			<source><![CDATA[When the Direct mail is of type 'TYPO3 Page', the specified parameters will be added to the URL used to fetch the plain text content of the direct mail. If in doubt, set it either to '&type=99' or, when using TemplaVoila, to '&print=1'.
+
+When the Direct Mail is of type 'External URL', this field should contain the complete URL used to fetch the plain text content.]]></source>
+		<target state="final"><![CDATA[Når din Direct mail er af typen 'TYPO3 Page', vil de angivne parametre blive tilføjet til den URL der bruges til at hente ren-tekst indholdet af din e-mail. Hvis du er i tvivl, så angivet det enten til '&amp;type=99', eller hvis du bruger TemplaVoila, til '&amp;print=1'.
+
+Når din Direct mail er af typen 'Ekstern URL', bør dette felt indholde den komplette URL, der bruges til at hente ren-tekst indholdet.]]></target></trans-unit>
+      <trans-unit id="priority.description" approved="yes">
+        <source>Enter the email delivery priority.</source>
+        <target state="final">Indtast e-mailens leverings-prioritet.</target>
+      </trans-unit>
+      <trans-unit id="priority.details" approved="yes">
+        <source>The delivery priority will be set in the headers of the mails sent to subscribers.</source>
+        <target state="final">Leverings-prioriteten vil blive angivet i header af e-mails som sendes til abonnenter.</target>
+      </trans-unit>
+      <trans-unit id="replyto_email.description" approved="yes">
+        <source>Enter the email address to which replys are sent. (Optional)</source>
+        <target state="final">Indtast den e-mail adresse hvortil svar skal sendes. (Valgfri)</target>
+      </trans-unit>
+      <trans-unit id="replyto_email.details" approved="yes">
+        <source>If no reply address is specified, the sender email address will be used.</source>
+        <target state="final">Hvis der ikke indtastes nogen svar-adresse, vil afsenderes e-mail adresse blive brugt.</target>
+      </trans-unit>
+      <trans-unit id="replyto_name.description" approved="yes">
+        <source>Enter the name of the 'Reply To' email address. (Optional)</source>
+        <target state="final">Indtast navnet på 'Svar til' e-mail adressen. (Valgfri)</target>
+      </trans-unit>
+      <trans-unit id="replyto_name.details" approved="yes">
+        <source>If no reply name is specified, the sender name will be used.</source>
+        <target state="final">Hvis der ikke indtastes noget navn, vil afsender-navnet blive brugt.</target>
+      </trans-unit>
+      <trans-unit id="return_path.description" approved="yes">
+        <source>Enter the return path email address here.</source>
+        <target state="final">Indtast retur stiens e-mail adresse her.</target>
+      </trans-unit>
+      <trans-unit id="return_path.details" xml:space="preserve" approved="yes">
+			<source><![CDATA[This is the address to which non-deliverable mails will be returned to.
+If you put in the marker ###XID### it'll be substituted with the unique id of the mail recipient.
+Note that if PHP is executing in safe mode, the Direct mail module may not be able to set the return path to a value different than the value defined at the server level.]]></source>
+		<target state="final"><![CDATA[Dette er adressen hvor e-mails der ikke kan leveres, vil blive returneret til.
+Hvis du indsætter markøren ###XID###, vil den blive udskiftet med den unikke id for e-mail modtageren.
+Hvis PHP afvikles i safe mode er det muligt at Direct Mail modulet kun kan sætte værdien af retur-stien til den værdi der er angivet af serveren.]]></target></trans-unit>
+      <trans-unit id="sendOptions.description" approved="yes">
+        <source>Select the format of mail content.</source>
+        <target state="final">Vælg hvilket format, indholdet af e-mailen har.</target>
+      </trans-unit>
+      <trans-unit id="sendOptions.details" approved="yes">
+        <source>If in doubt, set it to both Plain text and HTML. The messages will then be sent with both formats included, and the recipients are normally able to select their preferred format.</source>
+        <target state="final">Hvis du er i tvivl, angiv det til både ren tekst og HTML. Beskeden vil blive sendt i begge formater, og modtagerne er normalt i stand til at vælge deres foretrukne format.</target>
+      </trans-unit>
+      <trans-unit id="type.description" approved="yes">
+        <source>Type of source of the Direct mail</source>
+        <target state="final">Kildetypen a Direct Mail</target>
+      </trans-unit>
+      <trans-unit id="type.details" approved="yes">
+        <source>The Direct mail may be compiled from a page extracted from the page tree of the TYPO3 site: 'TYPO3 Page', or from a page from another site: 'External URL'.</source>
+        <target state="final">Direct Mail kan dannes af en side, som findes i sidetræet på et TYPO3-site: 'TYPO3 Page', eller fra en side på et endet website: 'Ekstern URL'.</target>
+      </trans-unit>
+      <trans-unit id="use_rdct.description" approved="yes">
+        <source>Redirect long links found in plain text content.</source>
+        <target state="final">Videresend lange links, som findes i ren-tekst indholdet.</target>
+      </trans-unit>
+      <trans-unit id="use_rdct.details" approved="yes">
+        <source>If set, links longer than 76 characters found in plain text content will be redirected: long URL's will be substituted with ?RDCT=[md5hash] parameters.</source>
+        <target state="final">Hvis angivet, vil links i ren-tekst indholdet, der er længere end 76 karakterer, blive videresendt: Lange URL'er vil blive udskiftet med ?RDCT=[md5hash] parametre.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
