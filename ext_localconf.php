@@ -6,9 +6,6 @@ defined('TYPO3') || die();
 
 // https://docs.typo3.org/m/typo3/reference-coreapi/12.4/en-us/ExtensionArchitecture/BestPractises/ConfigurationFiles.html
 (function () {
-    // Register hook for simulating a user group
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['hook_checkEnableFields']['direct_mail'] = 'DirectMailTeam\\DirectMail\\Hooks\\TypoScriptFrontendController->simulateUsergroup';
-
     // Get extension configuration so we can use it here:
     $extConf = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class)->get('direct_mail');
 
