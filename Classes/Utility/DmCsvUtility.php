@@ -62,7 +62,9 @@ class DmCsvUtility
             $fieldOrder = [];
 
             foreach ($first as $v) {
-                list($fName, $fConf) = preg_split('|[\[\]]|', $v);
+                $parts = preg_split('|[\[\]]|', $v);
+                $fName = $parts[0] ?? '';
+                $fConf = $parts[1] ?? '';
                 $fName = trim($fName);
                 $fConf = trim($fConf);
                 $fieldOrder[] = [$fName, $fConf];
@@ -92,8 +94,8 @@ class DmCsvUtility
                 if (count($data) > 1 || $data[0]) {
                     // Traverse fieldOrder and map values over
                     foreach ($fieldOrder as $kk => $fN) {
-                        if ($fN[0]) {
-                            if ($fN[1]) {
+                        if (isset($fN[0])) {
+                            if (isset($fN[1])) {
                                 // If is true
                                 if (trim($data[$kk])) {
                                     if (substr($fN[1], 0, 1) == '=') {
@@ -119,7 +121,7 @@ class DmCsvUtility
      *
      * @param array $idArr Values to be put into csv
      */
-    public function downloadCSV(array $idArr)
+    public function downloadCSV(array $idArr): void
     {
         // https://api.typo3.org/master/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_utility_1_1_csv_utility.html
         $lines = [];

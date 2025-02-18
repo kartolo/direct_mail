@@ -86,7 +86,7 @@ class MailFromDraft extends AbstractTask
                 && (int)$draftRecord['type'] !== 1
                 && !$this->checkUrlBase((int)$draftRecord['page'])
             ) {
-                throw new \Exception('No site found in root line of page ' . $draftRecord['page'] . '!');
+                throw new \Exception('No site found in root line of page ' . $draftRecord['page'] . '!', 6078321898);
             }
 
             $this->dmailUid = GeneralUtility::makeInstance(SysDmailRepository::class)->insertDMailRecord($draftRecord);
@@ -105,7 +105,7 @@ class MailFromDraft extends AbstractTask
             $result = DirectMailUtility::fetchUrlContentsForDirectMailRecord($mailRecord, $defaultParams, true);
 
             if ($result['errors'] !== []) {
-                throw new \Exception('Failed to fetch contents: ' . implode(', ', $result['errors']));
+                throw new \Exception('Failed to fetch contents: ' . implode(', ', $result['errors']), 4132384402);
             }
 
             $mailRecord = BackendUtility::getRecord('sys_dmail', $this->dmailUid);
@@ -160,7 +160,7 @@ class MailFromDraft extends AbstractTask
      * @param string $hookMethod The hook method name
      * @param array $hookParams The hook params
      */
-    public function callHooks(string $hookMethod, array $hookParams)
+    public function callHooks(string $hookMethod, array $hookParams): void
     {
         foreach ($this->hookObjects as $hookObjectInstance) {
             $hookObjectInstance->$hookMethod($hookParams, $this);
@@ -172,7 +172,7 @@ class MailFromDraft extends AbstractTask
      *
      * @throws \Exception
      */
-    public function initializeHookObjects()
+    public function initializeHookObjects(): void
     {
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] ?? false)) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['direct_mail']['mailFromDraft'] as $hookObj) {

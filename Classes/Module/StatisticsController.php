@@ -16,17 +16,15 @@ use DirectMailTeam\DirectMail\Utility\TsUtility;
 use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Attribute\Controller;
+use Psr\Http\Message\UriInterface;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
-use TYPO3\CMS\Core\Http\HtmlResponse;
-use TYPO3\CMS\Core\Http\Uri;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Pagination\ArrayPaginator;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
@@ -37,6 +35,8 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 final class StatisticsController extends MainController
 {
     protected FlashMessageQueue $flashMessageQueue;
+
+    protected array $categories = [];
 
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
@@ -171,9 +171,9 @@ final class StatisticsController extends MainController
 
                     $itemsPerPage = 100; //@TODO
                     $paginator = GeneralUtility::makeInstance(
-                        ArrayPaginator::class, 
-                        $data['dataPageInfo'] ?? [], 
-                        $this->currentPageNumber, 
+                        ArrayPaginator::class,
+                        $data['dataPageInfo'] ?? [],
+                        $this->currentPageNumber,
                         $itemsPerPage
                     );
 
@@ -275,7 +275,7 @@ final class StatisticsController extends MainController
             foreach ($rows as $row) {
                 $data[] = [
                     'id'              => $row['uid'],
-                    'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+                    'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, IconSize::SMALL)->render(),
                     'url'             => $this->linkDMailRecord($row['uid']),
                     'subject'         => htmlspecialchars($row['subject']),
                     'subjectShort'    => htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 50)),
@@ -682,7 +682,7 @@ final class StatisticsController extends MainController
             }
         }
 
-        $iconAppsToolbarMenuSearch = $this->iconFactory->getIcon('apps-toolbar-menu-search', Icon::SIZE_SMALL)->render();
+        $iconAppsToolbarMenuSearch = $this->iconFactory->getIcon('apps-toolbar-menu-search', IconSize::SMALL)->render();
         $tblLines = [];
 
         foreach ($urlCounter['total'] as $id => $_) {
@@ -789,9 +789,9 @@ final class StatisticsController extends MainController
         );
 
         // The icons:
-        $listIcons = $this->iconFactory->getIcon('actions-system-list-open', Icon::SIZE_SMALL);
-        $csvIcons  = $this->iconFactory->getIcon('actions-document-export-csv', Icon::SIZE_SMALL);
-        $hideIcons = $this->iconFactory->getIcon('actions-lock', Icon::SIZE_SMALL);
+        $listIcons = $this->iconFactory->getIcon('actions-system-list-open', IconSize::SMALL);
+        $csvIcons  = $this->iconFactory->getIcon('actions-document-export-csv', IconSize::SMALL);
+        $hideIcons = $this->iconFactory->getIcon('actions-lock', IconSize::SMALL);
 
         // Table with Icon
         $responseResult = $sysDmailMaillogRepository->countReturnCode($row['uid']);
@@ -1308,10 +1308,10 @@ final class StatisticsController extends MainController
      *
      * @param int $uid Record uid to be link
      *
-     * @return Uri
+     * @return UriInterface
      * @throws RouteNotFoundException If the named route doesn't exist
      */
-    protected function linkDMailRecord(int $uid): Uri
+    protected function linkDMailRecord(int $uid): UriInterface
     {
         return $this->buildUriFromRoute(
             $this->moduleName,
@@ -1387,8 +1387,8 @@ final class StatisticsController extends MainController
         $res = GeneralUtility::makeInstance(SysDmailMaillogRepository::class)->selectSysDmailMaillogsCompactView($row['uid']);
 
         $data = [
-            'icon'          => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
-            'iconInfo'      => $this->iconFactory->getIcon('actions-document-info', Icon::SIZE_SMALL)->render(),
+            'icon'          => $this->iconFactory->getIconForRecord('sys_dmail', $row, IconSize::SMALL)->render(),
+            'iconInfo'      => $this->iconFactory->getIcon('actions-document-info', IconSize::SMALL)->render(),
             'subject'       => htmlspecialchars($row['subject']),
             'from_name'     => htmlspecialchars($row['from_name']),
             'from_email'    => htmlspecialchars($row['from_email']),

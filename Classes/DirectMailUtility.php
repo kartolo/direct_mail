@@ -332,7 +332,7 @@ class DirectMailUtility
                 $result['plainTextUrl'] = '';
             } else {
                 $urlParts = @parse_url($result['plainTextUrl']);
-                if (!$urlParts['scheme']) {
+                if (!($urlParts['scheme'] ?? null)) {
                     $result['plainTextUrl'] = 'http://' . $result['plainTextUrl'];
                 }
             }
@@ -344,7 +344,7 @@ class DirectMailUtility
                 $result['htmlUrl'] = '';
             } else {
                 $urlParts = @parse_url($result['htmlUrl']);
-                if (!$urlParts['scheme']) {
+                if (!($urlParts['scheme'] ?? null)) {
                     $result['htmlUrl'] = 'http://' . $result['htmlUrl'];
                 }
             }

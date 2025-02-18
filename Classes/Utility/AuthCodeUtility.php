@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DirectMailTeam\DirectMail\Utility;
 
+use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class AuthCodeUtility
@@ -17,8 +18,8 @@ class AuthCodeUtility
      * @return bool
      */
     public static function validateAuthCode(
-        string $submittedAuthCode, 
-        array $recipientRecord, 
+        string $submittedAuthCode,
+        array $recipientRecord,
         string $authcodeFieldList = 'uid'): bool
     {
         if (!empty($submittedAuthCode)) {
@@ -43,6 +44,6 @@ class AuthCodeUtility
         }
         $preKey = implode('|', $recCopy_temp);
 
-        return GeneralUtility::hmac($preKey);
+        return GeneralUtility::makeInstance(HashService::class)->hmac($preKey, 'changeMe');
     }
 }

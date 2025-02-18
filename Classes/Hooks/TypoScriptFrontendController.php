@@ -31,10 +31,10 @@ class TypoScriptFrontendController
      * a frontend usergroup is specified in the GET parameters, use this
      * group to simulate access to an access protected page with content to be sent
      */
-    public function simulateUsergroup($parameters, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $typoScriptFrontendController)
+    public function simulateUsergroup($parameters, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $typoScriptFrontendController): void
     {
-        $directMailFeGroup = (int)GeneralUtility::_GET('dmail_fe_group');
-        $accessToken = (string)GeneralUtility::_GET('access_token');
+        $directMailFeGroup = (int)($GLOBALS['TYPO3_REQUEST']->getQueryParams()['dmail_fe_group'] ?? null);
+        $accessToken = (string)($GLOBALS['TYPO3_REQUEST']->getQueryParams()['access_token'] ?? null);
         if ($directMailFeGroup > 0 && GeneralUtility::makeInstance(DmRegistryUtility::class)->validateAndRemoveAccessToken($accessToken)) {
             /** @var UserAspect $userAspect */
             $userAspect = $typoScriptFrontendController->getContext()->getAspect('frontend.user');

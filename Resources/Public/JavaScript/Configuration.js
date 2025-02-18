@@ -1,8 +1,9 @@
-require(['TYPO3/CMS/Core/Ajax/AjaxRequest'], function (AjaxRequest) {
-  "use strict";
+import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
+import DocumentService from '@typo3/core/document-service.js';
 
+DocumentService.ready().then(() => {
   var uid = document.getElementById('dm-page-uid');
-  if(uid === null) {
+  if (uid === null) {
     return;
   }
 
@@ -12,7 +13,7 @@ require(['TYPO3/CMS/Core/Ajax/AjaxRequest'], function (AjaxRequest) {
   };
 
   var config = {
-    'uid' : parseInt(uid.getAttribute('value'))
+    'uid': parseInt(uid.getAttribute('value'))
   };
   var value = null;
 
@@ -22,22 +23,20 @@ require(['TYPO3/CMS/Core/Ajax/AjaxRequest'], function (AjaxRequest) {
     config[el.getAttribute('name')] = null;
 
     el.addEventListener('change', (event) => {
-      if(el.tagName == 'SELECT') {
+      if (el.tagName == 'SELECT') {
         value = el.options[el.selectedIndex].value;
       }
       config[el.getAttribute('name')] = value;
     });
 
     el.addEventListener('input', (event) => {
-      if(el.tagName == 'INPUT') {
-        if(el.getAttribute('type') == 'text') {
+      if (el.tagName == 'INPUT') {
+        if (el.getAttribute('type') == 'text') {
           value = event.target.value.trim();
-        }
-        else if(el.getAttribute('type') == 'number') {
+        } else if (el.getAttribute('type') == 'number') {
           value = parseInt(event.target.value.trim());
-        }
-        else if(el.getAttribute('type') == 'checkbox') {
-          if(event.target.checked) {
+        } else if (el.getAttribute('type') == 'checkbox') {
+          if (event.target.checked) {
             value = parseInt(event.target.value.trim());
           }
         }
@@ -46,12 +45,12 @@ require(['TYPO3/CMS/Core/Ajax/AjaxRequest'], function (AjaxRequest) {
     });
   });
 
-  saveConfigurationButton.addEventListener('click', function() {
-      const randomNumber = Math.ceil(Math.random() * 32);
-      new AjaxRequest(TYPO3.settings.ajaxUrls.directmail_configuration_update)
-        .withQueryArguments({input: randomNumber})
-        .get()
-        .then(async function (response) {
+  saveConfigurationButton.addEventListener('click', function () {
+    const randomNumber = Math.ceil(Math.random() * 32);
+    new AjaxRequest(TYPO3.settings.ajaxUrls.directmail_configuration_update)
+      .withQueryArguments({input: randomNumber})
+      .get()
+      .then(async function (response) {
         const resolved = await response.resolve();
         console.log(resolved.result);
       });

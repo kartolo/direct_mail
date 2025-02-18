@@ -7,22 +7,16 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\Dmailer;
 use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailRepository;
-use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Utility\SchedulerUtility;
-use DirectMailTeam\DirectMail\Utility\Typo3ConfVarsUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Attribute\Controller;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Http\HtmlResponse;
-use TYPO3\CMS\Core\Http\Uri;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Pagination\ArrayPaginator;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
@@ -95,12 +89,12 @@ final class MailerEngineController extends MainController
 
                     $itemsPerPage = 100; //@TODO
                     $paginator = GeneralUtility::makeInstance(
-                        ArrayPaginator::class, 
-                        $mailerEngine['data'], 
-                        $this->currentPageNumber, 
+                        ArrayPaginator::class,
+                        $mailerEngine['data'],
+                        $this->currentPageNumber,
                         $itemsPerPage
                     );
-                     
+
                     $tasks = $this->getSchedulerTable();
                     $view->assignMultiple(
                         [
@@ -171,7 +165,7 @@ final class MailerEngineController extends MainController
      * Shows the status of the mailer engine.
      * TODO: Should really only show some entries, or provide a browsing interface.
      *
-     * @return	string		List of the mailing status
+     * @return array		List of the mailing status
      * @throws RouteNotFoundException If the named route doesn't exist
      */
     protected function mailerengine(): array
@@ -212,7 +206,7 @@ final class MailerEngineController extends MainController
             foreach ($rows as $row) {
                 $data[] = [
                     'uid'             => $row['uid'],
-                    'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, Icon::SIZE_SMALL)->render(),
+                    'icon'            => $this->iconFactory->getIconForRecord('sys_dmail', $row, IconSize::SMALL)->render(),
                     'subject'         => $this->linkDMailRecord(htmlspecialchars(GeneralUtility::fixed_lgd_cs($row['subject'], 100)), $row['uid']),
                     'scheduled'       => BackendUtility::datetime($row['scheduled']),
                     'scheduled_begin' => $row['scheduled_begin'] ? BackendUtility::datetime($row['scheduled_begin']) : '',

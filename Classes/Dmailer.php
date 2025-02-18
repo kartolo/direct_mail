@@ -391,6 +391,9 @@ class Dmailer implements LoggerAwareInterface
 
             $this->theParts['html']['content'] = '';
             if ($this->flagHtml && (($recipientRow['module_sys_dmail_html'] ?? false) || $tableNameChar == 'P')) {
+                if(!isset($recipientRow['sys_dmail_categories_list'])){
+                    $recipientRow['sys_dmail_categories_list'] = '';
+                }
                 $tempContentHTML = $this->getBoundaryParts($this->dmailer['boundaryParts_html'], $recipientRow['sys_dmail_categories_list']);
                 if ($this->mailHasContent) {
                     $this->theParts['html']['content'] = $this->replaceMailMarkers($tempContentHTML, $recipientRow, $additionalMarkers);
@@ -462,7 +465,7 @@ class Dmailer implements LoggerAwareInterface
      * filters out the elements that are inteded for categories not subscribed to.
      *
      * @param array $cArray Array of content split by dmail boundary
-     * @param string $userCategories The list of categories the user is subscribing to.
+     * @param mixed $userCategories The list of categories the user is subscribing to.
      *
      * @return	string		Content of the email, which the recipient subscribed
      */
@@ -475,7 +478,7 @@ class Dmailer implements LoggerAwareInterface
             $key = substr($cP[0], 1);
             $isSubscribed = false;
             $cP['mediaList'] = $cP['mediaList'] ?? '';
-            if (!$key || ((int)$userCategories == -1)) {
+            if (!$key || ($userCategories === -1)) {
                 $returnVal .= $cP[1];
                 //$this->mediaList .= $cP['mediaList'];
                 if ($cP[1]) {
@@ -685,11 +688,12 @@ class Dmailer implements LoggerAwareInterface
         }
 
         // Firstname must be more that 1 character
-        $recipRow['firstname'] = trim(strtok(trim($recipRow['name']), ' '));
+        $name = $recipRow['name'] ?? ''; // use empty string if null
+        $recipRow['firstname'] = trim(strtok(trim($name), ' '));
         if (strlen($recipRow['firstname']) < 2 || preg_match('|[^[:alnum:]]$|', $recipRow['firstname'])) {
             $recipRow['firstname'] = $recipRow['name'];
         }
-        if (!trim($recipRow['firstname'])) {
+        if (isset($recipRow['firstname']) && !trim($recipRow['firstname'])) {
             $recipRow['firstname'] = $recipRow['email'];
         }
         return $recipRow;

@@ -709,7 +709,7 @@ class SysDmailMaillogRepository extends MainRepository
             ])
             ->executeStatement();
 
-        return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
+        return (int)$queryBuilder->getConnection()->lastInsertId();
     }
 
     public function analyzeBounceMailAddToMailLog(
@@ -733,7 +733,7 @@ class SysDmailMaillogRepository extends MainRepository
             ])
             ->executeStatement();
 
-        return (int)$queryBuilder->getConnection()->lastInsertId($this->table);
+        return (int)$queryBuilder->getConnection()->lastInsertId();
     }
 
     /**
