@@ -211,10 +211,10 @@ class FeUsersRepository extends MainRepository
             ->from($mmTable, 'mm_1')
             ->leftJoin(
                 'mm_1',
-                $table,
-                $table,
+                $this->table,
+                $this->table,
                 $queryBuilder->expr()->eq(
-                    $table . '.uid',
+                    $this->table . '.uid',
                     $queryBuilder->quoteIdentifier('mm_1.uid_local')
                 )
             )
