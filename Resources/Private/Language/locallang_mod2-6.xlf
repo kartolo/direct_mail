@@ -371,7 +371,7 @@
 				<source>Job end</source>
 			</trans-unit>
 			<trans-unit id="dmailer_mid" resname="dmailer_mid">
-				<source>Job No:</source>
+				<source>Direct Mail Job No:</source>
 			</trans-unit>
 			<trans-unit id="dmailer_nothing_to_do" resname="dmailer_nothing_to_do">
 				<source>Nothing to do.</source>
