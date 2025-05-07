@@ -711,7 +711,7 @@ class Dmailer implements LoggerAwareInterface
         switch ($key) {
             case 'begin':
                 $subject .= $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_job_begin');
-                $message = $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:');
+                $message = $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_job_begin');
                 break;
             case 'end':
                 $subject .= $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_job_end');
