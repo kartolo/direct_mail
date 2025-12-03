@@ -113,9 +113,9 @@ class DirectMail
     public $siteUrl;
     public $labelsList = 'header_date_prefix,header_link_prefix,uploads_header,media_header,images_header,image_link_prefix,caption_header,unrendered_content,link_prefix';
 
-    public function __construct($_ = null, TypoScriptFrontendController $frontendController = null)
+    public function __construct(?string $_ = '', ?TypoScriptFrontendController $frontendController)
     {
-        $this->frontendController = $frontendController ?: $GLOBALS['TSFE'];
+        $this->frontendController = $frontendController ?? $GLOBALS['TSFE'];
         $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
         // Setting piVars:
         if ($this->prefixId) {
