@@ -39,7 +39,7 @@ class SelectCategories
         $lang = $this->getLang();
 
         $site = $params['site'];
-        $languages = $site->getAllLanguages();
+        $languages = $site->getAllLanguages() ?? [];
         foreach($languages as $language) {
             if($language->getLocale()->getLanguageCode() == $lang) {
                 $sysLanguageUid = $language->getLanguageId();

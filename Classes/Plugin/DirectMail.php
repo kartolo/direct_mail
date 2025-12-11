@@ -115,7 +115,7 @@ class DirectMail
 
     public function __construct($_ = null, TypoScriptFrontendController $frontendController = null)
     {
-        $this->frontendController = $frontendController ?: $GLOBALS['TSFE'];
+        $this->frontendController = $frontendController ?? $GLOBALS['TSFE'];
         $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
         // Setting piVars:
         if ($this->prefixId) {
@@ -741,11 +741,11 @@ class DirectMail
 
         // create the image, imagelink and image caption block
         foreach ($imagesArray as $k => $image) {
-            if (strlen(trim($image['image'])) > 0) {
+            if (array_key_exists('image', $image) && strlen(trim($image['image'])) > 0) {
                 $lines[] = $image['image'];
                 if ($image['link']) {
                     $theLink = $this->getLink($image['link']);
-                    if ($theLink) {
+                    if (array_key_exists($fieldname . '.', $this->conf) && $theLink) {
                         $lines[] = $this->getString($this->conf[$fieldname . '.']['linkPrefix']) . $theLink;
                     }
                 }
@@ -758,7 +758,7 @@ class DirectMail
                 $imageExists = true;
             }
         }
-        if ($this->conf[$fieldname . '.']['header'] && $imageExists) {
+        if (array_key_exists($fieldname . '.', $this->conf) && $this->conf[$fieldname . '.']['header'] && $imageExists) {
             array_unshift($lines, $this->getString($this->conf[$fieldname . '.']['header']));
         }
 
@@ -825,7 +825,7 @@ class DirectMail
      */
     public function userProcess(string $mConfKey, $passVar)
     {
-        if ($this->conf[$mConfKey]) {
+        if ($this->conf[$mConfKey] ?? false) {
             $funcConf = $this->conf[$mConfKey . '.'];
             $funcConf['parentObj']=&$this;
             $passVar = $GLOBALS['TSFE']->cObj->callUserFunction(

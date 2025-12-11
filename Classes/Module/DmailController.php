@@ -1219,7 +1219,7 @@ final class DmailController extends MainController
         } elseif ($this->cmd == DmailCmdEnum::SendMailTest->value) {
             // step 4, sending test personalized test emails
             // setting Testmail flag
-            $htmlmail->setTestmail((bool)$this->params['testmail']);
+            $htmlmail->setTestmail((bool)($this->params['testmail'] ?? false));
 
             if ($this->tt_address_uid) {
                 // personalized to tt_address
