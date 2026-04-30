@@ -28,6 +28,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -325,7 +326,7 @@ class JumpurlController implements MiddlewareInterface
      */
     protected function calculateJumpUrlHash(string $targetUrl): string
     {
-        return GeneralUtility::hmac($targetUrl, 'jumpurl');
+        return GeneralUtility::makeInstance(HashService::class)->hmac($targetUrl, 'jumpurl');
     }
 
     /**

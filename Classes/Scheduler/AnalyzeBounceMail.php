@@ -19,6 +19,7 @@ use DirectMailTeam\DirectMail\Repository\SysDmailMaillogRepository;
 use DirectMailTeam\DirectMail\Utility\ReadmailUtility;
 use Fetch\Message;
 use Fetch\Server;
+use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -78,7 +79,7 @@ class AnalyzeBounceMail extends AbstractTask
     /**
      * @param int $port
      */
-    public function setPort($port)
+    public function setPort($port): void
     {
         $this->port = $port;
     }
@@ -94,7 +95,7 @@ class AnalyzeBounceMail extends AbstractTask
     /**
      * @param string $user
      */
-    public function setUser($user)
+    public function setUser($user): void
     {
         $this->user = $user;
     }
@@ -110,7 +111,7 @@ class AnalyzeBounceMail extends AbstractTask
     /**
      * @param string $password
      */
-    public function setPassword($password)
+    public function setPassword($password): void
     {
         $this->password = $password;
     }
@@ -126,7 +127,7 @@ class AnalyzeBounceMail extends AbstractTask
     /**
      * @param string $service
      */
-    public function setService($service)
+    public function setService($service): void
     {
         $this->service = $service;
     }
@@ -142,7 +143,7 @@ class AnalyzeBounceMail extends AbstractTask
     /**
      * @param mixed $server
      */
-    public function setServer($server)
+    public function setServer($server): void
     {
         $this->server = $server;
     }
@@ -158,7 +159,7 @@ class AnalyzeBounceMail extends AbstractTask
     /**
      * @param mixed $maxProcessed
      */
-    public function setMaxProcessed($maxProcessed)
+    public function setMaxProcessed($maxProcessed): void
     {
         $this->maxProcessed = (int)$maxProcessed;
     }
@@ -255,7 +256,7 @@ class AnalyzeBounceMail extends AbstractTask
                     'return_code' => (int)$cp['reason'],
                 ];
                 $connection->insert('sys_dmail_maillog', $insertFields);
-                $sql_insert_id = $connection->lastInsertId('sys_dmail_maillog');
+                $sql_insert_id = $connection->lastInsertId();
                 return (bool)$sql_insert_id;
             } catch (\Doctrine\DBAL\DBALException $e) {
                 // Log $e->getMessage();
@@ -300,6 +301,6 @@ class AnalyzeBounceMail extends AbstractTask
      */
     private function getEXEC_TIME()
     {
-        return $GLOBALS['EXEC_TIME'];
+        return GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp');
     }
 }

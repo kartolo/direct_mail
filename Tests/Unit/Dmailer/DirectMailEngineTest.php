@@ -26,7 +26,7 @@ class DirectMailEngineTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
      * @test
      * @dataProvider extractHyperLinksDataProvider
      */
-    public function test_extractHyperLinks($content, $path, $expected)
+    public function test_extractHyperLinks($content, $path, $expected): void
     {
         // This test also tests "tag_regex", "get_tag_attributes" and "absRef"
         // TODO: Write units tests also for those methods and provide mocked methods here.

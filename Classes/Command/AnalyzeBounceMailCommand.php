@@ -22,7 +22,7 @@ class AnalyzeBounceMailCommand extends Command
     /**
      * Configure the command by defining the name, options and arguments
      */
-    public function configure()
+    public function configure(): void
     {
         $this->setDescription('This command will get bounce mail from the configured mailbox')
             ->addOption(

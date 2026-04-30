@@ -391,7 +391,7 @@ class SysDmailRepository extends MainRepository
     {
         $connection = $this->getConnection($this->table);
         $connection->insert($this->table, $dmRecord);
-        return (int)$connection->lastInsertId($this->table);
+        return (int)$connection->lastInsertId();
     }
 
     public function updateDMailRecord(int $dmailUid, array $dmRecord): int

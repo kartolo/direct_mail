@@ -119,7 +119,7 @@ class DmCsvUtility
      *
      * @param array $idArr Values to be put into csv
      */
-    public function downloadCSV(array $idArr)
+    public function downloadCSV(array $idArr): void
     {
         // https://api.typo3.org/master/class_t_y_p_o3_1_1_c_m_s_1_1_core_1_1_utility_1_1_csv_utility.html
         $lines = [];

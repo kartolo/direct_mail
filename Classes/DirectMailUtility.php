@@ -332,7 +332,7 @@ class DirectMailUtility
                 $result['plainTextUrl'] = '';
             } else {
                 $urlParts = @parse_url($result['plainTextUrl']);
-                if (!$urlParts['scheme']) {
+                if (!($urlParts['scheme'] ?? null)) {
                     $result['plainTextUrl'] = 'http://' . $result['plainTextUrl'];
                 }
             }
@@ -344,7 +344,7 @@ class DirectMailUtility
                 $result['htmlUrl'] = '';
             } else {
                 $urlParts = @parse_url($result['htmlUrl']);
-                if (!$urlParts['scheme']) {
+                if (!($urlParts['scheme'] ?? null)) {
                     $result['htmlUrl'] = 'http://' . $result['htmlUrl'];
                 }
             }
@@ -365,6 +365,24 @@ class DirectMailUtility
         int $zeroValue = 0
     ): int {
         return MathUtility::forceIntegerInRange($theInt, $min, $max, $zeroValue);
+    }
+
+    /**
+     * Converts a string between character sets.
+     */
+    public static function convertCharset(string $value, string $fromCharset, string $toCharset): string
+    {
+        $fromCharset = strtolower($fromCharset);
+        $toCharset = strtolower($toCharset);
+        if ($fromCharset === $toCharset) {
+            return $value;
+        }
+
+        try {
+            return mb_convert_encoding($value, $toCharset, $fromCharset);
+        } catch (\ValueError) {
+            return $value;
+        }
     }
 
     /**

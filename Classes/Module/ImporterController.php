@@ -17,6 +17,7 @@ namespace DirectMailTeam\DirectMail\Module;
  * The TYPO3 project - inspiring people to share!
  */
 
+use DirectMailTeam\DirectMail\DirectMailUtility;
 use DirectMailTeam\DirectMail\Event\ImporterOutputEvent;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Repository\SysDmailCategoryRepository;
@@ -29,15 +30,16 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
-use TYPO3\CMS\Core\Resource\DuplicationBehavior;
+use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
+use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\SysLog\Type as SystemLogType;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -931,21 +933,19 @@ final class ImporterController extends MainController
      * @param array $data Contains values to convert
      *
      * @return	array	array of charset-converted values
-     * @see \TYPO3\CMS\Core\Charset\CharsetConverter::conv[]
      */
     public function convCharset(array $data): array
     {
         $dbCharset = 'utf-8';
         if ($dbCharset != $this->indata['charset']) {
-            $converter = GeneralUtility::makeInstance(CharsetConverter::class);
             foreach ($data as $k => $v) {
                 if(is_array($v)) {
                     foreach($v as $k2 => $val) {
-                        $data[$k][$k2] = $converter->conv($val, strtolower($this->indata['charset']), $dbCharset);
+                        $data[$k][$k2] = DirectMailUtility::convertCharset($val, strtolower($this->indata['charset']), $dbCharset);
                     }
                 }
                 else {
-                    $data[$k] = $converter->conv($v, strtolower($this->indata['charset']), $dbCharset);
+                    $data[$k] = DirectMailUtility::convertCharset($v, strtolower($this->indata['charset']), $dbCharset);
                 }
             }
         }
@@ -966,7 +966,6 @@ final class ImporterController extends MainController
         /* @var $extendedFileUtility ExtendedFileUtility */
         $extendedFileUtility = GeneralUtility::makeInstance(ExtendedFileUtility::class);
         $extendedFileUtility->setActionPermissions($userPermissions);
-        // https://docs.typo3.org/c/typo3/cms-core/12.4/en-us/Changelog/7.4/Deprecation-63603-ExtendedFileUtilitydontCheckForUniqueIsDeprecated.html
         $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::REPLACE);
 
         if (empty($this->indata['newFile'])) {
@@ -975,7 +974,7 @@ final class ImporterController extends MainController
             $httpHost = $this->getRequestHostOnly();
 
             if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
-                $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
+                $this->beUser->writeLog(SystemLogType::FILE, 0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
             } else {
                 // new file
                 $file['newfile']['target'] = $this->userTempFolder();
@@ -1023,10 +1022,10 @@ final class ImporterController extends MainController
         $httpHost = $this->getRequestHostOnly();
 
         if ($httpHost != $refInfo['host'] && !$GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']) {
-            $extendedFileUtility->writeLog(0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
+            $this->beUser->writeLog(SystemLogType::FILE, 0, 2, 1, 'Referer host "%s" and server host "%s" did not match!', [$refInfo['host'], $httpHost]);
         } else {
             $extendedFileUtility->start($this->csvFile);
-            $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::cast(DuplicationBehavior::REPLACE));
+            $extendedFileUtility->setExistingFilesConflictMode(DuplicationBehavior::REPLACE);
             $tempFile = $extendedFileUtility->func_upload($this->csvFile['upload']['1']);
 
             if (is_object($tempFile[0])) {
@@ -1075,8 +1074,9 @@ final class ImporterController extends MainController
      */
     public function userTempFolder(): string
     {
+        $defaultUploadFolderResolver = GeneralUtility::makeInstance(DefaultUploadFolderResolver::class);
         /** @var \TYPO3\CMS\Core\Resource\Folder $folder */
-        $folder = $this->beUser->getDefaultUploadTemporaryFolder();
+        $folder = $defaultUploadFolderResolver->resolve($this->beUser);
         return $folder->getPublicUrl();
     }
 

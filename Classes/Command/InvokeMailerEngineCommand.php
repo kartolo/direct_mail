@@ -41,7 +41,7 @@ class InvokeMailerEngineCommand extends Command
     /**
      * Configure the command by defining the name, options and arguments
      */
-    public function configure()
+    public function configure(): void
     {
         $this->setDescription('Invoke Mailer Engine of EXT:directmail');
         $this->setHelp('

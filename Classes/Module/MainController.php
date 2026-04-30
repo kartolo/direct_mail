@@ -7,7 +7,8 @@ namespace DirectMailTeam\DirectMail\Module;
 use DirectMailTeam\DirectMail\Repository\PagesRepository;
 use DirectMailTeam\DirectMail\Utility\TsUtility;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Attribute\Controller;
+use Psr\Http\Message\UriInterface;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
@@ -21,6 +22,7 @@ use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
@@ -30,7 +32,9 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
+use TYPO3\CMS\Core\View\ViewInterface;
 
 class MainController
 {
@@ -40,11 +44,9 @@ class MainController
      * @var ModuleTemplate
      */
     protected $moduleTemplate;
-    #protected IconFactory $iconFactory;
-    #protected PageRenderer $pageRenderer;
 
     /**
-     * @var StandaloneView
+     * @var ViewInterface
      */
     protected $view;
 
@@ -80,13 +82,9 @@ class MainController
      */
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
-        # $moduleTemplate = null,
         protected readonly IconFactory $iconFactory,
         protected readonly PageRenderer $pageRenderer
     ) {
-        #$this->moduleTemplate = $moduleTemplate ?? GeneralUtility::makeInstance(ModuleTemplate::class);
-        #$this->iconFactory = $iconFactory ?? GeneralUtility::makeInstance(IconFactory::class);
-        #$this->pageRenderer = $pageRenderer ?? GeneralUtility::makeInstance(PageRenderer::class);
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf');
         $this->getLanguageService()->includeLLFile('EXT:direct_mail/Resources/Private/Language/locallang_csh_sysdmail.xlf');
     }
@@ -127,15 +125,18 @@ class MainController
 
     /**
      * Configure template paths for your backend module
-     * @return StandaloneView
+     * @return ViewInterface
      */
-    protected function configureTemplatePaths(string $templateName): StandaloneView
+    protected function configureTemplatePaths(string $templateName): ViewInterface
     {
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setTemplateRootPaths(['EXT:direct_mail/Resources/Private/Templates/']);
-        $view->setPartialRootPaths(['EXT:direct_mail/Resources/Private/Partials/']);
-        $view->setLayoutRootPaths(['EXT:direct_mail/Resources/Private/Layouts/']);
-        $view->setTemplate($templateName);
+        $view = GeneralUtility::makeInstance(ViewFactoryInterface::class)->create(
+            new ViewFactoryData(
+                templatePathAndFilename: 'EXT:direct_mail/Resources/Private/Templates/' . $templateName . '.html',
+                partialRootPaths: ['EXT:direct_mail/Resources/Private/Partials/'],
+                layoutRootPaths: ['EXT:direct_mail/Resources/Private/Layouts/']
+            )
+        );
+
         return $view;
     }
 
@@ -228,7 +229,13 @@ class MainController
         return GeneralUtility::makeInstance(DataHandler::class);
     }
 
-    protected function buildUriFromRoute(string $name, array $parameters = []): Uri
+    /**
+     * @param string $name
+     * @param array $parameters
+     * @return UriInterface
+     * @throws RouteNotFoundException
+     */
+    protected function buildUriFromRoute(string $name, array $parameters = []): UriInterface
     {
         /** @var UriBuilder $uriBuilder */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
@@ -303,7 +310,7 @@ class MainController
 
     protected function getIconActionsOpen(): Icon
     {
-        return $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL);
+        return $this->iconFactory->getIcon('actions-open', IconSize::SMALL);
     }
 
     /**
@@ -314,14 +321,14 @@ class MainController
      *
      * @return	array		list of record
      */
-    protected function getRecordList(array $listArr, string $table)
+    protected function getRecordList(array $listArr, string $table): array
     {
         $lang = $this->getLanguageService();
         $lllFile = 'LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf';
         $output = [
             'title' => $lang->sL($lllFile . ':dmail_number_records'),
             'editLinkTitle' => $lang->sL($lllFile . ':dmail_edit'),
-            'actionsOpen' => $this->iconFactory->getIcon('actions-open', Icon::SIZE_SMALL),
+            'actionsOpen' => $this->iconFactory->getIcon('actions-open', IconSize::SMALL),
             'counter' => is_array($listArr) ? count($listArr) : 0,
             'rows' => [],
         ];
@@ -374,7 +381,7 @@ class MainController
      * generate edit link for records
      * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Backend/EditLinks.html
      *
-     * @param $params
+     * @param array $params
      * @return Uri
      * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
@@ -394,14 +401,13 @@ class MainController
     protected function rearrangePlainMails(array $plainMails): array
     {
         $out = [];
-        if (is_array($plainMails)) {
-            $c = 0;
-            foreach ($plainMails as $v) {
-                $out[$c]['email'] = trim($v);
-                $out[$c]['name'] = '';
-                $c++;
-            }
+        $c = 0;
+        foreach ($plainMails as $v) {
+            $out[$c]['email'] = trim($v);
+            $out[$c]['name'] = '';
+            $c++;
         }
+
         return $out;
     }
 
@@ -412,7 +418,7 @@ class MainController
      *
      * @return array Cleaned array
      */
-    protected function cleanPlainList(array $plainlist)
+    protected function cleanPlainList(array $plainlist): array
     {
         /**
          * $plainlist is a multidimensional array.
@@ -438,7 +444,7 @@ class MainController
      * @param string $perms_clause Select query clause
      * @return array the page ID, recursively
      */
-    protected function getRecursiveSelect($id, $perms_clause)
+    protected function getRecursiveSelect(int $id, string $perms_clause): array
     {
         $getLevels = 10000;
         // Finding tree and offer setting of values recursively.
