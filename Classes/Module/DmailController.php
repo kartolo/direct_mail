@@ -1516,7 +1516,7 @@ final class DmailController extends MainController
         $idLists = [];
         foreach ($groups as $group) {
             // Testing to see if group ID is a valid integer, if not - skip to next group ID
-            $group = MathUtility::convertToPositiveInteger($group);
+            $group = max(0, (int)$group);
             if (!$group) {
                 continue;
             }
@@ -1665,7 +1665,7 @@ final class DmailController extends MainController
                     case 4:
                         $groups = array_unique(GeneralUtility::makeInstance(SysDmailGroupRepository::class)->getMailGroups($mailGroup['mail_groups'] ?? '', [$mailGroup['uid']], $this->perms_clause));
                         foreach ($groups as $group) {
-                            $group = MathUtility::convertToPositiveInteger($group);
+                            $group = max(0, (int)$group);
                             if (!$group) {
                                 continue;
                             }
@@ -1830,7 +1830,6 @@ final class DmailController extends MainController
                     'icon' => $this->iconFactory->getIconForRecord('tt_content', $row, IconSize::SMALL),
                     'header' => $row['header'],
                     'CType' => $row['CType'],
-                    'list_type' => $row['list_type'],
                     'bodytext' => empty($row['bodytext']) ? '' : GeneralUtility::fixed_lgd_cs(strip_tags($row['bodytext']), 200),
                     'color' => $row['module_sys_dmail_category'] ? 'red' : 'green',
                     'labelOnlyAll' => $row['module_sys_dmail_category'] ? $this->languageService->sL($this->lllFile . ':nl_l_ONLY') : $this->languageService->sL($this->lllFile . ':nl_l_ALL'),

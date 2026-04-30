@@ -32,7 +32,9 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
+use TYPO3\CMS\Core\View\ViewInterface;
 
 class MainController
 {
@@ -44,7 +46,7 @@ class MainController
     protected $moduleTemplate;
 
     /**
-     * @var StandaloneView
+     * @var ViewInterface
      */
     protected $view;
 
@@ -123,15 +125,18 @@ class MainController
 
     /**
      * Configure template paths for your backend module
-     * @return StandaloneView
+     * @return ViewInterface
      */
-    protected function configureTemplatePaths(string $templateName): StandaloneView
+    protected function configureTemplatePaths(string $templateName): ViewInterface
     {
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setTemplateRootPaths(['EXT:direct_mail/Resources/Private/Templates/']);
-        $view->setPartialRootPaths(['EXT:direct_mail/Resources/Private/Partials/']);
-        $view->setLayoutRootPaths(['EXT:direct_mail/Resources/Private/Layouts/']);
-        $view->setTemplate($templateName);
+        $view = GeneralUtility::makeInstance(ViewFactoryInterface::class)->create(
+            new ViewFactoryData(
+                templatePathAndFilename: 'EXT:direct_mail/Resources/Private/Templates/' . $templateName . '.html',
+                partialRootPaths: ['EXT:direct_mail/Resources/Private/Partials/'],
+                layoutRootPaths: ['EXT:direct_mail/Resources/Private/Layouts/']
+            )
+        );
+
         return $view;
     }
 

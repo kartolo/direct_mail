@@ -50,12 +50,16 @@ class SelectCategories
             $table = (string)$params['config']['itemsProcFunc_config']['table'];
             $tempRepository = GeneralUtility::makeInstance(TempRepository::class);
             foreach ($params['items'] as $k => $item) {
-                $rows = $tempRepository->selectRowsByUid($table, (int)$item[1]);
+                $rows = $tempRepository->selectRowsByUid($table, (int)($item['value'] ?? $item[1] ?? 0));
                 if (is_array($rows)) {
                     foreach ($rows as $rowCat) {
                         if ($localizedRowCat = $tempRepository->getRecordOverlay($table, $rowCat, $sysLanguageUid)) {
                             if(count($localizedRowCat)) {
-                                $params['items'][$k][0] = $localizedRowCat['category'];
+                                if (array_key_exists('label', $params['items'][$k])) {
+                                    $params['items'][$k]['label'] = $localizedRowCat['category'];
+                                } else {
+                                    $params['items'][$k][0] = $localizedRowCat['category'];
+                                }
                             }
                         }
                     }

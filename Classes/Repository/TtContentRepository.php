@@ -18,7 +18,7 @@ class TtContentRepository extends MainRepository
         $queryBuilder = $this->getQueryBuilder($this->table);
 
         return $queryBuilder
-        ->select('colPos', 'CType', 'list_type', 'uid', 'pid', 'header', 'bodytext', 'module_sys_dmail_category')
+        ->select('colPos', 'CType', 'uid', 'pid', 'header', 'bodytext', 'module_sys_dmail_category')
         ->from($this->table)
         ->where(
             $queryBuilder->expr()->eq(

@@ -30,6 +30,7 @@ namespace DirectMailTeam\DirectMail\Plugin;
 
 use DirectMailTeam\DirectMail\DirectMailUtility;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Utility\MailUtility;
 use TYPO3\CMS\Frontend\DataProcessing\FilesProcessor;
@@ -51,7 +52,6 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * https://docs.typo3.org/m/typo3/reference-coreapi/12.4/en-us/ExtensionArchitecture/HowTo/FrontendPlugin/AbstractPlugin.html
@@ -105,7 +105,6 @@ class DirectMail
     public $pi_autoCacheEn = false;
     public $conf = [];
     public $pi_tmpPageId = 0;
-    protected $frontendController;
     protected $request;
     protected $templateService;
 
@@ -115,10 +114,9 @@ class DirectMail
     public $siteUrl;
     public $labelsList = 'header_date_prefix,header_link_prefix,uploads_header,media_header,images_header,image_link_prefix,caption_header,unrendered_content,link_prefix';
 
-    public function __construct($_ = null, TypoScriptFrontendController $frontendController = null, ServerRequestInterface $request = null)
+    public function __construct(?ServerRequestInterface $request = null)
     {
-        $this->request = $request ?: $GLOBALS['TYPO3_REQUEST'];
-        $this->frontendController = $frontendController ?: $GLOBALS['TSFE'];
+        $this->request = $request ?? $GLOBALS['TYPO3_REQUEST'];
         $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
         // Setting piVars:
         if ($this->prefixId) {
@@ -155,6 +153,7 @@ class DirectMail
      *
      * @return	string
      */
+    #[AsAllowedCallable]
     public function main(string $content, array $conf): string
     {
         global $TYPO3_CONF_VARS;
@@ -832,7 +831,7 @@ class DirectMail
         if ($this->conf[$mConfKey]) {
             $funcConf = $this->conf[$mConfKey . '.'];
             $funcConf['parentObj']=&$this;
-            $passVar = $GLOBALS['TSFE']->cObj->callUserFunction(
+            $passVar = $this->cObj->callUserFunction(
                 $this->conf[$mConfKey],
                 $funcConf,
                 $passVar
@@ -851,6 +850,7 @@ class DirectMail
      * @return	string		Processed output.
      * @see parseBody()
      */
+    #[AsAllowedCallable]
     public function atagToHttp(string $content, array $conf): string
     {
         $this->conf = $conf;
@@ -875,6 +875,7 @@ class DirectMail
      *
      * @return	string		Processed output.
      */
+    #[AsAllowedCallable]
     public function typolist(string $content, array $conf): string
     {
         $this->conf = $this->cObj->mergeTSRef($conf, 'bulletlist');
@@ -892,6 +893,7 @@ class DirectMail
      *
      * @return	string		Processed output.
      */
+    #[AsAllowedCallable]
     public function typohead(string $content, array $conf): string
     {
         $this->conf = $this->cObj->mergeTSRef($conf, 'header');
@@ -913,6 +915,7 @@ class DirectMail
      *
      * @return	string		Processed output.
      */
+    #[AsAllowedCallable]
     public function typocode(string $content, array $conf): string
     {
         // Nothing is really done here...

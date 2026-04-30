@@ -1,1 +1,7 @@
 templates.typo3/cms-dashboard.110 = directmailteam/direct-mail:Resources/Private/
+
+# Category fields are disabled by default in backend forms.
+TCEFORM.tt_content.module_sys_dmail_category.disabled = 1
+TCEFORM.tt_address.module_sys_dmail_category.disabled = 1
+TCEFORM.fe_users.module_sys_dmail_category.disabled = 1
+TCEFORM.sys_dmail_group.select_categories.disabled = 1

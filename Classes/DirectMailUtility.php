@@ -368,6 +368,24 @@ class DirectMailUtility
     }
 
     /**
+     * Converts a string between character sets.
+     */
+    public static function convertCharset(string $value, string $fromCharset, string $toCharset): string
+    {
+        $fromCharset = strtolower($fromCharset);
+        $toCharset = strtolower($toCharset);
+        if ($fromCharset === $toCharset) {
+            return $value;
+        }
+
+        try {
+            return mb_convert_encoding($value, $toCharset, $fromCharset);
+        } catch (\ValueError) {
+            return $value;
+        }
+    }
+
+    /**
      * Takes a clear-text message body for a plain text email, finds all 'http://' links and if they are longer than 76 chars they are converted to a shorter URL with a hash parameter.
      * The real parameter is stored in the database and the hash-parameter/URL will be redirected to the real parameter when the link is clicked.
      * This function is about preserving long links in messages.

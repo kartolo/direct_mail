@@ -22,10 +22,10 @@
     "issues": "https://github.com/kartolo/direct_mail/issues"
   },
   "require": {
-    "typo3/cms-core": "^13.4",
-    "typo3/cms-dashboard": "^13.4",
+    "typo3/cms-core": "^14.3",
+    "typo3/cms-dashboard": "*",
     "php": "^8.2 || ^8.3 || ^8.4",
-    "friendsoftypo3/tt-address": "^9.0"
+    "friendsoftypo3/tt-address": "^10.0"
   },
   "require-dev": {
     "roave/security-advisories": "dev-master"
